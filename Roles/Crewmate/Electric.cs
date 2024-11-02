@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Crewmate
@@ -49,6 +50,9 @@ namespace EHR.Crewmate
                 Main.AllPlayerSpeed[target.PlayerId] = beforeSpeed;
                 target.MarkDirtySettings();
             }, FreezeDuration.GetFloat(), "Electric Freeze Reset");
+
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
     }
 }

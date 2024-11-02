@@ -173,6 +173,9 @@ namespace EHR.Neutral
                     target.MarkDirtySettings();
                     RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
                 }, SpiritFreezeTime.GetFloat(), "SpiritcallerFreezeTime");
+
+                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.TooCold.CompleteAfterGameEnd();
             }
         }
 

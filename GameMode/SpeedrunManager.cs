@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
@@ -149,7 +150,13 @@ namespace EHR
             {
                 if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted) return;
 
-                if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0) __instance.Suicide();
+                if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
+                {
+                    __instance.Suicide();
+
+                    if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.OutOfTime.Complete();
+                }
 
                 long now = Utils.TimeStamp;
                 if (LastUpdate == now) return;

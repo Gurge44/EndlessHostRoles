@@ -130,6 +130,9 @@ namespace EHR.Neutral
                         pc.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(PlayerIdList[0]));
                         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                         ResetBomb();
+
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            Achievements.Type.OutOfTime.Complete();
                     }
                 }
             }, BombExplodeCooldown.GetFloat(), "AgitaterBombKill");

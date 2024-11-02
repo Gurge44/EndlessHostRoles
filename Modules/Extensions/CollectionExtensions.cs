@@ -257,10 +257,29 @@ namespace EHR
             return false;
         }
 
+        #region ToValidPlayers
+
+        /// <summary>
+        /// Converts a collection of player IDs to a collection of <see cref="PlayerControl" /> instances
+        /// </summary>
+        /// <param name="playerIds"></param>
+        /// <returns></returns>
         public static IEnumerable<PlayerControl> ToValidPlayers(this IEnumerable<byte> playerIds)
         {
             return playerIds.Select(Utils.GetPlayer).Where(x => x != null);
         }
+
+        /// <summary>
+        /// Converts a list of player IDs to a collection of <see cref="PlayerControl" /> instances
+        /// </summary>
+        /// <param name="playerIds"></param>
+        /// <returns></returns>
+        public static List<PlayerControl> ToValidPlayers(this List<byte> playerIds)
+        {
+            return playerIds.ConvertAll(Utils.GetPlayer).FindAll(x => x != null);
+        }
+
+        #endregion
 
         #region Without
 

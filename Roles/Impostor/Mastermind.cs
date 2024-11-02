@@ -129,6 +129,9 @@ namespace EHR.Impostor
                     player.Suicide(realKiller: MastermindPC);
                     RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
                     player.RpcChangeRoleBasis(player.GetCustomRole());
+
+                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.OutOfTime.Complete();
                 }
 
                 long time = TimeLimit.GetInt() - (TimeStamp - x.Value);

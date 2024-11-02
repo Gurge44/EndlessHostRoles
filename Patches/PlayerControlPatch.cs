@@ -151,6 +151,12 @@ namespace EHR
                 PlayerControl tempTarget = target;
                 target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+
+                if (PlayerControl.LocalPlayer.PlayerId == target.PlayerId)
+                {
+                    Detour.TotalRedirections++;
+                    if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+                }
             }
 
             if (target.Data == null
@@ -713,6 +719,8 @@ namespace EHR
                 SyncAllSettings();
                 NotifyRoles(ForceLoop: true);
             }
+
+            Statistics.OnMurder(killer, target);
         }
     }
 
@@ -829,7 +837,12 @@ namespace EHR
                 shapeshifter.AddAbilityCD();
             }
 
-            return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
+
+            bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
+
+            Statistics.OnShapeshift(shapeshifter, target, shapeshifting, animated);
+
+            return animated;
         }
 
         // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.

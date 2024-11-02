@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -222,7 +223,22 @@ namespace EHR.Neutral
 
             if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);
 
-            if (role.GetRoleTypes() == RoleTypes.Engineer) WasAmnesiac.Add(amnesiac.PlayerId);
+            if (role.GetRoleTypes() == RoleTypes.Engineer)
+                WasAmnesiac.Add(amnesiac.PlayerId);
+
+            if (amnesiac.PlayerId != PlayerControl.LocalPlayer.PlayerId) return;
+
+            switch (role)
+            {
+                case CustomRoles.Virus:
+                case CustomRoles.Succubus:
+                    Achievements.Type.UnderNewManagement.Complete();
+                    break;
+                case CustomRoles.Deathknight:
+                case CustomRoles.Sidekick:
+                    Achievements.Type.FirstDayOnTheJob.Complete();
+                    break;
+            }
         }
 
         public override void OnReportDeadBody()

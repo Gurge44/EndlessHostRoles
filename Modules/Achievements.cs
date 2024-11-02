@@ -1,70 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace EHR.Modules
 {
     public static class Achievements
     {
-        public static HashSet<Type> WaitingAchievements = [];
-        public static HashSet<Type> CompletedAchievements = [];
-
-        public static void Complete(this Type type)
-        {
-            if (!CompletedAchievements.Add(type)) return;
-            
-            if (type.IsDisplayedAfterGameEnd())
-            {
-                WaitingAchievements.Add(type);
-                return;
-            }
-
-            ShowAchievementCompletion(type);
-        }
-
-        public static void CompleteAfterDelay(this Type type, float delay)
-        {
-            if (!CompletedAchievements.Add(type)) return;
-            Main.Instance.StartCoroutine(CompleteAchievementAfterDelayAsync());
-            return;
-            
-            System.Collections.IEnumerator CompleteAchievementAfterDelayAsync()
-            {
-                float timer = 0f;
-                while (!GameStates.IsEnded && timer < delay)
-                {
-                    yield return null;
-                    timer += Time.deltaTime;
-                }
-
-                if (GameStates.IsEnded)
-                {
-                    WaitingAchievements.Add(type);
-                    yield break;
-                }
-                
-                ShowAchievementCompletion(type);
-            }
-        }
-
-        public static void ShowWaitingAchievements()
-        {
-            WaitingAchievements.Do(ShowAchievementCompletion);
-            WaitingAchievements.Clear();
-        }
-
-        private static void ShowAchievementCompletion(Type type)
-        {
-            var title = Translator.GetString("AchievementCompletedTitle");
-            var description = Translator.GetString($"Achievement.{type}.Description");
-            var message = $"<b>{Translator.GetString($"Achievement.{type}")}</b>\\n{description}";
-            ChatBubbleShower.ShowChatBubbleInRound(message, title);
-        }
-        
-        public static bool IsDisplayedAfterGameEnd(this Type type) => type is
-            Type.IdeasLiveOn or
-            Type.Awww or
-            Type.Ohhh;
-        
         public enum Type
         {
             IdeasLiveOn, // As Undead, win with at least 3 Necromancers
@@ -79,7 +20,7 @@ namespace EHR.Modules
             TheresThisGameMyDadTaughtMeItsCalledSwitch, // Swap as or be Swapped by Shifter at least 3 times in one round
             FirstDayOnTheJob, // As an Amnesiac, remember that you were a Sidekick or Deathknight
             UnderNewManagement, // As an Amnesiac, remember that you were a Cultist or Virus
-            OutOfTime, // Suicide or lose due to your role or an addon
+            OutOfTime, // Suicide or lose due to a time limit
             TooCold, // Get frozen by Freezer, Beartrap, etc.
             APerfectTimeToRewindIt, // Rewind time as Time Master
             SerialKiller, // Kill everyone in FFA mode
@@ -166,6 +107,63 @@ namespace EHR.Modules
             CoordinatedAttack, // As Jester, Executioner or Innocent, win with any of the other 2 roles
             ItsJustAPrankBro, // As Bomber, Kill half the lobby in 1 bomb
             MindReader, // As doomsayer, guess 3 people in 1 meeting
+        }
+
+        public static HashSet<Type> WaitingAchievements = [];
+        public static HashSet<Type> CompletedAchievements = [];
+
+        public static void Complete(this Type type)
+        {
+            if (!CompletedAchievements.Add(type)) return;
+
+            if (GameStates.IsEnded) WaitingAchievements.Add(type);
+            else ShowAchievementCompletion(type);
+        }
+
+        public static void CompleteAfterGameEnd(this Type type)
+        {
+            if (!CompletedAchievements.Add(type)) return;
+            WaitingAchievements.Add(type);
+        }
+
+        public static void CompleteAfterDelay(this Type type, float delay)
+        {
+            if (!CompletedAchievements.Add(type)) return;
+            Main.Instance.StartCoroutine(CompleteAchievementAfterDelayAsync());
+            return;
+
+            IEnumerator CompleteAchievementAfterDelayAsync()
+            {
+                float timer = 0f;
+
+                while (!GameStates.IsEnded && timer < delay)
+                {
+                    yield return null;
+                    timer += Time.deltaTime;
+                }
+
+                if (GameStates.IsEnded)
+                {
+                    WaitingAchievements.Add(type);
+                    yield break;
+                }
+
+                ShowAchievementCompletion(type);
+            }
+        }
+
+        public static void ShowWaitingAchievements()
+        {
+            WaitingAchievements.Do(ShowAchievementCompletion);
+            WaitingAchievements.Clear();
+        }
+
+        private static void ShowAchievementCompletion(Type type)
+        {
+            var title = Translator.GetString("AchievementCompletedTitle");
+            var description = Translator.GetString($"Achievement.{type}.Description");
+            var message = $"<b>{Translator.GetString($"Achievement.{type}")}</b>\\n{description}";
+            ChatBubbleShower.ShowChatBubbleInRound(message, title);
         }
     }
 }

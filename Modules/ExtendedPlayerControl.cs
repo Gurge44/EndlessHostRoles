@@ -1450,6 +1450,9 @@ namespace EHR
                 killer.MarkDirtySettings();
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
             }, Options.TrapperBlockMoveTime.GetFloat(), "Trapper BlockMove");
+
+            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
 
         public static bool IsDouseDone(this PlayerControl player)

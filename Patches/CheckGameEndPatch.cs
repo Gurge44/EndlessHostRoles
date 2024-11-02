@@ -44,6 +44,7 @@ namespace EHR
             {
                 if (WinnerIds.Count > 0 || WinnerTeam != CustomWinner.Default)
                 {
+                    Ended = true;
                     ShipStatus.Instance.enabled = false;
                     StartEndGame(reason);
                     Predicate = null;
@@ -328,7 +329,7 @@ namespace EHR
             SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
             var self = AmongUsClient.Instance;
             self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());
-            
+
             Statistics.OnGameEnd();
         }
 

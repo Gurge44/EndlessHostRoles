@@ -409,6 +409,9 @@ namespace EHR
 
                     playersOutsideRoom.Do(x => x.Suicide());
                     StartNewRound();
+
+                    if (playersOutsideRoom.Any(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
+                        Achievements.Type.OutOfTime.Complete();
                 }
             }
         }

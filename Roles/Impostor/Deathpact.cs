@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
+using EHR.Modules;
 using EHR.Neutral;
 using UnityEngine;
 using static EHR.Options;
@@ -205,6 +206,9 @@ namespace EHR.Impostor
             if (!target.IsAlive()) return;
 
             target.Suicide(realKiller: deathpact);
+
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.OutOfTime.Complete();
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

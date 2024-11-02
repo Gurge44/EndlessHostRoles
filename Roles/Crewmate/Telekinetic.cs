@@ -124,6 +124,10 @@ namespace EHR.Crewmate
                     }, FreezeDuration.GetFloat(), "Telekinetic.Freeze");
 
                     Timer += 35;
+
+                    if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.TooCold.CompleteAfterGameEnd();
+
                     break;
                 case Mode.Kill when hasTarget:
                     pc.RpcCheckAndMurder(target);

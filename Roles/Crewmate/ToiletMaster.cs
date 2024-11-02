@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
 
@@ -200,7 +201,7 @@ namespace EHR.Crewmate
                         break;
                     case Poop.Green:
                         float radius = GreenPoopRadius.GetFloat();
-                        bool isKillerNearby = Main.AllAlivePlayerControls.Any(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pos) <= radius);
+                        bool isKillerNearby = Main.AllAlivePlayerControls.Any(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pos) <= radius && (x.IsImpostor() || x.IsNeutralKiller()));
                         Color color = isKillerNearby ? Color.red : Color.green;
                         string str = Translator.GetString(isKillerNearby ? "TM.GreenPoopKiller" : "TM.GreenPoop");
                         pc.Notify(Utils.ColorString(color, str));
@@ -215,6 +216,9 @@ namespace EHR.Crewmate
                             Main.AllPlayerSpeed[x.PlayerId] = Main.MinSpeed;
                             x.MarkDirtySettings();
                             affectedPlayers.Add(x);
+
+                            if (x.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                                Achievements.Type.TooCold.CompleteAfterGameEnd();
                         });
 
                         ActivePoops[pc.PlayerId] = (poop, Utils.TimeStamp, affectedPlayers);

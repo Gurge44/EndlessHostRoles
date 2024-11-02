@@ -203,6 +203,7 @@ namespace EHR.Crewmate
         public static void SpitOutFood(PlayerControl pc)
         {
             Instances.Do(x => x.RottenFood.Remove(pc.PlayerId));
+            NameNotifyManager.Notifies.Remove(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 

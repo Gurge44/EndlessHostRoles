@@ -17,7 +17,7 @@ namespace EHR.Neutral
         private static OptionItem WaitingTimeAfterMeeting;
         private static OptionItem TimeToKillTarget;
         private static OptionItem GetSoulForSuicide;
-        public (byte ID, long START_TIMESTAMP, bool FROZEN) CurrentTarget = (byte.MaxValue, 0, false);
+        public (byte ID, long StartTimeStamp, bool Frozen) CurrentTarget = (byte.MaxValue, 0, false);
         private long LastUpdate;
         private float NormalSpeed;
         public PlayerControl SoulHunter_;
@@ -28,7 +28,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => SoulHunterId != byte.MaxValue;
 
-        private bool IsTargetBlocked => IsEnable && CurrentTarget.ID != byte.MaxValue && CurrentTarget.START_TIMESTAMP != 0;
+        private bool IsTargetBlocked => IsEnable && CurrentTarget.ID != byte.MaxValue && CurrentTarget.StartTimeStamp != 0;
 
         public override void SetupCustomOption()
         {
@@ -106,8 +106,8 @@ namespace EHR.Neutral
             writer.Write(SoulHunterId);
             writer.Write(Souls);
             writer.Write(CurrentTarget.ID);
-            writer.Write(CurrentTarget.START_TIMESTAMP.ToString());
-            writer.Write(CurrentTarget.FROZEN);
+            writer.Write(CurrentTarget.StartTimeStamp.ToString());
+            writer.Write(CurrentTarget.Frozen);
             EndRPC(writer);
         }
 
@@ -118,28 +118,28 @@ namespace EHR.Neutral
 
             sh.Souls = reader.ReadInt32();
             sh.CurrentTarget.ID = reader.ReadByte();
-            sh.CurrentTarget.START_TIMESTAMP = long.Parse(reader.ReadString());
-            sh.CurrentTarget.FROZEN = reader.ReadBoolean();
+            sh.CurrentTarget.StartTimeStamp = long.Parse(reader.ReadString());
+            sh.CurrentTarget.Frozen = reader.ReadBoolean();
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (SoulHunter_ == null || target == null) return false;
 
-            if (CurrentTarget.ID == byte.MaxValue || CurrentTarget.START_TIMESTAMP == 0)
+            if (CurrentTarget.ID == byte.MaxValue || CurrentTarget.StartTimeStamp == 0)
             {
                 CurrentTarget.ID = target.PlayerId;
-                CurrentTarget.START_TIMESTAMP = 0;
+                CurrentTarget.StartTimeStamp = 0;
                 SoulHunter_.SetKillCooldown(5f);
                 Logger.Info($"Marked Next Target: {target.GetNameWithRole()}", "SoulHunter");
                 SendRPC();
                 return false;
             }
 
-            if (CurrentTarget.ID == target.PlayerId && CurrentTarget.START_TIMESTAMP != 0)
+            if (CurrentTarget.ID == target.PlayerId && CurrentTarget.StartTimeStamp != 0)
             {
                 CurrentTarget.ID = byte.MaxValue;
-                CurrentTarget.START_TIMESTAMP = 0;
+                CurrentTarget.StartTimeStamp = 0;
                 LastUpdate = 0;
                 Souls++;
                 SoulHunter_.Notify(GetString("SoulHunterNotifySuccess"));
@@ -150,7 +150,7 @@ namespace EHR.Neutral
             }
 
             CurrentTarget.ID = byte.MaxValue;
-            CurrentTarget.START_TIMESTAMP = 0;
+            CurrentTarget.StartTimeStamp = 0;
             LastUpdate = TimeStamp;
             SoulHunter_.Suicide();
             target.Notify(GetString("SoulHunterTargetNotifySurvived"));
@@ -165,12 +165,12 @@ namespace EHR.Neutral
 
             long now = TimeStamp;
 
-            CurrentTarget.FROZEN = true;
+            CurrentTarget.Frozen = true;
             NormalSpeed = Main.AllPlayerSpeed[SoulHunterId];
             Main.AllPlayerSpeed[SoulHunterId] = Main.MinSpeed;
             SoulHunter_.MarkDirtySettings();
 
-            CurrentTarget.START_TIMESTAMP = now;
+            CurrentTarget.StartTimeStamp = now;
 
             PlayerControl target = GetPlayerById(CurrentTarget.ID);
             int waitingTime = WaitingTimeAfterMeeting.GetInt();
@@ -188,13 +188,13 @@ namespace EHR.Neutral
         {
             if (!IsEnable || !GameStates.IsInTask || !SoulHunter_.IsAlive() || CurrentTarget.ID == byte.MaxValue) return;
 
-            if (!CurrentTarget.FROZEN && Math.Abs(Main.AllPlayerSpeed[SoulHunterId] - NormalSpeed) > 0.1f)
+            if (!CurrentTarget.Frozen && Math.Abs(Main.AllPlayerSpeed[SoulHunterId] - NormalSpeed) > 0.1f)
             {
                 Main.AllPlayerSpeed[SoulHunterId] = NormalSpeed;
                 SoulHunter_.MarkDirtySettings();
             }
 
-            if (CurrentTarget.START_TIMESTAMP == 0) return;
+            if (CurrentTarget.StartTimeStamp == 0) return;
 
             long now = TimeStamp;
             if (LastUpdate >= now) return;
@@ -209,8 +209,8 @@ namespace EHR.Neutral
             if (!target.IsAlive() || target.Data.Disconnected)
             {
                 CurrentTarget.ID = byte.MaxValue;
-                CurrentTarget.START_TIMESTAMP = 0;
-                CurrentTarget.FROZEN = false;
+                CurrentTarget.StartTimeStamp = 0;
+                CurrentTarget.Frozen = false;
 
                 Main.AllPlayerSpeed[SoulHunterId] = NormalSpeed;
                 SoulHunter_.MarkDirtySettings();
@@ -224,30 +224,33 @@ namespace EHR.Neutral
                 return;
             }
 
-            if (CurrentTarget.FROZEN)
+            if (CurrentTarget.Frozen)
             {
-                if (CurrentTarget.START_TIMESTAMP + waitingTime < now)
+                if (CurrentTarget.StartTimeStamp + waitingTime < now)
                 {
-                    CurrentTarget.FROZEN = false;
+                    CurrentTarget.Frozen = false;
                     Main.AllPlayerSpeed[SoulHunterId] = NormalSpeed;
                     SoulHunter_.MarkDirtySettings();
 
-                    CurrentTarget.START_TIMESTAMP = now;
+                    CurrentTarget.StartTimeStamp = now;
                     SendRPC();
                 }
-                else if (!SoulHunter_.IsModClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), targetName, waitingTime - (now - CurrentTarget.START_TIMESTAMP) + 1));
+                else if (!SoulHunter_.IsModClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), targetName, waitingTime - (now - CurrentTarget.StartTimeStamp) + 1));
             }
             else
             {
-                if (CurrentTarget.START_TIMESTAMP + timeToKill < now)
+                if (CurrentTarget.StartTimeStamp + timeToKill < now)
                 {
                     CurrentTarget.ID = byte.MaxValue;
-                    CurrentTarget.START_TIMESTAMP = 0;
+                    CurrentTarget.StartTimeStamp = 0;
                     SoulHunter_.Suicide();
                     target.Notify(GetString("SoulHunterTargetNotifySurvived"));
                     SendRPC();
+
+                    if (SoulHunterId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.OutOfTime.Complete();
                 }
-                else if (!SoulHunter_.IsModClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotify"), timeToKill - (now - CurrentTarget.START_TIMESTAMP) + 1, targetName));
+                else if (!SoulHunter_.IsModClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotify"), timeToKill - (now - CurrentTarget.StartTimeStamp) + 1, targetName), overrideAll: true);
             }
         }
 
@@ -257,7 +260,7 @@ namespace EHR.Neutral
 
             if (!sh.IsTargetBlocked) return string.Empty;
 
-            return sh.CurrentTarget.FROZEN ? string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(sh.CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - sh.CurrentTarget.START_TIMESTAMP) + 1) : string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - sh.CurrentTarget.START_TIMESTAMP) + 1, GetPlayerById(sh.CurrentTarget.ID).GetRealName());
+            return sh.CurrentTarget.Frozen ? string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(sh.CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - sh.CurrentTarget.StartTimeStamp) + 1) : string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - sh.CurrentTarget.StartTimeStamp) + 1, GetPlayerById(sh.CurrentTarget.ID).GetRealName());
         }
 
         public override string GetProgressText(byte id, bool comms)

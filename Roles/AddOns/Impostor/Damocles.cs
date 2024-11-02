@@ -77,6 +77,9 @@ namespace EHR.AddOns.Impostor
             {
                 Timer[id] = 0;
                 pc.Suicide();
+
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.OutOfTime.Complete();
             }
 
             if (pc.IsNonHostModClient()) SendRPC(id);
