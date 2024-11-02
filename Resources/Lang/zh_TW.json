@@ -3336,6 +3336,7 @@
   "Allergic.Time": "過敏程度從 0% 到 100% 的時間",
   "Allergic.Range": "過敏的最大距離",
   "Allergic.Suffix": "<#ffff44><size=80%>過敏程度:</color> {0}%</size>",
+  "BetrayalAddonsCanGuess": "Players With <#ffab1b>Betrayal Add-ons</color> Can Guess",
   "Enigma": "猜想者",
   "EnigmaInfo": "有沒有一種可能，兇手的顏色是....",
   "EnigmaInfoLong": "(船員陣營):\\n猜想者在每輪會議開始時都會收到兇手的線索，當你完成更多任務時，你的線索就會更精確，依據房主設定，猜想者可能需要自己報告屍體才能獲得線索。\\n\\n<size=70%><u><b>淺色:</b></u>紅色、粉紅色、橘色、黃色、白色、青色、青綠色、玫紅色、蕉黃色、珊瑚紅\\n<u><b>深色:</b></u>藍色、綠色、黑色、紫色、棕色、深紅色、灰色、褐色</size>",
