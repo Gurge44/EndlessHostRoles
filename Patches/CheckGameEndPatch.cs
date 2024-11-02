@@ -328,6 +328,8 @@ namespace EHR
             SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
             var self = AmongUsClient.Instance;
             self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());
+            
+            Statistics.OnGameEnd();
         }
 
         private static IEnumerator CoEndGame(InnerNetClient self, GameOverReason reason)

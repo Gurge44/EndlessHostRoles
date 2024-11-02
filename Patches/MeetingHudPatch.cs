@@ -74,6 +74,8 @@ namespace EHR.Patches
 
                         states = [.. statesList];
                         __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false);
+                        
+                        Statistics.OnVotingComplete(states.ToArray(), voteTarget.Data, false, true);
 
                         Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} expelled by dictator", "Dictator");
                         CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
@@ -309,6 +311,8 @@ namespace EHR.Patches
                 exiledPlayer?.Object.SetRealKiller(null);
 
                 __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
+                
+                Statistics.OnVotingComplete(states.ToArray(), exiledPlayer, tie, false);
 
                 CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
                 Utils.CheckAndSpawnAdditionalRefugee(exiledPlayer);
@@ -638,22 +642,22 @@ namespace EHR.Patches
                     }
 
                     if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Mayor)) VoteNum += Mayor.MayorAdditionalVote.GetInt();
-
                     if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) VoteNum += 1;
-
                     if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool()) VoteNum = 0;
-
                     if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator)) VoteNum += Options.VindicatorAdditionalVote.GetInt();
-
                     if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.DualPersonality) && Options.DualVotes.GetBool()) VoteNum += VoteNum;
-
                     if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.TicketsStealer)) VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.TicketsPerKill.GetFloat());
-
                     if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket)) VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
 
-                    if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy)) VoteNum++;
-
-                    if (Main.PlayerStates[ps.TargetPlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) VoteNum = 0;
+                    switch (Main.PlayerStates[ps.TargetPlayerId].Role)
+                    {
+                        case Adventurer { IsEnable: true } av when av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy):
+                            VoteNum++;
+                            break;
+                        case Dad { IsEnable: true } dad when dad.UsingAbilities.Contains(Dad.Ability.GoForMilk):
+                            VoteNum = 0;
+                            break;
+                    }
 
                     if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) VoteNum = 0;
 

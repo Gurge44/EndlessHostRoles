@@ -57,7 +57,8 @@ namespace EHR
                 {
                     if (task.Run(deltaTime))
                     {
-                        if (task.name is not "" and not "No Name Task" && task.log) Logger.Info($"\"{task.name}\" is finished", "LateTask");
+                        if (task.name is not "" and not "No Name Task" && task.log)
+                            Logger.Info($"\"{task.name}\" is finished", "LateTask");
 
                         Tasks.Remove(task);
                     }
