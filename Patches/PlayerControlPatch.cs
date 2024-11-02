@@ -844,7 +844,7 @@ namespace EHR
 
             bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
 
-            Statistics.OnShapeshift(shapeshifter, target, shapeshifting, animated);
+            Statistics.OnShapeshift(shapeshifter, shapeshifting, animated);
 
             return animated;
         }

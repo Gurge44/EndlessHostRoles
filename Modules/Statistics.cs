@@ -306,7 +306,7 @@ namespace EHR.Modules
             }
         }
 
-        public static void OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting, bool animated)
+        public static void OnShapeshift(PlayerControl shapeshifter, bool shapeshifting, bool animated)
         {
             try
             {
