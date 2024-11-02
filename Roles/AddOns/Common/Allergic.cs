@@ -100,8 +100,9 @@ namespace EHR.AddOns.Common
         public static string GetSelfSuffix(PlayerControl seer)
         {
             if (!seer.IsAlive() || !AllergyMaxTS.TryGetValue(seer.PlayerId, out long endTS)) return string.Empty;
-
-            return string.Format(Translator.GetString("Allergic.Suffix"), Math.Ceiling(endTS / (float)Utils.TimeStamp * 100));
+            long now = Utils.TimeStamp;
+            float percentage = (float)(endTS - now) / Time.GetInt();
+            return string.Format(Translator.GetString("Allergic.Suffix"), 100 - (int)Math.Round(percentage * 100f));
         }
     }
 }

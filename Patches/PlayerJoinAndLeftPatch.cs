@@ -31,6 +31,8 @@ namespace EHR
             ChatUpdatePatch.DoBlockChat = false;
             GameStates.InGame = false;
             ErrorText.Instance?.Clear();
+            
+            Achievements.ShowWaitingAchievements();
 
             if (AmongUsClient.Instance.AmHost)
             {

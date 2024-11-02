@@ -145,11 +145,14 @@ namespace EHR.Crewmate
             switch (InCraftingMode)
             {
                 case true:
+                {
                     OrderedWeapons = [.. EnabledWeapons.OrderBy(x => !Ingredients[x].All(r => r.Count <= ResourceCounts[r.Resource]))];
                     SelectedWeaponToCraft = OrderedWeapons.FirstOrDefault();
                     Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 4, (int)SelectedWeaponToCraft);
                     break;
+                }
                 case false when Ingredients[SelectedWeaponToCraft].All(x => x.Count <= ResourceCounts[x.Resource]):
+                {
                     Weapon weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons.RandomElement() : SelectedWeaponToCraft;
                     ActiveWeapons.Add(weapon);
                     pc.Notify(string.Format(Translator.GetString("AdventurerWeaponCrafted"), Translator.GetString($"AdventurerGun.{weapon}")));
@@ -160,7 +163,9 @@ namespace EHR.Crewmate
                         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, (int)resource, count);
                     }
 
+                    Achievements.Type.HowDoICraftThisAgain.Complete();
                     break;
+                }
             }
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

@@ -226,6 +226,7 @@ namespace EHR
 
             LateTask.Update(Time.deltaTime);
             CheckMurderPatch.Update();
+            ChatBubbleShower.Update();
 
             return false;
         }
