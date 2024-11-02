@@ -171,6 +171,8 @@ namespace EHR.Impostor
             LogSpeed();
             Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
             SendRPC();
+            
+            if (IsGoose) Achievements.Type.Honk.Complete();
         }
 
         private void RemoveVictim(bool allowDelay = true)

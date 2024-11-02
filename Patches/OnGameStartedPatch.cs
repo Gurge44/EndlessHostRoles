@@ -480,6 +480,8 @@ namespace EHR
                 roleNum += roleType.Value;
                 RoleOpt.SetRoleRate(roleType.Key, roleNum, roleType.Value > 0 ? 100 : RoleOpt.GetChancePerGame(roleType.Key));
             }
+            
+            Statistics.OnRoleSelectionComplete();
 
             try
             {

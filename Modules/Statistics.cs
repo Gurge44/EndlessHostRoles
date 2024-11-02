@@ -18,13 +18,31 @@ namespace EHR.Modules
 
         public static void OnVotingComplete(MeetingHud.VoterState[] states, NetworkedPlayerInfo exiledPlayer, bool tie, bool dictator)
         {
+            const float delay = 8f;
             if (!tie && exiledPlayer != null && exiledPlayer.Object != null && exiledPlayer.Object.Is(CustomRoles.Jester))
             {
                 if (states.Any(x => x.VoterId == PlayerControl.LocalPlayer.PlayerId && x.VotedForId == exiledPlayer.PlayerId))
-                    Achievements.Type.HowCouldIBelieveThem.CompleteAfterDelay(8f);
+                    Achievements.Type.HowCouldIBelieveThem.CompleteAfterDelay(delay);
                 
                 if (dictator && PlayerControl.LocalPlayer.Is(CustomRoles.Dictator) && states.FindFirst(x => x.VoterId == PlayerControl.LocalPlayer.PlayerId, out var lpVS) && lpVS.VotedForId == exiledPlayer.PlayerId)
-                    Achievements.Type.WhyJustWhy.CompleteAfterDelay(8f);
+                    Achievements.Type.WhyJustWhy.CompleteAfterDelay(delay);
+            }
+        }
+
+        public static void OnRoleSelectionComplete()
+        {
+            if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role)) return;
+            
+            const float delay = 15f;
+            switch (role)
+            {
+                case CustomRoles.Dad:
+                    Achievements.Type.WhatKindOfGeniusCameUpWithThisRoleIdea.CompleteAfterDelay(delay);
+                    break;
+                case CustomRoles.Crewmate:
+                case CustomRoles.CrewmateEHR:
+                    Achievements.Type.Bruh.CompleteAfterDelay(delay);
+                    break;
             }
         }
     }
