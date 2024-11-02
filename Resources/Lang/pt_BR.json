@@ -3336,6 +3336,7 @@
   "Allergic.Time": "Tempo em que o nível de alergia passa de 0% para 100%",
   "Allergic.Range": "Distância máxima do alvo considerada perto",
   "Allergic.Suffix": "<#ffff44><size=80%>Nível de Alergia:</color> {0}%</size>",
+  "BetrayalAddonsCanGuess": "Players With <#ffab1b>Betrayal Add-ons</color> Can Guess",
   "Enigma": "Informante",
   "EnigmaInfo": "Obtenha pistas sobre assassinos",
   "EnigmaInfoLong": "(Tripulantes):\\nComo o Informante, você recebe uma pista aleatória sobre o assassino a cada reunião, dependendo das configurações, você pode ter que reportar o corpo para receber uma pista. Quanto mais tarefas você completar, mais precisas as pistas se tornarão.\n\n<size=70%><u><b>Cores claras:</b></u> Vermelho, Rosa, Laranja, Amarelo, Branco, Ciano, Lima, Rosa, Banana, Coral\n<u><b>Cores escuras:</b></u> Azul, Verde, Preto, Roxo, Marrom, Bordo, Cinza, Bege</size>",
