@@ -5,6 +5,8 @@ namespace EHR.Modules
 {
     public static class Statistics
     {
+        private static bool OnlyVotingForKillersAsCrew = true;
+
         public static void OnGameEnd()
         {
             var lp = PlayerControl.LocalPlayer;
@@ -12,6 +14,8 @@ namespace EHR.Modules
             var addons = lp.GetCustomSubRoles();
 
             bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || (CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust));
+
+            Reset();
 
             switch (Options.CurrentGameMode)
             {
@@ -46,6 +50,23 @@ namespace EHR.Modules
 
             if (won && addons.Contains(CustomRoles.Undead) && CustomWinnerHolder.WinnerIds.ToValidPlayers().Count(x => x.Is(CustomRoles.Necromancer)) >= 3)
                 Achievements.Type.IdeasLiveOn.CompleteAfterGameEnd();
+
+            return;
+
+            void Reset()
+            {
+                if (OnlyVotingForKillersAsCrew && lp.IsCrewmate()) Achievements.Type.MasterDetective.CompleteAfterGameEnd();
+                OnlyVotingForKillersAsCrew = true;
+
+                if (role == CustomRoles.Sheriff && lp.IsAlive() && Main.PlayerStates.Values.Where(x => x.IsDead && x.deathReason == PlayerState.DeathReason.Kill).All(x => x.GetRealKiller() == lp.PlayerId))
+                    Achievements.Type.Superhero.CompleteAfterGameEnd();
+
+                if (Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId) >= 7)
+                    Achievements.Type.TheKillingMachine2Point0.CompleteAfterGameEnd();
+
+                if (won && lp.IsCrewmate() && Main.AllAlivePlayerControls.Length == 1)
+                    Achievements.Type.TheLastSurvivor.CompleteAfterGameEnd();
+            }
         }
 
         public static void OnVotingComplete(MeetingHud.VoterState[] states, NetworkedPlayerInfo exiledPlayer, bool tie, bool dictator)
@@ -56,13 +77,23 @@ namespace EHR.Modules
 
             if (amDictator) Achievements.Type.KimJongUnExperience.Complete();
 
+            bool lpHasVS = states.FindFirst(x => x.VoterId == PlayerControl.LocalPlayer.PlayerId, out var lpVS);
+
             if (!tie && exiledPlayer != null && exiledPlayer.Object != null && exiledPlayer.Object.Is(CustomRoles.Jester))
             {
                 if (states.Any(x => x.VoterId == PlayerControl.LocalPlayer.PlayerId && x.VotedForId == exiledPlayer.PlayerId))
                     Achievements.Type.HowCouldIBelieveThem.CompleteAfterDelay(delay);
 
-                if (amDictator && states.FindFirst(x => x.VoterId == PlayerControl.LocalPlayer.PlayerId, out var lpVS) && lpVS.VotedForId == exiledPlayer.PlayerId)
+                if (amDictator && lpHasVS && lpVS.VotedForId == exiledPlayer.PlayerId)
                     Achievements.Type.WhyJustWhy.CompleteAfterDelay(delay);
+            }
+
+            if (lpHasVS)
+            {
+                PlayerControl voteTarget = lpVS.VotedForId.GetPlayer();
+
+                if (!voteTarget.IsCrewmate() && !voteTarget.IsConverted())
+                    OnlyVotingForKillersAsCrew = false;
             }
         }
 
@@ -91,16 +122,32 @@ namespace EHR.Modules
                 if (Main.AliveImpostorCount == 0 && killer.IsCrewmate() && target.IsImpostor() && !Main.AllAlivePlayerControls.Any(x => x.IsNeutralKiller()))
                     Achievements.Type.ImCrewISwear.Complete();
 
-                if (killer.GetCustomRole() == target.GetCustomRole())
-                    Achievements.Type.ThereCanOnlyBeOne.CompleteAfterGameEnd();
+                if ((killer.IsImpostor() && target.IsMadmate()) || (killer.IsMadmate() && target.IsImpostor()))
+                    Achievements.Type.BetrayalLevel100.CompleteAfterGameEnd();
 
+                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
                 PlayerState targetState = Main.PlayerStates[target.PlayerId];
+
+                if (killerState.MainRole == targetState.MainRole)
+                    Achievements.Type.ThereCanOnlyBeOne.CompleteAfterGameEnd();
 
                 if ((targetState.MainRole == CustomRoles.Romantic && Romantic.PartnerId == killer.PlayerId) ||
                     (targetState.SubRoles.Contains(CustomRoles.Lovers) && killer.Is(CustomRoles.Lovers)) ||
-                    (targetState.MainRole == CustomRoles.Lawyer && Lawyer.Target[target.PlayerId] == killer.PlayerId) ||
+                    (targetState.MainRole == CustomRoles.Lawyer && Lawyer.Target.TryGetValue(target.PlayerId, out var ltg) && ltg == killer.PlayerId) ||
                     (targetState.Role is Totocalcio tc && tc.BetPlayer == killer.PlayerId))
                     Achievements.Type.WhatHaveIDone.CompleteAfterGameEnd();
+
+                if (killerState.MainRole == CustomRoles.Traitor && targetState.MainRole == CustomRoles.Refugee)
+                    Achievements.Type.TheRealTraitor.CompleteAfterGameEnd();
+            }
+
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            {
+                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
+                PlayerState targetState = Main.PlayerStates[target.PlayerId];
+
+                if (targetState.MainRole is CustomRoles.Maverick or CustomRoles.Opportunist)
+                    Achievements.Type.YouDidTheExactOppositeOfWhatYouWereSupposedToDo.Complete();
             }
         }
 

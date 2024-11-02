@@ -435,6 +435,10 @@ namespace EHR
             if (GhostRolesManager.AssignedGhostRoles.Values.Any(x => x.Instance is GA ga && ga.ProtectionList.Contains(target.PlayerId)))
             {
                 Notify("GAGuarded");
+
+                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.IForgotThisRoleExists.CompleteAfterGameEnd();
+
                 return false;
             }
 
