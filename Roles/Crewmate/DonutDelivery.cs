@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -122,6 +123,9 @@ namespace EHR.Crewmate
                     }, SEDuration.GetFloat(), log: false);
                 }, SEDelay.GetFloat(), log: false);
             }
+
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.Delicious.Complete();
 
             return false;
         }

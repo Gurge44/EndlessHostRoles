@@ -9,21 +9,21 @@ namespace EHR.Modules
     public static class ChatBubbleShower
     {
         private static long LastChatBubbleShowTS;
-        private static HashSet<(string Message, string Title)> Queue = [];
-        
+        private static readonly HashSet<(string Message, string Title)> Queue = [];
+
         public static void Update()
         {
             try
             {
-                if (Queue.Count == 0) return;
-            
+                if (Queue.Count == 0 || GameStates.IsMeeting || ExileController.Instance) return;
+
                 long now = Utils.TimeStamp;
                 if (LastChatBubbleShowTS + 4 > now) return;
                 LastChatBubbleShowTS = now;
-            
+
                 (string message, string title) = Queue.First();
                 Queue.Remove((message, title));
-            
+
                 ChatController chat = DestroyableSingleton<HudManager>.Instance.Chat;
                 NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
                 ChatBubble bubble = chat.GetPooledBubble();

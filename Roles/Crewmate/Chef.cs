@@ -133,6 +133,9 @@ namespace EHR.Crewmate
                         break;
                 }
             }
+
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.Delicious.Complete();
         }
 
         private static void NotifyAboutRandomFood(PlayerControl pc, string cause)

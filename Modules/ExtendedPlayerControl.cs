@@ -1530,6 +1530,9 @@ namespace EHR
 
             Main.DiedThisRound.Add(target.PlayerId);
 
+            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && !killer.HasKillButton())
+                Achievements.Type.InnocentKiller.Complete();
+
             switch (killer.PlayerId == target.PlayerId)
             {
                 case true when killer.shapeshifting:

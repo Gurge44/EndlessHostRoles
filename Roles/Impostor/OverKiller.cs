@@ -55,7 +55,10 @@ namespace EHR.Impostor
 
                     if (target.Is(CustomRoles.Avanger))
                     {
-                        foreach (PlayerControl pc in Main.AllAlivePlayerControls) pc.Suicide(PlayerState.DeathReason.Revenge, target);
+                        target.Suicide(PlayerState.DeathReason.Dismembered, killer);
+
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                            pc.Suicide(PlayerState.DeathReason.Revenge, target);
 
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                         return;

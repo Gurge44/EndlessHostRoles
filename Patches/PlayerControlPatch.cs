@@ -950,7 +950,13 @@ namespace EHR
 
                     if (!Librarian.OnAnyoneReport(__instance)) return false;
 
-                    if (!Hypnotist.OnAnyoneReport()) return false;
+                    if (!Hypnotist.OnAnyoneReport())
+                    {
+                        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            Achievements.Type.Hypnosis.CompleteAfterGameEnd();
+
+                        return false;
+                    }
 
                     if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
 
@@ -1011,9 +1017,9 @@ namespace EHR
 
         public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target, bool force = false)
         {
-            //====================================================================================
-            //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
-            //====================================================================================
+            //=============================================================================================
+            //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
+            //=============================================================================================
 
             Asthmatic.RunChecks = false;
 
@@ -2022,6 +2028,9 @@ namespace EHR
             }
 
             Main.PlayerStates[__instance.myPlayer.PlayerId].Role.OnCoEnterVent(__instance, id);
+
+            if (__instance.myPlayer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Statistics.VentTimes++;
 
             return true;
         }

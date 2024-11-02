@@ -171,6 +171,10 @@ namespace EHR.Impostor
                 Main.PlayerStates[killer.PlayerId].SetDead();
                 target.Kill(killer);
                 TempKCDs.Remove(killer.PlayerId);
+
+                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.YoureTooLate.Complete();
+
                 return false;
             }
 

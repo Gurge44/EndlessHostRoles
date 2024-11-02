@@ -378,6 +378,8 @@ namespace EHR
                             Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
                             TimeLeft = timeLeft;
                             LastUpdate = now;
+
+                            if (aapc.Length == 2) Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
                         }
 
                         if (DonePlayers.Count == aapc.Length - 1)

@@ -1,4 +1,5 @@
 ﻿using System;
+using EHR.Modules;
 
 namespace EHR.Crewmate
 {
@@ -58,6 +59,9 @@ namespace EHR.Crewmate
                     State.ProtectedPlayerId = pc.PlayerId;
                     Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Translator.GetString("Mathematician"));
                     State.AskedQuestion = false;
+
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.TheBestInSchool.Complete();
                 }
             }
             catch (Exception e)

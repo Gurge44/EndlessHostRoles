@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -170,6 +171,10 @@ namespace EHR.Neutral
             target.RpcGuardAndKill(target);
 
             Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", $"Assign {CustomRoles.Sidekick}");
+
+            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.YoureMyFriendNow.Complete();
+
             return false;
         }
 

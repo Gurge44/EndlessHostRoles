@@ -247,17 +247,11 @@ namespace EHR
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
 
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-
             if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-
             if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-
             if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-
             if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-
             if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
 
             Main.IsChatCommand = false;
@@ -282,6 +276,8 @@ namespace EHR
 
                     break;
                 }
+
+                Statistics.HasUsedAnyCommand = true;
             }
 
             if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
@@ -315,6 +311,9 @@ namespace EHR
                 __instance.freeChatField.textArea.Clear();
                 __instance.freeChatField.textArea.SetText(cancelVal);
             }
+
+            if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Gamer))
+                Achievements.Type.WhatTheHell.CompleteAfterGameEnd();
 
             return !canceled;
         }

@@ -74,7 +74,7 @@ namespace EHR.Patches
 
                         states = [.. statesList];
                         __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false);
-                        
+
                         Statistics.OnVotingComplete(states.ToArray(), voteTarget.Data, false, true);
 
                         Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} expelled by dictator", "Dictator");
@@ -311,7 +311,7 @@ namespace EHR.Patches
                 exiledPlayer?.Object.SetRealKiller(null);
 
                 __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
-                
+
                 Statistics.OnVotingComplete(states.ToArray(), exiledPlayer, tie, false);
 
                 CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
@@ -828,6 +828,7 @@ namespace EHR.Patches
             GameStates.AlreadyDied |= !Utils.IsAllAlive;
             Main.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
             MeetingStates.MeetingCalled = true;
+            MeetingStates.MeetingNum++;
         }
 
         public static void Postfix(MeetingHud __instance)

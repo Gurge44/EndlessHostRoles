@@ -699,7 +699,6 @@ namespace EHR
 
 
                         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} guessed {target.GetNameWithRole().RemoveHtmlTags()}", "Guesser");
-
                         PlayerControl dp = guesserSuicide ? pc : target;
                         target = dp;
 
@@ -794,6 +793,9 @@ namespace EHR
 
                             if (pc.Is(CustomRoles.Pickpocket) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("PickpocketGetVote"), (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Pickpocket.VotesPerKill.GetFloat()))), 0.7f, log: false);
                         }, 0.2f, "Guesser Kill");
+
+                        if (guesserSuicide && pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            Achievements.Type.BadLuckOrBadObservation.Complete();
                     }
 
                     break;

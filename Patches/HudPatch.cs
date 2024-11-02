@@ -222,7 +222,8 @@ namespace EHR.Patches
                                 break;
                         }
 
-                        if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey)) __instance.AbilityButton?.Hide();
+                        if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !role.OnlySpawnsWithPets() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling)
+                            __instance.AbilityButton?.Hide();
 
                         if (LowerInfoText == null)
                         {

@@ -12,6 +12,8 @@ namespace EHR.AddOns.Common
         private static OptionItem MaxSpeed;
         private static OptionItem DisplaysCharge;
 
+        public static bool LocalPlayerAvoidsZeroAndOneHundredPrecent;
+
         private static readonly Dictionary<byte, Vector2> LastPos = [];
         public static readonly Dictionary<byte, float> StartingSpeed = [];
         private static readonly Dictionary<byte, int> LastNum = [];
@@ -51,6 +53,8 @@ namespace EHR.AddOns.Common
                     StartingSpeed[pc.PlayerId] = speed;
                 }
             }
+
+            LocalPlayerAvoidsZeroAndOneHundredPrecent = PlayerControl.LocalPlayer.Is(CustomRoles.Spurt);
         }
 
         public static void DeathTask(PlayerControl player)
@@ -73,7 +77,7 @@ namespace EHR.AddOns.Common
         {
             if (!player.Is(CustomRoles.Spurt) || !DisplaysCharge.GetBool() || GameStates.IsMeeting) return string.Empty;
 
-            int fontsize = isforhud ? 100 : 55;
+            int fontsize = isforhud ? 100 : 65;
 
             return $"<size={fontsize}%>{string.Format(Translator.GetString("SpurtSuffix"), DetermineCharge(player))}</size>";
         }
@@ -85,10 +89,13 @@ namespace EHR.AddOns.Common
             LastPos[player.PlayerId] = pos;
 
             float modulator = Modulator.GetFloat();
-            float ChargeBy = Mathf.Clamp(modulator / 20 * 1.5f, 0.05f, 0.6f);
-            float Decreaseby = Mathf.Clamp(modulator / 20 * 0.5f, 0.01f, 0.3f);
+            float increaseBy = Mathf.Clamp(modulator / 20 * 1.5f, 0.05f, 0.6f);
+            float decreaseby = Mathf.Clamp(modulator / 20 * 0.5f, 0.01f, 0.3f);
 
             int charge = DetermineCharge(player);
+
+            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && charge is <= 0 or >= 100)
+                LocalPlayerAvoidsZeroAndOneHundredPrecent = false;
 
             if (DisplaysCharge.GetBool() && !player.IsModClient() && LastNum[player.PlayerId] != charge)
             {
@@ -104,11 +111,11 @@ namespace EHR.AddOns.Common
 
             if (!moving)
             {
-                Main.AllPlayerSpeed[player.PlayerId] += Mathf.Clamp(ChargeBy, 0f, MaxSpeed.GetFloat() - Main.AllPlayerSpeed[player.PlayerId]);
+                Main.AllPlayerSpeed[player.PlayerId] += Mathf.Clamp(increaseBy, 0f, MaxSpeed.GetFloat() - Main.AllPlayerSpeed[player.PlayerId]);
                 return;
             }
 
-            Main.AllPlayerSpeed[player.PlayerId] -= Mathf.Clamp(Decreaseby, 0f, Main.AllPlayerSpeed[player.PlayerId] - MinSpeed.GetFloat());
+            Main.AllPlayerSpeed[player.PlayerId] -= Mathf.Clamp(decreaseby, 0f, Main.AllPlayerSpeed[player.PlayerId] - MinSpeed.GetFloat());
             player.MarkDirtySettings();
         }
     }

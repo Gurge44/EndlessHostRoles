@@ -105,6 +105,10 @@ namespace EHR.Neutral
             {
                 target.Kill(killer);
                 ResetBomb();
+
+                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.YoureTooLate.Complete();
+
                 return false;
             }
 
@@ -214,6 +218,10 @@ namespace EHR.Neutral
             {
                 target.Kill(player);
                 ResetBomb();
+
+                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.YoureTooLate.Complete();
+
                 return;
             }
 

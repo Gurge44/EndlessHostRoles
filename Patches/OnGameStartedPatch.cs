@@ -362,6 +362,7 @@ namespace EHR
 
                 IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 
+                MeetingStates.MeetingNum = 0;
                 MeetingStates.MeetingCalled = false;
                 MeetingStates.FirstMeeting = true;
                 GameStates.AlreadyDied = false;
@@ -480,7 +481,7 @@ namespace EHR
                 roleNum += roleType.Value;
                 RoleOpt.SetRoleRate(roleType.Key, roleNum, roleType.Value > 0 ? 100 : RoleOpt.GetChancePerGame(roleType.Key));
             }
-            
+
             Statistics.OnRoleSelectionComplete();
 
             try

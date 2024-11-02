@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Impostor
@@ -13,6 +15,8 @@ namespace EHR.Impostor
         public static OptionItem SilenceMode;
 
         public static List<byte> ForSilencer = [];
+
+        private static int LocalPlayerTotalSilences;
 
         private static readonly string[] SilenceModes =
         [
@@ -38,6 +42,8 @@ namespace EHR.Impostor
         {
             PlayerIdList = [];
             ForSilencer = [];
+
+            LocalPlayerTotalSilences = 0;
         }
 
         public override void Add(byte playerId)
@@ -59,12 +65,33 @@ namespace EHR.Impostor
             {
                 ForSilencer.Add(target.PlayerId);
                 killer.SetKillCooldown(3f);
+
+                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                {
+                    LocalPlayerTotalSilences++;
+                    if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();
+
+                    if (target.Is(CustomRoles.Snitch) && Snitch.IsExposed.TryGetValue(target.PlayerId, out var exposed) && exposed)
+                        Achievements.Type.YouWontTellAnyone.Complete();
+                }
             });
         }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (SilenceMode.GetValue() == 1 && ForSilencer.Count == 0) ForSilencer.Add(target.PlayerId);
+            if (SilenceMode.GetValue() == 1 && ForSilencer.Count == 0 && shapeshifter.PlayerId != target.PlayerId)
+            {
+                ForSilencer.Add(target.PlayerId);
+
+                if (shapeshifter.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                {
+                    LocalPlayerTotalSilences++;
+                    if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();
+
+                    if (target.Is(CustomRoles.Snitch) && Snitch.IsExposed.TryGetValue(target.PlayerId, out var exposed) && exposed)
+                        Achievements.Type.YouWontTellAnyone.Complete();
+                }
+            }
 
             return false;
         }

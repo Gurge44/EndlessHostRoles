@@ -115,17 +115,20 @@ namespace EHR.Neutral
         {
             if (!CanBeInfected(target)) return;
 
-            Utils.GetPlayerById(PlayerIdList[0]).RpcRemoveAbilityUse();
+            byte id = PlayerIdList[0];
+            Utils.GetPlayerById(id).RpcRemoveAbilityUse();
 
             if (KillInfectedPlayerAfterMeeting.GetBool())
             {
                 InfectedPlayer.Add(target.PlayerId);
                 VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage2"));
 
-                TotalInfections++;
-
-                if (PlayerIdList[0] == PlayerControl.LocalPlayer.PlayerId && TotalInfections >= 2)
-                    Achievements.Type.Covid20.Complete();
+                if (id == PlayerControl.LocalPlayer.PlayerId)
+                {
+                    TotalInfections++;
+                    if (TotalInfections >= 2) Achievements.Type.Covid20.Complete();
+                    Achievements.Type.YoureMyFriendNow.Complete();
+                }
             }
             else
             {

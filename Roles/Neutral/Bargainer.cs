@@ -45,7 +45,9 @@ namespace EHR.Neutral
             [Item.BandAid] = Utils.ColorString(Color.green, "♥")
         };
 
-        public List<(Item Item, long ActivateTimeStamp, int Duration, byte Target)> ActiveItems = [];
+        public static HashSet<Item> PurchasedItems = [];
+
+        private List<(Item Item, long ActivateTimeStamp, int Duration, byte Target)> ActiveItems = [];
 
         private byte BargainerId;
         private bool InShop;
@@ -354,6 +356,9 @@ namespace EHR.Neutral
                             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: Utils.GetPlayerById(target));
                             break;
                     }
+
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        PurchasedItems.Add(SelectedItem);
 
                     break;
 

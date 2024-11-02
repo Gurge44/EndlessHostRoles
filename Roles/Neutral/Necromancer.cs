@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -104,6 +105,9 @@ namespace EHR.Neutral
                 target.Notify(GetString("RecruitedToDeathknight"));
 
                 new[] { CustomRoles.Damocles, CustomRoles.Stressed }.Do(x => Main.PlayerStates[target.PlayerId].RemoveSubRole(x));
+
+                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.YoureMyFriendNow.Complete();
 
                 return false;
             }
@@ -220,6 +224,9 @@ namespace EHR.Neutral
                 target.RpcGuardAndKill(target);
 
                 Logger.Info($"Recruit: {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Undead}", $"Assign {CustomRoles.Undead}");
+
+                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.YoureMyFriendNow.Complete();
 
                 return false;
             }

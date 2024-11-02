@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using UnityEngine;
 
 namespace EHR.Modules
@@ -49,7 +51,7 @@ namespace EHR.Modules
             TheLastSurvivor, // Win as a Crewmate, when you are the only alive player left
             YouDidTheExactOppositeOfWhatYouWereSupposedToDo, // Die first as Maverick or Opportunist
             WheresTheBlueShell, // Finish second in Room Rush
-            InnocentKiller, // Kill 2 players as a non-killing role (for example due to the Warlock's curse)
+            InnocentKiller, // Kill someone without having a kill button
             YouWontTellAnyone, // Silence Snitch with all tasks done as Silencer
             ExpertControl, // As Spurt, avoid reaching 0% and 100% speed for a round (If it was only to avoid 0 then they could just afk. Having to avoid both forces them to keep moving)
             YoureMyFriendNow, // Recruit anyone as Gangster/Jackal/Infection/Virus/Cultist
@@ -66,15 +68,13 @@ namespace EHR.Modules
             YoureTooLate, // As Pestilence, have a killer try to kill you, but unsuccessfully for them
             Armageddon, // Survive the Tremor's doom
             GetDownMrPresident, // Protect the President as the Bodyguard
-            SecureFooted, // Get dragged into a tornado and escape it
             EconomicCompetition, // Kill Merchant as Bargainer, or kill Bargainer as Merchant
             Gotcha, // Kill Bait and then get ejected
             Speedrun, // Have a game end in under 1 minute
-            Backfired, // Get killed by your own ability, somehow
             Carried, // Win as a madmate while the other impostors are dead
-            SorryToBurstYourBubble, // Explode 5 people in one round as bubble
+            SorryToBurstYourBubble, // Explode 5 people with 1 encased player as the Bubble
             GetLynched, // Successfully guess 3 roles as lyncher
-            FlagMaster, // Carry the flag the longest in your team in CTF
+            FlagMaster, // Carry the flag the longest in CTF
             Tag, // Tag the most players in CTF
             Vectory, // Vent 50 times in one game
             Bloodbath, // Kill 8 people in the same game as Killing Machine
@@ -83,34 +83,33 @@ namespace EHR.Modules
             Awww, // Drag Penguin as Goose (this achievement is gain after the game end)
             Ohhh, // Drag Goose as Penguin (this achievement is gain after the game end)
             Hypnosis, // Try to report a dead body during the Hypnotist's ability
-            Mimicry, // Change your appearance at least 3 times as Doppelganger
+            Mimicry, // Change your appearance at least 3 times as a Doppelgänger
             P2W, // Buy all items as Bargainer and win in the same game
             LuckOrObservation, // Guess 1 player correctly
-            BeginnerGuesser, // Guess 5 players correctly
-            GuessMaster, // Guess 15 players correctly
-            BestGuesserAward, // Guess 50 players correctly
+            BeginnerGuesser, // Guess 2 players correctly in the same game
+            GuessMaster, // Guess 4 players correctly in the same game
+            BestGuesserAward, // Guess 6 players correctly in the same game
             BadLuckOrBadObservation, // Guess incorrectly and die
             Duel, // Find yourself in a situation when you are 1vs1 against another killer
-            Delicious, // Get Donut Delivery's donut and a Chef's dish
-            Inquisition, // Kill Vampire/Witch/Warlock/Hex Master as Crusadeur
+            Delicious, // Get Donut Delivery's donut or a Chef's dish
+            Inquisition, // Kill Vampire/Witch/Warlock/Hex Master as Crusader
             Censorship, // Silence 5 people in the same game as Silencer
             LiarLiar, // As Lawyer, fail to protect your client that is crewmate, and then win with impostors somehow
             IWishIReported, // Revive an Impostor/Converted Crewmate/Neutral Killer as Altruist
             WellMeetAgainSomeSunnyDay, // Mark someone as Hookshot
-            FirstTimeUsingComputer, // Don't send any commands for the entire game
-            Expert, // Don't use F1, /m or /r for 5 rounds straight
-            AndForWhatDidICodeThereCommandsForIfYouDontUseThemAtAll, // Don't use any command for 10 rounds straight
-            Prankster, // Shapeshift or Vanish as a different color as Disco
+            AndForWhatDidICodeTheseCommandsForIfYouDontUseThemAtAll, // Don't use any command for an entire game
+            Prankster, // Shapeshift as Disco
             WhatTheHell, // Type 666 in chat as Demon. Will others notice this? >:)
             WhyJustWhy, // As Dictator, vote out the Jester
             CommonEnemyNo1, // Win as any NK
             CoordinatedAttack, // As Jester, Executioner or Innocent, win with any of the other 2 roles
-            ItsJustAPrankBro, // As Bomber, Kill half the lobby in 1 bomb
-            MindReader, // As doomsayer, guess 3 people in 1 meeting
+            ItsJustAPrankBro // As Bomber, Kill half the lobby in 1 bomb
         }
 
-        public static HashSet<Type> WaitingAchievements = [];
-        public static HashSet<Type> CompletedAchievements = [];
+        const string SaveFilePath = "./EHR_DATA/Achievements.json";
+
+        private static readonly HashSet<Type> WaitingAchievements = [];
+        private static HashSet<Type> CompletedAchievements = [];
 
         public static void Complete(this Type type)
         {
@@ -118,18 +117,23 @@ namespace EHR.Modules
 
             if (GameStates.IsEnded) WaitingAchievements.Add(type);
             else ShowAchievementCompletion(type);
+
+            SaveAllData();
         }
 
         public static void CompleteAfterGameEnd(this Type type)
         {
             if (!CompletedAchievements.Add(type)) return;
             WaitingAchievements.Add(type);
+
+            SaveAllData();
         }
 
         public static void CompleteAfterDelay(this Type type, float delay)
         {
             if (!CompletedAchievements.Add(type)) return;
             Main.Instance.StartCoroutine(CompleteAchievementAfterDelayAsync());
+            SaveAllData();
             return;
 
             IEnumerator CompleteAchievementAfterDelayAsync()
@@ -164,6 +168,20 @@ namespace EHR.Modules
             var description = Translator.GetString($"Achievement.{type}.Description");
             var message = $"<b>{Translator.GetString($"Achievement.{type}")}</b>\\n{description}";
             ChatBubbleShower.ShowChatBubbleInRound(message, title);
+        }
+
+        private static void SaveAllData()
+        {
+            var json = JsonSerializer.Serialize(CompletedAchievements);
+            File.WriteAllText(SaveFilePath, json);
+        }
+
+        public static void LoadAllData()
+        {
+            if (!File.Exists(SaveFilePath)) return;
+
+            var json = File.ReadAllText(SaveFilePath);
+            CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
         }
     }
 }
