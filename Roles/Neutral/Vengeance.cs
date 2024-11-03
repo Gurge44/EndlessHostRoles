@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -105,11 +106,15 @@ namespace EHR.Neutral
 
             if (seconds <= 0 || GameStates.IsMeeting)
             {
-                player.Kill(player);
+                player.Suicide(PlayerState.DeathReason.Kill);
+
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.OutOfTime.Complete();
+
                 return;
             }
 
-            player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
+            player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f, overrideAll: true);
             Timer = seconds;
 
             LateTask.New(() => { Countdown(seconds - 1, player); }, 1.01f, log: false);

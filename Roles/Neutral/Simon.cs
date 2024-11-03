@@ -222,13 +222,14 @@ namespace EHR.Neutral
                 {
                     if (value.Instruction != instruction) continue;
 
-                    if (value.DoAction)
-                        pc.Notify(Utils.ColorString(Color.green, "\u2713"));
-                    else
-                        pc.Suicide();
+                    if (value.DoAction) pc.Notify(Utils.ColorString(Color.green, "\u2713"));
+                    else pc.Suicide();
 
                     simon.MarkedPlayers.Remove(pc.PlayerId);
                     Utils.SendRPC(CustomRPC.SyncRoleData, simon.SimonId, 4, pc.PlayerId);
+
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.SimonSays.Complete();
                 }
             }
         }

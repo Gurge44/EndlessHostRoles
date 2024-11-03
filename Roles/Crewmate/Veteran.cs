@@ -119,6 +119,10 @@ namespace EHR.Crewmate
                 target.SetRealKiller(killer);
                 killer.Kill(target);
                 Logger.Info($"{target.GetRealName()} reverse reverse killed：{target.GetRealName()}", "Pestilence Reflect");
+
+                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.YoureTooLate.Complete();
+
                 return false;
             }
 

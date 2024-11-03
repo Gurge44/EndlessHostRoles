@@ -171,7 +171,19 @@ namespace EHR.Impostor
             LogSpeed();
             Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
             SendRPC();
-            
+
+            if (PlayerControl.LocalPlayer.PlayerId != PenguinId) return;
+
+            switch (IsGoose)
+            {
+                case true when target.Is(CustomRoles.Penguin):
+                    Achievements.Type.Awww.CompleteAfterGameEnd();
+                    break;
+                case false when target.Is(CustomRoles.Goose):
+                    Achievements.Type.Ohhh.CompleteAfterGameEnd();
+                    break;
+            }
+
             if (IsGoose) Achievements.Type.Honk.Complete();
         }
 

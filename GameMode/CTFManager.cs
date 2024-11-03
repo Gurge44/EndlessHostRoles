@@ -129,7 +129,6 @@ namespace EHR
         public static string GetStatistics(byte id)
         {
             if (!PlayerData.TryGetValue(id, out CTFPlayerData stats)) return string.Empty;
-
             return string.Format(Translator.GetString("CTF_PlayerStats"), Math.Round(stats.FlagTime, 1), stats.TagCount);
         }
 
@@ -137,6 +136,12 @@ namespace EHR
         {
             if (!PlayerData.TryGetValue(id, out CTFPlayerData data)) return 0;
             return (int)Math.Round(data.FlagTime);
+        }
+
+        public static int GetTagCount(byte id)
+        {
+            if (!PlayerData.TryGetValue(id, out CTFPlayerData data)) return 0;
+            return data.TagCount;
         }
 
         public static bool CheckForGameEnd(out GameOverReason reason)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Crewmate
@@ -60,7 +61,11 @@ namespace EHR.Crewmate
                         killer.SetKillCooldown();
 
                     bodyguard.BodyguardPC.Suicide(PlayerState.DeathReason.Sacrifice, killer);
-                    Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} stood up and died for {killer.GetRealName()}", "Bodyguard");
+                    Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} stood up and died for {target.GetRealName()}", "Bodyguard");
+
+                    if (bodyguard.BodyguardPC.PlayerId == PlayerControl.LocalPlayer.PlayerId && target.Is(CustomRoles.President))
+                        Achievements.Type.GetDownMrPresident.Complete();
+
                     return false;
                 }
             }

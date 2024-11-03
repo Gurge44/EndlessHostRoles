@@ -87,7 +87,10 @@ namespace EHR.Impostor
                 {
                     target.SetRealKiller(player);
                     target.Kill(player);
-                    //player.RpcGuardAndKill();
+
+                    if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.YoureTooLate.Complete();
+
                     Logger.Info($"Crewpostor tried to kill Pestilence：{target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");
                 }
             }

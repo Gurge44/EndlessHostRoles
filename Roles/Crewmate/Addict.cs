@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using UnityEngine;
 
 namespace EHR.Crewmate
@@ -91,6 +92,9 @@ namespace EHR.Crewmate
             {
                 player.Suicide();
                 SuicideTimer = -10f;
+
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.OutOfTime.Complete();
             }
             else if (Mathf.Approximately(SuicideTimer + 8, TimeLimit.GetFloat()))
                 player.Notify(Translator.GetString("AddictWarning"), 8f);

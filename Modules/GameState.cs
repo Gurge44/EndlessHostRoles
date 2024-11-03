@@ -83,6 +83,8 @@ namespace EHR
         public CustomRoles MainRole = CustomRoles.NotAssigned;
         public (DateTime TimeStamp, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
         public RoleBase Role = new VanillaRole();
+
+        public int RoleChangeTimes;
         public bool IsDead { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
         // ReSharper disable once InconsistentNaming
@@ -153,6 +155,11 @@ namespace EHR
             }
 
             CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
+
+            RoleChangeTimes++;
+
+            if (PlayerId == PlayerControl.LocalPlayer.PlayerId && RoleChangeTimes >= 3)
+                Achievements.Type.Transformer.Complete();
         }
 
         public void SetSubRole(CustomRoles role, bool AllReplace = false)
@@ -529,6 +536,7 @@ namespace EHR
     {
         public static DeadBody[] DeadBodies;
 
+        public static int MeetingNum;
         public static bool MeetingCalled;
         public static bool FirstMeeting = true;
         public static bool IsEmergencyMeeting => ReportTarget == null;

@@ -11,7 +11,8 @@ namespace EHR.Neutral
         private const int Id = 644400;
         public static bool On;
 
-        public static List<byte> WasShifter = [];
+        public static HashSet<byte> WasShifter = [];
+        private static int ShifterInteractionsCount;
 
         public static OptionItem KillCooldown;
         private static OptionItem CanVent;
@@ -41,6 +42,8 @@ namespace EHR.Neutral
             On = false;
 
             WasShifter = [];
+
+            ShifterInteractionsCount = 0;
         }
 
         public override void Add(byte playerId)
@@ -127,6 +130,12 @@ namespace EHR.Neutral
             Utils.NotifyRoles(SpecifyTarget: target);
 
             WasShifter.Add(killer.PlayerId);
+
+            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId || target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            {
+                ShifterInteractionsCount++;
+                if (ShifterInteractionsCount >= 3) Achievements.Type.TheresThisGameMyDadTaughtMeItsCalledSwitch.Complete();
+            }
 
             return false;
         }

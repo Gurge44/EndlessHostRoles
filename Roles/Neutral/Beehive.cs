@@ -106,7 +106,14 @@ namespace EHR.Neutral
                 {
                     StungPlayers.Remove(pc.PlayerId);
                     Utils.SendRPC(CustomRPC.SyncRoleData, BeehiveId, 2, pc.PlayerId);
-                    if (Vector2.Distance(pc.Pos(), sp.InitialPosition) < Distance.GetFloat()) pc.Suicide(realKiller: Utils.GetPlayerById(BeehiveId));
+
+                    if (Vector2.Distance(pc.Pos(), sp.InitialPosition) < Distance.GetFloat())
+                    {
+                        pc.Suicide(realKiller: Utils.GetPlayerById(BeehiveId));
+
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            Achievements.Type.OutOfTime.Complete();
+                    }
                 }
 
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

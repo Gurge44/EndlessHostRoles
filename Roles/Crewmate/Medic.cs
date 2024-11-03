@@ -14,6 +14,8 @@ namespace EHR.Crewmate
         public static List<byte> TempMarkProtectedList = [];
         public static int SkillLimit;
 
+        private static int LocalPlayerTryKillShieldedTimes;
+
         public static OptionItem WhoCanSeeProtect;
         private static OptionItem KnowShieldBroken;
         private static OptionItem ShieldDeactivatesWhenMedicDies;
@@ -92,6 +94,8 @@ namespace EHR.Crewmate
             ProtectList = [];
             TempMarkProtectedList = [];
             SkillLimit = AmountOfShields.GetInt();
+
+            LocalPlayerTryKillShieldedTimes = 0;
         }
 
         public override void Add(byte playerId)
@@ -176,6 +180,12 @@ namespace EHR.Crewmate
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId && target.Is(CustomRoles.Snitch))
+            {
+                if (WhoCanSeeProtect.GetInt() is 1 or 3) Achievements.Type.ImUnstoppable.CompleteAfterGameEnd();
+                else Achievements.Type.ImUnstoppable.Complete();
+            }
+
             return false;
         }
 
@@ -215,6 +225,12 @@ namespace EHR.Crewmate
                     TempMarkProtectedList.Remove(target.PlayerId);
                     Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 }
+            }
+
+            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            {
+                LocalPlayerTryKillShieldedTimes++;
+                if (LocalPlayerTryKillShieldedTimes >= 2) Achievements.Type.DiePleaseDie.CompleteAfterGameEnd();
             }
 
             return true;

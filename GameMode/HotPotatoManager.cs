@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
@@ -107,6 +108,10 @@ namespace EHR
                     Holder.Suicide();
                     SurvivalTimes[HotPotatoState.HolderID] = Time.GetInt() * (HotPotatoState.RoundNum - 1);
                     PassHotPotato();
+
+                    if (Holder.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.OutOfTime.Complete();
+
                     return;
                 }
 

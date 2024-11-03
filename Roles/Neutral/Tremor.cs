@@ -125,7 +125,13 @@ namespace EHR.Neutral
                 DoomTimer--;
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, DoomTimer);
 
-                if (DoomTimer <= 0) pc.Suicide();
+                if (DoomTimer <= 0)
+                {
+                    pc.Suicide();
+
+                    if (PlayerControl.LocalPlayer.IsAlive())
+                        Achievements.Type.Armageddon.Complete();
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Impostor
 {
@@ -83,6 +84,9 @@ namespace EHR.Impostor
                 Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
                 target.MarkDirtySettings();
                 shapeshifter.TP(pos);
+
+                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.TooCold.CompleteAfterGameEnd();
             }
             else
             {

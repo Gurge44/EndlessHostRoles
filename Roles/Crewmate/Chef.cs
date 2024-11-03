@@ -133,6 +133,9 @@ namespace EHR.Crewmate
                         break;
                 }
             }
+
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.Delicious.Complete();
         }
 
         private static void NotifyAboutRandomFood(PlayerControl pc, string cause)
@@ -203,6 +206,7 @@ namespace EHR.Crewmate
         public static void SpitOutFood(PlayerControl pc)
         {
             Instances.Do(x => x.RottenFood.Remove(pc.PlayerId));
+            NameNotifyManager.Notifies.Remove(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 

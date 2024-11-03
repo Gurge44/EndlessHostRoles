@@ -378,6 +378,8 @@ namespace EHR
                             Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
                             TimeLeft = timeLeft;
                             LastUpdate = now;
+
+                            if (aapc.Length == 2) Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
                         }
 
                         if (DonePlayers.Count == aapc.Length - 1)
@@ -409,6 +411,9 @@ namespace EHR
 
                     playersOutsideRoom.Do(x => x.Suicide());
                     StartNewRound();
+
+                    if (playersOutsideRoom.Any(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
+                        Achievements.Type.OutOfTime.Complete();
                 }
             }
         }

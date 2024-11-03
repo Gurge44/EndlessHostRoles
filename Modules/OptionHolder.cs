@@ -805,7 +805,7 @@ namespace EHR
             Logger.Info("Options.Load End", "Options");
             GroupOptions();
             GroupAddons();
-            //Process.Start(@".\EHR_DATA\SettingsUI.exe");
+            Achievements.LoadAllData();
 
 #if DEBUG
         // Used for generating the table of roles for the README

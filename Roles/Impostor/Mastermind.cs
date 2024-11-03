@@ -129,6 +129,9 @@ namespace EHR.Impostor
                     player.Suicide(realKiller: MastermindPC);
                     RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
                     player.RpcChangeRoleBasis(player.GetCustomRole());
+
+                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.OutOfTime.Complete();
                 }
 
                 long time = TimeLimit.GetInt() - (TimeStamp - x.Value);
@@ -168,6 +171,10 @@ namespace EHR.Impostor
                 Main.PlayerStates[killer.PlayerId].SetDead();
                 target.Kill(killer);
                 TempKCDs.Remove(killer.PlayerId);
+
+                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.YoureTooLate.Complete();
+
                 return false;
             }
 

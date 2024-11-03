@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Crewmate
@@ -106,12 +107,13 @@ namespace EHR.Crewmate
 
                         TimeMasterBackTrack.Remove(player.PlayerId);
                     }
-                    else
-                        TimeMasterBackTrack.Add(player.PlayerId, player.Pos());
+                    else TimeMasterBackTrack.Add(player.PlayerId, player.Pos());
                 }
+
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.APerfectTimeToRewindIt.Complete();
             }
-            else
-                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+            else pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)

@@ -143,6 +143,8 @@ namespace EHR.Impostor
 
             float radius = IsNuker ? NukeRadius.GetFloat() : BomberRadius.GetFloat();
 
+            int murderCount = 0;
+
             foreach (PlayerControl tg in Main.AllPlayerControls)
             {
                 if (!tg.IsModClient()) tg.KillFlash();
@@ -157,17 +159,24 @@ namespace EHR.Impostor
                 if (tg.PlayerId == pc.PlayerId) continue;
 
                 tg.Suicide(PlayerState.DeathReason.Bombed, pc);
+                murderCount++;
             }
 
             LateTask.New(() =>
             {
                 int totalAlive = Main.AllAlivePlayerControls.Length;
-                if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
+
+                if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
+                    pc.Suicide(PlayerState.DeathReason.Bombed);
 
                 Utils.NotifyRoles(ForceLoop: true);
+
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && totalAlive <= murderCount)
+                    Achievements.Type.ItsJustAPrankBro.Complete();
             }, 1.5f, "Bomber Suiscide");
 
-            if (CooldownsResetEachOther.GetBool() && BomberCanKill.GetBool()) pc.SetKillCooldown();
+            if (CooldownsResetEachOther.GetBool() && BomberCanKill.GetBool())
+                pc.SetKillCooldown();
         }
     }
 }

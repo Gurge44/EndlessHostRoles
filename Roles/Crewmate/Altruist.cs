@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 
@@ -105,7 +106,7 @@ namespace EHR.Crewmate
 
             RevivedPlayers.Add(ReviveTarget);
 
-            PlayerControl killer = rtg?.GetRealKiller();
+            PlayerControl killer = rtg == null ? null : rtg.GetRealKiller();
 
             if (killer != null && ReviveTargetsKillerGetsAlert.GetBool())
             {
@@ -118,6 +119,9 @@ namespace EHR.Crewmate
             ReviveTarget = byte.MaxValue;
             ReviveStartTS = 0;
             ReviveTargetPos = Vector2.zero;
+
+            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && rtg != null && (rtg.IsImpostor() || rtg.IsNeutralKiller() || rtg.IsConverted()))
+                Achievements.Type.IWishIReported.Complete();
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)

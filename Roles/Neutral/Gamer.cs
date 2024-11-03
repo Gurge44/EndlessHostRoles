@@ -117,6 +117,10 @@ namespace EHR.Neutral
                 if (target.Is(CustomRoles.Pestilence))
                 {
                     target.Kill(killer);
+
+                    if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.YoureTooLate.Complete();
+
                     return false;
                 }
 

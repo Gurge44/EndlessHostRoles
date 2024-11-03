@@ -1450,6 +1450,9 @@ namespace EHR
                 killer.MarkDirtySettings();
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
             }, Options.TrapperBlockMoveTime.GetFloat(), "Trapper BlockMove");
+
+            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
 
         public static bool IsDouseDone(this PlayerControl player)
@@ -1526,6 +1529,9 @@ namespace EHR
             if (target.Is(CustomRoles.Jackal)) Jackal.Instances.Do(x => x.PromoteSidekick());
 
             Main.DiedThisRound.Add(target.PlayerId);
+
+            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && !killer.HasKillButton())
+                Achievements.Type.InnocentKiller.Complete();
 
             switch (killer.PlayerId == target.PlayerId)
             {

@@ -151,6 +151,12 @@ namespace EHR
                 PlayerControl tempTarget = target;
                 target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+
+                if (PlayerControl.LocalPlayer.PlayerId == target.PlayerId)
+                {
+                    Detour.TotalRedirections++;
+                    if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+                }
             }
 
             if (target.Data == null
@@ -429,6 +435,10 @@ namespace EHR
             if (GhostRolesManager.AssignedGhostRoles.Values.Any(x => x.Instance is GA ga && ga.ProtectionList.Contains(target.PlayerId)))
             {
                 Notify("GAGuarded");
+
+                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.IForgotThisRoleExists.CompleteAfterGameEnd();
+
                 return false;
             }
 
@@ -713,6 +723,8 @@ namespace EHR
                 SyncAllSettings();
                 NotifyRoles(ForceLoop: true);
             }
+
+            Statistics.OnMurder(killer, target);
         }
     }
 
@@ -829,7 +841,12 @@ namespace EHR
                 shapeshifter.AddAbilityCD();
             }
 
-            return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
+
+            bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
+
+            Statistics.OnShapeshift(shapeshifter, shapeshifting, animated);
+
+            return animated;
         }
 
         // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.
@@ -933,7 +950,13 @@ namespace EHR
 
                     if (!Librarian.OnAnyoneReport(__instance)) return false;
 
-                    if (!Hypnotist.OnAnyoneReport()) return false;
+                    if (!Hypnotist.OnAnyoneReport())
+                    {
+                        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            Achievements.Type.Hypnosis.CompleteAfterGameEnd();
+
+                        return false;
+                    }
 
                     if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
 
@@ -994,9 +1017,9 @@ namespace EHR
 
         public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target, bool force = false)
         {
-            //====================================================================================
-            //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
-            //====================================================================================
+            //=============================================================================================
+            //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
+            //=============================================================================================
 
             Asthmatic.RunChecks = false;
 
@@ -2005,6 +2028,9 @@ namespace EHR
             }
 
             Main.PlayerStates[__instance.myPlayer.PlayerId].Role.OnCoEnterVent(__instance, id);
+
+            if (__instance.myPlayer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Statistics.VentTimes++;
 
             return true;
         }

@@ -138,6 +138,9 @@ namespace EHR.AddOns.Crewmate
             {
                 Timers[pc.PlayerId] = 0;
                 pc.Suicide();
+
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.OutOfTime.Complete();
             }
 
             if (pc.IsNonHostModClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);

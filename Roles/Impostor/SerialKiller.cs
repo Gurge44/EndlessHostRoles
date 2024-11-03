@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EHR.Modules;
 using UnityEngine;
 
 namespace EHR.Impostor
@@ -91,6 +92,9 @@ namespace EHR.Impostor
                 player.Suicide();
                 SuicideTimer = float.NaN;
                 Timer = TimeLimit.GetInt();
+
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.OutOfTime.Complete();
             }
             else
             {

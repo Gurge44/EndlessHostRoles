@@ -15,6 +15,8 @@ namespace EHR.Neutral
         private static OptionItem VentCooldown;
         private static OptionItem MaxInVentTime;
         private static readonly Dictionary<SystemTypes, OptionItem> PointGains = [];
+
+        public static HashSet<SystemTypes> LocalPlayerFixedSabotageTypes = [];
         private bool FixedSabotage;
 
         private bool Ignore;
@@ -46,6 +48,7 @@ namespace EHR.Neutral
         public override void Init()
         {
             On = false;
+            LocalPlayerFixedSabotageTypes = [];
         }
 
         public override void Add(byte playerId)
@@ -104,9 +107,11 @@ namespace EHR.Neutral
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Technician);
                     CustomWinnerHolder.WinnerIds.Add(TechnicianPC.PlayerId);
                 }
-                else
-                    IsWon = true;
+                else IsWon = true;
             }
+
+            if (TechnicianPC.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                LocalPlayerFixedSabotageTypes.Add(actualSystemType);
         }
 
         public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)

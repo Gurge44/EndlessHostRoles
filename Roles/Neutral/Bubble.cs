@@ -137,6 +137,8 @@ namespace EHR.Neutral
 
                 IEnumerable<PlayerControl> players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encasedPc.Pos());
 
+                int numDied = 0;
+
                 foreach (PlayerControl pc in players)
                 {
                     if (pc == null) continue;
@@ -155,7 +157,11 @@ namespace EHR.Neutral
                     }
 
                     pc.Suicide(PlayerState.DeathReason.Bombed, BubblePC);
+                    numDied++;
                 }
+
+                if (BubbleId == PlayerControl.LocalPlayer.PlayerId && numDied >= 5)
+                    Achievements.Type.SorryToBurstYourBubble.CompleteAfterGameEnd();
 
                 EncasedPlayers.Remove(id);
                 SendRPC(id, true);

@@ -178,6 +178,10 @@ namespace EHR.Neutral
 
             killer.SetRealKiller(target);
             target.Kill(killer);
+
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.YoureTooLate.Complete();
+
             return false;
         }
     }

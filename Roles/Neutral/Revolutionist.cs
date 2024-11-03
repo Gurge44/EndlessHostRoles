@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
@@ -203,22 +202,25 @@ namespace EHR.Neutral
                         {
                             Utils.GetDrawPlayerCount(playerId, out List<PlayerControl> y);
 
-                            foreach (PlayerControl pc in y.Where(x => x != null && x.IsAlive()))
+                            foreach (PlayerControl pc in y)
                             {
-                                pc.Suicide(PlayerState.DeathReason.Sacrifice);
-                                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                                if (pc != null && pc.IsAlive())
+                                {
+                                    pc.Suicide(PlayerState.DeathReason.Sacrifice);
+                                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                                }
                             }
 
                             player.Suicide(PlayerState.DeathReason.Sacrifice);
+
+                            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                                Achievements.Type.OutOfTime.Complete();
                         }
-                        else
-                            RevolutionistCountdown.Add(playerId, countdown);
+                        else RevolutionistCountdown.Add(playerId, countdown);
                     }
-                    else
-                        RevolutionistLastTime.TryAdd(playerId, RevolutionistStart[playerId]);
+                    else RevolutionistLastTime.TryAdd(playerId, RevolutionistStart[playerId]);
                 }
-                else
-                    RevolutionistStart.TryAdd(playerId, Utils.TimeStamp);
+                else RevolutionistStart.TryAdd(playerId, Utils.TimeStamp);
             }
         }
 

@@ -129,6 +129,9 @@ namespace EHR.Crewmate
                         Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                         pc.MarkDirtySettings();
                         NotifyAboutRNG(pc);
+
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            Achievements.Type.TooCold.CompleteAfterGameEnd();
                     }
 
                         break;

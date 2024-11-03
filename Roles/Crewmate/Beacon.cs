@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 
 namespace EHR.Crewmate
 {
@@ -77,6 +78,10 @@ namespace EHR.Crewmate
                     if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
 
                     LastChange[pc.PlayerId] = now;
+
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Achievements.Type.ALightInTheShadows.CompleteAfterGameEnd();
+
                     break;
                 }
             }

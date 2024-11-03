@@ -22,6 +22,8 @@ namespace EHR.Neutral
         private static OptionItem ResetMode;
         private static OptionItem ResetTimer;
 
+        public static int LocalPlayerChangeSkinTimes;
+
         public static Dictionary<byte, string> DoppelVictim = [];
         public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DoppelPresentSkin = [];
         private static Dictionary<byte, int> TotalSteals = [];
@@ -73,6 +75,8 @@ namespace EHR.Neutral
             DoppelDefaultSkin = [];
             DGId = byte.MaxValue;
             StealTimeStamp = 0;
+
+            LocalPlayerChangeSkinTimes = 0;
         }
 
         public override void Add(byte playerId)
@@ -197,6 +201,12 @@ namespace EHR.Neutral
 
             sender.SendMessage();
             DoppelPresentSkin[pc.PlayerId] = newOutfit;
+
+            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            {
+                LocalPlayerChangeSkinTimes++;
+                if (LocalPlayerChangeSkinTimes >= 2) Achievements.Type.Mimicry.Complete();
+            }
         }
 
         public static void OnCheckMurderEnd(PlayerControl killer, PlayerControl target)

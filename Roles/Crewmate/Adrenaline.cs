@@ -93,6 +93,9 @@ namespace EHR.Crewmate
             {
                 Timer = 0;
                 pc.Suicide();
+
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    Achievements.Type.OutOfTime.Complete();
             }
 
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Timer);

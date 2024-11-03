@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Patches;
 using static EHR.Options;
 using static EHR.Translator;
@@ -15,6 +16,7 @@ namespace EHR.Neutral
         public static List<byte> InfectedPlayer = [];
         public static Dictionary<byte, string> VirusNotify = [];
         public static List<byte> InfectedBodies = [];
+        private static int TotalInfections;
 
         private static OptionItem KillCooldown;
         private static OptionItem InfectMax;
@@ -73,6 +75,7 @@ namespace EHR.Neutral
         {
             PlayerIdList = [];
             InfectedPlayer = [];
+            TotalInfections = 0;
         }
 
         public override void Add(byte playerId)
@@ -112,12 +115,20 @@ namespace EHR.Neutral
         {
             if (!CanBeInfected(target)) return;
 
-            Utils.GetPlayerById(PlayerIdList[0]).RpcRemoveAbilityUse();
+            byte id = PlayerIdList[0];
+            Utils.GetPlayerById(id).RpcRemoveAbilityUse();
 
             if (KillInfectedPlayerAfterMeeting.GetBool())
             {
                 InfectedPlayer.Add(target.PlayerId);
                 VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage2"));
+
+                if (id == PlayerControl.LocalPlayer.PlayerId)
+                {
+                    TotalInfections++;
+                    if (TotalInfections >= 2) Achievements.Type.Covid20.Complete();
+                    Achievements.Type.YoureMyFriendNow.Complete();
+                }
             }
             else
             {
