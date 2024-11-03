@@ -2354,12 +2354,12 @@ namespace EHR
             __instance.charCountText.SetText(length <= 0 ? GetString("ThankYouForUsingEHR") : $"{length}/{__instance.textArea.characterLimit}");
             __instance.charCountText.enableWordWrapping = false;
 
-            if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
-                __instance.charCountText.color = Color.black;
-            else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 500))
-                __instance.charCountText.color = new(1f, 1f, 0f, 1f);
-            else
-                __instance.charCountText.color = Color.red;
+            __instance.charCountText.color = length switch
+            {
+                < 1000 => Color.black,
+                < 1200 => new(1f, 1f, 0f, 1f),
+                _ => Color.red
+            };
         }
     }
 
