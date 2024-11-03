@@ -2432,7 +2432,7 @@
   "DeathCommand": "<#ffffff>殺害你的人是 </color>{0}<#ffffff>\\n他們的職業是 </color>{1}",
   "DeathCommandFail": "<#ff0000>連遊戲都不知道是誰殺了你</color>",
   "DefaultSystemMessageTitle": "➡ 系統信息 ⬅",
-  "MessageFromTheHost": "【 ★ 房主信息 ★ 】",
+  "MessageFromTheHost": "【 ★ 房主訊息 ★ 】",
   "SayTitle": "【 ★ 管理員信息 ★ 】",
   "MessageFromEAC": "【 ★ EAC ★ 】",
   "DetectiveNoticeTitle": "【 ★ 偵探信息 ★ 】",
