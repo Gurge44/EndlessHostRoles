@@ -2398,6 +2398,7 @@
   "LoadingHint.43": "¿Sabías que no puedes saberlo todo?",
   "LoadingHint.44": "¿Sabías Que?\nEl número favorito del Desarrollador es 44",
   "LoadingHint.45": "Did you know that you can use the yield statement in an iterator to provide the next value or signal the end of an iteration in a loop since async doesn't work in BepInEx?\nYeah, me neither",
+  "AchievementCompletedTitle": "<#FAD101>ACHIEVEMENT UNLOCKED</color>",
   "Achievement.IdeasLiveOn": "Ideas Live On",
   "Achievement.HowCouldIBelieveThem": "How Could I Believe Them?!",
   "Achievement.WhatKindOfGeniusCameUpWithThisRoleIdea": "What Kind Of Genius Came Up With This Role Idea....??",
