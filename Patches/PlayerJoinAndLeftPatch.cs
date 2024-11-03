@@ -32,7 +32,7 @@ namespace EHR
             GameStates.InGame = false;
             ErrorText.Instance?.Clear();
             
-            Achievements.ShowWaitingAchievements();
+            LateTask.New(Achievements.ShowWaitingAchievements, 5f, log: false);
 
             if (AmongUsClient.Instance.AmHost)
             {

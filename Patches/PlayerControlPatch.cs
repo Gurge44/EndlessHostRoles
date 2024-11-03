@@ -1171,9 +1171,11 @@ namespace EHR
         {
             if (__instance == null || __instance.PlayerId == 255) return;
 
-            if (AmongUsClient.Instance.AmHost && __instance.AmOwner) CustomNetObject.FixedUpdate();
+            if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
+                CustomNetObject.FixedUpdate();
 
-            if (AmongUsClient.Instance.AmHost && __instance.IsAlive()) VentilationSystemDeterioratePatch.CheckVentInteraction(__instance);
+            if (AmongUsClient.Instance.AmHost && __instance.IsAlive())
+                VentilationSystemDeterioratePatch.CheckVentInteraction(__instance);
 
             byte id = __instance.PlayerId;
 
@@ -1266,6 +1268,23 @@ namespace EHR
                     BufferTime[playerId] = Options.DeepLowLoad.GetBool() ? 30 : 10;
             }
 
+            bool inTask = GameStates.IsInTask;
+            bool alive = player.IsAlive();
+
+            try
+            {
+                if (__instance.AmOwner && inTask && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead)))
+                {
+                    List<PlayerControl> players = __instance.GetPlayersInAbilityRangeSorted();
+                    PlayerControl closest = players.Count == 0 ? null : players[0];
+                    HudManager.Instance.KillButton.SetTarget(closest);
+                }
+            }
+            catch
+            {
+                
+            }
+
             if (localPlayer)
             {
                 Zoom.OnFixedUpdate();
@@ -1286,9 +1305,6 @@ namespace EHR
 
                 if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId)) Logger.Info($"Cleared ReportDeadBodyRPC Count for {player.GetRealName().RemoveHtmlTags()}", "FixedUpdatePatch");
             }
-
-            bool inTask = GameStates.IsInTask;
-            bool alive = player.IsAlive();
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -1442,13 +1458,6 @@ namespace EHR
                 }
 
                 if (!Main.DoBlockNameChange && AmongUsClient.Instance.AmHost) ApplySuffix(__instance);
-            }
-
-            if (__instance.AmOwner && inTask && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead)))
-            {
-                List<PlayerControl> players = __instance.GetPlayersInAbilityRangeSorted();
-                PlayerControl closest = players.Count == 0 ? null : players[0];
-                HudManager.Instance.KillButton.SetTarget(closest);
             }
 
             Transform RoleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");

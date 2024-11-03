@@ -162,7 +162,7 @@ namespace EHR.Modules
                 if (VentTimes >= 50) Achievements.Type.Vectory.CompleteAfterGameEnd();
                 VentTimes = 0;
 
-                if (!HasUsedAnyCommand) Achievements.Type.AndForWhatDidICodeTheseCommandsForIfYouDontUseThemAtAll.CompleteAfterGameEnd();
+                if (!HasUsedAnyCommand && Options.CurrentGameMode == CustomGameMode.Standard) Achievements.Type.AndForWhatDidICodeTheseCommandsForIfYouDontUseThemAtAll.CompleteAfterGameEnd();
                 HasUsedAnyCommand = false;
             }
         }
@@ -171,8 +171,6 @@ namespace EHR.Modules
         {
             try
             {
-                const float delay = 8f;
-
                 PlayerControl lp = PlayerControl.LocalPlayer;
 
                 bool amDictator = dictator && lp.Is(CustomRoles.Dictator);
@@ -186,10 +184,10 @@ namespace EHR.Modules
                 if (!tie && exiled && exiledPlayer.Object.Is(CustomRoles.Jester))
                 {
                     if (states.Any(x => x.VoterId == lp.PlayerId && x.VotedForId == exiledPlayer.PlayerId))
-                        Achievements.Type.HowCouldIBelieveThem.CompleteAfterDelay(delay);
+                        Achievements.Type.HowCouldIBelieveThem.Complete();
 
                     if (amDictator && lpHasVS && lpVS.VotedForId == exiledPlayer.PlayerId)
-                        Achievements.Type.WhyJustWhy.CompleteAfterDelay(delay);
+                        Achievements.Type.WhyJustWhy.Complete();
                 }
 
                 if (lpHasVS)
@@ -204,10 +202,10 @@ namespace EHR.Modules
                     VotedBySomeone = true;
 
                 if (exiled && exiledPlayer.PlayerId == lp.PlayerId && Main.PlayerStates.Values.Any(x => x.SubRoles.Contains(CustomRoles.Bait) && x.GetRealKiller() == lp.PlayerId))
-                    Achievements.Type.Gotcha.CompleteAfterDelay(delay);
+                    Achievements.Type.Gotcha.Complete();
 
                 if (lp.Is(CustomRoles.Lyncher) && Main.PlayerStates.Values.Count(x => x.deathReason == PlayerState.DeathReason.Gambled && x.GetRealKiller() == lp.PlayerId) >= 3)
-                    Achievements.Type.GetLynched.CompleteAfterDelay(delay);
+                    Achievements.Type.GetLynched.Complete();
 
                 LateTask.New(() =>
                 {

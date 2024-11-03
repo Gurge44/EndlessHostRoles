@@ -116,7 +116,8 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (RememberMode.GetValue() == 1) RememberRole(killer, target);
+            if (RememberMode.GetValue() == 1)
+                RememberRole(killer, target);
 
             return false;
         }

@@ -1061,38 +1061,28 @@ namespace EHR
                     if (PlayerControl.LocalPlayer.Is(CustomRoles.EvilGuesser))
                     {
                         if (!Options.EGCanGuessImp.GetBool() && index == 1) continue;
-
                         if (!Options.EGCanGuessAdt.GetBool() && index == 3) continue;
                     }
                     else if (PlayerControl.LocalPlayer.Is(CustomRoles.NiceGuesser))
                     {
                         if (!Options.GGCanGuessCrew.GetBool() && index == 0) continue;
-
                         if (!Options.GGCanGuessAdt.GetBool() && index == 3) continue;
                     }
                     else if (PlayerControl.LocalPlayer.Is(CustomRoles.Doomsayer))
                     {
                         if (!Doomsayer.DCanGuessCrewmates.GetBool() && index == 0) continue;
-
                         if (!Doomsayer.DCanGuessImpostors.GetBool() && index == 1) continue;
-
                         if (!Doomsayer.DCanGuessNeutrals.GetBool() && index == 2) continue;
-
                         if (!Doomsayer.DCanGuessAdt.GetBool() && index == 3) continue;
                     }
                     else if (PlayerControl.LocalPlayer.Is(CustomRoles.Guesser))
                     {
-                        // if (!Options.GCanGuessCrew.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && index == 0) continue;
-                        // if (!Options.GCanGuessImp.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && index == 1) continue;
                         if (!Guesser.GCanGuessAdt.GetBool() && index == 3) continue;
                     }
-                    else if (Options.GuesserMode.GetBool())
+                    else if (Options.GuesserMode.GetBool() && !PlayerControl.LocalPlayer.Is(CustomRoles.Guesser) && (!PlayerControl.LocalPlayer.Is(CustomRoles.Lyncher) || Lyncher.GuessMode.GetValue() != 2))
                     {
                         if (!Options.CrewCanGuessCrew.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && index == 0) continue;
-
                         if (!Options.ImpCanGuessImp.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && index == 1) continue;
-
-                        //    if (index == 2) continue;
                         if (!Options.CanGuessAddons.GetBool() && index == 3) continue;
                     }
 

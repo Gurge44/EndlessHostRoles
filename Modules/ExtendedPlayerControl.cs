@@ -105,7 +105,7 @@ namespace EHR
 
         public static void SetChatVisible(this PlayerControl player) // Credit: NikoCat233 | Unused for now
         {
-            if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost || GameStates.IsMeeting) return;
+            if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost) return;
 
             if (player.AmOwner)
             {

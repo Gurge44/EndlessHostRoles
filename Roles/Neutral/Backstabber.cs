@@ -69,6 +69,8 @@ namespace EHR.Neutral
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
+            if (killer.PlayerId == target.PlayerId) return;
+            
             Team targetTeam = target.GetTeam();
 
             Team = targetTeam switch
