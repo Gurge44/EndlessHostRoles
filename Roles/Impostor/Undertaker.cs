@@ -14,22 +14,21 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id + 20, TabGroup.ImpostorRoles, CustomRoles.Undertaker);
+
             UndertakerMarkCooldown = new FloatOptionItem(Id + 30, "UndertakerMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Undertaker])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UndertakerAssassinateCooldown = new FloatOptionItem(Id + 31, "UndertakerAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Undertaker])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UndertakerCanKillAfterAssassinate = new BooleanOptionItem(Id + 32, "UndertakerCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Undertaker]);
         }
 
-        public override void Init()
-        {
-        }
+        public override void Init() { }
 
-        public override void Add(byte playerId)
-        {
-        }
+        public override void Add(byte playerId) { }
     }
 }

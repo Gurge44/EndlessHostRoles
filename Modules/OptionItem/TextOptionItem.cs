@@ -1,17 +1,29 @@
-namespace EHR;
-
-public class TextOptionItem : OptionItem
+namespace EHR
 {
-    public IntegerValueRule Rule;
-
-    public TextOptionItem(int id, string name, TabGroup tab, int defaultValue = 0, bool isSingleValue = false) : base(id, name, defaultValue, tab, isSingleValue)
+    public class TextOptionItem : OptionItem
     {
-        IsText = true;
-        IsHeader = true;
-    }
+        public IntegerValueRule Rule;
 
-    // Getter
-    public override int GetInt() => Rule.GetValueByIndex(CurrentValue);
-    public override float GetFloat() => Rule.GetValueByIndex(CurrentValue);
-    public override string GetString() => Translator.GetString(Name);
+        public TextOptionItem(int id, string name, TabGroup tab, int defaultValue = 0, bool isSingleValue = false) : base(id, name, defaultValue, tab, isSingleValue)
+        {
+            IsText = true;
+            IsHeader = true;
+        }
+
+        // Getter
+        public override int GetInt()
+        {
+            return Rule.GetValueByIndex(CurrentValue);
+        }
+
+        public override float GetFloat()
+        {
+            return Rule.GetValueByIndex(CurrentValue);
+        }
+
+        public override string GetString()
+        {
+            return Translator.GetString(Name);
+        }
+    }
 }

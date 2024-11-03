@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using EHR.Modules;
 
 namespace EHR.Crewmate
 {
     internal class Beacon : RoleBase
     {
         private static List<PlayerControl> Beacons = [];
-        
+
         private static OptionItem VisionIncrease;
         private static OptionItem Radius;
         private static List<byte> AffectedPlayers = [];
@@ -21,9 +21,11 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Beacon);
+
             VisionIncrease = new FloatOptionItem(Id + 2, "BeaconVisionIncrease", new(0.05f, 1.25f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beacon])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             Radius = new FloatOptionItem(Id + 3, "PerceiverRadius", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beacon])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -43,17 +45,20 @@ namespace EHR.Crewmate
             Beacons.Add(playerId.GetPlayer());
         }
 
-        public static bool IsAffectedPlayer(byte id) => Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
+        public static bool IsAffectedPlayer(byte id)
+        {
+            return Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
+        }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!GameStates.IsInTask || pc == null) return;
 
             long now = Utils.TimeStamp;
-            if (LastChange.TryGetValue(pc.PlayerId, out var ts) && ts == now) return;
+            if (LastChange.TryGetValue(pc.PlayerId, out long ts) && ts == now) return;
 
-            var pos = pc.Pos();
-            var radius = Radius.GetFloat();
+            Vector2 pos = pc.Pos();
+            float radius = Radius.GetFloat();
             bool beaconNearby = Beacons.Any(x => Vector2.Distance(x.Pos(), pos) <= radius);
             bool affectedPlayer = AffectedPlayers.Contains(pc.PlayerId);
 
@@ -63,6 +68,7 @@ namespace EHR.Crewmate
                 {
                     AffectedPlayers.Remove(pc.PlayerId);
                     if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
+
                     LastChange[pc.PlayerId] = now;
                     break;
                 }
@@ -70,7 +76,12 @@ namespace EHR.Crewmate
                 {
                     AffectedPlayers.Add(pc.PlayerId);
                     if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
+
                     LastChange[pc.PlayerId] = now;
+
+                    if (pc.IsLocalPlayer())
+                        Achievements.Type.ALightInTheShadows.CompleteAfterGameEnd();
+
                     break;
                 }
             }

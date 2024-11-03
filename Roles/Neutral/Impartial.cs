@@ -34,6 +34,7 @@ namespace EHR.Neutral
             get
             {
                 if (CanWinWhenKillingMore.GetBool()) return ImpKillCount.Killed >= ImpKillCount.Limit && NeutralKillCount.Killed >= NeutralKillCount.Limit && CrewKillCount.Killed >= CrewKillCount.Limit;
+
                 return ImpKillCount.Killed == ImpKillCount.Limit && NeutralKillCount.Killed == NeutralKillCount.Limit && CrewKillCount.Killed == CrewKillCount.Limit;
             }
         }
@@ -48,22 +49,28 @@ namespace EHR.Neutral
             NeutralMaxOpt = CreateSetting(id + 5, false, "Neutral");
             CrewMinOpt = CreateSetting(id + 6, true, "Crew");
             CrewMaxOpt = CreateSetting(id + 7, false, "Crew");
+
             CanVent = new BooleanOptionItem(id + 8, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
+
             CanVentAfterWinning = new BooleanOptionItem(id + 9, "EvenAfterWinning", false, TabGroup.NeutralRoles)
                 .SetParent(CanVent);
+
             HasImpVision = new BooleanOptionItem(id + 10, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
+
             HasImpVisionAfterWinning = new BooleanOptionItem(id + 11, "EvenAfterWinning", false, TabGroup.NeutralRoles)
                 .SetParent(HasImpVision);
+
             CanWinWhenKillingMore = new BooleanOptionItem(id + 12, "ImpartialCanWinWhenKillingMore", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
         }
 
-        static OptionItem CreateSetting(int id, bool min, string roleType)
+        private static OptionItem CreateSetting(int id, bool min, string roleType)
         {
-            var opt = new IntegerOptionItem(id, $"Impartial{roleType}{(min ? "min" : "max")}", new(0, 14, 1), 1, TabGroup.NeutralRoles)
+            OptionItem opt = new IntegerOptionItem(id, $"Impartial{roleType}{(min ? "min" : "max")}", new(0, 14, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
+
             opt.ReplacementDictionary = ReplacementDictionary;
             return opt;
         }
@@ -142,6 +149,7 @@ namespace EHR.Neutral
         public override string GetProgressText(byte playerId, bool comms)
         {
             if (IsWon) return " \u2713";
+
             var sb = new StringBuilder();
             sb.Append($" <{Main.ImpostorColor}>{ImpKillCount.Killed}/{ImpKillCount.Limit}</color>");
             sb.Append($" <{Main.NeutralColor}>{NeutralKillCount.Killed}/{NeutralKillCount.Limit}</color>");

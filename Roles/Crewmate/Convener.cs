@@ -17,12 +17,15 @@ namespace EHR.Crewmate
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Convener);
             CD = Options.CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Convener);
+
             Limit = new IntegerOptionItem(Id + 3, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
+
             ConvenerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 5, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
@@ -42,6 +45,7 @@ namespace EHR.Crewmate
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (Options.UsePets.GetBool()) return;
+
             AURoleOptions.EngineerCooldown = CD.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
@@ -61,9 +65,7 @@ namespace EHR.Crewmate
             if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
             if (isPet)
-            {
                 Utils.TPAll(pc.Pos());
-            }
             else
             {
                 LateTask.New(() => pc.MyPhysics.RpcBootFromVent(ventId), 0.5f, "Convener RpcBootFromVent");

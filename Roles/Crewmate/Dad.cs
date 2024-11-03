@@ -6,7 +6,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -60,61 +59,73 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            int id = 648450;
+            var id = 648450;
             const TabGroup tab = TabGroup.CrewmateRoles;
             const CustomRoles role = CustomRoles.Dad;
 
             Options.SetupRoleOptions(id++, tab, role);
 
-            var parent = Options.CustomRoleSpawnChances[role];
+            StringOptionItem parent = Options.CustomRoleSpawnChances[role];
 
             AlcoholDecreaseOnKilled = new IntegerOptionItem(++id, "Dad.AlcoholDecreaseOnKilled", new(0, 100, 1), 10, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
+
             AlcoholDecreaseOnVotedOut = new IntegerOptionItem(++id, "Dad.AlcoholDecreaseOnVotedOut", new(0, 100, 1), 5, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
+
             NormalAlcoholDecreaseFrequency = new IntegerOptionItem(++id, "Dad.NormalAlcoholDecreaseFrequency", new(1, 60, 1), 10, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             NormalAlcoholDecreaseValue = new IntegerOptionItem(++id, "Dad.NormalAlcoholDecreaseValue", new(0, 100, 1), 1, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
+
             AlcoholIncreaseOnBeerPurchase = new IntegerOptionItem(++id, "Dad.AlcoholIncreaseOnBeerPurchase", new(0, 100, 1), 10, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
+
             ShowWarningWhenAlcoholIsBelow = new IntegerOptionItem(++id, "Dad.ShowWarningWhenAlcoholIsBelow", new(0, 100, 1), 20, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
+
             StartingAlcohol = new IntegerOptionItem(++id, "Dad.StartingAlcohol", new(0, 100, 1), 15, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
+
             StartingMoney = new IntegerOptionItem(++id, "Dad.StartingMoney", new(0, 100, 1), 0, tab)
                 .SetParent(parent);
+
             MoneyGainOnTaskComplete = new IntegerOptionItem(++id, "Dad.MoneyGainOnTaskComplete", new(0, 100, 1), 15, tab)
                 .SetParent(parent);
+
             AlcoholCost = new IntegerOptionItem(++id, "Dad.AlcoholCost", new(0, 100, 1), 10, tab)
                 .SetParent(parent);
+
             SuperVisionDuration = new IntegerOptionItem(++id, "Dad.SuperVisionDuration", new(1, 90, 1), 20, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             GivingDrinkRange = new FloatOptionItem(++id, "Dad.GivingDrinkRange", new(0.5f, 10f, 0.5f), 4f, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Multiplier);
+
             DrunkRoleIncorrectChance = new IntegerOptionItem(++id, "Dad.DrunkRoleIncorrectChance", new(0, 100, 1), 50, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
 
             Ability[] abilities = Enum.GetValues<Ability>();
 
-            foreach (var ability in abilities)
+            foreach (Ability ability in abilities)
             {
                 AbilityAlcoholDecreaseOptions[ability] = new IntegerOptionItem(++id, $"Dad.{ability}.AlcoholDecrease", new(0, 100, 1), 10, tab)
                     .SetParent(parent)
                     .SetValueFormat(OptionFormat.Percent);
             }
 
-            foreach (var ability in abilities)
+            foreach (Ability ability in abilities)
             {
                 AbilityAlcoholRequirement[ability] = new IntegerOptionItem(++id, $"Dad.{ability}.AlcoholRequirement", new(0, 100, 1), ability == Ability.BecomeGodOfAlcohol ? 40 : (int)ability * 5, tab)
                     .SetParent(parent)
@@ -175,18 +186,19 @@ namespace EHR.Crewmate
 
             if (DrunkPlayers.Count > 0)
             {
-                var chance = DrunkRoleIncorrectChance.GetInt();
-                var allRoles = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).ToList();
-                foreach (var id in DrunkPlayers)
+                int chance = DrunkRoleIncorrectChance.GetInt();
+                List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).ToList();
+
+                foreach (byte id in DrunkPlayers)
                 {
-                    var pc = Utils.GetPlayerById(id);
+                    PlayerControl pc = Utils.GetPlayerById(id);
                     if (pc == null) continue;
 
-                    var selfRole = Main.PlayerStates[id].MainRole;
-                    var rndRole = allRoles.Without(selfRole).RandomElement();
-                    var role = IRandom.Instance.Next(100) < chance ? rndRole : selfRole;
-                    var msg = string.Format(Translator.GetString("Dad.DrunkRoleNotify"), Translator.GetString(role.ToString()).ToLower());
-                    var delay = 10 + IRandom.Instance.Next(12);
+                    CustomRoles selfRole = Main.PlayerStates[id].MainRole;
+                    CustomRoles rndRole = allRoles.Without(selfRole).RandomElement();
+                    CustomRoles role = IRandom.Instance.Next(100) < chance ? rndRole : selfRole;
+                    string msg = string.Format(Translator.GetString("Dad.DrunkRoleNotify"), Translator.GetString(role.ToString()).ToLower());
+                    int delay = 10 + IRandom.Instance.Next(12);
 
                     LateTask.New(() => pc.RpcSendChat(msg), delay, $"Dad - DrunkRoleNotify - {pc.GetNameWithRole()}");
                 }
@@ -199,8 +211,7 @@ namespace EHR.Crewmate
 
         public override void AfterMeetingTasks()
         {
-            if (UsingAbilities.Contains(Ability.GoForMilk))
-                LateTask.New(() => Utils.GetPlayerById(DadId)?.TP(Pelican.GetBlackRoomPS()), 1f, log: false);
+            if (UsingAbilities.Contains(Ability.GoForMilk)) LateTask.New(() => Utils.GetPlayerById(DadId)?.TP(Pelican.GetBlackRoomPS()), 1f, log: false);
         }
 
         public override void OnPet(PlayerControl pc)
@@ -248,7 +259,7 @@ namespace EHR.Crewmate
                     UsingAbilities.Add(SelectedAbility);
                     break;
                 case Ability.GiveDrink when Alcohol >= 25:
-                    var pos = physics.myPlayer.Pos();
+                    Vector2 pos = physics.myPlayer.Pos();
                     DrunkPlayers = Main.AllAlivePlayerControls.Without(physics.myPlayer).Where(x => Vector2.Distance(x.Pos(), pos) <= GivingDrinkRange.GetFloat()).Select(x => x.PlayerId).ToList();
                     Utils.NotifyRoles(SpecifySeer: physics.myPlayer);
                     break;
@@ -266,9 +277,10 @@ namespace EHR.Crewmate
         {
             if (vent.Id != Shop.Id) return;
 
-            var cost = AlcoholCost.GetInt();
-            var get = AlcoholIncreaseOnBeerPurchase.GetInt();
-            for (var money = pc.GetAbilityUseLimit(); money >= cost; money -= cost)
+            int cost = AlcoholCost.GetInt();
+            int get = AlcoholIncreaseOnBeerPurchase.GetInt();
+
+            for (float money = pc.GetAbilityUseLimit(); money >= cost; money -= cost)
             {
                 pc.SetAbilityUseLimit(money - cost);
                 Alcohol += get;
@@ -295,18 +307,20 @@ namespace EHR.Crewmate
             if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
             if (Count++ < 15) return;
+
             Count = 0;
 
-            var pos = pc.Pos();
-            if (UsingAbilities.Contains(Ability.Rage) && Main.AllAlivePlayerControls.FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.3f, out var target) && pc.RpcCheckAndMurder(target))
-                UsingAbilities.Remove(Ability.Rage);
+            Vector2 pos = pc.Pos();
+            if (UsingAbilities.Contains(Ability.Rage) && Main.AllAlivePlayerControls.FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.3f, out PlayerControl target) && pc.RpcCheckAndMurder(target)) UsingAbilities.Remove(Ability.Rage);
 
             bool notify = Vector2.Distance(pc.Pos(), Shop.transform.position) < 2f;
 
             long now = Utils.TimeStamp;
+
             if (now - LastUpdate < NormalAlcoholDecreaseFrequency.GetInt())
             {
                 if (notify) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+
                 return;
             }
 
@@ -315,9 +329,10 @@ namespace EHR.Crewmate
             if (UsingAbilities.Contains(Ability.GoForMilk))
             {
                 MilkTimer--;
+
                 if (MilkTimer <= 0)
                 {
-                    pc.TPtoRndVent();
+                    pc.TPToRandomVent();
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
                     CustomWinnerHolder.WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.Is(Team.Crewmate)).Select(x => x.PlayerId));
                 }
@@ -332,8 +347,10 @@ namespace EHR.Crewmate
 
             if (UsingAbilities.Contains(Ability.Sleep)) return;
 
-            if (UsingAbilities.Contains(Ability.BecomeGodOfAlcohol)) Alcohol += NormalAlcoholDecreaseValue.GetInt();
-            else Alcohol -= NormalAlcoholDecreaseValue.GetInt();
+            if (UsingAbilities.Contains(Ability.BecomeGodOfAlcohol))
+                Alcohol += NormalAlcoholDecreaseValue.GetInt();
+            else
+                Alcohol -= NormalAlcoholDecreaseValue.GetInt();
 
             if (Alcohol <= 0)
             {
@@ -351,13 +368,15 @@ namespace EHR.Crewmate
                 Alcohol -= AlcoholDecreaseOnKilled.GetInt();
                 NotifyIfNecessary(target);
             }, 5f, log: false);
+
             return false;
         }
 
         public static bool OnVotedOut(byte id)
         {
-            var dad = Instances.FirstOrDefault(d => d.DadId == id);
+            Dad dad = Instances.FirstOrDefault(d => d.DadId == id);
             if (dad == null) return false;
+
             dad.Alcohol -= AlcoholDecreaseOnVotedOut.GetInt();
             dad.NotifyIfNecessary(Utils.GetPlayerById(dad.DadId));
             Logger.Info("Ejection prohibited", "Dad");
@@ -371,18 +390,17 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurderStart(PlayerControl target)
         {
-            var dad = Instances.FirstOrDefault(d => d.DadId == target.PlayerId);
+            Dad dad = Instances.FirstOrDefault(d => d.DadId == target.PlayerId);
             if (dad == null) return false;
+
             return dad.UsingAbilities.Contains(Ability.Sleep);
         }
 
-        void NotifyIfNecessary(PlayerControl pc, bool force = false)
+        private void NotifyIfNecessary(PlayerControl pc, bool force = false)
         {
             if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
-            if (force || Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt())
-            {
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
+
+            if (force || Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
             Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 3, Alcohol);
         }
@@ -412,23 +430,26 @@ namespace EHR.Crewmate
 
             if (Vector2.Distance(seer.Pos(), Shop.transform.position) <= 2f)
             {
-                var canBuyAmount = seer.GetAbilityUseLimit() / AlcoholCost.GetInt();
+                float canBuyAmount = seer.GetAbilityUseLimit() / AlcoholCost.GetInt();
                 sb.Append(string.Format(Translator.GetString("Dad.ShopSuffix"), canBuyAmount));
             }
 
             if (Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt())
             {
                 if (sb.Length > 0) sb.Append('\n');
+
                 sb.Append(string.Format(Translator.GetString("Dad.LowAlcoholSuffix"), Alcohol));
             }
 
             if (Arrows.Length > 0)
             {
                 if (sb.Length > 0) sb.Append('\n');
+
                 sb.Append(Arrows);
             }
 
             if (sb.Length > 0) sb.Append("\n\n<size=70%>");
+
             sb.Append(string.Format(Translator.GetString("Dad.SelectedAbilitySuffix"), Translator.GetString($"Dad.Ability.{SelectedAbility}")));
             sb.Append('\n');
             sb.Append(Translator.GetString($"Dad.{SelectedAbility}.Description"));

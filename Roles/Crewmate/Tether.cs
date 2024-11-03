@@ -27,16 +27,21 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tether);
+
             VentCooldown = new FloatOptionItem(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Times);
+
             TetherAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Times);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 13, CustomRoles.Tether, TabGroup.CrewmateRoles);
         }
 
@@ -55,9 +60,10 @@ namespace EHR.Crewmate
             TetherId = playerId;
         }
 
-        void SendRPCSyncTarget()
+        private void SendRPCSyncTarget()
         {
             if (!IsEnable || !Utils.DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable);
             writer.Write(TetherId);
             writer.Write(Target);
@@ -82,7 +88,7 @@ namespace EHR.Crewmate
             Teleport(pc, vent.Id);
         }
 
-        void Teleport(PlayerControl pc, int ventId, bool isPet = false)
+        private void Teleport(PlayerControl pc, int ventId, bool isPet = false)
         {
             if (pc == null) return;
 
@@ -90,21 +96,16 @@ namespace EHR.Crewmate
             {
                 LateTask.New(() =>
                 {
-                    if (GameStates.IsInTask)
-                    {
-                        pc.TP(Utils.GetPlayerById(Target).Pos());
-                    }
+                    if (GameStates.IsInTask) pc.TP(Utils.GetPlayerById(Target).Pos());
                 }, isPet ? 0.1f : 2f, "Tether TP");
             }
-            else if (!isPet)
-            {
-                LateTask.New(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
-            }
+            else if (!isPet) LateTask.New(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (UsePets.GetBool()) return;
+
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
@@ -141,6 +142,9 @@ namespace EHR.Crewmate
             return sb.ToString();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+        {
+            return Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
+        }
     }
 }

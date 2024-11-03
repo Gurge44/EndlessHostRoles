@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Hazel;
 using InnerNet;
-using UnityEngine;
 
 namespace EHR.Impostor
 {
@@ -16,6 +15,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(16900, TabGroup.ImpostorRoles, CustomRoles.OverKiller);
+
             KillCooldown = new FloatOptionItem(16902, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.OverKiller])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -43,29 +43,32 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!killer.RpcCheckAndMurder(target, check: true)) return false;
+            if (!killer.RpcCheckAndMurder(target, true)) return false;
 
             if (killer.PlayerId != target.PlayerId)
             {
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
+
                 LateTask.New(() =>
                 {
                     if (!OverDeadPlayerList.Contains(target.PlayerId)) OverDeadPlayerList.Add(target.PlayerId);
+
                     if (target.Is(CustomRoles.Avanger))
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
-                        {
+                        target.Suicide(PlayerState.DeathReason.Dismembered, killer);
+
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             pc.Suicide(PlayerState.DeathReason.Revenge, target);
-                        }
 
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                         return;
                     }
 
-                    var ops = target.Pos();
-                    var originPos = killer.Pos();
+                    Vector2 ops = target.Pos();
+                    Vector2 originPos = killer.Pos();
                     var rd = IRandom.Instance;
-                    for (int i = 0; i < 20; i++)
+
+                    for (var i = 0; i < 20; i++)
                     {
                         Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
                         location += new Vector2(0, 0.3636f);

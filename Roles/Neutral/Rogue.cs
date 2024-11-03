@@ -35,9 +35,11 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Rogue);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rogue])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rogue]);
         }
@@ -61,15 +63,26 @@ namespace EHR.Neutral
             MorphCooldown = 0;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = GotRewards.Contains(Reward.DecreasedKillCooldown) ? KillCooldown.GetFloat() / 2f : KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CurrentTask.Objective == Objective.VentXTimes || CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (GotRewards.Contains(Reward.Sabotage) || GotRewards.Contains(Reward.Morph));
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = GotRewards.Contains(Reward.DecreasedKillCooldown) ? KillCooldown.GetFloat() / 2f : KillCooldown.GetFloat();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CurrentTask.Objective == Objective.VentXTimes || CanVent.GetBool();
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return base.CanUseSabotage(pc) || GotRewards.Contains(Reward.Sabotage) || GotRewards.Contains(Reward.Morph);
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(GotRewards.Contains(Reward.ImpostorVision));
             opt.SetInt(Int32OptionNames.KillDistance, GotRewards.Contains(Reward.LongReach) ? 2 : 0);
-            var defSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            float defSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             Main.AllPlayerSpeed[id] = GotRewards.Contains(Reward.IncreasedSpeed) ? defSpeed + 0.5f : defSpeed;
         }
 
@@ -79,7 +92,7 @@ namespace EHR.Neutral
             {
                 MorphCooldown = 15 + (int)Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
-                var target = Main.AllAlivePlayerControls.Except([pc]).Shuffle()[0];
+                PlayerControl target = Main.AllAlivePlayerControls.Except([pc]).Shuffle()[0];
                 pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
                 return false;
             }
@@ -103,10 +116,7 @@ namespace EHR.Neutral
                     break;
                 case Objective.KillXTimes:
                     CurrentTask.Data = (int)CurrentTask.Data - 1;
-                    if ((int)CurrentTask.Data <= 0)
-                    {
-                        SetTaskCompleted();
-                    }
+                    if ((int)CurrentTask.Data <= 0) SetTaskCompleted();
 
                     break;
                 case Objective.KillInSpecificRoom when Translator.GetString(target.GetPlainShipRoom().RoomId.ToString()) == (string)CurrentTask.Data:
@@ -120,10 +130,7 @@ namespace EHR.Neutral
             if (CurrentTask.Objective == Objective.VentXTimes)
             {
                 CurrentTask.Data = (int)CurrentTask.Data - 1;
-                if ((int)CurrentTask.Data <= 0)
-                {
-                    SetTaskCompleted();
-                }
+                if ((int)CurrentTask.Data <= 0) SetTaskCompleted();
             }
         }
 
@@ -133,6 +140,7 @@ namespace EHR.Neutral
 
             Count++;
             if (Count < 30) return;
+
             Count = 0;
 
             if (DoCheck && Moving)
@@ -154,46 +162,36 @@ namespace EHR.Neutral
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
-                if (pc.IsShifted() && MorphCooldown <= Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown))
-                {
-                    pc.RpcShapeshift(pc, !Options.DisableAllShapeshiftAnimations.GetBool());
-                }
+                if (pc.IsShifted() && MorphCooldown <= Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown)) pc.RpcShapeshift(pc, !Options.DisableAllShapeshiftAnimations.GetBool());
             }
         }
 
         public void OnButtonPressed()
         {
-            if (CurrentTask.Objective == Objective.CallEmergencyMeeting)
-            {
-                SetTaskCompleted(chatMessage: true);
-            }
+            if (CurrentTask.Objective == Objective.CallEmergencyMeeting) SetTaskCompleted(true);
         }
 
         public void OnFixSabotage()
         {
-            if (CurrentTask.Objective == Objective.FixSabotage)
-            {
-                SetTaskCompleted();
-            }
+            if (CurrentTask.Objective == Objective.FixSabotage) SetTaskCompleted();
         }
 
-        void SetTaskCompleted(bool chatMessage = false)
+        private void SetTaskCompleted(bool chatMessage = false)
         {
             CurrentTask.IsCompleted = true;
             SendRPC();
 
-            if (chatMessage) LateTask.New(() => Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")), 8f, log: false);
-            else Utils.NotifyRoles(SpecifySeer: RoguePC, SpecifyTarget: RoguePC);
+            if (chatMessage)
+                LateTask.New(() => Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")), 8f, log: false);
+            else
+                Utils.NotifyRoles(SpecifySeer: RoguePC, SpecifyTarget: RoguePC);
         }
 
         public override void OnReportDeadBody()
         {
             DoCheck = false;
 
-            if (CurrentTask.Objective == Objective.DontStopWalking && Moving)
-            {
-                SetTaskCompleted(chatMessage: true);
-            }
+            if (CurrentTask.Objective == Objective.DontStopWalking && Moving) SetTaskCompleted(true);
         }
 
         public override void AfterMeetingTasks()
@@ -211,7 +209,7 @@ namespace EHR.Neutral
                 switch (CurrentTask.Reward)
                 {
                     case Reward.HelpfulAddon:
-                        var addon = Options.GroupedAddons[AddonTypes.Helpful].RandomElement();
+                        CustomRoles addon = Options.GroupedAddons[AddonTypes.Helpful].RandomElement();
                         RoguePC.RpcSetCustomRole(addon);
                         break;
                     case Reward.DecreasedKillCooldown:
@@ -224,8 +222,9 @@ namespace EHR.Neutral
                         break;
                 }
 
-                var objective = Enum.GetValues<Objective>().Except(GotObjectives).Shuffle()[0];
-                var reward = Enum.GetValues<Reward>().Except(GotRewards).Shuffle()[0];
+                Objective objective = Enum.GetValues<Objective>().Except(GotObjectives).Shuffle()[0];
+                Reward reward = Enum.GetValues<Reward>().Except(GotRewards).Shuffle()[0];
+
                 object data = objective switch
                 {
                     Objective.KillInSpecificRoom => Translator.GetString(ShipStatus.Instance.AllRooms.RandomElement().RoomId.ToString()),
@@ -262,16 +261,22 @@ namespace EHR.Neutral
             }
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, RoguePC.PlayerId, 1, (int)CurrentTask.Objective, (int)CurrentTask.Reward, CurrentTask.IsCompleted, AllTasksCompleted, DataType(), CurrentTask.Data);
-
-        int DataType() => CurrentTask.Data switch
+        private void SendRPC()
         {
-            string => 0,
-            byte => 1,
-            int => 2,
-            null => 3,
-            _ => -1
-        };
+            Utils.SendRPC(CustomRPC.SyncRoleData, RoguePC.PlayerId, 1, (int)CurrentTask.Objective, (int)CurrentTask.Reward, CurrentTask.IsCompleted, AllTasksCompleted, DataType(), CurrentTask.Data);
+        }
+
+        private int DataType()
+        {
+            return CurrentTask.Data switch
+            {
+                string => 0,
+                byte => 1,
+                int => 2,
+                null => 3,
+                _ => -1
+            };
+        }
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -279,8 +284,9 @@ namespace EHR.Neutral
             {
                 var objective = (Objective)reader.ReadPackedInt32();
                 var reward = (Reward)reader.ReadPackedInt32();
-                var isCompleted = reader.ReadBoolean();
+                bool isCompleted = reader.ReadBoolean();
                 AllTasksCompleted = reader.ReadBoolean();
+
                 object data = reader.ReadPackedInt32() switch
                 {
                     0 => reader.ReadString(),
@@ -289,21 +295,23 @@ namespace EHR.Neutral
                     3 => null,
                     _ => default
                 };
+
                 CurrentTask = (objective, reward, data, isCompleted);
             }
             else
-            {
                 MorphCooldown = reader.ReadPackedInt32();
-            }
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || MeetingStates.FirstMeeting) return string.Empty;
+
             if (AllTasksCompleted) return Translator.GetString("Rogue.AllTasksCompleted");
+
             if (CurrentTask.IsCompleted) return Translator.GetString("Rogue.TaskCompleted");
 
             float d = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
+
             string c = GotRewards.Contains(Reward.Morph) && MorphCooldown > 0
                 ? MorphCooldown <= d
                     ? string.Format(Translator.GetString("CDPT"), MorphCooldown) + "\n"
@@ -311,14 +319,14 @@ namespace EHR.Neutral
                 : string.Empty;
 
             string o = Translator.GetString("Rogue.Objective." + CurrentTask.Objective);
-            if (CurrentTask.Objective is Objective.KillInSpecificRoom or Objective.VentXTimes or Objective.KillSpecificPlayer or Objective.KillXTimes)
-                o = string.Format(o, CurrentTask.Data is byte id ? Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Utils.GetPlayerById(id).GetRealName()) : CurrentTask.Data);
+            if (CurrentTask.Objective is Objective.KillInSpecificRoom or Objective.VentXTimes or Objective.KillSpecificPlayer or Objective.KillXTimes) o = string.Format(o, CurrentTask.Data is byte id ? Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Utils.GetPlayerById(id).GetRealName()) : CurrentTask.Data);
+
             string r = Translator.GetString("Rogue.Reward." + CurrentTask.Reward);
             string s = string.Format(Translator.GetString("Rogue.Task"), o, r);
             return $"<size=80%>{c}{s}</size>";
         }
 
-        enum Objective
+        private enum Objective
         {
             KillInSpecificRoom,
             VentXTimes,
@@ -329,7 +337,7 @@ namespace EHR.Neutral
             FixSabotage
         }
 
-        enum Reward
+        private enum Reward
         {
             DisableDevices,
             Morph,

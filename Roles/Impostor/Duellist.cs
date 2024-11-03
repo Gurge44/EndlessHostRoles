@@ -15,11 +15,14 @@ namespace EHR.Impostor
         private static Dictionary<byte, byte> DuelPair = [];
         private static OptionItem SSCD;
 
+        private int Count;
+
         public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Duellist);
+
             SSCD = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Duellist])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -44,43 +47,38 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl duellist, PlayerControl target, bool shapeshifting)
         {
             if (!IsEnable) return false;
+
             if (duellist == null || target == null) return false;
 
-            var pos = Pelican.GetBlackRoomPS();
+            Vector2 pos = Pelican.GetBlackRoomPS();
 
             if (target.TP(pos))
             {
-                if (Main.KillTimers[duellist.PlayerId] < 1f)
-                {
-                    duellist.SetKillCooldown(1f); // Give the other player a chance to kill
-                }
+                if (Main.KillTimers[duellist.PlayerId] < 1f) duellist.SetKillCooldown(1f); // Give the other player a chance to kill
 
                 duellist.TP(pos);
                 DuelPair[duellist.PlayerId] = target.PlayerId;
             }
             else
-            {
                 duellist.Notify(GetString("TargetCannotBeTeleported"));
-            }
 
             return false;
         }
 
-        private int Count;
-
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (DuelPair.Count == 0) return;
-            
+
             if (Count++ < 40) return;
+
             Count = 0;
 
-            foreach (var pair in DuelPair)
+            foreach (KeyValuePair<byte, byte> pair in DuelPair)
             {
-                var duellist = GetPlayerById(pair.Key);
-                var target = GetPlayerById(pair.Value);
-                var DAlive = duellist.IsAlive();
-                var TAlive = target.IsAlive();
+                PlayerControl duellist = GetPlayerById(pair.Key);
+                PlayerControl target = GetPlayerById(pair.Value);
+                bool DAlive = duellist.IsAlive();
+                bool TAlive = target.IsAlive();
 
                 switch (DAlive)
                 {
@@ -89,11 +87,11 @@ namespace EHR.Impostor
                         break;
                     case true when !TAlive:
                         DuelPair.Remove(pair.Key);
-                        LateTask.New(() => { duellist.TPtoRndVent(); }, 0.5f, log: false);
+                        LateTask.New(() => { duellist.TPToRandomVent(); }, 0.5f, log: false);
                         break;
                     case false:
                         DuelPair.Remove(pair.Key);
-                        LateTask.New(() => { target.TPtoRndVent(); }, 0.5f, log: false);
+                        LateTask.New(() => { target.TPToRandomVent(); }, 0.5f, log: false);
                         break;
                 }
             }

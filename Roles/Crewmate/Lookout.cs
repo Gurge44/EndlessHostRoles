@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -24,19 +25,24 @@ namespace EHR.Crewmate
 
         public override void OnPet(PlayerControl pc)
         {
-            var aapc = Main.AllAlivePlayerControls;
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
             var sb = new StringBuilder();
-            for (int i = 0; i < aapc.Length; i++)
+
+            for (var i = 0; i < aapc.Length; i++)
                 if (i % 3 == 0)
                     sb.AppendLine();
-            for (int i = 0; i < aapc.Length; i++)
+
+            for (var i = 0; i < aapc.Length; i++)
             {
                 PlayerControl player = aapc[i];
                 if (player == null) continue;
+
                 if (i != 0) sb.Append("; ");
+
                 string name = player.GetRealName();
                 byte id = player.PlayerId;
-                if (Main.PlayerColors.TryGetValue(id, out var color)) name = Utils.ColorString(color, name);
+                if (Main.PlayerColors.TryGetValue(id, out Color32 color)) name = Utils.ColorString(color, name);
+
                 sb.Append($"{name} {id}");
                 if (i % 3 == 0 && i != aapc.Length - 1) sb.AppendLine();
             }

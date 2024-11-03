@@ -25,11 +25,14 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Hookshot);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HasImpostorVision = new BooleanOptionItem(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot]);
+
             CanVent = new BooleanOptionItem(Id + 4, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot]);
         }
@@ -47,22 +50,33 @@ namespace EHR.Neutral
             MarkedPlayerId = byte.MaxValue;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-                AURoleOptions.PhantomCooldown = 1f;
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-                AURoleOptions.ShapeshifterCooldown = 1f;
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
+
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
-        void SendRPC()
+        private void SendRPC()
         {
             if (!IsEnable || !DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, SendOption.Reliable);
             writer.Write(HookshotId);
             writer.Write(ToTargetTP);
@@ -72,8 +86,9 @@ namespace EHR.Neutral
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            var playerId = reader.ReadByte();
+            byte playerId = reader.ReadByte();
             if (Main.PlayerStates[playerId].Role is not Hookshot hs) return;
+
             hs.ToTargetTP = reader.ReadBoolean();
             hs.MarkedPlayerId = reader.ReadByte();
         }
@@ -98,15 +113,17 @@ namespace EHR.Neutral
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+
             ExecuteAction();
             return false;
         }
 
-        void ExecuteAction()
+        private void ExecuteAction()
         {
             if (MarkedPlayerId == byte.MaxValue) return;
 
-            var markedPlayer = GetPlayerById(MarkedPlayerId);
+            PlayerControl markedPlayer = GetPlayerById(MarkedPlayerId);
+
             if (markedPlayer == null)
             {
                 MarkedPlayerId = byte.MaxValue;
@@ -139,6 +156,9 @@ namespace EHR.Neutral
                 MarkedPlayerId = target.PlayerId;
                 SendRPC();
                 HookshotPC.SetKillCooldown(5f);
+
+                if (killer.IsLocalPlayer())
+                    Achievements.Type.WellMeetAgainSomeSunnyDay.Complete();
             });
         }
 
@@ -148,6 +168,9 @@ namespace EHR.Neutral
             SendRPC();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => seer.PlayerId == target.PlayerId && seer.PlayerId == HookshotId ? $"<#00ffa5>{Translator.GetString("Mode")}:</color> <#ffffff>{(ToTargetTP ? Translator.GetString("HookshotTpToTarget") : Translator.GetString("HookshotPullTarget"))}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+        {
+            return seer.PlayerId == target.PlayerId && seer.PlayerId == HookshotId ? $"<#00ffa5>{Translator.GetString("Mode")}:</color> <#ffffff>{(ToTargetTP ? Translator.GetString("HookshotTpToTarget") : Translator.GetString("HookshotPullTarget"))}</color>" : string.Empty;
+        }
     }
 }

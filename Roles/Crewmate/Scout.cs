@@ -24,28 +24,35 @@ namespace EHR.Crewmate
         public static bool CanSeeLastRoomInMeeting;
 
         private static Dictionary<byte, List<byte>> TrackerTarget = [];
-        byte TrackerId;
+        private byte TrackerId;
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Scout);
+
             TrackLimitOpt = new IntegerOptionItem(Id + 5, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
+
             CanGetColoredArrow = new BooleanOptionItem(Id + 6, "TrackerCanGetArrowColor", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
+
             OptionCanSeeLastRoomInMeeting = new BooleanOptionItem(Id + 7, "EvilTrackerCanSeeLastRoomInMeeting", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
+
             HideVote = new BooleanOptionItem(Id + 8, "TrackerHideVote", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
+
             TrackerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 9, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 3, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 4, CustomRoles.Scout, TabGroup.CrewmateRoles);
         }
 
@@ -67,6 +74,7 @@ namespace EHR.Crewmate
         public static void SendRPC(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
         {
             if (!Utils.DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTrackerTarget, SendOption.Reliable);
             writer.Write(trackerId);
             writer.Write(targetId);
@@ -83,7 +91,10 @@ namespace EHR.Crewmate
             TrackerTarget[trackerId].Add(targetId);
         }
 
-        public static string GetTargetMark(PlayerControl seer, PlayerControl target) => !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
+        public static string GetTargetMark(PlayerControl seer, PlayerControl target)
+        {
+            return !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
+        }
 
         public override bool OnVote(PlayerControl player, PlayerControl target)
         {
@@ -103,29 +114,37 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer == null || seer.PlayerId != TrackerId) return string.Empty;
+
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+
             if (!TrackerTarget.ContainsKey(seer.PlayerId)) return string.Empty;
+
             if (GameStates.IsMeeting) return string.Empty;
 
             return TrackerTarget[seer.PlayerId].Aggregate(string.Empty, (current, trackTarget) => current + Utils.ColorString(CanGetColoredArrow.GetBool() ? Main.PlayerColors[trackTarget] : Color.white, TargetArrow.GetArrows(seer, trackTarget))) + LocateArrow.GetArrows(seer);
         }
 
         public static bool IsTrackTarget(PlayerControl seer, PlayerControl target)
-            => seer.IsAlive() && PlayerIdList.Contains(seer.PlayerId)
-                              && TrackerTarget[seer.PlayerId].Contains(target.PlayerId)
-                              && target.IsAlive();
+        {
+            return seer.IsAlive() && PlayerIdList.Contains(seer.PlayerId)
+                                  && TrackerTarget[seer.PlayerId].Contains(target.PlayerId)
+                                  && target.IsAlive();
+        }
 
         public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
         {
             if (seer == null || target == null) return string.Empty;
 
-            var roleColor = Utils.GetRoleColor(CustomRoles.Scout);
+            Color roleColor = Utils.GetRoleColor(CustomRoles.Scout);
             string text = Utils.ColorString(roleColor, TargetArrow.GetArrows(seer, target.PlayerId));
             text += Utils.ColorString(roleColor, LocateArrow.GetArrows(seer));
 
-            var room = Main.PlayerStates[target.PlayerId].LastRoom;
-            if (room == null) text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
-            else text += Utils.ColorString(roleColor, "@" + GetString(room.RoomId.ToString()));
+            PlainShipRoom room = Main.PlayerStates[target.PlayerId].LastRoom;
+
+            if (room == null)
+                text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
+            else
+                text += Utils.ColorString(roleColor, "@" + GetString(room.RoomId.ToString()));
 
             return text;
         }
@@ -133,7 +152,8 @@ namespace EHR.Crewmate
         public static void OnPlayerDeath(PlayerControl player)
         {
             if (player == null) return;
-            foreach (var kvp in TrackerTarget)
+
+            foreach (KeyValuePair<byte, List<byte>> kvp in TrackerTarget)
             {
                 if (kvp.Value.Contains(player.PlayerId))
                 {
@@ -146,12 +166,14 @@ namespace EHR.Crewmate
 
         public override void AfterMeetingTasks()
         {
-            foreach (var kvp in TrackerTarget)
+            foreach (KeyValuePair<byte, List<byte>> kvp in TrackerTarget)
             {
                 LocateArrow.RemoveAllTarget(kvp.Key);
-                foreach (var id in kvp.Value.ToArray())
+
+                foreach (byte id in kvp.Value.ToArray())
                 {
-                    var pc = Utils.GetPlayerById(id);
+                    PlayerControl pc = Utils.GetPlayerById(id);
+
                     if (pc == null || !pc.IsAlive())
                     {
                         kvp.Value.Remove(id);

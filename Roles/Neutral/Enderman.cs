@@ -1,5 +1,4 @@
 ﻿using AmongUs.GameOptions;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -23,11 +22,14 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Enderman);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enderman])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enderman]);
+
             Time = new IntegerOptionItem(Id + 4, "EndermanSecondsBeforeTP", new(1, 60, 1), 7, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enderman])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -45,17 +47,27 @@ namespace EHR.Neutral
             MarkedPosition = (Vector2.zero, 0, false);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(true);
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-                AURoleOptions.PhantomCooldown = Time.GetInt() + 2f;
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-                AURoleOptions.ShapeshifterCooldown = Time.GetInt() + 2f;
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = Time.GetInt() + 2f;
+
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = Time.GetInt() + 2f;
         }
 
 
@@ -79,13 +91,15 @@ namespace EHR.Neutral
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+
             MarkPosition();
             return false;
         }
 
-        void MarkPosition()
+        private void MarkPosition()
         {
             if (!IsEnable || EndermanPC.HasAbilityCD()) return;
+
             EndermanPC.AddAbilityCD(Time.GetInt() + 2);
             MarkedPosition.MarkTimeStamp = TimeStamp;
             MarkedPosition.Position = EndermanPC.Pos();
@@ -96,6 +110,7 @@ namespace EHR.Neutral
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !EndermanPC.IsAlive() || MarkedPosition.MarkTimeStamp + Time.GetInt() >= TimeStamp) return;
+
             EndermanPC.TP(MarkedPosition.Position);
             MarkedPosition.TP = false;
         }
@@ -103,6 +118,7 @@ namespace EHR.Neutral
         public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
+
             MarkedPosition.TP = false;
         }
     }

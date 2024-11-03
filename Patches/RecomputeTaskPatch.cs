@@ -1,29 +1,32 @@
 using HarmonyLib;
 
-namespace EHR;
-
-[HarmonyPatch(typeof(GameData), nameof(GameData.RecomputeTaskCounts))]
-class CustomTaskCountsPatch
+namespace EHR
 {
-    public static bool Prefix(GameData __instance)
+    [HarmonyPatch(typeof(GameData), nameof(GameData.RecomputeTaskCounts))]
+    internal class CustomTaskCountsPatch
     {
-        __instance.TotalTasks = 0;
-        __instance.CompletedTasks = 0;
-
-        foreach (var p in __instance.AllPlayers)
+        public static bool Prefix(GameData __instance)
         {
-            if (p == null) continue;
-            var hasTasks = Utils.HasTasks(p) && Main.PlayerStates[p.PlayerId].TaskState.AllTasksCount > 0;
-            if (hasTasks)
+            __instance.TotalTasks = 0;
+            __instance.CompletedTasks = 0;
+
+            foreach (NetworkedPlayerInfo p in __instance.AllPlayers)
             {
-                foreach (var task in p.Tasks)
+                if (p == null) continue;
+
+                bool hasTasks = Utils.HasTasks(p) && Main.PlayerStates[p.PlayerId].TaskState.AllTasksCount > 0;
+
+                if (hasTasks)
                 {
-                    __instance.TotalTasks++;
-                    if (task.Complete) __instance.CompletedTasks++;
+                    foreach (NetworkedPlayerInfo.TaskInfo task in p.Tasks)
+                    {
+                        __instance.TotalTasks++;
+                        if (task.Complete) __instance.CompletedTasks++;
+                    }
                 }
             }
-        }
 
-        return false;
+            return false;
+        }
     }
 }

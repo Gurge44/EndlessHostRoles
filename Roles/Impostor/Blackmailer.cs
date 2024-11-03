@@ -46,8 +46,11 @@ namespace EHR.Impostor
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer.GetAbilityUseLimit() < 1) return true;
+
             if (NumBlackmailedThisRound >= MaxBlackmailedPlayersPerMeeting.GetInt()) return true;
+
             if (BlackmailedPlayerIds.Count >= MaxBlackmailedPlayersAtOnce.GetInt()) return true;
+
             if (BlackmailedPlayerIds.Contains(target.PlayerId)) return true;
 
             return killer.CheckDoubleTrigger(target, () =>
@@ -62,10 +65,7 @@ namespace EHR.Impostor
 
         public override void AfterMeetingTasks()
         {
-            if (AbilityExpires.GetValue() == 0)
-            {
-                BlackmailedPlayerIds.Clear();
-            }
+            if (AbilityExpires.GetValue() == 0) BlackmailedPlayerIds.Clear();
         }
 
         public static void OnCheckForEndVoting()
@@ -76,11 +76,12 @@ namespace EHR.Impostor
 
             try
             {
-                var bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
+                KeyValuePair<byte, PlayerState> bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
                 if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0) return;
 
-                var bmVotedForTemp = MeetingHud.Instance.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
+                byte? bmVotedForTemp = MeetingHud.Instance.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
                 if (bmVotedForTemp == null) return;
+
                 var bmVotedFor = (byte)bmVotedForTemp;
 
                 MeetingHud.Instance.playerStates.DoIf(x => bm.BlackmailedPlayerIds.Contains(x.TargetPlayerId), x =>
@@ -91,8 +92,11 @@ namespace EHR.Impostor
                         MeetingHud.Instance.RpcClearVote(x.TargetPlayerId.GetPlayer().GetClientId());
                     }
 
-                    if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
-                    else MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
+                    if (x.TargetPlayerId.IsHost())
+                        MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
+                    else
+                        MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
+
                     x.VotedFor = bmVotedFor;
                 });
             }

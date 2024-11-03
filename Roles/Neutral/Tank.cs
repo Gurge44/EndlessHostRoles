@@ -33,6 +33,7 @@ namespace EHR.Neutral
         {
             On = false;
             if (ShipStatus.Instance == null) return;
+
             AllVents = ShipStatus.Instance.AllVents.Select(x => x.Id).ToHashSet();
         }
 
@@ -50,7 +51,10 @@ namespace EHR.Neutral
             Main.AllPlayerSpeed[playerId] = Speed.GetFloat();
         }
 
-        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target) => CanBeKilled.GetBool();
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            return CanBeKilled.GetBool();
+        }
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
@@ -62,13 +66,15 @@ namespace EHR.Neutral
         {
             var progress = $"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tank), $"{EnteredVents.Count}")}/{AllVents.Count}";
             if (IsWon) progress = $"<#00ff00>{progress}</color>";
+
             return base.GetProgressText(playerId, comms) + progress;
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != TankId || meeting || (seer.IsModClient() && !hud) || IsWon) return string.Empty;
-            var randomVentName = ShipStatus.Instance?.AllVents?.FirstOrDefault(x => x.Id == AllVents.Except(EnteredVents).FirstOrDefault())?.name ?? string.Empty;
+
+            string randomVentName = ShipStatus.Instance?.AllVents?.FirstOrDefault(x => x.Id == AllVents.Except(EnteredVents).FirstOrDefault())?.name ?? string.Empty;
             return randomVentName == string.Empty ? string.Empty : string.Format(Translator.GetString("Tank.Suffix"), randomVentName);
         }
     }

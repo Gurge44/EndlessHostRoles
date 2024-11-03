@@ -1,4 +1,5 @@
 ﻿using System;
+using EHR.Modules;
 
 namespace EHR.Crewmate
 {
@@ -9,7 +10,11 @@ namespace EHR.Crewmate
         private static int Id => 643370;
 
         public override bool IsEnable => On;
-        public override void SetupCustomOption() => Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mathematician);
+
+        public override void SetupCustomOption()
+        {
+            Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mathematician);
+        }
 
         public override void Init()
         {
@@ -27,7 +32,7 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || State.AskedQuestion || !int.TryParse(num1Str, out var num1) || !int.TryParse(num2Str, out var num2)) return;
+                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || State.AskedQuestion || !int.TryParse(num1Str, out int num1) || !int.TryParse(num2Str, out int num2)) return;
 
                 State.AskedQuestion = true;
                 State.Answer = num1 + num2;
@@ -47,13 +52,16 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || !State.AskedQuestion || State.MathematicianPlayerId == pc.PlayerId || !int.TryParse(answerStr, out var answer)) return;
+                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || !State.AskedQuestion || State.MathematicianPlayerId == pc.PlayerId || !int.TryParse(answerStr, out int answer)) return;
 
                 if (answer == State.Answer)
                 {
                     State.ProtectedPlayerId = pc.PlayerId;
                     Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Translator.GetString("Mathematician"));
                     State.AskedQuestion = false;
+
+                    if (pc.IsLocalPlayer())
+                        Achievements.Type.TheBestInSchool.Complete();
                 }
             }
             catch (Exception e)

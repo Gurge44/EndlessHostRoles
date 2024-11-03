@@ -23,12 +23,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Kamikaze);
+
             MarkCD = new FloatOptionItem(Id + 2, "KamikazeMarkCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KamikazeLimitOpt = new IntegerOptionItem(Id + 3, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Times);
+
             KamikazeAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Times);
@@ -54,7 +57,9 @@ namespace EHR.Impostor
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return false;
+
             if (killer.GetAbilityUseLimit() < 1) return true;
+
             return killer.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayers.Add(target.PlayerId);
@@ -67,11 +72,12 @@ namespace EHR.Impostor
         {
             if (lowLoad || !On) return;
 
-            foreach (var kkId in PlayerIdList)
+            foreach (byte kkId in PlayerIdList)
             {
                 if (Main.PlayerStates[kkId].Role is Kamikaze { IsEnable: true } kk)
                 {
-                    var kamikazePc = GetPlayerById(kk.KamikazeId);
+                    PlayerControl kamikazePc = GetPlayerById(kk.KamikazeId);
+
                     if (kamikazePc == null)
                     {
                         LateTask.New(() => PlayerIdList.Remove(kkId), 0.001f, log: false);
@@ -80,10 +86,11 @@ namespace EHR.Impostor
 
                     if (kamikazePc.IsAlive() || kk.MarkedPlayers.Count == 0) continue;
 
-                    foreach (var id in kk.MarkedPlayers)
+                    foreach (byte id in kk.MarkedPlayers)
                     {
-                        var victim = GetPlayerById(id);
+                        PlayerControl victim = GetPlayerById(id);
                         if (victim == null || !victim.IsAlive()) continue;
+
                         victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
                     }
 

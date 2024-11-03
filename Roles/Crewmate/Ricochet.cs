@@ -24,14 +24,18 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ricochet);
+
             UseLimitOpt = new IntegerOptionItem(Id + 10, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
+
             RicochetAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 11, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Ricochet, TabGroup.CrewmateRoles);
         }
 
@@ -50,9 +54,10 @@ namespace EHR.Crewmate
             RicochetId = playerId;
         }
 
-        void SendRPCSyncTarget(byte targetId)
+        private void SendRPCSyncTarget(byte targetId)
         {
             if (!IsEnable || !Utils.DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable);
             writer.Write(RicochetId);
             writer.Write(targetId);
@@ -70,11 +75,12 @@ namespace EHR.Crewmate
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
+
             if (target == null) return false;
 
             if (ProtectAgainst == killer.PlayerId)
             {
-                killer.SetKillCooldown(time: 5f);
+                killer.SetKillCooldown(5f);
                 return false;
             }
 
@@ -103,6 +109,9 @@ namespace EHR.Crewmate
             SendRPCSyncTarget(ProtectAgainst);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => ProtectAgainst != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == RicochetId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(ProtectAgainst).GetRealName()}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+        {
+            return ProtectAgainst != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == RicochetId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(ProtectAgainst).GetRealName()}</color>" : string.Empty;
+        }
     }
 }

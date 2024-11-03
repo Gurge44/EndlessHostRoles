@@ -107,35 +107,47 @@ namespace EHR
                 .SetColor(color);
         }
 
-        public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
+        public static bool KnowTargetRoleColor(PlayerControl target, ref string color)
         {
-            if (!ValidTag) return false;
-            Color32 teamColor = PlayerTeams[target.PlayerId].GetTeamColor();
-            color = $"#{teamColor.r:x2}{teamColor.g:x2}{teamColor.b:x2}{teamColor.a:x2}";
+            if (!ValidTag || !PlayerTeams.TryGetValue(target.PlayerId, out var team)) return false;
+
+            color = team.GetTeamColor().ToTextColor();
             return true;
         }
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target)
         {
             if (!ValidTag) return string.Empty;
+
             if (seer.PlayerId != target.PlayerId) return string.Empty;
-            var arrows = TargetArrow.GetAllArrows(seer);
+
+            string arrows = TargetArrow.GetAllArrows(seer);
             arrows = arrows.Length > 0 ? $"{arrows}\n" : string.Empty;
             return $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" | ", "\n")}</size>";
         }
 
         public static string GetStatistics(byte id)
         {
-            if (!PlayerData.TryGetValue(id, out var stats)) return string.Empty;
+            if (!PlayerData.TryGetValue(id, out CTFPlayerData stats)) return string.Empty;
             return string.Format(Translator.GetString("CTF_PlayerStats"), Math.Round(stats.FlagTime, 1), stats.TagCount);
         }
 
-        public static int GetFlagTime(byte id) => (int)Math.Round(PlayerData[id].FlagTime);
+        public static int GetFlagTime(byte id)
+        {
+            if (!PlayerData.TryGetValue(id, out CTFPlayerData data)) return 0;
+            return (int)Math.Round(data.FlagTime);
+        }
+
+        public static int GetTagCount(byte id)
+        {
+            if (!PlayerData.TryGetValue(id, out CTFPlayerData data)) return 0;
+            return data.TagCount;
+        }
 
         public static bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
-            var aapc = Main.AllAlivePlayerControls;
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
             if (!ValidTag) return false;
 
@@ -160,7 +172,7 @@ namespace EHR
                     }
 
                     // If all players are on the same team, end the game
-                    if (aapc.All(x => PlayerTeams[x.PlayerId] == CTFTeam.Blue) || aapc.All(x => PlayerTeams[x.PlayerId] == CTFTeam.Yellow))
+                    if (aapc.All(x => PlayerTeams.TryGetValue(x.PlayerId, out var team) && team == CTFTeam.Blue) || aapc.All(x => PlayerTeams.TryGetValue(x.PlayerId, out var team) && team == CTFTeam.Yellow))
                     {
                         ResetSkins();
                         TeamData[PlayerTeams[aapc[0].PlayerId]].SetAsWinner();
@@ -170,7 +182,10 @@ namespace EHR
                     return false;
             }
 
-            void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+            void ResetSkins()
+            {
+                DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+            }
         }
 
         public static void OnGameStart()
@@ -197,10 +212,10 @@ namespace EHR
                 int blueCount = players.Count / 2;
                 HashSet<byte> bluePlayers = [];
                 HashSet<byte> yellowPlayers = [];
-                var blueOutfit = BlueOutfit;
-                var yellowOutfit = YellowOutfit;
+                NetworkedPlayerInfo.PlayerOutfit blueOutfit = BlueOutfit;
+                NetworkedPlayerInfo.PlayerOutfit yellowOutfit = YellowOutfit;
 
-                for (int i = 0; i < blueCount; i++)
+                for (var i = 0; i < blueCount; i++)
                 {
                     PlayerControl player = players.FirstOrDefault(p => p.Data.DefaultOutfit.ColorId == 1) ?? players.FirstOrDefault(x => x.Data.DefaultOutfit.ColorId != 5) ?? players.RandomElement();
                     players.Remove(player);
@@ -221,8 +236,8 @@ namespace EHR
                 }
 
                 // Create flags
-                var blueFlagBase = BlueFlagBase;
-                var yellowFlagBase = YellowFlagBase;
+                (Vector2 Position, string RoomName) blueFlagBase = BlueFlagBase;
+                (Vector2 Position, string RoomName) yellowFlagBase = YellowFlagBase;
 
                 CustomNetObject blueFlag = new BlueFlag(blueFlagBase.Position);
                 CustomNetObject yellowFlag = new YellowFlag(yellowFlagBase.Position);
@@ -232,9 +247,9 @@ namespace EHR
                 TeamData[CTFTeam.Yellow] = new(CTFTeam.Yellow, yellowFlag, yellowPlayers, byte.MaxValue);
 
                 // Teleport players to their respective bases
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    if (PlayerTeams.TryGetValue(pc.PlayerId, out var team))
+                    if (PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team))
                     {
                         switch (team)
                         {
@@ -255,23 +270,19 @@ namespace EHR
 
                 ValidTag = true;
                 LateTask.New(() => Main.ProcessShapeshifts = true, 3f, log: false);
-            }, 10f, "CTFManager.OnGameStart");
+            }, 12f, "CTFManager.OnGameStart");
         }
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            var targetTeam = PlayerTeams[target.PlayerId];
-            if (!ValidTag || PlayerTeams[killer.PlayerId] == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
+            if (!ValidTag || !PlayerTeams.TryGetValue(target.PlayerId, out var targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out var killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
             new[] { killer, target }.Do(x => x.SetKillCooldown(TagCooldown.GetFloat()));
 
-            if (TeamData.FindFirst(x => x.Value.FlagCarrier == target.PlayerId, out var kvp))
+            if (TeamData.FindFirst(x => x.Value.FlagCarrier == target.PlayerId, out KeyValuePair<CTFTeam, CTFTeamData> kvp))
             {
                 kvp.Value.DropFlag();
-                if (WhenFlagCarrierGetsTagged.GetValue() == 1)
-                {
-                    kvp.Value.Flag.TP(kvp.Key.GetFlagBase().Position);
-                }
+                if (WhenFlagCarrierGetsTagged.GetValue() == 1) kvp.Value.Flag.TP(kvp.Key.GetFlagBase().Position);
             }
 
             switch (TaggedPlayersGet.GetValue())
@@ -283,22 +294,23 @@ namespace EHR
                     break;
                 case 1:
                     target.Suicide();
-                    var notify = string.Format(Translator.GetString("CTF_TeamMemberFallen"), target.PlayerId.ColoredPlayerName());
-                    TeamData[targetTeam].Players.Select(x => x.GetPlayer()).DoIf(x => x != null, x => x.Notify(notify));
+                    string notify = string.Format(Translator.GetString("CTF_TeamMemberFallen"), target.PlayerId.ColoredPlayerName());
+                    TeamData[targetTeam].Players.ToValidPlayers().Do(x => x.Notify(notify));
                     break;
             }
 
-            PlayerData[killer.PlayerId].TagCount++;
+            if (PlayerData.TryGetValue(killer.PlayerId, out var data)) data.TagCount++;
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
         }
 
         public static void TryPickUpFlag(PlayerControl pc)
         {
             if (!ValidTag) return;
+
             Logger.Info($"Received flag pickup request from {pc.GetRealName()}", "CTF");
             // If the player is near the enemy's flag, pick it up
-            var pos = pc.Pos();
-            var enemy = TeamData[PlayerTeams[pc.PlayerId].GetOppositeTeam()];
+            Vector2 pos = pc.Pos();
+            CTFTeamData enemy = TeamData[PlayerTeams[pc.PlayerId].GetOppositeTeam()];
             if (enemy.IsNearFlag(pos)) enemy.PickUpFlag(pc.PlayerId);
         }
 
@@ -307,7 +319,7 @@ namespace EHR
             AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
-        static Color GetTeamColor(this CTFTeam team)
+        private static Color GetTeamColor(this CTFTeam team)
         {
             return team switch
             {
@@ -317,7 +329,7 @@ namespace EHR
             };
         }
 
-        static string GetTeamName(this CTFTeam team)
+        private static string GetTeamName(this CTFTeam team)
         {
             return team switch
             {
@@ -327,7 +339,7 @@ namespace EHR
             };
         }
 
-        static CTFTeam GetOppositeTeam(this CTFTeam team)
+        private static CTFTeam GetOppositeTeam(this CTFTeam team)
         {
             return team switch
             {
@@ -337,7 +349,7 @@ namespace EHR
             };
         }
 
-        static (Vector2 Position, string RoomName) GetFlagBase(this CTFTeam team)
+        private static (Vector2 Position, string RoomName) GetFlagBase(this CTFTeam team)
         {
             return team switch
             {
@@ -347,13 +359,13 @@ namespace EHR
             };
         }
 
-        enum CTFTeam
+        private enum CTFTeam
         {
             Blue,
             Yellow
         }
 
-        class CTFTeamData(CTFTeam team, CustomNetObject flag, HashSet<byte> players, byte flagCarrier)
+        private class CTFTeamData(CTFTeam team, CustomNetObject flag, HashSet<byte> players, byte flagCarrier)
         {
             public CustomNetObject Flag { get; } = flag;
             public HashSet<byte> Players { get; } = players;
@@ -371,7 +383,9 @@ namespace EHR
                 try
                 {
                     if (FlagCarrier == byte.MaxValue) return;
-                    var flagCarrierPc = FlagCarrier.GetPlayer();
+
+                    PlayerControl flagCarrierPc = FlagCarrier.GetPlayer();
+
                     if (flagCarrierPc == null || !flagCarrierPc.IsAlive())
                     {
                         DropFlag();
@@ -379,16 +393,16 @@ namespace EHR
                     }
 
                     Flag.TP(flagCarrierPc.Pos());
-                    PlayerData[FlagCarrier].FlagTime += Time.fixedDeltaTime;
+                    if (PlayerData.TryGetValue(FlagCarrier, out var data)) data.FlagTime += Time.fixedDeltaTime;
                     Utils.NotifyRoles(SpecifySeer: flagCarrierPc, SpecifyTarget: flagCarrierPc);
 
                     CTFTeam enemy = team.GetOppositeTeam();
-                    if (Translator.GetString(Flag.playerControl.GetPlainShipRoom().RoomId.ToString()) == enemy.GetFlagBase().RoomName)
+                    PlainShipRoom flagRoom = Flag.playerControl.GetPlainShipRoom();
+
+                    if (flagRoom != null && Translator.GetString(flagRoom.RoomId.ToString()) == enemy.GetFlagBase().RoomName)
                         TeamData[enemy].SetAsWinner();
                 }
-                catch
-                {
-                }
+                catch { }
             }
 
             public void PickUpFlag(byte id)
@@ -405,7 +419,8 @@ namespace EHR
 
                 if (AlertTeamMembersOfFlagTaken.GetBool())
                 {
-                    var arrow = ArrowToEnemyFlagCarrier.GetBool();
+                    bool arrow = ArrowToEnemyFlagCarrier.GetBool();
+
                     TeamData[team].Players
                         .Select(x => x.GetPlayer())
                         .DoIf(x => x != null, x =>
@@ -417,10 +432,11 @@ namespace EHR
 
                 if (AlertTeamMembersOfEnemyFlagTaken.GetBool())
                 {
-                    var arrow = ArrowToOwnFlagCarrier.GetBool();
+                    bool arrow = ArrowToOwnFlagCarrier.GetBool();
+
                     TeamData[team.GetOppositeTeam()].Players
-                        .Select(x => x.GetPlayer())
-                        .DoIf(x => x != null, x =>
+                        .ToValidPlayers()
+                        .Do(x =>
                         {
                             if (arrow) TargetArrow.Add(x.PlayerId, id);
                             x.Notify(Translator.GetString("CTF_EnemyFlagTaken"));
@@ -431,23 +447,26 @@ namespace EHR
             public void DropFlag()
             {
                 Logger.Info($"{FlagCarrier.ColoredPlayerName().RemoveHtmlTags()} dropped the {team} flag", "CTF");
-                if (ArrowToEnemyFlagCarrier.GetBool() || ArrowToOwnFlagCarrier.GetBool())
-                    TeamData.Values.SelectMany(x => x.Players).Do(x => TargetArrow.Remove(x, FlagCarrier));
+                if (ArrowToEnemyFlagCarrier.GetBool() || ArrowToOwnFlagCarrier.GetBool()) TeamData.Values.SelectMany(x => x.Players).Do(x => TargetArrow.Remove(x, FlagCarrier));
+
                 FlagCarrier = byte.MaxValue;
                 Utils.NotifyRoles();
             }
 
-            public bool IsNearFlag(Vector2 pos) => Vector2.Distance(Flag.Position, pos) < 1f;
+            public bool IsNearFlag(Vector2 pos)
+            {
+                return Vector2.Distance(Flag.Position, pos) < 1f;
+            }
         }
 
-        class CTFPlayerData
+        private class CTFPlayerData
         {
             public int TagCount { get; set; }
             public float FlagTime { get; set; }
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-        class FixedUpdatePatch
+        private static class FixedUpdatePatch
         {
             public static void Postfix(PlayerControl __instance)
             {

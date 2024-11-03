@@ -1,134 +1,153 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EHR;
-
-public class DevUser(string code = "", string color = "null", string tag = "null", bool isUp = false, bool deBug = false)
+namespace EHR
 {
-    public string Code { get; } = code;
-    private string Color { get; } = color;
-    private string Tag { get; } = tag;
-    public bool IsUp { get; } = isUp;
-    public bool DeBug { get; } = deBug;
-
-    public bool HasTag() => Tag != "null";
-    public string GetTag() => Color == "null" ? $"<size=1.4>{Tag}</size>\r\n" : $"<color={Color}><size=1.4>{(Tag == "#Dev" ? Translator.GetString("Developer") : Tag)}</size></color>\r\n";
-}
-
-public static class DevManager
-{
-    private static readonly DevUser DefaultDevUser = new();
-    private static List<DevUser> DevUserList = [];
-
-    public static void Init()
+    public class DevUser(string code = "", string color = "null", string tag = "null", bool isUp = false, bool deBug = false)
     {
-        DevUserList =
-        [
-            // Dev
-            new(code: "actorour#0029", color: "#ffc0cb", tag: "TOHE/TONX Developer", isUp: true, deBug: true), // KARPED1EM
-            new(code: "pinklaze#1776", color: null, tag: "null", isUp: true, deBug: true), // NCSIMON
-            new(code: "keepchirpy#6354", color: "#1FF3C6", tag: "TOHE Developer", isUp: true, deBug: false), // TommyXL //Tommy-XL
-            new(code: "motelchief#4112", color: "#eb57af", tag: "<alpha=#CC>Twilight Raven<alpha=#FF>", isUp: true, deBug: true), // Drakos //Drakos
-            new(code: "eagergaol#1562", color: "#5534eb", tag: "Drakos Alt", isUp: true, deBug: true), // Drakos //Drakos Steam Alt
-            new(code: "timedapper#9496", color: null, tag: null, isUp: false, deBug: false), //阿龍
-            new(code: "sofaagile#3120", color: "null", tag: "null", isUp: false, deBug: true), //天寸
-            new(code: "keyscreech#2151", color: "null", tag: null, isUp: false, deBug: false), //Endrmen40409
+        public string Code { get; } = code;
+        private string Color { get; } = color;
+        private string Tag { get; } = tag;
+        public bool IsUp { get; } = isUp;
+        public bool DeBug { get; } = deBug;
 
-            // Up
-            new(code: "primether#5348", color: "null", tag: "<color=#FF0000>YouTuber</color>/<color=#8800FF>Streamer</color>", isUp: true, deBug: false), // AnonWorks
-            new(code: "truantwarm#9165", color: "null", tag: "null", isUp: true, deBug: false), // 萧暮不姓萧
-            new(code: "drilldinky#1386", color: "null", tag: "null", isUp: true, deBug: false), // 爱玩AU的河豚
-            new(code: "farardour#6818", color: "null", tag: "null", isUp: true, deBug: false), // -提米SaMa-
-            new(code: "vealused#8192", color: "null", tag: "null", isUp: true, deBug: false), // lag丶xy
-            new(code: "storyeager#0815", color: "null", tag: "null", isUp: true, deBug: false), // 航娜丽莎
-            new(code: "versegame#3885", color: "null", tag: "null", isUp: true, deBug: false), // 柴唔cw
-            new(code: "closegrub#6217", color: "null", tag: "null", isUp: true, deBug: false), // 警长不会玩
-            new(code: "frownnatty#7935", color: "null", tag: "null", isUp: true, deBug: false), // 鬼灵official
-            new(code: "veryscarf#5368", color: "null", tag: "null", isUp: true, deBug: false), // 小武同学102
-            new(code: "sparklybee#0275", color: "null", tag: "null", isUp: true, deBug: false), // --红包SaMa--
-            new(code: "endingyon#3175", color: "null", tag: "null", isUp: true, deBug: false), // 游侠开摆
-            new(code: "firmine#0232", color: "null", tag: "null", isUp: true, deBug: false), // YH永恒_
-            new(code: "storkfey#3570", color: "null", tag: "null", isUp: true, deBug: false), // Calypso
-            new(code: "fellowsand#1003", color: "null", tag: "null", isUp: true, deBug: false), // C-Faust
-            new(code: "jetsafe#8512", color: "null", tag: "null", isUp: true, deBug: false), // Hoream是好人
-            new(code: "spoonkey#0792", color: "null", tag: "null", isUp: true, deBug: false), // 没好康的
-            new(code: "beakedmire#6099", color: "null", tag: "null", isUp: true, deBug: false), // 茄-au
-            new(code: "doggedsize#7892", color: "null", tag: "null", isUp: true, deBug: false), // TronAndRey
-            new(code: "openlanded#9533", color: "#9e2424", tag: "God Of Death Love Apples", isUp: true, deBug: true), // ryuk
-            new(code: "unlikecity#4086", color: "#eD2F91", tag: "Ward", isUp: true, deBug: false), // Ward
-            new(code: "iconicdrop#2727", color: "null", tag: "null", isUp: true, deBug: false), // jackler
+        public bool HasTag()
+        {
+            return Tag != "null";
+        }
 
-
-            new(code: "goneria#8334", color: "#FFFF00", tag: "The Dev on Phone", isUp: true, deBug: true), // [Developer] The 200IQ guy // Me on phone
-            new(code: "neatnet#5851", color: "#FFFF00", tag: "[Developer] The 200IQ guy", isUp: true, deBug: true), // [Developer] The 200IQ guy
-            new(code: "contenthue#0404", color: "#FFFF00", tag: "[Developer] The 200IQ guy", isUp: true, deBug: true), // [Developer] The 200IQ guy
-            new(code: "theseform#5686", color: "null", tag: "<color=#7800FF>PTBR-Translator</color>/<color=#FF0000>Role Idea Creator</color>", isUp: true, deBug: false), // Tomix
-            new(code: "heavyclod#2286", color: "#FFFF00", tag: "小叨.exe已停止运行", isUp: true, deBug: false), // 小叨院长
-            new(code: "storeroan#0331", color: "#FF0066", tag: "Night_瓜", isUp: true, deBug: false), // Night_瓜
-            new(code: "teamelder#5856", color: "#1379bf", tag: "屑Slok（没信誉的鸽子）", isUp: true, deBug: false), // Slok7565
-
-            new(code: "radarright#2509", color: "null", tag: "null", isUp: false, deBug: true),
-
-            // EHR players
-            new(code: "ravenknurl#4562", color: "#008000", tag: "Moderador do FH", isUp: false, deBug: false), // RicardoFumante
-            new(code: "crustzonal#9589", color: "#00FFFF", tag: "Translator PT-BR", isUp: true, deBug: false), // artyleague01
-            new(code: "tinedpun#6584", color: "#0000ff", tag: "Translator PT-BR", isUp: true, deBug: false), // Dechis
-            new(code: "swiftlord#8072", color: "null", tag: "null", isUp: true, deBug: false), // But What About
-            new(code: "ovalinstep#2984", color: "null", tag: "null", isUp: true, deBug: false), // Seleneous
-            new(code: "seleneous#6930", color: "null", tag: "null", isUp: true, deBug: false), // Seleneous
-            new(code: "innerruler#4140", color: "null", tag: "null", isUp: true, deBug: false), // thewhiskas27
-            new(code: "urbanecalf#4975", color: "#420773", tag: "Streamer", isUp: true, deBug: false), // Gugutsik
-            new(code: "crustzonal#9589", color: "null", tag: "null", isUp: true, deBug: false), // aviiiv0102
-            new(code: "tubedilute#9062", color: "null", tag: "null", isUp: true, deBug: false), // Xcl4udioX
-            new(code: "ponyholey#5532", color: "#0000FF", tag: "desenvolvedor", isUp: true, deBug: false), // DrawingsZz
-            new(code: "akinlaptop#2206", color: "null", tag: "null", isUp: true, deBug: false), // MR Carr
-            new(code: "fursilty#4676", color: "#0000ff", tag: "arthurzin", isUp: true, deBug: false), // arthurzin
-            new(code: "stonefuzzy#8673", color: "#ff0062", tag: "<size=1.6>Ru Translator</size>", isUp: true, deBug: true), // HyperAtill
-            new(code: "frizzytram#2508", color: "#1C87FF", tag: "RafaelBIT50", isUp: false, deBug: false), // RafaelBIT50
-            new(code: "ruefulscar#0287", color: "null", tag: "null", isUp: true, deBug: false), // Zendena
-            new(code: "foggyzing#6238", color: "null", tag: "null", isUp: true, deBug: false), // LdZinnn
-            new(code: "onsideblur#3929", color: "#fc3a51", tag: "YouTuber", isUp: true, deBug: false), // Manelzin
-            new(code: "modestspan#7071", color: "null", tag: "null", isUp: true, deBug: false), // Shark
-            new(code: "divotbusy#0624", color: "null", tag: "null", isUp: true, deBug: false), // PreCeptorBR
-            new(code: "pinsrustic#5496", color: "#fc3a51", tag: "YouTuber", isUp: true, deBug: false), // FHgameplay
-            new(code: "opaquedot#5610", color: "null", tag: "null", isUp: true, deBug: false), // Deh_66
-            new(code: "furpolitic#3380", color: "#a020f0", tag: "EuOncologico o impostor", isUp: true, deBug: false), // EuOncologico
-            new(code: "pithfierce#5073", color: "null", tag: "null", isUp: true, deBug: false), // OrigeTv
-            new(code: "cannylink#0564", color: "null", tag: "null", isUp: true, deBug: false), // SpicyPoops
-            new(code: "ghostapt#7243", color: "#a48d6b", tag: "AUME", isUp: true, deBug: false), // MasterKy
-            new(code: "planegame#5847", color: "#44fff7", tag: "Kopp56", isUp: true, deBug: false), // Kopp56 PRO
-            new(code: "clovesorry#6973", color: "#191970", tag: "Master", isUp: true, deBug: false), // MAT
-            new(code: "ivorywish#3580", color: "#ff0000", tag: "YouTuber", isUp: true, deBug: false), // Erik Carr
-            new(code: "cleardress#6310", color: "#ffffff", tag: "<#00BFFF>一</color><#48D1CC>个</color><#7CFC00>热狗</color><#32CD32>uwu</color>", isUp: true, deBug: false), // ABoringCat
-            new(code: "rainypearl#9545", color: "#A020F0", tag: "YouTuber", isUp: true, deBug: false), // bielModzs
-            new(code: "kiltedbill#4145", color: "null", tag: "null", isUp: true, deBug: false), // tsaki84
-            new(code: "onlyfax#3941", color: "#ff0000", tag: "YouTuber", isUp: true, deBug: false), // The Nick AG
-            new(code: "somewallet#5521", color: "#ffff00", tag: "Artist", isUp: true, deBug: false), // YoshiBertil
-            new(code: "pagersane#4064", color: "null", tag: "null", isUp: true, deBug: false), // Bluejava3
-            new(code: "pocketdoor#9080", color: "null", tag: "null", isUp: true, deBug: false), // Imnot
-            new(code: "motorstack#2287", color: "#E34234", tag: "Foxfire", isUp: true, deBug: false), // Esrazraft
-            new(code: "motorlace#4741", color: "#DFB722", tag: "\u2756 Assistant Tester \u2756", isUp: true, deBug: false), // PEPPERcula
-            new(code: "keyrunning#8720", color: "#00ffff", tag: "Miku", isUp: true, deBug: false), // EverMortal_1455
-            new(code: "yellowjoy#3138", color: "#FFE87C", tag: "Sunshine", isUp: true, deBug: false), // Becksy
-
-            // Sponsor
-            new(code: "recentduct#6068", color: "#FF00FF", tag: "高冷男模法师", isUp: false, deBug: true),
-            new(code: "canneddrum#2370", color: "#fffcbe", tag: "我是喜唉awa", isUp: false, deBug: false),
-            new(code: "dovefitted#5329", color: "#1379bf", tag: "不要首刀我", isUp: false, deBug: false),
-            new(code: "luckylogo#7352", color: "#f30000", tag: "林@林", isUp: false, deBug: false),
-            new(code: "axefitful#8788", color: "#8e8171", tag: "寄才是真理", isUp: false, deBug: false),
-            new(code: "raftzonal#8893", color: "#8e8171", tag: "寄才是真理", isUp: false, deBug: false),
-            new(code: "twainrobin#8089", color: "#0000FF", tag: "啊哈修maker", isUp: false, deBug: false),
-            new(code: "mallcasual#6075", color: "#f89ccb", tag: "波奇酱", isUp: false, deBug: false),
-            new(code: "beamelfin#9478", color: "#6495ED", tag: "Amaster-1111", isUp: false, deBug: false),
-            new(code: "lordcosy#8966", color: "#FFD6EC", tag: "HostEHR", isUp: false, deBug: false), // K
-            new(code: "honestsofa#2870", color: "#D381D9", tag: "Discord: SolarFlare#0700", isUp: true, deBug: false), // SolarFlare //SolarFlare
-            new(code: "caseeast#7194", color: "#1c2451", tag: "disc.gg/maul", isUp: false, deBug: false), // laikrai
-            // Other
-            new(code: "peakcrown#8292", color: "null", tag: "null", isUp: true, deBug: false) // Hakaka
-        ];
+        public string GetTag()
+        {
+            return Color == "null" ? $"<size=1.4>{Tag}</size>\r\n" : $"<color={Color}><size=1.4>{(Tag == "#Dev" ? Translator.GetString("Developer") : Tag)}</size></color>\r\n";
+        }
     }
 
-    private static bool IsDevUser(this string code) => DevUserList.Any(x => x.Code == code);
-    public static DevUser GetDevUser(this string code) => code.IsDevUser() ? DevUserList.Find(x => x.Code == code) : DefaultDevUser;
+    public static class DevManager
+    {
+        private static readonly DevUser DefaultDevUser = new();
+        private static List<DevUser> DevUserList = [];
+
+        public static void Init()
+        {
+            DevUserList =
+            [
+                // Dev
+                new("actorour#0029", "#ffc0cb", "TOHE/TONX Developer", true, true), // KARPED1EM
+                new("pinklaze#1776", null, "null", true, true), // NCSIMON
+                new("keepchirpy#6354", "#1FF3C6", "TOHE Developer", true), // TommyXL //Tommy-XL
+                new("motelchief#4112", "#eb57af", "<alpha=#CC>Twilight Raven<alpha=#FF>", true, true), // Drakos //Drakos
+                new("eagergaol#1562", "#5534eb", "Drakos Alt", true, true), // Drakos //Drakos Steam Alt
+                new("timedapper#9496", null, null), //阿龍
+                new("sofaagile#3120", "null", "null", false, true), //天寸
+                new("keyscreech#2151", "null", null), //Endrmen40409
+
+                // Up
+                new("primether#5348", "null", "<color=#FF0000>YouTuber</color>/<color=#8800FF>Streamer</color>", true), // AnonWorks
+                new("truantwarm#9165", "null", "null", true), // 萧暮不姓萧
+                new("drilldinky#1386", "null", "null", true), // 爱玩AU的河豚
+                new("farardour#6818", "null", "null", true), // -提米SaMa-
+                new("vealused#8192", "null", "null", true), // lag丶xy
+                new("storyeager#0815", "null", "null", true), // 航娜丽莎
+                new("versegame#3885", "null", "null", true), // 柴唔cw
+                new("closegrub#6217", "null", "null", true), // 警长不会玩
+                new("frownnatty#7935", "null", "null", true), // 鬼灵official
+                new("veryscarf#5368", "null", "null", true), // 小武同学102
+                new("sparklybee#0275", "null", "null", true), // --红包SaMa--
+                new("endingyon#3175", "null", "null", true), // 游侠开摆
+                new("firmine#0232", "null", "null", true), // YH永恒_
+                new("storkfey#3570", "null", "null", true), // Calypso
+                new("fellowsand#1003", "null", "null", true), // C-Faust
+                new("jetsafe#8512", "null", "null", true), // Hoream是好人
+                new("spoonkey#0792", "null", "null", true), // 没好康的
+                new("beakedmire#6099", "null", "null", true), // 茄-au
+                new("doggedsize#7892", "null", "null", true), // TronAndRey
+                new("openlanded#9533", "#9e2424", "God Of Death Love Apples", true, true), // ryuk
+                new("unlikecity#4086", "#eD2F91", "Ward", true), // Ward
+                new("iconicdrop#2727", "null", "null", true), // jackler
+
+
+                new("goneria#8334", "#FFFF00", "The Dev on Phone", true, true), // [Developer] The 200IQ guy // Me on phone
+                new("neatnet#5851", "#FFFF00", "[Developer] The 200IQ guy", true, true), // [Developer] The 200IQ guy
+                new("contenthue#0404", "#FFFF00", "[Developer] The 200IQ guy", true, true), // [Developer] The 200IQ guy
+                new("theseform#5686", "null", "<color=#7800FF>PTBR-Translator</color>/<color=#FF0000>Role Idea Creator</color>", true), // Tomix
+                new("heavyclod#2286", "#FFFF00", "小叨.exe已停止运行", true), // 小叨院长
+                new("storeroan#0331", "#FF0066", "Night_瓜", true), // Night_瓜
+                new("teamelder#5856", "#1379bf", "屑Slok（没信誉的鸽子）", true), // Slok7565
+
+                new("radarright#2509", "null", "null", false, true),
+
+                // EHR players
+                new("ravenknurl#4562", "#008000", "Moderador do FH"), // RicardoFumante
+                new("crustzonal#9589", "#00FFFF", "Translator PT-BR", true), // artyleague01
+                new("tinedpun#6584", "#0000ff", "Translator PT-BR", true), // Dechis
+                new("swiftlord#8072", "null", "null", true), // But What About
+                new("ovalinstep#2984", "null", "null", true), // Seleneous
+                new("seleneous#6930", "null", "null", true), // Seleneous
+                new("innerruler#4140", "null", "null", true), // thewhiskas27
+                new("urbanecalf#4975", "#420773", "Streamer", true), // Gugutsik
+                new("crustzonal#9589", "null", "null", true), // aviiiv0102
+                new("tubedilute#9062", "null", "null", true), // Xcl4udioX
+                new("ponyholey#5532", "#0000FF", "desenvolvedor", true), // DrawingsZz
+                new("akinlaptop#2206", "null", "null", true), // MR Carr
+                new("fursilty#4676", "#0000ff", "arthurzin", true), // arthurzin
+                new("stonefuzzy#8673", "#ff0062", "<size=1.6>Ru Translator</size>", true, true), // HyperAtill
+                new("momenthale#7626", "#6f3bd9", "Amiran", false), // Amiran
+                new("valuecubic#5819", "#6f3bd9", "Kate", false), // Kate Cat
+                new("frizzytram#2508", "#1C87FF", "RafaelBIT50"), // RafaelBIT50
+                new("ruefulscar#0287", "null", "null", true), // Zendena
+                new("foggyzing#6238", "null", "null", true), // LdZinnn
+                new("onsideblur#3929", "#fc3a51", "YouTuber", true), // Manelzin
+                new("modestspan#7071", "null", "null", true), // Shark
+                new("divotbusy#0624", "null", "null", true), // PreCeptorBR
+                new("pinsrustic#5496", "#fc3a51", "YouTuber", true), // FHgameplay
+                new("opaquedot#5610", "null", "null", true), // Deh_66
+                new("furpolitic#3380", "#a020f0", "EuOncologico o impostor", true), // EuOncologico
+                new("pithfierce#5073", "null", "null", true), // OrigeTv
+                new("cannylink#0564", "null", "null", true), // SpicyPoops
+                new("ghostapt#7243", "#a48d6b", "AUME", true), // MasterKy
+                new("planegame#5847", "#44fff7", "Kopp56", true), // Kopp56 PRO
+                new("clovesorry#6973", "#191970", "Master", true), // MAT
+                new("ivorywish#3580", "#ff0000", "YouTuber", true), // Erik Carr
+                new("cleardress#6310", "#ffffff", "<#00BFFF>一</color><#48D1CC>个</color><#7CFC00>热狗</color><#32CD32>uwu</color>", true), // ABoringCat
+                new("rainypearl#9545", "#A020F0", "YouTuber", true), // bielModzs
+                new("kiltedbill#4145", "null", "null", true), // tsaki84
+                new("onlyfax#3941", "#ff0000", "YouTuber", true), // The Nick AG
+                new("somewallet#5521", "#ffff00", "Artist", true), // YoshiBertil
+                new("pagersane#4064", "null", "null", true), // Bluejava3
+                new("pocketdoor#9080", "null", "null", true), // Imnot
+                new("motorstack#2287", "#E34234", "Foxfire", true), // Esrazraft
+                new("motorlace#4741", "#DFB722", "\u2756 Assistant Tester \u2756", true), // PEPPERcula
+                new("keyrunning#8720", "#00ffff", "Miku", true), // EverMortal_1455
+                new("yellowjoy#3138", "#FFE87C", "Sunshine", true), // Becksy
+                new("stuckclaw#5717", "#FF474C", "The biggest SUS", true), // BIG SUS
+                new("funnytiger#8420", "#ffd4ec", "Registered Bozo", true), // Differntperson
+
+                // Sponsor
+                new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),
+                new("canneddrum#2370", "#fffcbe", "我是喜唉awa"),
+                new("dovefitted#5329", "#1379bf", "不要首刀我"),
+                new("luckylogo#7352", "#f30000", "林@林"),
+                new("axefitful#8788", "#8e8171", "寄才是真理"),
+                new("raftzonal#8893", "#8e8171", "寄才是真理"),
+                new("twainrobin#8089", "#0000FF", "啊哈修maker"),
+                new("mallcasual#6075", "#f89ccb", "波奇酱"),
+                new("beamelfin#9478", "#6495ED", "Amaster-1111"),
+                new("lordcosy#8966", "#FFD6EC", "HostEHR"), // K
+                new("honestsofa#2870", "#D381D9", "Discord: SolarFlare#0700", true), // SolarFlare //SolarFlare
+                new("caseeast#7194", "#1c2451", "disc.gg/maul"), // laikrai
+                // Other
+                new("peakcrown#8292", "null", "null", true) // Hakaka
+            ];
+        }
+
+        private static bool IsDevUser(this string code)
+        {
+            return DevUserList.Any(x => x.Code == code);
+        }
+
+        public static DevUser GetDevUser(this string code)
+        {
+            return code.IsDevUser() ? DevUserList.Find(x => x.Code == code) : DefaultDevUser;
+        }
+    }
 }

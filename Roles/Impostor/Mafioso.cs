@@ -52,15 +52,20 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mafioso);
+
             Delay = new IntegerOptionItem(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
                 .SetValueFormat(OptionFormat.Seconds);
+
             RewardForKilling = new IntegerOptionItem(Id + 11, "MafiosoRewardForKilling", new(0, 100, 5), 40, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+
             RewardForSabotaging = new IntegerOptionItem(Id + 12, "MafiosoRewardForSabotaging", new(0, 100, 5), 25, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+
             RewardForVenting = new IntegerOptionItem(Id + 13, "MafiosoRewardForVenting", new(0, 100, 5), 10, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+
             RewardForOtherPlayerEjected = new IntegerOptionItem(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(0, 100, 5), 30, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
         }
@@ -105,17 +110,20 @@ namespace EHR.Impostor
             };
         }
 
-        void SendRPC()
+        private void SendRPC()
         {
             if (!IsEnable || !DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, SendOption.Reliable);
             writer.Write(MafiosoId);
             writer.Write(Tier);
             writer.Write(XP);
             writer.Write(PreviouslyUsedVents.Count);
+
             if (PreviouslyUsedVents.Count > 0)
-                foreach (var vent in PreviouslyUsedVents.ToArray())
+                foreach (int vent in PreviouslyUsedVents.ToArray())
                     writer.Write(vent);
+
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -124,15 +132,17 @@ namespace EHR.Impostor
             Tier = reader.ReadInt32();
             XP = reader.ReadInt32();
             PreviouslyUsedVents.Clear();
-            var elements = reader.ReadInt32();
+            int elements = reader.ReadInt32();
+
             if (elements > 0)
-                for (int i = 0; i < elements; i++)
+                for (var i = 0; i < elements; i++)
                     PreviouslyUsedVents.Add(reader.ReadInt32());
         }
 
-        void SendRPCSyncPistolCD()
+        private void SendRPCSyncPistolCD()
         {
             if (!IsEnable || !DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable);
             writer.Write(MafiosoId);
             writer.Write(Pistol1CD);
@@ -164,12 +174,14 @@ namespace EHR.Impostor
             }
 
             if (lastUpdate >= TimeStamp) return;
+
             lastUpdate = TimeStamp;
 
-            var before1CD = Pistol1CD;
-            var before2CD = Pistol2CD;
+            int before1CD = Pistol1CD;
+            int before2CD = Pistol2CD;
 
             if (Pistol1CD > 0) Pistol1CD--;
+
             if (Pistol2CD > 0) Pistol2CD--;
 
             if (before1CD != Pistol1CD || before2CD != Pistol2CD)
@@ -183,10 +195,7 @@ namespace EHR.Impostor
         {
             if (!GameStates.IsInTask || target == null || killer == null || !killer.Is(CustomRoles.Mafioso) || Tier < 3 || !IsEnable) return true;
 
-            if (Pistol1CD > 0 && Pistol2CD > 0)
-            {
-                return false;
-            }
+            if (Pistol1CD > 0 && Pistol2CD > 0) return false;
 
             int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
             KCD++;
@@ -207,19 +216,13 @@ namespace EHR.Impostor
                 LateTask.New(() =>
                 {
                     // ReSharper disable once ConditionIsAlwaysTrueOrFalse ---- Can be null since it's a task that completes later
-                    if (target != null && target.IsAlive() && GameStates.IsInTask)
-                    {
-                        target.Suicide(PlayerState.DeathReason.Kill, killer);
-                    }
+                    if (target != null && target.IsAlive() && GameStates.IsInTask) target.Suicide(PlayerState.DeathReason.Kill, killer);
                 }, Delay.GetInt(), "Mafioso Tier 5 Kill Delay");
 
                 return false;
             }
 
-            if (Pistol1CD > 1 && Pistol2CD > 1)
-            {
-                LateTask.New(() => { killer.SetKillCooldown(time: Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
-            }
+            if (Pistol1CD > 1 && Pistol2CD > 1) LateTask.New(() => { killer.SetKillCooldown(Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
 
             return true;
         }
@@ -227,6 +230,7 @@ namespace EHR.Impostor
         public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
+
             PreviouslyUsedVents.Clear();
             int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
             KCD++;
@@ -237,7 +241,10 @@ namespace EHR.Impostor
             SendRPCSyncPistolCD();
         }
 
-        public override string GetProgressText(byte id, bool comms) => id.IsPlayerModClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
+        public override string GetProgressText(byte id, bool comms)
+        {
+            return id.IsPlayerModClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
+        }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
@@ -246,8 +253,12 @@ namespace EHR.Impostor
             if (mo.Tier >= 3)
             {
                 string CD;
-                if (mo.Pistol1CD <= 0 && mo.Pistol2CD <= 0) CD = "<color=#00ff00>Can Kill</color>";
-                else CD = $"<color=#ff1919>CD:</color> <b>{Math.Min(mo.Pistol1CD, mo.Pistol2CD)}</b>s";
+
+                if (mo.Pistol1CD <= 0 && mo.Pistol2CD <= 0)
+                    CD = "<color=#00ff00>Can Kill</color>";
+                else
+                    CD = $"<color=#ff1919>CD:</color> <b>{Math.Min(mo.Pistol1CD, mo.Pistol2CD)}</b>s";
+
                 return string.Format(GetString("MafiosoHUDTextWithDualPistols"), mo.Tier, mo.XP, CD);
             }
 
@@ -257,6 +268,7 @@ namespace EHR.Impostor
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable) return;
+
             XP += RewardForKilling.GetInt();
             SendRPC();
         }
@@ -264,6 +276,7 @@ namespace EHR.Impostor
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             if (!IsEnable) return;
+
             if (PreviouslyUsedVents.Contains(vent.Id)) return;
 
             PreviouslyUsedVents.Add(vent.Id);
@@ -280,7 +293,7 @@ namespace EHR.Impostor
 
         public static void OnCrewmateEjected()
         {
-            foreach (var state in Main.PlayerStates)
+            foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
             {
                 if (state.Value.Role is Mafioso { IsEnable: true } mo)
                 {

@@ -22,8 +22,10 @@ namespace EHR.AddOns.Impostor
         {
             const int id = 14680;
             Options.SetupAdtRoleOptions(id, CustomRoles.Circumvent, canSetNum: true);
+
             VentPreventionMode = new StringOptionItem(id + 5, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
+
             Limit = new IntegerOptionItem(id + 4, "VentLimit", new(1, 90, 1), 8, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
         }
@@ -39,13 +41,9 @@ namespace EHR.AddOns.Impostor
 
             LateTask.New(() =>
             {
-                foreach (var state in Main.PlayerStates)
-                {
+                foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
                     if (state.Value.SubRoles.Contains(CustomRoles.Circumvent))
-                    {
                         Limits[state.Key] = Limit.GetInt();
-                    }
-                }
             }, 3f, "Add Circumvents");
         }
 
@@ -67,15 +65,17 @@ namespace EHR.AddOns.Impostor
         public static void AfterMeetingTasks()
         {
             if (VentPreventionMode.GetValue() != 2) return;
+
             Limits.SetAllValues(Limit.GetInt());
         }
 
         public static string GetProgressText(byte playerId)
         {
-            if (!Limits.TryGetValue(playerId, out var limit)) return string.Empty;
+            if (!Limits.TryGetValue(playerId, out int limit)) return string.Empty;
 
-            var mode = VentPreventionMode.GetValue();
-            var color = limit switch
+            int mode = VentPreventionMode.GetValue();
+
+            string color = limit switch
             {
                 > 11 => "#00ff00",
                 > 7 when mode == 2 => "#00ff00",
@@ -96,7 +96,8 @@ namespace EHR.AddOns.Impostor
         public static bool CanUseImpostorVentButton(PlayerControl pc)
         {
             if (!pc.Is(CustomRoles.Circumvent)) return true;
-            return pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out var limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
+
+            return pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out int limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
         }
     }
 }

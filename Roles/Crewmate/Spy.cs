@@ -18,20 +18,26 @@ namespace EHR.Crewmate
         public static OptionItem SpyAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
+        private long LastUpdate;
+
         public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Spy);
+
             UseLimitOpt = new IntegerOptionItem(Id + 10, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spy])
                 .SetValueFormat(OptionFormat.Times);
+
             SpyRedNameDur = new FloatOptionItem(Id + 11, "SpyRedNameDur", new(0f, 70f, 1f), 3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spy])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SpyAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spy])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spy])
                 .SetValueFormat(OptionFormat.Times);
@@ -53,8 +59,10 @@ namespace EHR.Crewmate
         private static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
         {
             if (!DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSpy, SendOption.Reliable);
             writer.Write(operate);
+
             switch (operate)
             {
                 case 1: // Red Name Add
@@ -73,12 +81,14 @@ namespace EHR.Crewmate
         public static void ReceiveRPC(MessageReader reader)
         {
             int operate = reader.ReadInt32();
+
             switch (operate)
             {
                 case 1:
                     byte susId = reader.ReadByte();
                     string stimeStamp = reader.ReadString();
                     if (long.TryParse(stimeStamp, out long timeStamp)) SpyRedNameList[susId] = timeStamp;
+
                     return;
                 case 3:
                     SpyRedNameList.Remove(reader.ReadByte());
@@ -93,13 +103,11 @@ namespace EHR.Crewmate
 
             target.RpcRemoveAbilityUse();
             SpyRedNameList.TryAdd(killer.PlayerId, TimeStamp);
-            SendRPC(1, id: killer.PlayerId);
+            SendRPC(1, killer.PlayerId);
             NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
             return false;
         }
-
-        private long LastUpdate;
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
@@ -107,14 +115,15 @@ namespace EHR.Crewmate
 
             long now = TimeStamp;
             if (now == LastUpdate) return;
+
             LastUpdate = now;
-            
-            foreach (var x in SpyRedNameList)
+
+            foreach (KeyValuePair<byte, long> x in SpyRedNameList)
             {
                 if (x.Value + SpyRedNameDur.GetInt() < now || !GameStates.IsInTask)
                 {
                     SpyRedNameList.Remove(x.Key);
-                    SendRPC(3, id: x.Key, changeColor: true);
+                    SendRPC(3, x.Key, true);
                     NotifyRoles(SpecifySeer: pc, SpecifyTarget: x.Key.GetPlayer());
                 }
             }

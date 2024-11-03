@@ -26,8 +26,10 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Commander);
+
             CannotSpawnAsSoloImp = new BooleanOptionItem(Id + 2, "CannotSpawnAsSoloImp", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
+
             ShapeshiftCooldown = new FloatOptionItem(Id + 3, "ShapeshiftCooldown", new(0f, 60f, 1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
         }
@@ -55,7 +57,10 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 1, (int)CurrentMode, IsWhistling, MarkedPlayer);
+        private void SendRPC()
+        {
+            Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 1, (int)CurrentMode, IsWhistling, MarkedPlayer);
+        }
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -85,7 +90,7 @@ namespace EHR.Impostor
             CycleMode(pc);
         }
 
-        void CycleMode(PlayerControl pc)
+        private void CycleMode(PlayerControl pc)
         {
             CurrentMode = (Mode)(((int)CurrentMode + 1) % Enum.GetValues(typeof(Mode)).Length);
             SendRPC();
@@ -105,36 +110,44 @@ namespace EHR.Impostor
                     MarkPlayer(target);
                     break;
                 case Mode.KillAnyone:
-                    if (target.Is(Team.Impostor)) target.Notify(Translator.GetString("CommanderKillAnyoneNotify"), 7f);
+                    if (target.Is(Team.Impostor))
+                        target.Notify(Translator.GetString("CommanderKillAnyoneNotify"), 7f);
                     else
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
+
                             pc.Notify(Translator.GetString("CommanderKillAnyoneNotify"), 7f);
                         }
                     }
 
                     break;
                 case Mode.DontKillMark:
-                    if (target.Is(Team.Impostor)) target.Notify(Translator.GetString("CommanderDontKillAnyoneNotify"), 7f);
-                    else MarkPlayerAsDontKill(target);
+                    if (target.Is(Team.Impostor))
+                        target.Notify(Translator.GetString("CommanderDontKillAnyoneNotify"), 7f);
+                    else
+                        MarkPlayerAsDontKill(target);
+
                     break;
                 case Mode.DontSabotage:
-                    foreach (var pc in Main.AllAlivePlayerControls)
+                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
                         if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
+
                         pc.Notify(Translator.GetString("CommanderDontSabotageNotify"), 7f);
                     }
 
                     break;
                 case Mode.UseAbility:
-                    if (target.Is(Team.Impostor)) target.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
+                    if (target.Is(Team.Impostor))
+                        target.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
                     else
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
+
                             pc.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
                         }
                     }
@@ -145,7 +158,7 @@ namespace EHR.Impostor
             return false;
         }
 
-        void Whistle(PlayerControl commander, PlayerControl target = null)
+        private void Whistle(PlayerControl commander, PlayerControl target = null)
         {
             if (IsWhistling) return;
 
@@ -157,9 +170,10 @@ namespace EHR.Impostor
                 return;
             }
 
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (!pc.Is(Team.Impostor) || pc.Is(CustomRoles.Commander)) continue;
+
                 AddArrowAndNotify(pc);
             }
 
@@ -173,7 +187,7 @@ namespace EHR.Impostor
             }
         }
 
-        void MarkPlayer(PlayerControl target)
+        private void MarkPlayer(PlayerControl target)
         {
             if (target == null)
             {
@@ -186,7 +200,7 @@ namespace EHR.Impostor
             Utils.NotifyRoles(SpecifyTarget: target);
         }
 
-        void MarkPlayerAsDontKill(PlayerControl target)
+        private void MarkPlayerAsDontKill(PlayerControl target)
         {
             if (target == null) return;
 
@@ -228,6 +242,7 @@ namespace EHR.Impostor
             if (seer.PlayerId == target.PlayerId && Main.PlayerStates[seer.PlayerId].Role is Commander { IsEnable: true } cm)
             {
                 if (seer.IsModClient() && !hud) return string.Empty;
+
                 string whistlingText = cm.IsWhistling ? $"\n<size=70%>{Translator.GetString("CommanderWhistling")}</size>" : string.Empty;
                 return $"{string.Format(Translator.GetString("WMMode"), Translator.GetString($"Commander{cm.CurrentMode}Mode"))}{whistlingText}";
             }
@@ -238,24 +253,16 @@ namespace EHR.Impostor
 
             if (seer.PlayerId == target.PlayerId)
             {
-                if (arrowToCommander.Length > 0)
-                {
-                    return $"{Translator.GetString("Commander")} {arrowToCommander}";
-                }
+                if (arrowToCommander.Length > 0) return $"{Translator.GetString("Commander")} {arrowToCommander}";
             }
             else if (isTargetTarget)
-            {
                 return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Sprayer), Translator.GetString("CommanderTarget"));
-            }
-            else if (isTargetDontKill)
-            {
-                return Utils.ColorString(ColorUtility.TryParseHtmlString("#0daeff", out Color color) ? color : Utils.GetRoleColor(CustomRoles.TaskManager), Translator.GetString("CommanderDontKill"));
-            }
+            else if (isTargetDontKill) return Utils.ColorString(ColorUtility.TryParseHtmlString("#0daeff", out Color color) ? color : Utils.GetRoleColor(CustomRoles.TaskManager), Translator.GetString("CommanderDontKill"));
 
             return string.Empty;
         }
 
-        enum Mode
+        private enum Mode
         {
             Whistle,
             Mark,

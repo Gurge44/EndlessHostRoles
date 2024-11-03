@@ -32,12 +32,13 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
         {
-            var list = Main.AllPlayerControls.Where(x => !KnownRolesOfPlayerIds.Contains(x.PlayerId) && !x.Is(CustomRoles.Insight) && !x.Is(CustomRoles.GM) && !x.Is(CustomRoles.NotAssigned)).ToList();
+            List<PlayerControl> list = Main.AllPlayerControls.Where(x => !KnownRolesOfPlayerIds.Contains(x.PlayerId) && !x.Is(CustomRoles.Insight) && !x.Is(CustomRoles.GM) && !x.Is(CustomRoles.NotAssigned)).ToList();
+
             if (list.Count != 0)
             {
-                var target = list.RandomElement();
+                PlayerControl target = list.RandomElement();
                 KnownRolesOfPlayerIds.Add(target.PlayerId);
-                var role = target.GetCustomRole();
+                CustomRoles role = target.GetCustomRole();
                 player.Notify(string.Format(Translator.GetString("InsightNotify"), role.ToColoredString()));
                 RolesKnownThisRound.Add(role);
             }

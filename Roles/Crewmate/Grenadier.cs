@@ -18,23 +18,30 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(6800, TabGroup.CrewmateRoles, CustomRoles.Grenadier);
+
             GrenadierSkillCooldown = new FloatOptionItem(6810, "GrenadierSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Seconds);
+
             GrenadierSkillDuration = new FloatOptionItem(6811, "GrenadierSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Seconds);
+
             GrenadierCauseVision = new FloatOptionItem(6812, "GrenadierCauseVision", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             GrenadierCanAffectNeutral = new BooleanOptionItem(6813, "GrenadierCanAffectNeutral", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier]);
+
             GrenadierSkillMaxOfUseage = new IntegerOptionItem(6814, "GrenadierSkillMaxOfUseage", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
+
             GrenadierAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(6815, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
+
             GrenadierAbilityChargesWhenFinishedTasks = new FloatOptionItem(6816, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
@@ -54,6 +61,7 @@ namespace EHR.Crewmate
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (UsePets.GetBool()) return;
+
             AURoleOptions.EngineerCooldown = GrenadierSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1;
         }
@@ -90,10 +98,10 @@ namespace EHR.Crewmate
         {
             if (!GameStates.IsInTask) return;
 
-            var playerId = player.PlayerId;
-            var now = Utils.TimeStamp;
+            byte playerId = player.PlayerId;
+            long now = Utils.TimeStamp;
 
-            if (GrenadierBlinding.TryGetValue(playerId, out var gtime) && gtime + GrenadierSkillDuration.GetInt() < now)
+            if (GrenadierBlinding.TryGetValue(playerId, out long gtime) && gtime + GrenadierSkillDuration.GetInt() < now)
             {
                 GrenadierBlinding.Remove(playerId);
                 player.RpcResetAbilityCooldown();
@@ -101,7 +109,7 @@ namespace EHR.Crewmate
                 Utils.MarkEveryoneDirtySettingsV3();
             }
 
-            if (MadGrenadierBlinding.TryGetValue(playerId, out var mgtime) && mgtime + GrenadierSkillDuration.GetInt() < now)
+            if (MadGrenadierBlinding.TryGetValue(playerId, out long mgtime) && mgtime + GrenadierSkillDuration.GetInt() < now)
             {
                 MadGrenadierBlinding.Remove(playerId);
                 player.RpcResetAbilityCooldown();
@@ -110,9 +118,10 @@ namespace EHR.Crewmate
             }
         }
 
-        static void BlindPlayers(PlayerControl pc)
+        private static void BlindPlayers(PlayerControl pc)
         {
             if (GrenadierBlinding.ContainsKey(pc.PlayerId) || MadGrenadierBlinding.ContainsKey(pc.PlayerId)) return;
+
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 if (pc.Is(CustomRoles.Madmate))
@@ -134,9 +143,7 @@ namespace EHR.Crewmate
                 Utils.MarkEveryoneDirtySettingsV3();
             }
             else
-            {
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
         }
     }
 }

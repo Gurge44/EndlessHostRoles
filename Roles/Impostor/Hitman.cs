@@ -24,10 +24,13 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hitman);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SuccessKCD = new FloatOptionItem(Id + 11, "HitmanLowKCD", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftCooldown = new FloatOptionItem(Id + 12, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -57,9 +60,10 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        void SendRPC()
+        private void SendRPC()
         {
             if (!DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHitmanTarget, SendOption.Reliable);
             writer.Write(HitmanId);
             writer.Write(TargetId);
@@ -74,13 +78,14 @@ namespace EHR.Impostor
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null) return false;
+
             if (target == null) return false;
 
             if (target.PlayerId == TargetId)
             {
                 TargetId = byte.MaxValue;
                 SendRPC();
-                LateTask.New(() => { killer.SetKillCooldown(time: SuccessKCD.GetFloat()); }, 0.1f, "Hitman Killed Target - SetKillCooldown Task");
+                LateTask.New(() => { killer.SetKillCooldown(SuccessKCD.GetFloat()); }, 0.1f, "Hitman Killed Target - SetKillCooldown Task");
             }
 
             return true;
@@ -88,18 +93,15 @@ namespace EHR.Impostor
 
         public static void CheckAndResetTargets()
         {
-            foreach (var id in PlayerIdList)
-            {
+            foreach (byte id in PlayerIdList)
                 if (Main.PlayerStates[id].Role is Hitman { IsEnable: true } hm)
-                {
                     hm.OnReportDeadBody();
-                }
-            }
         }
 
         public override void OnReportDeadBody()
         {
-            var target = GetPlayerById(TargetId);
+            PlayerControl target = GetPlayerById(TargetId);
+
             if (!target.IsAlive() || target.Data.Disconnected)
             {
                 TargetId = byte.MaxValue;
@@ -121,7 +123,8 @@ namespace EHR.Impostor
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
-            var id = (Main.PlayerStates[seer.PlayerId].Role as Hitman)?.TargetId ?? byte.MaxValue;
+
+            byte id = (Main.PlayerStates[seer.PlayerId].Role as Hitman)?.TargetId ?? byte.MaxValue;
             return id == byte.MaxValue ? string.Empty : $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(id).GetRealName().RemoveHtmlTags()}</color>";
         }
     }

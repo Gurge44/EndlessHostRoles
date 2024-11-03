@@ -55,7 +55,10 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public static bool OnAnyoneReport() => Instances.All(x => x.ActivateTS == 0);
+        public static bool OnAnyoneReport()
+        {
+            return Instances.All(x => x.ActivateTS == 0);
+        }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
@@ -77,8 +80,9 @@ namespace EHR.Impostor
         {
             if (ActivateTS == 0) return;
 
-            bool notify = false;
-            int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
+            var notify = false;
+            var timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
+
             switch (timeLeft)
             {
                 case <= 0:
@@ -87,6 +91,7 @@ namespace EHR.Impostor
                     pc.RpcResetAbilityCooldown();
                     Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
                     if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
+
                     break;
                 case <= 6 when Count++ >= 30:
                     Count = 0;
@@ -105,7 +110,8 @@ namespace EHR.Impostor
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || (seer.IsModClient() && !hud) || ActivateTS == 0) return string.Empty;
-            int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
+
+            var timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
             return timeLeft <= 5 ? $"\u25a9 ({timeLeft})" : "\u25a9";
         }
     }

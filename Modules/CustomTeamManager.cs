@@ -19,6 +19,7 @@ namespace EHR.Modules
             try
             {
                 if (!File.Exists("./EHR_DATA/CTA_Data.txt")) return;
+
                 CustomTeams = File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
                 RefreshCustomOptions();
             }
@@ -53,7 +54,8 @@ namespace EHR.Modules
                 group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));
                 group.AllOptions.ForEach(x => x.SetColor(new Color32(215, 227, 84, byte.MaxValue)));
                 group.AllOptions.ForEach(x => x.SetGameMode(CustomGameMode.Standard));
-                if (ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color)) enabled.SetColor(color);
+                if (ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color color)) enabled.SetColor(color);
+
                 enabled.RegisterUpdateValueEvent((_, _) => UpdateEnabledTeams());
                 return group;
             }
@@ -84,6 +86,7 @@ namespace EHR.Modules
                     foreach (byte target in players)
                     {
                         if (player == target) continue;
+
                         TargetArrow.Add(player, target);
                     }
                 }
@@ -93,6 +96,7 @@ namespace EHR.Modules
         public static string GetSuffix(PlayerControl seer)
         {
             if (seer == null || EnabledCustomTeams.Count == 0 || Main.HasJustStarted || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
+
             return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
         }
 
@@ -104,17 +108,18 @@ namespace EHR.Modules
             {
                 CustomTeamPlayerIds.Do(x => x.Value.RemoveWhere(p =>
                 {
-                    var pc = Utils.GetPlayerById(p);
+                    PlayerControl pc = Utils.GetPlayerById(p);
                     return pc == null || pc.Data.Disconnected;
                 }));
 
-                var aliveTeamPlayers = CustomTeamPlayerIds.ToDictionary(x => x.Key, x => x.Value);
+                Dictionary<CustomTeam, HashSet<byte>> aliveTeamPlayers = CustomTeamPlayerIds.ToDictionary(x => x.Key, x => x.Value);
                 aliveTeamPlayers.Do(x => x.Value.RemoveWhere(p => !Utils.GetPlayerById(p).IsAlive()));
 
-                var team = aliveTeamPlayers.Keys.First();
+                CustomTeam team = aliveTeamPlayers.Keys.First();
+
                 if (aliveTeamPlayers.Count == 1 && Main.AllAlivePlayerControls.All(x =>
                     {
-                        var customTeam = GetCustomTeam(x.PlayerId);
+                        CustomTeam customTeam = GetCustomTeam(x.PlayerId);
                         return customTeam != null && customTeam.Equals(team);
                     }))
                 {
@@ -134,13 +139,11 @@ namespace EHR.Modules
 
         public static CustomTeam GetCustomTeam(byte id)
         {
-            if (!Main.PlayerStates.TryGetValue(id, out var state)) return null;
+            if (!Main.PlayerStates.TryGetValue(id, out PlayerState state)) return null;
 
-            foreach (var team in EnabledCustomTeams)
-            {
+            foreach (CustomTeam team in EnabledCustomTeams)
                 if (team.TeamMembers.Contains(state.MainRole))
                     return team;
-            }
 
             return null;
         }
@@ -149,22 +152,22 @@ namespace EHR.Modules
         {
             if (EnabledCustomTeams.Count == 0) return false;
 
-            var team1 = GetCustomTeam(id1);
-            var team2 = GetCustomTeam(id2);
+            CustomTeam team1 = GetCustomTeam(id1);
+            CustomTeam team2 = GetCustomTeam(id2);
 
             return team1 != null && team2 != null && team1.Equals(team2);
         }
 
         public static bool IsSettingEnabledForPlayerTeam(byte id, CTAOption setting)
         {
-            var team = GetCustomTeam(id);
+            CustomTeam team = GetCustomTeam(id);
             return team != null && IsSettingEnabledForTeam(team, setting);
         }
 
         public static bool IsSettingEnabledForTeam(CustomTeam team, CTAOption setting)
         {
-            var optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
-            var values = optionsGroup.AllOptions.ConvertAll(x => x.GetBool());
+            CustomTeamOptionGroup optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
+            List<bool> values = optionsGroup.AllOptions.ConvertAll(x => x.GetBool());
             return values[(int)setting];
         }
 
@@ -203,10 +206,14 @@ namespace EHR.Modules
             public override bool Equals(object obj)
             {
                 if (obj is not CustomTeam team) return false;
+
                 return TeamName == team.TeamName;
             }
 
-            public override int GetHashCode() => TeamName.GetHashCode();
+            public override int GetHashCode()
+            {
+                return TeamName.GetHashCode();
+            }
         }
 
         internal class CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows)

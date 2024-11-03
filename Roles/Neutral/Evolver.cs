@@ -13,15 +13,15 @@ namespace EHR.Neutral
         private const int Id = 644500;
         public static bool On;
 
-        static OptionItem KillCooldown;
+        private static OptionItem KillCooldown;
         private int ChooseTimer;
         private PlayerControl EvolverPC;
 
         private long LastUpdate = Utils.TimeStamp;
-        int SelectedUpgradeIndex;
+        private int SelectedUpgradeIndex;
 
         private (float KillCooldown, bool ImpostorVision, float Vision, float Speed, int KillDistance, bool CanVent, int VentUseLimit, bool CanSabotage, int SabotageUseLimit, bool Shielded) Stats;
-        List<Upgrade> Upgrades;
+        private List<Upgrade> Upgrades;
 
         public override bool IsEnable => On;
         private (float MinKillCooldown, float MaxVision, float MaxSpeed, int MaxKillDistance) Limits => (1f, Stats.ImpostorVision ? 1.5f : 5f, 3f, 2);
@@ -29,6 +29,7 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Evolver);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Evolver])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -48,7 +49,8 @@ namespace EHR.Neutral
             Upgrades = [];
             SelectedUpgradeIndex = -1;
 
-            var opts = Main.RealOptionsData;
+            OptionBackupData opts = Main.RealOptionsData;
+
             Stats = (
                 KillCooldown.GetFloat(),
                 false,
@@ -59,9 +61,20 @@ namespace EHR.Neutral
             );
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Stats.KillCooldown;
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.inVent || Stats is { CanVent: true, VentUseLimit: > 0 };
-        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || Stats is { CanSabotage: true, SabotageUseLimit: > 0 };
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = Stats.KillCooldown;
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return pc.inVent || Stats is { CanVent: true, VentUseLimit: > 0 };
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return base.CanUseSabotage(pc) || Stats is { CanSabotage: true, SabotageUseLimit: > 0 };
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
@@ -114,14 +127,19 @@ namespace EHR.Neutral
             Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);
         }
 
-        IEnumerable<Upgrade> GetBannedUpgradeList()
+        private IEnumerable<Upgrade> GetBannedUpgradeList()
         {
             var banned = new List<Upgrade>();
             if (Stats.KillCooldown <= Limits.MinKillCooldown) banned.Add(Upgrade.DecreaseKillCooldown);
+
             if (Stats.ImpostorVision) banned.Add(Upgrade.GainImpostorVision);
+
             if (Stats.Vision >= Limits.MaxVision) banned.Add(Upgrade.IncreaseVision);
+
             if (Stats.Speed >= Limits.MaxSpeed) banned.Add(Upgrade.IncreaseSpeed);
+
             if (Stats.KillDistance >= Limits.MaxKillDistance) banned.Add(Upgrade.IncreaseKillDistance);
+
             banned.Add(Stats.CanVent ? Upgrade.GainVent : Upgrade.IncreaseVentUseLimit);
             banned.Add(Stats.CanSabotage ? Upgrade.GainSabotage : Upgrade.IncreaseSabotageUseLimit);
             return banned;
@@ -130,6 +148,7 @@ namespace EHR.Neutral
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!GameStates.IsInTask || !pc.IsAlive() || ChooseTimer == 0 || SelectedUpgradeIndex == -1 || Upgrades.Count == 0 || LastUpdate == Utils.TimeStamp) return;
+
             LastUpdate = Utils.TimeStamp;
 
             ChooseTimer--;
@@ -140,7 +159,7 @@ namespace EHR.Neutral
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        void ApplySelectedUpgradeAndReset()
+        private void ApplySelectedUpgradeAndReset()
         {
             switch (Upgrades[SelectedUpgradeIndex])
             {
@@ -179,11 +198,13 @@ namespace EHR.Neutral
             }
 
             EnsureStatLimits();
+
             if (GameStates.IsInTask)
             {
                 EvolverPC.ResetKillCooldown();
                 EvolverPC.SyncSettings();
                 if (Main.KillTimers[EvolverPC.PlayerId] > Stats.KillCooldown) EvolverPC.SetKillCooldown();
+
                 if (PlayerControl.LocalPlayer.PlayerId == EvolverPC.PlayerId) HudManager.Instance.SetHudActive(EvolverPC, EvolverPC.Data.Role, true);
             }
 
@@ -192,7 +213,7 @@ namespace EHR.Neutral
             Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
         }
 
-        void EnsureStatLimits()
+        private void EnsureStatLimits()
         {
             Stats.KillCooldown = Math.Max(Stats.KillCooldown, Limits.MinKillCooldown);
             Stats.Vision = Math.Min(Stats.Vision, Limits.MaxVision);
@@ -216,9 +237,9 @@ namespace EHR.Neutral
             Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);
         }
 
-        void SendRPC()
+        private void SendRPC()
         {
-            var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
+            MessageWriter w = Utils.CreateRPC(CustomRPC.SyncRoleData);
             w.Write(EvolverPC.PlayerId);
             w.WritePacked(1);
             w.Write(Upgrades.Count);
@@ -232,12 +253,13 @@ namespace EHR.Neutral
             {
                 case 1:
                     Upgrades = [];
-                    for (int i = 0; i < Upgrades.Count; i++)
-                        Upgrades.Add((Upgrade)reader.ReadPackedInt32());
+                    for (var i = 0; i < Upgrades.Count; i++) Upgrades.Add((Upgrade)reader.ReadPackedInt32());
+
                     break;
                 case 2:
                     SelectedUpgradeIndex = reader.ReadPackedInt32();
                     if (SelectedUpgradeIndex == -1) Upgrades = [];
+
                     break;
                 case 3:
                     ChooseTimer = reader.ReadPackedInt32();
@@ -248,6 +270,7 @@ namespace EHR.Neutral
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != EvolverPC.PlayerId || (seer.IsModClient() && !hud) || meeting || ChooseTimer == 0 || Upgrades.Count == 0 || SelectedUpgradeIndex == -1) return string.Empty;
+
             return string.Format(Translator.GetString("EvolverSuffix"), ChooseTimer, Translator.GetString($"EvolverUpgrade.{Upgrades[SelectedUpgradeIndex]}"), string.Join(", ", Upgrades.ConvertAll(x => Translator.GetString($"EvolverUpgrade.{x}"))));
         }
 
@@ -256,6 +279,7 @@ namespace EHR.Neutral
             var sb = new StringBuilder();
 
             if (Stats.CanVent) sb.Append(string.Format(Translator.GetString("EvolverProgress.Vent"), Stats.VentUseLimit));
+
             if (Stats.CanSabotage) sb.Append(string.Format(Translator.GetString("EvolverProgress.Sabotage"), Stats.SabotageUseLimit));
 
             if (sb.Length > 0)
@@ -267,7 +291,7 @@ namespace EHR.Neutral
             return sb.ToString();
         }
 
-        enum Upgrade
+        private enum Upgrade
         {
             DecreaseKillCooldown,
             GainImpostorVision,

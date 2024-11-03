@@ -80,9 +80,15 @@ namespace EHR.Crewmate
         private HashSet<byte> ShieldedPlayers;
         public override bool IsEnable => On;
 
-        static void HideObject(Resource resource) => CustomNetObject.AllObjects.FirstOrDefault(x => x is AdventurerItem a && a.Resource == resource)?.Despawn();
+        private static void HideObject(Resource resource)
+        {
+            CustomNetObject.AllObjects.FirstOrDefault(x => x is AdventurerItem a && a.Resource == resource)?.Despawn();
+        }
 
-        static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => new BooleanOptionItem(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
+        private static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon)
+        {
+            return new BooleanOptionItem(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
+        }
 
         public override void SetupCustomOption()
         {
@@ -92,10 +98,7 @@ namespace EHR.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer])
                 .SetValueFormat(OptionFormat.Seconds);
 
-            foreach (var weapon in Enum.GetValues<Weapon>())
-            {
-                WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
-            }
+            foreach (Weapon weapon in Enum.GetValues<Weapon>()) WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
         }
 
         public override void Add(byte playerId)
@@ -115,10 +118,7 @@ namespace EHR.Crewmate
             LastGroupingResourceTimeStamp = Utils.TimeStamp + 20;
             ResourceLocations = [];
 
-            foreach (var resource in Enum.GetValues<Resource>())
-            {
-                ResourceCounts[resource] = 0;
-            }
+            foreach (Resource resource in Enum.GetValues<Resource>()) ResourceCounts[resource] = 0;
         }
 
         public override void Init()
@@ -145,21 +145,27 @@ namespace EHR.Crewmate
             switch (InCraftingMode)
             {
                 case true:
+                {
                     OrderedWeapons = [.. EnabledWeapons.OrderBy(x => !Ingredients[x].All(r => r.Count <= ResourceCounts[r.Resource]))];
                     SelectedWeaponToCraft = OrderedWeapons.FirstOrDefault();
                     Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 4, (int)SelectedWeaponToCraft);
                     break;
+                }
                 case false when Ingredients[SelectedWeaponToCraft].All(x => x.Count <= ResourceCounts[x.Resource]):
-                    var weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons.RandomElement() : SelectedWeaponToCraft;
+                {
+                    Weapon weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons.RandomElement() : SelectedWeaponToCraft;
                     ActiveWeapons.Add(weapon);
                     pc.Notify(string.Format(Translator.GetString("AdventurerWeaponCrafted"), Translator.GetString($"AdventurerGun.{weapon}")));
+
                     foreach ((Resource resource, int count) in Ingredients[weapon])
                     {
                         ResourceCounts[resource] -= count;
                         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, (int)resource, count);
                     }
 
+                    Achievements.Type.HowDoICraftThisAgain.Complete();
                     break;
+                }
             }
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -175,7 +181,8 @@ namespace EHR.Crewmate
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     break;
                 case false when ActiveWeapons.Count > 0:
-                    var target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
+                    PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
+
                     switch (ActiveWeapons[0])
                     {
                         case Weapon.Gun when target != null:
@@ -187,11 +194,12 @@ namespace EHR.Crewmate
                             RemoveAndNotify();
                             break;
                         case Weapon.Portal:
-                            var e = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
-                            var filtered = e as PlayerControl[] ?? e.ToArray();
+                            IEnumerable<PlayerControl> e = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
+                            PlayerControl[] filtered = e as PlayerControl[] ?? e.ToArray();
                             if (filtered.Length == 0) return;
-                            var other = filtered.RandomElement();
-                            var pos = other.Pos();
+
+                            PlayerControl other = filtered.RandomElement();
+                            Vector2 pos = other.Pos();
                             other.TP(pc);
                             pc.TP(pos);
                             RemoveAndNotify();
@@ -204,6 +212,7 @@ namespace EHR.Crewmate
                             if (Utils.IsActive(SystemTypes.Electrical))
                             {
                                 var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.TryCast<SwitchSystem>();
+
                                 if (SwitchSystem != null)
                                 {
                                     SwitchSystem.ActualSwitches = 0;
@@ -234,9 +243,9 @@ namespace EHR.Crewmate
                             RemoveAndNotify();
                             break;
                         case Weapon.Prediction:
-                            var closest = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(pc.Pos(), x.Pos()));
+                            PlayerControl closest = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(pc.Pos(), x.Pos()));
                             RevealedPlayers.Add(closest.PlayerId);
-                            RemoveAndNotify(notifyTarget: closest);
+                            RemoveAndNotify(closest);
                             break;
                     }
 
@@ -259,6 +268,7 @@ namespace EHR.Crewmate
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
             if (lowLoad) return;
+
             long now = Utils.TimeStamp;
 
             if (!GameStates.IsInTask)
@@ -270,13 +280,13 @@ namespace EHR.Crewmate
 
             if (LastRandomResourceTimeStamp + 20 <= now && pc.PlayerId != AdventurerPC.PlayerId && IRandom.Instance.Next(50) == 0)
             {
-                if (ResourceLocations.TryGetValue(Resource.Random, out var location))
+                if (ResourceLocations.TryGetValue(Resource.Random, out Vector2 location))
                 {
                     LocateArrow.Remove(AdventurerPC.PlayerId, location);
                     HideObject(Resource.Random);
                 }
 
-                var pos = pc.Pos();
+                Vector2 pos = pc.Pos();
                 LocateArrow.Add(AdventurerPC.PlayerId, pos);
                 ResourceLocations[Resource.Random] = pos;
                 _ = new AdventurerItem(pos, Resource.Random, [AdventurerPC.PlayerId]);
@@ -286,13 +296,13 @@ namespace EHR.Crewmate
 
             if (LastGroupingResourceTimeStamp + 20 <= now && Main.AllAlivePlayerControls.Count(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pc.Pos()) < 2f) >= 2)
             {
-                if (ResourceLocations.TryGetValue(Resource.Grouping, out var location))
+                if (ResourceLocations.TryGetValue(Resource.Grouping, out Vector2 location))
                 {
                     LocateArrow.Remove(AdventurerPC.PlayerId, location);
                     HideObject(Resource.Grouping);
                 }
 
-                var pos = pc.Pos();
+                Vector2 pos = pc.Pos();
                 LocateArrow.Add(AdventurerPC.PlayerId, pos);
                 ResourceLocations[Resource.Grouping] = pos;
                 _ = new AdventurerItem(pos, Resource.Grouping, [AdventurerPC.PlayerId]);
@@ -304,6 +314,7 @@ namespace EHR.Crewmate
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (Count++ < 10) return;
+
             Count = 0;
 
             foreach ((Resource resource, Vector2 location) in ResourceLocations)
@@ -316,7 +327,7 @@ namespace EHR.Crewmate
                     HideObject(resource);
                     LocateArrow.Remove(pc.PlayerId, location);
 
-                    var displayData = ResourceDisplayData[resource];
+                    (char Icon, Color Color) displayData = ResourceDisplayData[resource];
                     pc.Notify(string.Format(Translator.GetString("AdventurerFound"), Utils.ColorString(displayData.Color, $"{displayData.Icon}")));
                     break;
                 }
@@ -336,7 +347,7 @@ namespace EHR.Crewmate
 
         public static void OnAnyoneShapeshiftLoop(Adventurer av, PlayerControl shapeshifter)
         {
-            var pos = shapeshifter.Pos();
+            Vector2 pos = shapeshifter.Pos();
             av.ResourceLocations[Resource.ShapeshiftSkin] = pos;
             HideObject(Resource.ShapeshiftSkin);
             _ = new AdventurerItem(pos, Resource.ShapeshiftSkin, [av.AdventurerPC.PlayerId]);
@@ -344,11 +355,11 @@ namespace EHR.Crewmate
 
         public static void OnAnyoneDead(PlayerControl target)
         {
-            foreach (var state in Main.PlayerStates.Values)
+            foreach (PlayerState state in Main.PlayerStates.Values)
             {
                 if (state.Role is Adventurer { IsEnable: true } av)
                 {
-                    var pos = target.Pos();
+                    Vector2 pos = target.Pos();
                     av.ResourceLocations[Resource.DeadBody] = pos;
                     HideObject(Resource.DeadBody);
                     _ = new AdventurerItem(pos, Resource.DeadBody, [av.AdventurerPC.PlayerId]);
@@ -358,8 +369,9 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurder(PlayerControl target)
         {
-            bool any = false;
-            foreach (var s in Main.PlayerStates.Values)
+            var any = false;
+
+            foreach (PlayerState s in Main.PlayerStates.Values)
             {
                 if (s.Role is Adventurer { IsEnable: true } av && av.ShieldedPlayers.Contains(target.PlayerId))
                 {
@@ -375,6 +387,7 @@ namespace EHR.Crewmate
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             if (base.KnowRole(seer, target)) return true;
+
             return RevealedPlayers.Contains(target.PlayerId);
         }
 
@@ -400,6 +413,7 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.IsModClient() && !hud) return string.Empty;
+
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
 
             IEnumerable<string> resources =
@@ -413,6 +427,7 @@ namespace EHR.Crewmate
             finalText += $"\n{LocateArrow.GetArrows(seer)}\n";
 
             finalText += "<size=80%>";
+
             finalText += InCraftingMode
                 ? string.Format(
                     Translator.GetString("AdventurerIngredientsDisplay"),
@@ -421,6 +436,7 @@ namespace EHR.Crewmate
                         .Select(x => $"{Utils.ColorString(ResourceDisplayData[x.Resource].Color, $"{ResourceDisplayData[x.Resource].Icon}")}" +
                                      $"{Utils.ColorString(x.Count > ResourceCounts[x.Resource] ? Color.red : Color.white, $"{x.Count}")}")))
                 : Translator.GetString("AdventurerVentToEnterCrafting");
+
             finalText += "</size>";
 
             return finalText;

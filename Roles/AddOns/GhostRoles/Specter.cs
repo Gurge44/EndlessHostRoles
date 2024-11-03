@@ -14,9 +14,10 @@ namespace EHR.AddOns.GhostRoles
         public void OnAssign(PlayerControl pc)
         {
             IsWon = false;
+
             LateTask.New(() =>
             {
-                var taskState = pc.GetTaskState();
+                TaskState taskState = pc.GetTaskState();
                 if (taskState == null) return;
 
                 taskState.HasTasks = true;
@@ -30,15 +31,15 @@ namespace EHR.AddOns.GhostRoles
             }, 1f, "Specter Assign");
         }
 
-        public void OnProtect(PlayerControl pc, PlayerControl target)
-        {
-        }
+        public void OnProtect(PlayerControl pc, PlayerControl target) { }
 
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter);
+
             SnatchWin = new BooleanOptionItem(649102, "SnatchWin", false, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
+
             Options.OverrideTasksData.Create(649103, TabGroup.OtherRoles, CustomRoles.Specter);
         }
 

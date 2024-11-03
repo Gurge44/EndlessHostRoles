@@ -41,7 +41,7 @@ namespace EHR
 
         public static void SetupCustomOption()
         {
-            int id = 69_216_001;
+            var id = 69_216_001;
             Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
             const CustomGameMode gameMode = CustomGameMode.NaturalDisasters;
 
@@ -107,11 +107,11 @@ namespace EHR
 
             if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return;
 
-            var rooms = RoomLocations()?.Values;
+            Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RoomLocations()?.Values;
             if (rooms == null) return;
 
-            var x = rooms.Select(r => r.x).ToArray();
-            var y = rooms.Select(r => r.y).ToArray();
+            float[] x = rooms.Select(r => r.x).ToArray();
+            float[] y = rooms.Select(r => r.y).ToArray();
 
             const float extend = 3.5f;
             MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
@@ -132,8 +132,8 @@ namespace EHR
 
         public static string SuffixText()
         {
-            var cb = string.Format(Translator.GetString("CollapsedBuildings"), BuildingCollapse.CollapsedBuildingsString);
-            var ts = ActiveDisasters.Exists(x => x is Thunderstorm) ? $"\n{Translator.GetString("OngoingThunderstorm")}" : string.Empty;
+            string cb = string.Format(Translator.GetString("CollapsedBuildings"), BuildingCollapse.CollapsedBuildingsString);
+            string ts = ActiveDisasters.Exists(x => x is Thunderstorm) ? $"\n{Translator.GetString("OngoingThunderstorm")}" : string.Empty;
             return $"<size=80%>{cb}{ts}</size>";
         }
 
@@ -146,33 +146,39 @@ namespace EHR
         {
             SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - GameStartTimeStamp);
 
-            var message = Translator.GetString($"ND_DRLaughMessage.{deathReason}");
+            string message = Translator.GetString($"ND_DRLaughMessage.{deathReason}");
             message = Utils.ColorString(DeathReasonColor(deathReason), message);
             LateTask.New(() => pc.Notify(message, 20f), 1f, $"{pc.GetRealName()} died with the reason {deathReason}, survived for {SurvivalTime(pc.PlayerId)} seconds");
         }
 
-        private static Color DeathReasonColor(PlayerState.DeathReason deathReason) => deathReason switch
+        private static Color DeathReasonColor(PlayerState.DeathReason deathReason)
         {
-            PlayerState.DeathReason.Meteor => Color.red,
-            PlayerState.DeathReason.Lava => Palette.Orange,
-            PlayerState.DeathReason.Tornado => Color.gray,
-            PlayerState.DeathReason.Lightning => Palette.White_75Alpha,
-            PlayerState.DeathReason.Drowned => Color.cyan,
-            PlayerState.DeathReason.Sunken => Color.yellow,
-            PlayerState.DeathReason.Collapsed => Palette.Brown,
-            _ => Color.white
-        };
+            return deathReason switch
+            {
+                PlayerState.DeathReason.Meteor => Color.red,
+                PlayerState.DeathReason.Lava => Palette.Orange,
+                PlayerState.DeathReason.Tornado => Color.gray,
+                PlayerState.DeathReason.Lightning => Palette.White_75Alpha,
+                PlayerState.DeathReason.Drowned => Color.cyan,
+                PlayerState.DeathReason.Sunken => Color.yellow,
+                PlayerState.DeathReason.Collapsed => Palette.Brown,
+                _ => Color.white
+            };
+        }
 
-        private static string Sprite(string name) => name switch
+        private static string Sprite(string name)
         {
-            "Earthquake" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#adadad>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#5e5e5e>\u2588<#000000>\u2588<#5e5e5e>\u2588<#adadad>\u2588<#adadad>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#adadad>\u2588<#adadad>\u2588<alpha=#00>\u2588<br><#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#adadad>\u2588<br><alpha=#00>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<br></line-height></size>",
-            "Meteor" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
-            "VolcanoEruption" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
-            "Tornado" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
-            "SandStorm" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#ffdc7a>█<#dbcfba>█<#f5c387>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<br><#dbcfba>█<#f5c6a2>█<#ffc18f>█<#ffe8d6>█<#e6a875>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<br><#e6a875>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<#ffe8d6>█<#f5c387>█<br><#ffe8d6>█<#ffdc7a>█<#dbcfba>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#f5c6a2>█<#ffc18f>█<br><#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#e6a875>█<#dbcfba>█<#ffe8d6>█<br><#ffc18f>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<#ffe8d6>█<#e6a875>█<br><#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<br><#ffdc7a>█<#ffe8d6>█<#e6a875>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<br></line-height></size>",
-            "Sinkhole" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br></line-height></size>",
-            _ => Utils.EmptyMessage
-        };
+            return name switch
+            {
+                "Earthquake" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#adadad>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#5e5e5e>\u2588<#000000>\u2588<#5e5e5e>\u2588<#adadad>\u2588<#adadad>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#adadad>\u2588<#adadad>\u2588<alpha=#00>\u2588<br><#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#adadad>\u2588<br><alpha=#00>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<br></line-height></size>",
+                "Meteor" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
+                "VolcanoEruption" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
+                "Tornado" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
+                "SandStorm" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#ffdc7a>█<#dbcfba>█<#f5c387>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<br><#dbcfba>█<#f5c6a2>█<#ffc18f>█<#ffe8d6>█<#e6a875>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<br><#e6a875>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<#ffe8d6>█<#f5c387>█<br><#ffe8d6>█<#ffdc7a>█<#dbcfba>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#f5c6a2>█<#ffc18f>█<br><#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#e6a875>█<#dbcfba>█<#ffe8d6>█<br><#ffc18f>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<#ffe8d6>█<#e6a875>█<br><#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<br><#ffdc7a>█<#ffe8d6>█<#e6a875>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<br></line-height></size>",
+                "Sinkhole" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br></line-height></size>",
+                _ => Utils.EmptyMessage
+            };
+        }
 
         private static Dictionary<SystemTypes, Vector2> RoomLocations()
         {
@@ -189,7 +195,7 @@ namespace EHR
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-        static class FixedUpdatePatch
+        private static class FixedUpdatePatch
         {
             private static long LastDisaster = Utils.TimeStamp;
             private static long LastSync = Utils.TimeStamp;
@@ -202,9 +208,10 @@ namespace EHR
                 foreach (NaturalDisaster naturalDisaster in PreparingDisasters.ToArray())
                 {
                     naturalDisaster.Update();
+
                     if (float.IsNaN(naturalDisaster.SpawnTimer))
                     {
-                        var type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
+                        Type type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
                         LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), 1f, log: false);
                         PreparingDisasters.Remove(naturalDisaster);
                     }
@@ -216,7 +223,8 @@ namespace EHR
 
                 if (LimitMaximumDisastersAtOnce.GetBool())
                 {
-                    var numDisasters = ActiveDisasters.Count + PreparingDisasters.Count;
+                    int numDisasters = ActiveDisasters.Count + PreparingDisasters.Count + Sinkhole.Sinkholes.Count;
+
                     if (numDisasters > MaximumDisastersAtOnce.GetInt())
                     {
                         switch (WhenLimitIsReached.GetValue())
@@ -234,14 +242,15 @@ namespace EHR
                                     return;
                                 }
 
-                                var remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
+                                Disaster remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
                                 if (remove != null) remove.Duration = 0;
+
                                 remove?.RemoveIfExpired();
                                 break;
                             }
                             case 2:
                             {
-                                var oldest = ActiveDisasters.MinBy(x => x.StartTimeStamp);
+                                Disaster oldest = ActiveDisasters.MinBy(x => x.StartTimeStamp);
                                 oldest.Duration = 0;
                                 oldest.RemoveIfExpired();
                                 break;
@@ -250,15 +259,18 @@ namespace EHR
                     }
                 }
 
-                var now = Utils.TimeStamp;
+                long now = Utils.TimeStamp;
+
                 if (now - LastDisaster >= DisasterFrequency.GetInt())
                 {
                     LastDisaster = now;
-                    var disasters = AllDisasters.ToList();
+                    List<Type> disasters = AllDisasters.ToList();
                     if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
-                    var disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
-                    var roomKvp = RoomLocations().RandomElement();
-                    var position = disaster.Name switch
+
+                    Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
+                    KeyValuePair<SystemTypes, Vector2> roomKvp = RoomLocations().RandomElement();
+
+                    Vector2 position = disaster.Name switch
                     {
                         "BuildingCollapse" => roomKvp.Value,
                         "Thunderstorm" => Pelican.GetBlackRoomPS(),
@@ -266,6 +278,7 @@ namespace EHR
                             ? Main.AllAlivePlayerControls.RandomElement().Pos()
                             : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom))
                     };
+
                     SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
                     PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disaster.Name), disaster.Name, room));
                 }
@@ -278,7 +291,7 @@ namespace EHR
             }
         }
 
-        abstract class Disaster
+        private abstract class Disaster
         {
             protected Disaster(Vector2 position)
             {
@@ -305,23 +318,17 @@ namespace EHR
 
             public abstract void Update();
 
-            public virtual void ApplyOwnGameOptions(IGameOptions opt, byte id)
-            {
-            }
+            public virtual void ApplyOwnGameOptions(IGameOptions opt, byte id) { }
 
             protected void KillNearbyPlayers(PlayerState.DeathReason deathReason, float range = Range)
             {
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
-                    if (Vector2.Distance(pc.Pos(), this.Position) <= range)
-                    {
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                    if (Vector2.Distance(pc.Pos(), Position) <= range)
                         pc.Suicide(deathReason);
-                    }
-                }
             }
         }
 
-        sealed class Earthquake : Disaster
+        private sealed class Earthquake : Disaster
         {
             private static OptionItem DurationOpt;
             private static OptionItem Speed;
@@ -358,14 +365,15 @@ namespace EHR
             {
                 if (RemoveIfExpired()) return;
 
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    float speed = (Vector2.Distance(pc.Pos(), this.Position) <= Range) switch
+                    float speed = (Vector2.Distance(pc.Pos(), Position) <= Range) switch
                     {
                         true when AffectedPlayers.Add(pc.PlayerId) => Speed.GetFloat(),
                         false when AffectedPlayers.Remove(pc.PlayerId) => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod),
                         _ => float.NaN
                     };
+
                     if (!float.IsNaN(speed) && !Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], speed))
                     {
                         Main.AllPlayerSpeed[pc.PlayerId] = speed;
@@ -378,7 +386,7 @@ namespace EHR
             {
                 if (base.RemoveIfExpired())
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls)
+                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
                         if (AffectedPlayers.Remove(pc.PlayerId))
                         {
@@ -394,7 +402,7 @@ namespace EHR
             }
         }
 
-        sealed class Meteor : Disaster
+        private sealed class Meteor : Disaster
         {
             public Meteor(Vector2 position, NaturalDisaster naturalDisaster) : base(position)
             {
@@ -412,7 +420,7 @@ namespace EHR
             }
         }
 
-        sealed class VolcanoEruption : Disaster
+        private sealed class VolcanoEruption : Disaster
         {
             private const int Phases = 4;
             private static OptionItem FlowStepDelay;
@@ -452,13 +460,14 @@ namespace EHR
                 if (RemoveIfExpired()) return;
 
                 Timer += Time.deltaTime;
+
                 if (Timer >= FlowStepDelay.GetFloat())
                 {
                     Timer = 0f;
                     Phase++;
                     if (Phase > Phases) return;
 
-                    var newSprite = Phase switch
+                    string newSprite = Phase switch
                     {
                         2 => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
                         3 => "<size=170%><font=\"VCR SDF\"><line-height=67%><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br></line-height></size>",
@@ -466,15 +475,15 @@ namespace EHR
                         _ => Utils.EmptyMessage
                     };
 
-                    this.NetObject.RpcChangeSprite(newSprite);
+                    NetObject.RpcChangeSprite(newSprite);
                 }
 
-                var range = Range - ((Phases - Phase) * 0.4f);
+                float range = Range - ((Phases - Phase) * 0.4f);
                 KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
             }
         }
 
-        sealed class Tornado : Disaster
+        private sealed class Tornado : Disaster
         {
             private static OptionItem DurationOpt;
             private static OptionItem GoesThroughWalls;
@@ -522,38 +531,42 @@ namespace EHR
                 const float eyeRange = Range / 4f;
                 const float dragRange = Range * 1.25f;
 
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    var pos = pc.Pos();
-                    switch (Vector2.Distance(pos, this.Position))
+                    Vector2 pos = pc.Pos();
+
+                    switch (Vector2.Distance(pos, Position))
                     {
                         case <= eyeRange:
                             pc.Suicide(PlayerState.DeathReason.Tornado);
                             continue;
                         case <= dragRange:
-                            Vector2 direction = (this.Position - pos).normalized;
-                            Vector2 newPosition = pos + direction * 0.1f;
+                            Vector2 direction = (Position - pos).normalized;
+                            Vector2 newPosition = pos + (direction * 0.1f);
                             pc.TP(newPosition);
                             continue;
                     }
                 }
 
                 if (Count++ < 3) return;
+
                 Count = 0;
 
                 float angle;
                 long now = Utils.TimeStamp;
+
                 if (LastAngleChange + 7 <= now)
                 {
                     angle = RandomAngle();
                     LastAngleChange = now;
                     Angle = angle;
                 }
-                else angle = Angle;
+                else
+                    angle = Angle;
 
-                Vector2 newPos = this.Position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * MovingSpeed.GetFloat();
+                Vector2 newPos = Position + (new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * MovingSpeed.GetFloat());
 
-                if (!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(this.NetObject.playerControl.Collider, this.Position, newPos, Constants.ShipOnlyMask, false) ||
+                if ((!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos, Constants.ShipOnlyMask, false)) ||
                     newPos.x < MapBounds.X.Left || newPos.x > MapBounds.X.Right || newPos.y < MapBounds.Y.Bottom || newPos.y > MapBounds.Y.Top)
                 {
                     Angle = RandomAngle();
@@ -562,14 +575,17 @@ namespace EHR
                     return;
                 }
 
-                this.Position = newPos;
-                this.NetObject.TP(this.Position);
+                Position = newPos;
+                NetObject.TP(Position);
             }
 
-            private static float RandomAngle() => Random.Range(0, 2 * Mathf.PI);
+            private static float RandomAngle()
+            {
+                return Random.Range(0, 2 * Mathf.PI);
+            }
         }
 
-        sealed class Thunderstorm : Disaster
+        private sealed class Thunderstorm : Disaster
         {
             private static OptionItem HitFrequency;
             private static OptionItem DurationOpt;
@@ -611,19 +627,20 @@ namespace EHR
                 if (RemoveIfExpired()) return;
 
                 long now = Utils.TimeStamp;
+
                 if (now - LastHit >= HitFrequency.GetInt())
                 {
                     LastHit = now;
                     var hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
                     var cno = new Lightning(hit);
-                    if (cno.playerControl.GetPlainShipRoom() != default(PlainShipRoom)) cno.Despawn();
-                    foreach (var pc in Main.AllAlivePlayerControls)
+
+                    if (cno.playerControl.GetPlainShipRoom() != default(PlainShipRoom))
+                        cno.Despawn();
+                    else
                     {
-                        if (pc.GetPlainShipRoom() != default(PlainShipRoom)) continue;
-                        if (Vector2.Distance(pc.Pos(), hit) <= Range)
-                        {
-                            pc.Suicide(PlayerState.DeathReason.Lightning);
-                        }
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                            if (Vector2.Distance(pc.Pos(), hit) <= Range / 2f)
+                                pc.Suicide(PlayerState.DeathReason.Lightning);
                     }
                 }
             }
@@ -640,7 +657,7 @@ namespace EHR
             }
         }
 
-        sealed class SandStorm : Disaster
+        private sealed class SandStorm : Disaster
         {
             private static OptionItem DurationOpt;
             private static OptionItem Vision;
@@ -677,13 +694,10 @@ namespace EHR
             {
                 if (RemoveIfExpired()) return;
 
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    var inRange = Vector2.Distance(pc.Pos(), this.Position) <= Range;
-                    if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId)))
-                    {
-                        pc.MarkDirtySettings();
-                    }
+                    bool inRange = Vector2.Distance(pc.Pos(), Position) <= Range;
+                    if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId))) pc.MarkDirtySettings();
                 }
             }
 
@@ -691,13 +705,9 @@ namespace EHR
             {
                 if (base.RemoveIfExpired())
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls)
-                    {
+                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         if (AffectedPlayers.Remove(pc.PlayerId))
-                        {
                             pc.MarkDirtySettings();
-                        }
-                    }
 
                     return true;
                 }
@@ -716,7 +726,7 @@ namespace EHR
             }
         }
 
-        sealed class Tsunami : Disaster
+        private sealed class Tsunami : Disaster
         {
             private static OptionItem MovingSpeed;
 
@@ -760,29 +770,29 @@ namespace EHR
             {
                 if (RemoveIfExpired()) return;
 
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    var pos = pc.Pos();
-                    var inWay = Direction switch
+                    Vector2 pos = pc.Pos();
+
+                    bool inWay = Direction switch
                     {
-                        MovingDirection.LeftToRight => pos.x >= this.Position.x,
-                        MovingDirection.RightToLeft => pos.x <= this.Position.x,
-                        MovingDirection.TopToBottom => pos.y <= this.Position.y,
-                        MovingDirection.BottomToTop => pos.y >= this.Position.y,
+                        MovingDirection.LeftToRight => pos.x >= Position.x,
+                        MovingDirection.RightToLeft => pos.x <= Position.x,
+                        MovingDirection.TopToBottom => pos.y <= Position.y,
+                        MovingDirection.BottomToTop => pos.y >= Position.y,
                         _ => false
                     };
 
-                    if (Vector2.Distance(pos, this.Position) <= Range && inWay)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Drowned);
-                    }
+                    if (Vector2.Distance(pos, Position) <= Range && inWay) pc.Suicide(PlayerState.DeathReason.Drowned);
                 }
 
                 if (Count++ < 2) return;
+
                 Count = 0;
 
                 float speed = MovingSpeed.GetFloat();
-                Vector2 newPos = this.Position;
+                Vector2 newPos = Position;
+
                 switch (Direction)
                 {
                     case MovingDirection.LeftToRight:
@@ -806,8 +816,8 @@ namespace EHR
                     return;
                 }
 
-                this.Position = newPos;
-                this.NetObject.TP(this.Position);
+                Position = newPos;
+                NetObject.TP(Position);
             }
 
             private enum MovingDirection
@@ -819,7 +829,7 @@ namespace EHR
             }
         }
 
-        sealed class Sinkhole : Disaster
+        private sealed class Sinkhole : Disaster
         {
             public static readonly List<(Vector2 Position, NaturalDisaster NetObject)> Sinkholes = [];
 
@@ -844,29 +854,26 @@ namespace EHR
             {
                 if (Sinkholes.Count == 0) return;
 
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    var pos = pc.Pos();
+                    Vector2 pos = pc.Pos();
+
                     // ReSharper disable once ForCanBeConvertedToForeach
-                    for (int i = 0; i < Sinkholes.Count; i++)
-                    {
+                    for (var i = 0; i < Sinkholes.Count; i++)
                         if (Vector2.Distance(pos, Sinkholes[i].Position) <= Range)
-                        {
                             pc.Suicide(PlayerState.DeathReason.Sunken);
-                        }
-                    }
                 }
             }
 
             public static void RemoveRandomSinkhole()
             {
-                var remove = Sinkholes.RandomElement();
+                (Vector2 Position, NaturalDisaster NetObject) remove = Sinkholes.RandomElement();
                 remove.NetObject.Despawn();
                 Sinkholes.Remove(remove);
             }
         }
 
-        sealed class BuildingCollapse : Disaster
+        private sealed class BuildingCollapse : Disaster
         {
             private static int Count = 1;
             public static readonly List<PlainShipRoom> CollapsedRooms = [];
@@ -877,16 +884,12 @@ namespace EHR
                 NetObject = naturalDisaster;
                 Update();
 
-                var room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
+                PlainShipRoom room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
                 if (room == default(PlainShipRoom)) return;
 
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     if (pc.GetPlainShipRoom() == room)
-                    {
                         pc.Suicide(PlayerState.DeathReason.Collapsed);
-                    }
-                }
 
                 CollapsedRooms.Add(room);
                 Utils.NotifyRoles();
@@ -907,17 +910,22 @@ namespace EHR
                 if (CollapsedRooms.Count == 0) return;
 
                 if (Count++ < 10) return;
+
                 Count = 0;
 
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    var room = pc.GetPlainShipRoom();
+                    PlainShipRoom room = pc.GetPlainShipRoom();
+
                     if (room != default(PlainShipRoom) && CollapsedRooms.Exists(x => x == room))
                     {
-                        if (LastPosition.TryGetValue(pc.PlayerId, out var lastPos)) pc.TP(lastPos);
-                        else pc.Suicide(PlayerState.DeathReason.Collapsed);
+                        if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos))
+                            pc.TP(lastPos);
+                        else
+                            pc.Suicide(PlayerState.DeathReason.Collapsed);
                     }
-                    else LastPosition[pc.PlayerId] = pc.Pos();
+                    else
+                        LastPosition[pc.PlayerId] = pc.Pos();
                 }
             }
         }

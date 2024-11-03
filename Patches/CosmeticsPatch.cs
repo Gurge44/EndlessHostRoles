@@ -5,7 +5,7 @@ namespace EHR.Patches
     public static class CosmeticsPatch
     {
         [HarmonyPatch(typeof(HatManager), nameof(HatManager.CheckLongModeValidCosmetic))]
-        class CheckLongModeValidCosmeticPatch
+        private class CheckLongModeValidCosmeticPatch
         {
             public static bool Prefix(ref bool __result)
             {

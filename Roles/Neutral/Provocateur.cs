@@ -10,7 +10,10 @@ namespace EHR.Neutral
         public static bool On;
         public override bool IsEnable => On;
 
-        public override void SetupCustomOption() => Options.SetupRoleOptions(18500, TabGroup.NeutralRoles, CustomRoles.Provocateur);
+        public override void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(18500, TabGroup.NeutralRoles, CustomRoles.Provocateur);
+        }
 
         public override void Add(byte playerId)
         {

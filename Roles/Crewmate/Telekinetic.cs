@@ -30,15 +30,19 @@ namespace EHR.Crewmate
             const CustomRoles role = CustomRoles.Telekinetic;
 
             Options.SetupRoleOptions(id, tab, role);
+
             FreezeDuration = new IntegerOptionItem(id + 2, "Telekinetic.FreezeDuration", new(0, 60, 1), 10, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShieldDuration = new IntegerOptionItem(id + 3, "Telekinetic.ShieldDuration", new(0, 60, 1), 20, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SpeedDuration = new IntegerOptionItem(id + 4, "Telekinetic.SpeedDuration", new(0, 60, 1), 15, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             IncreasedSpeed = new FloatOptionItem(id + 5, "Telekinetic.IncreasedSpeed", new(0.05f, 5f, 0.05f), 2f, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -69,6 +73,7 @@ namespace EHR.Crewmate
 
             long now = Utils.TimeStamp;
             if (now == LastUpdate) return;
+
             LastUpdate = now;
 
             switch (Timer)
@@ -92,8 +97,8 @@ namespace EHR.Crewmate
 
         public override void OnPet(PlayerControl pc)
         {
-            var target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
-            var hasTarget = target != null;
+            PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
+            bool hasTarget = target != null;
 
             switch (CurrentMode)
             {
@@ -108,15 +113,21 @@ namespace EHR.Crewmate
                     Freeze();
                     break;
                 case Mode.Freeze when hasTarget:
-                    var speed = Main.AllPlayerSpeed[target.PlayerId];
+                    float speed = Main.AllPlayerSpeed[target.PlayerId];
                     Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
                     target.MarkDirtySettings();
+
                     LateTask.New(() =>
                     {
                         Main.AllPlayerSpeed[target.PlayerId] = speed;
                         target.MarkDirtySettings();
                     }, FreezeDuration.GetFloat(), "Telekinetic.Freeze");
+
                     Timer += 35;
+
+                    if (target.IsLocalPlayer())
+                        Achievements.Type.TooCold.CompleteAfterGameEnd();
+
                     break;
                 case Mode.Kill when hasTarget:
                     pc.RpcCheckAndMurder(target);
@@ -130,14 +141,16 @@ namespace EHR.Crewmate
                     Freeze();
                     break;
                 case Mode.Speed:
-                    var selfSpeed = Main.AllPlayerSpeed[pc.PlayerId];
+                    float selfSpeed = Main.AllPlayerSpeed[pc.PlayerId];
                     Main.AllPlayerSpeed[pc.PlayerId] = IncreasedSpeed.GetFloat();
                     pc.MarkDirtySettings();
+
                     LateTask.New(() =>
                     {
                         Main.AllPlayerSpeed[pc.PlayerId] = selfSpeed;
                         pc.MarkDirtySettings();
                     }, SpeedDuration.GetFloat(), "Telekinetic.Speed");
+
                     Timer += 30;
                     break;
                 case Mode.Doors:
@@ -152,9 +165,10 @@ namespace EHR.Crewmate
 
             void Freeze()
             {
-                var speed = Main.AllPlayerSpeed[pc.PlayerId];
+                float speed = Main.AllPlayerSpeed[pc.PlayerId];
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                 pc.MarkDirtySettings();
+
                 LateTask.New(() =>
                 {
                     Main.AllPlayerSpeed[pc.PlayerId] = speed;
@@ -163,7 +177,10 @@ namespace EHR.Crewmate
             }
         }
 
-        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target) => !Shielded;
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            return !Shielded;
+        }
 
         public override void AfterMeetingTasks()
         {
@@ -171,7 +188,10 @@ namespace EHR.Crewmate
             SendRPC();
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, TelekineticPC.PlayerId, Timer, (int)CurrentMode);
+        private void SendRPC()
+        {
+            Utils.SendRPC(CustomRPC.SyncRoleData, TelekineticPC.PlayerId, Timer, (int)CurrentMode);
+        }
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -182,6 +202,7 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != TelekineticPC.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+
             return string.Format(Translator.GetString("Telekinetic.Suffix"), Translator.GetString($"Telekinetic.Mode.{CurrentMode}"));
         }
 
@@ -190,7 +211,7 @@ namespace EHR.Crewmate
             return $"<#ffffff>{Timer}</color>{base.GetProgressText(playerId, comms)}";
         }
 
-        enum Mode
+        private enum Mode
         {
             TeleportTarget,
             TeleportSelf,

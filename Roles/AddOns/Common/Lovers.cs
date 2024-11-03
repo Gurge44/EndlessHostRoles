@@ -70,6 +70,7 @@ namespace EHR.AddOns.Common
                 .SetParent(spawnOption)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetGameMode(customGameMode) as IntegerOptionItem;
+
             LoverSpawnChances = rateOption;
 
             LoverDieConsequence = new StringOptionItem(id + 3, "LoverDieConsequence", Consequences, 0, TabGroup.Addons)
@@ -88,7 +89,7 @@ namespace EHR.AddOns.Common
             PrivateChat = new BooleanOptionItem(id + 6, "PrivateChat", false, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
-            
+
             PrivateChatForLoversOnly = new BooleanOptionItem(id + 7, "PrivateChatForLoversOnly", false, TabGroup.Addons)
                 .SetParent(PrivateChat)
                 .SetGameMode(customGameMode);
@@ -131,7 +132,7 @@ namespace EHR.AddOns.Common
                 .SetGameMode(customGameMode);
 
 
-            var countOption = new IntegerOptionItem(id + 1, "NumberOfLovers", new(2, 2, 1), 2, TabGroup.Addons)
+            OptionItem countOption = new IntegerOptionItem(id + 1, "NumberOfLovers", new(2, 2, 1), 2, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetHidden(true)
                 .SetGameMode(customGameMode);
@@ -146,7 +147,7 @@ namespace EHR.AddOns.Common
         {
             try
             {
-                LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(countDead: true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
+                LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
             }
             catch
             {

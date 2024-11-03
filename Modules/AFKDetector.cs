@@ -22,14 +22,18 @@ namespace EHR.Modules
             new TextOptionItem(100080, "MenuTitle.AFKDetection", TabGroup.GameSettings)
                 .SetColor(new Color32(0, 255, 165, 255))
                 .SetHeader(true);
+
             EnableDetector = new BooleanOptionItem(90, "EnableAFKDetector", true, TabGroup.GameSettings)
                 .SetColor(new Color32(0, 255, 165, 255));
+
             ConsequenceOption = new StringOptionItem(91, "AFKConsequence", Enum.GetNames<Consequence>().Select(x => $"AFKConsequence.{x}").ToArray(), 0, TabGroup.GameSettings)
                 .SetParent(EnableDetector)
                 .SetColor(new Color32(0, 255, 165, 255));
+
             MinPlayersToActivate = new IntegerOptionItem(92, "AFKMinPlayersToActivate", new(3, 15, 1), 7, TabGroup.GameSettings)
                 .SetParent(EnableDetector)
                 .SetColor(new Color32(0, 255, 165, 255));
+
             ActivateOnStart = new BooleanOptionItem(93, "AFKActivateOnStart", false, TabGroup.GameSettings)
                 .SetParent(EnableDetector)
                 .SetColor(new Color32(0, 255, 165, 255));
@@ -48,7 +52,7 @@ namespace EHR.Modules
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!EnableDetector.GetBool() || !GameStates.IsInTask || Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out var data)) return;
+            if (!EnableDetector.GetBool() || !GameStates.IsInTask || Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out Data data)) return;
 
             if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f)
             {
@@ -57,9 +61,9 @@ namespace EHR.Modules
                 return;
             }
 
-            int lastTimer = (int)Math.Round(data.Timer);
+            var lastTimer = (int)Math.Round(data.Timer);
             data.Timer -= Time.fixedDeltaTime;
-            int currentTimer = (int)Math.Round(data.Timer);
+            var currentTimer = (int)Math.Round(data.Timer);
 
             if (data.Timer <= 0f)
             {
@@ -67,6 +71,7 @@ namespace EHR.Modules
                 {
                     case Data.Phase.Detection:
                         if (!pc.IsModClient()) NumAFK++;
+
                         data.CurrentPhase = Data.Phase.Warning;
                         data.Timer = 15f;
                         break;
@@ -83,19 +88,14 @@ namespace EHR.Modules
                 }
             }
 
-            if (data.CurrentPhase == Data.Phase.Warning && lastTimer != currentTimer)
-            {
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
+            if (data.CurrentPhase == Data.Phase.Warning && lastTimer != currentTimer) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static string GetSuffix(PlayerControl seer, PlayerControl target)
         {
-            if (seer.PlayerId == target.PlayerId && seer.IsAlive() && PlayerData.TryGetValue(seer.PlayerId, out var seerData) && seerData.CurrentPhase > Data.Phase.Detection)
-                return seerData.CurrentPhase == Data.Phase.Warning ? string.Format(Translator.GetString("AFKWarning"), (int)Math.Round(seerData.Timer)) : Translator.GetString("AFKSuffix");
+            if (seer.PlayerId == target.PlayerId && seer.IsAlive() && PlayerData.TryGetValue(seer.PlayerId, out Data seerData) && seerData.CurrentPhase > Data.Phase.Detection) return seerData.CurrentPhase == Data.Phase.Warning ? string.Format(Translator.GetString("AFKWarning"), (int)Math.Round(seerData.Timer)) : Translator.GetString("AFKSuffix");
 
-            if (target.IsAlive() && PlayerData.TryGetValue(target.PlayerId, out var targetData) && targetData.CurrentPhase > Data.Phase.Detection)
-                return Translator.GetString("AFKSuffix");
+            if (target.IsAlive() && PlayerData.TryGetValue(target.PlayerId, out Data targetData) && targetData.CurrentPhase > Data.Phase.Detection) return Translator.GetString("AFKSuffix");
 
             return string.Empty;
         }
@@ -123,7 +123,7 @@ namespace EHR.Modules
             PlayerData.Remove(pc.PlayerId);
         }
 
-        enum Consequence
+        private enum Consequence
         {
             Nothing,
             Shield,

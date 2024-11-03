@@ -36,6 +36,7 @@ namespace EHR.Crewmate
             if (Main.PlayerStates[pc.PlayerId].Role is not Journalist journalist) return;
 
             var error = string.Empty;
+
             try
             {
                 switch (args[1])
@@ -44,8 +45,8 @@ namespace EHR.Crewmate
                         journalist.Notes.Add(string.Join(' ', args[2..]));
                         break;
                     case "remove":
-                        if (args.Length == 2 || !int.TryParse(args[2], out var index))
-                            index = journalist.Notes.Count;
+                        if (args.Length == 2 || !int.TryParse(args[2], out int index)) index = journalist.Notes.Count;
+
                         index--;
                         journalist.Notes.RemoveAt(index);
                         break;
@@ -62,7 +63,8 @@ namespace EHR.Crewmate
             }
             catch (Exception e)
             {
-                var usage = Translator.GetString("Journalist.CommandUsage");
+                string usage = Translator.GetString("Journalist.CommandUsage");
+
                 switch (e)
                 {
                     case IndexOutOfRangeException: // Not enough arguments
@@ -78,13 +80,13 @@ namespace EHR.Crewmate
                 }
             }
 
-            if (error != string.Empty)
-                Utils.SendMessage(error, pc.PlayerId);
+            if (error != string.Empty) Utils.SendMessage(error, pc.PlayerId);
         }
 
         public override void OnReportDeadBody()
         {
             if (Sent || JournalistId.GetPlayer()?.IsAlive() == true) return;
+
             LateTask.New(() => Utils.SendMessage(string.Join('\n', Notes), title: Translator.GetString("JournalistNotesTitle")), 10f, "Send Journalist Notes");
             Sent = true;
         }

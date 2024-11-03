@@ -17,9 +17,11 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(1000, TabGroup.ImpostorRoles, CustomRoles.CursedWolf); // From TOH_Y
+
             Options.GuardSpellTimes = new IntegerOptionItem(1010, "GuardSpellTimes", new(1, 15, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.CursedWolf])
                 .SetValueFormat(OptionFormat.Times);
+
             Options.killAttacker = new BooleanOptionItem(1011, "killAttacker", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.CursedWolf]);
         }
@@ -69,10 +71,12 @@ namespace EHR.Impostor
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
             if (target.GetAbilityUseLimit() <= 0) return true;
+
             if (killer.Is(CustomRoles.Pestilence)) return true;
+
             if (killer == target) return true;
 
-            var kcd = Main.KillTimers[target.PlayerId] + Main.AllPlayerKillCooldown[target.PlayerId];
+            float kcd = Main.KillTimers[target.PlayerId] + Main.AllPlayerKillCooldown[target.PlayerId];
 
             killer.RpcGuardAndKill(target);
             target.RpcRemoveAbilityUse();
@@ -83,7 +87,7 @@ namespace EHR.Impostor
                 Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Curse;
                 killer.SetRealKiller(target);
                 target.Kill(killer);
-                LateTask.New(() => { target.SetKillCooldown(time: kcd); }, 0.1f, log: false);
+                LateTask.New(() => { target.SetKillCooldown(kcd); }, 0.1f, log: false);
             }
 
             return false;

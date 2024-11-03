@@ -111,7 +111,7 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            int id = 17670;
+            var id = 17670;
             const TabGroup tab = TabGroup.NeutralRoles;
 
             SetupRoleOptions(id++, tab, CustomRoles.Chemist);
@@ -119,18 +119,22 @@ namespace EHR.Neutral
             KillCooldown = new FloatOptionItem(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HasImpostorVision = new BooleanOptionItem(++id, "ImpostorVision", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
 
             AirGainedPerSecond = new IntegerOptionItem(++id, "Chemist.AirGainedPerSecond", new(5, 100, 5), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
+
             WaterGainedPerSecond = new IntegerOptionItem(++id, "Chemist.WaterGainedPerSecond", new(5, 100, 5), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
+
             CoalGainedPerVent = new IntegerOptionItem(++id, "Chemist.CoalGainedPerVent", new(1, 10, 1), 1, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
+
             IronOreGainedPerVent = new IntegerOptionItem(++id, "Chemist.IronOreGainedPerVent", new(1, 50, 1), 4, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
@@ -143,29 +147,36 @@ namespace EHR.Neutral
 
             AcidPlayersDie = new StringOptionItem(++id, "Chemist.AcidPlayersDie", Enum.GetNames<AcidPlayersDieOptions>(), 0, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
+
             AcidPlayersDieAfterTime = new IntegerOptionItem(++id, "Chemist.AcidPlayersDieAfterTime", new(1, 60, 1), 15, tab)
                 .SetParent(AcidPlayersDie)
                 .SetValueFormat(OptionFormat.Seconds);
+
             BlindDuration = new IntegerOptionItem(++id, "Chemist.BlindDuration", new(1, 60, 1), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             GrenadeExplodeDelay = new IntegerOptionItem(++id, "Chemist.GrenadeExplodeDelay", new(1, 60, 1), 5, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             GrenadeExplodeRadius = new FloatOptionItem(++id, "Chemist.GrenadeExplodeRadius", new(0.25f, 10f, 0.25f), 4f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Multiplier);
 
             return;
 
-            static int GetDefaultValue(Item item) => item switch
+            static int GetDefaultValue(Item item)
             {
-                Item.Explosive => 1,
-                Item.Grenade => 1,
-                Item.SulfuricAcid => 30,
-                Item.MethylamineGas => 100,
-                _ => 0
-            };
+                return item switch
+                {
+                    Item.Explosive => 1,
+                    Item.Grenade => 1,
+                    Item.SulfuricAcid => 30,
+                    Item.MethylamineGas => 100,
+                    _ => 0
+                };
+            }
         }
 
         public override void Init()
@@ -174,6 +185,7 @@ namespace EHR.Neutral
             Instances = [];
 
             FactoryLocations = [];
+
             LateTask.New(() =>
             {
                 FactoryLocations = ShipStatus.Instance.AllRooms
@@ -204,82 +216,101 @@ namespace EHR.Neutral
             ItemCounts = Enum.GetValues<Item>().ToDictionary(x => x, _ => 0);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.IsAlive();
-        public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-                AURoleOptions.PhantomCooldown = 1f;
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-                AURoleOptions.ShapeshifterCooldown = 1f;
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
+
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
-        static ItemType GetItemType(Item item) => item switch
+        private static ItemType GetItemType(Item item)
         {
-            Item.Air or Item.Coal or Item.IronOre or Item.Water => ItemType.BasicResource,
-            Item.Explosive or Item.Grenade or Item.SulfuricAcid or Item.MethylamineGas => ItemType.FinalProduct,
-            _ => ItemType.IntermediateProduct
-        };
-
-        static string GetChemicalForm(Item item) => item switch
-        {
-            Item.AmmoniaGas => "NH<sub>3</sub>",
-            Item.CarbonDioxide => "CO<sub>2</sub>",
-            Item.CarbonMonoxide => "CO",
-            Item.HydrogenGas => "H<sub>2</sub>",
-            Item.HydrogenSulfideGas => "H<sub>2</sub>S",
-            Item.MethanolGas => "CH<sub>3</sub>OH",
-            Item.MethylamineGas => "CH<sub>3</sub>NH<sub>2</sub>",
-            Item.NitrogenGas => "N<sub>2</sub>",
-            Item.OxygenGas => "O<sub>2</sub>",
-            Item.PurifiedWater => "H<sub>2</sub>O",
-            Item.Sulfur => "S",
-            Item.SulfurDioxideGas => "SO<sub>2</sub>",
-            Item.SulfuricAcid => "H<sub>2</sub>SO<sub>4</sub>",
-            Item.SynthesisGas => "H<sub>2</sub>+CO",
-
-            _ => Translator.GetString($"Chemist.Item.{item}") switch
+            return item switch
             {
-                { } str when str.Count(char.IsUpper) == 1 => str,
-                { } str => string.Join(string.Empty, str.Where(char.IsUpper))
-            }
-        };
+                Item.Air or Item.Coal or Item.IronOre or Item.Water => ItemType.BasicResource,
+                Item.Explosive or Item.Grenade or Item.SulfuricAcid or Item.MethylamineGas => ItemType.FinalProduct,
+                _ => ItemType.IntermediateProduct
+            };
+        }
 
-        static Color GetItemColor(Item item) => item switch
+        private static string GetChemicalForm(Item item)
         {
-            Item.Air => Palette.HalfWhite,
-            Item.AmmoniaGas => Color.blue,
-            Item.BaseMineralOil => Color.green,
-            Item.CarbonDioxide => Palette.Brown,
-            Item.CarbonMonoxide => Palette.Purple,
-            Item.Coal => Color.black,
-            Item.Explosive => Color.red,
-            Item.Grenade => Color.red,
-            Item.HydrogenGas => Color.white,
-            Item.HydrogenSulfideGas => Color.yellow,
-            Item.IronIngot => Color.gray,
-            Item.IronOre => Color.gray,
-            Item.IronPlate => Color.gray,
-            Item.MethanolGas => Palette.Brown,
-            Item.MethylamineGas => Color.blue,
-            Item.MoltenIron => Color.gray,
-            Item.Naphtha => Palette.ImpostorRed,
-            Item.NitrogenGas => Color.blue,
-            Item.OxygenGas => Color.red,
-            Item.PurifiedWater => Color.cyan,
-            Item.Steam => Palette.White_75Alpha,
-            Item.Sulfur => Color.yellow,
-            Item.SulfurDioxideGas => Color.yellow,
-            Item.SulfuricAcid => Color.yellow,
-            Item.SynthesisGas => Color.magenta,
-            Item.ThermalWater => Palette.Orange,
-            Item.Water => Palette.LightBlue,
+            return item switch
+            {
+                Item.AmmoniaGas => "NH<sub>3</sub>",
+                Item.CarbonDioxide => "CO<sub>2</sub>",
+                Item.CarbonMonoxide => "CO",
+                Item.HydrogenGas => "H<sub>2</sub>",
+                Item.HydrogenSulfideGas => "H<sub>2</sub>S",
+                Item.MethanolGas => "CH<sub>3</sub>OH",
+                Item.MethylamineGas => "CH<sub>3</sub>NH<sub>2</sub>",
+                Item.NitrogenGas => "N<sub>2</sub>",
+                Item.OxygenGas => "O<sub>2</sub>",
+                Item.PurifiedWater => "H<sub>2</sub>O",
+                Item.Sulfur => "S",
+                Item.SulfurDioxideGas => "SO<sub>2</sub>",
+                Item.SulfuricAcid => "H<sub>2</sub>SO<sub>4</sub>",
+                Item.SynthesisGas => "H<sub>2</sub>+CO",
 
-            _ => Color.white
-        };
+                _ => Translator.GetString($"Chemist.Item.{item}") switch
+                {
+                    { } str when str.Count(char.IsUpper) == 1 => str,
+                    { } str => string.Join(string.Empty, str.Where(char.IsUpper))
+                }
+            };
+        }
+
+        private static Color GetItemColor(Item item)
+        {
+            return item switch
+            {
+                Item.Air => Palette.HalfWhite,
+                Item.AmmoniaGas => Color.blue,
+                Item.BaseMineralOil => Color.green,
+                Item.CarbonDioxide => Palette.Brown,
+                Item.CarbonMonoxide => Palette.Purple,
+                Item.Coal => Color.black,
+                Item.Explosive => Color.red,
+                Item.Grenade => Color.red,
+                Item.HydrogenGas => Color.white,
+                Item.HydrogenSulfideGas => Color.yellow,
+                Item.IronIngot => Color.gray,
+                Item.IronOre => Color.gray,
+                Item.IronPlate => Color.gray,
+                Item.MethanolGas => Palette.Brown,
+                Item.MethylamineGas => Color.blue,
+                Item.MoltenIron => Color.gray,
+                Item.Naphtha => Palette.ImpostorRed,
+                Item.NitrogenGas => Color.blue,
+                Item.OxygenGas => Color.red,
+                Item.PurifiedWater => Color.cyan,
+                Item.Steam => Palette.White_75Alpha,
+                Item.Sulfur => Color.yellow,
+                Item.SulfurDioxideGas => Color.yellow,
+                Item.SulfuricAcid => Color.yellow,
+                Item.SynthesisGas => Color.magenta,
+                Item.ThermalWater => Palette.Orange,
+                Item.Water => Palette.LightBlue,
+
+                _ => Color.white
+            };
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -315,6 +346,7 @@ namespace EHR.Neutral
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
             int need = FinalProductUsageAmounts[Item.Explosive].GetInt();
+
             if (ItemCounts[Item.Explosive] >= need)
             {
                 ItemCounts[Item.Explosive] -= need;
@@ -327,9 +359,9 @@ namespace EHR.Neutral
         {
             if (!GameStates.IsInTask || !pc.IsAlive()) return;
 
-            var pos = pc.Pos();
+            Vector2 pos = pc.Pos();
 
-            if (AcidPlayers.TryGetValue(pc.PlayerId, out var acidPlayers))
+            if (AcidPlayers.TryGetValue(pc.PlayerId, out (HashSet<byte> OtherAcidPlayers, long TimeStamp) acidPlayers))
             {
                 Main.AllAlivePlayerControls
                     .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
@@ -342,8 +374,9 @@ namespace EHR.Neutral
                 Grenades.Remove(pc.PlayerId);
 
                 float radius = GrenadeExplodeRadius.GetFloat();
+
                 Main.AllAlivePlayerControls
-                    .Where(x => x.PlayerId != ChemistPC.PlayerId && Vector2.Distance(x.Pos(), pos) < radius && ChemistPC.RpcCheckAndMurder(x, check: true))
+                    .Where(x => x.PlayerId != ChemistPC.PlayerId && Vector2.Distance(x.Pos(), pos) < radius && ChemistPC.RpcCheckAndMurder(x, true))
                     .Do(x => x.Suicide(realKiller: ChemistPC));
             }
         }
@@ -353,6 +386,7 @@ namespace EHR.Neutral
             if (IsBlinding) return;
 
             int need = FinalProductUsageAmounts[Item.MethylamineGas].GetInt();
+
             if (ItemCounts[Item.MethylamineGas] >= need)
             {
                 ItemCounts[Item.MethylamineGas] -= need;
@@ -361,6 +395,7 @@ namespace EHR.Neutral
 
                 IsBlinding = true;
                 Utils.MarkEveryoneDirtySettings();
+
                 LateTask.New(() =>
                 {
                     if (IsBlinding)
@@ -386,10 +421,7 @@ namespace EHR.Neutral
         {
             if (BombedBodies.Contains(target.PlayerId))
             {
-                if (ChemistPC.RpcCheckAndMurder(reporter, check: true))
-                {
-                    reporter.Suicide(realKiller: ChemistPC);
-                }
+                if (ChemistPC.RpcCheckAndMurder(reporter, true)) reporter.Suicide(realKiller: ChemistPC);
 
                 return false;
             }
@@ -399,25 +431,24 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
-            CheckAndKillAcidPlayers(force: true);
+            CheckAndKillAcidPlayers(true);
             IsBlinding = false;
             BombedBodies.Clear();
         }
 
-        void CheckAndKillAcidPlayers(bool force = false)
+        private void CheckAndKillAcidPlayers(bool force = false)
         {
-            foreach (var kvp in AcidPlayers)
+            foreach (KeyValuePair<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> kvp in AcidPlayers)
             {
                 if (force || kvp.Value.TimeStamp + AcidPlayersDieAfterTime.GetInt() <= Utils.TimeStamp)
                 {
-                    var srcPlayer = Utils.GetPlayerById(kvp.Key);
-                    if (srcPlayer != null && srcPlayer.IsAlive() && ChemistPC.RpcCheckAndMurder(srcPlayer, check: true))
-                        srcPlayer.Suicide(realKiller: ChemistPC);
+                    PlayerControl srcPlayer = Utils.GetPlayerById(kvp.Key);
+                    if (srcPlayer != null && srcPlayer.IsAlive() && ChemistPC.RpcCheckAndMurder(srcPlayer, true)) srcPlayer.Suicide(realKiller: ChemistPC);
 
-                    foreach (var id in kvp.Value.OtherAcidPlayers)
+                    foreach (byte id in kvp.Value.OtherAcidPlayers)
                     {
-                        var player = Utils.GetPlayerById(id);
-                        if (player == null || !player.IsAlive() || !ChemistPC.RpcCheckAndMurder(player, check: true)) continue;
+                        PlayerControl player = Utils.GetPlayerById(id);
+                        if (player == null || !player.IsAlive() || !ChemistPC.RpcCheckAndMurder(player, true)) continue;
 
                         player.Suicide(realKiller: ChemistPC);
                     }
@@ -428,6 +459,7 @@ namespace EHR.Neutral
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!GameStates.IsInTask || !pc.IsAlive() || LastUpdate >= Utils.TimeStamp) return;
+
             LastUpdate = Utils.TimeStamp;
 
             if (ItemCounts[Item.Air] < 900)
@@ -442,8 +474,8 @@ namespace EHR.Neutral
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)Item.Water, WaterGainedPerSecond.GetInt());
             }
 
-            var beforeFactory = CurrentFactory;
-            var room = pc.GetPlainShipRoom();
+            Factory beforeFactory = CurrentFactory;
+            PlainShipRoom room = pc.GetPlainShipRoom();
 
             if (room != null)
             {
@@ -462,10 +494,7 @@ namespace EHR.Neutral
                 }
             }
 
-            if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
-            {
-                CheckAndKillAcidPlayers();
-            }
+            if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime) CheckAndKillAcidPlayers();
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
@@ -491,6 +520,7 @@ namespace EHR.Neutral
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+
             if (SortedAvailableProcesses.Count == 0) return false;
 
             Cycle(shapeshifter);
@@ -500,7 +530,7 @@ namespace EHR.Neutral
 
         private void Cycle(PlayerControl pc)
         {
-            var index = SortedAvailableProcesses.IndexOf(SelectedProcess);
+            int index = SortedAvailableProcesses.IndexOf(SelectedProcess);
             SelectedProcess = SortedAvailableProcesses[(index + 1) % SortedAvailableProcesses.Count];
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, SelectedProcess);
 
@@ -520,6 +550,7 @@ namespace EHR.Neutral
                 ItemCounts[x.Item] -= x.Count;
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)x.Item, -x.Count);
             });
+
             Results.ForEach(x =>
             {
                 ItemCounts[x.Item] += x.Count;
@@ -534,7 +565,7 @@ namespace EHR.Neutral
             switch (reader.ReadPackedInt32())
             {
                 case 1:
-                    Item item = (Item)reader.ReadPackedInt32();
+                    var item = (Item)reader.ReadPackedInt32();
                     ItemCounts.TryAdd(item, 0);
                     ItemCounts[item] += reader.ReadPackedInt32();
                     break;
@@ -553,16 +584,17 @@ namespace EHR.Neutral
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
+
             if (Main.PlayerStates[seer.PlayerId].Role is not Chemist cm) return string.Empty;
 
             bool self = seer.PlayerId == target.PlayerId;
             if (self && seer.IsModClient() && !hud) return string.Empty;
 
-            var sb = new StringBuilder().Append("<size=80%>");
+            StringBuilder sb = new StringBuilder().Append("<size=80%>");
 
             if (self)
             {
-                var grouped = cm.ItemCounts
+                Dictionary<ItemType, Dictionary<Item, int>> grouped = cm.ItemCounts
                     .Where(x => x.Value > 0)
                     .GroupBy(x => GetItemType(x.Key))
                     .OrderBy(x => (int)x.Key)
@@ -574,10 +606,7 @@ namespace EHR.Neutral
 
                     sb.Append($"{type.ToString()[0]}: ");
 
-                    foreach ((Item item, int count) in items)
-                    {
-                        sb.Append(Utils.ColorString(GetItemColor(item), $"{Utils.ColorString(FinalProductUsageAmounts.TryGetValue(item, out var opt) && opt.GetInt() <= count ? Color.green : Color.white, $"{count}")} {GetChemicalForm(item)}") + ", ");
-                    }
+                    foreach ((Item item, int count) in items) sb.Append(Utils.ColorString(GetItemColor(item), $"{Utils.ColorString(FinalProductUsageAmounts.TryGetValue(item, out OptionItem opt) && opt.GetInt() <= count ? Color.green : Color.white, $"{count}")} {GetChemicalForm(item)}") + ", ");
 
                     sb.Length -= 2;
                     sb.AppendLine();
@@ -597,7 +626,8 @@ namespace EHR.Neutral
             {
                 int time = AcidPlayersDieAfterTime.GetInt();
                 long now = Utils.TimeStamp;
-                foreach (var kvp in cm.AcidPlayers)
+
+                foreach (KeyValuePair<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> kvp in cm.AcidPlayers)
                 {
                     if (kvp.Key == target.PlayerId || kvp.Value.OtherAcidPlayers.Contains(target.PlayerId))
                     {
@@ -610,13 +640,13 @@ namespace EHR.Neutral
             return sb.Append("</size>").ToString();
         }
 
-        enum AcidPlayersDieOptions
+        private enum AcidPlayersDieOptions
         {
             AfterMeeting,
             AfterTime
         }
 
-        enum Item
+        private enum Item
         {
             Air,
             AmmoniaGas,
@@ -647,14 +677,14 @@ namespace EHR.Neutral
             Water
         }
 
-        enum ItemType
+        private enum ItemType
         {
             BasicResource,
             IntermediateProduct,
             FinalProduct
         }
 
-        enum Factory
+        private enum Factory
         {
             None,
             ChemicalPlant, // up to 2 ingredients

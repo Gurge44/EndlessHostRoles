@@ -11,7 +11,7 @@ namespace EHR.Crewmate
     {
         public static bool On;
 
-        private static Dictionary<Level, OptionItem> LevelSettings = [];
+        private static readonly Dictionary<Level, OptionItem> LevelSettings = [];
         private static OptionItem IncrementByVenting;
         private static OptionItem DecreasementEachSecond;
         private static OptionItem IncreasedSpeed;
@@ -25,24 +25,30 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            int id = 647700;
+            var id = 647700;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Oxyman);
             (List<Level> trueList, List<Level> falseList) = Enum.GetValues<Level>().Without(Level.None).Split(x => x <= Level.Slow);
+
             trueList.ForEach(x => LevelSettings[x] = new IntegerOptionItem(++id, $"Oxyman.{x}.BelowPercentage", new(0, 100, 1), x == Level.Blind ? 10 : 30, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Oxyman])
                 .SetValueFormat(OptionFormat.Percent));
+
             falseList.ForEach(x => LevelSettings[x] = new IntegerOptionItem(++id, $"Oxyman.{x}.AbovePercentage", new(0, 100, 1), x == Level.Fast ? 60 : 80, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Oxyman])
                 .SetValueFormat(OptionFormat.Percent));
+
             IncrementByVenting = new IntegerOptionItem(++id, "Oxyman.IncrementByVenting", new(0, 100, 1), 7, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Oxyman])
                 .SetValueFormat(OptionFormat.Percent);
+
             DecreasementEachSecond = new IntegerOptionItem(++id, "Oxyman.DecreasementEachSecond", new(0, 10, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Oxyman])
                 .SetValueFormat(OptionFormat.Percent);
+
             IncreasedSpeed = new FloatOptionItem(++id, "IncreasedSpeed", new(0f, 3f, 0.05f), 1.75f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Oxyman])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             DecreasedSpeed = new FloatOptionItem(++id, "DecreasedSpeed", new(0f, 3f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Oxyman])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -70,13 +76,13 @@ namespace EHR.Crewmate
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
-            var pc = physics.myPlayer;
-            var previousLevel = GetCurrentLevel();
+            PlayerControl pc = physics.myPlayer;
+            Level previousLevel = GetCurrentLevel();
 
             OxygenLevel += IncrementByVenting.GetValue();
             if (OxygenLevel > 100) OxygenLevel = 100;
 
-            var nowLevel = GetCurrentLevel();
+            Level nowLevel = GetCurrentLevel();
             if (nowLevel != previousLevel) ApplyLevelEffect(pc, nowLevel);
 
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, OxygenLevel);
@@ -89,6 +95,7 @@ namespace EHR.Crewmate
 
             long now = Utils.TimeStamp;
             if (now == LastUpdate) return;
+
             LastUpdate = now;
 
             if (OxygenLevel <= 0)
@@ -97,18 +104,15 @@ namespace EHR.Crewmate
                 return;
             }
 
-            var previousLevel = GetCurrentLevel();
+            Level previousLevel = GetCurrentLevel();
 
             OxygenLevel -= DecreasementEachSecond.GetInt();
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, OxygenLevel);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
-            var nowLevel = GetCurrentLevel();
+            Level nowLevel = GetCurrentLevel();
 
-            if (nowLevel != previousLevel)
-            {
-                ApplyLevelEffect(pc, nowLevel);
-            }
+            if (nowLevel != previousLevel) ApplyLevelEffect(pc, nowLevel);
         }
 
         private void ApplyLevelEffect(PlayerControl pc, Level nowLevel)
@@ -144,25 +148,32 @@ namespace EHR.Crewmate
             return GetCurrentLevel() != Level.Invulnerable;
         }
 
-        Level GetCurrentLevel()
+        private Level GetCurrentLevel()
         {
             // ReSharper disable ConvertIfStatementToReturnStatement
             if (OxygenLevel <= LevelSettings[Level.Blind].GetInt()) return Level.Blind;
+
             if (OxygenLevel <= LevelSettings[Level.Slow].GetInt()) return Level.Slow;
+
             if (OxygenLevel >= LevelSettings[Level.Invulnerable].GetInt()) return Level.Invulnerable;
+
             if (OxygenLevel >= LevelSettings[Level.Fast].GetInt()) return Level.Fast;
+
             return Level.None;
             // ReSharper restore ConvertIfStatementToReturnStatement
         }
 
-        Color GetLevelColor() => GetCurrentLevel() switch
+        private Color GetLevelColor()
         {
-            Level.Blind => Palette.Orange,
-            Level.Slow => Color.yellow,
-            Level.Fast => Color.cyan,
-            Level.Invulnerable => Color.green,
-            _ => Color.white
-        };
+            return GetCurrentLevel() switch
+            {
+                Level.Blind => Palette.Orange,
+                Level.Slow => Color.yellow,
+                Level.Fast => Color.cyan,
+                Level.Invulnerable => Color.green,
+                _ => Color.white
+            };
+        }
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -172,10 +183,11 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != OxymanId || (seer.IsModClient() && !hud)) return string.Empty;
+
             return $"<#ff0000>O<sub>2</sub>:</color> {Utils.ColorString(GetLevelColor(), OxygenLevel.ToString())}%";
         }
 
-        enum Level
+        private enum Level
         {
             Blind,
             Slow,

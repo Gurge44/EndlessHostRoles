@@ -1,12 +1,13 @@
 using HarmonyLib;
 
-namespace EHR;
-
-[HarmonyPatch(typeof(LogicGameFlowNormal), nameof(LogicGameFlowNormal.IsGameOverDueToDeath))]
-class DontBlackoutPatch
+namespace EHR
 {
-    public static void Postfix(ref bool __result)
+    [HarmonyPatch(typeof(LogicGameFlowNormal), nameof(LogicGameFlowNormal.IsGameOverDueToDeath))]
+    internal class DontBlackoutPatch
     {
-        __result = false;
+        public static void Postfix(ref bool __result)
+        {
+            __result = false;
+        }
     }
 }

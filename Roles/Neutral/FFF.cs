@@ -67,7 +67,10 @@ namespace EHR.Neutral
             IsWon = false;
         }
 
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return false;
+        }
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
@@ -82,6 +85,7 @@ namespace EHR.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return false;
+
             if (killer.PlayerId == target.PlayerId) return true;
 
             if (target.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Madmate)
@@ -90,6 +94,7 @@ namespace EHR.Neutral
                 if (!ChooseConverted.GetBool())
                 {
                     if (killer.RpcCheckAndMurder(target)) IsWon = true;
+
                     Logger.Info($"{killer.GetRealName()} killed right target case 1", "FFF");
                     return false;
                 }
@@ -107,6 +112,7 @@ namespace EHR.Neutral
                 )
                 {
                     if (killer.RpcCheckAndMurder(target)) IsWon = true;
+
                     Logger.Info($"{killer.GetRealName()} killed right target case 2", "FFF");
                     return false;
                 }
@@ -125,18 +131,21 @@ namespace EHR.Neutral
             return false;
         }
 
-        private static bool IsConvertedMainRole(CustomRoles role) => role is
-            CustomRoles.Gangster or
-            CustomRoles.Succubus or
-            CustomRoles.Deathknight or
-            CustomRoles.Necromancer or
-            CustomRoles.Refugee or
-            CustomRoles.Romantic or
-            CustomRoles.RuthlessRomantic or
-            CustomRoles.VengefulRomantic or
-            CustomRoles.Sidekick or
-            CustomRoles.Jackal or
-            CustomRoles.Virus;
+        private static bool IsConvertedMainRole(CustomRoles role)
+        {
+            return role is
+                CustomRoles.Gangster or
+                CustomRoles.Succubus or
+                CustomRoles.Deathknight or
+                CustomRoles.Necromancer or
+                CustomRoles.Refugee or
+                CustomRoles.Romantic or
+                CustomRoles.RuthlessRomantic or
+                CustomRoles.VengefulRomantic or
+                CustomRoles.Sidekick or
+                CustomRoles.Jackal or
+                CustomRoles.Virus;
+        }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
@@ -144,7 +153,7 @@ namespace EHR.Neutral
 
             if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.TrueForAll(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
             {
-                var role = ChangeRoles[ChangeRole.GetValue()];
+                CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
                 pc.RpcSetCustomRole(role);
             }
         }

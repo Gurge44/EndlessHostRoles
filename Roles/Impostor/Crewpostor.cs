@@ -3,7 +3,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Impostor
@@ -18,16 +17,22 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(4800, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
+
             CrewpostorCanKillAllies = new BooleanOptionItem(4810, "CanKillAllies", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+
             CrewpostorKnowsAllies = new BooleanOptionItem(4811, "CrewpostorKnowsAllies", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+
             AlliesKnowCrewpostor = new BooleanOptionItem(4812, "AlliesKnowCrewpostor", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+
             CrewpostorLungeKill = new BooleanOptionItem(4813, "CrewpostorLungeKill", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+
             CrewpostorKillAfterTask = new IntegerOptionItem(4814, "CrewpostorKillAfterTask", new(1, 50, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
+
             OverrideTasksData.Create(4815, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
         }
 
@@ -44,23 +49,22 @@ namespace EHR.Impostor
             SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
             PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
+
             if (list.Length == 0)
-            {
                 Logger.Info("No target to kill", "Crewpostor");
-            }
             else if (TasksDone[player.PlayerId] % CrewpostorKillAfterTask.GetInt() != 0 && TasksDone[player.PlayerId] != 0)
-            {
                 Logger.Info($"Crewpostor task done but kill skipped, {TasksDone[player.PlayerId]} tasks completed, but it kills after {CrewpostorKillAfterTask.GetInt()} tasks", "Crewpostor");
-            }
             else
             {
                 list = [.. list.OrderBy(x => Vector2.Distance(player.Pos(), x.Pos()))];
-                var target = list[0];
+                PlayerControl target = list[0];
+
                 if (!target.Is(CustomRoles.Pestilence))
                 {
                     if (!CrewpostorLungeKill.GetBool())
                     {
                         target.SetRealKiller(player);
+
                         if (player.RpcCheckAndMurder(target, true))
                         {
                             target.Suicide(PlayerState.DeathReason.Kill, player);
@@ -83,7 +87,10 @@ namespace EHR.Impostor
                 {
                     target.SetRealKiller(player);
                     target.Kill(player);
-                    //player.RpcGuardAndKill();
+
+                    if (target.IsLocalPlayer())
+                        Achievements.Type.YoureTooLate.Complete();
+
                     Logger.Info($"Crewpostor tried to kill Pestilence：{target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");
                 }
             }
@@ -103,8 +110,7 @@ namespace EHR.Impostor
         {
             if (PlayerControl.LocalPlayer.PlayerId == cpID)
             {
-                if (!TasksDone.TryAdd(cpID, 0))
-                    TasksDone[cpID] = tasksDone;
+                if (!TasksDone.TryAdd(cpID, 0)) TasksDone[cpID] = tasksDone;
             }
             else
             {
@@ -119,8 +125,7 @@ namespace EHR.Impostor
         {
             byte PlayerId = reader.ReadByte();
             int tasksDone = reader.ReadInt32();
-            if (!TasksDone.TryAdd(PlayerId, 0))
-                TasksDone[PlayerId] = tasksDone;
+            if (!TasksDone.TryAdd(PlayerId, 0)) TasksDone[PlayerId] = tasksDone;
         }
 
         public override void Init()
