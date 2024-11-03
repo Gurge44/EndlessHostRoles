@@ -91,6 +91,8 @@ namespace EHR
                 new("akinlaptop#2206", "null", "null", true), // MR Carr
                 new("fursilty#4676", "#0000ff", "arthurzin", true), // arthurzin
                 new("stonefuzzy#8673", "#ff0062", "<size=1.6>Ru Translator</size>", true, true), // HyperAtill
+                new("momenthale#7626", "#6f3bd9", "Amiran", false), // Amiran
+                new("valuecubic#5819", "#6f3bd9", "Kate", false), // Kate Cat
                 new("frizzytram#2508", "#1C87FF", "RafaelBIT50"), // RafaelBIT50
                 new("ruefulscar#0287", "null", "null", true), // Zendena
                 new("foggyzing#6238", "null", "null", true), // LdZinnn
