@@ -117,6 +117,8 @@ namespace EHR
                 new("motorlace#4741", "#DFB722", "\u2756 Assistant Tester \u2756", true), // PEPPERcula
                 new("keyrunning#8720", "#00ffff", "Miku", true), // EverMortal_1455
                 new("yellowjoy#3138", "#FFE87C", "Sunshine", true), // Becksy
+                new("stuckclaw#5717", "#FF474C", "The biggest SUS", true), // BIG SUS
+                new("funnytiger#8420", "#ffd4ec", "Registered Bozo", true), // Differntperson
 
                 // Sponsor
                 new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),
