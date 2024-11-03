@@ -172,7 +172,7 @@ namespace EHR.Neutral
 
             Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", $"Assign {CustomRoles.Sidekick}");
 
-            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (killer.IsLocalPlayer())
                 Achievements.Type.YoureMyFriendNow.Complete();
 
             return false;

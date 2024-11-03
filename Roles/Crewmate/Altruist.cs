@@ -120,7 +120,7 @@ namespace EHR.Crewmate
             ReviveStartTS = 0;
             ReviveTargetPos = Vector2.zero;
 
-            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && rtg != null && (rtg.IsImpostor() || rtg.IsNeutralKiller() || rtg.IsConverted()))
+            if (pc.IsLocalPlayer() && rtg != null && (rtg.IsImpostor() || rtg.IsNeutralKiller() || rtg.IsConverted()))
                 Achievements.Type.IWishIReported.Complete();
         }
 

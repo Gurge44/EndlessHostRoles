@@ -66,7 +66,7 @@ namespace EHR.Impostor
                 ForSilencer.Add(target.PlayerId);
                 killer.SetKillCooldown(3f);
 
-                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (killer.IsLocalPlayer())
                 {
                     LocalPlayerTotalSilences++;
                     if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();
@@ -83,7 +83,7 @@ namespace EHR.Impostor
             {
                 ForSilencer.Add(target.PlayerId);
 
-                if (shapeshifter.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (shapeshifter.IsLocalPlayer())
                 {
                     LocalPlayerTotalSilences++;
                     if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();

@@ -228,7 +228,7 @@ namespace EHR.Neutral
                     simon.MarkedPlayers.Remove(pc.PlayerId);
                     Utils.SendRPC(CustomRPC.SyncRoleData, simon.SimonId, 4, pc.PlayerId);
 
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (pc.IsLocalPlayer())
                         Achievements.Type.SimonSays.Complete();
                 }
             }

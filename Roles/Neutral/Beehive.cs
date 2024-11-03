@@ -111,7 +111,7 @@ namespace EHR.Neutral
                     {
                         pc.Suicide(realKiller: Utils.GetPlayerById(BeehiveId));
 
-                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        if (pc.IsLocalPlayer())
                             Achievements.Type.OutOfTime.Complete();
                     }
                 }

@@ -223,7 +223,7 @@ namespace EHR
 
                 if (LimitMaximumDisastersAtOnce.GetBool())
                 {
-                    int numDisasters = ActiveDisasters.Count + PreparingDisasters.Count;
+                    int numDisasters = ActiveDisasters.Count + PreparingDisasters.Count + Sinkhole.Sinkholes.Count;
 
                     if (numDisasters > MaximumDisastersAtOnce.GetInt())
                     {

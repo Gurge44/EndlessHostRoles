@@ -213,7 +213,7 @@ namespace EHR.Neutral
 
                             player.Suicide(PlayerState.DeathReason.Sacrifice);
 
-                            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            if (player.IsLocalPlayer())
                                 Achievements.Type.OutOfTime.Complete();
                         }
                         else RevolutionistCountdown.Add(playerId, countdown);

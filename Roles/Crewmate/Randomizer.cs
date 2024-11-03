@@ -130,7 +130,7 @@ namespace EHR.Crewmate
                         pc.MarkDirtySettings();
                         NotifyAboutRNG(pc);
 
-                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        if (pc.IsLocalPlayer())
                             Achievements.Type.TooCold.CompleteAfterGameEnd();
                     }
 

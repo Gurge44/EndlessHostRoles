@@ -93,7 +93,7 @@ namespace EHR.Crewmate
                 player.Suicide();
                 SuicideTimer = -10f;
 
-                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (player.IsLocalPlayer())
                     Achievements.Type.OutOfTime.Complete();
             }
             else if (Mathf.Approximately(SuicideTimer + 8, TimeLimit.GetFloat()))

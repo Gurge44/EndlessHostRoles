@@ -357,7 +357,7 @@ namespace EHR.Neutral
                             break;
                     }
 
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (pc.IsLocalPlayer())
                         PurchasedItems.Add(SelectedItem);
 
                     break;

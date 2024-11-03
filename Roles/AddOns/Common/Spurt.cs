@@ -94,7 +94,7 @@ namespace EHR.AddOns.Common
 
             int charge = DetermineCharge(player);
 
-            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && charge is <= 0 or >= 100)
+            if (player.IsLocalPlayer() && charge is <= 0 or >= 100)
                 LocalPlayerAvoidsZeroAndOneHundredPrecent = false;
 
             if (DisplaysCharge.GetBool() && !player.IsModClient() && LastNum[player.PlayerId] != charge)

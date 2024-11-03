@@ -106,7 +106,7 @@ namespace EHR.Neutral
                 target.Kill(killer);
                 ResetBomb();
 
-                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (target.IsLocalPlayer())
                     Achievements.Type.YoureTooLate.Complete();
 
                 return false;
@@ -135,7 +135,7 @@ namespace EHR.Neutral
                         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                         ResetBomb();
 
-                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        if (pc.IsLocalPlayer())
                             Achievements.Type.OutOfTime.Complete();
                     }
                 }
@@ -219,7 +219,7 @@ namespace EHR.Neutral
                 target.Kill(player);
                 ResetBomb();
 
-                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (target.IsLocalPlayer())
                     Achievements.Type.YoureTooLate.Complete();
 
                 return;

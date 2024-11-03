@@ -207,7 +207,7 @@ namespace EHR.Impostor
 
             target.Suicide(realKiller: deathpact);
 
-            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (target.IsLocalPlayer())
                 Achievements.Type.OutOfTime.Complete();
         }
 

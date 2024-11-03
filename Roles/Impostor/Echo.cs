@@ -85,7 +85,7 @@ namespace EHR.Impostor
                 target.MarkDirtySettings();
                 shapeshifter.TP(pos);
 
-                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (target.IsLocalPlayer())
                     Achievements.Type.TooCold.CompleteAfterGameEnd();
             }
             else

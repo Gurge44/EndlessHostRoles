@@ -109,7 +109,7 @@ namespace EHR
                     SurvivalTimes[HotPotatoState.HolderID] = Time.GetInt() * (HotPotatoState.RoundNum - 1);
                     PassHotPotato();
 
-                    if (Holder.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (Holder.IsLocalPlayer())
                         Achievements.Type.OutOfTime.Complete();
 
                     return;

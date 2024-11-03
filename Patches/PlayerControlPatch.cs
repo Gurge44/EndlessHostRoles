@@ -182,8 +182,7 @@ namespace EHR
                 return false;
             }
 
-            float divice = Options.CurrentGameMode != CustomGameMode.Standard ? 3000f : 2000f;
-            float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f); // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000
+            float minTime = CalculatePingDelay();
 
             // No value is stored in TimeSinceLastKill || Stored time is greater than or equal to minTime => Allow kill
             // ↓ If not allowed
@@ -436,7 +435,7 @@ namespace EHR
             {
                 Notify("GAGuarded");
 
-                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (killer.IsLocalPlayer())
                     Achievements.Type.IForgotThisRoleExists.CompleteAfterGameEnd();
 
                 return false;
@@ -952,7 +951,7 @@ namespace EHR
 
                     if (!Hypnotist.OnAnyoneReport())
                     {
-                        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        if (__instance.IsLocalPlayer())
                             Achievements.Type.Hypnosis.CompleteAfterGameEnd();
 
                         return false;
@@ -1165,7 +1164,7 @@ namespace EHR
         private static readonly Dictionary<byte, int> BufferTime = [];
         private static readonly Dictionary<byte, int> DeadBufferTime = [];
         private static readonly Dictionary<byte, long> LastUpdate = [];
-        private static long LastAddAbilityTime;
+        private static readonly Dictionary<byte, long> LastAddAbilityTime = [];
         private static long LastErrorTS;
 
         public static void Postfix(PlayerControl __instance)
@@ -1422,9 +1421,9 @@ namespace EHR
 
                 // Ability Use Gain every 5 seconds
 
-                if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out PlayerState state) && state.TaskState.RemainingTasksCount <= 0 && LastAddAbilityTime + 5 < now)
+                if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out PlayerState state) && state.TaskState.RemainingTasksCount <= 0 && (!LastAddAbilityTime.TryGetValue(playerId, out var ts) || ts + 5 < now))
                 {
-                    LastAddAbilityTime = now;
+                    LastAddAbilityTime[playerId] = now;
 
                     AddExtraAbilityUsesOnFinishedTasks(player);
                 }
@@ -1555,10 +1554,6 @@ namespace EHR
                     // Name Color Manager
                     RealName = RealName.ApplyNameColorData(seer, target, false);
 
-                    if (Marshall.CanSeeMarshall(seer))
-                        if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
-                            Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
-
                     Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, meeting: GameStates.IsMeeting)));
 
                     if (self) Suffix.Append(CustomTeamManager.GetSuffix(seer));
@@ -1570,7 +1565,7 @@ namespace EHR
                         case CustomRoles.Snitch when seer.IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished:
                             Mark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
                             break;
-                        case CustomRoles.Marshall when seer.IsCrewmate() && target.GetTaskState().IsTaskFinished:
+                        case CustomRoles.Marshall when Marshall.CanSeeMarshall(seer) && target.GetTaskState().IsTaskFinished:
                             Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
                             break;
                         case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
@@ -1848,7 +1843,7 @@ namespace EHR
         {
             Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
 
-            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.6f, log: false);
+            if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.6f, log: false);
 
             if (!AmongUsClient.Instance.AmHost) return;
 
@@ -2029,7 +2024,7 @@ namespace EHR
 
             Main.PlayerStates[__instance.myPlayer.PlayerId].Role.OnCoEnterVent(__instance, id);
 
-            if (__instance.myPlayer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (__instance.myPlayer.IsLocalPlayer())
                 Statistics.VentTimes++;
 
             return true;

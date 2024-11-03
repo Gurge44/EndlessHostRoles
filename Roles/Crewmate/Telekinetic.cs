@@ -125,7 +125,7 @@ namespace EHR.Crewmate
 
                     Timer += 35;
 
-                    if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (target.IsLocalPlayer())
                         Achievements.Type.TooCold.CompleteAfterGameEnd();
 
                     break;

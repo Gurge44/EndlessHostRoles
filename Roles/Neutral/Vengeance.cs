@@ -108,7 +108,7 @@ namespace EHR.Neutral
             {
                 player.Suicide(PlayerState.DeathReason.Kill);
 
-                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (player.IsLocalPlayer())
                     Achievements.Type.OutOfTime.Complete();
 
                 return;

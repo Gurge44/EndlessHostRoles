@@ -181,7 +181,7 @@ namespace EHR
             LastHurt[target.PlayerId] = Utils.TimeStamp;
 
             float kcd = KB_ATKCooldown.GetFloat();
-            if (killer.IsHost()) kcd += AmongUsClient.Instance.Ping / 1000f * 4f;
+            if (killer.IsHost()) kcd += Utils.CalculatePingDelay() * 2f;
 
             killer.SetKillCooldown(kcd, target);
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);

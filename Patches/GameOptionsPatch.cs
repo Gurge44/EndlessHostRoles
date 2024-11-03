@@ -11,7 +11,7 @@ namespace EHR.Patches
 
         public static bool Prefix(GameModes gameMode)
         {
-            if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned) return true;
+            if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned || !HudManager.Instance) return true;
 
             HudManager.Instance.ShowPopUp(Translator.GetString("HnSUnloadWarning"));
             return false;

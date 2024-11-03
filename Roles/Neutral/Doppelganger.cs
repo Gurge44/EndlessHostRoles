@@ -202,7 +202,7 @@ namespace EHR.Neutral
             sender.SendMessage();
             DoppelPresentSkin[pc.PlayerId] = newOutfit;
 
-            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (pc.IsLocalPlayer())
             {
                 LocalPlayerChangeSkinTimes++;
                 if (LocalPlayerChangeSkinTimes >= 2) Achievements.Type.Mimicry.Complete();
@@ -231,14 +231,14 @@ namespace EHR.Neutral
 
             string kname;
 
-            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0)
+            if (killer.IsLocalPlayer() && Main.NickName.Length != 0)
                 kname = Main.NickName;
             else
                 kname = killer.Data.PlayerName;
 
             string tname;
 
-            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0)
+            if (target.IsLocalPlayer() && Main.NickName.Length != 0)
                 tname = Main.NickName;
             else
                 tname = target.Data.PlayerName;
@@ -261,6 +261,8 @@ namespace EHR.Neutral
             Utils.NotifyRoles();
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
+            
+            target.SetRealKiller(killer);
         }
 
         public override void OnReportDeadBody()

@@ -115,7 +115,7 @@ namespace EHR.Neutral
 
                 Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Charmed, "Assign " + CustomRoles.Charmed);
 
-                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (killer.IsLocalPlayer())
                     Achievements.Type.YoureMyFriendNow.Complete();
 
                 return false;

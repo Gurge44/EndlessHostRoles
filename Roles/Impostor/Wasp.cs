@@ -21,9 +21,9 @@ namespace EHR.Impostor
         private static OptionItem PestControlDuration;
         private static OptionItem PestControlSpeed;
         private static OptionItem PestControlVision;
+        
         public Dictionary<byte, long> DelayedKills;
         private bool EvadedKillThisRound;
-
         private long LastUpdate;
         public HashSet<byte> MeetingKills;
         private long PestControlEnd;
@@ -113,10 +113,10 @@ namespace EHR.Impostor
                     SwarmModeEnd = 0;
                     Utils.SendRPC(CustomRPC.SyncRoleData, WaspPC.PlayerId, SwarmModeEnd);
 
-                    if (WaspDiesAfterSwarmEnd.GetBool())
-                        pc.Suicide();
+                    if (WaspDiesAfterSwarmEnd.GetBool()) pc.Suicide();
                     else
                     {
+                        pc.ResetKillCooldown();
                         pc.SyncSettings();
                         pc.SetKillCooldown(StingCooldown.GetInt());
                     }
@@ -144,6 +144,9 @@ namespace EHR.Impostor
             }
 
             DelayedKills.Clear();
+            
+            if (WaspPC == null || !WaspPC.IsAlive())
+                MeetingKills.Clear();
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
@@ -237,7 +240,6 @@ namespace EHR.Impostor
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != WaspPC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting || SwarmModeEnd == 0) return string.Empty;
-
             return string.Format(Translator.GetString("Wasp.SwarmModeSuffix"), SwarmModeEnd - Utils.TimeStamp);
         }
     }

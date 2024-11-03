@@ -113,7 +113,7 @@ namespace EHR.Neutral
 
             pc.MarkDirtySettings();
 
-            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) HudManager.Instance.SetHudActive(pc, pc.Data.Role, true);
+            if (pc.IsLocalPlayer()) HudManager.Instance.SetHudActive(pc, pc.Data.Role, true);
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)

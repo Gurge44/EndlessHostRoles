@@ -54,8 +54,7 @@ namespace EHR
                 else
                     OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
             }
-            else
-                __instance.freeChatField.textArea.outputText.color = Color.black;
+            else __instance.freeChatField.textArea.outputText.color = Color.black;
 
             if (!__instance.freeChatField.textArea.hasFocus) return;
 
@@ -176,7 +175,7 @@ namespace EHR
             {
                 case 1 when player.IsAlive(): // Guessing Command & Such
                     Logger.Info("Special Command", "ChatManager");
-                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) break;
+                    if (player.IsLocalPlayer()) break;
 
                     LateTask.New(() =>
                     {

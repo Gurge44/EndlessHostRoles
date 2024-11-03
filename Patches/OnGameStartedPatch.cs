@@ -914,7 +914,7 @@ namespace EHR
             {
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {
-                    if (seer.PlayerId == target.PlayerId || target.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    if (seer.PlayerId == target.PlayerId || target.IsLocalPlayer()) continue;
 
                     if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out (RoleTypes, CustomRoles) roleMap))
                     {

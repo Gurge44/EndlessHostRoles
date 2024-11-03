@@ -79,7 +79,7 @@ namespace EHR.Crewmate
 
                     LastChange[pc.PlayerId] = now;
 
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (pc.IsLocalPlayer())
                         Achievements.Type.ALightInTheShadows.CompleteAfterGameEnd();
 
                     break;

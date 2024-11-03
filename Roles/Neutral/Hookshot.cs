@@ -157,7 +157,7 @@ namespace EHR.Neutral
                 SendRPC();
                 HookshotPC.SetKillCooldown(5f);
 
-                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (killer.IsLocalPlayer())
                     Achievements.Type.WellMeetAgainSomeSunnyDay.Complete();
             });
         }

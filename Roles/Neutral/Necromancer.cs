@@ -106,7 +106,7 @@ namespace EHR.Neutral
 
                 new[] { CustomRoles.Damocles, CustomRoles.Stressed }.Do(x => Main.PlayerStates[target.PlayerId].RemoveSubRole(x));
 
-                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (killer.IsLocalPlayer())
                     Achievements.Type.YoureMyFriendNow.Complete();
 
                 return false;
@@ -225,7 +225,7 @@ namespace EHR.Neutral
 
                 Logger.Info($"Recruit: {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Undead}", $"Assign {CustomRoles.Undead}");
 
-                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (killer.IsLocalPlayer())
                     Achievements.Type.YoureMyFriendNow.Complete();
 
                 return false;

@@ -117,7 +117,11 @@ namespace EHR
 
             byte id = target.PlayerId;
 
-            if (IsCamouflage && Main.PlayerStates[id].IsDead) return;
+            if (IsCamouflage && !target.IsAlive() && target.Data.IsDead)
+            {
+                Logger.Info("Player is dead, returning", "Camouflage.RpcSetSkin");
+                return;
+            }
 
             NetworkedPlayerInfo.PlayerOutfit newOutfit = CamouflageOutfit;
 

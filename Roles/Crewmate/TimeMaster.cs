@@ -110,7 +110,7 @@ namespace EHR.Crewmate
                     else TimeMasterBackTrack.Add(player.PlayerId, player.Pos());
                 }
 
-                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (pc.IsLocalPlayer())
                     Achievements.Type.APerfectTimeToRewindIt.Complete();
             }
             else pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));

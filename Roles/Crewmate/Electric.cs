@@ -51,7 +51,7 @@ namespace EHR.Crewmate
                 target.MarkDirtySettings();
             }, FreezeDuration.GetFloat(), "Electric Freeze Reset");
 
-            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (target.IsLocalPlayer())
                 Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
     }

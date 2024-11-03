@@ -391,7 +391,7 @@ namespace EHR
                         break;
                 }
 
-                if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Exists(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
+                if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Exists(x => x.IsLocalPlayer()))
                 {
                     __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                     byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;

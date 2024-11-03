@@ -60,7 +60,7 @@ namespace EHR.Crewmate
                     Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Translator.GetString("Mathematician"));
                     State.AskedQuestion = false;
 
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (pc.IsLocalPlayer())
                         Achievements.Type.TheBestInSchool.Complete();
                 }
             }

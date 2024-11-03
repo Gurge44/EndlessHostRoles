@@ -171,7 +171,7 @@ namespace EHR.Impostor
 
                 Utils.NotifyRoles(ForceLoop: true);
 
-                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && totalAlive <= murderCount)
+                if (pc.IsLocalPlayer() && totalAlive <= murderCount)
                     Achievements.Type.ItsJustAPrankBro.Complete();
             }, 1.5f, "Bomber Suiscide");
 

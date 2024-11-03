@@ -1,5 +1,8 @@
 ﻿global using Object = UnityEngine.Object;
 global using Vector2 = UnityEngine.Vector2;
+global using File = System.IO.File;
+global using StringBuilder = System.Text.StringBuilder;
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;

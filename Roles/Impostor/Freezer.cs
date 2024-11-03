@@ -55,7 +55,7 @@ namespace EHR.Impostor
                     target.MarkDirtySettings();
                 }, FreezeDuration.GetFloat(), "FreezerFreezeDuration");
 
-                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (target.IsLocalPlayer())
                     Achievements.Type.TooCold.CompleteAfterGameEnd();
             }
 

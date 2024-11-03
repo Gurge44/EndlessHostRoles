@@ -254,7 +254,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (killer.IsLocalPlayer())
                 {
                     if (Main.AliveImpostorCount == 0 && killer.IsCrewmate() && target.IsImpostor() && !Main.AllAlivePlayerControls.Any(x => x.IsNeutralKiller()))
                         Achievements.Type.ImCrewISwear.Complete();
@@ -292,7 +292,7 @@ namespace EHR.Modules
                         Achievements.Type.ThereCanOnlyBeOne.CompleteAfterGameEnd();
                 }
 
-                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (target.IsLocalPlayer())
                 {
                     PlayerState targetState = Main.PlayerStates[target.PlayerId];
 
@@ -310,7 +310,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (shapeshifter.PlayerId == PlayerControl.LocalPlayer.PlayerId && shapeshifting && animated)
+                if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
                 {
                     Achievements.Type.ItsMorbinTime.Complete();
                     if (shapeshifter.Is(CustomRoles.Disco)) Achievements.Type.Prankster.Complete();

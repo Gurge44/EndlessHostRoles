@@ -134,7 +134,7 @@ namespace EHR.Crewmate
                 }
             }
 
-            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (target.IsLocalPlayer())
                 Achievements.Type.Delicious.Complete();
         }
 

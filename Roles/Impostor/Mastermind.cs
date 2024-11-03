@@ -130,7 +130,7 @@ namespace EHR.Impostor
                     RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
                     player.RpcChangeRoleBasis(player.GetCustomRole());
 
-                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (player.IsLocalPlayer())
                         Achievements.Type.OutOfTime.Complete();
                 }
 
@@ -172,7 +172,7 @@ namespace EHR.Impostor
                 target.Kill(killer);
                 TempKCDs.Remove(killer.PlayerId);
 
-                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (target.IsLocalPlayer())
                     Achievements.Type.YoureTooLate.Complete();
 
                 return false;

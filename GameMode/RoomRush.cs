@@ -226,7 +226,7 @@ namespace EHR
                 yield return new WaitForSeconds(1f);
             }
 
-            if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).DoIf(x => !x.IsNonHostModClient(), x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+            if (ventLimit > 0) aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
             Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
@@ -301,7 +301,7 @@ namespace EHR
             {
                 Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = speed;
                 PlayerControl.LocalPlayer.SyncSettings();
-            }, AmongUsClient.Instance.Ping / 1000f * 4f);
+            }, Utils.CalculatePingDelay() * 2f);
         }
 
         private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
@@ -317,14 +317,14 @@ namespace EHR
             bool dead = !seer.IsAlive();
             bool done = dead || DonePlayers.Contains(seer.PlayerId);
             Color color = done ? Color.green : Color.yellow;
+            
             if (DisplayRoomName.GetBool()) sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
-
             if (DisplayArrowToRoom.GetBool()) sb.AppendLine(Utils.ColorString(color, LocateArrow.GetArrows(seer)));
 
             color = done ? Color.white : Color.yellow;
             sb.AppendLine(Utils.ColorString(color, TimeLeft.ToString()));
 
-            if (VentTimes.GetInt() == 0 || dead) return sb.ToString();
+            if (VentTimes.GetInt() == 0 || dead || seer.IsModClient()) return sb.ToString();
 
             sb.AppendLine();
 
@@ -412,7 +412,7 @@ namespace EHR
                     playersOutsideRoom.Do(x => x.Suicide());
                     StartNewRound();
 
-                    if (playersOutsideRoom.Any(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
+                    if (playersOutsideRoom.Any(x => x.IsLocalPlayer()))
                         Achievements.Type.OutOfTime.Complete();
                 }
             }
@@ -434,16 +434,6 @@ namespace EHR
             RoomRush.VentLimit[pc.PlayerId]--;
             Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, RoomRush.VentLimit[pc.PlayerId], pc.PlayerId);
             if (RoomRush.VentLimit[pc.PlayerId] <= 0) pc.RpcChangeRoleBasis(CustomRoles.RRPlayer);
-        }
-
-        public override bool CanUseImpostorVentButton(PlayerControl pc)
-        {
-            return !pc.IsHost() && CanUseVent(pc, 0);
-        }
-
-        public override bool CanUseVent(PlayerControl pc, int ventId)
-        {
-            return RoomRush.GameGoing && (pc.inVent || RoomRush.VentLimit[pc.PlayerId] > 0);
         }
     }
 }

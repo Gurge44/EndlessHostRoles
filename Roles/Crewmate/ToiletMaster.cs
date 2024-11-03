@@ -217,7 +217,7 @@ namespace EHR.Crewmate
                             x.MarkDirtySettings();
                             affectedPlayers.Add(x);
 
-                            if (x.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            if (x.IsLocalPlayer())
                                 Achievements.Type.TooCold.CompleteAfterGameEnd();
                         });
 

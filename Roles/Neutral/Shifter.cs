@@ -131,7 +131,7 @@ namespace EHR.Neutral
 
             WasShifter.Add(killer.PlayerId);
 
-            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId || target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (killer.IsLocalPlayer() || target.IsLocalPlayer())
             {
                 ShifterInteractionsCount++;
                 if (ShifterInteractionsCount >= 3) Achievements.Type.TheresThisGameMyDadTaughtMeItsCalledSwitch.Complete();

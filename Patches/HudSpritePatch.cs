@@ -37,8 +37,7 @@ namespace EHR
                 if (player == null) return;
 
                 if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId)) return;
-
-                if (!SetHudActivePatch.IsActive || !player.IsAlive()) return;
+                if (!SetHudActivePatch.IsActive || !player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
                 if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
                 {
@@ -54,15 +53,10 @@ namespace EHR
                 bool shapeshifting = player.IsShifted();
 
                 if (!Kill) Kill = __instance.KillButton.graphic.sprite;
-
                 if (!Ability) Ability = __instance.AbilityButton.graphic.sprite;
-
                 if (!Vent) Vent = __instance.ImpostorVentButton.graphic.sprite;
-
                 if (!Sabotage) Sabotage = __instance.SabotageButton.graphic.sprite;
-
                 if (!Pet) Pet = __instance.PetButton.graphic.sprite;
-
                 if (!Report) Report = __instance.ReportButton.graphic.sprite;
 
                 Sprite newKillButton = Kill;

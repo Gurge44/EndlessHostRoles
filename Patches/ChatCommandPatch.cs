@@ -1018,16 +1018,20 @@ namespace EHR
             if (text.Length < 6 || !GameStates.IsMeeting) return;
 
             string toVote = text[6..].Replace(" ", string.Empty);
-            if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote == true) return;
+            if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote is true or null) return;
 
             if (voteId > Main.AllPlayerControls.Length) return;
 
-            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
+            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+                ChatManager.SendPreviousMessagesToAll();
+
+            var votedPlayer = voteId.GetPlayer();
+            if (Main.PlayerStates.TryGetValue(player.PlayerId, out var state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
 
             if (!player.IsHost())
-                MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
+                MeetingHud.Instance.CastVote(player.PlayerId, voteId);
             else
-                MeetingHud.Instance?.CmdCastVote(player.PlayerId, voteId);
+                MeetingHud.Instance.CmdCastVote(player.PlayerId, voteId);
         }
 
         private static void SayCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -1063,7 +1067,7 @@ namespace EHR
 
         private static void TemplateCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (player.IsLocalPlayer())
             {
                 if (args.Length > 1)
                     TemplateManager.SendTemplate(args[1]);
@@ -1462,7 +1466,7 @@ namespace EHR
                 Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
             else
             {
-                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (player.IsLocalPlayer())
                     Main.NickName = args[1];
                 else
                 {
@@ -2245,16 +2249,19 @@ namespace EHR
 
                 if (player.Is(CustomRoles.Lovers) || player.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
                 {
-                    PlayerControl otherLover = Main.LoversPlayers.First(x => x.PlayerId != player.PlayerId);
+                    PlayerControl otherLover = Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != player.PlayerId);
 
-                    LateTask.New(() =>
+                    if (otherLover != null)
                     {
-                        string title = player.GetRealName();
-                        ChatUpdatePatch.LoversMessage = true;
-                        Utils.SendMessage(text, otherLover.PlayerId, title);
-                        Utils.SendMessage(text, player.PlayerId, title);
-                        LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
-                    }, 0.2f, log: false);
+                        LateTask.New(() =>
+                        {
+                            string title = player.GetRealName();
+                            ChatUpdatePatch.LoversMessage = true;
+                            Utils.SendMessage(text, otherLover.PlayerId, title);
+                            Utils.SendMessage(text, player.PlayerId, title);
+                            LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
+                        }, 0.2f, log: false);
+                    }
                 }
                 else
                     LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
@@ -2267,7 +2274,7 @@ namespace EHR
     }
 
     [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
-    internal class ChatUpdatePatch
+    internal static class ChatUpdatePatch
     {
         public static bool DoBlockChat;
         public static bool LoversMessage;
@@ -2346,7 +2353,7 @@ namespace EHR
     }
 
     [HarmonyPatch(typeof(FreeChatInputField), nameof(FreeChatInputField.UpdateCharCount))]
-    internal class UpdateCharCountPatch
+    internal static class UpdateCharCountPatch
     {
         public static void Postfix(FreeChatInputField __instance)
         {
@@ -2364,7 +2371,7 @@ namespace EHR
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSendChat))]
-    internal class RpcSendChatPatch
+    internal static class RpcSendChatPatch
     {
         public static bool Prefix(PlayerControl __instance, string chatText, ref bool __result)
         {

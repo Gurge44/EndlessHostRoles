@@ -180,7 +180,7 @@ namespace EHR.Crewmate
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId && target.Is(CustomRoles.Snitch))
+            if (target.IsLocalPlayer() && target.Is(CustomRoles.Snitch))
             {
                 if (WhoCanSeeProtect.GetInt() is 1 or 3) Achievements.Type.ImUnstoppable.CompleteAfterGameEnd();
                 else Achievements.Type.ImUnstoppable.Complete();
@@ -227,7 +227,7 @@ namespace EHR.Crewmate
                 }
             }
 
-            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (killer.IsLocalPlayer())
             {
                 LocalPlayerTryKillShieldedTimes++;
                 if (LocalPlayerTryKillShieldedTimes >= 2) Achievements.Type.DiePleaseDie.CompleteAfterGameEnd();

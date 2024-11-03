@@ -154,7 +154,7 @@ namespace EHR
                 {
                     __instance.Suicide();
 
-                    if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (__instance.IsLocalPlayer())
                         Achievements.Type.OutOfTime.Complete();
                 }
 

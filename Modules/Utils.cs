@@ -968,7 +968,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
             if ((Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) || (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool())) return true;
 
-            if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId) return true;
+            if (__instance.IsLocalPlayer()) return true;
 
             switch (__instance.GetCustomRole())
             {
@@ -995,7 +995,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                    (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                    (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                    (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) ||
-                   (Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.PlayerId == PlayerControl.LocalPlayer.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
+                   (Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.IsLocalPlayer()) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                    (CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, CTAOption.KnowRoles)) ||
                    Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, __instance)) ||
                    PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) ||
@@ -2296,7 +2296,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                             }
 
                             if ((IsActive(SystemTypes.MushroomMixupSabotage) || MushroomMixup) && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(seer.PlayerId))
+                            {
                                 target.RpcSetNamePrivate("<size=0%>", force: NoCache);
+                            }
                             else
                             {
                                 TargetMark.Clear();
@@ -2306,14 +2308,15 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
                                 if (isForMeeting) TargetMark.Append(Wasp.GetStungMark(target.PlayerId));
 
-                                if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool()) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
+                                if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
+                                    TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
 
                                 if (BallLightning.IsGhost(target)) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
 
                                 TargetMark.Append(Snitch.GetWarningMark(seer, target));
-                                TargetMark.Append(Marshall.GetWarningMark(seer, target));
 
-                                if ((seer.Data.IsDead || Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) && Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId)) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
+                                if ((seer.Data.IsDead || Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) && Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId))
+                                    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
 
                                 if (Randomizer.IsShielded(target)) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Randomizer), "✚"));
 
@@ -2446,9 +2449,11 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                                 if (Options.CurrentGameMode != CustomGameMode.Standard) goto End;
 
-                                if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
+                                if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
+                                    TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
 
-                                if (Marshall.CanSeeMarshall(seer) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
+                                if (Marshall.CanSeeMarshall(seer) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
+                                    TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
 
                                 TargetMark.Append(Executioner.TargetMark(seer, target));
                                 TargetMark.Append(Gamer.TargetMark(seer, target));
@@ -3360,6 +3365,14 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
         public static bool IsPlayerModClient(this byte id)
         {
             return Main.PlayerVersion.ContainsKey(id);
+        }
+
+        public static float CalculatePingDelay()
+        {
+            // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
+            float divice = Options.CurrentGameMode != CustomGameMode.Standard ? 3000f : 2000f;
+            float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f);
+            return minTime;
         }
     }
 }

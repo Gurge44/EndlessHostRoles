@@ -794,7 +794,7 @@ namespace EHR
                             if (pc.Is(CustomRoles.Pickpocket) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("PickpocketGetVote"), (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Pickpocket.VotesPerKill.GetFloat()))), 0.7f, log: false);
                         }, 0.2f, "Guesser Kill");
 
-                        if (guesserSuicide && pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        if (guesserSuicide && pc.IsLocalPlayer())
                             Achievements.Type.BadLuckOrBadObservation.Complete();
                     }
 

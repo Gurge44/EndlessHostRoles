@@ -220,6 +220,9 @@ namespace EHR.Patches
                             case CustomRoles.CTFPlayer:
                                 __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
                                 break;
+                            case CustomRoles.RRPlayer when __instance.AbilityButton != null && __instance.AbilityButton && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ventLimit):
+                                __instance.AbilityButton.SetUsesRemaining(ventLimit);
+                                break;
                         }
 
                         if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !role.OnlySpawnsWithPets() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling)
@@ -463,6 +466,8 @@ namespace EHR.Patches
                     __instance.AbilityButton?.ToggleVisible(false);
                     return;
                 case CustomGameMode.RoomRush:
+                    __instance.ImpostorVentButton?.ToggleVisible(false);
+                    goto case CustomGameMode.CaptureTheFlag;
                 case CustomGameMode.CaptureTheFlag:
                 case CustomGameMode.HideAndSeek:
                     __instance.ReportButton?.ToggleVisible(false);

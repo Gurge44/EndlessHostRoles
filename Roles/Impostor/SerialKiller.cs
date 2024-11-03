@@ -93,7 +93,7 @@ namespace EHR.Impostor
                 SuicideTimer = float.NaN;
                 Timer = TimeLimit.GetInt();
 
-                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (player.IsLocalPlayer())
                     Achievements.Type.OutOfTime.Complete();
             }
             else

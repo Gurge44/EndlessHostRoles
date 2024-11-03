@@ -110,7 +110,7 @@ namespace EHR.Neutral
                 else IsWon = true;
             }
 
-            if (TechnicianPC.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (TechnicianPC.IsLocalPlayer())
                 LocalPlayerFixedSabotageTypes.Add(actualSystemType);
         }
 

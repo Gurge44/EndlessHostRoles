@@ -88,7 +88,7 @@ namespace EHR.Impostor
                     target.SetRealKiller(player);
                     target.Kill(player);
 
-                    if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    if (target.IsLocalPlayer())
                         Achievements.Type.YoureTooLate.Complete();
 
                     Logger.Info($"Crewpostor tried to kill Pestilence：{target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");

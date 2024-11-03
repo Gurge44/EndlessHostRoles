@@ -14,6 +14,7 @@ using EHR.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
+using Sentry.Internal.Extensions;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -257,10 +258,7 @@ namespace EHR
                     {
                         Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
                     }
-                    catch (Exception e)
-                    {
-                        ThrowException(e);
-                    }
+                    catch { }
                 }
 
                 if (player.Data != null) Logger.Info($"Set: {player.Data.PlayerName} => {name} for Everyone", "RpcSetNameEx");
@@ -405,7 +403,7 @@ namespace EHR
                         if (seerClientId == -1) continue;
 
                         bool seerIsHost = seer.IsHost();
-                        bool self = player.PlayerId == seer.PlayerId;
+                        bool self = playerId == seer.PlayerId;
 
                         if (!self && seer.HasDesyncRole() && !seerIsHost)
                             remeberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
@@ -454,7 +452,7 @@ namespace EHR
                         int seerClientId = seer.GetClientId();
                         if (seerClientId == -1) continue;
 
-                        bool self = player.PlayerId == seer.PlayerId;
+                        bool self = playerId == seer.PlayerId;
 
                         if (self)
                         {
@@ -1277,7 +1275,7 @@ namespace EHR
                 CustomGameMode.Speedrun => false,
                 CustomGameMode.CaptureTheFlag => false,
                 CustomGameMode.NaturalDisasters => false,
-                CustomGameMode.RoomRush => !Main.HasJustStarted && RoomRush.VentLimit[pc.PlayerId] > 0,
+                CustomGameMode.RoomRush => false,
 
                 CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
                 CustomGameMode.Standard when pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool() => true,
@@ -1451,7 +1449,7 @@ namespace EHR
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
             }, Options.TrapperBlockMoveTime.GetFloat(), "Trapper BlockMove");
 
-            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (killer.IsLocalPlayer())
                 Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
 
@@ -1530,7 +1528,7 @@ namespace EHR
 
             Main.DiedThisRound.Add(target.PlayerId);
 
-            if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && !killer.HasKillButton())
+            if (killer.IsLocalPlayer() && !killer.HasKillButton())
                 Achievements.Type.InnocentKiller.Complete();
 
             switch (killer.PlayerId == target.PlayerId)
@@ -1584,10 +1582,13 @@ namespace EHR
                 }, 0.1f, log: false);
             }
         }
+        
+        public static bool IsLocalPlayer(this PlayerControl pc) => pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
+        public static bool IsLocalPlayer(this NetworkedPlayerInfo npi) => npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
 
         public static bool IsModClient(this PlayerControl player)
         {
-            return player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
+            return player.IsLocalPlayer() || player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
         }
 
         public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false)
@@ -1716,15 +1717,7 @@ namespace EHR
 
         public static RoleTypes GetRoleTypes(this PlayerControl pc)
         {
-            return pc.GetCustomSubRoles() switch
-            {
-                { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
-                { } x when x.Contains(CustomRoles.Nimble) && !pc.HasDesyncRole() => RoleTypes.Engineer,
-                { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
-                { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
-                { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
-                _ => pc.GetCustomRole().GetRoleTypes()
-            };
+            return pc.GetRoleMap().RoleType;
         }
 
         public static bool Is(this PlayerControl target, CustomRoles role)

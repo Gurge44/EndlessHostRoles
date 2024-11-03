@@ -280,7 +280,7 @@ namespace EHR
 
         public static bool HasTasks(NetworkedPlayerInfo playerInfo)
         {
-            if (!AmongUsClient.Instance.AmHost && playerInfo.PlayerId == PlayerControl.LocalPlayer.PlayerId) return PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Taskinator or CustomRoles.Hider or CustomRoles.Jet or CustomRoles.Detector or CustomRoles.Jumper;
+            if (!AmongUsClient.Instance.AmHost && playerInfo.IsLocalPlayer()) return PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Taskinator or CustomRoles.Hider or CustomRoles.Jet or CustomRoles.Detector or CustomRoles.Jumper;
 
             if (!PlayerRoles.TryGetValue(playerInfo.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) role)) return false;
 
@@ -441,7 +441,7 @@ namespace EHR
 
             static string GetTaskText()
             {
-                StringBuilder sb = new();
+                Il2CppSystem.Text.StringBuilder sb = new();
                 bool flag = PlayerControl.LocalPlayer.Data.Role != null && PlayerControl.LocalPlayer.Data.Role.IsImpostor;
 
                 foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)

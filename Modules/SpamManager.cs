@@ -83,7 +83,7 @@ namespace EHR
 
         public static bool CheckSpam(PlayerControl player, string text)
         {
-            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) return false;
+            if (player.IsLocalPlayer()) return false;
 
             string name = player.GetRealName();
             var kick = false;

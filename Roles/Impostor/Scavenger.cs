@@ -63,7 +63,7 @@ namespace EHR.Impostor
 
             killer.Suicide(PlayerState.DeathReason.Kill, target);
 
-            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (target.IsLocalPlayer())
                 Achievements.Type.YoureTooLate.Complete();
 
             return false;
