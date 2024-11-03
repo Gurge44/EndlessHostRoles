@@ -2398,6 +2398,7 @@
   "LoadingHint.43": "知之为知之，不知为不知，是知也",
   "LoadingHint.44": "您知道吗？\n开发组最喜欢的数字是44",
   "LoadingHint.45": "你知道吗？您可以在迭代器中使用 yield 语句来提供下一个值或在循环中发出迭代结束的信号，自从 async 在 BepInEx 中不起作用的时候...吗？\n是的！我也不是",
+  "AchievementCompletedTitle": "<#FAD101>ACHIEVEMENT UNLOCKED</color>",
   "Achievement.IdeasLiveOn": "Ideas Live On",
   "Achievement.HowCouldIBelieveThem": "How Could I Believe Them?!",
   "Achievement.WhatKindOfGeniusCameUpWithThisRoleIdea": "What Kind Of Genius Came Up With This Role Idea....??",
