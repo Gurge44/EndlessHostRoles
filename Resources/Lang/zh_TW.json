@@ -3522,7 +3522,7 @@
   "Allergic": "過敏",
   "AllergicInfo": "你對某人過敏",
   "AllergicInfoLong": "(附加職業):\\n你對遊戲中的隨機玩家過敏。當你靠近該玩家時，你的過敏程度開始增加。如果過敏程度達到100%，你就會死。你必須始終遠離讓你過敏的玩家。",
-  "Prefix.Allergic": "Allergic",
+  "Prefix.Allergic": "過敏",
   "Allergic.Time": "過敏程度從 0% 到 100% 的時間",
   "Allergic.Range": "過敏的最大距離",
   "Allergic.Suffix": "<#ffff44><size=80%>過敏程度:</color> {0}%</size>",
