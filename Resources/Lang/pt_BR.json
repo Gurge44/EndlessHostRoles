@@ -3522,6 +3522,7 @@
   "Allergic": "Alérgico",
   "AllergicInfo": "Você é alérgico a alguém",
   "AllergicInfoLong": "(Atributos):\\nComo Alérgico, você é alérgico a um jogador aleatório no jogo. Quando chegar perto deste jogador, seu nível de alergia começa a aumentar. Caso ele chegue a 100%, você morre Você sempre deve ficar longe do jogador o qual você é alérgico.",
+  "Prefix.Allergic": "Allergic",
   "Allergic.Time": "Tempo em que o nível de alergia passa de 0% para 100%",
   "Allergic.Range": "Distância máxima do alvo considerada perto",
   "Allergic.Suffix": "<#ffff44><size=80%>Nível de Alergia:</color> {0}%</size>",
