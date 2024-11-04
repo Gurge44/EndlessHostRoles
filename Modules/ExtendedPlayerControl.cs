@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
@@ -14,7 +13,6 @@ using EHR.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
-using Sentry.Internal.Extensions;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -1582,7 +1580,7 @@ namespace EHR
                 }, 0.1f, log: false);
             }
         }
-        
+
         public static bool IsLocalPlayer(this PlayerControl pc) => pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
         public static bool IsLocalPlayer(this NetworkedPlayerInfo npi) => npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
 
@@ -1717,7 +1715,23 @@ namespace EHR
 
         public static RoleTypes GetRoleTypes(this PlayerControl pc)
         {
-            return pc.GetRoleMap().RoleType;
+            try
+            {
+                if (Main.HasJustStarted) throw new("HasJustStarted");
+                return pc.GetRoleMap().RoleType;
+            }
+            catch
+            {
+                return pc.GetCustomSubRoles() switch
+                {
+                    { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
+                    { } x when x.Contains(CustomRoles.Nimble) && !pc.HasDesyncRole() => RoleTypes.Engineer,
+                    { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
+                    { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
+                    { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
+                    _ => pc.GetCustomRole().GetRoleTypes()
+                };
+            }
         }
 
         public static bool Is(this PlayerControl target, CustomRoles role)

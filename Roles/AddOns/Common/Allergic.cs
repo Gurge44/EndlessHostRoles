@@ -40,7 +40,7 @@ namespace EHR.AddOns.Common
                 {
                     if (pc.Is(CustomRoles.Allergic))
                     {
-                        PlayerControl target = aapc.RandomElement();
+                        PlayerControl target = aapc.Without(pc).RandomElement();
                         AllergicPlayers[pc.PlayerId] = target.PlayerId;
                     }
                 }

@@ -51,7 +51,7 @@ namespace EHR
         public static ManualLogSource Logger;
         public static bool HasArgumentException;
         public static string CredentialsText;
-        
+
         public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
         public static bool ChangedRole = false;
         public static OptionBackupData RealOptionsData;
@@ -869,6 +869,7 @@ namespace EHR
         Bloodlust = CustomRoles.Bloodlust
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum AdditionalWinners
     {
         None = -1,
@@ -900,7 +901,8 @@ namespace EHR
         Backstabber = CustomRoles.Backstabber,
         Predator = CustomRoles.Predator,
         SoulHunter = CustomRoles.SoulHunter,
-        SchrodingersCat = CustomRoles.SchrodingersCat
+        SchrodingersCat = CustomRoles.SchrodingersCat,
+        Innocent = CustomRoles.Innocent,
     }
 
     public enum SuffixModes

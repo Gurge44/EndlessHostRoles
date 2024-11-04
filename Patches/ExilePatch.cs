@@ -13,15 +13,12 @@ namespace EHR.Patches
 {
     internal static class ExileControllerWrapUpPatch
     {
-        public static NetworkedPlayerInfo AntiBlackoutLastExiled { get; set; }
-
         private static void WrapUpPostfix(NetworkedPlayerInfo exiled)
         {
             var DecidedWinner = false;
             if (!AmongUsClient.Instance.AmHost) return;
 
             AntiBlackout.RestoreIsDead(false);
-            AntiBlackoutLastExiled = exiled;
 
             if (!Collector.CollectorWin(false) && exiled != null)
             {
@@ -85,7 +82,8 @@ namespace EHR.Patches
 
                 if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) DecidedWinner = false;
 
-                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) Main.PlayerStates[exiled.PlayerId].SetDead();
+                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist)
+                    Main.PlayerStates[exiled.PlayerId].SetDead();
             }
 
             if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown) Main.RefixCooldownDelay = Options.DefaultKillCooldown - 3f;
@@ -158,21 +156,19 @@ namespace EHR.Patches
                     Utils.NotifyRoles(NoCache: true);
                     Utils.CheckAndSetVentInteractions();
                 }, 1.2f, "AfterMeetingDeathPlayers Task");
+
+                LateTask.New(() =>
+                {
+                    if (!GameStates.IsEnded) AntiBlackout.ResetAfterMeeting();
+                }, 2f, "Reset Cooldown After Meeting");
             }
-
-            LateTask.New(() =>
-            {
-                if (GameStates.IsEnded) return;
-
-                AntiBlackout.ResetAfterMeeting();
-            }, 2f, "Reset Cooldown After Meeting");
 
             GameStates.AlreadyDied |= !Utils.IsAllAlive;
             RemoveDisableDevicesPatch.UpdateDisableDevices();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
             Logger.Info("Start task phase", "Phase");
 
-            if (Lovers.IsChatActivated && Lovers.PrivateChat.GetBool()) return;
+            if (!AmongUsClient.Instance.AmHost || (Lovers.IsChatActivated && Lovers.PrivateChat.GetBool())) return;
 
             bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
             bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
@@ -188,7 +184,8 @@ namespace EHR.Patches
                 {
                     string finalText = text;
 
-                    if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase)) finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
+                    if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
+                        finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
 
                     if (!showRemainingKillers) finalText = finalText.TrimStart();
 

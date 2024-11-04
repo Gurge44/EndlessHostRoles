@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 using UnityEngine;
+
+// ReSharper disable InconsistentNaming
 
 namespace EHR.Modules
 {
@@ -167,6 +168,7 @@ namespace EHR.Modules
             var title = Translator.GetString("AchievementCompletedTitle");
             var description = Translator.GetString($"Achievement.{type}.Description");
             var message = $"<b>{Translator.GetString($"Achievement.{type}")}</b>\n{description}";
+
             ChatBubbleShower.ShowChatBubbleInRound(message, title);
         }
 

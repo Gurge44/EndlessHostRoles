@@ -21,7 +21,7 @@ namespace EHR.Impostor
         private static OptionItem PestControlDuration;
         private static OptionItem PestControlSpeed;
         private static OptionItem PestControlVision;
-        
+
         public Dictionary<byte, long> DelayedKills;
         private bool EvadedKillThisRound;
         private long LastUpdate;
@@ -144,7 +144,7 @@ namespace EHR.Impostor
             }
 
             DelayedKills.Clear();
-            
+
             if (WaspPC == null || !WaspPC.IsAlive())
                 MeetingKills.Clear();
         }
@@ -196,28 +196,10 @@ namespace EHR.Impostor
         {
             try
             {
-                foreach (Wasp instance in Instances)
-                {
-                    foreach (byte id in exileIds)
-                        if (id == instance.WaspPC.PlayerId)
-                            instance.MeetingKills.Clear();
-                }
+                HashSet<byte> waspDeathList = [];
 
-                List<byte> waspDeathList = [];
-
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    foreach (Wasp instance in Instances)
-                    {
-                        if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
-
-                        if (instance.MeetingKills.Contains(pc.PlayerId) && instance.WaspPC != null && instance.WaspPC.IsAlive())
-                        {
-                            pc.SetRealKiller(instance.WaspPC);
-                            waspDeathList.Add(pc.PlayerId);
-                        }
-                    }
-                }
+                foreach (Wasp instance in Instances) waspDeathList.UnionWith(instance.GetStungPlayers(exileIds));
+                waspDeathList.ExceptWith(Main.AfterMeetingDeathPlayers.Keys);
 
                 CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Stung, [.. waspDeathList]);
             }
@@ -231,6 +213,8 @@ namespace EHR.Impostor
         {
             return Instances.Any(x => x.MeetingKills.Contains(target)) ? Utils.ColorString(Palette.ImpostorRed, "\u25c0") : string.Empty;
         }
+
+        HashSet<byte> GetStungPlayers(byte[] exileIds) => WaspPC == null || !WaspPC.IsAlive() || Main.AfterMeetingDeathPlayers.ContainsKey(WaspPC.PlayerId) || exileIds.Any(x => x == WaspPC.PlayerId) ? [] : MeetingKills;
 
         public void ReceiveRPC(MessageReader reader)
         {
