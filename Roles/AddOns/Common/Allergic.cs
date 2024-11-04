@@ -78,7 +78,7 @@ namespace EHR.AddOns.Common
             {
                 AllergicPlayers.Remove(pc.PlayerId);
                 AllergyMaxTS.Remove(pc.PlayerId);
-                pc.Suicide(PlayerState.DeathReason.Allergy);
+                pc.Suicide(PlayerState.DeathReason.Allergy, target);
             }
             else
                 Utils.NotifyRoles(SpecifyTarget: pc, SpecifySeer: pc);
