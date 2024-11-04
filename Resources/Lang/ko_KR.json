@@ -3522,6 +3522,7 @@
   "Allergic": "Allergic",
   "AllergicInfo": "You're Allergic to Someone",
   "AllergicInfoLong": "(Add-ons):\\nAs the Allergic, you are allergic to a random player in the game. When you go near that player, your allergy level starts increasing. If it reaches 100%, you die. You must stay away from the player you're allergic to at all times.",
+  "Prefix.Allergic": "Allergic",
   "Allergic.Time": "Time in which the allergy level goes from 0% to 100%",
   "Allergic.Range": "Maximum distance from the target that is considered nearby",
   "Allergic.Suffix": "<#ffff44><size=80%>Allergy Level:</color> {0}%</size>",
