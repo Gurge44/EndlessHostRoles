@@ -63,7 +63,6 @@ namespace EHR.Crewmate
         public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
         {
             if (ReviveTargetCanReportTheirOwnBody.GetBool()) return true;
-
             return !RevivedPlayers.Contains(reporter.PlayerId) || target.PlayerId != reporter.PlayerId;
         }
 
@@ -158,9 +157,7 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != AlturistId || meeting || hud) return string.Empty;
-
             if (ReviveStartTS != 0) return string.Format(Translator.GetString("AltruistSuffixRevive"), ReviveTime.GetInt() - (Utils.TimeStamp - ReviveStartTS));
-
             return string.Format(Translator.GetString("AltruistSuffix"), Translator.GetString(RevivingMode ? "AltruistReviveMode" : "AltruistReportMode"));
         }
     }
