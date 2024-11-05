@@ -3,6 +3,7 @@ using System.Linq;
 using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Neutral;
+using MS.Internal.Xml.XPath;
 
 namespace EHR.Modules
 {
@@ -22,8 +23,6 @@ namespace EHR.Modules
             try
             {
                 bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || (CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust));
-
-                Reset();
 
                 switch (Options.CurrentGameMode)
                 {
@@ -61,6 +60,9 @@ namespace EHR.Modules
                     case CustomGameMode.RoomRush when won:
                         Achievements.Type.BestReactionTime.CompleteAfterGameEnd();
                         return;
+                    case CustomGameMode.Standard:
+                        Reset();
+                        break;
                 }
 
                 if (won && addons.Contains(CustomRoles.Undead) && CustomWinnerHolder.WinnerIds.ToValidPlayers().Count(x => x.Is(CustomRoles.Necromancer)) >= 3)
@@ -162,7 +164,7 @@ namespace EHR.Modules
                 if (VentTimes >= 50) Achievements.Type.Vectory.CompleteAfterGameEnd();
                 VentTimes = 0;
 
-                if (!HasUsedAnyCommand && Options.CurrentGameMode == CustomGameMode.Standard) Achievements.Type.AndForWhatDidICodeTheseCommandsForIfYouDontUseThemAtAll.CompleteAfterGameEnd();
+                if (!HasUsedAnyCommand) Achievements.Type.AndForWhatDidICodeTheseCommandsForIfYouDontUseThemAtAll.CompleteAfterGameEnd();
                 HasUsedAnyCommand = false;
             }
         }
@@ -171,6 +173,8 @@ namespace EHR.Modules
         {
             try
             {
+                if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+                
                 PlayerControl lp = PlayerControl.LocalPlayer;
 
                 bool amDictator = dictator && lp.Is(CustomRoles.Dictator);
@@ -252,6 +256,8 @@ namespace EHR.Modules
         {
             try
             {
+                if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId) return;
+                
                 if (killer.IsLocalPlayer())
                 {
                     if (Main.AliveImpostorCount == 0 && killer.IsCrewmate() && target.IsImpostor() && !Main.AllAlivePlayerControls.Any(x => x.IsNeutralKiller()))
@@ -308,6 +314,8 @@ namespace EHR.Modules
         {
             try
             {
+                if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+                
                 if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
                 {
                     Achievements.Type.ItsMorbinTime.Complete();
