@@ -10,7 +10,6 @@ namespace EHR.Crewmate
     public class Altruist : RoleBase
     {
         public static bool On;
-        private static List<Altruist> Instances = [];
 
         private static OptionItem ReviveTime;
         private static OptionItem ReviveTargetCanReportTheirOwnBody;
@@ -41,14 +40,12 @@ namespace EHR.Crewmate
         public override void Init()
         {
             On = false;
-            Instances = [];
             RevivedPlayers = [];
         }
 
         public override void Add(byte playerId)
         {
             On = true;
-            Instances.Add(this);
             RevivingMode = true;
             ReviveTarget = byte.MaxValue;
             ReviveStartTS = 0;
@@ -72,7 +69,7 @@ namespace EHR.Crewmate
 
         public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (!RevivingMode || target.Disconnected) return true;
+            if (!RevivingMode || target.Disconnected || target.Object.Is(CustomRoles.Unreportable)) return true;
 
             PlayerState state = Main.PlayerStates[reporter.PlayerId];
             state.deathReason = PlayerState.DeathReason.Sacrifice;

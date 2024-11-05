@@ -44,7 +44,7 @@ namespace EHR.AddOns.Common
                         AllergicPlayers[pc.PlayerId] = target.PlayerId;
                     }
                 }
-            }, 10f, "Allergic.Init");
+            }, 20f, "Allergic.Init");
         }
 
         public static void OnFixedUpdate(PlayerControl pc)

@@ -124,6 +124,8 @@ namespace EHR.Neutral
 
         public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
+            if (target.Object.Is(CustomRoles.Unreportable)) return true;
+            
             if (RememberMode.GetValue() == 0)
             {
                 RememberRole(reporter, target.Object);
