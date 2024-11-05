@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
@@ -41,6 +40,7 @@ namespace EHR.Crewmate
         private static OptionItem DrunkRoleIncorrectChance;
         private static readonly Dictionary<Ability, OptionItem> AbilityAlcoholDecreaseOptions = [];
         private static readonly Dictionary<Ability, OptionItem> AbilityAlcoholRequirement = [];
+
         private int Alcohol;
         private string Arrows;
         private int Count;
@@ -91,7 +91,7 @@ namespace EHR.Crewmate
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
 
-            StartingAlcohol = new IntegerOptionItem(++id, "Dad.StartingAlcohol", new(0, 100, 1), 15, tab)
+            StartingAlcohol = new IntegerOptionItem(++id, "Dad.StartingAlcohol", new(0, 100, 1), 20, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
 

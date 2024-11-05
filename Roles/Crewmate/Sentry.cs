@@ -188,16 +188,7 @@ namespace EHR.Crewmate
                     Utils.ColorString(Main.PlayerColors[ss.PlayerId], ss.GetRealName()),
                     Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], Main.AllPlayerNames[ssTarget.PlayerId]));
 
-                SentryPC.Notify($"{string.Join('\n', notifies.Keys)}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notifies.First().Value));
-
-                LateTask.New(() =>
-                {
-                    if (NameNotifyManager.Notifies.TryGetValue(SentryPC.PlayerId, out Dictionary<string, long> laterNotifies) && laterNotifies.Count > 0)
-                    {
-                        string newText = string.Join('\n', laterNotifies.Keys).Replace(text, string.Empty);
-                        SentryPC.Notify(newText, ShowInfoDuration.GetInt() - (Utils.TimeStamp - laterNotifies.First().Value));
-                    }
-                }, 3f, log: false);
+                SentryPC.Notify(text, 3f);
             }
         }
 
@@ -220,16 +211,7 @@ namespace EHR.Crewmate
                         Translator.GetString("Sentry.Notify.Vented"),
                         Utils.ColorString(Main.PlayerColors[pc.PlayerId], pc.GetRealName()));
 
-                    st.SentryPC.Notify($"{string.Join('\n', notifies.Keys)}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notifies.First().Value));
-
-                    LateTask.New(() =>
-                    {
-                        if (NameNotifyManager.Notifies.TryGetValue(st.SentryPC.PlayerId, out Dictionary<string, long> laterNotifies) && laterNotifies.Count > 0)
-                        {
-                            string newText = string.Join('\n', laterNotifies.Keys).Replace(text, string.Empty);
-                            st.SentryPC.Notify(newText, ShowInfoDuration.GetInt() - (Utils.TimeStamp - laterNotifies.First().Value));
-                        }
-                    }, 3f, log: false);
+                    st.SentryPC.Notify(text, 3f);
                 }
             }
         }

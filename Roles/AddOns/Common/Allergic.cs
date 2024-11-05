@@ -40,7 +40,7 @@ namespace EHR.AddOns.Common
                 {
                     if (pc.Is(CustomRoles.Allergic))
                     {
-                        PlayerControl target = aapc.RandomElement();
+                        PlayerControl target = aapc.Without(pc).RandomElement();
                         AllergicPlayers[pc.PlayerId] = target.PlayerId;
                     }
                 }
@@ -78,7 +78,7 @@ namespace EHR.AddOns.Common
             {
                 AllergicPlayers.Remove(pc.PlayerId);
                 AllergyMaxTS.Remove(pc.PlayerId);
-                pc.Suicide(PlayerState.DeathReason.Allergy);
+                pc.Suicide(PlayerState.DeathReason.Allergy, target);
             }
             else
                 Utils.NotifyRoles(SpecifyTarget: pc, SpecifySeer: pc);

@@ -7,7 +7,6 @@ using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
-using Il2CppSystem.Text;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -24,6 +23,8 @@ namespace EHR.Patches
         private static long LastNullError;
 
         public static Color? CooldownTimerFlashColor = null;
+
+        public static string AchievementUnlockedText = string.Empty;
 
         public static bool Prefix(HudManager __instance)
         {
@@ -276,6 +277,13 @@ namespace EHR.Patches
                             if (CooldownTimerFlashColor.HasValue) CD_HUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, CD_HUDText.RemoveHtmlTags())}</b>";
 
                             LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
+                        }
+
+                        if (AchievementUnlockedText != string.Empty)
+                        {
+                            LowerInfoText.text = LowerInfoText.text == string.Empty
+                                ? AchievementUnlockedText
+                                : $"{AchievementUnlockedText}\n\n{LowerInfoText.text}\n\n\n\n";
                         }
 
                         LowerInfoText.enabled = hasCD || LowerInfoText.text != string.Empty;

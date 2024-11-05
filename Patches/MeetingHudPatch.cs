@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.Crewmate;
@@ -548,6 +547,7 @@ namespace EHR.Patches
 
         public static void TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason deathReason, params byte[] playerIds)
         {
+            if (playerIds.Length == 0) return;
             Logger.Info($"{playerIds.Join(x => Main.AllPlayerNames[x])} - died with the reason: {deathReason}", "TryAddAfterMeetingDeathPlayers");
             byte[] addedIdList = playerIds.Where(playerId => Main.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason)).ToArray();
             CheckForDeathOnExile(deathReason, addedIdList);
@@ -558,11 +558,8 @@ namespace EHR.Patches
             try
             {
                 if (Witch.PlayerIdList.Count > 0) Witch.OnCheckForEndVoting(deathReason, playerIds);
-
                 if (Virus.PlayerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
-
                 if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
-
                 if (Wasp.On && deathReason == PlayerState.DeathReason.Vote) Wasp.OnExile(playerIds);
 
                 foreach (byte playerId in playerIds)
@@ -570,9 +567,12 @@ namespace EHR.Patches
                     try
                     {
                         byte id = playerId;
-                        if (CustomRoles.Lovers.IsEnable() && !Main.IsLoversDead && Main.LoversPlayers.Exists(lp => lp.PlayerId == id)) FixedUpdatePatch.LoversSuicide(playerId, true, true);
 
-                        if (Main.PlayerStates.TryGetValue(id, out PlayerState state) && state.SubRoles.Contains(CustomRoles.Avanger)) RevengeOnExile(playerId /*, deathReason*/);
+                        if (CustomRoles.Lovers.IsEnable() && !Main.IsLoversDead && Main.LoversPlayers.Exists(lp => lp.PlayerId == id))
+                            FixedUpdatePatch.LoversSuicide(playerId, true, true);
+
+                        if (Main.PlayerStates.TryGetValue(id, out PlayerState state) && state.SubRoles.Contains(CustomRoles.Avanger))
+                            RevengeOnExile(playerId /*, deathReason*/);
                     }
                     catch (Exception e)
                     {
