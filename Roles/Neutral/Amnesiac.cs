@@ -229,7 +229,7 @@ namespace EHR.Neutral
             if (role.GetRoleTypes() == RoleTypes.Engineer)
                 WasAmnesiac.Add(amnesiac.PlayerId);
 
-            if (amnesiac.PlayerId != PlayerControl.LocalPlayer.PlayerId) return;
+            if (!amnesiac.IsLocalPlayer()) return;
 
             switch (role)
             {

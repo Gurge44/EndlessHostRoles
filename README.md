@@ -1,5 +1,5 @@
 <h1 align="center">Endless Host Roles</h1>
-<h5 align="center">Previously known as TOHE+</h5>
+<h4 align="center">The largest Among Us mod.<br>Completely free.<br>Host-Only.<br>Fully customizable.<br>100% transparency.<br>No data collection or logins.</h4>
 
 <br>
 

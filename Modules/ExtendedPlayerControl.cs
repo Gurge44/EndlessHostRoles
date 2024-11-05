@@ -1517,7 +1517,7 @@ namespace EHR
 
             Main.DiedThisRound.Add(target.PlayerId);
 
-            if (killer.IsLocalPlayer() && !killer.HasKillButton())
+            if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && Options.CurrentGameMode == CustomGameMode.Standard)
                 Achievements.Type.InnocentKiller.Complete();
 
             switch (killer.PlayerId == target.PlayerId)
