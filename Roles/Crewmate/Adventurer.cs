@@ -163,7 +163,8 @@ namespace EHR.Crewmate
                         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, (int)resource, count);
                     }
 
-                    Achievements.Type.HowDoICraftThisAgain.Complete();
+                    if (pc.IsLocalPlayer())
+                        Achievements.Type.HowDoICraftThisAgain.Complete();
                     break;
                 }
             }

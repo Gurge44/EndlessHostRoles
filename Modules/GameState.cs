@@ -155,11 +155,11 @@ namespace EHR
             }
 
             CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
+            
+            if (Main.HasJustStarted || PlayerControl.LocalPlayer.PlayerId != PlayerId) return;
 
             RoleChangeTimes++;
-
-            if (PlayerId == PlayerControl.LocalPlayer.PlayerId && RoleChangeTimes >= 3)
-                Achievements.Type.Transformer.Complete();
+            if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();
         }
 
         public void SetSubRole(CustomRoles role, bool AllReplace = false)
@@ -172,7 +172,8 @@ namespace EHR
                 Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
             }
 
-            if (!SubRoles.Contains(role)) SubRoles.Add(role);
+            if (!SubRoles.Contains(role))
+                SubRoles.Add(role);
 
             SetAddonCountTypes(role);
 

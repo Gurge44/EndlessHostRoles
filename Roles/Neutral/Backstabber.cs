@@ -79,7 +79,8 @@ namespace EHR.Neutral
                 _ => WinningTeam.Imp
             };
             
-            if (targetTeam == EHR.Team.Crewmate) Achievements.Type.StabbingTheBack.Complete();
+            if (targetTeam == EHR.Team.Crewmate && killer.IsLocalPlayer())
+                Achievements.Type.StabbingTheBack.Complete();
 
             killer.RpcRemoveAbilityUse();
             killer.Notify(string.Format(Translator.GetString("Backstabber.MurderNotify"), Utils.ColorString(targetTeam.GetTeamColor(), Translator.GetString(targetTeam.ToString())), Translator.GetString($"BackstabberTeam.{Team}")), 10f);

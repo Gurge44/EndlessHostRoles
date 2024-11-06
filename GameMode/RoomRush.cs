@@ -379,7 +379,8 @@ namespace EHR
                             TimeLeft = timeLeft;
                             LastUpdate = now;
 
-                            if (aapc.Length == 2) Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
+                            if (aapc.Length == 2 && pc.IsLocalPlayer())
+                                Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
                         }
 
                         if (DonePlayers.Count == aapc.Length - 1)

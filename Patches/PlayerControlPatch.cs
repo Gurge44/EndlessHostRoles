@@ -151,7 +151,7 @@ namespace EHR
                 target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
-                if (PlayerControl.LocalPlayer.PlayerId == target.PlayerId)
+                if (target.IsLocalPlayer())
                 {
                     Detour.TotalRedirections++;
                     if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();

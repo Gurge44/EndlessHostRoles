@@ -54,7 +54,7 @@ namespace EHR.Crewmate
             Instances = [];
             AllRoleNames = [];
             KnownCharacters = [];
-            LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Shuffle()), 10f, log: false);
+            LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle()), 10f, log: false);
         }
 
         public override void Add(byte playerId)
@@ -118,7 +118,7 @@ namespace EHR.Crewmate
         {
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 3, id);
             CustomRoles newRole = Main.PlayerStates[id].MainRole;
-            AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Shuffle();
+            AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle();
             int count = KnownCharacters[id].Count;
             KnownCharacters[id] = AllRoleNames[id].Take(count).ToList();
             KnownCharacters[id].ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, id, x));

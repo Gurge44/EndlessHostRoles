@@ -184,7 +184,8 @@ namespace EHR.Impostor
                     break;
             }
 
-            if (IsGoose) Achievements.Type.Honk.Complete();
+            if (IsGoose && PenguinId == PlayerControl.LocalPlayer.PlayerId)
+                Achievements.Type.Honk.Complete();
         }
 
         private void RemoveVictim(bool allowDelay = true)

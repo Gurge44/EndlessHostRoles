@@ -101,11 +101,11 @@ namespace EHR
             VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>(), player);
         }
 
-        public static void SetChatVisible(this PlayerControl player) // Credit: NikoCat233 | Unused for now
+        public static void SetChatVisible(this PlayerControl player) // Credit: NikoCat233
         {
-            if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost) return;
+            if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost || GameStates.IsMeeting) return;
 
-            if (player.AmOwner)
+            if (player.IsHost())
             {
                 HudManager.Instance.Chat.SetVisible(true);
                 return;
@@ -148,15 +148,6 @@ namespace EHR
             vanillasend.Write((byte)RpcCalls.CloseMeeting);
             vanillasend.EndMessage();
             vanillasend.EndMessage();
-
-            //vanillasend.StartMessage(6);
-            //vanillasend.Write(AmongUsClient.Instance.GameId);
-            //vanillasend.Write(player.OwnerId);
-            //vanillasend.StartMessage((byte)GameDataTag.DespawnFlag);
-            //vanillasend.WritePacked(customNetId);
-            //vanillasend.EndMessage();
-            //vanillasend.EndMessage();
-            // Despawn here dont show chat button somehow
 
             AmongUsClient.Instance.SendOrDisconnect(vanillasend);
             vanillasend.Recycle();
@@ -1526,7 +1517,7 @@ namespace EHR
 
             Main.DiedThisRound.Add(target.PlayerId);
 
-            if (killer.IsLocalPlayer() && !killer.HasKillButton())
+            if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && Options.CurrentGameMode == CustomGameMode.Standard)
                 Achievements.Type.InnocentKiller.Complete();
 
             switch (killer.PlayerId == target.PlayerId)
