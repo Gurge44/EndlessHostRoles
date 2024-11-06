@@ -710,10 +710,10 @@ namespace EHR
             {
                 reason = GameOverReason.ImpostorByKill;
 
-                if (MoveAndStopManager.RoundTime <= 0)
+                if (MoveAndStop.RoundTime <= 0)
                 {
                     PlayerControl[] apc = Main.AllPlayerControls;
-                    SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
+                    SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStop.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
                     return true;
                 }
 
@@ -731,7 +731,7 @@ namespace EHR
                         SetWinner(aapc[0]);
                         return true;
                     case 0:
-                        MoveAndStopManager.RoundTime = 0;
+                        MoveAndStop.RoundTime = 0;
                         Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
                         return false;
                 }

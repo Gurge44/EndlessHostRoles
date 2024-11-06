@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -116,7 +115,7 @@ namespace EHR
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.MoveAndStop:
-                        Main.AllPlayerControls.Do(x => MoveAndStopManager.HasPlayed.Add(x.FriendCode));
+                        Main.AllPlayerControls.Do(x => MoveAndStop.HasPlayed.Add(x.FriendCode));
                         break;
                     case CustomGameMode.RoomRush:
                         Main.AllPlayerControls.Do(x => RoomRush.HasPlayedFriendCodes.Add(x.FriendCode));
@@ -436,7 +435,7 @@ namespace EHR
                 case CustomGameMode.MoveAndStop:
                 {
                     List<(int, byte)> list = [];
-                    list.AddRange(cloneRoles.Select(id => (MoveAndStopManager.GetRankOfScore(id), id)));
+                    list.AddRange(cloneRoles.Select(id => (MoveAndStop.GetRankFromScore(id), id)));
 
                     list.Sort();
                     foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2))) sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);

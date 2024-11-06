@@ -25,7 +25,6 @@ using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Newtonsoft.Json;
-using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -42,7 +41,7 @@ List of symbols that work in game
 6- random: ‰ § ¶ © ™ ¥ $ ¢ € ƒ  £ Æ
 
 other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ ╖ ╕ ╣ ║ ╗ ╝ ╜ ╛ ┐ └ ┴ ┬ ─ ┼ ╞ ╟ ╚ ╔ ╩ ╦ ╠ ═ ╬ ╧ ╨ ╤ ╥ ╙ ╘ ╒ ╓ ╫ ╪ ┘ ┌ Θ ∩ ¿
-*/
+    */
 
     public static class Utils
     {
@@ -1052,9 +1051,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
 
             if (pc.Is(CustomRoles.Damocles)) ProgressText.Append($" {Damocles.GetProgressText(playerId)}");
-
             if (pc.Is(CustomRoles.Stressed)) ProgressText.Append($" {Stressed.GetProgressText(playerId)}");
-
             if (pc.Is(CustomRoles.Circumvent)) ProgressText.Append($" {Circumvent.GetProgressText(playerId)}");
 
             if (pc.Is(CustomRoles.Taskcounter))
@@ -1121,7 +1118,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 Color TextColor = comms ? Color.gray : NormalColor;
                 string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-                return ColorString(TextColor, $" {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
+                return ColorString(TextColor, $" {(moveAndStop ? "<size=2>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? $" <#ffffff>({MoveAndStop.GetLivesRemaining(playerId)})</color></size>" : string.Empty)}");
             }
             catch
             {
@@ -1471,7 +1468,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     break;
                 case CustomGameMode.MoveAndStop:
                     List<(int, byte)> list3 = [];
-                    list3.AddRange(cloneRoles.Select(id => (MoveAndStopManager.GetRankOfScore(id), id)));
+                    list3.AddRange(cloneRoles.Select(id => (MoveAndStop.GetRankFromScore(id), id)));
 
                     list3.Sort();
 
@@ -2163,7 +2160,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
                                 break;
                             case CustomGameMode.MoveAndStop:
-                                SelfSuffix.Append(MoveAndStopManager.GetSuffixText(seer));
+                                SelfSuffix.Append(MoveAndStop.GetSuffixText(seer));
                                 break;
                             case CustomGameMode.HotPotato when seer.IsAlive():
                                 SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));

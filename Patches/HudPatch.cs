@@ -244,7 +244,7 @@ namespace EHR.Patches
                         {
                             CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
                             CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
-                            CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
+                            CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
                             CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
                             CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, true),
                             CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
@@ -738,7 +738,7 @@ namespace EHR.Patches
                         }
 
                         List<(int, byte)> list3 = [];
-                        foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
+                        foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStop.GetRankFromScore(id), id));
 
                         list3.Sort();
                         list3 = [.. list3.OrderBy(x => !Utils.GetPlayerById(x.Item2).IsAlive())];
@@ -746,7 +746,7 @@ namespace EHR.Patches
                         foreach ((int, byte) id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                         {
                             bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
-                            finalText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
+                            finalText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2].Replace("<size=2>", "<size=1.6>") : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
                         }
 
                         break;
