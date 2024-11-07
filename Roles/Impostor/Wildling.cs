@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;

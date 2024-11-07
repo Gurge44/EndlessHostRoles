@@ -2,11 +2,9 @@
 global using Vector2 = UnityEngine.Vector2;
 global using File = System.IO.File;
 global using StringBuilder = System.Text.StringBuilder;
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;

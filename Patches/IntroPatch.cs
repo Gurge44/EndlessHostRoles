@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
@@ -849,18 +848,13 @@ namespace EHR
                 {
                     Main.ProcessShapeshifts = false;
 
-                    string[] pets = Options.PetToAssign;
-                    string pet = pets[Options.PetToAssignToEveryone.GetValue()];
-
-                    var r = IRandom.Instance;
-
                     LateTask.New(() =>
                     {
                         foreach (PlayerControl pc in aapc)
                         {
                             if (pc.Is(CustomRoles.GM)) continue;
 
-                            string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length - 1)] : pet;
+                            string petId = PetsPatch.GetPetId();
                             pc.RpcSetPetDesync(petId, pc);
                             Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                         }
