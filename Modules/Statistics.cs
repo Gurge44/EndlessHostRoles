@@ -3,7 +3,6 @@ using System.Linq;
 using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Neutral;
-using MS.Internal.Xml.XPath;
 
 namespace EHR.Modules
 {
@@ -174,7 +173,7 @@ namespace EHR.Modules
             try
             {
                 if (Options.CurrentGameMode != CustomGameMode.Standard) return;
-                
+
                 PlayerControl lp = PlayerControl.LocalPlayer;
 
                 bool amDictator = dictator && lp.Is(CustomRoles.Dictator);
@@ -257,7 +256,7 @@ namespace EHR.Modules
             try
             {
                 if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId) return;
-                
+
                 if (killer.IsLocalPlayer())
                 {
                     if (Main.AliveImpostorCount == 0 && killer.IsCrewmate() && target.IsImpostor() && !Main.AllAlivePlayerControls.Any(x => x.IsNeutralKiller()))
@@ -315,7 +314,7 @@ namespace EHR.Modules
             try
             {
                 if (Options.CurrentGameMode != CustomGameMode.Standard) return;
-                
+
                 if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
                 {
                     Achievements.Type.ItsMorbinTime.Complete();

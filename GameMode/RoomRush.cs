@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
@@ -317,7 +316,7 @@ namespace EHR
             bool dead = !seer.IsAlive();
             bool done = dead || DonePlayers.Contains(seer.PlayerId);
             Color color = done ? Color.green : Color.yellow;
-            
+
             if (DisplayRoomName.GetBool()) sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
             if (DisplayArrowToRoom.GetBool()) sb.AppendLine(Utils.ColorString(color, LocateArrow.GetArrows(seer)));
 

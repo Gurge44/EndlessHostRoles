@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using EHR.Modules;
 using HarmonyLib;
 using Rewired;
@@ -159,9 +158,7 @@ namespace EHR
 
             if (!Options.NoGameEnd.GetBool()) return;
 
-#if RELEASE
-            return;
-#endif
+#if DEBUG
 
             if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
             {
@@ -242,6 +239,8 @@ namespace EHR
             }
 
             if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting) VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
+
+#endif
         }
 
         private static bool KeysDown(params KeyCode[] keys)
@@ -399,8 +398,6 @@ namespace EHR
             {
                 Fill?.SetActive(true);
                 Menu?.SetActive(true);
-
-                if (GameStates.IsMeeting) { }
             }
         }
 
@@ -410,8 +407,6 @@ namespace EHR
             {
                 Fill?.SetActive(false);
                 Menu?.SetActive(false);
-
-                if (GameStates.IsVoting) { }
             }
         }
     }

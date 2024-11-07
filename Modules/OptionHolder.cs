@@ -808,44 +808,47 @@ namespace EHR
             Achievements.LoadAllData();
 
 #if DEBUG
-        // Used for generating the table of roles for the README
-        try
-        {
-            var sb = new StringBuilder();
-            var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
+            // Used for generating the table of roles for the README
+            try
             {
-                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || HnSManager.AllHnSRoles.Contains(x)) return 4;
-                if (x.IsAdditionRole()) return 3;
-                if (x.IsImpostor() || x.IsMadmate()) return 0;
-                if (x.IsNeutral()) return 1;
-                if (x.IsCrewmate()) return 2;
-                return 4;
-            }).ToDictionary(x => x.Key, x => x.ToArray());
-            var max = grouped.Max(x => x.Value.Length);
-            for (int i = 0; i < max; i++)
-            {
-                var cr = grouped[2].ElementAtOrDefault(i);
-                var crew = Translator.GetString(cr.ToString());
-                var ir = grouped[0].ElementAtOrDefault(i);
-                var imp = Translator.GetString(ir.ToString());
-                if (ir == default) imp = string.Empty;
-                var nr = grouped[1].ElementAtOrDefault(i);
-                var neu = Translator.GetString(nr.ToString());
-                if (nr == default) neu = string.Empty;
-                var a = grouped[3].ElementAtOrDefault(i);
-                var add = Translator.GetString(a.ToString());
-                if (a == default) add = string.Empty;
-                sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {add,17} |");
-            }
+                var sb = new StringBuilder();
 
-            const string path = "./roles.txt";
-            if (!File.Exists(path)) File.Create(path).Close();
-            File.WriteAllText(path, sb.ToString());
-        }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+                var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
+                {
+                    if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || HnSManager.AllHnSRoles.Contains(x)) return 4;
+                    if (x.IsAdditionRole()) return 3;
+                    if (x.IsImpostor() || x.IsMadmate()) return 0;
+                    if (x.IsNeutral()) return 1;
+                    if (x.IsCrewmate()) return 2;
+                    return 4;
+                }).ToDictionary(x => x.Key, x => x.ToArray());
+
+                var max = grouped.Max(x => x.Value.Length);
+
+                for (int i = 0; i < max; i++)
+                {
+                    var cr = grouped[2].ElementAtOrDefault(i);
+                    var crew = Translator.GetString(cr.ToString());
+                    var ir = grouped[0].ElementAtOrDefault(i);
+                    var imp = Translator.GetString(ir.ToString());
+                    if (ir == default) imp = string.Empty;
+                    var nr = grouped[1].ElementAtOrDefault(i);
+                    var neu = Translator.GetString(nr.ToString());
+                    if (nr == default) neu = string.Empty;
+                    var a = grouped[3].ElementAtOrDefault(i);
+                    var add = Translator.GetString(a.ToString());
+                    if (a == default) add = string.Empty;
+                    sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {add,17} |");
+                }
+
+                const string path = "./roles.txt";
+                if (!File.Exists(path)) File.Create(path).Close();
+                File.WriteAllText(path, sb.ToString());
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 #endif
         }
 
@@ -1337,7 +1340,7 @@ namespace EHR
             // FFA
             FFAManager.SetupCustomOption();
             // Move And Stop
-            MoveAndStopManager.SetupCustomOption();
+            MoveAndStop.SetupCustomOption();
             // Hot Potato
             HotPotatoManager.SetupCustomOption();
             // Speedrun

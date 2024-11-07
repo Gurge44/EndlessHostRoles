@@ -1087,8 +1087,6 @@ namespace EHR.Patches
                     });
                 }
 
-                if (DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) { }
-
                 if (!GameStates.IsVoting && __instance.lastSecond < 1)
                 {
                     if (GameObject.Find("ShootButton") != null) ClearShootButton(__instance, true);

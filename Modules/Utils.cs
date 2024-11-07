@@ -25,7 +25,6 @@ using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Newtonsoft.Json;
-using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -42,7 +41,7 @@ List of symbols that work in game
 6- random: ‰ § ¶ © ™ ¥ $ ¢ € ƒ  £ Æ
 
 other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ ╖ ╕ ╣ ║ ╗ ╝ ╜ ╛ ┐ └ ┴ ┬ ─ ┼ ╞ ╟ ╚ ╔ ╩ ╦ ╠ ═ ╬ ╧ ╨ ╤ ╥ ╙ ╘ ╒ ╓ ╫ ╪ ┘ ┌ Θ ∩ ¿
-*/
+    */
 
     public static class Utils
     {
@@ -1052,9 +1051,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
 
             if (pc.Is(CustomRoles.Damocles)) ProgressText.Append($" {Damocles.GetProgressText(playerId)}");
-
             if (pc.Is(CustomRoles.Stressed)) ProgressText.Append($" {Stressed.GetProgressText(playerId)}");
-
             if (pc.Is(CustomRoles.Circumvent)) ProgressText.Append($" {Circumvent.GetProgressText(playerId)}");
 
             if (pc.Is(CustomRoles.Taskcounter))
@@ -1121,7 +1118,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 Color TextColor = comms ? Color.gray : NormalColor;
                 string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-                return ColorString(TextColor, $" {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
+                return ColorString(TextColor, $" {(moveAndStop ? "<size=2>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? $" <#ffffff>({MoveAndStop.GetLivesRemaining(playerId)} \u2665)</color></size>" : string.Empty)}");
             }
             catch
             {
@@ -1134,16 +1131,14 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             SendMessage(GetString("CurrentActiveSettingsHelp") + ":", PlayerId);
 
             if (Options.DisableDevices.GetBool()) SendMessage(GetString("DisableDevicesInfo"), PlayerId);
-
             if (Options.SyncButtonMode.GetBool()) SendMessage(GetString("SyncButtonModeInfo"), PlayerId);
-
             if (Options.SabotageTimeControl.GetBool()) SendMessage(GetString("SabotageTimeControlInfo"), PlayerId);
-
             if (Options.RandomMapsMode.GetBool()) SendMessage(GetString("RandomMapsModeInfo"), PlayerId);
 
             if (Main.GM.Value) SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId);
 
-            foreach (CustomRoles role in Enum.GetValues<CustomRoles>().Where(role => role.IsEnable() && !role.IsVanilla())) SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString(Enum.GetName(typeof(CustomRoles), role) + "InfoLong"), PlayerId);
+            foreach (CustomRoles role in Enum.GetValues<CustomRoles>().Where(role => role.IsEnable() && !role.IsVanilla()))
+                SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId);
 
             if (Options.NoGameEnd.GetBool()) SendMessage(GetString("NoGameEndInfo"), PlayerId);
         }
@@ -1174,27 +1169,21 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
 
             StringBuilder sb = new();
-            sb.Append(" ★ " + GetString("TabGroup.SystemSettings"));
+            sb.Append($" \u2605 {GetString("TabGroup.SystemSettings")}");
+            Options.GroupedOptions[TabGroup.SystemSettings].Do(CheckAndAppendOptionString);
+            sb.Append($"\n\n \u2605 {GetString("TabGroup.GameSettings")}");
+            Options.GroupedOptions[TabGroup.GameSettings].Do(CheckAndAppendOptionString);
 
-            foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Tab is TabGroup.SystemSettings && !x.IsHiddenOn(Options.CurrentGameMode)))
+            SendMessage(sb.ToString().RemoveHtmlTags(), PlayerId);
+            return;
+
+            void CheckAndAppendOptionString(OptionItem item)
             {
-                sb.Append($"\n{opt.GetName(true)}: {opt.GetString()}");
-                //ShowChildrenSettings(opt, ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
+                if (item.GetBool() && item.Parent == null && !item.IsHiddenOn(Options.CurrentGameMode))
+                {
+                    sb.Append($"\n{item.GetName(true)}: {item.GetString()}");
+                }
             }
-
-            sb.Append("\n\n ★ " + GetString("TabGroup.GameSettings"));
-
-            foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Tab is TabGroup.GameSettings && !x.IsHiddenOn(Options.CurrentGameMode)))
-            {
-                sb.Append($"\n{opt.GetName(true)}: {opt.GetString()}");
-                //ShowChildrenSettings(opt, ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
-            }
-
-            SendMessage(sb.ToString(), PlayerId);
         }
 
         public static void ShowAllActiveSettings(byte PlayerId = byte.MaxValue)
@@ -1236,8 +1225,6 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
                 ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
             }
 
             foreach (OptionItem opt in OptionItem.AllOptions)
@@ -1250,12 +1237,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                         sb.Append($"\n【{opt.GetName(true)}】\n");
 
                     ShowChildrenSettings(opt, ref sb);
-                    var text = sb.ToString();
-                    sb.Clear().Append(text.RemoveHtmlTags());
                 }
             }
 
-            SendMessage(sb.ToString(), PlayerId);
+            SendMessage(sb.ToString().RemoveHtmlTags(), PlayerId);
         }
 
         public static void CopyCurrentSettings()
@@ -1291,8 +1276,6 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
                 ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
             }
 
             sb.Append($"━━━━━━━━━━━━【{GetString("Settings")}】━━━━━━━━━━━━");
@@ -1305,12 +1288,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     sb.Append($"\n【{opt.GetName(true)}】\n");
 
                 ShowChildrenSettings(opt, ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
             }
 
             sb.Append("\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501");
-            ClipboardHelper.PutClipboardString(sb.ToString());
+            ClipboardHelper.PutClipboardString(sb.ToString().RemoveHtmlTags());
         }
 
         public static void ShowActiveRoles(byte PlayerId = byte.MaxValue)
@@ -1471,7 +1452,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     break;
                 case CustomGameMode.MoveAndStop:
                     List<(int, byte)> list3 = [];
-                    list3.AddRange(cloneRoles.Select(id => (MoveAndStopManager.GetRankOfScore(id), id)));
+                    list3.AddRange(cloneRoles.Select(id => (MoveAndStop.GetRankFromScore(id), id)));
 
                     list3.Sort();
 
@@ -2163,7 +2144,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
                                 break;
                             case CustomGameMode.MoveAndStop:
-                                SelfSuffix.Append(MoveAndStopManager.GetSuffixText(seer));
+                                SelfSuffix.Append(MoveAndStop.GetSuffixText(seer));
                                 break;
                             case CustomGameMode.HotPotato when seer.IsAlive():
                                 SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));

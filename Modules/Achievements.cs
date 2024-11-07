@@ -109,8 +109,8 @@ namespace EHR.Modules
 
         const string SaveFilePath = "./EHR_DATA/Achievements.json";
 
-        private static readonly HashSet<Type> WaitingAchievements = [];
-        private static HashSet<Type> CompletedAchievements = [];
+        public static readonly HashSet<Type> WaitingAchievements = [];
+        public static HashSet<Type> CompletedAchievements = [];
 
         public static void Complete(this Type type)
         {

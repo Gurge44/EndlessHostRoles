@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
@@ -1280,10 +1279,7 @@ namespace EHR
                     HudManager.Instance.KillButton.SetTarget(closest);
                 }
             }
-            catch
-            {
-                
-            }
+            catch { }
 
             if (localPlayer)
             {
@@ -1521,7 +1517,11 @@ namespace EHR
                         progressText = $"\n{progressText}";
                     }
 
-                    if (Main.VisibleTasksCount) RoleText.text += progressText;
+                    if (Main.VisibleTasksCount)
+                    {
+                        if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) RoleText.text = RoleText.text.Insert(0, progressText);
+                        else RoleText.text += progressText;
+                    }
 
                     PlayerControl seer = PlayerControl.LocalPlayer;
                     PlayerControl target = __instance;
@@ -1707,7 +1707,7 @@ namespace EHR
                             Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
                             break;
                         case CustomGameMode.MoveAndStop when self:
-                            Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
+                            Suffix.Append(MoveAndStop.GetSuffixText(seer));
                             break;
                         case CustomGameMode.Speedrun when self:
                             Suffix.Append(SpeedrunManager.GetSuffixText(seer));

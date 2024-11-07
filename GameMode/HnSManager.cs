@@ -5,7 +5,6 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.GameMode.HideAndSeekRoles;
 using HarmonyLib;
-using Il2CppSystem.Text;
 using UnityEngine;
 
 namespace EHR

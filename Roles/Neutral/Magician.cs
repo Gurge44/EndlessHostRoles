@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;

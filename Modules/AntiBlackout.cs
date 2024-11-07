@@ -204,7 +204,8 @@ namespace EHR
                     seer.RpcResetAbilityCooldown();
                     seer.ResetKillCooldown();
 
-                    if (Main.AllPlayerKillCooldown.TryGetValue(seer.PlayerId, out float kcd) && kcd >= 2f) seer.SetKillCooldown(kcd - 2f);
+                    if (Main.AllPlayerKillCooldown.TryGetValue(seer.PlayerId, out float kcd) && kcd >= 2f)
+                        seer.SetKillCooldown(kcd - 2f);
                 }
                 else if (seer.HasGhostRole()) seer.RpcResetAbilityCooldown();
             }

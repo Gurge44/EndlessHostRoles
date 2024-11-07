@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using EHR.Modules;
 using HarmonyLib;
 using TMPro;
@@ -48,16 +47,10 @@ namespace EHR
             };
 
             Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
-            Sb.Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
+            Sb.Append($"<color={color}>{ping} {GetString("PingText")}</color>");
             Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
             Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
             if (GameStates.InGame) Sb.Append("\r\n.");
-
-            // if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");
-            // if (!GameStates.IsModHost) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost"))).Append("</size>");
-            // if (DebugModeManager.IsDebugMode) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.green, GetString("DebugMode"))).Append("</size>");
-            //
-            // if (Main.IsAprilFools || Options.AprilFoolsMode.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.yellow, "CHEESE")).Append("</size>");
         }
     }
 
@@ -72,37 +65,68 @@ namespace EHR
 #pragma warning restore CS0162 // Unreachable code detected
 
             Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
-            var menuText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
 
             if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
-            TextMeshPro credentials = Object.Instantiate(__instance.text);
-            credentials.text = menuText;
-            credentials.alignment = TextAlignmentOptions.Right;
-            credentials.transform.position = new(1f, 2.67f, -2f);
-            credentials.fontSize = credentials.fontSizeMax = credentials.fontSizeMin = 2f;
-
             ErrorText.Create(__instance.text);
-            if (Main.HasArgumentException && ErrorText.Instance != null) ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
+
+            if (Main.HasArgumentException && ErrorText.Instance != null)
+                ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
 
             VersionChecker.Check();
         }
     }
 
+    // From TONX/Patches/AccountManagerPatch.cs, by KARPED1EM
+    [HarmonyPatch(typeof(AccountTab), nameof(AccountTab.Awake))]
+    public static class UpdateFriendCodeUIPatch
+    {
+        private static GameObject VersionShower;
+
+        public static void Prefix()
+        {
+            string credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2024";
+            credentialsText += "\t\t\t";
+            credentialsText += $"<color={Main.ModColor}>{Main.ModName}</color> - {Main.PluginVersion}";
+
+            var friendCode = GameObject.Find("FriendCode");
+
+            if (friendCode != null && VersionShower == null)
+            {
+                VersionShower = Object.Instantiate(friendCode, friendCode.transform.parent);
+                VersionShower.name = "EHR Version Shower";
+                VersionShower.transform.localPosition = friendCode.transform.localPosition + new Vector3(3.2f, 0f, 0f);
+                VersionShower.transform.localScale *= 1.7f;
+                var TMP = VersionShower.GetComponent<TextMeshPro>();
+                TMP.alignment = TextAlignmentOptions.Right;
+                TMP.fontSize = 30f;
+                TMP.SetText(credentialsText);
+            }
+
+            var newRequest = GameObject.Find("NewRequest");
+
+            if (newRequest != null)
+            {
+                newRequest.transform.localPosition -= new Vector3(0f, 0f, 10f);
+                newRequest.transform.localScale = new(0.8f, 1f, 1f);
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
     [HarmonyPriority(Priority.First)]
-    internal class TitleLogoPatch
+    internal static class TitleLogoPatch
     {
-        public static GameObject ModStamp;
+        private static GameObject ModStamp;
 
-        public static GameObject Ambience;
+        private static GameObject Ambience;
 
         // public static GameObject LoadingHint;
-        public static GameObject LeftPanel;
+        private static GameObject LeftPanel;
         public static GameObject RightPanel;
-        public static GameObject CloseRightButton;
-        public static GameObject Tint;
-        public static GameObject BottomButtonBounds;
+        private static GameObject CloseRightButton;
+        private static GameObject Tint;
+        private static GameObject BottomButtonBounds;
 
         public static Vector3 RightPanelOp;
 
@@ -145,7 +169,8 @@ namespace EHR
                 { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.526f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) }
             };
 
-            foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons) kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
+            foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons)
+                kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
 
             try
             {
@@ -218,7 +243,7 @@ namespace EHR
     }
 
     [HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]
-    internal class ModManagerLateUpdatePatch
+    internal static class ModManagerLateUpdatePatch
     {
         public static bool Prefix(ModManager __instance)
         {
@@ -233,7 +258,9 @@ namespace EHR
 
         public static void Postfix(ModManager __instance)
         {
-            __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists ? Camera.main : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
+            __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists
+                ? Camera.main
+                : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
 
             if (__instance.localCamera != null)
             {
@@ -247,7 +274,7 @@ namespace EHR
     }
 
     [HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Open))]
-    internal class OptionsMenuBehaviourOpenPatch
+    internal static class OptionsMenuBehaviourOpenPatch
     {
         public static bool Prefix(OptionsMenuBehaviour __instance)
         {
@@ -285,11 +312,6 @@ namespace EHR
             }
 
             return false;
-        }
-
-        public static void Postfix()
-        {
-            if (GameStates.InGame && GameStates.IsMeeting) { }
         }
     }
 }

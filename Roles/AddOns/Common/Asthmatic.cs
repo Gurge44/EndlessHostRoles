@@ -39,15 +39,8 @@ namespace EHR.AddOns.Common
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static int RandomRedTime()
-        {
-            return IRandom.Instance.Next(MinRedTime, MaxRedTime);
-        }
-
-        public static int RandomGreenTime()
-        {
-            return IRandom.Instance.Next(MinGreenTime, MaxGreenTime);
-        }
+        private static int RandomRedTime(char _) => IRandom.Instance.Next(MinRedTime, MaxRedTime);
+        private static int RandomGreenTime(char _) => IRandom.Instance.Next(MinGreenTime, MaxGreenTime);
 
         public static void Init()
         {
@@ -70,7 +63,7 @@ namespace EHR.AddOns.Common
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     if (pc.Is(CustomRoles.Asthmatic))
-                        Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false, moveAndStop: false);
+                        Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false, RandomRedTime, RandomGreenTime);
             }, 8f, "Add Asthmatic Timers");
         }
 

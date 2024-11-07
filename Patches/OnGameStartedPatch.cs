@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using Assets.CoreScripts;
@@ -340,7 +339,7 @@ namespace EHR
                 {
                     SoloKombatManager.Init();
                     FFAManager.Init();
-                    MoveAndStopManager.Init();
+                    MoveAndStop.Init();
                     HotPotatoManager.Init();
                     HnSManager.Init();
                     SpeedrunManager.Init();

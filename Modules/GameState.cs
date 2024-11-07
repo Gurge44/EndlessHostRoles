@@ -123,7 +123,7 @@ namespace EHR
 
             Role.Add(PlayerId);
 
-            Logger.Info($"ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
+            Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
             if (!AmongUsClient.Instance.AmHost) return;
 
@@ -150,12 +150,14 @@ namespace EHR
 
                 LateTask.New(() => Player.CheckAndSetUnshiftState(), 1f, log: false);
 
-                if (Options.CurrentGameMode == CustomGameMode.Standard && !GameStates.IsMeeting && !AntiBlackout.SkipTasks)
+                if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                     Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
+
+                if (Options.UsePets.GetBool()) Player.RpcSetPetDesync(PetsPatch.GetPetId(), Player);
             }
 
             CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
-            
+
             if (Main.HasJustStarted || PlayerControl.LocalPlayer.PlayerId != PlayerId) return;
 
             RoleChangeTimes++;
