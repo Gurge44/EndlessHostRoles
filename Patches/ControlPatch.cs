@@ -398,8 +398,6 @@ namespace EHR
             {
                 Fill?.SetActive(true);
                 Menu?.SetActive(true);
-
-                if (GameStates.IsMeeting) { }
             }
         }
 
@@ -409,8 +407,6 @@ namespace EHR
             {
                 Fill?.SetActive(false);
                 Menu?.SetActive(false);
-
-                if (GameStates.IsVoting) { }
             }
         }
     }
