@@ -176,6 +176,7 @@ namespace EHR
                 new(["readycheck", "rc", "проверитьготовность"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
                 new(["ready", "готов"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
                 new(["enableallroles", "всероли"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true),
+                new(["achievements", "достижения"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true),
 
                 // Commands with action handled elsewhere
                 new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -317,6 +318,19 @@ namespace EHR
         }
 
         // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+        private static void AchievementsCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+        {
+            Func<Achievements.Type, string> ToAchievementString = x => $"<b>{GetString($"Achievement.{x}")}</b> - {GetString($"Achievement.{x}.Description")}";
+
+            Achievements.Type[] allAchievements = Enum.GetValues<Achievements.Type>();
+            Achievements.Type[] union = Achievements.CompletedAchievements.Union(Achievements.WaitingAchievements).ToArray();
+            string completedAchievements = $"<size=70%>{union.Join(ToAchievementString, "\n")}</size>";
+            string incompleteAchievements = $"<size=70%>{allAchievements.Except(union).Join(ToAchievementString, "\n")}</size>";
+
+            Utils.SendMessage(incompleteAchievements, player.PlayerId, GetString("IncompleteAchievementsTitle"));
+            Utils.SendMessage(completedAchievements, player.PlayerId, GetString("CompletedAchievementsTitle") + $" <#00a5ff>(<#00ffa5>{union.Length}</color>/{allAchievements.Length})</color>");
+        }
 
         private static void EnableAllRolesCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
