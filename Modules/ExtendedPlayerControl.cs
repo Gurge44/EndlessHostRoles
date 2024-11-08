@@ -67,8 +67,8 @@ namespace EHR
 
         public static bool CanUseVent(this PlayerControl player, int ventId)
         {
+            if (Options.CurrentGameMode == CustomGameMode.RoomRush) return true;
             if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
-
             return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId))));
         }
 
@@ -353,6 +353,25 @@ namespace EHR
         public static void RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false)
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
+
+            if (AntiBlackout.SkipTasks || ExileController.Instance)
+            {
+                StackTrace stackTrace = new(1, true);
+                MethodBase callerMethod = stackTrace.GetFrame(0)?.GetMethod();
+                string callerMethodName = callerMethod?.Name;
+                string callerClassName = callerMethod?.DeclaringType?.FullName;
+                Logger.Warn($"{callerClassName}.{callerMethodName} tried to change the role basis of {player.GetNameWithRole()} during anti-blackout processing or ejection screen showing, delaying the code to run after these tasks are complete", "RpcChangeRoleBasis");
+                Main.Instance.StartCoroutine(DelayBasisChange());
+                return;
+
+                System.Collections.IEnumerator DelayBasisChange()
+                {
+                    while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
+                    yield return new WaitForSeconds(1f);
+                    Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
+                    player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
+                }
+            }
 
             byte playerId = player.PlayerId;
             int playerClientId = player.GetClientId();
