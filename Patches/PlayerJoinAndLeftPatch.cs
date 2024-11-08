@@ -31,7 +31,7 @@ namespace EHR
             ChatUpdatePatch.DoBlockChat = false;
             GameStates.InGame = false;
             ErrorText.Instance?.Clear();
-            
+
             LateTask.New(Achievements.ShowWaitingAchievements, 5f, log: false);
 
             if (AmongUsClient.Instance.AmHost)
@@ -64,6 +64,25 @@ namespace EHR
                 Main.SetAddOns = [];
                 ChatCommands.DraftResult = [];
                 ChatCommands.DraftRoles = [];
+
+                if (Options.PostLobbyCodeToEHRDiscordServer.GetBool())
+                {
+                    LateTask.New(() =>
+                    {
+                        if (GameStates.IsOnlineGame && GameStates.IsVanillaServer)
+                        {
+                            try
+                            {
+                                if (LobbyNotifierForDiscord.NotifyLobbyCreated())
+                                    Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, GetString("Message.LobbyCodeSent"));
+                            }
+                            catch (Exception e)
+                            {
+                                Utils.ThrowException(e);
+                            }
+                        }
+                    }, 5f, "NotifyLobbyCreated");
+                }
             }
         }
     }
