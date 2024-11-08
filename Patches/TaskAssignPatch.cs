@@ -15,8 +15,7 @@ namespace EHR
     {
         public static Dictionary<TaskTypes, OptionItem> DisableTasksSettings = [];
 
-        public static void Prefix( /*ShipStatus __instance,*/
-            [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
+        public static void Prefix([HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
         {
             if (!AmongUsClient.Instance.AmHost) return;
 
@@ -100,7 +99,7 @@ namespace EHR
                 };
             }
 
-            if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool()) return;
+            if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard) return;
 
             List<NormalPlayerTask> disabledTasks = [];
 
@@ -110,7 +109,7 @@ namespace EHR
 
             foreach (NormalPlayerTask task in disabledTasks)
             {
-                Logger.Msg("Deleted assigned task: " + task.TaskType, "AddTask");
+                Logger.Msg($"Deleted assigned task: {task.TaskType}", "AddTask");
                 unusedTasks.Remove(task);
             }
 
