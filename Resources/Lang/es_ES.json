@@ -2679,6 +2679,8 @@
   "JudgeCanTrialSidekick": "Puede juzgar <color=#00b4eb>Secuaz</color>",
   "JudgeCanTrialInfected": "Puede juzgar <color=#7B8968>Infectado</color>",
   "JudgeCanTrialContagious": "Puede juzgar <color=#2E8B57>Contagioso</color>",
+  "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Discord server",
+  "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>The lobby code has been sent to the EHR Discord server.</color></size>\\n<size=70%>You can disable this feature in the settings (System Settings tab).</size>",
   "ActiveRolesList": "Lista de Roles Activos",
   "ForExample": "Ejemplo de Uso",
   "HideGameCodes": "Ocultar Código del Juego",
