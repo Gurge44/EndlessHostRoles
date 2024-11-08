@@ -354,6 +354,25 @@ namespace EHR
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
 
+            if (AntiBlackout.SkipTasks || ExileController.Instance)
+            {
+                StackTrace stackTrace = new(1, true);
+                MethodBase callerMethod = stackTrace.GetFrame(0)?.GetMethod();
+                string callerMethodName = callerMethod?.Name;
+                string callerClassName = callerMethod?.DeclaringType?.FullName;
+                Logger.Warn($"{callerClassName}.{callerMethodName} tried to change the role basis of {player.GetNameWithRole()} during anti-blackout processing or ejection screen showing, delaying the code to run after these tasks are complete", "RpcChangeRoleBasis");
+                Main.Instance.StartCoroutine(DelayBasisChange());
+                return;
+
+                System.Collections.IEnumerator DelayBasisChange()
+                {
+                    while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
+                    yield return new WaitForSeconds(1f);
+                    Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
+                    player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
+                }
+            }
+
             byte playerId = player.PlayerId;
             int playerClientId = player.GetClientId();
             CustomRoles playerRole = Utils.GetRoleMap(playerId).CustomRole;

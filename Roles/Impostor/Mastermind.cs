@@ -126,9 +126,9 @@ namespace EHR.Impostor
                 {
                     ManipulatedPlayers.Remove(x.Key);
                     TempKCDs.Remove(x.Key);
+                    player.RpcChangeRoleBasis(player.GetCustomRole());
                     player.Suicide(realKiller: MastermindPC);
                     RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
-                    player.RpcChangeRoleBasis(player.GetCustomRole());
 
                     if (player.IsLocalPlayer())
                         Achievements.Type.OutOfTime.Complete();
