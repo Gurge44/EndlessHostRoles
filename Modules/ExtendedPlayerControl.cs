@@ -67,8 +67,8 @@ namespace EHR
 
         public static bool CanUseVent(this PlayerControl player, int ventId)
         {
+            if (Options.CurrentGameMode == CustomGameMode.RoomRush) return true;
             if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
-
             return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId))));
         }
 

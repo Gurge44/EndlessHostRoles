@@ -459,11 +459,6 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             return parentheses ? $"({mode})" : mode;
         }
 
-        public static string GetDeathReason(PlayerState.DeathReason status)
-        {
-            return GetString("DeathReason." + Enum.GetName(typeof(PlayerState.DeathReason), status));
-        }
-
         public static Color GetRoleColor(CustomRoles role)
         {
             string hexColor = Main.RoleColors.GetValueOrDefault(role, "#ffffff");

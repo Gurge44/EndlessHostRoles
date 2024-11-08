@@ -1838,340 +1838,263 @@ namespace EHR
 
             // Disable Short Tasks
             DisableShortTasks = new BooleanOptionItem(23000, "DisableShortTasks", false, TabGroup.TaskSettings)
-                .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
 
             DisableCleanVent = new BooleanOptionItem(23001, "DisableCleanVent", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableCalibrateDistributor = new BooleanOptionItem(23002, "DisableCalibrateDistributor", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableChartCourse = new BooleanOptionItem(23003, "DisableChartCourse", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 79;
 
             DisableStabilizeSteering = new BooleanOptionItem(23004, "DisableStabilizeSteering", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableCleanO2Filter = new BooleanOptionItem(23005, "DisableCleanO2Filter", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableUnlockManifolds = new BooleanOptionItem(23006, "DisableUnlockManifolds", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePrimeShields = new BooleanOptionItem(23007, "DisablePrimeShields", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableMeasureWeather = new BooleanOptionItem(23008, "DisableMeasureWeather", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 80;
 
             DisableBuyBeverage = new BooleanOptionItem(23009, "DisableBuyBeverage", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableAssembleArtifact = new BooleanOptionItem(23010, "DisableAssembleArtifact", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableSortSamples = new BooleanOptionItem(23011, "DisableSortSamples", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableProcessData = new BooleanOptionItem(23012, "DisableProcessData", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableRunDiagnostics = new BooleanOptionItem(23013, "DisableRunDiagnostics", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 81;
 
             DisableRepairDrill = new BooleanOptionItem(23014, "DisableRepairDrill", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableAlignTelescope = new BooleanOptionItem(23015, "DisableAlignTelescope", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableRecordTemperature = new BooleanOptionItem(23016, "DisableRecordTemperature", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableFillCanisters = new BooleanOptionItem(23017, "DisableFillCanisters", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 82;
 
             DisableMonitorTree = new BooleanOptionItem(23018, "DisableMonitorTree", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableStoreArtifacts = new BooleanOptionItem(23019, "DisableStoreArtifacts", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePutAwayPistols = new BooleanOptionItem(23020, "DisablePutAwayPistols", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePutAwayRifles = new BooleanOptionItem(23021, "DisablePutAwayRifles", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableMakeBurger = new BooleanOptionItem(23022, "DisableMakeBurger", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 83;
 
             DisableCleanToilet = new BooleanOptionItem(23023, "DisableCleanToilet", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableDecontaminate = new BooleanOptionItem(23024, "DisableDecontaminate", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableSortRecords = new BooleanOptionItem(23025, "DisableSortRecords", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableFixShower = new BooleanOptionItem(23026, "DisableFixShower", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePickUpTowels = new BooleanOptionItem(23027, "DisablePickUpTowels", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePolishRuby = new BooleanOptionItem(23028, "DisablePolishRuby", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableDressMannequin = new BooleanOptionItem(23029, "DisableDressMannequin", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableRoastMarshmallow = new BooleanOptionItem(23030, "DisableRoastMarshmallow", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableCollectSamples = new BooleanOptionItem(23031, "DisableCollectSamples", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableReplaceParts = new BooleanOptionItem(23032, "DisableReplaceParts", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 84;
 
 
             // Disable Common Tasks
             DisableCommonTasks = new BooleanOptionItem(23100, "DisableCommonTasks", false, TabGroup.TaskSettings)
-                .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
 
             DisableSwipeCard = new BooleanOptionItem(23101, "DisableSwipeCardTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableFixWiring = new BooleanOptionItem(23102, "DisableFixWiring", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableEnterIdCode = new BooleanOptionItem(23103, "DisableEnterIdCode", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableInsertKeys = new BooleanOptionItem(23104, "DisableInsertKeys", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableScanBoardingPass = new BooleanOptionItem(23105, "DisableScanBoardingPass", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableCollectVegetables = new BooleanOptionItem(23106, "DisableCollectVegetables", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableMineOres = new BooleanOptionItem(23107, "DisableMineOres", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableExtractFuel = new BooleanOptionItem(23108, "DisableExtractFuel", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableCatchFish = new BooleanOptionItem(23109, "DisableCatchFish", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisablePolishGem = new BooleanOptionItem(23110, "DisablePolishGem", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableHelpCritter = new BooleanOptionItem(23111, "DisableHelpCritter", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableHoistSupplies = new BooleanOptionItem(23112, "DisableHoistSupplies", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             LoadingPercentage = 85;
 
             // Disable Long Tasks
             DisableLongTasks = new BooleanOptionItem(23150, "DisableLongTasks", false, TabGroup.TaskSettings)
-                .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
 
             DisableSubmitScan = new BooleanOptionItem(23151, "DisableSubmitScanTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableUnlockSafe = new BooleanOptionItem(23152, "DisableUnlockSafeTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableStartReactor = new BooleanOptionItem(23153, "DisableStartReactorTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableResetBreaker = new BooleanOptionItem(23154, "DisableResetBreakerTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             LoadingPercentage = 86;
 
             DisableAlignEngineOutput = new BooleanOptionItem(23155, "DisableAlignEngineOutput", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableInspectSample = new BooleanOptionItem(23156, "DisableInspectSample", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableEmptyChute = new BooleanOptionItem(23157, "DisableEmptyChute", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableClearAsteroids = new BooleanOptionItem(23158, "DisableClearAsteroids", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableWaterPlants = new BooleanOptionItem(23159, "DisableWaterPlants", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableOpenWaterways = new BooleanOptionItem(23160, "DisableOpenWaterways", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             LoadingPercentage = 87;
 
             DisableReplaceWaterJug = new BooleanOptionItem(23161, "DisableReplaceWaterJug", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableRebootWifi = new BooleanOptionItem(23162, "DisableRebootWifi", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableDevelopPhotos = new BooleanOptionItem(23163, "DisableDevelopPhotos", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableRewindTapes = new BooleanOptionItem(23164, "DisableRewindTapes", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableStartFans = new BooleanOptionItem(23165, "DisableStartFans", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableFixAntenna = new BooleanOptionItem(23166, "DisableFixAntenna", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableBuildSandcastle = new BooleanOptionItem(23167, "DisableBuildSandcastle", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             LoadingPercentage = 88;
 
             DisableCrankGenerator = new BooleanOptionItem(23168, "DisableCrankGenerator", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableMonitorMushroom = new BooleanOptionItem(23169, "DisableMonitorMushroom", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisablePlayVideoGame = new BooleanOptionItem(23170, "DisablePlayVideoGame", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableFindSignal = new BooleanOptionItem(23171, "DisableFindSignal", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableThrowFisbee = new BooleanOptionItem(23172, "DisableThrowFisbee", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableLiftWeights = new BooleanOptionItem(23173, "DisableLiftWeights", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableCollectShells = new BooleanOptionItem(23174, "DisableCollectShells", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             LoadingPercentage = 89;
 
 
             // Disable Divert Power, Weather Nodes etc. situational Tasks
             DisableOtherTasks = new BooleanOptionItem(23200, "DisableOtherTasks", false, TabGroup.TaskSettings)
-                .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
 
             DisableUploadData = new BooleanOptionItem(23205, "DisableUploadDataTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             DisableEmptyGarbage = new BooleanOptionItem(23206, "DisableEmptyGarbage", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             DisableFuelEngines = new BooleanOptionItem(23207, "DisableFuelEngines", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             DisableDivertPower = new BooleanOptionItem(23208, "DisableDivertPower", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             DisableActivateWeatherNodes = new BooleanOptionItem(23209, "DisableActivateWeatherNodes", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             LoadingPercentage = 90;
             MainLoadingText = "Building Guesser Mode settings";

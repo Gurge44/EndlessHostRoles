@@ -394,9 +394,7 @@ namespace EHR
                 if (!GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.FFA || !AmongUsClient.Instance.AmHost) return;
 
                 long now = Utils.TimeStamp;
-
                 if (LastFixedUpdate == now) return;
-
                 LastFixedUpdate = now;
 
                 RoundTime--;

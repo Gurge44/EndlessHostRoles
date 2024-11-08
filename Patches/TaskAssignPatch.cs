@@ -105,7 +105,7 @@ namespace EHR
             List<NormalPlayerTask> disabledTasks = [];
 
             foreach (NormalPlayerTask task in unusedTasks)
-                if (DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool())
+                if ((DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool()) || IsTaskAlwaysDisabled(task.TaskType))
                     disabledTasks.Add(task);
 
             foreach (NormalPlayerTask task in disabledTasks)
@@ -113,6 +113,15 @@ namespace EHR
                 Logger.Msg("Deleted assigned task: " + task.TaskType, "AddTask");
                 unusedTasks.Remove(task);
             }
+
+            return;
+
+            bool IsTaskAlwaysDisabled(TaskTypes type) => type switch
+            {
+                TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun,
+                TaskTypes.VentCleaning => Options.CurrentGameMode == CustomGameMode.RoomRush,
+                _ => false
+            };
         }
     }
 

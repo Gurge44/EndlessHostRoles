@@ -111,7 +111,8 @@ namespace EHR
         {
             if (!ValidTag || !PlayerTeams.TryGetValue(target.PlayerId, out var team)) return false;
 
-            color = team.GetTeamColor().ToTextColor();
+            Color teamColor = team.GetTeamColor();
+            color = $"{teamColor.r:x2}{teamColor.g:x2}{teamColor.b:x2}";
             return true;
         }
 

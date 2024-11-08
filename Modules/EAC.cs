@@ -33,7 +33,6 @@ namespace EHR
         {
             if (!AmongUsClient.Instance.AmHost) return false;
 
-            // if (RoleBasisChanger.IsChangeInProgress) return false;
             if (pc == null || reader == null) return false;
 
             try
@@ -103,7 +102,7 @@ namespace EHR
                         }
 
                         break;
-                    case RpcCalls.SetColor when !pc.IsHost():
+                    case RpcCalls.SetColor when !pc.IsHost() && (!pc.IsModClient() || !Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
                         Report(pc, "Directly SetColor");
                         HandleCheat(pc, "Directly SetColor");
                         Logger.Fatal($"Directly SetColor【{pc.GetClientId()}:{pc.GetRealName()}】has been rejected", "EAC");
