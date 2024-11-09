@@ -117,6 +117,7 @@ namespace EHR
                 new("pocketdoor#9080", isUp: true), // Imnot
                 new("motorstack#2287", "#E34234", "Foxfire", true), // Esrazraft
                 new("motorlace#4741", "#DFB722", "\u2756 Assistant Tester \u2756", true), // PEPPERcula
+                new("kohlcuboid#5702", "#DFB722", "\u2756 Assistant Tester \u2756", true), // PEPPERcula
                 new("keyrunning#8720", "#00ffff", "Miku", true), // EverMortal_1455
                 new("yellowjoy#3138", "#FFE87C", "Sunshine", true), // Becksy
                 new("stuckclaw#5717", "#FF474C", "The biggest SUS", true), // BIG SUS

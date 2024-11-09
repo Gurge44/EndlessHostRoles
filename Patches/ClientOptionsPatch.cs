@@ -178,4 +178,13 @@ namespace EHR
 #endif
         }
     }
+    
+    [HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Close))]
+    public static class OptionsMenuBehaviourClosePatch
+    {
+        public static void Postfix()
+        {
+            ClientOptionItem.CustomBackground?.gameObject.SetActive(false);
+        }
+    }
 }
