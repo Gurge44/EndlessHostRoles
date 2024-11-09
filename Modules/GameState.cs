@@ -327,6 +327,9 @@ namespace EHR
             {
                 RPC.SendDeathReason(PlayerId, deathReason);
                 Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));
+                
+                if (Utils.DoRPC && Options.CurrentGameMode != CustomGameMode.Standard)
+                    Main.AllPlayerControls.DoIf(x => x.IsNonHostModClient(), Player.RpcExileDesync);
             }
         }
 

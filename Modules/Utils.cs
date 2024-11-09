@@ -2092,13 +2092,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                             }
 
                             if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
-
                             if (seer.Is(CustomRoles.Sonar)) SelfSuffix.Append(Sonar.GetSuffix(seer, isForMeeting));
-
                             if (seer.Is(CustomRoles.Deadlined)) SelfSuffix.Append(Deadlined.GetSuffix(seer));
-
                             if (seer.Is(CustomRoles.Introvert)) SelfSuffix.Append(Introvert.GetSelfSuffix(seer));
-
                             if (seer.Is(CustomRoles.Allergic)) SelfSuffix.Append(Allergic.GetSelfSuffix(seer));
 
                             SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
@@ -2166,7 +2162,8 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                     if (!GameStates.IsLobby)
                     {
-                        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool()) SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
+                        if ((Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool()) || Options.CurrentGameMode == CustomGameMode.HotPotato)
+                            SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
 
                         if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush)
                         {

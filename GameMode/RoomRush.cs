@@ -369,6 +369,7 @@ namespace EHR
                     if (pc.IsAlive() && !pc.inMovingPlat && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
                     {
                         Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
+                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
                         int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
 
