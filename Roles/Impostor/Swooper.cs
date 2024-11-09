@@ -157,9 +157,9 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask || !IsEnable || player == null) return;
+            if (!GameStates.IsInTask || !IsEnable || Main.HasJustStarted || ExileController.Instance || player == null) return;
 
-            if (Count++ < 10) return;
+            if (Count++ < 30) return;
 
             Count = 0;
 
@@ -170,7 +170,7 @@ namespace EHR.Impostor
                 if (!player.IsModClient())
                 {
                     long cooldown = lastTime + (long)Cooldown - now;
-                    if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, true);
+                    if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
 
                     CD = (int)cooldown;
                 }
@@ -259,20 +259,18 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
-
-            if (Main.PlayerStates[seer.PlayerId].Role is not Swooper sw) return string.Empty;
+            if (!hud || seer == null || seer.PlayerId != SwooperId || !GameStates.IsInTask || ExileController.Instance || !seer.IsAlive()) return string.Empty;
 
             var str = new StringBuilder();
 
-            if (sw.IsInvis)
+            if (IsInvis)
             {
-                long remainTime = sw.InvisTime + (long)sw.Duration - Utils.TimeStamp;
+                long remainTime = InvisTime + (long)Duration - Utils.TimeStamp;
                 str.Append(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
             }
-            else if (sw.lastTime != -10)
+            else if (lastTime != -10)
             {
-                long cooldown = sw.lastTime + (long)sw.Cooldown - Utils.TimeStamp;
+                long cooldown = lastTime + (long)Cooldown - Utils.TimeStamp;
                 str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
             }
             else

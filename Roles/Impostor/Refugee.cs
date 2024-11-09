@@ -33,10 +33,5 @@ namespace EHR.Impostor
         {
             return pc.IsAlive();
         }
-
-        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
-        {
-            return !killer.Is(CustomRoleTypes.Impostor);
-        }
     }
 }
