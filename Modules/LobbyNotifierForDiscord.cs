@@ -33,7 +33,7 @@ namespace EHR.Modules
             var roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
             var serverName = Utils.GetRegionName();
             var language = Translator.GetUserTrueLang().ToString();
-            var hostName = PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp ? Main.AllPlayerNames.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, "?Unknown") : "?Untrusted";
+            var hostName = PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp ? Main.AllPlayerNames.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, "Unknown") : "Unknown (Not Trusted)";
             Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", hostName));
         }
 
