@@ -24,10 +24,10 @@ namespace EHR.Modules
             }
         }
 
-        public static bool NotifyLobbyCreated()
+        public static void NotifyLobbyCreated()
         {
             long currentTimeStamp = Utils.TimeStamp;
-            if (currentTimeStamp - LastLobbyCreatedNotificationSentTimeStamp < 600) return false;
+            if (currentTimeStamp - LastLobbyCreatedNotificationSentTimeStamp < 600) return;
             LastLobbyCreatedNotificationSentTimeStamp = currentTimeStamp;
 
             var roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
@@ -35,7 +35,6 @@ namespace EHR.Modules
             var language = Translator.GetUserTrueLang().ToString();
             var hostName = PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp ? Main.AllPlayerNames.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, "?Unknown") : "?Untrusted";
             Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", hostName));
-            return true;
         }
 
         private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, string hostName)
