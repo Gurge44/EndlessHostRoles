@@ -33,7 +33,7 @@ namespace EHR.Modules
             var roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
             var serverName = Utils.GetRegionName();
             var language = Translator.GetUserTrueLang().ToString();
-            var hostName = PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp ? Main.AllPlayerNames.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, "Unknown") : "Unknown (Not Trusted)";
+            var hostName = PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp ? Main.AllPlayerNames.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, "?Unknown") : "?Untrusted";
             Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", hostName));
             return true;
         }
@@ -52,7 +52,9 @@ namespace EHR.Modules
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
 
-            Logger.Msg(request.result == UnityWebRequest.Result.Success ? "Lobby created notification sent successfully." : $"Failed to send lobby created notification: {request.error}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
+            bool success = request.result == UnityWebRequest.Result.Success;
+            Logger.Msg(success ? "Lobby created notification sent successfully." : $"Failed to send lobby created notification: {request.error}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
+            if (success) Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, Translator.GetString("Message.LobbyCodeSent"));
         }
     }
 }

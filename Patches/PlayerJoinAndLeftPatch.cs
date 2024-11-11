@@ -73,8 +73,7 @@ namespace EHR
                         {
                             try
                             {
-                                if (LobbyNotifierForDiscord.NotifyLobbyCreated())
-                                    Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, GetString("Message.LobbyCodeSent"));
+                                LobbyNotifierForDiscord.NotifyLobbyCreated();
                             }
                             catch (Exception e)
                             {
