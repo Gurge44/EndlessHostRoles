@@ -3984,6 +3984,8 @@
   "Curser": "Curser",
   "CurserInfo": "Make Others' Life Worse",
   "CurserInfoLong": "(Impostors):\\nAs the Curser, when you use your kill button on someone, they will get one of the following:<size=80%>\\n- -1 ability use\\n- +1 harmful add-on\\n- permanent low vision\\n- permanent low speed</size>\\nYou win if crewmates lose.",
+  "Curser.LowerVision": "Permanent Lower Vision",
+  "Curser.LowerSpeed": "Permanent Lower Speed",
   "Postman": "Postman",
   "PostmanInfo": "Deliver Mail to Everyone!",
   "PostmanInfoLong": "(Neutral):\\nAs the Postman, your job is to deliver mail to everyone. You'll always have a target, and you need to click your kill button on that target to deliver the mail to them. When you've delivered mail to everyone, your win condition is satisfied. You'll win with the winning team, no matter what happens.",
