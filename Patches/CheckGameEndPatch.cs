@@ -221,6 +221,10 @@ namespace EHR
                             case CustomRoles.SchrodingersCat when !pc.IsConverted():
                                 WinnerIds.Remove(pc.PlayerId);
                                 break;
+                            case CustomRoles.Curser when WinnerTeam != CustomWinner.Crewmate:
+                                WinnerIds.Add(pc.PlayerId);
+                                AdditionalWinnerTeams.Add(AdditionalWinners.Curser);
+                                break;
                         }
                     }
 

@@ -280,7 +280,7 @@ namespace EHR
 
                 bool CheckMurder()
                 {
-                    return Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target);
+                    return Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile);
                 }
             }
 

@@ -14,12 +14,12 @@ using static EHR.Translator;
 namespace EHR
 {
     [HarmonyPatch]
-    public class ModUpdater
+    public static class ModUpdater
     {
         private const string URLGithub = "https://api.github.com/repos/Gurge44/EndlessHostRoles";
+        public const bool ForceUpdate = false;
         public static bool HasUpdate;
         private static bool HasOutdate;
-        public static bool ForceUpdate = false;
         public static bool IsBroken;
         private static bool IsChecked;
         private static Version LatestVersion;

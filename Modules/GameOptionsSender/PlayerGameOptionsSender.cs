@@ -269,6 +269,7 @@ namespace EHR.Modules
                 President.OnAnyoneApplyGameOptions(opt);
                 Negotiator.OnAnyoneApplyGameOptions(opt, player.PlayerId);
                 Wizard.OnAnyoneApplyGameOptions(opt, player.PlayerId);
+                Curser.OnAnyoneApplyGameOptions(opt, player.PlayerId);
 
                 if (Sprayer.LowerVisionList.Contains(player.PlayerId))
                 {

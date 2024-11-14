@@ -268,6 +268,7 @@
         Chemist,
         Cherokious,
         Collector,
+        Curser,
         Deathknight,
         Gamer, // Demon
         Doppelganger,
@@ -427,6 +428,7 @@
         EvilSpirit,
         Finder,
         Flashman,
+        Fragile,
         Fool,
         Giant,
         Glow,

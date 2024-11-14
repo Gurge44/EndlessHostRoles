@@ -2824,6 +2824,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 switch (target.GetCustomRole())
                 {
+                    case CustomRoles.Curser:
+                        ((Curser)Main.PlayerStates[target.PlayerId].Role).OnDeath();
+                        break;
                     case CustomRoles.Camouflager when Camouflager.IsActive:
                         Camouflager.IsDead();
                         break;
@@ -2885,13 +2888,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 if (target == null) return;
 
                 if (!disconnect) Randomizer.OnAnyoneDeath(target);
-
                 if (Executioner.Target.ContainsValue(target.PlayerId)) Executioner.ChangeRoleByTarget(target);
-
                 if (Lawyer.Target.ContainsValue(target.PlayerId)) Lawyer.ChangeRoleByTarget(target);
-
                 if (!disconnect && target.Is(CustomRoles.Stained)) Stained.OnDeath(target, target.GetRealKiller());
-
                 if (!disconnect && target.Is(CustomRoles.Spurt)) Spurt.DeathTask(target);
 
                 Postman.CheckAndResetTargets(target, true);

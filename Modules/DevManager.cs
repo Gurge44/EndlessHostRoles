@@ -124,6 +124,7 @@ namespace EHR
                 new("funnytiger#8420", "#ffd4ec", "Registered Bozo", true), // Differntperson
                 new("raritykey#6021", "#08f638", "DESPAIR", true), // Junko
                 new("stiltedgap#2406", "#ffff00", "Youtuber", true), // Marcopolo1982
+                new("spaglad#3866", isUp: true), // spider_191
 
                 // Sponsor
                 new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),
