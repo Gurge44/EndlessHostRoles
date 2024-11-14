@@ -123,6 +123,7 @@ namespace EHR
                 new("stuckclaw#5717", "#FF474C", "The biggest SUS", true), // BIG SUS
                 new("funnytiger#8420", "#ffd4ec", "Registered Bozo", true), // Differntperson
                 new("raritykey#6021", "#08f638", "DESPAIR", true), // Junko
+                new("stiltedgap#2406", "#ffff00", "Youtuber", true), // Marcopolo1982
 
                 // Sponsor
                 new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),
