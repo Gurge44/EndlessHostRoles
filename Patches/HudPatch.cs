@@ -226,7 +226,7 @@ namespace EHR.Patches
                                 break;
                         }
 
-                        if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !role.OnlySpawnsWithPets() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling && !Options.UseUnshiftTrigger.GetBool() && !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool()))
+                        if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling && !Options.UseUnshiftTrigger.GetBool() && !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool()))
                             __instance.AbilityButton?.Hide();
 
                         if (LowerInfoText == null)

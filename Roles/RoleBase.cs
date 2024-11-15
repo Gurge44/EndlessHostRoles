@@ -168,7 +168,7 @@ namespace EHR
         }
 
         // Option setup simplifier
-        protected OptionSetupHandler StartSetup(int id)
+        protected OptionSetupHandler StartSetup(int id, bool single = false)
         {
             var role = Enum.Parse<CustomRoles>(GetType().Name, true);
             var tab = TabGroup.OtherRoles;
@@ -179,8 +179,9 @@ namespace EHR
                 tab = TabGroup.NeutralRoles;
             else if (role.IsCrewmate()) tab = TabGroup.CrewmateRoles;
 
-            Options.SetupRoleOptions(id++, tab, role);
-            return new(++id, tab, role);
+            if (single) Options.SetupSingleRoleOptions(id++, tab, role, hideMaxSetting: true);
+            else Options.SetupRoleOptions(id++, tab, role);
+            return new(id, tab, role);
         }
     }
 

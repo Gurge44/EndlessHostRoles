@@ -177,6 +177,7 @@ namespace EHR
                 new(["ready", "готов"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
                 new(["enableallroles", "всероли"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true),
                 new(["achievements", "достижения"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true),
+                new(["dn", "deathnote", "заметкамертвого"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, [GetString("CommandArgs.DeathNote.Name")]),
 
                 // Commands with action handled elsewhere
                 new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -319,6 +320,32 @@ namespace EHR
 
         // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+        private static void DeathNoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+        {
+            if (!player.Is(CustomRoles.NoteKiller) || args.Length < 2) return;
+
+            var guess = args[1].ToLower();
+            guess = char.ToUpper(guess[0]) + guess[1..];
+            var deadPlayer = NoteKiller.RealNames.GetKeyByValue(guess);
+            
+            if (deadPlayer == default && (!NoteKiller.RealNames.TryGetValue(default, out var name) || name != guess))
+            {
+                Utils.SendMessage(GetString("DeathNoteCommand.WrongName"), player.PlayerId);
+                return;
+            }
+
+            var pc = deadPlayer.GetPlayer();
+
+            if (pc == null || !pc.IsAlive())
+            {
+                Utils.SendMessage(GetString("DeathNoteCommand.PlayerNotFoundOrDead"), player.PlayerId);
+                return;
+            }
+            
+            pc.RpcExileV2();
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathNoteCommand.Success"), deadPlayer.ColoredPlayerName()));
+        }
+        
         private static void AchievementsCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             Func<Achievements.Type, string> ToAchievementString = x => $"<b>{GetString($"Achievement.{x}")}</b> - {GetString($"Achievement.{x}.Description")}";
