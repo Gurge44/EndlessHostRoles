@@ -31,6 +31,7 @@ namespace EHR
             CustomRoles.Dad,
             CustomRoles.Whisperer,
             CustomRoles.Wizard,
+            CustomRoles.NoteKiller,
 
             // Add-ons
             CustomRoles.Energetic,
@@ -318,6 +319,7 @@ namespace EHR
                 CustomRoles.Doomsayer => CustomRoles.Crewmate,
                 CustomRoles.Godfather => CustomRoles.Impostor,
                 CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
+                CustomRoles.NoteKiller => CustomRoles.Crewmate,
 
                 // Vanilla roles (just in case)
                 CustomRoles.ImpostorEHR => CustomRoles.Impostor,
@@ -536,6 +538,7 @@ namespace EHR
                 CustomRoles.Rogue or
                 CustomRoles.Parasite or
                 CustomRoles.NSerialKiller or
+                CustomRoles.NoteKiller or
                 CustomRoles.Vortex or
                 CustomRoles.Beehive or
                 CustomRoles.RouleteGrandeur or
@@ -936,7 +939,8 @@ namespace EHR
                 CustomRoles.Bargainer or
                 CustomRoles.Chemist or
                 CustomRoles.Simon or
-                CustomRoles.Patroller;
+                CustomRoles.Patroller or
+                CustomRoles.NoteKiller;
         }
 
         public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
@@ -1683,6 +1687,7 @@ namespace EHR
         HexMaster,
         Wraith,
         NSerialKiller,
+        NoteKiller,
         Vortex,
         Beehive,
         RouleteGrandeur,

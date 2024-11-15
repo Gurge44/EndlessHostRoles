@@ -769,6 +769,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 case CustomRoles.Eclipse:
                 case CustomRoles.Pyromaniac:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.NoteKiller:
                 case CustomRoles.Vortex:
                 case CustomRoles.Beehive:
                 case CustomRoles.RouleteGrandeur:

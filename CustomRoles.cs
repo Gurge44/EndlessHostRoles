@@ -301,6 +301,7 @@
         Mycologist,
         Necromancer,
         Nonplus,
+        NoteKiller,
         Opportunist,
         Patroller,
         Pelican,
