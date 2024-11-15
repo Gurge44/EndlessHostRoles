@@ -111,8 +111,13 @@ namespace EHR
         {
             if (!ValidTag || !PlayerTeams.TryGetValue(target.PlayerId, out var team)) return false;
 
-            Color teamColor = team.GetTeamColor();
-            color = $"{teamColor.r:x2}{teamColor.g:x2}{teamColor.b:x2}";
+            color = team switch
+            {
+                CTFTeam.Blue => "#0000FF",
+                CTFTeam.Yellow => "#FFFF00",
+                _ => color
+            };
+
             return true;
         }
 
