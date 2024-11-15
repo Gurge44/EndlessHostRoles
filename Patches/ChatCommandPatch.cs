@@ -323,6 +323,8 @@ namespace EHR
         private static void DeathNoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             if (!player.Is(CustomRoles.NoteKiller) || args.Length < 2) return;
+            
+            if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
             var guess = args[1].ToLower();
             guess = char.ToUpper(guess[0]) + guess[1..];
