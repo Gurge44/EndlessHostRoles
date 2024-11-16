@@ -15,6 +15,8 @@ namespace EHR.Modules
 
         public static void OnGameEnd()
         {
+            if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || Main.AllPlayerControls.Length <= 2) return;
+
             var lp = PlayerControl.LocalPlayer;
             var role = lp.GetCustomRole();
             var addons = lp.GetCustomSubRoles();
@@ -154,10 +156,10 @@ namespace EHR.Modules
 
             void Reset()
             {
-                if (OnlyVotingForKillersAsCrew && lp.IsCrewmate()) Achievements.Type.MasterDetective.CompleteAfterGameEnd();
+                if (OnlyVotingForKillersAsCrew && lp.IsCrewmate() && !MeetingStates.FirstMeeting) Achievements.Type.MasterDetective.CompleteAfterGameEnd();
                 OnlyVotingForKillersAsCrew = true;
 
-                if (!VotedBySomeone && (lp.IsImpostor() || lp.IsNeutralKiller())) Achievements.Type.Unsuspected.CompleteAfterGameEnd();
+                if (!VotedBySomeone && (lp.IsImpostor() || lp.IsNeutralKiller()) && !MeetingStates.FirstMeeting) Achievements.Type.Unsuspected.CompleteAfterGameEnd();
                 VotedBySomeone = false;
 
                 if (VentTimes >= 50) Achievements.Type.Vectory.CompleteAfterGameEnd();
@@ -172,7 +174,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+                if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= 2) return;
 
                 PlayerControl lp = PlayerControl.LocalPlayer;
 
@@ -230,7 +232,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role)) return;
+                if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role) || Main.AllPlayerControls.Length <= 2) return;
 
                 const float delay = 15f;
 
@@ -255,7 +257,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId) return;
+                if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= 2) return;
 
                 if (killer.IsLocalPlayer())
                 {
@@ -313,7 +315,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+                if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= 2) return;
 
                 if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
                 {

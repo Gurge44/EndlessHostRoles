@@ -911,6 +911,7 @@ namespace EHR
         SoulHunter = CustomRoles.SoulHunter,
         SchrodingersCat = CustomRoles.SchrodingersCat,
         Innocent = CustomRoles.Innocent,
+        NoteKiller = CustomRoles.NoteKiller
     }
 
     public enum SuffixModes

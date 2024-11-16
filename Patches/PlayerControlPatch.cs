@@ -1638,20 +1638,17 @@ namespace EHR
                         case CustomRoles.Scout:
                             Mark.Append(Scout.GetTargetMark(seer, target));
                             break;
-                        case CustomRoles.AntiAdminer when inTask:
-                            (Main.PlayerStates[seer.PlayerId].Role as AntiAdminer).OnFixedUpdate(seer);
-
-                            if (target.AmOwner)
-                            {
-                                if (AntiAdminer.IsAdminWatch) Suffix.Append(GetString("AntiAdminerAD"));
-
-                                if (AntiAdminer.IsVitalWatch) Suffix.Append(GetString("AntiAdminerVI"));
-
-                                if (AntiAdminer.IsDoorLogWatch) Suffix.Append(GetString("AntiAdminerDL"));
-
-                                if (AntiAdminer.IsCameraWatch) Suffix.Append(GetString("AntiAdminerCA"));
-                            }
-
+                        case CustomRoles.Monitor when inTask && self:
+                            if (AntiAdminer.IsAdminWatch) Suffix.Append($"{GetString("AntiAdminerAD")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                            if (AntiAdminer.IsVitalWatch) Suffix.Append($"{GetString("AntiAdminerVI")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                            if (AntiAdminer.IsDoorLogWatch) Suffix.Append($"{GetString("AntiAdminerDL")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                            if (AntiAdminer.IsCameraWatch) Suffix.Append($"{GetString("AntiAdminerCA")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                            break;
+                        case CustomRoles.AntiAdminer when inTask && self:
+                            if (AntiAdminer.IsAdminWatch) Suffix.Append(GetString("AntiAdminerAD"));
+                            if (AntiAdminer.IsVitalWatch) Suffix.Append(GetString("AntiAdminerVI"));
+                            if (AntiAdminer.IsDoorLogWatch) Suffix.Append(GetString("AntiAdminerDL"));
+                            if (AntiAdminer.IsCameraWatch) Suffix.Append(GetString("AntiAdminerCA"));
                             break;
                         case CustomRoles.Executioner:
                             Mark.Append(Executioner.TargetMark(seer, target));

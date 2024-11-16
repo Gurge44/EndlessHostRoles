@@ -13,8 +13,16 @@ namespace EHR.Neutral
         private static OptionItem NumLettersRevealed;
         private static OptionItem AbilityCooldown;
         private static OptionItem ClueShowDuration;
+        private static OptionItem WinCondition;
+        private static OptionItem NumPlayersToKill;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
+
+        private static readonly string[] WinConditions =
+        [
+            "NKWC.LastStanding",
+            "NKWC.XKills"
+        ];
 
         private static readonly string[] Names =
         [
@@ -25,8 +33,12 @@ namespace EHR.Neutral
         public static Dictionary<byte, string> RealNames = [];
         private static Dictionary<byte, string> ShownClues = [];
         private static long ShowClueEndTimeStamp;
+        public static int Kills;
 
         private static byte NoteKillerID;
+
+        public static bool CountsAsNeutralKiller => WinCondition?.GetValue() == 0;
+        public static int NumKillsNeededToWin => NumPlayersToKill.GetInt();
 
         public override bool IsEnable => On;
 
@@ -36,6 +48,8 @@ namespace EHR.Neutral
                 .AutoSetupOption(ref NumLettersRevealed, 2, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
                 .AutoSetupOption(ref AbilityCooldown, 15f, new FloatValueRule(0f, 90f, 0.5f), OptionFormat.Seconds)
                 .AutoSetupOption(ref ClueShowDuration, 5, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
+                .AutoSetupOption(ref WinCondition, 0, WinConditions)
+                .AutoSetupOption(ref NumPlayersToKill, 2, new IntegerValueRule(0, 14, 1))
                 .AutoSetupOption(ref CanVent, true)
                 .AutoSetupOption(ref HasImpostorVision, true);
         }
@@ -47,6 +61,7 @@ namespace EHR.Neutral
             RealNames = [];
             ShownClues = [];
             ShowClueEndTimeStamp = 0;
+            Kills = 0;
 
             LateTask.New(() =>
             {

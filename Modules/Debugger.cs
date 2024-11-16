@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using EHR.Modules;
 using UnityEngine;
@@ -162,7 +163,8 @@ namespace EHR
         public static void CurrentMethod([CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "")
         {
             StackFrame stack = new(1);
-            Msg($"\"{stack.GetMethod()?.ReflectedType?.Name}.{stack.GetMethod()?.Name}\" Called in \"{Path.GetFileName(fileName)}({lineNumber})\"", "Method");
+            MethodBase method = stack.GetMethod();
+            Msg($"\"{method?.ReflectedType?.Name}.{method?.Name}\" Called in \"{Path.GetFileName(fileName)}({lineNumber})\"", "Method");
         }
 
         public static LogHandler Handler(string tag)
@@ -173,7 +175,7 @@ namespace EHR
 
     public class CustomLogger
     {
-        private const string LOGFilePath = "./EHR_DATA/log.html";
+        private const string LOGFilePath = "./BepInEx/log.html";
 
         private const string HtmlHeader =
             """

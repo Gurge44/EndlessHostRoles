@@ -225,6 +225,10 @@ namespace EHR
                                 WinnerIds.Add(pc.PlayerId);
                                 AdditionalWinnerTeams.Add(AdditionalWinners.Curser);
                                 break;
+                            case CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller && NoteKiller.Kills >= NoteKiller.NumKillsNeededToWin:
+                                WinnerIds.Add(pc.PlayerId);
+                                AdditionalWinnerTeams.Add(AdditionalWinners.NoteKiller);
+                                break;
                         }
                     }
 

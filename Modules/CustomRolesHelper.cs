@@ -1254,6 +1254,7 @@ namespace EHR
                 CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
                 CustomRoles.Sheriff => Sheriff.KeepsGameGoing.GetBool() ? CountTypes.Sheriff : CountTypes.Crew,
                 CustomRoles.Shifter => CountTypes.OutOfGame,
+                CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller => CountTypes.Crew,
 
                 _ => Enum.TryParse(role.ToString(), true, out CountTypes type)
                     ? type
