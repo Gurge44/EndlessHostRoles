@@ -3296,6 +3296,8 @@
   "DoorLog": "Door Log",
   "Binoculars": "Binoculars",
   "DoorLogAndBinoculars": "Door Log & Binoculars",
+  "MurderLimitPerGame": "Maximum Total Murders Per Game",
+  "MurderMaxGame": "You've reached your maximum murders limit for this game, so it was blocked.",
   "Dynamo": "Dynamo",
   "DynamoInfo": "You get faster by walking",
   "DynamoInfoLong": "(Add-ons):\\nAs the Dynamo, you get faster by walking. The longer you walk, the faster you get. Stopping will reset your speed.",
