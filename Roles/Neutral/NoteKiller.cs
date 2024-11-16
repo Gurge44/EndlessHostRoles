@@ -22,17 +22,17 @@ namespace EHR.Neutral
             "Ivy", "Jack", "Kate", "Liam", "Mia", "Nina", "Oliver", "Penny", "Quinn", "Ryan"
         ];
 
-        public override bool IsEnable => On;
-
         public static Dictionary<byte, string> RealNames = [];
         private static Dictionary<byte, string> ShownClues = [];
         private static long ShowClueEndTimeStamp;
 
         private static byte NoteKillerID;
 
+        public override bool IsEnable => On;
+
         public override void SetupCustomOption()
         {
-            StartSetup(12800, single: true)
+            StartSetup(645950, single: true)
                 .AutoSetupOption(ref NumLettersRevealed, 2, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
                 .AutoSetupOption(ref AbilityCooldown, 15f, new FloatValueRule(0f, 90f, 0.5f), OptionFormat.Seconds)
                 .AutoSetupOption(ref ClueShowDuration, 5, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
@@ -43,11 +43,11 @@ namespace EHR.Neutral
         public override void Init()
         {
             On = false;
-            
+
             RealNames = [];
             ShownClues = [];
             ShowClueEndTimeStamp = 0;
-            
+
             LateTask.New(() =>
             {
                 var names = Names.ToList();
@@ -87,16 +87,17 @@ namespace EHR.Neutral
         public override void OnPet(PlayerControl pc)
         {
             Dictionary<byte, List<int>> revealedPositions = [];
-            
+
             for (int i = 0; i < NumLettersRevealed.GetInt(); i++)
             {
-                foreach (KeyValuePair<byte,string> kvp in RealNames)
+                foreach (KeyValuePair<byte, string> kvp in RealNames)
                 {
                     var range = Enumerable.Range(0, Names.Max(x => x.Length) - 1);
                     var hasExceptions = revealedPositions.TryGetValue(kvp.Key, out var exceptions);
                     if (hasExceptions) range = range.Except(exceptions);
-                    
+
                     var position = range.RandomElement();
+
                     if (!hasExceptions) revealedPositions[kvp.Key] = [position];
                     else exceptions.Add(position);
                 }
@@ -172,6 +173,7 @@ namespace EHR.Neutral
         {
             if (seer.PlayerId == target.PlayerId && CustomRoles.NoteKiller.RoleExist() && seer.PlayerId != NoteKillerID && !meeting && RealNames.TryGetValue(seer.PlayerId, out var ownName))
                 return string.Format(Translator.GetString("NoteKiller.OthersSelfSuffix"), CustomRoles.NoteKiller.ToColoredString(), ownName);
+
             if (seer.PlayerId != NoteKillerID || meeting || ShowClueEndTimeStamp == 0 || ShownClues.Count == 0) return string.Empty;
             if (ShownClues.TryGetValue(target.PlayerId, out var clue)) return clue;
             return seer.PlayerId == target.PlayerId ? $"\u25a9 ({ShowClueEndTimeStamp - Utils.TimeStamp}s)" : string.Empty;

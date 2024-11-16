@@ -7,7 +7,6 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using BepInEx;
 using BepInEx.Configuration;
-using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
@@ -47,8 +46,10 @@ namespace EHR
         public const bool AllowPublicRoom = true;
         public const string ForkId = "EHR";
         public const string SupportedAUVersion = "2024.8.13";
+
         public static readonly Version Version = Version.Parse(PluginVersion);
-        public static ManualLogSource Logger;
+
+        //public static ManualLogSource Logger;
         public static bool HasArgumentException;
         public static string CredentialsText;
 
@@ -250,33 +251,33 @@ namespace EHR
             LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
             EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
 
-            Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
+            //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
             coroutines = AddComponent<Coroutines>();
-            EHR.Logger.Enable();
-            EHR.Logger.Disable("NotifyRoles");
-            EHR.Logger.Disable("SwitchSystem");
-            EHR.Logger.Disable("ModNews");
-            EHR.Logger.Disable("CustomRpcSender");
+            Logger.Enable();
+            Logger.Disable("NotifyRoles");
+            Logger.Disable("SwitchSystem");
+            Logger.Disable("ModNews");
+            Logger.Disable("CustomRpcSender");
 
             if (!DebugModeManager.AmDebugger)
             {
-                EHR.Logger.Disable("2018k");
-                EHR.Logger.Disable("Github");
+                Logger.Disable("2018k");
+                Logger.Disable("Github");
                 //EHR.Logger.Disable("ReceiveRPC");
-                EHR.Logger.Disable("SendRPC");
-                EHR.Logger.Disable("SetRole");
-                EHR.Logger.Disable("Info.Role");
-                EHR.Logger.Disable("TaskState.Init");
+                Logger.Disable("SendRPC");
+                Logger.Disable("SetRole");
+                Logger.Disable("Info.Role");
+                Logger.Disable("TaskState.Init");
                 //EHR.Logger.Disable("Vote");
-                EHR.Logger.Disable("RpcSetNamePrivate");
+                Logger.Disable("RpcSetNamePrivate");
                 //EHR.Logger.Disable("SendChat");
-                EHR.Logger.Disable("SetName");
+                Logger.Disable("SetName");
                 //EHR.Logger.Disable("AssignRoles");
                 //EHR.Logger.Disable("RepairSystem");
                 //EHR.Logger.Disable("MurderPlayer");
                 //EHR.Logger.Disable("CheckMurder");
-                EHR.Logger.Disable("PlayerControl.RpcSetRole");
-                EHR.Logger.Disable("SyncCustomSettings");
+                Logger.Disable("PlayerControl.RpcSetRole");
+                Logger.Disable("SyncCustomSettings");
             }
             //EHR.Logger.isDetail = true;
 
@@ -675,13 +676,13 @@ namespace EHR
             }
             catch (ArgumentException ex)
             {
-                EHR.Logger.Error("错误：字典出现重复项", "LoadDictionary");
-                EHR.Logger.Exception(ex, "LoadDictionary");
+                Logger.Error("错误：字典出现重复项", "LoadDictionary");
+                Logger.Exception(ex, "LoadDictionary");
                 HasArgumentException = true;
             }
             catch (Exception ex)
             {
-                EHR.Logger.Fatal(ex.ToString(), "Main");
+                Logger.Fatal(ex.ToString(), "Main");
             }
 
             CustomWinnerHolder.Reset();
@@ -694,9 +695,9 @@ namespace EHR
 
             IRandom.SetInstance(new NetRandomWrapper());
 
-            EHR.Logger.Info($"{Application.version}", "AmongUs Version");
+            Logger.Info($"{Application.version}", "AmongUs Version");
 
-            LogHandler handler = EHR.Logger.Handler("GitVersion");
+            LogHandler handler = Logger.Handler("GitVersion");
             handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");
             handler.Info($"{nameof(ThisAssembly.Git.Commit)}: {ThisAssembly.Git.Commit}");
             handler.Info($"{nameof(ThisAssembly.Git.Commits)}: {ThisAssembly.Git.Commits}");
@@ -706,6 +707,8 @@ namespace EHR
 
             ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
 
+            CustomLogger.ClearLog();
+
             Harmony.PatchAll();
 
             if (!DebugModeManager.AmDebugger)
@@ -713,7 +716,7 @@ namespace EHR
             else
                 ConsoleManager.CreateConsole();
 
-            EHR.Logger.Msg("========= EHR loaded! =========", "Plugin Load");
+            Logger.Msg("========= EHR loaded! =========", "Plugin Load");
         }
 
         public static void LoadRoleClasses()
