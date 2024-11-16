@@ -3296,6 +3296,8 @@
   "DoorLog": "Registro de Puertas",
   "Binoculars": "Binoculares",
   "DoorLogAndBinoculars": "Registro de Puertas y Binoculares",
+  "MurderLimitPerGame": "Maximum Total Murders Per Game",
+  "MurderMaxGame": "You've reached your maximum murders limit for this game, so it was blocked.",
   "Dynamo": "Dinamo",
   "DynamoInfo": "Te haces más rápido caminando",
   "DynamoInfoLong": "(Complementos):\\nComo la Dinamo, te haces más rápida caminando. Mientras más camines, más rápida te haces. Detenerte reiniciará tu velocidad.",
