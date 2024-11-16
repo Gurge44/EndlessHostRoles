@@ -3232,7 +3232,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
             catch
             {
-                Logger.Error($"读入Texture失败：{path}", "LoadImage");
+                Logger.Error($"Error loading texture: {path}", "LoadImage");
             }
 
             return null;

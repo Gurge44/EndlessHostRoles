@@ -22,7 +22,7 @@ namespace EHR.Impostor
 
         private static bool CanSeeKillFlash;
         private static TargetMode CurrentTargetMode;
-        public static RoleTypes RoleTypes;
+        private static RoleTypes RoleTypes;
         public static bool CanSeeLastRoomInMeeting;
 
         private static readonly string[] TargetModeText =
@@ -159,7 +159,7 @@ namespace EHR.Impostor
             }
         }
 
-        public void SetTarget(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
+        private void SetTarget(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
         {
             if (trackerId == byte.MaxValue)
                 CanSetTarget = true;
@@ -192,7 +192,7 @@ namespace EHR.Impostor
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            return Main.PlayerStates[playerId].Role is not EvilTracker et ? null : et.CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
+            return CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
         }
 
         public static string GetTargetMark(PlayerControl seer, PlayerControl target)
@@ -205,23 +205,19 @@ namespace EHR.Impostor
             if (!GameStates.IsInTask) return string.Empty;
 
             byte trackerId = target.PlayerId;
-            if (seer.PlayerId != trackerId) return string.Empty;
+            if (seer.PlayerId != trackerId || seer.PlayerId != EvilTrackerId) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not EvilTracker et) return string.Empty;
-
-            byte[] imps = et.ImpostorsId;
+            byte[] imps = ImpostorsId;
             var sb = new StringBuilder(80);
 
             if (imps.Length > 0)
             {
                 sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>");
                 foreach (byte impostorId in imps) sb.Append(TargetArrow.GetArrows(target, impostorId));
-
                 sb.Append("</color>");
             }
 
-            byte targetId = et.Target;
-            if (targetId != byte.MaxValue) sb.Append(Utils.ColorString(Color.white, TargetArrow.GetArrows(target, targetId)));
+            if (Target != byte.MaxValue) sb.Append(Utils.ColorString(Color.white, TargetArrow.GetArrows(target, Target)));
 
             return sb.ToString();
         }

@@ -116,8 +116,7 @@ namespace EHR.Impostor
             {
                 if (UsedRole == CustomRoles.Chameleon)
                 {
-                    AURoleOptions.EngineerCooldown = Cooldown;
-                    AURoleOptions.EngineerInVentMaxTime = Duration;
+                    AURoleOptions.EngineerCooldown = Cooldown + 1f;
                 }
             }
             catch (Exception e)
@@ -167,7 +166,7 @@ namespace EHR.Impostor
 
             if (lastTime != -10)
             {
-                if (!player.IsModClient())
+                if (!player.IsModClient() && UsedRole != CustomRoles.Chameleon)
                 {
                     long cooldown = lastTime + (long)Cooldown - now;
                     if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
@@ -178,14 +177,14 @@ namespace EHR.Impostor
                 if (lastTime + (long)Cooldown < now)
                 {
                     lastTime = -10;
-                    if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"), 300f);
+                    if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"), 10f);
 
                     SendRPC();
                     CD = 0;
                 }
             }
 
-            if (lastFixedTime != now && InvisTime != -10)
+            if (lastFixedTime != now && IsInvis)
             {
                 lastFixedTime = now;
                 var refresh = false;
@@ -201,7 +200,7 @@ namespace EHR.Impostor
                         InvisTime = -10;
                         SendRPC();
                         refresh = true;
-                        LateTask.New(() => { player.TP(pos); }, 0.5f, log: false);
+                        LateTask.New(() => player.TP(pos), 0.5f, log: false);
                         break;
                     case <= 10 when !player.IsModClient():
                         player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
@@ -254,7 +253,7 @@ namespace EHR.Impostor
             SendRPC();
 
             pc?.MyPhysics?.RpcBootFromVent(vent.Id);
-            pc.Notify(GetString("SwooperInvisStateOut"));
+            pc?.Notify(GetString("SwooperInvisStateOut"));
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

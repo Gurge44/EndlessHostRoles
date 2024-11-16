@@ -148,7 +148,6 @@ namespace EHR.Crewmate
             if (!fromDevice)
             {
                 if (pc.GetAbilityUseLimit() < 1) return;
-
                 pc.RpcRemoveAbilityUse();
             }
 
@@ -158,10 +157,9 @@ namespace EHR.Crewmate
 
             string noDataString = Translator.GetString("Sentry.Notify.Info.NoData");
             if (players.Length == 0) players = noDataString;
-
             if (bodies.Length == 0) bodies = noDataString;
 
-            pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), roomName, players, bodies), ShowInfoDuration.GetInt());
+            pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), roomName, players, bodies), ShowInfoDuration.GetInt(), overrideAll: fromDevice);
             return;
 
             static string GetColoredNames(IEnumerable<byte> ids)
@@ -220,15 +218,12 @@ namespace EHR.Crewmate
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null) return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{s.MonitoredRoom.RoomId}"));
+            if (seer.PlayerId == SentryPC.PlayerId && MonitoredRoom != null)
+                return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{MonitoredRoom.RoomId}"));
 
             if (!PlayersKnowAboutCamera.GetBool()) return string.Empty;
 
-            foreach (PlayerState state in Main.PlayerStates.Values)
-                if (state.Role is Sentry st && st.IsInMonitoredRoom(seer))
-                    return string.Format(Translator.GetString("Sentry.Suffix.MonitoredRoom"), CustomRoles.Sentry.ToColoredString());
-
-            return string.Empty;
+            return IsInMonitoredRoom(seer) ? string.Format(Translator.GetString("Sentry.Suffix.MonitoredRoom"), CustomRoles.Sentry.ToColoredString()) : string.Empty;
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
@@ -266,11 +261,10 @@ namespace EHR.Crewmate
 
             if (!AvailableDevices.Any(x => Vector2.Distance(pos, x) <= range))
             {
-                if (UsingDevice.Contains(pc.PlayerId))
+                if (UsingDevice.Remove(pc.PlayerId))
                 {
                     NameNotifyManager.Notifies.Remove(pc.PlayerId);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    UsingDevice.Remove(pc.PlayerId);
                 }
 
                 return;

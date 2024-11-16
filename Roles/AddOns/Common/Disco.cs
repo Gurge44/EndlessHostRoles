@@ -18,7 +18,7 @@ namespace EHR.AddOns.Common
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        private static void ChangeColor(PlayerControl pc)
+        public static void ChangeColor(PlayerControl pc)
         {
             int colorId = IRandom.Instance.Next(0, 18);
 

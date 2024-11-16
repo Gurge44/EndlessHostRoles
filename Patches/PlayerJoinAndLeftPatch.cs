@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
@@ -109,9 +110,9 @@ namespace EHR
 
             foreach (ClientData clientData in __instance.allClients)
                 if (clientData.Id == client.Id)
-                    return true;
+                    return false;
 
-            return false;
+            return true;
         }
 
         public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
@@ -124,7 +125,7 @@ namespace EHR
                 {
                     if (AmongUsClient.Instance.AmHost)
                     {
-                        if (!client.IsDisconnected() && client.Character.Data.IsIncomplete)
+                        if ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || ((client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length <= 15))
                         {
                             Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
                             AmongUsClient.Instance.KickPlayer(client.Id, false);
@@ -137,10 +138,15 @@ namespace EHR
                             MessageWriter retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
                             AmongUsClient.Instance.FinishRpcImmediately(retry);
                         }
+
+                        if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 18)
+                        {
+                            Disco.ChangeColor(client.Character);
+                        }
                     }
                 }
                 catch { }
-            }, 3f, "green bean kick late task", false);
+            }, 2.5f, "green bean kick late task", false);
 
             if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
             {

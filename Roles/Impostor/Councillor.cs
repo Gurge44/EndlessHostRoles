@@ -16,6 +16,7 @@ namespace EHR.Impostor
     {
         private const int Id = 900;
         private static List<byte> PlayerIdList = [];
+        private static OptionItem AbilityUseLimit;
         private static OptionItem MurderLimitPerGame;
         private static OptionItem MurderLimitPerMeeting;
         private static OptionItem TryHideMsg;
@@ -24,6 +25,7 @@ namespace EHR.Impostor
         private static OptionItem KillCooldown;
         public static OptionItem CouncillorAbilityUseGainWithEachKill;
         private static Dictionary<byte, int> MeetingKillLimit = [];
+        private static Dictionary<byte, int> TotalKillLimit = [];
 
         private byte CouncillorId;
         public override bool IsEnable => PlayerIdList.Count > 0;
@@ -36,7 +38,11 @@ namespace EHR.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
                 .SetValueFormat(OptionFormat.Seconds);
 
-            MurderLimitPerGame = new IntegerOptionItem(Id + 10, "AbilityUseLimit", new(0, 15, 1), 0, TabGroup.ImpostorRoles)
+            AbilityUseLimit = new IntegerOptionItem(Id + 13, "AbilityUseLimit", new(0, 15, 1), 0, TabGroup.ImpostorRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+                .SetValueFormat(OptionFormat.Times);
+
+            MurderLimitPerGame = new IntegerOptionItem(Id + 10, "MurderLimitPerGame", new(0, 15, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
                 .SetValueFormat(OptionFormat.Times);
 
@@ -63,6 +69,7 @@ namespace EHR.Impostor
         {
             PlayerIdList = [];
             MeetingKillLimit = [];
+            TotalKillLimit = [];
         }
 
         public override void Add(byte playerId)
@@ -70,7 +77,8 @@ namespace EHR.Impostor
             PlayerIdList.Add(playerId);
             CouncillorId = playerId;
             MeetingKillLimit[playerId] = MurderLimitPerMeeting.GetInt();
-            playerId.SetAbilityUseLimit(MurderLimitPerGame.GetInt());
+            TotalKillLimit[playerId] = MurderLimitPerGame.GetInt();
+            playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
         }
 
         public override void AfterMeetingTasks()
@@ -148,6 +156,16 @@ namespace EHR.Impostor
                             return true;
                         }
 
+                        if (TotalKillLimit[pc.PlayerId] < 1)
+                        {
+                            if (!isUI)
+                                Utils.SendMessage(GetString("MurderMaxGame"), pc.PlayerId);
+                            else
+                                pc.ShowPopUp(GetString("MurderMaxGame"));
+
+                            return true;
+                        }
+
                         if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == targetId))
                         {
                             if (!isUI)
@@ -191,6 +209,7 @@ namespace EHR.Impostor
 
                         pc.RpcRemoveAbilityUse();
                         MeetingKillLimit[pc.PlayerId]--;
+                        TotalKillLimit[pc.PlayerId]--;
 
                         LateTask.New(() =>
                         {

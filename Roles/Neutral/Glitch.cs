@@ -205,15 +205,11 @@ namespace EHR.Neutral
         {
             long now = Utils.TimeStamp;
             if (LastUpdate == now) return;
-
             LastUpdate = now;
 
             if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
-
             if (KCDTimer is > 180 or < 0) KCDTimer = 0;
-
             if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
-
             if (MimicDurTimer is > 180 or < 0) MimicDurTimer = 0;
 
             if (player == null) return;
@@ -291,41 +287,26 @@ namespace EHR.Neutral
 
             if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
 
-            if (!player.IsModClient())
-            {
-                var sb = new StringBuilder();
+            if (player.IsNonHostModClient())
+                SendRPCSyncTimers();
 
-                if (MimicDurTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("MimicDur"), MimicDurTimer)}");
-
-                if (MimicCDTimer > 0 && MimicDurTimer <= 0) sb.Append($"\n{string.Format(Translator.GetString("MimicCD"), MimicCDTimer)}");
-
-                if (HackCDTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("HackCD"), HackCDTimer)}");
-
-                if (KCDTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("KCD"), KCDTimer)}");
-
-                var ns = sb.ToString();
-
-                if ((!NameNotifyManager.GetNameNotify(player, out string a) || a != ns) && ns != string.Empty) player.Notify(ns, 1.1f);
-            }
-
-            if (player.IsNonHostModClient()) SendRPCSyncTimers();
+            if (!player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer == null || !seer.IsAlive() || meeting) return string.Empty;
-
-            if (Main.PlayerStates[seer.PlayerId].Role is not Glitch gc) return string.Empty;
+            if (seer == null || seer.PlayerId != GlitchId || seer.PlayerId != target.PlayerId || !seer.IsAlive() || (seer.IsModClient() && !hud) || meeting) return string.Empty;
 
             var sb = new StringBuilder();
 
-            if (gc.MimicDurTimer > 0) sb.Append($"{string.Format(Translator.GetString("MimicDur"), gc.MimicDurTimer)}\n");
+            if (!hud) sb.Append("<size=70%>");
 
-            if (gc.MimicCDTimer > 0 && gc.MimicDurTimer <= 0) sb.Append($"{string.Format(Translator.GetString("MimicCD"), gc.MimicCDTimer)}\n");
+            if (MimicDurTimer > 0) sb.Append($"{string.Format(Translator.GetString("MimicDur"), MimicDurTimer)}\n");
+            if (MimicCDTimer > 0 && MimicDurTimer <= 0) sb.Append($"{string.Format(Translator.GetString("MimicCD"), MimicCDTimer)}\n");
+            if (HackCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("HackCD"), HackCDTimer)}\n");
+            if (KCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("KCD"), KCDTimer)}\n");
 
-            if (gc.HackCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("HackCD"), gc.HackCDTimer)}\n");
-
-            if (gc.KCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("KCD"), gc.KCDTimer)}\n");
+            if (!hud) sb.Append("</size>");
 
             return sb.ToString();
         }
@@ -336,11 +317,15 @@ namespace EHR.Neutral
             LastKill = timestamp;
             LastHack = timestamp;
             LastMimic = timestamp;
-            HasMimiced = false;
             KCDTimer = 10;
             HackCDTimer = 10;
             MimicCDTimer = 10;
             SendRPCSyncTimers();
+        }
+
+        public override void OnReportDeadBody()
+        {
+            HasMimiced = false;
         }
     }
 }
