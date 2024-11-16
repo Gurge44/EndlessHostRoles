@@ -4253,7 +4253,7 @@
   "Journalist": "記錄者",
   "JournalistInfo": "記下筆記",
   "JournalistInfoLong": "(船員陣營):\\n記錄者可以寫下筆記。當你死後，所有玩家都會在下一次會議中看到你的筆記。\\n\\n指令:<b>/note {add/remove/clear/view} [內容]</b><size=80%>\\n- <b>add(新增)</b>: 新增[內容]中的筆記\\n- <b>remove(刪除)</b>: 刪除筆記。在[內容]中輸入想刪除的筆記的代號，或將[內容]留空以刪除最後一個筆記。你可以使用<b>/note view</b>查看筆記的代號\\n- <b>clear(清除)</b>: 清除所有筆記(將[內容]留空)\\n- <b>view(查看)</b>: 查看所有筆記及其代號(將[內容]留空)</size>\\n\\n<size=70%>使用範例:\\n<b>/note add 我認為藍色和黃色是戀人</b>\\n<b>/note remove 2</b>\\n<b>/note clear</b>\\n<b>/note view</b></size>",
-  "JournalistNotesTitle": "<#fcba03>紀錄者留下的筆記...</color>",
+  "JournalistNotesTitle": "<#fcba03>記錄者留下的筆記...</color>",
   "JournalistError.InvalidArgument": "無效指令。使用<b>/note {add/remove/clear/view} [內容]</b>",
   "Journalist.CommandUsage": "指令用法: <b>/note {add/remove/clear/view} [內容]</b>",
   "JournalistError.IndexOutOfRange": "你沒有提供足夠的內容",
