@@ -3296,6 +3296,8 @@
   "DoorLog": "Door Log",
   "Binoculars": "Binóculos",
   "DoorLogAndBinoculars": "Door Log e Binóculos",
+  "MurderLimitPerGame": "Maximum Total Murders Per Game",
+  "MurderMaxGame": "You've reached your maximum murders limit for this game, so it was blocked.",
   "Dynamo": "Acelerador",
   "DynamoInfo": "Você fica mais rápido ao andar",
   "DynamoInfoLong": "(Atributos):\\nComo Acelerador, você fica mais rápido ao andar. Quanto mais você andar, mais rápido você fica. Parar redefine sua velocidade.",
