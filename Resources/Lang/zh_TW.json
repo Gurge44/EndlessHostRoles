@@ -3296,6 +3296,8 @@
   "DoorLog": "門禁日誌",
   "Binoculars": "望遠鏡",
   "DoorLogAndBinoculars": "門禁日誌 & 望遠鏡",
+  "MurderLimitPerGame": "Maximum Total Murders Per Game",
+  "MurderMaxGame": "You've reached your maximum murders limit for this game, so it was blocked.",
   "Dynamo": "狂奔者",
   "DynamoInfo": "越跑越快",
   "DynamoInfoLong": "(附加職業):\\n狂奔者開始行走時會越走越快。直到停下來才能重置速度",
