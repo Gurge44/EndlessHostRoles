@@ -126,7 +126,8 @@ namespace EHR
                 new("stiltedgap#2406", "#ffff00", "Youtuber", true), // Marcopolo1982
                 new("spaglad#3866", isUp: true), // spider_191
                 new("stapleecho#3635", isUp: true), // Thaylor1819
-                new("coralcolt#2815", "#ed5356", "YouTuber", true),
+                new("coralcolt#2815", "#ed5356", "YouTuber", true), //TheDarkYT
+                new("deltasunny#0515", "ff0000", "YouTuber", true), //LuffyFelx
                 new("strangeant#6543", isUp: true), // after.edits
 
                 // Sponsor
