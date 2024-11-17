@@ -105,24 +105,7 @@ namespace EHR
                 log_text = $"[{t}][{tag}]{text}";
             }
 
-            if (multiLine)
-            {
-                Main.Instance.StartCoroutine(LogMultilineAsync());
-                return;
-            }
-
-            CustomLogger.Instance.Log(level.ToString(), log_text);
-
-            return;
-
-            IEnumerator LogMultilineAsync()
-            {
-                foreach (string s in log_text.Split("\\n"))
-                {
-                    CustomLogger.Instance.Log(level.ToString(), s);
-                    yield return null;
-                }
-            }
+            CustomLogger.Instance.Log(level.ToString(), log_text, multiLine);
         }
 
         public static void Test(object content, string tag = "======= Test =======", bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false)
@@ -229,8 +212,10 @@ namespace EHR
             File.WriteAllText(LOGFilePath, HtmlHeader);
         }
 
-        public void Log(string level, string message)
+        public void Log(string level, string message, bool multiLine = false)
         {
+            if (multiLine) message = message.Replace("\\n", "<br>");
+
             string logEntry = $"""
                                <div class='log-entry {level.ToLower()}'>
                                    {message}
@@ -252,6 +237,92 @@ namespace EHR
 
             File.AppendAllText(LOGFilePath, HtmlFooter);
             PrivateInstance = null;
+        }
+    }
+
+    public static class LogMonitor
+    {
+        private const string SourceLogFilePath = "./BepInEx/LogOutput.log";
+        private const string HtmlLogFilePath = "./EHR_DATA/log.html";
+        private static long LastProcessedLength;
+
+        public static void StartMonitoring()
+        {
+            Main.Instance.StartCoroutine(MonitorLog());
+            return;
+
+            IEnumerator MonitorLog()
+            {
+                while (true)
+                {
+                    ProcessLogUpdates();
+                    yield return new WaitForSeconds(1f);
+                }
+
+                // ReSharper disable once IteratorNeverReturns
+            }
+        }
+
+        private static void ProcessLogUpdates()
+        {
+            try
+            {
+                using FileStream stream = new FileStream(SourceLogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using StreamReader reader = new StreamReader(stream);
+
+                if (stream.Length == LastProcessedLength) return;
+
+                stream.Seek(LastProcessedLength, SeekOrigin.Begin);
+
+                string currentGroup = null;
+                string currentClass = "info";
+
+                while (reader.ReadLine() is { } line)
+                {
+                    if (line.StartsWith("["))
+                    {
+                        if (currentGroup != null)
+                        {
+                            AppendLogToHtml($"<div class=\"log-entry {currentClass}\">{currentGroup}</div>");
+                        }
+
+                        currentClass = line.Split(':')[0].TrimStart('[').Replace(" ", "").ToLower();
+                        currentGroup = line;
+                    }
+                    else if (currentGroup != null)
+                    {
+                        currentGroup += $"<br>{line}";
+                    }
+                }
+
+                if (currentGroup != null)
+                {
+                    AppendLogToHtml($"<div class=\"log-entry {currentClass}\">{currentGroup}</div>");
+                }
+
+                LastProcessedLength = stream.Length;
+            }
+            catch (Exception ex)
+            {
+                Utils.ThrowException(ex);
+            }
+        }
+
+        private static void AppendLogToHtml(string line)
+        {
+            string htmlEntry = ParseLogLine(line);
+            File.AppendAllText(HtmlLogFilePath, htmlEntry);
+        }
+
+        private static string ParseLogLine(string line)
+        {
+            string cssClass = line.Split(':')[0].TrimStart('[').Replace(" ", "").ToLower();
+
+            return $"""
+                    <div class="log-entry {cssClass}">
+                        {line}
+                    </div>
+                    """;
         }
     }
 }

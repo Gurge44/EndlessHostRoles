@@ -708,6 +708,7 @@ namespace EHR
             ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
 
             CustomLogger.ClearLog();
+            LogMonitor.StartMonitoring();
 
             Harmony.PatchAll();
 
