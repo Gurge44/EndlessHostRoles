@@ -19,6 +19,9 @@ namespace EHR.Crewmate
         private static OptionItem MaxVisionValue;
         private static OptionItem MinKCDValue;
         private static OptionItem MaxKCDValue;
+        private static OptionItem SpeedStep;
+        private static OptionItem VisionStep;
+        private static OptionItem KCDStep;
         private static OptionItem AbilityCooldown;
         private static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachTaskCompleted;
@@ -38,6 +41,13 @@ namespace EHR.Crewmate
             [Buff.KCD] = 5f
         };
 
+        private static readonly Dictionary<Buff, float> Steps = new()
+        {
+            [Buff.Speed] = 0.3f,
+            [Buff.Vision] = 0.15f,
+            [Buff.KCD] = 5f
+        };
+
         private Dictionary<Buff, float> BuffValues;
         private int Count;
         private Dictionary<byte, Dictionary<Buff, float>> PlayerBuffs;
@@ -53,12 +63,15 @@ namespace EHR.Crewmate
         {
             StartSetup(648250)
                 .AutoSetupOption(ref Vision, 0.5f, new FloatValueRule(0f, 1.3f, 0.1f), OptionFormat.Multiplier)
-                .AutoSetupOption(ref MinSpeedValue, 0.6f, new FloatValueRule(0.3f, 3f, 0.3f), OptionFormat.Multiplier)
-                .AutoSetupOption(ref MaxSpeedValue, 3f, new FloatValueRule(0.3f, 3f, 0.3f), OptionFormat.Multiplier)
-                .AutoSetupOption(ref MinVisionValue, 0.3f, new FloatValueRule(0f, 1.35f, 0.15f), OptionFormat.Multiplier)
-                .AutoSetupOption(ref MaxVisionValue, 1.2f, new FloatValueRule(0f, 1.35f, 0.15f), OptionFormat.Multiplier)
-                .AutoSetupOption(ref MinKCDValue, 5f, new FloatValueRule(0f, 60f, 5f), OptionFormat.Seconds)
-                .AutoSetupOption(ref MaxKCDValue, 40f, new FloatValueRule(0f, 60f, 5f), OptionFormat.Seconds)
+                .AutoSetupOption(ref MinSpeedValue, 0.6f, new FloatValueRule(0.05f, 3f, 0.05f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MaxSpeedValue, 3f, new FloatValueRule(0.05f, 3f, 0.05f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MinVisionValue, 0.3f, new FloatValueRule(0f, 1.35f, 0.05f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MaxVisionValue, 1.2f, new FloatValueRule(0f, 1.35f, 0.05f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MinKCDValue, 5f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds)
+                .AutoSetupOption(ref MaxKCDValue, 40f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds)
+                .AutoSetupOption(ref SpeedStep, 0.3f, new FloatValueRule(0.05f, 1f, 0.05f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref VisionStep, 0.15f, new FloatValueRule(0.05f, 0.5f, 0.05f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref KCDStep, 5f, new FloatValueRule(0.5f, 10f, 0.5f), OptionFormat.Seconds)
                 .AutoSetupOption(ref AbilityCooldown, 15, new IntegerValueRule(0, 120, 1), OptionFormat.Seconds)
                 .AutoSetupOption(ref AbilityUseLimit, 1, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
                 .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.3f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
@@ -78,6 +91,10 @@ namespace EHR.Crewmate
             MinBuffValues[Buff.Speed] = MinSpeedValue.GetFloat();
             MinBuffValues[Buff.Vision] = MinVisionValue.GetFloat();
             MinBuffValues[Buff.KCD] = MinKCDValue.GetFloat();
+
+            Steps[Buff.Speed] = SpeedStep.GetFloat();
+            Steps[Buff.Vision] = VisionStep.GetFloat();
+            Steps[Buff.KCD] = KCDStep.GetFloat();
         }
 
         public override void Add(byte playerId)
@@ -168,13 +185,7 @@ namespace EHR.Crewmate
         {
             if (shapeshifting) return false;
 
-            BuffValues[SelectedBuff] += SelectedBuff switch
-            {
-                Buff.Speed => 0.3f,
-                Buff.Vision => 0.15f,
-                Buff.KCD => 5f,
-                _ => 0f
-            };
+            BuffValues[SelectedBuff] += Steps[SelectedBuff];
 
             if (BuffValues[SelectedBuff] > MaxBuffValues[SelectedBuff])
                 BuffValues[SelectedBuff] = MinBuffValues[SelectedBuff];
