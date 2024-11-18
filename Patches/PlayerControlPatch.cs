@@ -956,6 +956,8 @@ namespace EHR
                         return false;
                     }
 
+                    if (!Occultist.OnAnyoneReportDeadBody(target)) return false;
+
                     if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
 
                     if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false;

@@ -2908,6 +2908,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     Scout.OnPlayerDeath(target);
                     Amnesiac.OnAnyoneDeath(target);
                     Dad.OnAnyoneDeath(target);
+                    Occultist.OnAnyoneDied(target);
                     Crewmate.Sentry.OnAnyoneMurder(target);
                     Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
 

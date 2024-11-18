@@ -1,19 +1,18 @@
 using HarmonyLib;
-using static EHR.Translator;
 
 namespace EHR
 {
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnDisconnected))]
-    internal class OnDisconnectedPatch
+    internal static class OnDisconnectedPatch
     {
         public static void Postfix( /*AmongUsClient __instance*/)
         {
             Main.VisibleTasksCount = false;
         }
     }
-
+/*
     [HarmonyPatch(typeof(DisconnectPopup), nameof(DisconnectPopup.DoShow))]
-    internal class ShowDisconnectPopupPatch
+    internal static class ShowDisconnectPopupPatch
     {
         public static DisconnectReasons Reason;
         public static string StringReason;
@@ -141,4 +140,5 @@ namespace EHR
             }, 0.01f, "Override Disconnect Text");
         }
     }
+*/
 }
