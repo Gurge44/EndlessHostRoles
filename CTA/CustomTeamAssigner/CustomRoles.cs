@@ -77,6 +77,7 @@
         Assassin, // Ninja
         Nuker,
         Nullifier,
+        Occultist,
         Overheat,
         Parasite,
         Penguin,
