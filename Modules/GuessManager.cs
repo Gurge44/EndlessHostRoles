@@ -149,7 +149,7 @@ namespace EHR
                         (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Doomsayer)) ||
                         (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0))
                     {
-                        if (pc.IsConverted() && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
+                        if ((pc.Is(CustomRoles.Madmate) || pc.IsConverted()) && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
 
                         if (!isUI)
                             Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
