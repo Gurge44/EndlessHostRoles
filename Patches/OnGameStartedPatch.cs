@@ -126,6 +126,15 @@ namespace EHR
 
         public static void Postfix(AmongUsClient __instance)
         {
+            try
+            {
+                LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Game);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+
             SetUpRoleTextPatch.IsInIntro = true;
 
             Main.OverrideWelcomeMsg = string.Empty;

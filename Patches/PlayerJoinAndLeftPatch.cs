@@ -74,7 +74,7 @@ namespace EHR
                         {
                             try
                             {
-                                LobbyNotifierForDiscord.NotifyLobbyCreated();
+                                LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby);
                             }
                             catch (Exception e)
                             {

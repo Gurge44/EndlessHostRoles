@@ -328,6 +328,15 @@ namespace EHR
 
         private static void StartEndGame(GameOverReason reason)
         {
+            try
+            {
+                LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.Ended);
+            }
+            catch (Exception e)
+            {
+                ThrowException(e);
+            }
+
             string msg = GetString("NotifyGameEnding");
 
             Main.AllPlayerControls.DoIf(
