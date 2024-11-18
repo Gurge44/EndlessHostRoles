@@ -92,8 +92,8 @@ namespace EHR
     {
         public static void Prefix( /*InnerNetClient __instance,*/ DisconnectReasons reason, string stringReason)
         {
-            ShowDisconnectPopupPatch.Reason = reason;
-            ShowDisconnectPopupPatch.StringReason = stringReason;
+            //ShowDisconnectPopupPatch.Reason = reason;
+            //ShowDisconnectPopupPatch.StringReason = stringReason;
             ErrorText.Instance.CheatDetected = false;
             ErrorText.Instance.SBDetected = false;
             ErrorText.Instance.Clear();
