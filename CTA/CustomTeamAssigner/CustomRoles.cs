@@ -77,6 +77,7 @@
         Assassin, // Ninja
         Nuker,
         Nullifier,
+        Occultist,
         Overheat,
         Parasite,
         Penguin,
@@ -268,6 +269,7 @@
         Chemist,
         Cherokious,
         Collector,
+        Curser,
         Deathknight,
         Gamer, // Demon
         Doppelganger,
@@ -300,6 +302,7 @@
         Mycologist,
         Necromancer,
         Nonplus,
+        NoteKiller,
         Opportunist,
         Patroller,
         Pelican,
@@ -427,6 +430,7 @@
         EvilSpirit,
         Finder,
         Flashman,
+        Fragile,
         Fool,
         Giant,
         Glow,

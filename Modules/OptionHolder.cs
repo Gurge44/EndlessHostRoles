@@ -173,6 +173,15 @@ namespace EHR
         public static OptionItem DisableMeeting;
         public static OptionItem DisableCloseDoor;
         public static OptionItem DisableSabotage;
+
+        public static OptionItem DisableReactorOnSkeldAndMira;
+        public static OptionItem DisableReactorOnPolus;
+        public static OptionItem DisableReactorOnAirship;
+        public static OptionItem DisableO2;
+        public static OptionItem DisableComms;
+        public static OptionItem DisableLights;
+        public static OptionItem DisableMushroomMixup;
+
         public static OptionItem DisableTaskWin;
 
         public static OptionItem KillFlashDuration;
@@ -1681,6 +1690,34 @@ namespace EHR
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
             DisableSabotage = new BooleanOptionItem(22800, "DisableSabotage", false, TabGroup.GameSettings)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableReactorOnSkeldAndMira = new BooleanOptionItem(22801, "DisableReactorOnSkeldAndMira", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableReactorOnPolus = new BooleanOptionItem(22802, "DisableReactorOnPolus", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableReactorOnAirship = new BooleanOptionItem(22803, "DisableReactorOnAirship", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableO2 = new BooleanOptionItem(22804, "DisableO2", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableComms = new BooleanOptionItem(22805, "DisableComms", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableLights = new BooleanOptionItem(22806, "DisableLights", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableMushroomMixup = new BooleanOptionItem(22807, "DisableMushroomMixup", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
             DisableCloseDoor = new BooleanOptionItem(22810, "DisableCloseDoor", false, TabGroup.GameSettings)

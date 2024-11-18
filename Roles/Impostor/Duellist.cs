@@ -69,7 +69,7 @@ namespace EHR.Impostor
         {
             if (DuelPair.Count == 0) return;
 
-            if (Count++ < 40) return;
+            if (pc.IsAlive() && Count++ < 40) return;
 
             Count = 0;
 
@@ -87,11 +87,11 @@ namespace EHR.Impostor
                         break;
                     case true when !TAlive:
                         DuelPair.Remove(pair.Key);
-                        LateTask.New(() => { duellist.TPToRandomVent(); }, 0.5f, log: false);
+                        LateTask.New(() => duellist.TPToRandomVent(), 0.5f, log: false);
                         break;
                     case false:
                         DuelPair.Remove(pair.Key);
-                        LateTask.New(() => { target.TPToRandomVent(); }, 0.5f, log: false);
+                        LateTask.New(() => target.TPToRandomVent(), 0.5f, log: false);
                         break;
                 }
             }

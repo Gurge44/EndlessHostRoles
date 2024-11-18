@@ -2107,15 +2107,16 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                     SelfMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
                                     break;
                                 case CustomRoles.Monitor:
+                                    if (AntiAdminer.IsAdminWatch) SelfSuffix.Append($"{GetString("AntiAdminerAD")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                                    if (AntiAdminer.IsVitalWatch) SelfSuffix.Append($"{GetString("AntiAdminerVI")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                                    if (AntiAdminer.IsDoorLogWatch) SelfSuffix.Append($"{GetString("AntiAdminerDL")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                                    if (AntiAdminer.IsCameraWatch) SelfSuffix.Append($"{GetString("AntiAdminerCA")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                                    break;
                                 case CustomRoles.AntiAdminer:
                                     if (AntiAdminer.IsAdminWatch) SelfSuffix.Append(GetString("AntiAdminerAD"));
-
                                     if (AntiAdminer.IsVitalWatch) SelfSuffix.Append(GetString("AntiAdminerVI"));
-
                                     if (AntiAdminer.IsDoorLogWatch) SelfSuffix.Append(GetString("AntiAdminerDL"));
-
                                     if (AntiAdminer.IsCameraWatch) SelfSuffix.Append(GetString("AntiAdminerCA"));
-
                                     break;
                             }
                         }
@@ -2907,6 +2908,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     Scout.OnPlayerDeath(target);
                     Amnesiac.OnAnyoneDeath(target);
                     Dad.OnAnyoneDeath(target);
+                    Occultist.OnAnyoneDied(target);
                     Crewmate.Sentry.OnAnyoneMurder(target);
                     Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
 
@@ -3232,7 +3234,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
             catch
             {
-                Logger.Error($"读入Texture失败：{path}", "LoadImage");
+                Logger.Error($"Error loading texture: {path}", "LoadImage");
             }
 
             return null;

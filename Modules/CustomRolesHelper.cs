@@ -130,6 +130,7 @@ namespace EHR
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Occultist => CustomRoles.Impostor,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
                 CustomRoles.Wasp => CustomRoles.Impostor,
                 CustomRoles.Assumer => CustomRoles.Impostor,
@@ -622,6 +623,7 @@ namespace EHR
                 CustomRoles.Augmenter or
                 CustomRoles.Inhibitor or
                 CustomRoles.Kidnapper or
+                CustomRoles.Occultist or
                 CustomRoles.Wasp or
                 CustomRoles.Hypnotist or
                 CustomRoles.Assumer or
@@ -1254,6 +1256,7 @@ namespace EHR
                 CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
                 CustomRoles.Sheriff => Sheriff.KeepsGameGoing.GetBool() ? CountTypes.Sheriff : CountTypes.Crew,
                 CustomRoles.Shifter => CountTypes.OutOfGame,
+                CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller => CountTypes.Crew,
 
                 _ => Enum.TryParse(role.ToString(), true, out CountTypes type)
                     ? type
@@ -1447,6 +1450,7 @@ namespace EHR
                 CustomRoles.Hypnotist => RoleOptionType.Impostor_Support,
                 CustomRoles.Librarian => RoleOptionType.Impostor_Support,
                 CustomRoles.Nullifier => RoleOptionType.Impostor_Support,
+                CustomRoles.Occultist => RoleOptionType.Impostor_Support,
                 CustomRoles.Silencer => RoleOptionType.Impostor_Support,
                 CustomRoles.Swapster => RoleOptionType.Impostor_Support,
                 CustomRoles.TimeThief => RoleOptionType.Impostor_Support,

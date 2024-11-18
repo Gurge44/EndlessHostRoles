@@ -225,6 +225,10 @@ namespace EHR
                                 WinnerIds.Add(pc.PlayerId);
                                 AdditionalWinnerTeams.Add(AdditionalWinners.Curser);
                                 break;
+                            case CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller && NoteKiller.Kills >= NoteKiller.NumKillsNeededToWin:
+                                WinnerIds.Add(pc.PlayerId);
+                                AdditionalWinnerTeams.Add(AdditionalWinners.NoteKiller);
+                                break;
                         }
                     }
 
@@ -324,6 +328,15 @@ namespace EHR
 
         private static void StartEndGame(GameOverReason reason)
         {
+            try
+            {
+                LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.Ended);
+            }
+            catch (Exception e)
+            {
+                ThrowException(e);
+            }
+
             string msg = GetString("NotifyGameEnding");
 
             Main.AllPlayerControls.DoIf(
