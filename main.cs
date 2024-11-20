@@ -45,7 +45,7 @@ namespace EHR
         public const string ModColor = "#00ffff";
         public const bool AllowPublicRoom = true;
         public const string ForkId = "EHR";
-        public const string SupportedAUVersion = "2024.8.13";
+        public const string SupportedAUVersion = "2024.11.26";
 
         public static readonly Version Version = Version.Parse(PluginVersion);
 
