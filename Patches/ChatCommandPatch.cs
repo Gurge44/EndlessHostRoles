@@ -231,7 +231,7 @@ namespace EHR
 
             __instance.timeSinceLastMessage = 3f;
 
-            string text = __instance.freeChatField.textArea.text;
+            string text = __instance.freeChatField.textArea.text.Trim();
 
             if (ChatHistory.Count == 0 || ChatHistory[^1] != text) ChatHistory.Add(text);
 

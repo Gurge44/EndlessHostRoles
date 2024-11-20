@@ -33,7 +33,10 @@ namespace EHR.Modules
 
         private static void NotifyLobbyCreated()
         {
-            var roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
+            var gameId = AmongUsClient.Instance.GameId;
+            if (gameId == 32) return;
+            
+            var roomCode = GameCode.IntToGameName(gameId);
             if (roomCode == LastRoomCode) return;
             LastRoomCode = roomCode;
 
