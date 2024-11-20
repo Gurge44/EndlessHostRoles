@@ -1163,7 +1163,7 @@ namespace EHR
     internal static class FixedUpdatePatch
     {
         private static readonly StringBuilder Mark = new(20);
-        private static readonly StringBuilder Suffix = new(120);
+        private static readonly StringBuilder Suffix = new(240);
         private static int LevelKickBufferTime = 10;
         private static readonly Dictionary<byte, int> BufferTime = [];
         private static readonly Dictionary<byte, int> DeadBufferTime = [];
