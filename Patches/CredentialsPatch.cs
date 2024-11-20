@@ -4,6 +4,7 @@ using EHR.Modules;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static EHR.Translator;
 
 
@@ -97,10 +98,10 @@ namespace EHR
                 VersionShower.name = "EHR Version Shower";
                 VersionShower.transform.localPosition = friendCode.transform.localPosition + new Vector3(3.2f, 0f, 0f);
                 VersionShower.transform.localScale *= 1.7f;
-                var TMP = VersionShower.GetComponent<TextMeshPro>();
-                TMP.alignment = TextAlignmentOptions.Right;
-                TMP.fontSize = 30f;
-                TMP.SetText(credentialsText);
+                var tmp = VersionShower.GetComponent<TextMeshPro>();
+                tmp.alignment = TextAlignmentOptions.Right;
+                tmp.fontSize = 30f;
+                tmp.SetText(credentialsText);
             }
 
             var newRequest = GameObject.Find("NewRequest");
@@ -110,6 +111,125 @@ namespace EHR
                 newRequest.transform.localPosition -= new Vector3(0f, 0f, 10f);
                 newRequest.transform.localScale = new(0.8f, 1f, 1f);
             }
+
+            var friendsButton = GameObject.Find("FriendsButton");
+
+            if (friendsButton != null)
+            {
+                friendsButton.transform.FindChild("Highlight").GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
+                friendsButton.transform.FindChild("Inactive").GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(FriendsListUI), nameof(FriendsListUI.Open))]
+    static class FriendsListUIOpenPatch
+    {
+        public static bool Prefix(FriendsListUI __instance)
+        {
+            try
+            {
+                if (__instance.gameObject.activeSelf || __instance.currentSceneName == "")
+                {
+                    __instance.Close();
+                }
+                else
+                {
+                    FriendsListBar[] componentsInChildren = __instance.GetComponentsInChildren<FriendsListBar>(true);
+
+                    for (int index = 0; index < componentsInChildren.Length; ++index)
+                    {
+                        if (componentsInChildren[index] != null)
+                            Object.Destroy(componentsInChildren[index].gameObject);
+                    }
+
+                    Scene activeScene = SceneManager.GetActiveScene();
+                    __instance.currentSceneName = activeScene.name;
+                    __instance.UpdateFriendCodeUI();
+
+                    if (DestroyableSingleton<HudManager>.InstanceExists && DestroyableSingleton<HudManager>.Instance != null && DestroyableSingleton<HudManager>.Instance.Chat != null && DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening || ShipStatus.Instance != null)
+                        return false;
+
+                    __instance.friendBars = new();
+                    __instance.lobbyBars = new();
+                    __instance.notifBars = new();
+                    __instance.platformFriendBars = new();
+                    __instance.viewingAllFriends = true;
+                    __instance.gameObject.SetActive(true);
+                    __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(t => t.gameObject.SetActive(false)));
+                    __instance.ViewRequestsButton.color = __instance.NoRequestsColor;
+                    __instance.ViewRequestsText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NoNewRequests);
+
+                    __instance.StartCoroutine(DestroyableSingleton<FriendsListManager>.Instance.RefreshFriendsList((Action)(() =>
+                    {
+                        __instance.ClearNotifs();
+
+                        if (DestroyableSingleton<EOSManager>.Instance.IsFriendsListAllowed())
+                        {
+                            __instance.AddFriendObjects.SetActive(true);
+                            __instance.RefreshBlockedPlayers();
+                            __instance.RefreshFriends();
+                            __instance.RefreshNotifications();
+                        }
+                        else
+                        {
+                            __instance.AddFriendObjects.SetActive(false);
+                            __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(g => g.SetUp()));
+                        }
+
+                        __instance.RefreshRecentlyPlayed();
+                        __instance.RefreshPlatformFriends();
+
+                        foreach (FriendsListBar friendBar in __instance.friendBars)
+                        {
+                            foreach (PassiveButton passiveButton in friendBar.ControllerSelectable)
+                                ControllerManager.Instance.AddSelectableUiElement(passiveButton);
+                        }
+
+                        foreach (FriendsListBar platformFriendBar in __instance.platformFriendBars)
+                        {
+                            foreach (PassiveButton passiveButton in platformFriendBar.ControllerSelectable)
+                                ControllerManager.Instance.AddSelectableUiElement(passiveButton);
+                        }
+
+                        foreach (FriendsListBar notifBar in __instance.notifBars)
+                        {
+                            foreach (PassiveButton passiveButton in notifBar.ControllerSelectable)
+                                ControllerManager.Instance.AddSelectableUiElement(passiveButton);
+                        }
+
+                        foreach (FriendsListBar lobbyBar in __instance.lobbyBars)
+                        {
+                            foreach (PassiveButton passiveButton in lobbyBar.ControllerSelectable)
+                                ControllerManager.Instance.AddSelectableUiElement(passiveButton);
+                        }
+
+                        ControllerManager.Instance.PickTopSelectable();
+                    })));
+
+                    if (__instance.currentSceneName == "OnlineGame")
+                    {
+                        __instance.RefreshLobbyPlayers();
+                        __instance.LobbyPlayersTab.SetActive(true);
+                        __instance.LobbyPlayersInactiveTab.SetActive(false);
+                        __instance.OpenTab(0);
+                    }
+                    else
+                    {
+                        __instance.LobbyPlayersInactiveTab.SetActive(true);
+                        __instance.LobbyPlayersTab.SetActive(false);
+                        __instance.OpenTab(2);
+                    }
+
+                    ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
+                }
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+
+            return false;
         }
     }
 
@@ -164,9 +284,9 @@ namespace EHR
 
             Dictionary<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> mainButtons = new()
             {
-                { [__instance.playButton, __instance.inventoryButton, __instance.shopButton], (standardActiveSprite, new(1f, 0.524f, 0.549f, 0.8f), shade, Color.white, Color.white) },
-                { [__instance.newsButton, __instance.myAccountButton, __instance.settingsButton], (minorActiveSprite, new(1f, 0.825f, 0.686f, 0.8f), shade, Color.white, Color.white) },
-                { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.526f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) }
+                { [__instance.playButton, __instance.inventoryButton, __instance.shopButton], (standardActiveSprite, new(0f, 0.647f, 1f, 0.8f), shade, Color.white, Color.white) },
+                { [__instance.newsButton, __instance.myAccountButton, __instance.settingsButton], (minorActiveSprite, new(0.825f, 0.825f, 0.286f, 0.8f), shade, Color.white, Color.white) },
+                { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.226f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) }
             };
 
             foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons)

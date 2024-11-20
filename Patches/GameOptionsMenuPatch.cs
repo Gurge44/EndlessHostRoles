@@ -241,21 +241,21 @@ namespace EHR
             {
                 scaleOffset = new(-0.18f, 0, 0);
                 positionOffset = new(0.3f, 0f, 0f);
-                color = new(0.8f, 0.8f, 0.2f);
+                color = new(0.35f, 0f, 0f);
                 sizeDelta_x = 5.1f;
             }
             else if (option.Parent?.Parent != null)
             {
                 scaleOffset = new(-0.12f, 0, 0);
                 positionOffset = new(0.2f, 0f, 0f);
-                color = new(0.5f, 0.2f, 0.8f);
+                color = new(0.35f, 0.35f, 0f);
                 sizeDelta_x = 5.3f;
             }
             else if (option.Parent != null)
             {
                 scaleOffset = new(-0.05f, 0, 0);
                 positionOffset = new(0.1f, 0f, 0f);
-                color = new(0.2f, 0.8f, 0.8f);
+                color = new(0f, 0f, 0.35f);
                 sizeDelta_x = 5.5f;
             }
 

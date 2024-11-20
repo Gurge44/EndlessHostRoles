@@ -1153,6 +1153,9 @@ namespace EHR
                 CustomRoles role = pc.GetCustomRole();
                 if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))) pc.RpcShapeshift(pc, false);
             }
+
+            if (HudManagerPatch.AchievementUnlockedText == string.Empty)
+                HudManagerPatch.ClearLowerInfoText();
         }
     }
 

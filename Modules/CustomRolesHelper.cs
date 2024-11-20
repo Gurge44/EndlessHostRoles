@@ -1289,9 +1289,7 @@ namespace EHR
         public static RoleOptionType GetRoleOptionType(this CustomRoles role)
         {
             if (role.IsImpostor()) return role.GetImpostorRoleCategory();
-
             if (role.IsCrewmate()) return role.GetCrewmateRoleCategory();
-
             if (role.IsNeutral(true)) return role.GetNeutralRoleCategory();
 
             return RoleOptionType.Crewmate_Miscellaneous;
@@ -1645,14 +1643,6 @@ namespace EHR
         Neutral_Benign,
         Neutral_Evil,
         Neutral_Killing
-    }
-
-    public enum SimpleRoleOptionType
-    {
-        Crewmate,
-        Impostor,
-        NK,
-        NNK
     }
 
     public enum AddonTypes

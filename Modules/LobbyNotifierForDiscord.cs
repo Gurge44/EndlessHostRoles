@@ -91,6 +91,8 @@ namespace EHR.Modules
 
         public static void NotifyLobbyStatusChanged(LobbyStatus status)
         {
+            if (!Options.PostLobbyCodeToEHRDiscordServer.GetBool()) return;
+
             if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) != LastRoomCode)
             {
                 status = LobbyStatus.Closed;

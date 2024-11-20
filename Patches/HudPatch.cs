@@ -26,6 +26,8 @@ namespace EHR.Patches
 
         public static string AchievementUnlockedText = string.Empty;
 
+        public static void ClearLowerInfoText() => LowerInfoText.text = string.Empty;
+
         public static bool Prefix(HudManager __instance)
         {
             if (PlayerControl.LocalPlayer != null) return true;

@@ -129,7 +129,9 @@ namespace EHR
                 new("coralcolt#2815", "#ed5356", "YouTuber", true), // TheDarkYT
                 new("deltasunny#0515", "#ff0000", "YouTuber", true), // LuffyFelx
                 new("strangeant#6543", isUp: true), // after.edits
-                new("ninjanice#3990", isUp: true), // after.edits
+                new("ninjanice#3990", isUp: true), // void_daora
+                new("magicmill#4146", isUp: true), // Sr.Angel
+                new("blessedtes#6684", "#ff0000", "YouTuber", true), // Gabriel So Capa
 
                 // Sponsor
                 new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),

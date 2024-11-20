@@ -34,7 +34,7 @@ namespace EHR.Impostor
 
         public override void SetupCustomOption()
         {
-            StartSetup(645350)
+            StartSetup(645250)
                 .AutoSetupOption(ref AbilityUseLimit, 0, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
                 .AutoSetupOption(ref ReviveTime, 5, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
                 .AutoSetupOption(ref ArrowsToBodies, false)

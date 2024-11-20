@@ -66,23 +66,20 @@ namespace EHR
                 ChatCommands.DraftResult = [];
                 ChatCommands.DraftRoles = [];
 
-                if (Options.PostLobbyCodeToEHRDiscordServer.GetBool())
+                LateTask.New(() =>
                 {
-                    LateTask.New(() =>
+                    if (GameStates.IsOnlineGame && GameStates.IsVanillaServer)
                     {
-                        if (GameStates.IsOnlineGame && GameStates.IsVanillaServer)
+                        try
                         {
-                            try
-                            {
-                                LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby);
-                            }
-                            catch (Exception e)
-                            {
-                                Utils.ThrowException(e);
-                            }
+                            LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby);
                         }
-                    }, 5f, "NotifyLobbyCreated");
-                }
+                        catch (Exception e)
+                        {
+                            Utils.ThrowException(e);
+                        }
+                    }
+                }, 5f, "NotifyLobbyCreated");
             }
         }
     }

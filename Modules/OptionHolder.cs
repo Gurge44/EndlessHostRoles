@@ -71,6 +71,8 @@ namespace EHR
         public static Dictionary<CustomRoles, StringOptionItem> CustomRoleSpawnChances;
         public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
 
+        public static Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
+
         public static readonly string[] Rates =
         [
             "Rate0",
@@ -1372,6 +1374,37 @@ namespace EHR
             LoadingPercentage = 65;
             MainLoadingText = "Building game settings";
 
+            new TextOptionItem(100030, "MenuTitle.RoleListMaker", TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(new Color32(0, 165, 255, byte.MaxValue));
+
+            int id = 19820;
+
+            foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
+            {
+                Color roleOptionTypeColor = roleOptionType.GetRoleOptionTypeColor();
+                var options = new OptionItem[3];
+
+                options[0] = new BooleanOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.EnableLimit", false, TabGroup.GameSettings)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetHeader(true)
+                    .SetColor(roleOptionTypeColor);
+
+                options[1] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Min", new(0, 15, 1), 1, TabGroup.GameSettings)
+                    .SetParent(options[0])
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetValueFormat(OptionFormat.Players)
+                    .SetColor(roleOptionTypeColor);
+
+                options[2] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Max", new(0, 15, 1), 1, TabGroup.GameSettings)
+                    .SetParent(options[0])
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetValueFormat(OptionFormat.Players)
+                    .SetColor(roleOptionTypeColor);
+
+                RoleSubCategoryLimits[roleOptionType] = options;
+            }
+
             new TextOptionItem(100023, "MenuTitle.Ejections", TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 238, 232, byte.MaxValue));
@@ -1408,7 +1441,7 @@ namespace EHR
             LoadingPercentage = 67;
 
 
-            //Maps Settings
+            // Map Settings
             new TextOptionItem(100024, "MenuTitle.MapsSettings", TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
