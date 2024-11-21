@@ -841,6 +841,7 @@ namespace EHR
         public static bool NeedsUpdateAfterDeath(this CustomRoles role)
         {
             return role is
+                CustomRoles.Weatherman or
                 CustomRoles.Altruist or
                 CustomRoles.Duellist;
         }
