@@ -192,6 +192,8 @@ namespace EHR
         // Function to check if a player is a moderator
         public static bool IsPlayerModerator(string friendCode)
         {
+            friendCode = friendCode.Replace(':', '#');
+
             if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
 
             const string friendCodesFilePath = "./EHR_DATA/Moderators.txt";
@@ -209,6 +211,8 @@ namespace EHR
         // Function to check if a player is a VIP
         public static bool IsPlayerVIP(string friendCode)
         {
+            friendCode = friendCode.Replace(':', '#');
+
             if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool()) return false;
 
             const string friendCodesFilePath = "./EHR_DATA/VIPs.txt";
@@ -555,7 +559,7 @@ namespace EHR
             PlayerControl VIPPc = Utils.GetPlayerById(VIPId);
             if (VIPPc == null) return;
 
-            string fc = VIPPc.FriendCode;
+            string fc = VIPPc.FriendCode.Replace(':', '#');
             if (!IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerNotVIP"), player.PlayerId);
 
             string[] lines = File.ReadAllLines("./EHR_DATA/VIPs.txt").Where(line => !line.Contains(fc)).ToArray();
@@ -570,7 +574,7 @@ namespace EHR
             PlayerControl newVIPPc = Utils.GetPlayerById(newVIPId);
             if (newVIPPc == null) return;
 
-            string fc = newVIPPc.FriendCode;
+            string fc = newVIPPc.FriendCode.Replace(':', '#');
             if (IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerAlreadyVIP"), player.PlayerId);
 
             File.AppendAllText("./EHR_DATA/VIPs.txt", $"\n{fc}");
@@ -1453,7 +1457,7 @@ namespace EHR
             PlayerControl remModPc = Utils.GetPlayerById(remModId);
             if (remModPc == null) return;
 
-            string remFc = remModPc.FriendCode;
+            string remFc = remModPc.FriendCode.Replace(':', '#');
             if (!IsPlayerModerator(remFc)) Utils.SendMessage(GetString("PlayerNotMod"), player.PlayerId);
 
             File.WriteAllLines("./EHR_DATA/Moderators.txt", File.ReadAllLines("./EHR_DATA/Moderators.txt").Where(x => !x.Contains(remFc)));
@@ -1467,7 +1471,7 @@ namespace EHR
             PlayerControl newModPc = Utils.GetPlayerById(newModId);
             if (newModPc == null) return;
 
-            string fc = newModPc.FriendCode;
+            string fc = newModPc.FriendCode.Replace(':', '#');
             if (IsPlayerModerator(fc)) Utils.SendMessage(GetString("PlayerAlreadyMod"), player.PlayerId);
 
             File.AppendAllText("./EHR_DATA/Moderators.txt", $"\n{fc}");

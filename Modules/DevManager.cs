@@ -131,6 +131,7 @@ namespace EHR
                 new("strangeant#6543", isUp: true), // after.edits
                 new("ninjanice#3990", isUp: true), // void_daora
                 new("magicmill#4146", isUp: true), // Sr.Angel
+                new("grassyprey#9593", isUp: true), // LucasCarr
                 new("blessedtes#6684", "#ff0000", "YouTuber", true), // Gabriel So Capa
 
                 // Sponsor
@@ -159,6 +160,7 @@ namespace EHR
 
         public static DevUser GetDevUser(this string code)
         {
+            code = code.Replace(':', '#');
             return code.IsDevUser() ? DevUserList.Find(x => x.Code == code) : DefaultDevUser;
         }
     }

@@ -96,15 +96,17 @@ namespace EHR
         {
             if (!AmongUsClient.Instance.AmHost || player == null) return;
 
-            if (!CheckBanList(player.FriendCode, player.GetHashedPuid()) && !TempBanWhiteList.Contains(player.GetHashedPuid()))
+            string friendCode = player.FriendCode.Replace(':', '#');
+
+            if (!CheckBanList(friendCode, player.GetHashedPuid()) && !TempBanWhiteList.Contains(player.GetHashedPuid()))
             {
                 if (player.GetHashedPuid() != "" && player.GetHashedPuid() != null && player.GetHashedPuid() != "e3b0cb855")
                 {
-                    File.AppendAllText(BanListPath, $"{player.FriendCode},{player.GetHashedPuid()},{player.PlayerName.RemoveHtmlTags()}\n");
+                    File.AppendAllText(BanListPath, $"{friendCode},{player.GetHashedPuid()},{player.PlayerName.RemoveHtmlTags()}\n");
                     Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
                 }
                 else
-                    Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{player.FriendCode}/{player.GetHashedPuid()} to ban list!", "AddBanPlayer");
+                    Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{friendCode}/{player.GetHashedPuid()} to ban list!", "AddBanPlayer");
             }
         }
 
@@ -145,7 +147,7 @@ namespace EHR
         {
             if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool() || player == null) return;
 
-            string friendcode = player.FriendCode;
+            string friendcode = player.FriendCode.Replace(':', '#');
 
             if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
             {
@@ -155,7 +157,7 @@ namespace EHR
                 return;
             }
 
-            if (friendcode.Count(c => c == '#') > 1)
+            if (friendcode.Count(c => c == '#') != 1)
             {
                 // This is part of eac, so that's why it will say banned by EAC list.
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
@@ -175,7 +177,7 @@ namespace EHR
                 return;
             }
 
-            if (CheckBanList(player.FriendCode, player.GetHashedPuid()))
+            if (CheckBanList(friendcode, player.GetHashedPuid()))
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
                 Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
@@ -183,7 +185,7 @@ namespace EHR
                 return;
             }
 
-            if (CheckEACList(player.FriendCode, player.GetHashedPuid()))
+            if (CheckEACList(friendcode, player.GetHashedPuid()))
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
                 Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
@@ -200,6 +202,8 @@ namespace EHR
 
         public static bool CheckBanList(string code, string hashedpuid = "")
         {
+            code = code.Replace(':', '#');
+
             var OnlyCheckPuid = false;
 
             switch (code)
@@ -239,6 +243,8 @@ namespace EHR
 
         public static bool CheckEACList(string code, string hashedPuid)
         {
+            code = code.Replace(':', '#');
+
             var OnlyCheckPuid = false;
 
             switch (code)
@@ -262,7 +268,8 @@ namespace EHR
             ClientData recentClient = AmongUsClient.Instance.GetRecentClient(clientId);
             if (recentClient == null) return;
 
-            if (!BanManager.CheckBanList(recentClient.FriendCode, recentClient.GetHashedPuid())) __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
+            if (!BanManager.CheckBanList(recentClient.FriendCode, recentClient.GetHashedPuid()))
+                __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
         }
     }
 }

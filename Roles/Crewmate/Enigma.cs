@@ -464,7 +464,7 @@ namespace EHR.Crewmate
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
-                string friendCode = killer.Data.FriendCode;
+                string friendCode = killer.Data.FriendCode.Replace(':', '#');
                 return string.Format(GetString("EnigmaClueFriendCode"), friendCode);
             }
         }
