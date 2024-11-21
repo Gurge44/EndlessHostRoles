@@ -39,6 +39,9 @@ namespace EHR
             "ND_LimitReachedOptions.RemoveOldest"
         ];
 
+        public static List<Disaster> GetActiveDisasters() => ActiveDisasters;
+        public static List<Type> GetAllDisasters() => AllDisasters;
+
         public static void SetupCustomOption()
         {
             var id = 69_216_001;
@@ -86,7 +89,7 @@ namespace EHR
             AllDisasters.ForEach(x => x.GetMethod("SetupOwnCustomOption")?.Invoke(null, null));
         }
 
-        private static void LoadAllDisasters()
+        public static void LoadAllDisasters()
         {
             AllDisasters = Assembly
                 .GetExecutingAssembly()
@@ -195,7 +198,7 @@ namespace EHR
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-        private static class FixedUpdatePatch
+        public static class FixedUpdatePatch
         {
             private static long LastDisaster = Utils.TimeStamp;
             private static long LastSync = Utils.TimeStamp;
@@ -205,17 +208,7 @@ namespace EHR
             {
                 if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || !__instance.IsHost()) return;
 
-                foreach (NaturalDisaster naturalDisaster in PreparingDisasters.ToArray())
-                {
-                    naturalDisaster.Update();
-
-                    if (float.IsNaN(naturalDisaster.SpawnTimer))
-                    {
-                        Type type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
-                        LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), 1f, log: false);
-                        PreparingDisasters.Remove(naturalDisaster);
-                    }
-                }
+                UpdatePreparingDisasters();
 
                 ActiveDisasters.ToArray().Do(x => x.Update());
                 Sinkhole.OnFixedUpdate();
@@ -289,9 +282,26 @@ namespace EHR
                     Utils.MarkEveryoneDirtySettings();
                 }
             }
+
+            public static void UpdatePreparingDisasters()
+            {
+                foreach (NaturalDisaster naturalDisaster in PreparingDisasters.ToArray())
+                {
+                    naturalDisaster.Update();
+
+                    if (float.IsNaN(naturalDisaster.SpawnTimer))
+                    {
+                        Type type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
+                        LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), 1f, log: false);
+                        PreparingDisasters.Remove(naturalDisaster);
+                    }
+                }
+            }
+
+            public static void AddPreparingDisaster(Vector2 position, string disasterName, SystemTypes? room) => PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disasterName), disasterName, room));
         }
 
-        private abstract class Disaster
+        public abstract class Disaster
         {
             protected Disaster(Vector2 position)
             {
@@ -328,7 +338,7 @@ namespace EHR
             }
         }
 
-        private sealed class Earthquake : Disaster
+        public sealed class Earthquake : Disaster
         {
             private static OptionItem DurationOpt;
             private static OptionItem Speed;
@@ -402,7 +412,7 @@ namespace EHR
             }
         }
 
-        private sealed class Meteor : Disaster
+        public sealed class Meteor : Disaster
         {
             public Meteor(Vector2 position, NaturalDisaster naturalDisaster) : base(position)
             {
@@ -420,7 +430,7 @@ namespace EHR
             }
         }
 
-        private sealed class VolcanoEruption : Disaster
+        public sealed class VolcanoEruption : Disaster
         {
             private const int Phases = 4;
             private static OptionItem FlowStepDelay;
@@ -483,7 +493,7 @@ namespace EHR
             }
         }
 
-        private sealed class Tornado : Disaster
+        public sealed class Tornado : Disaster
         {
             private static OptionItem DurationOpt;
             private static OptionItem GoesThroughWalls;
@@ -585,7 +595,7 @@ namespace EHR
             }
         }
 
-        private sealed class Thunderstorm : Disaster
+        public sealed class Thunderstorm : Disaster
         {
             private static OptionItem HitFrequency;
             private static OptionItem DurationOpt;
@@ -657,7 +667,7 @@ namespace EHR
             }
         }
 
-        private sealed class SandStorm : Disaster
+        public sealed class SandStorm : Disaster
         {
             private static OptionItem DurationOpt;
             private static OptionItem Vision;
@@ -726,7 +736,7 @@ namespace EHR
             }
         }
 
-        private sealed class Tsunami : Disaster
+        public sealed class Tsunami : Disaster
         {
             private static OptionItem MovingSpeed;
 
@@ -829,7 +839,7 @@ namespace EHR
             }
         }
 
-        private sealed class Sinkhole : Disaster
+        public sealed class Sinkhole : Disaster
         {
             public static readonly List<(Vector2 Position, NaturalDisaster NetObject)> Sinkholes = [];
 
@@ -873,7 +883,7 @@ namespace EHR
             }
         }
 
-        private sealed class BuildingCollapse : Disaster
+        public sealed class BuildingCollapse : Disaster
         {
             private static int Count = 1;
             public static readonly List<PlainShipRoom> CollapsedRooms = [];

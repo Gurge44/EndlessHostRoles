@@ -351,6 +351,7 @@
         Wraith,
         Werewolf,
         WeaponMaster,
+        Weatherman,
         Workaholic,
 
         // Solo Kombat

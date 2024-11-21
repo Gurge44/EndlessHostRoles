@@ -2700,6 +2700,8 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 CustomRoles.Nonplus => Nonplus.BlindCooldown.GetInt() + (includeDuration ? Nonplus.BlindDuration.GetInt() : 0),
                 CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
                 CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
+                CustomRoles.NoteKiller => NoteKiller.AbilityCooldown.GetInt(),
+                CustomRoles.Weatherman => Weatherman.AbilityCooldown.GetInt(),
                 _ => -1
             };
 

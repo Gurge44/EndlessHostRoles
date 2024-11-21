@@ -24,17 +24,13 @@ namespace EHR.Patches
         public static bool Prefix(PlayerControl __instance)
         {
             if (!Options.UsePets.GetBool()) return true;
-
             if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return true;
-
             if (GameStates.IsLobby || !__instance.IsAlive()) return true;
-
             if (__instance.petting) return true;
 
             __instance.petting = true;
 
             if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
-
             if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp) return true;
 
             ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
@@ -46,7 +42,6 @@ namespace EHR.Patches
         public static void Postfix(PlayerControl __instance)
         {
             if (!Options.UsePets.GetBool()) return;
-
             if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return;
 
             __instance.petting = false;
@@ -90,7 +85,6 @@ namespace EHR.Patches
             }
 
             if (!LastProcess.ContainsKey(pc.PlayerId)) LastProcess.TryAdd(pc.PlayerId, Utils.TimeStamp - 2);
-
             if (LastProcess[pc.PlayerId] + 1 >= Utils.TimeStamp) return;
 
             LastProcess[pc.PlayerId] = Utils.TimeStamp;
@@ -139,10 +133,8 @@ namespace EHR.Patches
 
             if (pc.HasAbilityCD())
             {
-                if (!pc.IsHost())
-                    pc.Notify(Translator.GetString("AbilityOnCooldown"));
-                else
-                    Main.Instance.StartCoroutine(FlashCooldownTimer());
+                if (!pc.IsHost()) pc.Notify(Translator.GetString("AbilityOnCooldown"));
+                else Main.Instance.StartCoroutine(FlashCooldownTimer());
 
                 return;
             }
@@ -158,14 +150,15 @@ namespace EHR.Patches
 
             if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
             {
-                if (Options.CurrentGameMode != CustomGameMode.Speedrun) pc.AddKCDAsAbilityCD();
+                if (Options.CurrentGameMode != CustomGameMode.Speedrun)
+                    pc.AddKCDAsAbilityCD();
 
-                if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target)) pc.RpcCheckAndMurder(target);
+                if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
+                    pc.RpcCheckAndMurder(target);
 
                 if (alwaysPetRole) pc.SetKillCooldown();
             }
-            else
-                Main.PlayerStates[pc.PlayerId].Role.OnPet(pc);
+            else Main.PlayerStates[pc.PlayerId].Role.OnPet(pc);
 
             if (pc.HasAbilityCD() || Main.PlayerStates[pc.PlayerId].Role is Sniper { IsAim: true }) return;
 

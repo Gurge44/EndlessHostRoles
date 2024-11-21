@@ -32,6 +32,7 @@ namespace EHR
             CustomRoles.Whisperer,
             CustomRoles.Wizard,
             CustomRoles.NoteKiller,
+            CustomRoles.Weatherman,
 
             // Add-ons
             CustomRoles.Energetic,
@@ -438,6 +439,7 @@ namespace EHR
                 CustomRoles.BloodKnight => RoleTypes.Impostor,
                 CustomRoles.Poisoner => RoleTypes.Impostor,
                 CustomRoles.NSerialKiller => RoleTypes.Impostor,
+                CustomRoles.Weatherman => RoleTypes.Impostor,
                 CustomRoles.Vortex => RoleTypes.Impostor,
                 CustomRoles.Beehive => RoleTypes.Impostor,
                 CustomRoles.RouleteGrandeur => RoleTypes.Impostor,
@@ -539,6 +541,7 @@ namespace EHR
                 CustomRoles.Rogue or
                 CustomRoles.Parasite or
                 CustomRoles.NSerialKiller or
+                CustomRoles.Weatherman or
                 CustomRoles.NoteKiller or
                 CustomRoles.Vortex or
                 CustomRoles.Beehive or
@@ -942,6 +945,7 @@ namespace EHR
                 CustomRoles.Chemist or
                 CustomRoles.Simon or
                 CustomRoles.Patroller or
+                CustomRoles.Weatherman or
                 CustomRoles.NoteKiller;
         }
 
@@ -1681,6 +1685,7 @@ namespace EHR
         HexMaster,
         Wraith,
         NSerialKiller,
+        Weatherman,
         NoteKiller,
         Vortex,
         Beehive,

@@ -10,8 +10,8 @@ namespace EHR.Neutral
     {
         public static bool On;
 
+        public static OptionItem AbilityCooldown;
         private static OptionItem NumLettersRevealed;
-        private static OptionItem AbilityCooldown;
         private static OptionItem ClueShowDuration;
         private static OptionItem WinCondition;
         private static OptionItem NumPlayersToKill;
@@ -45,8 +45,8 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             StartSetup(645950, single: true)
-                .AutoSetupOption(ref NumLettersRevealed, 2, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
                 .AutoSetupOption(ref AbilityCooldown, 15f, new FloatValueRule(0f, 90f, 0.5f), OptionFormat.Seconds)
+                .AutoSetupOption(ref NumLettersRevealed, 2, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
                 .AutoSetupOption(ref ClueShowDuration, 5, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
                 .AutoSetupOption(ref WinCondition, 0, WinConditions)
                 .AutoSetupOption(ref NumPlayersToKill, 2, new IntegerValueRule(0, 14, 1))
@@ -92,6 +92,9 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
+
+            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)
