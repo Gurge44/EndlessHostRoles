@@ -3013,7 +3013,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             Process.Start(psi);
         }
 
-        public static (int, int) GetDousedPlayerCount(byte playerId)
+        public static (int Doused, int All) GetDousedPlayerCount(byte playerId)
         {
             int doused = 0, all = 0;
 
@@ -3022,13 +3022,15 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 if (pc.PlayerId == playerId) continue;
 
                 all++;
-                if (Arsonist.IsDoused.TryGetValue((playerId, pc.PlayerId), out bool isDoused) && isDoused) doused++;
+
+                if (Arsonist.IsDoused.TryGetValue((playerId, pc.PlayerId), out bool isDoused) && isDoused)
+                    doused++;
             }
 
             return (doused, all);
         }
 
-        public static (int, int) GetDrawPlayerCount(byte playerId, out List<PlayerControl> winnerList)
+        public static (int Drawn, int All) GetDrawPlayerCount(byte playerId, out List<PlayerControl> winnerList)
         {
             var draw = 0;
             int all = Options.RevolutionistDrawCount.GetInt();

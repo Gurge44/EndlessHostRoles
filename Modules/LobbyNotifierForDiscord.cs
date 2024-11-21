@@ -35,7 +35,7 @@ namespace EHR.Modules
         {
             var gameId = AmongUsClient.Instance.GameId;
             if (gameId == 32) return;
-            
+
             var roomCode = GameCode.IntToGameName(gameId);
             if (roomCode == LastRoomCode) return;
             LastRoomCode = roomCode;
@@ -94,7 +94,7 @@ namespace EHR.Modules
 
         public static void NotifyLobbyStatusChanged(LobbyStatus status)
         {
-            if (!Options.PostLobbyCodeToEHRDiscordServer.GetBool()) return;
+            if (!Options.PostLobbyCodeToEHRDiscordServer.GetBool() || !AmongUsClient.Instance.AmHost) return;
 
             if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) != LastRoomCode)
             {

@@ -19,8 +19,12 @@ namespace EHR
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameJoined))]
     internal static class OnGameJoinedPatch
     {
+        public static bool JoiningGame;
+
         public static void Postfix(AmongUsClient __instance)
         {
+            JoiningGame = true;
+
             while (!Options.IsLoaded) Task.Delay(1);
 
             Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
@@ -68,6 +72,8 @@ namespace EHR
 
                 LateTask.New(() =>
                 {
+                    JoiningGame = false;
+
                     if (GameStates.IsOnlineGame && GameStates.IsVanillaServer)
                     {
                         try
@@ -527,7 +533,26 @@ namespace EHR
         {
             if (Main.IntroDestroyed || __instance == null) return;
 
-            Logger.Info($"{__instance.GetRealName()}'s color is {Palette.GetColorName(bodyColor)}", "RpcSetColor");
+            string colorName = Palette.GetColorName(bodyColor);
+            Logger.Info($"{__instance.GetRealName()}'s color is {colorName}", "RpcSetColor");
+
+            if (colorName == "???")
+            {
+                LateTask.New(() =>
+                {
+                    if (__instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
+                    {
+                        var client = __instance.GetClient();
+
+                        if (client != null)
+                        {
+                            Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
+                            AmongUsClient.Instance.KickPlayer(client.Id, false);
+                        }
+                    }
+                }, 4f, "fortegreen bean color kick");
+            }
+
             if (bodyColor == 255) return;
 
             Main.PlayerColors[__instance.PlayerId] = Palette.PlayerColors[bodyColor];

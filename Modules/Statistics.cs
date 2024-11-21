@@ -92,7 +92,7 @@ namespace EHR.Modules
                     if (Main.PlayerStates.Values.All(x => x.GetRealKiller() != lp.PlayerId))
                         Achievements.Type.InnocentImpostor.CompleteAfterGameEnd();
 
-                    if (Main.AllPlayerControls.Where(x => x.IsImpostor()).All(x => x.IsAlive()))
+                    if (Main.NormalOptions.NumImpostors > 1 && Main.AllPlayerControls.Where(x => x.IsImpostor()).All(x => x.IsAlive()))
                         Achievements.Type.ImpostorGang.CompleteAfterGameEnd();
                 }
 
