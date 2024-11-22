@@ -449,6 +449,7 @@ namespace EHR
                     { CustomRoles.ParityCop, "#0D57AF" },
                     { CustomRoles.TimeMaster, "#44baff" },
                     { CustomRoles.Crusader, "#C65C39" },
+                    { CustomRoles.Speedrunner, "#800080" },
                     // Neutrals
                     { CustomRoles.Arsonist, "#ff6633" },
                     { CustomRoles.Pyromaniac, "#ff6633" },
@@ -471,8 +472,8 @@ namespace EHR
                     { CustomRoles.Gamer, "#68bc71" },
                     { CustomRoles.DarkHide, "#483d8b" },
                     { CustomRoles.Workaholic, "#008b8b" },
-                    { CustomRoles.Speedrunner, "#800080" },
                     { CustomRoles.Collector, "#9d8892" },
+                    { CustomRoles.NecroGuesser, "#F6FE03" },
                     { CustomRoles.Provocateur, "#74ba43" },
                     { CustomRoles.Sunnyboy, "#ff9902" },
                     { CustomRoles.Poisoner, "#e70052" },
@@ -818,6 +819,7 @@ namespace EHR
         DarkHide = CustomRoles.DarkHide,
         Workaholic = CustomRoles.Workaholic,
         Collector = CustomRoles.Collector,
+        NecroGuesser = CustomRoles.NecroGuesser,
         BloodKnight = CustomRoles.BloodKnight,
         Poisoner = CustomRoles.Poisoner,
         HexMaster = CustomRoles.HexMaster,
@@ -915,7 +917,8 @@ namespace EHR
         SoulHunter = CustomRoles.SoulHunter,
         SchrodingersCat = CustomRoles.SchrodingersCat,
         Innocent = CustomRoles.Innocent,
-        NoteKiller = CustomRoles.NoteKiller
+        NoteKiller = CustomRoles.NoteKiller,
+        NecroGuesser = CustomRoles.NecroGuesser
     }
 
     public enum SuffixModes

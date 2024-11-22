@@ -301,6 +301,7 @@
         Maverick,
         Medusa,
         Mycologist,
+        NecroGuesser,
         Necromancer,
         Nonplus,
         NoteKiller,
