@@ -191,6 +191,7 @@ namespace EHR
 
                     break;
                 case 2: // /up and role ability commands
+                case 4: // /r, /n, /m
                     Logger.Info($"Command: {message}", "ChatManager");
                     break;
                 case 3: // In Lobby & Evertything Else
@@ -199,13 +200,10 @@ namespace EHR
                     if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
 
                     break;
-                case 4: // /r, /n, /m
-                    Logger.Info($"Command: {message}", "ChatManager");
-                    //if (!DontBlock) SendPreviousMessagesToAll(realMessagesOnly: true);
-                    break;
             }
 
-            if (Options.CurrentGameMode == CustomGameMode.FFA && !message.StartsWith('/')) FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
+            if (Options.CurrentGameMode == CustomGameMode.FFA && GameStates.InGame && !message.StartsWith('/'))
+                FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
         }
 
         public static void SendPreviousMessagesToAll(bool clear = false)

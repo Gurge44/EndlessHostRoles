@@ -175,6 +175,8 @@ namespace EHR
         public static OptionItem DisableMeeting;
         public static OptionItem DisableCloseDoor;
         public static OptionItem DisableSabotage;
+        
+        public static OptionItem DisableWhisperCommand;
 
         public static OptionItem DisableReactorOnSkeldAndMira;
         public static OptionItem DisableReactorOnPolus;
@@ -1804,6 +1806,9 @@ namespace EHR
 
             DisableCloseDoor = new BooleanOptionItem(22810, "DisableCloseDoor", false, TabGroup.GameSettings)
                 .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+            
+            DisableWhisperCommand = new BooleanOptionItem(22811, "DisableWhisperCommand", false, TabGroup.GameSettings)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
             LoadingPercentage = 75;
