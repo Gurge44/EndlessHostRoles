@@ -341,6 +341,12 @@ namespace EHR
                 Utils.SendMessage("\n", player.PlayerId, GetString("WhisperDisabled"));
                 return;
             }
+
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(WhisperCommand), text);
+                return;
+            }
             
             if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
             if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
