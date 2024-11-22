@@ -136,6 +136,7 @@
         Alchemist,
         Altruist,
         Analyst,
+        Ankylosaurus,
         Autocrat,
         Bane,
         Beacon,

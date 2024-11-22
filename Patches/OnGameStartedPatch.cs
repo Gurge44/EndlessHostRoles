@@ -700,11 +700,14 @@ namespace EHR
 
                 foreach (PlayerState state in Main.PlayerStates.Values)
                 {
-                    if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) && neverList.TryGetValue(state.MainRole, out List<CustomRoles> bannedAddonList)) bannedAddonList.ForEach(x => state.RemoveSubRole(x));
+                    if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) && neverList.TryGetValue(state.MainRole, out List<CustomRoles> bannedAddonList))
+                        bannedAddonList.ForEach(x => state.RemoveSubRole(x));
 
-                    if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> alwaysList) && alwaysList.TryGetValue(state.MainRole, out List<CustomRoles> addonList)) addonList.ForEach(x => state.SetSubRole(x));
+                    if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> alwaysList) && alwaysList.TryGetValue(state.MainRole, out List<CustomRoles> addonList))
+                        addonList.ForEach(x => state.SetSubRole(x));
 
-                    if (!state.MainRole.IsImpostor()) state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
+                    if (!state.MainRole.IsImpostor() && !(state.MainRole == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
+                        state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
                 }
 
                 foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)

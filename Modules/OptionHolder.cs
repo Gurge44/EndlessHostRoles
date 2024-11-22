@@ -532,6 +532,14 @@ namespace EHR
         // Sabotage
         public static OptionItem CommsCamouflage;
         public static OptionItem CommsCamouflageDisableOnFungle;
+        public static OptionItem CommsCamouflageLimit;
+        public static OptionItem CommsCamouflageLimitSetChance;
+        public static OptionItem CommsCamouflageLimitChance;
+        public static OptionItem CommsCamouflageLimitSetFrequency;
+        public static OptionItem CommsCamouflageLimitFrequency;
+        public static OptionItem CommsCamouflageLimitSetMaxTimes;
+        public static OptionItem CommsCamouflageLimitMaxTimesPerGame;
+        public static OptionItem CommsCamouflageLimitMaxTimesPerRound;
         public static OptionItem DisableReportWhenCC;
         public static OptionItem SabotageTimeControl;
         public static OptionItem SkeldReactorTimeLimit;
@@ -1579,6 +1587,47 @@ namespace EHR
             CommsCamouflageDisableOnFungle = new BooleanOptionItem(22202, "CommsCamouflageDisableOnFungle", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflage)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+            
+            CommsCamouflageLimit = new BooleanOptionItem(22203, "CommsCamouflageLimit", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflage)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+            
+            CommsCamouflageLimitSetChance = new BooleanOptionItem(22204, "CommsCamouflageLimitSetChance", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+            
+            CommsCamouflageLimitChance = new IntegerOptionItem(22205, "CommsCamouflageLimitChance", new(0, 100, 5), 50, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetValueFormat(OptionFormat.Percent)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+            
+            CommsCamouflageLimitSetFrequency = new BooleanOptionItem(22206, "CommsCamouflageLimitSetFrequency", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+            
+            CommsCamouflageLimitFrequency = new IntegerOptionItem(22207, "CommsCamouflageLimitFrequency", new(1, 10, 1), 2, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+            
+            CommsCamouflageLimitSetMaxTimes = new BooleanOptionItem(22208, "CommsCamouflageLimitSetMaxTimes", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+            
+            CommsCamouflageLimitMaxTimesPerGame = new IntegerOptionItem(22209, "CommsCamouflageLimitMaxTimesPerGame", new(1, 30, 1), 3, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+            
+            CommsCamouflageLimitMaxTimesPerRound = new IntegerOptionItem(22210, "CommsCamouflageLimitMaxTimesPerRound", new(1, 10, 1), 1, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
 
             DisableReportWhenCC = new BooleanOptionItem(22300, "DisableReportWhenCC", false, TabGroup.GameSettings)

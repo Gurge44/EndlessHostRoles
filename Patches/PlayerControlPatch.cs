@@ -753,6 +753,12 @@ namespace EHR
         {
             if (!Main.ProcessShapeshifts) return true;
 
+            if (AntiBlackout.SkipTasks)
+            {
+                Logger.Info("Shapeshift while AntiBlackOut protection is in progress, shapeshift canceled", "Shapeshift");
+                return false;
+            }
+
             if (shapeshifter == null || target == null) return true;
 
             Logger.Info($"{shapeshifter.GetNameWithRole()} => {target.GetNameWithRole()}", "Shapeshift");
@@ -816,9 +822,11 @@ namespace EHR
             isSSneeded &= !doSSwithoutAnim;
 
             // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
-            if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded) LateTask.New(() => NotifyRoles(NoCache: true), 1.2f, "ShapeShiftNotify");
+            if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
+                LateTask.New(() => NotifyRoles(NoCache: true), 1.2f, "ShapeShiftNotify");
 
-            if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId)) LateTask.New(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
+            if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
+                LateTask.New(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
 
             if (!isSSneeded)
             {
@@ -894,7 +902,7 @@ namespace EHR
 
             if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
 
-            if (Options.DisableReportWhenCC.GetBool() && (Camouflager.IsActive || (IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()))) return false;
+            if (Options.DisableReportWhenCC.GetBool() && Camouflage.IsCamouflage) return false;
 
             if (!CanReport[__instance.PlayerId])
             {
@@ -921,7 +929,7 @@ namespace EHR
                 PlayerControl killer = target?.Object?.GetRealKiller();
                 CustomRoles? killerRole = killer?.GetCustomRole();
 
-                if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && Options.DisableReportWhenCC.GetBool()) return false;
+                if (Camouflage.IsCamouflage && Options.DisableReportWhenCC.GetBool()) return false;
 
                 if (Main.PlayerStates.Values.Any(x => x.Role is Tremor { IsDoom: true })) return false;
 
@@ -1132,9 +1140,11 @@ namespace EHR
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId)) Camouflage.RpcSetSkin(pc, RevertToDefault: true);
+                if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                    Camouflage.RpcSetSkin(pc, RevertToDefault: true);
 
-                if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage))) pc.FixMixedUpOutfit();
+                if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
+                    pc.FixMixedUpOutfit();
 
                 PhantomRolePatch.OnReportDeadBody(pc, force);
             }
@@ -1151,8 +1161,13 @@ namespace EHR
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 CustomRoles role = pc.GetCustomRole();
-                if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))) pc.RpcShapeshift(pc, false);
+                if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
+                    pc.RpcShapeshift(pc, false);
+                
+                if (Camouflage.IsCamouflage) Camouflage.RpcSetSkin(pc, RevertToDefault: true, ForceRevert: true);
             }
+
+            Camouflage.CamoTimesThisRound = 0;
 
             if (HudManagerPatch.AchievementUnlockedText == string.Empty)
                 HudManagerPatch.ClearLowerInfoText();
@@ -1163,7 +1178,7 @@ namespace EHR
     internal static class FixedUpdatePatch
     {
         private static readonly StringBuilder Mark = new(20);
-        private static readonly StringBuilder Suffix = new(240);
+        private static readonly StringBuilder Suffix = new();
         private static int LevelKickBufferTime = 10;
         private static readonly Dictionary<byte, int> BufferTime = [];
         private static readonly Dictionary<byte, int> DeadBufferTime = [];
@@ -1542,6 +1557,8 @@ namespace EHR
 
                     Mark.Clear();
                     Suffix.Clear();
+                    
+                    if (AntiBlackout.SkipTasks) Suffix.AppendLine(GetString("AntiBlackoutSkipTasks"));
 
                     string RealName = target.GetRealName();
 
@@ -1733,7 +1750,7 @@ namespace EHR
                     if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId))) RealName = GetString("DevouredName");
 
                     // Camouflage
-                    if ((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) RealName = $"<size=0>{RealName}</size> ";
+                    if (Camouflage.IsCamouflage) RealName = $"<size=0>{RealName}</size> ";
 
                     string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 

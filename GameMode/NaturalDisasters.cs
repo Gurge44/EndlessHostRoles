@@ -920,7 +920,6 @@ namespace EHR
                 if (CollapsedRooms.Count == 0) return;
 
                 if (Count++ < 10) return;
-
                 Count = 0;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -929,13 +928,10 @@ namespace EHR
 
                     if (room != default(PlainShipRoom) && CollapsedRooms.Exists(x => x == room))
                     {
-                        if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos))
-                            pc.TP(lastPos);
-                        else
-                            pc.Suicide(PlayerState.DeathReason.Collapsed);
+                        if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos)) pc.TP(lastPos);
+                        else pc.Suicide(PlayerState.DeathReason.Collapsed);
                     }
-                    else
-                        LastPosition[pc.PlayerId] = pc.Pos();
+                    else LastPosition[pc.PlayerId] = pc.Pos();
                 }
             }
         }

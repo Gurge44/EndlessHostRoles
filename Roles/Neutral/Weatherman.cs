@@ -79,5 +79,10 @@ namespace EHR.Neutral
             NaturalDisasters.Sinkhole.OnFixedUpdate();
             NaturalDisasters.BuildingCollapse.OnFixedUpdate();
         }
+
+        public override void OnReportDeadBody()
+        {
+            NaturalDisasters.BuildingCollapse.CollapsedRooms.Clear();
+        }
     }
 }

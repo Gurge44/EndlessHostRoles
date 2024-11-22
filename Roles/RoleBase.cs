@@ -173,10 +173,8 @@ namespace EHR
             var role = Enum.Parse<CustomRoles>(GetType().Name, true);
             var tab = TabGroup.OtherRoles;
 
-            if (role.IsImpostor())
-                tab = TabGroup.ImpostorRoles;
-            else if (role.IsNeutral(true))
-                tab = TabGroup.NeutralRoles;
+            if (role.IsImpostor()) tab = TabGroup.ImpostorRoles;
+            else if (role.IsNeutral(true)) tab = TabGroup.NeutralRoles;
             else if (role.IsCrewmate()) tab = TabGroup.CrewmateRoles;
 
             if (single) Options.SetupSingleRoleOptions(id++, tab, role, hideMaxSetting: true);
@@ -206,8 +204,7 @@ namespace EHR
                     _ => throw new ArgumentException("The valueRule and defaultValue combination is not supported.")
                 };
 
-                field.SetParent(overrideParent ?? Parent);
-
+                field?.SetParent(overrideParent ?? Parent);
                 if (format != OptionFormat.None) field?.SetValueFormat(format);
             }
             catch (Exception e)
