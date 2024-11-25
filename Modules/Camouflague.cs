@@ -51,6 +51,10 @@ namespace EHR
             ResetSkinAfterDeathPlayers = [];
             WaitingForSkinChange = [];
 
+            SkippedCamoTimes = 0;
+            CamoTimesThisGame = 0;
+            CamoTimesThisRound = 0;
+
             CamouflageOutfit = Options.KPDCamouflageMode.GetValue() switch
             {
                 0 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "", ""), // Default
@@ -72,13 +76,40 @@ namespace EHR
             }
         }
 
+        private static int SkippedCamoTimes;
+        private static int CamoTimesThisGame;
+        public static int CamoTimesThisRound;
+
+        private static bool ShouldCamouflage()
+        {
+            if (Camouflager.On && Camouflager.IsActive) return true;
+            
+            if (Main.CurrentMap == MapNames.Fungle && Options.CommsCamouflageDisableOnFungle.GetBool()) return false;
+
+            if (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())
+            {
+                if (Options.CommsCamouflageLimitSetChance.GetBool() && IRandom.Instance.Next(100) < Options.CommsCamouflageLimitChance.GetInt()) return false;
+                if (Options.CommsCamouflageLimitSetFrequency.GetBool() && ++SkippedCamoTimes < Options.CommsCamouflageLimitFrequency.GetInt()) return false;
+
+                if (Options.CommsCamouflageLimitSetMaxTimes.GetBool())
+                {
+                    if (CamoTimesThisGame++ >= Options.CommsCamouflageLimitMaxTimesPerGame.GetInt()) return false;
+                    if (CamoTimesThisRound++ >= Options.CommsCamouflageLimitMaxTimesPerRound.GetInt()) return false;
+                }
+                
+                return true;
+            }
+            
+            return false;
+        }
+
         public static bool CheckCamouflage()
         {
             if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On)) return false;
 
             bool oldIsCamouflage = IsCamouflage;
 
-            IsCamouflage = (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()) || Camouflager.IsActive;
+            IsCamouflage = ShouldCamouflage();
 
             if (oldIsCamouflage != IsCamouflage)
             {
@@ -197,6 +228,8 @@ namespace EHR
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
+            if (pc.IsLocalPlayer()) CheckCamouflage();
+            
             if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat) return;
 
             RpcSetSkin(pc);

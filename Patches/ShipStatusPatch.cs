@@ -222,7 +222,6 @@ namespace EHR
             {
                 case SystemTypes.Comms:
                     if (!Camouflage.CheckCamouflage()) Utils.NotifyRoles();
-
                     goto case SystemTypes.Electrical;
                 case SystemTypes.Reactor:
                 case SystemTypes.LifeSupp:
@@ -230,11 +229,14 @@ namespace EHR
                 case SystemTypes.HeliSabotage:
                 case SystemTypes.Electrical:
                 {
-                    if (player.Is(CustomRoles.Damocles) && Damocles.CountRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
+                    if (player.Is(CustomRoles.Damocles) && Damocles.CountRepairSabotage)
+                        Damocles.OnRepairSabotage(player.PlayerId);
 
-                    if (player.Is(CustomRoles.Stressed) && Stressed.CountRepairSabotage) Stressed.OnRepairSabotage(player);
+                    if (player.Is(CustomRoles.Stressed) && Stressed.CountRepairSabotage)
+                        Stressed.OnRepairSabotage(player);
 
-                    if (Main.PlayerStates[player.PlayerId].Role is Rogue rg) rg.OnFixSabotage();
+                    if (Main.PlayerStates[player.PlayerId].Role is Rogue rg)
+                        rg.OnFixSabotage();
 
                     break;
                 }

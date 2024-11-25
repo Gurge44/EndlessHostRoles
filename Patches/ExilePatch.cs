@@ -129,6 +129,8 @@ namespace EHR.Patches
             // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
             if (AmongUsClient.Instance.AmHost)
             {
+                Utils.NotifyRoles();
+                
                 LateTask.New(() =>
                 {
                     AntiBlackout.SendGameData();
@@ -137,30 +139,29 @@ namespace EHR.Patches
 
                 LateTask.New(() =>
                 {
-                    Main.AfterMeetingDeathPlayers.Do(x =>
+                    if (!GameStates.IsEnded)
                     {
-                        PlayerControl player = Utils.GetPlayerById(x.Key);
-                        PlayerState state = Main.PlayerStates[x.Key];
-                        Logger.Info($"{player?.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
-                        state.deathReason = x.Value;
-                        state.SetDead();
-                        player?.RpcExileV2();
-                        if (x.Value == PlayerState.DeathReason.Suicide) player?.SetRealKiller(player, true);
+                        AntiBlackout.ResetAfterMeeting();
+                        
+                        Main.AfterMeetingDeathPlayers.Do(x =>
+                        {
+                            PlayerControl player = Utils.GetPlayerById(x.Key);
+                            PlayerState state = Main.PlayerStates[x.Key];
+                            Logger.Info($"{player?.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
+                            state.deathReason = x.Value;
+                            state.SetDead();
+                            player?.RpcExileV2();
+                            if (x.Value == PlayerState.DeathReason.Suicide) player?.SetRealKiller(player, true);
+                            Utils.AfterPlayerDeathTasks(player);
+                        });
 
-                        Utils.AfterPlayerDeathTasks(player);
-                    });
-
-                    Main.AfterMeetingDeathPlayers.Clear();
-                    Utils.AfterMeetingTasks();
-                    Utils.SyncAllSettings();
-                    Utils.NotifyRoles(NoCache: true);
-                    Utils.CheckAndSetVentInteractions();
-                }, 1.2f, "AfterMeetingDeathPlayers Task");
-
-                LateTask.New(() =>
-                {
-                    if (!GameStates.IsEnded) AntiBlackout.ResetAfterMeeting();
-                }, 2f, "Reset Cooldown After Meeting");
+                        Main.AfterMeetingDeathPlayers.Clear();
+                        Utils.AfterMeetingTasks();
+                        Utils.SyncAllSettings();
+                        Utils.NotifyRoles(NoCache: true);
+                        Utils.CheckAndSetVentInteractions();
+                    }
+                }, 2f, "AntiBlackout Reset & AfterMeetingTasks");
             }
 
             GameStates.AlreadyDied |= !Utils.IsAllAlive;

@@ -2061,6 +2061,8 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                     if (!GameStates.IsLobby)
                     {
+                        if (AntiBlackout.SkipTasks) SelfSuffix.AppendLine(GetString("AntiBlackoutSkipTasks"));
+                        
                         if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode0;
 
                         SelfMark.Append(Snitch.GetWarningArrow(seer));
@@ -2229,7 +2231,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !CamouflageIsForMeeting) SelfName = GetString("DevouredName");
 
                     // Camouflage
-                    if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting) SelfName = $"<size=0>{SelfName}</size>";
+                    if (Camouflage.IsCamouflage && !CamouflageIsForMeeting) SelfName = $"<size=0>{SelfName}</size>";
 
                     GameMode2:
 
@@ -2473,7 +2475,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !CamouflageIsForMeeting) TargetPlayerName = GetString("DevouredName");
 
                                 // Camouflage
-                                if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && !GameStates.IsLobby && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting) TargetPlayerName = $"<size=0>{TargetPlayerName}</size>";
+                                if (Camouflage.IsCamouflage && !CamouflageIsForMeeting) TargetPlayerName = $"<size=0>{TargetPlayerName}</size>";
 
                                 var TargetName = $"{TargetRoleText}{TargetPlayerName}{TargetDeathReason}{TargetMark}";
                                 TargetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{TargetSuffix}";
@@ -2740,6 +2742,8 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             Lovers.IsChatActivated = false;
             AFKDetector.NumAFK = 0;
             AFKDetector.PlayerData.Clear();
+
+            Camouflage.CheckCamouflage();
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
@@ -3203,7 +3207,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             hud.StartCoroutine(Effects.Lerp(duration, new Action<float>(t =>
             {
                 obj.SetActive(Math.Abs(t - 1f) > 0.1f);
-                obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01(((-2f * Mathf.Abs(t - 0.5f)) + 1) * color.a / 2)); //アルファ値を0→目標→0に変化させる
+                obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01(((-2f * Mathf.Abs(t - 0.5f)) + 1) * color.a / 2));
             })));
         }
 

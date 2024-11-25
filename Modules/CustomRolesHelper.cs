@@ -212,6 +212,7 @@ namespace EHR
                 CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
                 CustomRoles.Bane => CustomRoles.Crewmate,
                 CustomRoles.Transmitter => CustomRoles.Crewmate,
+                CustomRoles.Ankylosaurus => CustomRoles.Crewmate,
                 CustomRoles.Leery => CustomRoles.Crewmate,
                 CustomRoles.Altruist => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Negotiator => CustomRoles.Crewmate,
@@ -285,6 +286,7 @@ namespace EHR
                 CustomRoles.Speedrunner => CustomRoles.Crewmate,
                 CustomRoles.CursedWolf => CustomRoles.Impostor,
                 CustomRoles.Collector => CustomRoles.Crewmate,
+                CustomRoles.NecroGuesser => CustomRoles.Crewmate,
                 CustomRoles.SchrodingersCat => CustomRoles.Crewmate,
                 CustomRoles.ImperiusCurse => CustomRoles.Shapeshifter,
                 CustomRoles.QuickShooter => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -953,8 +955,9 @@ namespace EHR
 
         public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
         {
-            return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
+            return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor() || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
             {
+                CustomRoles.Sleuth when pc.Is(CustomRoles.NecroGuesser) => false,
                 CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
                 CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
                 CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
@@ -1391,6 +1394,7 @@ namespace EHR
                 CustomRoles.Mario => RoleOptionType.Neutral_Evil,
                 CustomRoles.Terrorist => RoleOptionType.Neutral_Evil,
                 CustomRoles.Collector => RoleOptionType.Neutral_Evil,
+                CustomRoles.NecroGuesser => RoleOptionType.Neutral_Evil,
                 CustomRoles.Vulture => RoleOptionType.Neutral_Evil,
                 CustomRoles.Workaholic => RoleOptionType.Neutral_Evil,
                 CustomRoles.Deathknight => RoleOptionType.Neutral_Evil,
@@ -1503,6 +1507,7 @@ namespace EHR
             return role switch
             {
                 CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
+                CustomRoles.Ankylosaurus => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.CyberStar => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Demolitionist => RoleOptionType.Crewmate_Miscellaneous,

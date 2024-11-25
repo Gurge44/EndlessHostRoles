@@ -13,6 +13,7 @@ namespace EHR.Neutral
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
         public static OptionItem CanSabotage;
+        public static OptionItem CanGetImpostorOnlyAddons;
         public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
@@ -30,6 +31,9 @@ namespace EHR.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
 
             CanSabotage = new BooleanOptionItem(Id + 15, "CanUseSabotage", true, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
+            
+            CanGetImpostorOnlyAddons = new BooleanOptionItem(Id + 16, "CanGetImpostorOnlyAddons", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
         }
 

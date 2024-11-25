@@ -132,7 +132,7 @@ namespace EHR
                 new("ninjanice#3990", isUp: true), // void_daora
                 new("magicmill#4146", isUp: true), // Sr.Angel
                 new("grassyprey#9593", isUp: true), // LucasCarr
-                new("blessedtes#6684", "#ff0000", "YouTuber", true), // Gabriel So Capa
+                new("blessedtea#6684", "#ff0000", "YouTuber", true), // Rvimpostor
 
                 // Sponsor
                 new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),

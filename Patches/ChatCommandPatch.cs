@@ -178,6 +178,7 @@ namespace EHR
                 new(["enableallroles", "всероли"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true),
                 new(["achievements", "достижения"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true),
                 new(["dn", "deathnote", "заметкамертвого"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, [GetString("CommandArgs.DeathNote.Name")]),
+                new(["w", "whisper", "шепот", "ш"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
 
                 // Commands with action handled elsewhere
                 new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -248,8 +249,6 @@ namespace EHR
 
             Logger.Info(text, "SendChat");
 
-            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
-
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -315,9 +314,10 @@ namespace EHR
                 __instance.freeChatField.textArea.Clear();
                 __instance.freeChatField.textArea.SetText(cancelVal);
             }
+            else ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
 
             if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Gamer))
-                Achievements.Type.WhatTheHell.CompleteAfterGameEnd();
+                Achievements.Type.WhatTheHell.Complete();
 
             return !canceled;
         }
@@ -334,6 +334,25 @@ namespace EHR
 
         // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+        private static void WhisperCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+        {
+            if (Options.DisableWhisperCommand.GetBool())
+            {
+                Utils.SendMessage("\n", player.PlayerId, GetString("WhisperDisabled"));
+                return;
+            }
+
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(WhisperCommand), text);
+                return;
+            }
+            
+            if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
+            if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+            Utils.SendMessage(args[2..].Join(delimiter: " "), targetId, string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName()));
+        }
+        
         private static void DeathNoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             if (!AmongUsClient.Instance.AmHost)
@@ -2329,8 +2348,6 @@ namespace EHR
                 return;
             }
 
-            if (!CheckMute(player.PlayerId)) ChatManager.SendMessage(player, text);
-
             if (text.StartsWith("\n")) text = text[1..];
 
             string[] args = text.Split(' ');
@@ -2416,6 +2433,8 @@ namespace EHR
                 else
                     LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
             }
+            
+            if (!canceled) ChatManager.SendMessage(player, text);
 
             if (isCommand) LastSentCommand[player.PlayerId] = now;
 
@@ -2464,7 +2483,8 @@ namespace EHR
             PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
             if (player == null) return;
 
-            foreach ((string msg, byte sendTo, string title, _) in LastMessages) SendMessage(player, msg, sendTo, title);
+            foreach ((string msg, byte sendTo, string title, _) in LastMessages)
+                SendMessage(player, msg, sendTo, title);
         }
 
         internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title)
