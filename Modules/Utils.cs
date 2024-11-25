@@ -2996,16 +2996,17 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
         public static void DumpLog(bool open = true)
         {
-            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/";
             var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            var filename = $"{f}EHR-v{Main.PluginVersion}-{t}.log";
+            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
             if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-            FileInfo file = new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
-            file.CopyTo(filename);
+            var filename = $"{f}EHR-v{Main.PluginVersion}-LOG";
+            FileInfo[] files = [new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log"), new($"{Environment.CurrentDirectory}/BepInEx/log.html")];
+            files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
+
             if (!open) return;
 
-            if (PlayerControl.LocalPlayer != null) HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), $"EHR v{Main.PluginVersion} {t}.log"));
+            if (PlayerControl.LocalPlayer != null) HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
             ProcessStartInfo psi = new("Explorer.exe")
                 { Arguments = "/e,/select," + filename.Replace("/", "\\") };

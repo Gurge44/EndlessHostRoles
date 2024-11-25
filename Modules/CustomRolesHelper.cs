@@ -914,6 +914,7 @@ namespace EHR
         {
             return role is
                 CustomRoles.Wizard or
+                CustomRoles.Occultist or
                 CustomRoles.Warlock or
                 CustomRoles.Swiftclaw or
                 CustomRoles.Undertaker or
