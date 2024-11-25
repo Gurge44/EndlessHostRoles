@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -67,7 +68,7 @@ namespace EHR
 
         public static bool CanUseVent(this PlayerControl player, int ventId)
         {
-            if (Options.CurrentGameMode == CustomGameMode.RoomRush) return true;
+            if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) return true;
             if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
             return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId))));
         }
@@ -364,7 +365,7 @@ namespace EHR
                 Main.Instance.StartCoroutine(DelayBasisChange());
                 return;
 
-                System.Collections.IEnumerator DelayBasisChange()
+                IEnumerator DelayBasisChange()
                 {
                     while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
                     yield return new WaitForSeconds(1f);
@@ -892,7 +893,8 @@ namespace EHR
 
             pc.Kill(pc);
 
-            if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters) NaturalDisasters.RecordDeath(pc, deathReason);
+            if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                NaturalDisasters.RecordDeath(pc, deathReason);
         }
 
         public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
@@ -1062,7 +1064,7 @@ namespace EHR
 
         public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
         {
-            return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+            return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
         }
 
         public static string GetRoleColorCode(this PlayerControl player)
@@ -1226,6 +1228,8 @@ namespace EHR
                     return false;
                 case CustomGameMode.CaptureTheFlag:
                     return true;
+                case CustomGameMode.AllInOne:
+                    return !AllInOneGameMode.Taskers.Contains(pc.PlayerId);
             }
 
             if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
@@ -1284,6 +1288,7 @@ namespace EHR
                 CustomGameMode.CaptureTheFlag => false,
                 CustomGameMode.NaturalDisasters => false,
                 CustomGameMode.RoomRush => false,
+                CustomGameMode.AllInOne => false,
 
                 CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
                 CustomGameMode.Standard when pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool() => true,
@@ -1511,7 +1516,7 @@ namespace EHR
 
         public static void Kill(this PlayerControl killer, PlayerControl target)
         {
-            if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
+            if (CustomGameMode.SoloKombat.IsActiveOrIntegrated()) return;
 
             if (target == null) target = killer;
 
@@ -1536,7 +1541,7 @@ namespace EHR
 
             Main.DiedThisRound.Add(target.PlayerId);
 
-            if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && Options.CurrentGameMode == CustomGameMode.Standard)
+            if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && CustomGameMode.Standard.IsActiveOrIntegrated())
                 Achievements.Type.InnocentKiller.Complete();
 
             switch (killer.PlayerId == target.PlayerId)

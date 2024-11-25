@@ -204,7 +204,7 @@ namespace EHR
 
                 if (GameStates.IsInGame && data != null && data.Character != null)
                 {
-                    if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
+                    if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
 
                     if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                     {

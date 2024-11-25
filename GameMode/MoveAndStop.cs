@@ -159,14 +159,14 @@ namespace EHR
 
         public static int RoundTime { get; set; }
 
-        private static bool HasJustStarted => GameTime.GetInt() - RoundTime < 25;
+        private static bool HasJustStarted => GameTime.GetInt() - RoundTime < 20;
 
         private static int ExtraGreenTime => (MapNames)Main.NormalOptions.MapId switch
         {
             MapNames.Airship => ExtraGreenTimeOnAirhip.GetInt(),
             MapNames.Fungle => ExtraGreenTimeOnFungle.GetInt(),
             _ => 0
-        };
+        } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? 15 : 0);
 
         private static IntegerValueRule CounterValueRule => new(1, 100, 1);
         private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);
@@ -177,7 +177,8 @@ namespace EHR
 
         private static int StartingGreenTime(PlayerControl pc)
         {
-            return (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) ? 70 : 50 : EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) ? 60 : 40;
+            bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) && Options.CurrentGameMode != CustomGameMode.AllInOne;
+            return Main.CurrentMap == MapNames.Airship ? tutorial ? 57 : 47 : tutorial ? 47 : 37;
         }
 
         private static int RandomRedTime(char direction)
@@ -268,7 +269,7 @@ namespace EHR
 
         public static void Init()
         {
-            if (Options.CurrentGameMode != CustomGameMode.MoveAndStop) return;
+            if (!CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) return;
 
             FixedUpdatePatch.LastSuffix = [];
             FixedUpdatePatch.Limit = [];
@@ -276,7 +277,7 @@ namespace EHR
             RoundTime = GameTime.GetInt() + 8;
 
             FixedUpdatePatch.DoChecks = false;
-            LateTask.New(() => { FixedUpdatePatch.DoChecks = true; }, 10f, log: false);
+            LateTask.New(() => FixedUpdatePatch.DoChecks = true, 10f, log: false);
 
             long now = Utils.TimeStamp;
 
@@ -329,7 +330,7 @@ namespace EHR
 
             var text = timers.ToString();
 
-            if (HasJustStarted && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode))
+            if (HasJustStarted && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) && Options.CurrentGameMode != CustomGameMode.AllInOne)
                 text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
 
             return text;
@@ -348,7 +349,7 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks) return;
+                if (!GameStates.IsInTask || !CustomGameMode.MoveAndStop.IsActiveOrIntegrated() || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || __instance.PlayerId == 255) return;
 
                 PlayerControl pc = __instance;
 

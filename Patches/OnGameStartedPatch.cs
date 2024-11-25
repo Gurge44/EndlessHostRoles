@@ -352,6 +352,7 @@ namespace EHR
                     HotPotatoManager.Init();
                     HnSManager.Init();
                     SpeedrunManager.Init();
+                    AllInOneGameMode.Init();
                 }
                 catch (Exception e)
                 {
@@ -500,7 +501,7 @@ namespace EHR
 
                 var random = IRandom.Instance;
 
-                if (Options.CurrentGameMode == CustomGameMode.Standard)
+                if (CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
                     bool bloodlustSpawn = random.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
                     bool physicistSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out IntegerOptionItem option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
@@ -636,7 +637,7 @@ namespace EHR
                     Main.PlayerStates[kv.Key].SetMainRole(kv.Value);
                 }
 
-                if (Options.CurrentGameMode != CustomGameMode.Standard)
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
                     foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates) ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
 
@@ -775,8 +776,10 @@ namespace EHR
 
                 switch (Options.CurrentGameMode)
                 {
+                    case CustomGameMode.AllInOne:
                     case CustomGameMode.HotPotato:
                         HotPotatoManager.OnGameStart();
+                        if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                         break;
                     case CustomGameMode.HideAndSeek:
                         HnSManager.StartSeekerBlindTime();
@@ -786,6 +789,7 @@ namespace EHR
                         break;
                     case CustomGameMode.NaturalDisasters:
                         NaturalDisasters.OnGameStart();
+                        if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.RoomRush;
                         break;
                     case CustomGameMode.RoomRush:
                         RoomRush.OnGameStart();
@@ -836,6 +840,9 @@ namespace EHR
                         break;
                     case CustomGameMode.RoomRush:
                         GameEndChecker.SetPredicateToRoomRush();
+                        break;
+                    case CustomGameMode.AllInOne:
+                        GameEndChecker.SetPredicateToAllInOne();
                         break;
                 }
 
@@ -1088,7 +1095,7 @@ namespace EHR
 
                 bool ForceImp(byte id)
                 {
-                    return IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (Options.CurrentGameMode == CustomGameMode.Speedrun && SpeedrunManager.CanKill.Contains(id));
+                    return IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (CustomGameMode.Speedrun.IsActiveOrIntegrated() && SpeedrunManager.CanKill.Contains(id));
                 }
             }
 
@@ -1104,7 +1111,7 @@ namespace EHR
                     PlayerControl player = Utils.GetPlayerById(playerId);
                     if (player == null || role.IsDesyncRole()) continue;
 
-                    if (Options.CurrentGameMode == CustomGameMode.Speedrun && SpeedrunManager.CanKill.Contains(playerId)) continue;
+                    if (CustomGameMode.Speedrun.IsActiveOrIntegrated() && SpeedrunManager.CanKill.Contains(playerId)) continue;
 
                     RoleTypes roleType = role.GetRoleTypes();
 

@@ -729,7 +729,7 @@ namespace EHR
 
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255 || !__instance.IsAlive() || __instance.inVent) return;
+            if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255 || !__instance.IsAlive() || __instance.inVent) return;
 
             Vector2 pos = __instance.Pos();
             long now = Utils.TimeStamp;

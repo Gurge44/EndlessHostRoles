@@ -171,14 +171,14 @@ namespace EHR
         }
 
         // Getter
-        public virtual string GetName(bool disableColor = false, bool console = false)
+        public string GetName(bool disableColor = false, bool console = false)
         {
             if (Name.Contains("CTA.FLAG")) return Utils.ColorString(NameColor, Translator.GetString("CTA.TeamEnabled.Prefix") + Name[8..] + Translator.GetString("CTA.TeamEnabled.Suffix"));
 
             return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
         }
 
-        public virtual bool GetBool()
+        public bool GetBool()
         {
             return (Parent == null || Parent.GetBool()) && Name switch
             {
@@ -209,9 +209,10 @@ namespace EHR
             return IsSingleValue ? SingleValue : AllValues[CurrentPreset];
         }
 
-        public virtual bool IsHiddenOn(CustomGameMode mode)
+        public bool IsCurrentlyHidden()
         {
-            return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode);
+            var mode = EHR.Options.CurrentGameMode;
+            return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode && !(mode == CustomGameMode.AllInOne && GameMode is CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush));
         }
 
         private bool CheckHidden()
@@ -235,7 +236,7 @@ namespace EHR
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
 
-        protected virtual void Refresh()
+        protected void Refresh()
         {
             if (OptionBehaviour is StringOption opt)
             {

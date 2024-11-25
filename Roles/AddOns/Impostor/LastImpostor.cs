@@ -47,7 +47,7 @@ namespace EHR.AddOns.Impostor
         {
             if (CurrentId != byte.MaxValue || !AmongUsClient.Instance.AmHost) return;
 
-            if (Options.CurrentGameMode != CustomGameMode.Standard || !CustomRoles.LastImpostor.IsEnable() || Main.AliveImpostorCount != 1) return;
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated() || !CustomRoles.LastImpostor.IsEnable() || Main.AliveImpostorCount != 1) return;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {

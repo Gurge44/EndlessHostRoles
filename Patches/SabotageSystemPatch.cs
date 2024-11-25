@@ -309,7 +309,7 @@ namespace EHR
 
         public static bool Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
 
             if (Options.DisableSabotage.GetBool())
             {

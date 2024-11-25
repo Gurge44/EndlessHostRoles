@@ -136,6 +136,7 @@
         Alchemist,
         Altruist,
         Analyst,
+        Ankylosaurus,
         Autocrat,
         Bane,
         Beacon,
@@ -300,6 +301,7 @@
         Maverick,
         Medusa,
         Mycologist,
+        NecroGuesser,
         Necromancer,
         Nonplus,
         NoteKiller,
@@ -351,6 +353,7 @@
         Wraith,
         Werewolf,
         WeaponMaster,
+        Weatherman,
         Workaholic,
 
         // Solo Kombat

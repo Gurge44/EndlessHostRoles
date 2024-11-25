@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using EHR.Neutral;
@@ -81,7 +82,7 @@ namespace EHR
 
         public static void Init()
         {
-            if (Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
+            if (!CustomGameMode.SoloKombat.IsActiveOrIntegrated()) return;
 
             PlayerHPMax = [];
             PlayerHP = [];
@@ -131,7 +132,7 @@ namespace EHR
 
         public static void GetNameNotify(PlayerControl player, ref string name)
         {
-            if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player == null) return;
+            if (!CustomGameMode.SoloKombat.IsActiveOrIntegrated() || player == null) return;
 
             if (BackCountdown.TryGetValue(player.PlayerId, out int value))
             {
@@ -165,7 +166,7 @@ namespace EHR
 
         public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
+            if (killer == null || target == null || !CustomGameMode.SoloKombat.IsActiveOrIntegrated()) return;
 
             if (!killer.SoloAlive() || !target.SoloAlive() || target.inVent) return;
 
@@ -228,6 +229,7 @@ namespace EHR
             OriginalSpeed.Remove(target.PlayerId);
             OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
+            PetsPatch.RpcRemovePet(target);
             target.TP(Pelican.GetBlackRoomPS());
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.MarkDirtySettings();
@@ -241,6 +243,9 @@ namespace EHR
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) PlayerControl.LocalPlayer.KillFlash();
 
             KBScore[killer.PlayerId]++;
+
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne)
+                SpeedrunManager.ResetTimer(killer);
 
             float addRate = IRandom.Instance.Next(3, 5 + GetRankOfScore(killer.PlayerId)) / 100f;
             addRate *= KB_KillBonusMultiplier.GetFloat();
@@ -285,62 +290,58 @@ namespace EHR
         {
             private static long LastFixedUpdate;
 
-            public static void Postfix( /*PlayerControl __instance*/)
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
+            public static void Postfix(PlayerControl __instance)
             {
-                if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost) return;
+                byte id = __instance.PlayerId;
+                if (!GameStates.IsInTask || !CustomGameMode.SoloKombat.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || id == 255) return;
 
-                foreach (PlayerControl pc in Main.AllPlayerControls)
+                if (!__instance.SoloAlive())
                 {
-                    if (!pc.SoloAlive())
-                    {
-                        if (pc.inVent && KB_BootVentWhenDead.GetBool()) pc.MyPhysics.RpcExitVent(2);
+                    if (__instance.inVent && KB_BootVentWhenDead.GetBool()) __instance.MyPhysics.RpcExitVent(2);
 
-                        Vector2 pos = Pelican.GetBlackRoomPS();
-                        float dis = Vector2.Distance(pos, pc.Pos());
-                        if (dis > 1f) pc.TP(pos);
-                    }
+                    Vector2 pos = Pelican.GetBlackRoomPS();
+                    float dis = Vector2.Distance(pos, __instance.Pos());
+                    if (dis > 1f) __instance.TP(pos);
                 }
 
-                if (LastFixedUpdate == Utils.TimeStamp) return;
+                var notifyRoles = false;
 
+                if (LastHurt[id] + KB_RecoverAfterSecond.GetInt() < Utils.TimeStamp && PlayerHP[id] < PlayerHPMax[id] && __instance.SoloAlive() && !__instance.inVent)
+                {
+                    PlayerHP[id] += PlayerHPReco[id];
+                    PlayerHP[id] = Math.Min(PlayerHPMax[id], PlayerHP[id]);
+                    notifyRoles = true;
+                }
+
+                if (__instance.SoloAlive() && !__instance.inVent)
+                {
+                    Vector2 pos = Pelican.GetBlackRoomPS();
+                    float dis = Vector2.Distance(pos, __instance.Pos());
+                    if (dis < 1.1f) PlayerRandomSpwan(__instance);
+                }
+
+                if (BackCountdown.ContainsKey(id))
+                {
+                    BackCountdown[id]--;
+                    if (BackCountdown[id] <= 0) OnPlayerBack(__instance);
+
+                    notifyRoles = true;
+                }
+
+                if (NameNotify.ContainsKey(id) && NameNotify[id].TimeStamp < Utils.TimeStamp)
+                {
+                    NameNotify.Remove(id);
+                    notifyRoles = true;
+                }
+
+                if (notifyRoles) Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance);
+
+
+                if (LastFixedUpdate == Utils.TimeStamp) return;
                 LastFixedUpdate = Utils.TimeStamp;
 
                 RoundTime--;
-
-                foreach (PlayerControl pc in Main.AllPlayerControls)
-                {
-                    var notifyRoles = false;
-
-                    if (LastHurt[pc.PlayerId] + KB_RecoverAfterSecond.GetInt() < Utils.TimeStamp && PlayerHP[pc.PlayerId] < PlayerHPMax[pc.PlayerId] && pc.SoloAlive() && !pc.inVent)
-                    {
-                        PlayerHP[pc.PlayerId] += PlayerHPReco[pc.PlayerId];
-                        PlayerHP[pc.PlayerId] = Math.Min(PlayerHPMax[pc.PlayerId], PlayerHP[pc.PlayerId]);
-                        notifyRoles = true;
-                    }
-
-                    if (pc.SoloAlive() && !pc.inVent)
-                    {
-                        Vector2 pos = Pelican.GetBlackRoomPS();
-                        float dis = Vector2.Distance(pos, pc.Pos());
-                        if (dis < 1.1f) PlayerRandomSpwan(pc);
-                    }
-
-                    if (BackCountdown.ContainsKey(pc.PlayerId))
-                    {
-                        BackCountdown[pc.PlayerId]--;
-                        if (BackCountdown[pc.PlayerId] <= 0) OnPlayerBack(pc);
-
-                        notifyRoles = true;
-                    }
-
-                    if (NameNotify.ContainsKey(pc.PlayerId) && NameNotify[pc.PlayerId].TimeStamp < Utils.TimeStamp)
-                    {
-                        NameNotify.Remove(pc.PlayerId);
-                        notifyRoles = true;
-                    }
-
-                    if (notifyRoles) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                }
             }
         }
 

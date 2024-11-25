@@ -162,7 +162,7 @@ namespace EHR
 
         public static void OnGameStart()
         {
-            if (Options.CurrentGameMode != CustomGameMode.RoomRush) return;
+            if (!CustomGameMode.RoomRush.IsActiveOrIntegrated()) return;
 
             Main.Instance.StartCoroutine(GameStartTasks());
         }
@@ -197,7 +197,7 @@ namespace EHR
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
             aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
-            bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3;
+            bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3 && Options.CurrentGameMode != CustomGameMode.AllInOne;
 
             if (showTutorial)
             {
@@ -287,6 +287,7 @@ namespace EHR
             }
 
             TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= 2;
             Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
             if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
@@ -317,15 +318,15 @@ namespace EHR
             bool done = dead || DonePlayers.Contains(seer.PlayerId);
             Color color = done ? Color.green : Color.yellow;
 
-            if (DisplayRoomName.GetBool()) sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
-            if (DisplayArrowToRoom.GetBool()) sb.AppendLine(Utils.ColorString(color, LocateArrow.GetArrows(seer)));
+            if (DisplayRoomName.GetBool()) sb.Append(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())) + "\n");
+            if (DisplayArrowToRoom.GetBool()) sb.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer)) + "\n");
 
             color = done ? Color.white : Color.yellow;
-            sb.AppendLine(Utils.ColorString(color, TimeLeft.ToString()));
+            sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
 
             if (VentTimes.GetInt() == 0 || dead || seer.IsModClient()) return sb.ToString();
 
-            sb.AppendLine();
+            sb.Append('\n');
 
             int vents = VentLimit.GetValueOrDefault(seer.PlayerId);
             sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), vents));
@@ -357,7 +358,7 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !__instance.IsHost()) return;
+                if (!GameGoing || Main.HasJustStarted || !CustomGameMode.RoomRush.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !__instance.IsHost()) return;
 
                 long now = Utils.TimeStamp;
                 PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -366,6 +367,8 @@ namespace EHR
                 {
                     PlainShipRoom room = pc.GetPlainShipRoom();
 
+                    bool notAllInOne = Options.CurrentGameMode != CustomGameMode.AllInOne;
+
                     if (pc.IsAlive() && !pc.inMovingPlat && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
                     {
                         Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
@@ -373,7 +376,7 @@ namespace EHR
 
                         int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
 
-                        if (DonePlayers.Count == 2 && timeLeft < TimeLeft)
+                        if (DonePlayers.Count == 2 && timeLeft < TimeLeft && notAllInOne)
                         {
                             Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
                             TimeLeft = timeLeft;
@@ -383,7 +386,7 @@ namespace EHR
                                 Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
                         }
 
-                        if (DonePlayers.Count == aapc.Length - 1)
+                        if (DonePlayers.Count == aapc.Length - 1 && notAllInOne)
                         {
                             PlayerControl last = aapc.First(x => !DonePlayers.Contains(x.PlayerId));
                             Logger.Info($"All players entered the correct room except one, killing the last player ({last.GetRealName()})", "RoomRush");
@@ -393,7 +396,8 @@ namespace EHR
                             return;
                         }
                     }
-                    else if (room == null || room.RoomId != RoomGoal) DonePlayers.Remove(pc.PlayerId);
+                    else if ((room == null || room.RoomId != RoomGoal) && notAllInOne)
+                        DonePlayers.Remove(pc.PlayerId);
                 }
 
                 if (LastUpdate == now) return;
@@ -422,7 +426,7 @@ namespace EHR
 
     public class RRPlayer : RoleBase
     {
-        public override bool IsEnable => Options.CurrentGameMode == CustomGameMode.RoomRush;
+        public override bool IsEnable => CustomGameMode.RoomRush.IsActiveOrIntegrated();
 
         public override void Init() { }
 

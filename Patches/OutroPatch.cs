@@ -65,7 +65,7 @@ namespace EHR
 
                 byte killerId = value.GetRealKiller();
                 bool gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-                bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush;
+                bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.AllInOne;
                 sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
                 if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
             }
@@ -284,6 +284,14 @@ namespace EHR
                 {
                     byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                     __instance.BackgroundBar.material.color = new Color32(255, 171, 27, 255);
+                    WinnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    WinnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
+                case CustomGameMode.AllInOne:
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = new Color32(245, 66, 173, 255);
                     WinnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
                     WinnerText.color = Main.PlayerColors[winnerId];
                     goto EndOfText;

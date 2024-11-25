@@ -377,6 +377,7 @@ namespace EHR
                         {
                             if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                             else pc.ShowPopUp($"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))}\n{GetString("CantGuessJailed")}");
+
                             return true;
                         }
 
@@ -384,6 +385,7 @@ namespace EHR
                         {
                             if (!isUI) Utils.SendMessage(GetString("JailedCanOnlyGuessJailor"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                             else pc.ShowPopUp($"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))}\n{GetString("JailedCanOnlyGuessJailor")}");
+
                             return true;
                         }
 
@@ -442,12 +444,14 @@ namespace EHR
                         {
                             if (!isUI) Utils.SendMessage(GetString("GuessCrewRole"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")));
                             else pc.ShowPopUp($"{Utils.ColorString(Color.cyan, GetString("MessageFromGurge44"))}\n{GetString("GuessCrewRole")}");
+
                             return true;
                         }
                         else if (pc.Is(CustomRoles.EvilGuesser) && target.IsImpostor() && !Options.EGCanGuessImp.GetBool())
                         {
                             if (!isUI) Utils.SendMessage(GetString("GuessImpRole"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")));
                             else pc.ShowPopUp($"{Utils.ColorString(Color.cyan, GetString("MessageFromGurge44"))}\n{GetString("GuessImpRole")}");
+
                             return true;
                         }
                         else if (!target.Is(role))
@@ -462,6 +466,7 @@ namespace EHR
                         {
                             if (!isUI) Utils.SendMessage(GetString("MisguessButNoSuicide"), pc.PlayerId, Utils.ColorString(Color.yellow, GetString("MessageFromGurge44")));
                             else pc.ShowPopUp($"{Utils.ColorString(Color.yellow, GetString("MessageFromGurge44"))}\n{GetString("MisguessButNoSuicide")}");
+
                             return true;
                         }
 
@@ -586,7 +591,7 @@ namespace EHR
                 pc.Data.IsDead = true;
                 pc.RpcExileV2();
                 Main.PlayerStates[pc.PlayerId].SetDead();
-                
+
                 var meetingHud = MeetingHud.Instance;
                 ProcessGuess(pc, meetingHud);
 
@@ -595,9 +600,9 @@ namespace EHR
                     if (playerVoteArea.VotedFor != pc.PlayerId) continue;
 
                     playerVoteArea.UnsetVote();
-                    
+
                     PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
-                    
+
                     if (!voteAreaPlayer.AmOwner) meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
                     else meetingHud.ClearVote();
                 }
@@ -651,10 +656,10 @@ namespace EHR
                     if (playerVoteArea.VotedFor != pc.PlayerId) continue;
 
                     playerVoteArea.UnsetVote();
-                    
+
                     PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
                     if (!voteAreaPlayer.AmOwner) continue;
-                    
+
                     meetingHud.ClearVote();
                 }
             }
@@ -979,7 +984,7 @@ namespace EHR
 
                     if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) continue;
 
-                    if (Options.CurrentGameMode != CustomGameMode.Standard || HnSManager.AllHnSRoles.Contains(role)) continue;
+                    if (!CustomGameMode.Standard.IsActiveOrIntegrated() || HnSManager.AllHnSRoles.Contains(role)) continue;
 
                     CreateRole(role);
                 }

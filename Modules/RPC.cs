@@ -1096,7 +1096,7 @@ namespace EHR.Modules
                 }
                 case CustomRPC.FFAKill:
                 {
-                    if (Options.CurrentGameMode != CustomGameMode.FFA)
+                    if (!CustomGameMode.FFA.IsActiveOrIntegrated())
                     {
                         EAC.WarnHost();
                         EAC.Report(__instance, "FFA RPC when game mode is not FFA");

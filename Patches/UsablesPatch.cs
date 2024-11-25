@@ -32,7 +32,7 @@ namespace EHR
     {
         public static void Postfix(EmergencyMinigame __instance)
         {
-            if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) __instance.Close();
+            if (Options.DisableMeeting.GetBool() || !CustomGameMode.Standard.IsActiveOrIntegrated()) __instance.Close();
         }
     }
 

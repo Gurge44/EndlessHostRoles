@@ -130,7 +130,7 @@ namespace EHR.Patches
             if (AmongUsClient.Instance.AmHost)
             {
                 Utils.NotifyRoles();
-                
+
                 LateTask.New(() =>
                 {
                     AntiBlackout.SendGameData();
@@ -142,7 +142,7 @@ namespace EHR.Patches
                     if (!GameStates.IsEnded)
                     {
                         AntiBlackout.ResetAfterMeeting();
-                        
+
                         Main.AfterMeetingDeathPlayers.Do(x =>
                         {
                             PlayerControl player = Utils.GetPlayerById(x.Key);
@@ -175,7 +175,7 @@ namespace EHR.Patches
             bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
             Logger.Msg($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
 
-            if ((showRemainingKillers || appendEjectionNotify) && Options.CurrentGameMode == CustomGameMode.Standard)
+            if ((showRemainingKillers || appendEjectionNotify) && CustomGameMode.Standard.IsActiveOrIntegrated())
             {
                 string text = showRemainingKillers ? Utils.GetRemainingKillers(true) : string.Empty;
                 text = $"<#ffffff>{text}</color>";

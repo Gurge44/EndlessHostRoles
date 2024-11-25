@@ -46,6 +46,7 @@ namespace EHR
                 case CustomGameMode.MoveAndStop:
                     color = "#ffffff";
                     return true;
+                case CustomGameMode.AllInOne:
                 case CustomGameMode.HotPotato:
                     (byte HolderID, byte LastHolderID) = HotPotatoManager.GetState();
 
@@ -53,6 +54,8 @@ namespace EHR
                         color = "#000000";
                     else if (target.PlayerId == LastHolderID)
                         color = "#00ffff";
+                    else if (Options.CurrentGameMode == CustomGameMode.AllInOne && SpeedrunManager.CanKill.Contains(target.PlayerId))
+                        color = Main.ImpostorColor;
                     else
                         color = "#ffffff";
 

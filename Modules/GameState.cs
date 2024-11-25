@@ -162,7 +162,7 @@ namespace EHR
 
                 LateTask.New(() => Player.CheckAndSetUnshiftState(), 1f, log: false);
 
-                if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && !AntiBlackout.SkipTasks)
+                if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                     Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 
                 if (Options.UsePets.GetBool()) Player.RpcSetPetDesync(PetsPatch.GetPetId(), Player);
@@ -340,7 +340,7 @@ namespace EHR
                 RPC.SendDeathReason(PlayerId, deathReason);
                 Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));
 
-                if (Utils.DoRPC && Options.CurrentGameMode != CustomGameMode.Standard)
+                if (Utils.DoRPC && !CustomGameMode.Standard.IsActiveOrIntegrated())
                     Main.AllPlayerControls.DoIf(x => x.IsNonHostModClient(), x => Player.RpcSetRoleDesync(RoleTypes.CrewmateGhost, x.GetClientId()));
             }
         }
@@ -405,7 +405,7 @@ namespace EHR
             {
                 bool alive = player.IsAlive();
 
-                if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)
+                if (alive && CustomGameMode.Speedrun.IsActiveOrIntegrated())
                 {
                     if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
 

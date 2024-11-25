@@ -37,7 +37,7 @@ namespace EHR
                 if (player == null) return;
 
                 if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId)) return;
-                if (!SetHudActivePatch.IsActive || !player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard) return;
+                if (!SetHudActivePatch.IsActive || !player.IsAlive() || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
                 if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
                 {
