@@ -29,6 +29,8 @@ namespace EHR
 
             Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
 
+            SetUpRoleTextPatch.IsInIntro = false;
+
             Main.PlayerVersion = [];
             RPC.RpcVersionCheck();
             SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
@@ -200,7 +202,7 @@ namespace EHR
             {
                 if (data != null && data.Character != null) StartGameHostPatch.DataDisconnected[data.Character.PlayerId] = true;
 
-                if (GameStates.IsInGame)
+                if (GameStates.IsInGame && data != null && data.Character != null)
                 {
                     if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
 
@@ -222,6 +224,9 @@ namespace EHR
                             break;
                         case CustomRoles.Markseeker:
                             Markseeker.OnDeath(data.Character);
+                            break;
+                        case CustomRoles.Jackal:
+                            Jackal.Instances.Do(x => x.PromoteSidekick());
                             break;
                     }
 

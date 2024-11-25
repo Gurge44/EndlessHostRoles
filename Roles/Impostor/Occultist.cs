@@ -63,7 +63,7 @@ namespace EHR.Impostor
 
         void SwitchAction()
         {
-            InRevivingMode = !InRevivingMode;
+            InRevivingMode = Main.AllAlivePlayerControls.Length >= 4 && !InRevivingMode;
             Utils.SendRPC(CustomRPC.SyncRoleData, OccultistPC.PlayerId, 1, InRevivingMode);
             Utils.NotifyRoles(SpecifySeer: OccultistPC, SpecifyTarget: OccultistPC);
         }
@@ -139,6 +139,8 @@ namespace EHR.Impostor
                     data.Done = true;
                 }
             }
+
+            if (Main.AllAlivePlayerControls.Length < 4) SwitchAction();
         }
 
         public static void OnAnyoneDied(PlayerControl target)
@@ -156,7 +158,9 @@ namespace EHR.Impostor
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != OccultistPC.PlayerId || seer.PlayerId != target.PlayerId || meeting || (seer.IsModClient() && !hud)) return string.Empty;
-            return string.Format(Translator.GetString("OccultistSuffix"), Translator.GetString(InRevivingMode ? "OccultistMode.Revive" : "OccultistMode.Report"), Translator.GetString($"OccultistActionSwitchMode.{ActionSwitchMode}"));
+            var str = string.Format(Translator.GetString("OccultistSuffix"), Translator.GetString(InRevivingMode ? "OccultistMode.Revive" : "OccultistMode.Report"), Translator.GetString($"OccultistActionSwitchMode.{ActionSwitchMode}"));
+            if (Main.AllAlivePlayerControls.Length < 4) str = str.Split('(')[0].TrimEnd(' ');
+            return str;
         }
 
         enum ActionSwitchModes

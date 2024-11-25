@@ -131,8 +131,9 @@ namespace EHR
                 new("strangeant#6543", isUp: true), // after.edits
                 new("ninjanice#3990", isUp: true), // void_daora
                 new("magicmill#4146", isUp: true), // Sr.Angel
-                new("grassyprey#9593", isUp: true), // LucasCarr
+                new("grassyprey#9593", "#ff0000", "YouTuber", true), // LucasCarr
                 new("blessedtea#6684", "#ff0000", "YouTuber", true), // Rvimpostor
+                new("seriouslug#1532", "#FF2400", "ZEN", true), // Zypherus
 
                 // Sponsor
                 new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),

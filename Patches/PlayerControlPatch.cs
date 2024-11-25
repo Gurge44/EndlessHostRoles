@@ -151,7 +151,7 @@ namespace EHR
                 target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
-                if (target.IsLocalPlayer())
+                if (tempTarget.IsLocalPlayer())
                 {
                     Detour.TotalRedirections++;
                     if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
@@ -1161,9 +1161,10 @@ namespace EHR
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 CustomRoles role = pc.GetCustomRole();
+
                 if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
                     pc.RpcShapeshift(pc, false);
-                
+
                 if (Camouflage.IsCamouflage) Camouflage.RpcSetSkin(pc, RevertToDefault: true, ForceRevert: true);
             }
 
@@ -1557,7 +1558,7 @@ namespace EHR
 
                     Mark.Clear();
                     Suffix.Clear();
-                    
+
                     if (AntiBlackout.SkipTasks) Suffix.AppendLine(GetString("AntiBlackoutSkipTasks"));
 
                     string RealName = target.GetRealName();

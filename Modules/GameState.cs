@@ -97,6 +97,15 @@ namespace EHR
 
         public void SetMainRole(CustomRoles role)
         {
+            try
+            {
+                Utils.RemovePlayerFromPreviousRoleData(Player);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+
             countTypes = role.GetCountTypes();
 
             if (SubRoles.Contains(CustomRoles.Recruit))
