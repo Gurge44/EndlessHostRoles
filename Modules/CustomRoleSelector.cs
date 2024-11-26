@@ -36,13 +36,13 @@ namespace EHR.Modules
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.AllInOne:
                 case CustomGameMode.SoloKombat:
                     AssignRoleToEveryone(CustomRoles.KB_Normal);
                     return;
                 case CustomGameMode.FFA:
                     AssignRoleToEveryone(CustomRoles.Killer);
                     return;
+                case CustomGameMode.AllInOne:
                 case CustomGameMode.MoveAndStop:
                     AssignRoleToEveryone(CustomRoles.Tasker);
                     return;

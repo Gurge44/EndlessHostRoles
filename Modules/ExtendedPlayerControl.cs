@@ -1516,7 +1516,7 @@ namespace EHR
 
         public static void Kill(this PlayerControl killer, PlayerControl target)
         {
-            if (CustomGameMode.SoloKombat.IsActiveOrIntegrated()) return;
+            if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
 
             if (target == null) target = killer;
 

@@ -161,12 +161,12 @@ namespace EHR
 
         private static bool HasJustStarted => GameTime.GetInt() - RoundTime < 20;
 
-        private static int ExtraGreenTime => (MapNames)Main.NormalOptions.MapId switch
+        private static int ExtraGreenTime => Main.CurrentMap switch
         {
             MapNames.Airship => ExtraGreenTimeOnAirhip.GetInt(),
             MapNames.Fungle => ExtraGreenTimeOnFungle.GetInt(),
             _ => 0
-        } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? 15 : 0);
+        } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? 30 : 0);
 
         private static IntegerValueRule CounterValueRule => new(1, 100, 1);
         private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);
@@ -177,7 +177,8 @@ namespace EHR
 
         private static int StartingGreenTime(PlayerControl pc)
         {
-            bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) && Options.CurrentGameMode != CustomGameMode.AllInOne;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 80;
+            bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode);
             return Main.CurrentMap == MapNames.Airship ? tutorial ? 57 : 47 : tutorial ? 47 : 37;
         }
 

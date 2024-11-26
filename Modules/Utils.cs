@@ -773,7 +773,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 case CustomGameMode.NaturalDisasters: return false;
                 case CustomGameMode.RoomRush: return false;
                 case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
-                case CustomGameMode.AllInOne: return AllInOneGameMode.Taskers.Contains(p.PlayerId);
+                case CustomGameMode.AllInOne: return true;
             }
 
             CustomRoles role = state.MainRole;
@@ -2182,10 +2182,11 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 SelfSuffix.Append(RoomRush.GetSuffix(seer));
                                 break;
                             case CustomGameMode.AllInOne:
-                                SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer) + "\n");
-                                SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
+                                bool alive = seer.IsAlive();
+                                if (alive) SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer) + "\n");
+                                if (alive) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
                                 SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId) + "\n");
-                                SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
+                                if (alive) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
                                 SelfSuffix.Append(NaturalDisasters.SuffixText() + "\n");
                                 const StringSplitOptions splitFlags = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
                                 SelfSuffix.Append(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - "));

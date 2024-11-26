@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace EHR
 {
-    public class SpeedrunManager
+    public static class SpeedrunManager
     {
         private static OptionItem TaskFinishWins;
         private static OptionItem TimeStacksUp;
@@ -51,12 +51,13 @@ namespace EHR
         {
             CanKill = [];
             Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 7);
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) Timers.AdjustAllValues(x => x * 2);
         }
 
         public static void ResetTimer(PlayerControl pc)
         {
             int timer = TimeLimit.GetInt();
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= 2;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= 3;
 
             if (TimeStacksUp.GetBool())
                 Timers[pc.PlayerId] += timer;

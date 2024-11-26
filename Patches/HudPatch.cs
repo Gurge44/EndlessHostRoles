@@ -250,6 +250,7 @@ namespace EHR.Patches
                             CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
                             CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, true),
                             CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
+                            CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotatoManager.GetSuffixText(player.PlayerId)}",
                             CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                             _ => string.Empty
                         };

@@ -1744,9 +1744,9 @@ namespace EHR
                             Suffix.Append(RoomRush.GetSuffix(seer));
                             break;
                         case CustomGameMode.AllInOne:
-                            Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
-                            if (self) Suffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
-                            if (self) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
+                            if (alive) Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
+                            if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
+                            if (self && alive) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
                             if (self) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - "));
                             break;
                     }
