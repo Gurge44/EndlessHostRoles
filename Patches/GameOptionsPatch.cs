@@ -71,6 +71,7 @@ namespace EHR.Patches
 
             switch (Options.CurrentGameMode)
             {
+                case CustomGameMode.AllInOne:
                 case CustomGameMode.SoloKombat:
                 case CustomGameMode.FFA:
                 case CustomGameMode.RoomRush:

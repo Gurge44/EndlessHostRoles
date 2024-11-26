@@ -36,6 +36,7 @@ namespace EHR.Modules
 
             switch (Options.CurrentGameMode)
             {
+                case CustomGameMode.AllInOne:
                 case CustomGameMode.SoloKombat:
                     AssignRoleToEveryone(CustomRoles.KB_Normal);
                     return;
@@ -629,7 +630,7 @@ namespace EHR.Modules
 
         public static void SelectAddonRoles()
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
             foreach (byte id in Main.SetAddOns.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetAddOns.Remove(id);
 

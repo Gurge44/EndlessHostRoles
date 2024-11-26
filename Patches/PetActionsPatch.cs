@@ -111,7 +111,7 @@ namespace EHR.Patches
                )
                 return;
 
-            if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
+            if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
             {
                 CTFManager.TryPickUpFlag(pc);
                 return;
@@ -150,7 +150,7 @@ namespace EHR.Patches
 
             if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
             {
-                if (Options.CurrentGameMode != CustomGameMode.Speedrun)
+                if (!CustomGameMode.Speedrun.IsActiveOrIntegrated())
                     pc.AddKCDAsAbilityCD();
 
                 if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))

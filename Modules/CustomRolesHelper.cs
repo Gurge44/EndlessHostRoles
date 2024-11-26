@@ -743,7 +743,7 @@ namespace EHR
 
         public static bool PetActivatedAbility(this CustomRoles role)
         {
-            if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;
+            if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) return true;
 
             if (!Options.UsePets.GetBool()) return false;
 
@@ -916,6 +916,7 @@ namespace EHR
         {
             return role is
                 CustomRoles.Wizard or
+                CustomRoles.Occultist or
                 CustomRoles.Warlock or
                 CustomRoles.Swiftclaw or
                 CustomRoles.Undertaker or

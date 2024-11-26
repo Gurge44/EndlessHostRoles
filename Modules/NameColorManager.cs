@@ -46,6 +46,7 @@ namespace EHR
                 case CustomGameMode.MoveAndStop:
                     color = "#ffffff";
                     return true;
+                case CustomGameMode.AllInOne:
                 case CustomGameMode.HotPotato:
                     (byte HolderID, byte LastHolderID) = HotPotatoManager.GetState();
 
@@ -53,6 +54,8 @@ namespace EHR
                         color = "#000000";
                     else if (target.PlayerId == LastHolderID)
                         color = "#00ffff";
+                    else if (Options.CurrentGameMode == CustomGameMode.AllInOne && SpeedrunManager.CanKill.Contains(target.PlayerId))
+                        color = Main.ImpostorColor;
                     else
                         color = "#ffffff";
 
@@ -74,15 +77,14 @@ namespace EHR
 
             // Impostors and Madmates
             if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)) color = target.Is(CustomRoles.Egoist) && Options.ImpEgoistVisibalToAllies.GetBool() && seer != target ? Main.RoleColors[CustomRoles.Egoist] : Main.ImpostorColor;
-            if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) color = Main.ImpostorColor;
-            if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
-            if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
+            if (seer.IsMadmate() && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) color = Main.ImpostorColor;
+            if (seer.Is(CustomRoleTypes.Impostor) && target.IsMadmate() && Options.ImpKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
+            if (seer.IsMadmate() && target.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
             if (Blackmailer.On && seerRoleClass is Blackmailer { IsEnable: true } bm && bm.BlackmailedPlayerIds.Contains(target.PlayerId)) color = Main.RoleColors[CustomRoles.BloodKnight];
 
             if (Commander.On && seer.Is(Team.Impostor))
             {
                 if (Commander.PlayerList.Any(x => x.MarkedPlayer == target.PlayerId)) color = Main.RoleColors[CustomRoles.Sprayer];
-
                 if (Commander.PlayerList.Any(x => x.DontKillMarks.Contains(target.PlayerId))) color = "#0daeff";
             }
 

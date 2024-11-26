@@ -202,7 +202,7 @@ namespace EHR
                     break;
             }
 
-            if (Options.CurrentGameMode == CustomGameMode.FFA && GameStates.InGame && !message.StartsWith('/'))
+            if (CustomGameMode.FFA.IsActiveOrIntegrated() && GameStates.InGame && !message.StartsWith('/'))
                 FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
         }
 

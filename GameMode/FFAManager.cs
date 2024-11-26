@@ -130,7 +130,7 @@ namespace EHR
 
         public static void Init()
         {
-            if (Options.CurrentGameMode != CustomGameMode.FFA) return;
+            if (!CustomGameMode.FFA.IsActiveOrIntegrated()) return;
 
             FFADecreasedSpeedList = [];
             FFAIncreasedSpeedList = [];
@@ -185,7 +185,7 @@ namespace EHR
 
         public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.FFA) return;
+            if (killer == null || target == null || !CustomGameMode.FFA.IsActiveOrIntegrated()) return;
 
             if (target.inVent)
             {
@@ -391,7 +391,7 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix()
             {
-                if (!GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.FFA || !AmongUsClient.Instance.AmHost) return;
+                if (!GameStates.IsInTask || ExileController.Instance || !CustomGameMode.FFA.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost) return;
 
                 long now = Utils.TimeStamp;
                 if (LastFixedUpdate == now) return;

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Patches;
 
@@ -85,21 +84,7 @@ namespace EHR.Neutral
 
             CustomRoles targetRole = target.GetCustomRole();
 
-            switch (targetRole)
-            {
-                case CustomRoles.Enigma:
-                    Enigma.PlayerIdList.Remove(target.PlayerId);
-                    break;
-                case CustomRoles.Mediumshiper:
-                    Mediumshiper.PlayerIdList.Remove(target.PlayerId);
-                    break;
-                case CustomRoles.Mortician:
-                    Mortician.PlayerIdList.Remove(target.PlayerId);
-                    break;
-                case CustomRoles.Spiritualist:
-                    Spiritualist.PlayerIdList.Remove(target.PlayerId);
-                    break;
-            }
+            Utils.RemovePlayerFromPreviousRoleData(target);
 
             killer.RpcSetCustomRole(targetRole);
             killer.RpcChangeRoleBasis(targetRole);

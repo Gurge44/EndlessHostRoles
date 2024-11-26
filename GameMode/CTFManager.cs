@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -205,7 +206,7 @@ namespace EHR
             ValidTag = false;
 
             // Check if the current game mode is Capture The Flag
-            if (Options.CurrentGameMode != CustomGameMode.CaptureTheFlag) return;
+            if (!CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) return;
 
             LateTask.New(() =>
             {
@@ -474,9 +475,10 @@ namespace EHR
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         private static class FixedUpdatePatch
         {
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.CaptureTheFlag || Main.HasJustStarted || !__instance.IsHost()) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || !__instance.IsHost()) return;
 
                 TeamData.Values.Do(x => x.Update());
             }

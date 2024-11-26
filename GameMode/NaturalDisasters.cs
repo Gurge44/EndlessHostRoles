@@ -108,7 +108,7 @@ namespace EHR
             BuildingCollapse.CollapsedRooms.Clear();
             BuildingCollapse.LastPosition.Clear();
 
-            if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return;
+            if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return;
 
             Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RoomLocations()?.Values;
             if (rooms == null) return;
@@ -206,7 +206,7 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || !__instance.IsHost()) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || !__instance.IsHost()) return;
 
                 UpdatePreparingDisasters();
 
@@ -254,7 +254,10 @@ namespace EHR
 
                 long now = Utils.TimeStamp;
 
-                if (now - LastDisaster >= DisasterFrequency.GetInt())
+                int frequency = DisasterFrequency.GetInt();
+                if (Options.CurrentGameMode == CustomGameMode.AllInOne && frequency < 10) frequency = 10;
+
+                if (now - LastDisaster >= frequency)
                 {
                     LastDisaster = now;
                     List<Type> disasters = AllDisasters.ToList();
@@ -273,12 +276,17 @@ namespace EHR
                     };
 
                     SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
-                    PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disaster.Name), disaster.Name, room));
+                    float warningTime = DisasterWarningTime.GetFloat();
+                    if (Options.CurrentGameMode == CustomGameMode.AllInOne && warningTime < 30) warningTime = 30;
+                    PreparingDisasters.Add(new(position, warningTime, Sprite(disaster.Name), disaster.Name, room));
                 }
 
                 if (now - LastSync >= 10)
                 {
                     LastSync = now;
+                    BuildingCollapse.CollapsedRooms.Clear();
+                    Sinkhole.RemoveRandomSinkhole();
+                    Utils.NotifyRoles();
                     Utils.MarkEveryoneDirtySettings();
                 }
             }

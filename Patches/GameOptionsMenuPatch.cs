@@ -110,7 +110,7 @@ namespace EHR
                     OptionItem option = OptionItem.AllOptions[index];
                     if (option.Tab != modTab) continue;
 
-                    bool enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool())) && (option.Parent?.Parent == null || (!option.Parent.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.Parent.GetBool())) && (option.Parent?.Parent?.Parent == null || (!option.Parent.Parent.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.Parent.Parent.GetBool()));
+                    bool enabled = !option.IsCurrentlyHidden() && (option.Parent == null || (!option.Parent.IsCurrentlyHidden() && option.Parent.GetBool())) && (option.Parent?.Parent == null || (!option.Parent.Parent.IsCurrentlyHidden() && option.Parent.Parent.GetBool())) && (option.Parent?.Parent?.Parent == null || (!option.Parent.Parent.Parent.IsCurrentlyHidden() && option.Parent.Parent.Parent.GetBool()));
 
                     if (option is TextOptionItem)
                     {
@@ -214,7 +214,7 @@ namespace EHR
                 {
                     if (option.Tab != (TabGroup)(ModGameOptionsMenu.TabIndex - 3)) continue;
 
-                    bool enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool()));
+                    bool enabled = !option.IsCurrentlyHidden() && (option.Parent == null || (!option.Parent.IsCurrentlyHidden() && option.Parent.GetBool()));
 
                     if (option is TextOptionItem)
                         num -= 0.63f;
@@ -331,7 +331,7 @@ namespace EHR
                 OptionItem option = OptionItem.AllOptions[index];
                 if (option.Tab != modTab) continue;
 
-                bool enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool()));
+                bool enabled = !option.IsCurrentlyHidden() && (option.Parent == null || (!option.Parent.IsCurrentlyHidden() && option.Parent.GetBool()));
 
                 if (ModGameOptionsMenu.CategoryHeaderList.TryGetValue(index, out CategoryHeaderMasked categoryHeaderMasked))
                 {
@@ -1117,9 +1117,9 @@ namespace EHR
 
                 HiddenBySearch.Do(x => x.SetHidden(false));
                 string text = textField.textArea.text.Trim().ToLower();
-                System.Collections.Generic.List<OptionItem> Result = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3)).ToList();
+                System.Collections.Generic.List<OptionItem> Result = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3)).ToList();
                 HiddenBySearch = Result;
-                System.Collections.Generic.List<OptionItem> SearchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !Result.Contains(x)).ToList();
+                System.Collections.Generic.List<OptionItem> SearchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !Result.Contains(x)).ToList();
 
                 if (SearchWinners.Count == 0 || !ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu GameSettings) || GameSettings == null)
                 {

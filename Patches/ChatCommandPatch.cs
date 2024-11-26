@@ -347,12 +347,12 @@ namespace EHR
                 RequestCommandProcessingFromHost(nameof(WhisperCommand), text);
                 return;
             }
-            
+
             if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
             if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
             Utils.SendMessage(args[2..].Join(delimiter: " "), targetId, string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName()));
         }
-        
+
         private static void DeathNoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             if (!AmongUsClient.Instance.AmHost)
@@ -2241,19 +2241,18 @@ namespace EHR
 
         private static void SendRolesInfo(string role, byte playerId, bool isDev = false, bool isUp = false)
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard)
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated())
             {
-                Utils.SendMessage(GetString($"ModeDescribe.{Options.CurrentGameMode}"), playerId);
-                if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
+                string text = GetString($"ModeDescribe.{Options.CurrentGameMode}");
+                bool allInOne = Options.CurrentGameMode == CustomGameMode.AllInOne;
+                Utils.SendMessage(allInOne ? "\n" : text, playerId, allInOne ? text : "");
+                if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) return;
             }
 
             role = role.Trim().ToLower();
             if (role.StartsWith("/r")) _ = role.Replace("/r", string.Empty);
-
             if (role.StartsWith("/up")) _ = role.Replace("/up", string.Empty);
-
             if (role.EndsWith("\r\n")) _ = role.Replace("\r\n", string.Empty);
-
             if (role.EndsWith("\n")) _ = role.Replace("\n", string.Empty);
 
             if (role == "")
@@ -2325,7 +2324,9 @@ namespace EHR
 
                 if (role.Equals(match, StringComparison.OrdinalIgnoreCase))
                 {
-                    Utils.SendMessage(GetString($"ModeDescribe.{gameMode}"), playerId, gmString);
+                    string text = GetString($"ModeDescribe.{gameMode}");
+                    bool allInOne = gameMode == CustomGameMode.AllInOne;
+                    Utils.SendMessage(allInOne ? "\n" : text, playerId, allInOne ? text : gmString);
                     return;
                 }
             }
@@ -2433,7 +2434,7 @@ namespace EHR
                 else
                     LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
             }
-            
+
             if (!canceled) ChatManager.SendMessage(player, text);
 
             if (isCommand) LastSentCommand[player.PlayerId] = now;

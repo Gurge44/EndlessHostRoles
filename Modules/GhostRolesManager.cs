@@ -93,7 +93,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
 
                 if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
 

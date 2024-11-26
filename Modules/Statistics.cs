@@ -8,6 +8,7 @@ namespace EHR.Modules
 {
     public static class Statistics
     {
+        private const int MinPlayers = 3;
         private static bool OnlyVotingForKillersAsCrew = true;
         private static bool VotedBySomeone;
         public static int VentTimes;
@@ -15,7 +16,7 @@ namespace EHR.Modules
 
         public static void OnGameEnd()
         {
-            if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || Main.AllPlayerControls.Length <= 2) return;
+            if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || Main.AllPlayerControls.Length <= 3) return;
 
             var lp = PlayerControl.LocalPlayer;
             var role = lp.GetCustomRole();
@@ -81,7 +82,7 @@ namespace EHR.Modules
                 if (Utils.GameStartTimeStamp + 90 > Utils.TimeStamp)
                     Achievements.Type.Speedrun.CompleteAfterGameEnd();
 
-                if (won && lp.IsMadmate() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()))
+                if (won && CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor && lp.IsMadmate() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()))
                     Achievements.Type.Carried.CompleteAfterGameEnd();
 
                 if (won && lp.IsNeutralKiller())
@@ -140,7 +141,7 @@ namespace EHR.Modules
                         break;
                 }
 
-                int correctGuesses = Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId && x.deathReason == PlayerState.DeathReason.Gambled);
+                int correctGuesses = Main.PlayerStates.Values.Count(x => !x.Player.IsLocalPlayer() && x.GetRealKiller() == lp.PlayerId && x.deathReason == PlayerState.DeathReason.Gambled);
 
                 if (correctGuesses >= 1) Achievements.Type.LuckOrObservation.CompleteAfterGameEnd();
                 if (correctGuesses >= 2) Achievements.Type.BeginnerGuesser.CompleteAfterGameEnd();
@@ -174,7 +175,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= 2) return;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || Main.AllPlayerControls.Length <= MinPlayers) return;
 
                 PlayerControl lp = PlayerControl.LocalPlayer;
 
@@ -232,7 +233,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role) || Main.AllPlayerControls.Length <= 2) return;
+                if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role) || Main.AllPlayerControls.Length <= MinPlayers) return;
 
                 const float delay = 15f;
 
@@ -257,7 +258,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= 2) return;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= MinPlayers) return;
 
                 if (killer.IsLocalPlayer())
                 {
@@ -315,7 +316,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= 2) return;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || Main.AllPlayerControls.Length <= MinPlayers) return;
 
                 if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
                 {

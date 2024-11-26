@@ -149,7 +149,7 @@ namespace EHR.Patches
                         __instance.SabotageButton
                     }.Do(x => x?.Hide());
                 }
-                else if (Options.CurrentGameMode != CustomGameMode.Standard) __instance.ReportButton?.Hide();
+                else if (!CustomGameMode.Standard.IsActiveOrIntegrated()) __instance.ReportButton?.Hide();
 
                 // The following will not be executed unless the game is in progress
                 if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -160,7 +160,7 @@ namespace EHR.Patches
 
                 if (SetHudActivePatch.IsActive)
                 {
-                    if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
+                    if (player.IsAlive() || !CustomGameMode.Standard.IsActiveOrIntegrated())
                     {
                         if (player.Data.Role is ShapeshifterRole ssrole)
                         {
@@ -228,7 +228,7 @@ namespace EHR.Patches
                                 break;
                         }
 
-                        if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling && !Options.UseUnshiftTrigger.GetBool() && !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool()))
+                        if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling && !Options.UseUnshiftTrigger.GetBool() && !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool()))
                             __instance.AbilityButton?.Hide();
 
                         if (LowerInfoText == null)
@@ -626,7 +626,7 @@ namespace EHR.Patches
                 string roleInfo = player.GetRoleInfo();
                 var RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
 
-                if (Options.CurrentGameMode != CustomGameMode.Standard)
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
                     string[] splitted = roleInfo.Split(' ');
 

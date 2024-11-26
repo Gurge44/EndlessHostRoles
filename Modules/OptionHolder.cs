@@ -27,6 +27,7 @@ namespace EHR
         CaptureTheFlag = 0x08,
         NaturalDisasters = 0x09,
         RoomRush = 0x0A,
+        AllInOne = 0x0B,
         All = int.MaxValue
     }
 
@@ -62,7 +63,8 @@ namespace EHR
             "Speedrun",
             "CaptureTheFlag",
             "NaturalDisasters",
-            "RoomRush"
+            "RoomRush",
+            "AllInOne"
         ];
 
         private static Dictionary<CustomRoles, int> roleCounts;
@@ -71,7 +73,7 @@ namespace EHR
         public static Dictionary<CustomRoles, StringOptionItem> CustomRoleSpawnChances;
         public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
 
-        public static Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
+        public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
 
         public static readonly string[] Rates =
         [
@@ -175,7 +177,7 @@ namespace EHR
         public static OptionItem DisableMeeting;
         public static OptionItem DisableCloseDoor;
         public static OptionItem DisableSabotage;
-        
+
         public static OptionItem DisableWhisperCommand;
 
         public static OptionItem DisableReactorOnSkeldAndMira;
@@ -794,20 +796,22 @@ namespace EHR
             CustomRolesHelper.CanCheck = true;
         }
 
-        public static CustomGameMode CurrentGameMode
-            => GameMode.GetInt() switch
-            {
-                1 => CustomGameMode.SoloKombat,
-                2 => CustomGameMode.FFA,
-                3 => CustomGameMode.MoveAndStop,
-                4 => CustomGameMode.HotPotato,
-                5 => CustomGameMode.HideAndSeek,
-                6 => CustomGameMode.Speedrun,
-                7 => CustomGameMode.CaptureTheFlag,
-                8 => CustomGameMode.NaturalDisasters,
-                9 => CustomGameMode.RoomRush,
-                _ => CustomGameMode.Standard
-            };
+        public static CustomGameMode CurrentGameMode => GameMode.GetInt() switch
+        {
+            1 => CustomGameMode.SoloKombat,
+            2 => CustomGameMode.FFA,
+            3 => CustomGameMode.MoveAndStop,
+            4 => CustomGameMode.HotPotato,
+            5 => CustomGameMode.HideAndSeek,
+            6 => CustomGameMode.Speedrun,
+            7 => CustomGameMode.CaptureTheFlag,
+            8 => CustomGameMode.NaturalDisasters,
+            9 => CustomGameMode.RoomRush,
+            10 => CustomGameMode.AllInOne,
+            _ => CustomGameMode.Standard
+        };
+
+        public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode) => CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && customGameMode is not CustomGameMode.FFA and not CustomGameMode.CaptureTheFlag and not CustomGameMode.HideAndSeek and not CustomGameMode.Standard and not CustomGameMode.AllInOne);
 
         [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize))]
         [HarmonyPostfix]
@@ -1590,43 +1594,43 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflage)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
-            
+
             CommsCamouflageLimit = new BooleanOptionItem(22203, "CommsCamouflageLimit", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflage)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
-            
+
             CommsCamouflageLimitSetChance = new BooleanOptionItem(22204, "CommsCamouflageLimitSetChance", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflageLimit)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
-            
+
             CommsCamouflageLimitChance = new IntegerOptionItem(22205, "CommsCamouflageLimitChance", new(0, 100, 5), 50, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflageLimit)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
-            
+
             CommsCamouflageLimitSetFrequency = new BooleanOptionItem(22206, "CommsCamouflageLimitSetFrequency", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflageLimit)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
-            
+
             CommsCamouflageLimitFrequency = new IntegerOptionItem(22207, "CommsCamouflageLimitFrequency", new(1, 10, 1), 2, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflageLimit)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
-            
+
             CommsCamouflageLimitSetMaxTimes = new BooleanOptionItem(22208, "CommsCamouflageLimitSetMaxTimes", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflageLimit)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
-            
+
             CommsCamouflageLimitMaxTimesPerGame = new IntegerOptionItem(22209, "CommsCamouflageLimitMaxTimesPerGame", new(1, 30, 1), 3, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflageLimit)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
-            
+
             CommsCamouflageLimitMaxTimesPerRound = new IntegerOptionItem(22210, "CommsCamouflageLimitMaxTimesPerRound", new(1, 10, 1), 1, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflageLimit)
@@ -1807,7 +1811,7 @@ namespace EHR
             DisableCloseDoor = new BooleanOptionItem(22810, "DisableCloseDoor", false, TabGroup.GameSettings)
                 .SetParent(DisableSabotage)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-            
+
             DisableWhisperCommand = new BooleanOptionItem(22811, "DisableWhisperCommand", false, TabGroup.GameSettings)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 

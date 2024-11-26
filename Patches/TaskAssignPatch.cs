@@ -99,7 +99,7 @@ namespace EHR
                 };
             }
 
-            if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard) return;
+            if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool() && CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
             List<NormalPlayerTask> disabledTasks = [];
 
@@ -117,15 +117,15 @@ namespace EHR
 
             bool IsTaskAlwaysDisabled(TaskTypes type) => type switch
             {
-                TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun,
-                TaskTypes.VentCleaning => Options.CurrentGameMode == CustomGameMode.RoomRush,
+                TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun or CustomGameMode.AllInOne,
+                TaskTypes.VentCleaning => CustomGameMode.RoomRush.IsActiveOrIntegrated(),
                 _ => false
             };
         }
     }
 
     [HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.RpcSetTasks))]
-    internal class RpcSetTasksPatch
+    internal static class RpcSetTasksPatch
     {
         // Patch that overwrites the task just before assigning the task and sending the RPC
         // Do not interfere with vanilla task allocation process itself
