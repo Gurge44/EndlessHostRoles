@@ -1348,14 +1348,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 {
                     var roleDisplay = $"\n{ColorString(GetRoleColor(role).ShadeColor(0.25f), GetString(role.ToString()))}: {mode} x{role.GetCount()}";
 
-                    if (role.IsGhostRole())
-                        ghostsb.Append(roleDisplay);
-                    else if (role.IsAdditionRole())
-                        addonsb.Append(roleDisplay);
-                    else if (role.IsCrewmate())
-                        crewsb.Append(roleDisplay);
-                    else if (role.IsImpostor() || role.IsMadmate())
-                        impsb.Append(roleDisplay);
+                    if (role.IsGhostRole()) ghostsb.Append(roleDisplay);
+                    else if (role.IsAdditionRole()) addonsb.Append(roleDisplay);
+                    else if (role.IsCrewmate()) crewsb.Append(roleDisplay);
+                    else if (role.IsImpostor() || role.IsMadmate()) impsb.Append(roleDisplay);
                     else if (role.IsNeutral()) neutralsb.Append(roleDisplay);
                 }
             }

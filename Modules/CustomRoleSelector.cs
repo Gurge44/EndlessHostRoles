@@ -216,6 +216,7 @@ namespace EHR.Modules
             {
                 Logger.Warn("Host: GM", "CustomRoleSelector");
                 AllPlayers.RemoveAll(x => x.IsHost());
+                RoleResult[PlayerControl.LocalPlayer.PlayerId] = CustomRoles.GM;
             }
 
             // Pre-Assigned Roles By Host Are Selected First

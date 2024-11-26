@@ -22,9 +22,7 @@ namespace EHR
             bool HasTasksAsWizard()
             {
                 if (lp.GetTaskState().IsTaskFinished) return false;
-
                 if (!lp.IsAlive()) return true;
-
                 return lp.GetAbilityUseLimit() < 1f;
             }
         }
