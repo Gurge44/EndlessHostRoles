@@ -1,5 +1,5 @@
 <h1 align="center">Endless Host Roles</h1>
-<h4 align="center">The largest Among Us mod.<br>Completely free.<br>Host-Only.<br>Fully customizable.<br>100% transparency.<br>No data collection or logins.</h4>
+<h4 align="center">The largest Among Us mod.<br>Completely free.<br>Host-Only.<br>Fully customizable.<br>100% transparency.<br>No accounts or logins required.</h4>
 
 <br>
 
