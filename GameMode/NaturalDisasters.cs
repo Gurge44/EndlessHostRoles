@@ -255,7 +255,7 @@ namespace EHR
                 long now = Utils.TimeStamp;
 
                 int frequency = DisasterFrequency.GetInt();
-                if (Options.CurrentGameMode == CustomGameMode.AllInOne && frequency < 10) frequency = 10;
+                if (Options.CurrentGameMode == CustomGameMode.AllInOne) frequency *= 5;
 
                 if (now - LastDisaster >= frequency)
                 {
@@ -277,7 +277,7 @@ namespace EHR
 
                     SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
                     float warningTime = DisasterWarningTime.GetFloat();
-                    if (Options.CurrentGameMode == CustomGameMode.AllInOne && warningTime < 30) warningTime = 30;
+                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) warningTime *= 6;
                     PreparingDisasters.Add(new(position, warningTime, Sprite(disaster.Name), disaster.Name, room));
                 }
 
@@ -579,8 +579,7 @@ namespace EHR
                     LastAngleChange = now;
                     Angle = angle;
                 }
-                else
-                    angle = Angle;
+                else angle = Angle;
 
                 Vector2 newPos = Position + (new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * MovingSpeed.GetFloat());
 

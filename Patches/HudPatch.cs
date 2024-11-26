@@ -247,10 +247,10 @@ namespace EHR.Patches
                             CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
                             CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
                             CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
-                            CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
+                            CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
                             CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, true),
                             CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
-                            CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotatoManager.GetSuffixText(player.PlayerId)}",
+                            CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotato.GetSuffixText(player.PlayerId)}",
                             CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                             _ => string.Empty
                         };
@@ -757,7 +757,7 @@ namespace EHR.Patches
                     case CustomGameMode.HotPotato:
 
                         List<string> SummaryText4 = [];
-                        SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
+                        SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotato.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
 
                         finalText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 

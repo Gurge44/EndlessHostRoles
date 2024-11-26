@@ -1370,7 +1370,7 @@ namespace EHR
             // Move And Stop
             MoveAndStop.SetupCustomOption();
             // Hot Potato
-            HotPotatoManager.SetupCustomOption();
+            HotPotato.SetupCustomOption();
             // Speedrun
             SpeedrunManager.SetupCustomOption();
             // Hide And Seek

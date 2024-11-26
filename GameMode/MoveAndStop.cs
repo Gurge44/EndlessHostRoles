@@ -34,7 +34,7 @@ namespace EHR
         {
             get
             {
-                string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
+                string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "0") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
 
                 if (Timer is <= 19 and >= 10 && !IsYellow) result = $" {result}";
 
@@ -86,9 +86,9 @@ namespace EHR
 
         public float PositionY { get; set; } = positionY;
 
-        public int Lives { get; set; } = lives;
+        public int Lives { get; private set; } = lives;
 
-        private float LostLifeCooldownTimer { get; set; } = 0f;
+        private float LostLifeCooldownTimer { get; set; }
 
         public override string ToString()
         {
@@ -166,7 +166,7 @@ namespace EHR
             MapNames.Airship => ExtraGreenTimeOnAirhip.GetInt(),
             MapNames.Fungle => ExtraGreenTimeOnFungle.GetInt(),
             _ => 0
-        } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? 30 : 0);
+        } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? IRandom.Instance.Next(10, 40) : 0);
 
         private static IntegerValueRule CounterValueRule => new(1, 100, 1);
         private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);

@@ -349,7 +349,7 @@ namespace EHR
                     SoloKombatManager.Init();
                     FFAManager.Init();
                     MoveAndStop.Init();
-                    HotPotatoManager.Init();
+                    HotPotato.Init();
                     HnSManager.Init();
                     SpeedrunManager.Init();
                     AllInOneGameMode.Init();
@@ -778,7 +778,7 @@ namespace EHR
                 {
                     case CustomGameMode.AllInOne:
                     case CustomGameMode.HotPotato:
-                        HotPotatoManager.OnGameStart();
+                        HotPotato.OnGameStart();
                         if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                         break;
                     case CustomGameMode.HideAndSeek:

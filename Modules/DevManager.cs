@@ -135,6 +135,7 @@ namespace EHR
                 new("blessedtea#6684", "#ff0000", "YouTuber", true), // Rvimpostor
                 new("seriouslug#1532", "#FF2400", "ZEN", true), // Zypherus
                 new("potatotall#5573", isUp: true), // V.K
+                new("kamedexter#7241", "#ff0000", "YouTuber", true), // Lean
 
                 // Sponsor
                 new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),

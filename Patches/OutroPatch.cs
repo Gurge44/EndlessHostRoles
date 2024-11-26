@@ -452,7 +452,7 @@ namespace EHR
                 }
                 case CustomGameMode.HotPotato:
                 {
-                    IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(HotPotatoManager.GetSurvivalTime);
+                    IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(HotPotato.GetSurvivalTime);
                     foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                     break;

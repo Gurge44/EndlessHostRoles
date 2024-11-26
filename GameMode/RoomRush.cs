@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
+using Beebyte.Obfuscator;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -197,7 +198,13 @@ namespace EHR
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
             aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
-            bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3 && Options.CurrentGameMode != CustomGameMode.AllInOne;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne)
+            {
+                yield return new WaitForSeconds(4f);
+                goto Skip;
+            }
+
+            bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3;
 
             if (showTutorial)
             {
@@ -224,6 +231,8 @@ namespace EHR
                 aapc.Do(x => x.Notify(time.ToString()));
                 yield return new WaitForSeconds(1f);
             }
+            
+            Skip:
 
             if (ventLimit > 0) aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
