@@ -653,9 +653,9 @@ namespace EHR.Patches
                         {
                             const int max = 3;
                             IEnumerable<string> s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
-                            finalText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
+                            finalText += s.Aggregate("<size=65%>", (current, next) => current + next) + "</size>";
                             int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
-                            if (subRoles.Count > max) finalText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
+                            if (subRoles.Count > max) finalText += $"\r\n<size=65%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
                         }
 
                         string[] lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");

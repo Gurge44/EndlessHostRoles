@@ -151,7 +151,7 @@ namespace EHR
                     }
                 }
                 catch { }
-            }, 2.5f, "green bean kick late task", false);
+            }, 4.5f, "green bean kick late task", false);
 
             if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
             {
@@ -555,7 +555,7 @@ namespace EHR
                             AmongUsClient.Instance.KickPlayer(client.Id, false);
                         }
                     }
-                }, 4f, "fortegreen bean color kick");
+                }, 5f, "fortegreen bean color kick");
             }
 
             if (bodyColor == 255) return;
