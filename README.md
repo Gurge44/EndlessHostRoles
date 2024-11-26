@@ -1,5 +1,5 @@
 <h1 align="center">Endless Host Roles</h1>
-<h4 align="center">The largest Among Us mod.<br>Completely free.<br>Host-Only.<br>Fully customizable.<br>100% transparency.<br>No data collection or logins.</h4>
+<h4 align="center">The largest Among Us mod.<br>Completely free.<br>Host-Only.<br>Fully customizable.<br>100% transparency.<br>No accounts or logins required.</h4>
 
 <br>
 
@@ -439,3 +439,75 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+# Privacy Policy
+
+
+### Privacy Policy for EHR Discord Integration
+
+**Effective Date:** 2024-11-09
+
+------------------------------------------------------------------------------------------------------------
+
+#### 1. **Introduction**
+This Privacy Policy explains how we collect, use, and handle information related to the EHR Discord integration for your Among Us mod. We are committed to ensuring that your data privacy and security are respected.
+
+------------------------------------------------------------------------------------------------------------
+
+#### 2. **Information Collected**
+When using this integration, we collect the following non-personal information:
+
+- **Lobby Code:** A six-letter code that uniquely identifies a game lobby.
+- **Server Name:** The region where the game server is hosted (e.g., Asia, EU, NA).
+- **User Language:** The selected language for the game (e.g., English, Russian, Spanish).
+- **Mod Version:** The version of the Endless Host Roles (EHR) mod being used.
+- **Lobby Status:** The current status of the lobby (e.g., In Lobby, In Game, Ended).
+
+------------------------------------------------------------------------------------------------------------
+
+#### 3. **How Information is Used**
+The collected information is used solely for the following purposes:
+
+- To notify players about available lobbies via the designated Discord server.
+- To update the status of the lobby in real time, enhancing coordination among players.
+
+**No personal data** or any other information beyond what is listed above is collected or processed.
+
+------------------------------------------------------------------------------------------------------------
+
+#### 4. **Data Sharing**
+- The collected information is only sent to the EHR Discord server through a webhook.
+- No data is shared with third parties or used for any other purposes.
+
+------------------------------------------------------------------------------------------------------------
+
+#### 5. **User Control and Opt-Out**
+You have full control over whether to enable or disable data sharing. You can disable this feature by:
+
+1. Opening the **Room Settings** UI.
+2. Navigating to the **System Settings** tab.
+3. Turning off the setting labeled **Post the lobby code to the EHR Discord server.**
+
+When disabled, no lobby information will be collected or transmitted.
+
+------------------------------------------------------------------------------------------------------------
+
+#### 6. **Data Retention**
+- Lobby data is retained only as long as the lobby is active. Once a lobby is closed, the data is removed from our system and the message is deleted from the Discord server after 30 minutes.
+- We do not store historical records of lobbies after they are removed.
+
+------------------------------------------------------------------------------------------------------------
+
+#### 7. **Changes to this Privacy Policy**
+We may update this Privacy Policy from time to time. Any changes will be communicated through an update in the mod or via the official EHR Discord channel.
+
+------------------------------------------------------------------------------------------------------------
+
+#### 8. **Contact Us**
+If you have any questions about this Privacy Policy or how your data is handled, please contact us at:
+
+**[The EHR Discord Server](https://discord.gg/m3ayxfumC8)**
+
+------------------------------------------------------------------------------------------------------------
+
+By using the EHR Discord integration, you agree to the terms outlined in this Privacy Policy.

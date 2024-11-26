@@ -20,11 +20,11 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.IsEnded || !CustomGameMode.AllInOne.IsActiveOrIntegrated() || Main.HasJustStarted) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.IsEnded || !CustomGameMode.AllInOne.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer)) return;
 
                 bool doneWithTasks = Taskers.Contains(__instance.PlayerId) && __instance.GetTaskState().IsTaskFinished;
 
-                if (doneWithTasks && !__instance.Is(CustomRoles.Killer))
+                if (doneWithTasks)
                 {
                     Taskers.Remove(__instance.PlayerId);
                     __instance.RpcChangeRoleBasis(CustomRoles.Killer);

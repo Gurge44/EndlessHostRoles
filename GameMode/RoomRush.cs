@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
+using Beebyte.Obfuscator;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -197,7 +198,13 @@ namespace EHR
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
             aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
-            bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3 && Options.CurrentGameMode != CustomGameMode.AllInOne;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne)
+            {
+                yield return new WaitForSeconds(4f);
+                goto Skip;
+            }
+
+            bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3;
 
             if (showTutorial)
             {
@@ -224,6 +231,8 @@ namespace EHR
                 aapc.Do(x => x.Notify(time.ToString()));
                 yield return new WaitForSeconds(1f);
             }
+            
+            Skip:
 
             if (ventLimit > 0) aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
@@ -274,9 +283,8 @@ namespace EHR
 
             switch (Main.CurrentMap)
             {
-                case MapNames.Airship:
-                    if (RoomGoal == SystemTypes.Ventilation) time = (int)(time * 0.4f);
-
+                case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
+                    time = (int)(time * 0.4f);
                     break;
                 case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                     time += (int)(8 / speed);
@@ -287,7 +295,7 @@ namespace EHR
             }
 
             TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= 2;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= 3;
             Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
             if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
@@ -324,14 +332,14 @@ namespace EHR
             color = done ? Color.white : Color.yellow;
             sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
 
-            if (VentTimes.GetInt() == 0 || dead || seer.IsModClient()) return sb.ToString();
+            if (VentTimes.GetInt() == 0 || dead || seer.IsModClient()) return sb.ToString().Trim();
 
             sb.Append('\n');
 
             int vents = VentLimit.GetValueOrDefault(seer.PlayerId);
             sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), vents));
 
-            return sb.ToString();
+            return sb.ToString().Trim();
         }
 
         public static void ReceiveRPC(MessageReader reader)

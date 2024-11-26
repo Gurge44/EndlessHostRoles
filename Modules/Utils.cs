@@ -781,7 +781,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 case CustomGameMode.NaturalDisasters: return false;
                 case CustomGameMode.RoomRush: return false;
                 case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
-                case CustomGameMode.AllInOne: return AllInOneGameMode.Taskers.Contains(p.PlayerId);
+                case CustomGameMode.AllInOne: return true;
             }
 
             CustomRoles role = state.MainRole;
@@ -1356,14 +1356,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 {
                     var roleDisplay = $"\n{ColorString(GetRoleColor(role).ShadeColor(0.25f), GetString(role.ToString()))}: {mode} x{role.GetCount()}";
 
-                    if (role.IsGhostRole())
-                        ghostsb.Append(roleDisplay);
-                    else if (role.IsAdditionRole())
-                        addonsb.Append(roleDisplay);
-                    else if (role.IsCrewmate())
-                        crewsb.Append(roleDisplay);
-                    else if (role.IsImpostor() || role.IsMadmate())
-                        impsb.Append(roleDisplay);
+                    if (role.IsGhostRole()) ghostsb.Append(roleDisplay);
+                    else if (role.IsAdditionRole()) addonsb.Append(roleDisplay);
+                    else if (role.IsCrewmate()) crewsb.Append(roleDisplay);
+                    else if (role.IsImpostor() || role.IsMadmate()) impsb.Append(roleDisplay);
                     else if (role.IsNeutral()) neutralsb.Append(roleDisplay);
                 }
             }
@@ -2172,7 +2168,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 SelfSuffix.Append(MoveAndStop.GetSuffixText(seer));
                                 break;
                             case CustomGameMode.HotPotato:
-                                SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
+                                SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId));
                                 break;
                             case CustomGameMode.Speedrun:
                                 SelfSuffix.Append(SpeedrunManager.GetSuffixText(seer));
@@ -2190,10 +2186,11 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 SelfSuffix.Append(RoomRush.GetSuffix(seer));
                                 break;
                             case CustomGameMode.AllInOne:
-                                SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer) + "\n");
-                                SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
-                                SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId) + "\n");
-                                SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
+                                bool alive = seer.IsAlive();
+                                if (alive) SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer) + "\n");
+                                if (alive) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
+                                SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
+                                if (alive && !seer.Is(CustomRoles.Killer)) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
                                 SelfSuffix.Append(NaturalDisasters.SuffixText() + "\n");
                                 const StringSplitOptions splitFlags = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
                                 SelfSuffix.Append(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - "));
@@ -3149,7 +3146,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.HotPotato:
-                    int time = HotPotatoManager.GetSurvivalTime(id);
+                    int time = HotPotato.GetSurvivalTime(id);
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.NaturalDisasters:

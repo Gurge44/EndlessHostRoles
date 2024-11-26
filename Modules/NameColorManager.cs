@@ -48,7 +48,7 @@ namespace EHR
                     return true;
                 case CustomGameMode.AllInOne:
                 case CustomGameMode.HotPotato:
-                    (byte HolderID, byte LastHolderID) = HotPotatoManager.GetState();
+                    (byte HolderID, byte LastHolderID) = HotPotato.GetState();
 
                     if (target.PlayerId == HolderID)
                         color = "#000000";

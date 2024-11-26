@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace EHR
 {
-    public class SpeedrunManager
+    public static class SpeedrunManager
     {
         private static OptionItem TaskFinishWins;
         private static OptionItem TimeStacksUp;
@@ -51,12 +51,13 @@ namespace EHR
         {
             CanKill = [];
             Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 7);
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) Timers.AdjustAllValues(x => x * 2);
         }
 
         public static void ResetTimer(PlayerControl pc)
         {
             int timer = TimeLimit.GetInt();
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= 2;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= 3;
 
             if (TimeStacksUp.GetBool())
                 Timers[pc.PlayerId] += timer;
@@ -152,7 +153,7 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId == 255) return;
 
                 if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
                 {
@@ -164,7 +165,6 @@ namespace EHR
 
                 long now = Utils.TimeStamp;
                 if (LastUpdate == now) return;
-
                 LastUpdate = now;
 
                 Timers.AdjustAllValues(x => x - 1);

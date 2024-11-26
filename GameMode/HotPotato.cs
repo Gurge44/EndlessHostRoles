@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace EHR
 {
-    internal static class HotPotatoManager
+    internal static class HotPotato
     {
         private static OptionItem Time;
         private static OptionItem HolderSpeed;

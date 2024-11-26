@@ -247,9 +247,10 @@ namespace EHR.Patches
                             CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
                             CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
                             CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
-                            CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
+                            CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
                             CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, true),
                             CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
+                            CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotato.GetSuffixText(player.PlayerId)}",
                             CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                             _ => string.Empty
                         };
@@ -653,9 +654,9 @@ namespace EHR.Patches
                         {
                             const int max = 3;
                             IEnumerable<string> s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
-                            finalText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
+                            finalText += s.Aggregate("<size=65%>", (current, next) => current + next) + "</size>";
                             int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
-                            if (subRoles.Count > max) finalText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
+                            if (subRoles.Count > max) finalText += $"\r\n<size=65%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
                         }
 
                         string[] lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
@@ -756,7 +757,7 @@ namespace EHR.Patches
                     case CustomGameMode.HotPotato:
 
                         List<string> SummaryText4 = [];
-                        SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
+                        SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotato.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
 
                         finalText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 
