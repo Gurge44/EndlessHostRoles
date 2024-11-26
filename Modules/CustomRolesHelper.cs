@@ -86,13 +86,9 @@ namespace EHR
         public static CustomRoles GetVNRole(this CustomRoles role, bool checkDesyncRole = false)
         {
             if (role.IsGhostRole()) return CustomRoles.GuardianAngel;
-
             if (role.IsVanilla()) return role;
-
             if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
-
             if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
-
             if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;
 
             bool UsePets = Options.UsePets.GetBool();
@@ -130,6 +126,7 @@ namespace EHR
                 CustomRoles.FireWorks => CustomRoles.Shapeshifter,
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
+                CustomRoles.DoubleAgent => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
                 CustomRoles.Occultist => CustomRoles.Impostor,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
@@ -594,7 +591,7 @@ namespace EHR
 
         public static bool IsImpostor(this CustomRoles role)
         {
-            return role is
+            return (role == CustomRoles.DoubleAgent && Main.HasJustStarted) || role is
                 CustomRoles.Impostor or
                 CustomRoles.ImpostorEHR or
                 CustomRoles.Phantom or
@@ -1532,6 +1529,7 @@ namespace EHR
                 CustomRoles.Bloodhound => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Detective => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Doctor => RoleOptionType.Crewmate_Investigate,
+                CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Druid => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Enigma => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Farseer => RoleOptionType.Crewmate_Investigate,

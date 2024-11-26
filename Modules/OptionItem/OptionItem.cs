@@ -222,7 +222,6 @@ namespace EHR
             for (var i = 0; i < 5; i++)
             {
                 if (AllOptions.First(x => x.Id == LastParent).Parent == null) break;
-
                 LastParent = AllOptions.First(x => x.Id == LastParent).Parent.Id;
             }
 
@@ -232,7 +231,6 @@ namespace EHR
         protected string ApplyFormat(string value)
         {
             if (ValueFormat == OptionFormat.None) return value;
-
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
 
