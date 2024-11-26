@@ -442,7 +442,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Privacy Policy
 
-```
+
 ### Privacy Policy for EHR Discord Integration
 
 **Effective Date:** 2024-11-09
@@ -506,9 +506,8 @@ We may update this Privacy Policy from time to time. Any changes will be communi
 #### 8. **Contact Us**
 If you have any questions about this Privacy Policy or how your data is handled, please contact us at:
 
-**https://discord.gg/m3ayxfumC8**
+**[The EHR Discord Server](https://discord.gg/m3ayxfumC8)**
 
 ------------------------------------------------------------------------------------------------------------
 
 By using the EHR Discord integration, you agree to the terms outlined in this Privacy Policy.
-```
