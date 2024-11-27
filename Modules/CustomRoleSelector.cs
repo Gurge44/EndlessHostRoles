@@ -34,37 +34,79 @@ namespace EHR.Modules
 
             if (Main.GM.Value && Main.AllPlayerControls.Length == 1) return;
 
-            switch (Options.CurrentGameMode)
+            // switch (Options.CurrentGameMode)
+            // {
+            //     case CustomGameMode.SoloKombat:
+            //         AssignRoleToEveryone(CustomRoles.KB_Normal);
+            //         return;
+            //     case CustomGameMode.FFA:
+            //         AssignRoleToEveryone(CustomRoles.Killer);
+            //         return;
+            //     case CustomGameMode.MoveAndStop:
+            //         AssignRoleToEveryone(CustomRoles.Tasker);
+            //         return;
+            //     case CustomGameMode.HotPotato:
+            //         AssignRoleToEveryone(CustomRoles.Potato);
+            //         return;
+            //     case CustomGameMode.Speedrun:
+            //         AssignRoleToEveryone(CustomRoles.Runner);
+            //         return;
+            //     case CustomGameMode.CaptureTheFlag:
+            //         AssignRoleToEveryone(CustomRoles.CTFPlayer);
+            //         return;
+            //     case CustomGameMode.NaturalDisasters:
+            //         AssignRoleToEveryone(CustomRoles.NDPlayer);
+            //         return;
+            //     case CustomGameMode.RoomRush:
+            //         AssignRoleToEveryone(CustomRoles.RRPlayer);
+            //         return;
+            //     case CustomGameMode.HideAndSeek:
+            //         HnSManager.AssignRoles();
+            //         RoleResult = HnSManager.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);
+            //         return;
+            // }
+
+            if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
-                case CustomGameMode.SoloKombat:
-                    AssignRoleToEveryone(CustomRoles.KB_Normal);
+                Dictionary<CustomGameMode, CustomRoles> gameModeRoles = new()
+                {
+                    { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
+                    { CustomGameMode.FFA, CustomRoles.Killer },
+                    { CustomGameMode.MoveAndStop, CustomRoles.Tasker },
+                    { CustomGameMode.HotPotato, CustomRoles.Potato },
+                    { CustomGameMode.Speedrun, CustomRoles.Runner },
+                    { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },
+                    { CustomGameMode.NaturalDisasters, CustomRoles.NDPlayer },
+                    { CustomGameMode.RoomRush, CustomRoles.RRPlayer }
+                };
+
+                if (gameModeRoles.TryGetValue(Options.CurrentGameMode, out var role))
+                {
+                    AssignRoleToEveryone(role);
                     return;
-                case CustomGameMode.FFA:
-                    AssignRoleToEveryone(CustomRoles.Killer);
-                    return;
-                case CustomGameMode.AllInOne:
-                case CustomGameMode.MoveAndStop:
-                    AssignRoleToEveryone(CustomRoles.Tasker);
-                    return;
-                case CustomGameMode.HotPotato:
-                    AssignRoleToEveryone(CustomRoles.Potato);
-                    return;
-                case CustomGameMode.Speedrun:
-                    AssignRoleToEveryone(CustomRoles.Runner);
-                    return;
-                case CustomGameMode.CaptureTheFlag:
-                    AssignRoleToEveryone(CustomRoles.CTFPlayer);
-                    return;
-                case CustomGameMode.NaturalDisasters:
-                    AssignRoleToEveryone(CustomRoles.NDPlayer);
-                    return;
-                case CustomGameMode.RoomRush:
-                    AssignRoleToEveryone(CustomRoles.RRPlayer);
-                    return;
-                case CustomGameMode.HideAndSeek:
+                }
+
+                bool hns = Options.CurrentGameMode == CustomGameMode.HideAndSeek;
+
+                if (Options.CurrentGameMode == CustomGameMode.AllInOne)
+                {
+                    var prioritizedGameMode = AllInOneGameMode.GetPrioritizedGameModeForRoles();
+
+                    if (gameModeRoles.TryGetValue(prioritizedGameMode, out var allInOneRole))
+                    {
+                        AssignRoleToEveryone(allInOneRole);
+                        return;
+                    }
+
+                    hns = prioritizedGameMode == CustomGameMode.HideAndSeek;
+                }
+
+                if (hns)
+                {
                     HnSManager.AssignRoles();
                     RoleResult = HnSManager.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);
                     return;
+                }
             }
 
             var rd = IRandom.Instance;

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
+using UnityEngine;
 
 namespace EHR
 {
@@ -9,9 +11,105 @@ namespace EHR
     {
         public static HashSet<byte> Taskers = [];
 
+        public static readonly Dictionary<CustomGameMode, OptionItem> GameModeIntegrationSettings = [];
+
+        public static OptionItem HotPotatoTimerMultiplier;
+        public static OptionItem MoveAndStopMinGreenTimeBonus;
+        public static OptionItem MoveAndStopMaxGreenTimeBonus;
+        public static OptionItem NaturalDisastersDisasterSpawnCooldownMultiplier;
+        public static OptionItem NaturalDisastersWarningDurationMultiplier;
+        public static OptionItem RoomRushTimeLimitMultiplier;
+        public static OptionItem RoomRushDontKillLastPlayer;
+        public static OptionItem RoomRushDontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom;
+        public static OptionItem RoomRushDontKillPlayersOutsideRoomWhenTimeRunsOut;
+        public static OptionItem SpeedrunTimeLimitMultiplier;
+
+        public static void SetupCustomOption()
+        {
+            var id = 69_217_001;
+            var color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : Color.magenta;
+            const CustomGameMode gameMode = CustomGameMode.AllInOne;
+
+            foreach (CustomGameMode mode in Enum.GetValues<CustomGameMode>())
+            {
+                if (mode is CustomGameMode.Standard or gameMode) continue;
+
+                bool defaultValue = mode is CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.SoloKombat or CustomGameMode.Speedrun;
+
+                GameModeIntegrationSettings[mode] = new BooleanOptionItem(id++, $"AllInOne.{mode}.Integration", defaultValue, TabGroup.GameSettings)
+                    .SetGameMode(gameMode)
+                    .SetColor(color);
+            }
+
+            HotPotatoTimerMultiplier = new IntegerOptionItem(id++, "AllInOne.HotPotato.TimerMultiplier", new(1, 10, 1), 3, TabGroup.GameSettings)
+                .SetValueFormat(OptionFormat.Multiplier)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            MoveAndStopMinGreenTimeBonus = new IntegerOptionItem(id++, "AllInOne.MoveAndStop.MinGreenTimeBonus", new(0, 60, 1), 5, TabGroup.GameSettings)
+                .SetValueFormat(OptionFormat.Seconds)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            MoveAndStopMaxGreenTimeBonus = new IntegerOptionItem(id++, "AllInOne.MoveAndStop.MaxGreenTimeBonus", new(0, 60, 1), 20, TabGroup.GameSettings)
+                .SetValueFormat(OptionFormat.Seconds)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            NaturalDisastersDisasterSpawnCooldownMultiplier = new IntegerOptionItem(id++, "AllInOne.NaturalDisasters.DisasterSpawnCooldownMultiplier", new(1, 10, 1), 4, TabGroup.GameSettings)
+                .SetValueFormat(OptionFormat.Multiplier)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            NaturalDisastersWarningDurationMultiplier = new IntegerOptionItem(id++, "AllInOne.NaturalDisasters.WarningDurationMultiplier", new(1, 10, 1), 6, TabGroup.GameSettings)
+                .SetValueFormat(OptionFormat.Multiplier)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            RoomRushTimeLimitMultiplier = new IntegerOptionItem(id++, "AllInOne.RoomRush.TimeLimitMultiplier", new(1, 10, 1), 3, TabGroup.GameSettings)
+                .SetValueFormat(OptionFormat.Multiplier)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            RoomRushDontKillLastPlayer = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontKillLastPlayer", true, TabGroup.GameSettings)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            RoomRushDontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom", true, TabGroup.GameSettings)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            RoomRushDontKillPlayersOutsideRoomWhenTimeRunsOut = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontKillPlayersOutsideRoomWhenTimeRunsOut", true, TabGroup.GameSettings)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+
+            SpeedrunTimeLimitMultiplier = new IntegerOptionItem(id, "AllInOne.Speedrun.TimeLimitMultiplier", new(1, 10, 1), 3, TabGroup.GameSettings)
+                .SetValueFormat(OptionFormat.Multiplier)
+                .SetGameMode(gameMode)
+                .SetColor(color);
+        }
+
         public static void Init()
         {
             Taskers = [];
+        }
+
+        public static CustomGameMode GetPrioritizedGameModeForRoles()
+        {
+            Dictionary<CustomGameMode, int> order = new()
+            {
+                { CustomGameMode.HideAndSeek, 0 },
+                { CustomGameMode.CaptureTheFlag, 1 },
+                { CustomGameMode.FFA, 2 },
+                { CustomGameMode.SoloKombat, 3 },
+                { CustomGameMode.RoomRush, 4 },
+                { CustomGameMode.Speedrun, 5 },
+                { CustomGameMode.NaturalDisasters, 6 },
+                { CustomGameMode.MoveAndStop, 7 },
+                { CustomGameMode.HotPotato, 8 }
+            };
+
+            return order.Where(x => x.Key.IsActiveOrIntegrated()).MinBy(x => x.Value).Key;
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -20,7 +118,10 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.IsEnded || !CustomGameMode.AllInOne.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer)) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.IsEnded || !CustomGameMode.AllInOne.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) return;
+
+                var gameModes = Enum.GetValues<CustomGameMode>().Where(x => x.IsActiveOrIntegrated()).Split(x => x is CustomGameMode.CaptureTheFlag or CustomGameMode.FFA or CustomGameMode.SoloKombat);
+                if (gameModes.TrueList.Count == 0 || gameModes.FalseList.Count == 0) return;
 
                 bool doneWithTasks = Taskers.Contains(__instance.PlayerId) && __instance.GetTaskState().IsTaskFinished;
 

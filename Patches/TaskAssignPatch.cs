@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -255,6 +256,19 @@ namespace EHR
             // Convert list of tasks to array (Il2CppStructArray)
             taskTypeIds = new(TasksList.Count);
             for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i];
+
+
+            Il2CppSystem.Text.StringBuilder sb = new();
+
+            foreach (TaskTypes taskType in usedTaskTypes)
+            {
+                GetTaskFromTaskType(taskType).AppendTaskText(sb);
+            }
+
+            Logger.Info($" Assigned tasks:\n{sb.Replace("\r\n", "\n")}", pc.GetRealName(), multiLine: true);
+            return;
+
+            PlayerTask GetTaskFromTaskType(TaskTypes type) => ShortTasks.ToArray().Concat(LongTasks.ToArray()).FirstOrDefault(t => t.TaskType == type);
         }
 
         private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)

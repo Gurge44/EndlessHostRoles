@@ -211,9 +211,11 @@ namespace EHR
 
             switch (Options.CurrentGameMode)
             {
+                case CustomGameMode.AllInOne when CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !killer.Is(CustomRoles.Killer):
                 case CustomGameMode.SoloKombat:
                     SoloKombatManager.OnPlayerAttack(killer, target);
                     return false;
+                case CustomGameMode.AllInOne when CustomGameMode.FFA.IsActiveOrIntegrated() && killer.Is(CustomRoles.Killer):
                 case CustomGameMode.FFA:
                     FFAManager.OnPlayerAttack(killer, target);
                     return false;

@@ -57,7 +57,7 @@ namespace EHR
         public static void ResetTimer(PlayerControl pc)
         {
             int timer = TimeLimit.GetInt();
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= 3;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt();
 
             if (TimeStacksUp.GetBool())
                 Timers[pc.PlayerId] += timer;
@@ -73,7 +73,7 @@ namespace EHR
 
             CanKill.Add(pc.PlayerId);
             Main.AllPlayerKillCooldown[pc.PlayerId] = KillCooldown.GetInt();
-            pc.RpcChangeRoleBasis(CustomRoles.Runner);
+            pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.Runner);
             pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
             pc.SyncSettings();
             pc.SetKillCooldown(KillCooldown.GetInt());

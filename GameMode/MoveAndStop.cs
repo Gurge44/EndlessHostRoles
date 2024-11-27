@@ -166,7 +166,7 @@ namespace EHR
             MapNames.Airship => ExtraGreenTimeOnAirhip.GetInt(),
             MapNames.Fungle => ExtraGreenTimeOnFungle.GetInt(),
             _ => 0
-        } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? IRandom.Instance.Next(10, 40) : 0);
+        } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? IRandom.Instance.Next(AllInOneGameMode.MoveAndStopMinGreenTimeBonus.GetInt(), AllInOneGameMode.MoveAndStopMaxGreenTimeBonus.GetInt() + 1) : 0);
 
         private static IntegerValueRule CounterValueRule => new(1, 100, 1);
         private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);
@@ -177,7 +177,7 @@ namespace EHR
 
         private static int StartingGreenTime(PlayerControl pc)
         {
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 80;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 60;
             bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode);
             return Main.CurrentMap == MapNames.Airship ? tutorial ? 57 : 47 : tutorial ? 47 : 37;
         }
