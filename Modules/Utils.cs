@@ -25,7 +25,6 @@ using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Newtonsoft.Json;
-using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -42,7 +41,7 @@ List of symbols that work in game
 6- random: ‰ § ¶ © ™ ¥ $ ¢ € ƒ  £ Æ
 
 other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ ╖ ╕ ╣ ║ ╗ ╝ ╜ ╛ ┐ └ ┴ ┬ ─ ┼ ╞ ╟ ╚ ╔ ╩ ╦ ╠ ═ ╬ ╧ ╨ ╤ ╥ ╙ ╘ ╒ ╓ ╫ ╪ ┘ ┌ Θ ∩ ¿
-*/
+    */
 
     public static class Utils
     {
@@ -428,6 +427,25 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
         }
 
+        public static void RemovePlayerFromPreviousRoleData(PlayerControl target)
+        {
+            switch (target.GetCustomRole())
+            {
+                case CustomRoles.Enigma:
+                    Enigma.PlayerIdList.Remove(target.PlayerId);
+                    break;
+                case CustomRoles.Mediumshiper:
+                    Mediumshiper.PlayerIdList.Remove(target.PlayerId);
+                    break;
+                case CustomRoles.Mortician:
+                    Mortician.PlayerIdList.Remove(target.PlayerId);
+                    break;
+                case CustomRoles.Spiritualist:
+                    Spiritualist.PlayerIdList.Remove(target.PlayerId);
+                    break;
+            }
+        }
+
         public static string GetDisplayRoleName(byte playerId, bool pure = false, bool seeTargetBetrayalAddons = false)
         {
             (string, Color) TextData = GetRoleText(playerId, playerId, pure, seeTargetBetrayalAddons);
@@ -460,11 +478,6 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             return parentheses ? $"({mode})" : mode;
         }
 
-        public static string GetDeathReason(PlayerState.DeathReason status)
-        {
-            return GetString("DeathReason." + Enum.GetName(typeof(PlayerState.DeathReason), status));
-        }
-
         public static Color GetRoleColor(CustomRoles role)
         {
             string hexColor = Main.RoleColors.GetValueOrDefault(role, "#ffffff");
@@ -480,17 +493,25 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
         public static (string, Color) GetRoleText(byte seerId, byte targetId, bool pure = false, bool seeTargetBetrayalAddons = false)
         {
-            CustomRoles seerMainRole = Main.PlayerStates[seerId].MainRole;
-            List<CustomRoles> seerSubRoles = Main.PlayerStates[seerId].SubRoles;
+            PlayerState seerState = Main.PlayerStates[seerId];
+            PlayerState targetState = Main.PlayerStates[targetId];
 
-            CustomRoles targetMainRole = Main.PlayerStates[targetId].MainRole;
-            List<CustomRoles> targetSubRoles = Main.PlayerStates[targetId].SubRoles;
+            CustomRoles seerMainRole = seerState.MainRole;
+            List<CustomRoles> seerSubRoles = seerState.SubRoles;
 
-            bool self = seerId == targetId || Main.PlayerStates[seerId].IsDead;
+            CustomRoles targetMainRole = targetState.MainRole;
+            List<CustomRoles> targetSubRoles = targetState.SubRoles;
+
+            bool self = seerId == targetId || seerState.IsDead;
 
             if (!self && Main.DiedThisRound.Contains(seerId)) return (string.Empty, Color.white);
 
-            bool isHnsAgentOverride = Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor;
+            if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor)
+                targetMainRole = CustomRoles.Hider;
+
+            if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles.TryGetValue(targetId, out var shownRole))
+                targetMainRole = shownRole;
+
             var loversShowDifferentRole = false;
 
             if (!GameStates.IsEnded && targetMainRole == CustomRoles.LovingImpostor && !self && seerMainRole != CustomRoles.LovingCrewmate && !seerSubRoles.Contains(CustomRoles.Lovers))
@@ -505,8 +526,8 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 loversShowDifferentRole = true;
             }
 
-            string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
-            Color RoleColor = GetRoleColor(isHnsAgentOverride ? CustomRoles.Hider : loversShowDifferentRole ? CustomRoles.Impostor : targetMainRole);
+            string RoleText = GetRoleName(targetMainRole);
+            Color RoleColor = GetRoleColor(loversShowDifferentRole ? CustomRoles.Impostor : targetMainRole);
 
             if (LastImpostor.CurrentId == targetId) RoleText = GetRoleString("Last-") + RoleText;
 
@@ -760,6 +781,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 case CustomGameMode.NaturalDisasters: return false;
                 case CustomGameMode.RoomRush: return false;
                 case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
+                case CustomGameMode.AllInOne: return true;
             }
 
             CustomRoles role = state.MainRole;
@@ -775,6 +797,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 case CustomRoles.Eclipse:
                 case CustomRoles.Pyromaniac:
                 case CustomRoles.NSerialKiller:
+                case CustomRoles.NoteKiller:
                 case CustomRoles.Vortex:
                 case CustomRoles.Beehive:
                 case CustomRoles.RouleteGrandeur:
@@ -961,7 +984,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
                 case CustomGameMode.Standard when CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                     return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
-                case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun:
+                case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.AllInOne:
                 case CustomGameMode.HideAndSeek when HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance):
                     return true;
             }
@@ -989,12 +1012,12 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     return true;
             }
 
-            return (__instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) ||
+            return (__instance.IsMadmate() && PlayerControl.LocalPlayer.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool()) ||
+                   (__instance.IsMadmate() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
+                   (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.IsMadmate() && Options.MadmateKnowWhosImp.GetBool()) ||
                    (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead) ||
-                   (__instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
                    (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                    (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
-                   (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) ||
                    (Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.IsLocalPlayer()) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                    (CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, CTAOption.KnowRoles)) ||
                    Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, __instance)) ||
@@ -1052,9 +1075,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
 
             if (pc.Is(CustomRoles.Damocles)) ProgressText.Append($" {Damocles.GetProgressText(playerId)}");
-
             if (pc.Is(CustomRoles.Stressed)) ProgressText.Append($" {Stressed.GetProgressText(playerId)}");
-
             if (pc.Is(CustomRoles.Circumvent)) ProgressText.Append($" {Circumvent.GetProgressText(playerId)}");
 
             if (pc.Is(CustomRoles.Taskcounter))
@@ -1121,7 +1142,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 Color TextColor = comms ? Color.gray : NormalColor;
                 string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-                return ColorString(TextColor, $" {(moveAndStop ? "<size=1.6>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? "</size>" : string.Empty)}");
+                return ColorString(TextColor, $" {(moveAndStop ? "<size=2>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? $" <#ffffff>({MoveAndStop.GetLivesRemaining(playerId)} \u2665)</color></size>" : string.Empty)}");
             }
             catch
             {
@@ -1134,16 +1155,14 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             SendMessage(GetString("CurrentActiveSettingsHelp") + ":", PlayerId);
 
             if (Options.DisableDevices.GetBool()) SendMessage(GetString("DisableDevicesInfo"), PlayerId);
-
             if (Options.SyncButtonMode.GetBool()) SendMessage(GetString("SyncButtonModeInfo"), PlayerId);
-
             if (Options.SabotageTimeControl.GetBool()) SendMessage(GetString("SabotageTimeControlInfo"), PlayerId);
-
             if (Options.RandomMapsMode.GetBool()) SendMessage(GetString("RandomMapsModeInfo"), PlayerId);
 
             if (Main.GM.Value) SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId);
 
-            foreach (CustomRoles role in Enum.GetValues<CustomRoles>().Where(role => role.IsEnable() && !role.IsVanilla())) SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString(Enum.GetName(typeof(CustomRoles), role) + "InfoLong"), PlayerId);
+            foreach (CustomRoles role in Enum.GetValues<CustomRoles>().Where(role => role.IsEnable() && !role.IsVanilla()))
+                SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId);
 
             if (Options.NoGameEnd.GetBool()) SendMessage(GetString("NoGameEndInfo"), PlayerId);
         }
@@ -1174,27 +1193,21 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
 
             StringBuilder sb = new();
-            sb.Append(" ★ " + GetString("TabGroup.SystemSettings"));
+            sb.Append($" \u2605 {GetString("TabGroup.SystemSettings")}");
+            Options.GroupedOptions[TabGroup.SystemSettings].Do(CheckAndAppendOptionString);
+            sb.Append($"\n\n \u2605 {GetString("TabGroup.GameSettings")}");
+            Options.GroupedOptions[TabGroup.GameSettings].Do(CheckAndAppendOptionString);
 
-            foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Tab is TabGroup.SystemSettings && !x.IsHiddenOn(Options.CurrentGameMode)))
+            SendMessage(sb.ToString().RemoveHtmlTags(), PlayerId);
+            return;
+
+            void CheckAndAppendOptionString(OptionItem item)
             {
-                sb.Append($"\n{opt.GetName(true)}: {opt.GetString()}");
-                //ShowChildrenSettings(opt, ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
+                if (item.GetBool() && item.Parent == null && !item.IsCurrentlyHidden())
+                {
+                    sb.Append($"\n{item.GetName(true)}: {item.GetString()}");
+                }
             }
-
-            sb.Append("\n\n ★ " + GetString("TabGroup.GameSettings"));
-
-            foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Tab is TabGroup.GameSettings && !x.IsHiddenOn(Options.CurrentGameMode)))
-            {
-                sb.Append($"\n{opt.GetName(true)}: {opt.GetString()}");
-                //ShowChildrenSettings(opt, ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
-            }
-
-            SendMessage(sb.ToString(), PlayerId);
         }
 
         public static void ShowAllActiveSettings(byte PlayerId = byte.MaxValue)
@@ -1236,13 +1249,11 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
                 ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
             }
 
             foreach (OptionItem opt in OptionItem.AllOptions)
             {
-                if (opt.GetBool() && opt.Parent == null && opt.Id is >= 80000 and < 640000 && !opt.IsHiddenOn(Options.CurrentGameMode))
+                if (opt.GetBool() && opt.Parent == null && opt.Id is >= 80000 and < 640000 && !opt.IsCurrentlyHidden())
                 {
                     if (opt.Name is "KillFlashDuration" or "RoleAssigningAlgorithm")
                         sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
@@ -1250,12 +1261,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                         sb.Append($"\n【{opt.GetName(true)}】\n");
 
                     ShowChildrenSettings(opt, ref sb);
-                    var text = sb.ToString();
-                    sb.Clear().Append(text.RemoveHtmlTags());
                 }
             }
 
-            SendMessage(sb.ToString(), PlayerId);
+            SendMessage(sb.ToString().RemoveHtmlTags(), PlayerId);
         }
 
         public static void CopyCurrentSettings()
@@ -1291,13 +1300,11 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
                 ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
             }
 
             sb.Append($"━━━━━━━━━━━━【{GetString("Settings")}】━━━━━━━━━━━━");
 
-            foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsHiddenOn(Options.CurrentGameMode)))
+            foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsCurrentlyHidden()))
             {
                 if (opt.Name == "KillFlashDuration")
                     sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
@@ -1305,12 +1312,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     sb.Append($"\n【{opt.GetName(true)}】\n");
 
                 ShowChildrenSettings(opt, ref sb);
-                var text = sb.ToString();
-                sb.Clear().Append(text.RemoveHtmlTags());
             }
 
             sb.Append("\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501");
-            ClipboardHelper.PutClipboardString(sb.ToString());
+            ClipboardHelper.PutClipboardString(sb.ToString().RemoveHtmlTags());
         }
 
         public static void ShowActiveRoles(byte PlayerId = byte.MaxValue)
@@ -1330,7 +1335,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             StringBuilder addonsb = new();
             StringBuilder ghostsb = new();
 
-            foreach (CustomRoles role in Options.CurrentGameMode == CustomGameMode.HideAndSeek ? HnSManager.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(HnSManager.AllHnSRoles))
+            foreach (CustomRoles role in CustomGameMode.HideAndSeek.IsActiveOrIntegrated() ? HnSManager.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(HnSManager.AllHnSRoles))
             {
                 string mode;
 
@@ -1351,14 +1356,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 {
                     var roleDisplay = $"\n{ColorString(GetRoleColor(role).ShadeColor(0.25f), GetString(role.ToString()))}: {mode} x{role.GetCount()}";
 
-                    if (role.IsGhostRole())
-                        ghostsb.Append(roleDisplay);
-                    else if (role.IsAdditionRole())
-                        addonsb.Append(roleDisplay);
-                    else if (role.IsCrewmate())
-                        crewsb.Append(roleDisplay);
-                    else if (role.IsImpostor() || role.IsMadmate())
-                        impsb.Append(roleDisplay);
+                    if (role.IsGhostRole()) ghostsb.Append(roleDisplay);
+                    else if (role.IsAdditionRole()) addonsb.Append(roleDisplay);
+                    else if (role.IsCrewmate()) crewsb.Append(roleDisplay);
+                    else if (role.IsImpostor() || role.IsMadmate()) impsb.Append(roleDisplay);
                     else if (role.IsNeutral()) neutralsb.Append(roleDisplay);
                 }
             }
@@ -1471,7 +1472,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     break;
                 case CustomGameMode.MoveAndStop:
                     List<(int, byte)> list3 = [];
-                    list3.AddRange(cloneRoles.Select(id => (MoveAndStopManager.GetRankOfScore(id), id)));
+                    list3.AddRange(cloneRoles.Select(id => (MoveAndStop.GetRankFromScore(id), id)));
 
                     list3.Sort();
 
@@ -1488,6 +1489,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     }
 
                     break;
+                case CustomGameMode.AllInOne:
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.NaturalDisasters:
                 case CustomGameMode.CaptureTheFlag:
@@ -1551,7 +1553,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 return;
             }
 
-            if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
             StringBuilder sb = new();
             if (SetEverythingUpPatch.LastWinsText != string.Empty) sb.Append($"<size=90%>{GetString("LastResult")} {SetEverythingUpPatch.LastWinsText}</size>");
@@ -1569,7 +1571,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 return;
             }
 
-            if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
             string result = Main.LastAddOns.Values.Join(delimiter: "\n");
             SendMessage("\n", PlayerId, result);
@@ -1721,7 +1723,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
 
                 PlayerControl[] ListToChooseFrom = Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
 
@@ -1858,6 +1860,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                         CustomGameMode.CaptureTheFlag => $"<color=#1313c2><size=1.7>{modeText}</size></color>\r\n{name}",
                         CustomGameMode.NaturalDisasters => $"<color=#03fc4a><size=1.7>{modeText}</size></color>\r\n{name}",
                         CustomGameMode.RoomRush => $"<color=#ffab1b><size=1.7>{modeText}</size></color>\r\n{name}",
+                        CustomGameMode.AllInOne => $"<color=#f542ad><size=1.7>{modeText}</size></color>\r\n{name}",
                         CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"<size=1.7>{modeText}</size>\r\n") + name,
                         _ => name
                     };
@@ -2020,7 +2023,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
         public static void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
         {
-            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting))) return;
+            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && (CustomGameMode.Standard.IsActiveOrIntegrated() || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting))) return;
 
             DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
         }
@@ -2040,14 +2043,14 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             {
                 try
                 {
-                    if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard))) continue;
+                    if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated()))) continue;
 
                     // During intro scene, set team name for non-modded clients and skip the rest.
                     string SelfName;
                     Team seerTeam = seer.GetTeam();
                     CustomRoles seerRole = seer.GetCustomRole();
 
-                    if (SetUpRoleTextPatch.IsInIntro && (seerRole.IsDesyncRole() || seer.Is(CustomRoles.Bloodlust)) && Options.CurrentGameMode == CustomGameMode.Standard)
+                    if (SetUpRoleTextPatch.IsInIntro && (seerRole.IsDesyncRole() || seer.Is(CustomRoles.Bloodlust)) && CustomGameMode.Standard.IsActiveOrIntegrated())
                     {
                         const string iconTextLeft = "<color=#ffffff>\u21e8</color>";
                         const string iconTextRight = "<color=#ffffff>\u21e6</color>";
@@ -2084,7 +2087,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                     if (!GameStates.IsLobby)
                     {
-                        if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode0;
+                        if (AntiBlackout.SkipTasks) SelfSuffix.AppendLine(GetString("AntiBlackoutSkipTasks"));
+
+                        if (!CustomGameMode.Standard.IsActiveOrIntegrated()) goto GameMode0;
 
                         SelfMark.Append(Snitch.GetWarningArrow(seer));
                         if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
@@ -2116,13 +2121,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                             }
 
                             if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
-
                             if (seer.Is(CustomRoles.Sonar)) SelfSuffix.Append(Sonar.GetSuffix(seer, isForMeeting));
-
                             if (seer.Is(CustomRoles.Deadlined)) SelfSuffix.Append(Deadlined.GetSuffix(seer));
-
                             if (seer.Is(CustomRoles.Introvert)) SelfSuffix.Append(Introvert.GetSelfSuffix(seer));
-
                             if (seer.Is(CustomRoles.Allergic)) SelfSuffix.Append(Allergic.GetSelfSuffix(seer));
 
                             SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
@@ -2134,15 +2135,16 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                     SelfMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
                                     break;
                                 case CustomRoles.Monitor:
+                                    if (AntiAdminer.IsAdminWatch) SelfSuffix.Append($"{GetString("AntiAdminerAD")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                                    if (AntiAdminer.IsVitalWatch) SelfSuffix.Append($"{GetString("AntiAdminerVI")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                                    if (AntiAdminer.IsDoorLogWatch) SelfSuffix.Append($"{GetString("AntiAdminerDL")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                                    if (AntiAdminer.IsCameraWatch) SelfSuffix.Append($"{GetString("AntiAdminerCA")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                                    break;
                                 case CustomRoles.AntiAdminer:
                                     if (AntiAdminer.IsAdminWatch) SelfSuffix.Append(GetString("AntiAdminerAD"));
-
                                     if (AntiAdminer.IsVitalWatch) SelfSuffix.Append(GetString("AntiAdminerVI"));
-
                                     if (AntiAdminer.IsDoorLogWatch) SelfSuffix.Append(GetString("AntiAdminerDL"));
-
                                     if (AntiAdminer.IsCameraWatch) SelfSuffix.Append(GetString("AntiAdminerCA"));
-
                                     break;
                             }
                         }
@@ -2163,10 +2165,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
                                 break;
                             case CustomGameMode.MoveAndStop:
-                                SelfSuffix.Append(MoveAndStopManager.GetSuffixText(seer));
+                                SelfSuffix.Append(MoveAndStop.GetSuffixText(seer));
                                 break;
-                            case CustomGameMode.HotPotato when seer.IsAlive():
-                                SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
+                            case CustomGameMode.HotPotato:
+                                SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId));
                                 break;
                             case CustomGameMode.Speedrun:
                                 SelfSuffix.Append(SpeedrunManager.GetSuffixText(seer));
@@ -2183,6 +2185,16 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                             case CustomGameMode.RoomRush:
                                 SelfSuffix.Append(RoomRush.GetSuffix(seer));
                                 break;
+                            case CustomGameMode.AllInOne:
+                                bool alive = seer.IsAlive();
+                                if (alive) SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer) + "\n");
+                                if (alive) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
+                                SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
+                                if (alive && !seer.Is(CustomRoles.Killer)) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
+                                SelfSuffix.Append(NaturalDisasters.SuffixText() + "\n");
+                                const StringSplitOptions splitFlags = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
+                                SelfSuffix.Append(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - "));
+                                break;
                         }
                     }
 
@@ -2190,9 +2202,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                     if (!GameStates.IsLobby)
                     {
-                        if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool()) SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
+                        if ((CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFATeamMode.GetBool()) || CustomGameMode.HotPotato.IsActiveOrIntegrated())
+                            SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
 
-                        if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush)
+                        if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne)
                         {
                             CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
 
@@ -2211,14 +2224,14 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                             ? string.Empty
                                             : team.RoleRevealScreenSubtitle));
                             }
-                            else if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
+                            else if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
                             {
                                 if (GameStartTimeStamp + 40 > now) SeerRealName = HnSManager.GetRoleInfoText(seer);
                             }
-                            else if (Options.ChangeNameToRoleInfo.GetBool())
+                            else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModClient())
                             {
                                 bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && GameStartTimeStamp + description.Duration > now;
-                                string mHelp = (!showLongInfo || description.Long) && Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
+                                string mHelp = (!showLongInfo || description.Long) && CustomGameMode.Standard.IsActiveOrIntegrated() ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
 
                                 SeerRealName = seerTeam switch
                                 {
@@ -2237,7 +2250,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     string SelfDeathReason = seer.KnowDeathReason(seer) && !GameStates.IsLobby ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))}』</size>" : string.Empty;
                     SelfName = $"{ColorString(GameStates.IsLobby ? Color.white : seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
 
-                    if (Options.CurrentGameMode != CustomGameMode.Standard || GameStates.IsLobby) goto GameMode2;
+                    if (!CustomGameMode.Standard.IsActiveOrIntegrated() || GameStates.IsLobby) goto GameMode2;
 
                     SelfName = seerRole switch
                     {
@@ -2254,7 +2267,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !CamouflageIsForMeeting) SelfName = GetString("DevouredName");
 
                     // Camouflage
-                    if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting) SelfName = $"<size=0>{SelfName}</size>";
+                    if (Camouflage.IsCamouflage && !CamouflageIsForMeeting) SelfName = $"<size=0>{SelfName}</size>";
 
                     GameMode2:
 
@@ -2303,7 +2316,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                             {
                                 TargetMark.Clear();
 
-                                if (Options.CurrentGameMode != CustomGameMode.Standard || GameStates.IsLobby) goto BeforeEnd2;
+                                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || GameStates.IsLobby) goto BeforeEnd2;
 
                                 TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
                                 if (isForMeeting) TargetMark.Append(Wasp.GetStungMark(target.PlayerId));
@@ -2370,11 +2383,11 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                     (target.Is(CustomRoles.Gravestone) && target.Data.IsDead) ||
                                     (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                                     (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
-                                    (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
-                                    (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) ||
+                                    (seer.IsMadmate() && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
+                                    (seer.Is(CustomRoleTypes.Impostor) && target.IsMadmate() && Options.ImpKnowWhosMadmate.GetBool()) ||
                                     (seer.Is(CustomRoles.Crewpostor) && target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) ||
                                     (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
-                                    (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) ||
+                                    (seer.IsMadmate() && target.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool()) ||
                                     ((seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Recruit) || seer.Is(CustomRoles.Jackal)) && (target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Recruit) || target.Is(CustomRoles.Jackal))) ||
                                     (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||
                                     (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
@@ -2385,7 +2398,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                     Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
                                     Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                                     Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun ||
-                                    (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(seer, target)) ||
+                                    (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && HnSManager.IsRoleTextEnabled(seer, target)) ||
                                     (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                                     (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) ||
                                     target.Is(CustomRoles.GM)
@@ -2404,7 +2417,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                         TargetRoleText += Farseer.GetTaskState();
                                     }
 
-                                    if (Options.CurrentGameMode == CustomGameMode.SoloKombat) TargetRoleText = $"<size={fontSize}>{GetProgressText(target)}</size>\r\n";
+                                    if (CustomGameMode.SoloKombat.IsActiveOrIntegrated()) TargetRoleText = $"<size={fontSize}>{GetProgressText(target)}</size>\r\n";
                                 }
                                 else
                                     TargetRoleText = string.Empty;
@@ -2413,7 +2426,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                                 if (GameStates.IsLobby) goto End;
 
-                                if (Options.CurrentGameMode != CustomGameMode.Standard) goto BeforeEnd;
+                                if (!CustomGameMode.Standard.IsActiveOrIntegrated()) goto BeforeEnd;
 
                                 if (GuesserIsForMeeting || isForMeeting || (seerRole == CustomRoles.Mafia && !seer.IsAlive() && Options.MafiaCanKillNum.GetInt() >= 1)) TargetPlayerName = $"{ColorString(GetRoleColor(seerRole), target.PlayerId.ToString())} {TargetPlayerName}";
 
@@ -2433,8 +2446,6 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                         TargetPlayerName = ColorString(GetRoleColor(CustomRoles.Impostor), TargetPlayerName);
                                         break;
                                     case CustomRoles.HeadHunter when (Main.PlayerStates[seer.PlayerId].Role as HeadHunter).Targets.Contains(target.PlayerId) && seer.IsAlive():
-                                        TargetPlayerName = $"<color=#000000>{TargetPlayerName}</size>";
-                                        break;
                                     case CustomRoles.BountyHunter when (Main.PlayerStates[seer.PlayerId].Role as BountyHunter).GetTarget(seer) == target.PlayerId && seer.IsAlive():
                                         TargetPlayerName = $"<color=#000000>{TargetPlayerName}</size>";
                                         break;
@@ -2447,7 +2458,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                                 TargetPlayerName = TargetPlayerName.ApplyNameColorData(seer, target, isForMeeting);
 
-                                if (Options.CurrentGameMode != CustomGameMode.Standard) goto End;
+                                if (!CustomGameMode.Standard.IsActiveOrIntegrated()) goto End;
 
                                 if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
                                     TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
@@ -2498,7 +2509,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                                 if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !CamouflageIsForMeeting) TargetPlayerName = GetString("DevouredName");
 
                                 // Camouflage
-                                if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && !GameStates.IsLobby && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && !CamouflageIsForMeeting) TargetPlayerName = $"<size=0>{TargetPlayerName}</size>";
+                                if (Camouflage.IsCamouflage && !CamouflageIsForMeeting) TargetPlayerName = $"<size=0>{TargetPlayerName}</size>";
 
                                 var TargetName = $"{TargetRoleText}{TargetPlayerName}{TargetDeathReason}{TargetMark}";
                                 TargetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{TargetSuffix}";
@@ -2521,7 +2532,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 }
             }
 
-            if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
             string seers = seerList.Length == apc.Length ? "Everyone" : string.Join(", ", seerList.Select(x => x.GetRealName()));
             string targets = targetList.Length == apc.Length ? "Everyone" : string.Join(", ", targetList.Select(x => x.GetRealName()));
@@ -2725,6 +2736,8 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 CustomRoles.Nonplus => Nonplus.BlindCooldown.GetInt() + (includeDuration ? Nonplus.BlindDuration.GetInt() : 0),
                 CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
                 CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
+                CustomRoles.NoteKiller => NoteKiller.AbilityCooldown.GetInt(),
+                CustomRoles.Weatherman => Weatherman.AbilityCooldown.GetInt(),
                 _ => -1
             };
 
@@ -2751,7 +2764,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
             if (loversChat && Lovers.PrivateChatForLoversOnly.GetBool())
                 Main.LoversPlayers.ForEach(x => x.SetChatVisible());
-            else if (!Lovers.IsChatActivated && loversChat && !GameStates.IsEnded && Options.CurrentGameMode == CustomGameMode.Standard)
+            else if (!Lovers.IsChatActivated && loversChat && !GameStates.IsEnded && CustomGameMode.Standard.IsActiveOrIntegrated())
             {
                 LateTask.New(SetChatVisibleForAll, 0.5f, log: false);
                 Lovers.IsChatActivated = true;
@@ -2763,6 +2776,8 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             Lovers.IsChatActivated = false;
             AFKDetector.NumAFK = 0;
             AFKDetector.PlayerData.Clear();
+
+            Camouflage.CheckCamouflage();
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
@@ -2851,6 +2866,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
                 switch (target.GetCustomRole())
                 {
+                    case CustomRoles.Curser:
+                        ((Curser)Main.PlayerStates[target.PlayerId].Role).OnDeath();
+                        break;
                     case CustomRoles.Camouflager when Camouflager.IsActive:
                         Camouflager.IsDead();
                         break;
@@ -2912,13 +2930,9 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 if (target == null) return;
 
                 if (!disconnect) Randomizer.OnAnyoneDeath(target);
-
                 if (Executioner.Target.ContainsValue(target.PlayerId)) Executioner.ChangeRoleByTarget(target);
-
                 if (Lawyer.Target.ContainsValue(target.PlayerId)) Lawyer.ChangeRoleByTarget(target);
-
                 if (!disconnect && target.Is(CustomRoles.Stained)) Stained.OnDeath(target, target.GetRealKiller());
-
                 if (!disconnect && target.Is(CustomRoles.Spurt)) Spurt.DeathTask(target);
 
                 Postman.CheckAndResetTargets(target, true);
@@ -2934,6 +2948,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     Scout.OnPlayerDeath(target);
                     Amnesiac.OnAnyoneDeath(target);
                     Dad.OnAnyoneDeath(target);
+                    Occultist.OnAnyoneDied(target);
                     Crewmate.Sentry.OnAnyoneMurder(target);
                     Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
 
@@ -2975,7 +2990,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             {
                 StringBuilder sb = new(100);
 
-                if (Options.CurrentGameMode == CustomGameMode.Standard)
+                if (CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
                     foreach (CountTypes countTypes in Enum.GetValues<CountTypes>())
                     {
@@ -3019,16 +3034,17 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
         public static void DumpLog(bool open = true)
         {
-            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/";
             var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            var filename = $"{f}EHR-v{Main.PluginVersion}-{t}.log";
+            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
             if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-            FileInfo file = new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
-            file.CopyTo(filename);
+            var filename = $"{f}EHR-v{Main.PluginVersion}-LOG";
+            FileInfo[] files = [new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log"), new($"{Environment.CurrentDirectory}/BepInEx/log.html")];
+            files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
+
             if (!open) return;
 
-            if (PlayerControl.LocalPlayer != null) HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), $"EHR v{Main.PluginVersion} {t}.log"));
+            if (PlayerControl.LocalPlayer != null) HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
             ProcessStartInfo psi = new("Explorer.exe")
                 { Arguments = "/e,/select," + filename.Replace("/", "\\") };
@@ -3036,7 +3052,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             Process.Start(psi);
         }
 
-        public static (int, int) GetDousedPlayerCount(byte playerId)
+        public static (int Doused, int All) GetDousedPlayerCount(byte playerId)
         {
             int doused = 0, all = 0;
 
@@ -3045,13 +3061,15 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 if (pc.PlayerId == playerId) continue;
 
                 all++;
-                if (Arsonist.IsDoused.TryGetValue((playerId, pc.PlayerId), out bool isDoused) && isDoused) doused++;
+
+                if (Arsonist.IsDoused.TryGetValue((playerId, pc.PlayerId), out bool isDoused) && isDoused)
+                    doused++;
             }
 
             return (doused, all);
         }
 
-        public static (int, int) GetDrawPlayerCount(byte playerId, out List<PlayerControl> winnerList)
+        public static (int Drawn, int All) GetDrawPlayerCount(byte playerId, out List<PlayerControl> winnerList)
         {
             var draw = 0;
             int all = Options.RevolutionistDrawCount.GetInt();
@@ -3128,7 +3146,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                     summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.HotPotato:
-                    int time = HotPotatoManager.GetSurvivalTime(id);
+                    int time = HotPotato.GetSurvivalTime(id);
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.NaturalDisasters:
@@ -3142,7 +3160,10 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 case CustomGameMode.CaptureTheFlag:
                     summary = $"{ColorString(Main.PlayerColors[id], name)}: {CTFManager.GetStatistics(id)}";
                     if (CTFManager.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
-
+                    break;
+                case CustomGameMode.AllInOne:
+                    string survivalTimeText = !Main.PlayerStates[id].IsDead ? string.Empty : $" ({GetString("SurvivedTimePrefix")}: <#f542ad>{RoomRush.GetSurvivalTime(id)}s</color>)";
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount}{GetKillCountText(id, true)} ({GetVitalText(id, true)}){survivalTimeText}";
                     break;
             }
 
@@ -3223,7 +3244,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             hud.StartCoroutine(Effects.Lerp(duration, new Action<float>(t =>
             {
                 obj.SetActive(Math.Abs(t - 1f) > 0.1f);
-                obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01(((-2f * Mathf.Abs(t - 0.5f)) + 1) * color.a / 2)); //アルファ値を0→目標→0に変化させる
+                obj.GetComponent<SpriteRenderer>().color = new(color.r, color.g, color.b, Mathf.Clamp01(((-2f * Mathf.Abs(t - 0.5f)) + 1) * color.a / 2));
             })));
         }
 
@@ -3259,7 +3280,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
             }
             catch
             {
-                Logger.Error($"读入Texture失败：{path}", "LoadImage");
+                Logger.Error($"Error loading texture: {path}", "LoadImage");
             }
 
             return null;
@@ -3370,7 +3391,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
         public static float CalculatePingDelay()
         {
             // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
-            float divice = Options.CurrentGameMode != CustomGameMode.Standard ? 3000f : 2000f;
+            float divice = !CustomGameMode.Standard.IsActiveOrIntegrated() ? 3000f : 2000f;
             float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f);
             return minTime;
         }

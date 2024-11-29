@@ -50,7 +50,8 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting) BoobyTrapBody.Add(target.PlayerId);
+            if (TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting)
+                BoobyTrapBody.Add(target.PlayerId);
 
             return true;
         }
@@ -59,9 +60,10 @@ namespace EHR.Impostor
         {
             if (!TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && killer != target)
             {
-                if (!BoobyTrapBody.Contains(target.PlayerId)) BoobyTrapBody.Add(target.PlayerId);
+                if (!BoobyTrapBody.Contains(target.PlayerId))
+                    BoobyTrapBody.Add(target.PlayerId);
 
-                if (!KillerOfBoobyTrapBody.ContainsKey(target.PlayerId)) KillerOfBoobyTrapBody.Add(target.PlayerId, killer.PlayerId);
+                KillerOfBoobyTrapBody.TryAdd(target.PlayerId, killer.PlayerId);
 
                 killer.Suicide();
             }
@@ -69,7 +71,7 @@ namespace EHR.Impostor
 
         public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
         {
-            if (BoobyTrapBody.Contains(target.PlayerId) && reporter.IsAlive())
+            if (BoobyTrapBody.Contains(target.PlayerId) && reporter.IsAlive() && !target.Object.Is(CustomRoles.Unreportable))
             {
                 if (!TrapOnlyWorksOnTheBodyBoobyTrap.GetBool())
                 {
@@ -78,7 +80,8 @@ namespace EHR.Impostor
                     reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(killerID));
                     RPC.PlaySoundRPC(killerID, Sounds.KillSound);
 
-                    if (!BoobyTrapBody.Contains(reporter.PlayerId) && TrapConsecutiveBodies.GetBool()) BoobyTrapBody.Add(reporter.PlayerId);
+                    if (!BoobyTrapBody.Contains(reporter.PlayerId) && TrapConsecutiveBodies.GetBool())
+                        BoobyTrapBody.Add(reporter.PlayerId);
 
                     KillerOfBoobyTrapBody.TryAdd(reporter.PlayerId, killerID);
                     return false;

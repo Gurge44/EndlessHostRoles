@@ -21,7 +21,8 @@ namespace EHR
 
         public static void Prefix()
         {
-            if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly) DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
+            if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
+                DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
         }
 
         public static void Postfix(ChatController __instance)
@@ -66,7 +67,7 @@ namespace EHR
                 ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
 
             if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
-                __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer);
+                __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer.Trim());
 
             if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
             {
@@ -190,6 +191,7 @@ namespace EHR
 
                     break;
                 case 2: // /up and role ability commands
+                case 4: // /r, /n, /m
                     Logger.Info($"Command: {message}", "ChatManager");
                     break;
                 case 3: // In Lobby & Evertything Else
@@ -198,13 +200,10 @@ namespace EHR
                     if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
 
                     break;
-                case 4: // /r, /n, /m
-                    Logger.Info($"Command: {message}", "ChatManager");
-                    //if (!DontBlock) SendPreviousMessagesToAll(realMessagesOnly: true);
-                    break;
             }
 
-            if (Options.CurrentGameMode == CustomGameMode.FFA && !message.StartsWith('/')) FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
+            if (CustomGameMode.FFA.IsActiveOrIntegrated() && GameStates.InGame && !message.StartsWith('/'))
+                FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
         }
 
         public static void SendPreviousMessagesToAll(bool clear = false)

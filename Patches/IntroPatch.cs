@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
@@ -102,12 +101,21 @@ namespace EHR
                     case CustomGameMode.RoomRush:
                     {
                         Color color = ColorUtility.TryParseHtmlString("#ffab1b", out Color c) ? c : new(255, 255, 255, 255);
-                        CustomRoles role = lp.GetCustomRole();
                         __instance.YouAreText.color = color;
                         __instance.RoleText.text = GetString("RRPlayer");
                         __instance.RoleText.color = color;
                         __instance.RoleBlurbText.color = color;
                         __instance.RoleBlurbText.text = GetString("RRPlayerInfo");
+                        break;
+                    }
+                    case CustomGameMode.AllInOne:
+                    {
+                        Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : new(255, 255, 255, 255);
+                        __instance.YouAreText.color = color;
+                        __instance.RoleText.text = GetString("AllInOne");
+                        __instance.RoleText.color = color;
+                        __instance.RoleBlurbText.color = color;
+                        __instance.RoleBlurbText.text = GetString("AllInOneInfo");
                         break;
                     }
                     default:
@@ -194,7 +202,7 @@ namespace EHR
             sb.Append("------------Modded Settings------------\n");
 
             foreach (OptionItem o in OptionItem.AllOptions)
-                if (!o.IsHiddenOn(Options.CurrentGameMode) && (o.Parent?.GetBool() ?? !o.GetString().Equals("0%")))
+                if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals("0%")))
                     sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
             sb.Append("-------------Other Information-------------\n");
@@ -317,7 +325,7 @@ namespace EHR
                 }
             }
 
-            if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool() && FFAManager.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
+            if (CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFATeamMode.GetBool() && FFAManager.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
             {
                 teamToDisplay = new();
 
@@ -668,6 +676,15 @@ namespace EHR
                     __instance.ImpostorText.text = GetString("RRPlayerInfo");
                     break;
                 }
+                case CustomGameMode.AllInOne:
+                {
+                    __instance.TeamTitle.text = GetString("AllInOne");
+                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(245, 66, 173, byte.MaxValue);
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                    __instance.ImpostorText.gameObject.SetActive(true);
+                    __instance.ImpostorText.text = GetString("AllInOneInfo");
+                    break;
+                }
             }
 
             // if (Input.GetKey(KeyCode.RightShift))
@@ -811,7 +828,7 @@ namespace EHR
 
                     int kcd = Options.StartingKillCooldown.GetInt();
 
-                    if (kcd is not 10 and > 0 && Options.CurrentGameMode != CustomGameMode.FFA)
+                    if (kcd is not 10 and > 0 && !CustomGameMode.FFA.IsActiveOrIntegrated())
                     {
                         LateTask.New(() =>
                         {
@@ -822,7 +839,7 @@ namespace EHR
                             }
                         }, 2f, "FixKillCooldownTask");
                     }
-                    else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard)
+                    else if (Options.FixFirstKillCooldown.GetBool() && CustomGameMode.Standard.IsActiveOrIntegrated())
                     {
                         LateTask.New(() =>
                         {
@@ -849,18 +866,13 @@ namespace EHR
                 {
                     Main.ProcessShapeshifts = false;
 
-                    string[] pets = Options.PetToAssign;
-                    string pet = pets[Options.PetToAssignToEveryone.GetValue()];
-
-                    var r = IRandom.Instance;
-
                     LateTask.New(() =>
                     {
                         foreach (PlayerControl pc in aapc)
                         {
                             if (pc.Is(CustomRoles.GM)) continue;
 
-                            string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length - 1)] : pet;
+                            string petId = PetsPatch.GetPetId();
                             pc.RpcSetPetDesync(petId, pc);
                             Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                         }
@@ -910,7 +922,7 @@ namespace EHR
                     {
                         lp.RpcExile();
                         Main.PlayerStates[lp.PlayerId].SetDead();
-                    }, Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFAChatDuringGame.GetBool() ? 12.5f : 1f, "Set GM Dead");
+                    }, CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFAChatDuringGame.GetBool() ? 12.5f : 1f, "Set GM Dead");
                 }
 
                 if (Options.RandomSpawn.GetBool())

@@ -2,11 +2,9 @@
 global using Vector2 = UnityEngine.Vector2;
 global using File = System.IO.File;
 global using StringBuilder = System.Text.StringBuilder;
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
@@ -170,19 +168,18 @@ namespace EHR
         }
 
         // Option setup simplifier
-        protected OptionSetupHandler StartSetup(int id)
+        protected OptionSetupHandler StartSetup(int id, bool single = false)
         {
             var role = Enum.Parse<CustomRoles>(GetType().Name, true);
             var tab = TabGroup.OtherRoles;
 
-            if (role.IsImpostor())
-                tab = TabGroup.ImpostorRoles;
-            else if (role.IsNeutral(true))
-                tab = TabGroup.NeutralRoles;
+            if (role.IsImpostor()) tab = TabGroup.ImpostorRoles;
+            else if (role.IsNeutral(true)) tab = TabGroup.NeutralRoles;
             else if (role.IsCrewmate()) tab = TabGroup.CrewmateRoles;
 
-            Options.SetupRoleOptions(id++, tab, role);
-            return new(++id, tab, role);
+            if (single) Options.SetupSingleRoleOptions(id++, tab, role, hideMaxSetting: true);
+            else Options.SetupRoleOptions(id++, tab, role);
+            return new(id, tab, role);
         }
     }
 
@@ -207,8 +204,7 @@ namespace EHR
                     _ => throw new ArgumentException("The valueRule and defaultValue combination is not supported.")
                 };
 
-                field.SetParent(overrideParent ?? Parent);
-
+                field?.SetParent(overrideParent ?? Parent);
                 if (format != OptionFormat.None) field?.SetValueFormat(format);
             }
             catch (Exception e)

@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace EHR
 {
-    internal class CustomNetObject
+    public class CustomNetObject
     {
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
@@ -101,7 +101,7 @@ namespace EHR
             }
             catch (Exception e)
             {
-                if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                if (CustomGameMode.NaturalDisasters.IsActiveOrIntegrated())
                 {
                     if (HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId)) return;
 
@@ -720,7 +720,7 @@ namespace EHR
         }
     }
 
-    internal sealed class NaturalDisaster : CustomNetObject
+    public sealed class NaturalDisaster : CustomNetObject
     {
         public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName, SystemTypes? room)
         {
@@ -774,7 +774,7 @@ internal static class RawSetNamePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
     {
-        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return true;
+        if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return true;
 
         var exception = false;
 
@@ -815,7 +815,7 @@ internal static class RawSetNamePatch
                     EHR.Logger.Msg($"Successfully set name for {__instance.GetRealName()}", "RawSetNamePatch");
                     break;
                 case true:
-                    // Complete error, don't log this or it will spam the console
+                    // Complete error, don't log this, or it will spam the console
                     break;
             }
         }, 0.5f, log: false);

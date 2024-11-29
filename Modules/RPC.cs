@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
@@ -48,6 +49,7 @@ namespace EHR.Modules
         SyncRoleData,
         RequestSendMessage,
         NotificationPopper,
+        RequestCommandProcessing,
 
         // Roles
         DoSpell,
@@ -68,11 +70,11 @@ namespace EHR.Modules
         SyncHeadHunter,
         SyncRabbit,
         SyncSoulHunter,
-        SyncMycologist,
 
         // BAU should always be 150
         BAU = 150,
 
+        SyncMycologist,
         SyncBubble,
         AddTornado,
         SyncHookshot,
@@ -162,7 +164,7 @@ namespace EHR.Modules
 
         private static bool TrustedRpc(byte id)
         {
-            return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill;
+            return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill;
         }
 
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
@@ -510,6 +512,17 @@ namespace EHR.Modules
                             break;
                     }
 
+                    break;
+                }
+                case CustomRPC.RequestCommandProcessing:
+                {
+                    if (!AmongUsClient.Instance.AmHost) break;
+
+                    string methodName = reader.ReadString();
+                    PlayerControl player = reader.ReadByte().GetPlayer();
+                    string text = reader.ReadString();
+
+                    typeof(ChatCommands).GetMethod(methodName, BindingFlags.Static)?.Invoke(null, [null, player, text, text.Split(' ')]);
                     break;
                 }
                 case CustomRPC.SyncPostman:
@@ -1083,7 +1096,7 @@ namespace EHR.Modules
                 }
                 case CustomRPC.FFAKill:
                 {
-                    if (Options.CurrentGameMode != CustomGameMode.FFA)
+                    if (!CustomGameMode.FFA.IsActiveOrIntegrated())
                     {
                         EAC.WarnHost();
                         EAC.Report(__instance, "FFA RPC when game mode is not FFA");

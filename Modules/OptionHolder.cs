@@ -27,6 +27,7 @@ namespace EHR
         CaptureTheFlag = 0x08,
         NaturalDisasters = 0x09,
         RoomRush = 0x0A,
+        AllInOne = 0x0B,
         All = int.MaxValue
     }
 
@@ -62,7 +63,8 @@ namespace EHR
             "Speedrun",
             "CaptureTheFlag",
             "NaturalDisasters",
-            "RoomRush"
+            "RoomRush",
+            "AllInOne"
         ];
 
         private static Dictionary<CustomRoles, int> roleCounts;
@@ -70,6 +72,9 @@ namespace EHR
         public static Dictionary<CustomRoles, OptionItem> CustomRoleCounts;
         public static Dictionary<CustomRoles, StringOptionItem> CustomRoleSpawnChances;
         public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
+
+        public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
+        public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
 
         public static readonly string[] Rates =
         [
@@ -173,6 +178,17 @@ namespace EHR
         public static OptionItem DisableMeeting;
         public static OptionItem DisableCloseDoor;
         public static OptionItem DisableSabotage;
+
+        public static OptionItem DisableWhisperCommand;
+
+        public static OptionItem DisableReactorOnSkeldAndMira;
+        public static OptionItem DisableReactorOnPolus;
+        public static OptionItem DisableReactorOnAirship;
+        public static OptionItem DisableO2;
+        public static OptionItem DisableComms;
+        public static OptionItem DisableLights;
+        public static OptionItem DisableMushroomMixup;
+
         public static OptionItem DisableTaskWin;
 
         public static OptionItem KillFlashDuration;
@@ -206,10 +222,6 @@ namespace EHR
         public static OptionItem UniqueNeutralRevealScreen;
 
 
-        public static OptionItem NonNeutralKillingRolesMinPlayer;
-        public static OptionItem NonNeutralKillingRolesMaxPlayer;
-        public static OptionItem NeutralKillingRolesMinPlayer;
-        public static OptionItem NeutralKillingRolesMaxPlayer;
         public static OptionItem NeutralRoleWinTogether;
         public static OptionItem NeutralWinTogether;
         public static OptionItem NeutralsKnowEachOther;
@@ -521,6 +533,14 @@ namespace EHR
         // Sabotage
         public static OptionItem CommsCamouflage;
         public static OptionItem CommsCamouflageDisableOnFungle;
+        public static OptionItem CommsCamouflageLimit;
+        public static OptionItem CommsCamouflageLimitSetChance;
+        public static OptionItem CommsCamouflageLimitChance;
+        public static OptionItem CommsCamouflageLimitSetFrequency;
+        public static OptionItem CommsCamouflageLimitFrequency;
+        public static OptionItem CommsCamouflageLimitSetMaxTimes;
+        public static OptionItem CommsCamouflageLimitMaxTimesPerGame;
+        public static OptionItem CommsCamouflageLimitMaxTimesPerRound;
         public static OptionItem DisableReportWhenCC;
         public static OptionItem SabotageTimeControl;
         public static OptionItem SkeldReactorTimeLimit;
@@ -634,6 +654,7 @@ namespace EHR
         public static OptionItem TerroristCanGuess;
         public static OptionItem PhantomCanGuess;
 
+        public static OptionItem PostLobbyCodeToEHRDiscordServer;
         public static OptionItem ShowAntiBlackoutWarning;
         public static OptionItem AllowConsole;
         public static OptionItem NoGameEnd;
@@ -772,20 +793,22 @@ namespace EHR
             CustomRolesHelper.CanCheck = true;
         }
 
-        public static CustomGameMode CurrentGameMode
-            => GameMode.GetInt() switch
-            {
-                1 => CustomGameMode.SoloKombat,
-                2 => CustomGameMode.FFA,
-                3 => CustomGameMode.MoveAndStop,
-                4 => CustomGameMode.HotPotato,
-                5 => CustomGameMode.HideAndSeek,
-                6 => CustomGameMode.Speedrun,
-                7 => CustomGameMode.CaptureTheFlag,
-                8 => CustomGameMode.NaturalDisasters,
-                9 => CustomGameMode.RoomRush,
-                _ => CustomGameMode.Standard
-            };
+        public static CustomGameMode CurrentGameMode => GameMode.GetInt() switch
+        {
+            1 => CustomGameMode.SoloKombat,
+            2 => CustomGameMode.FFA,
+            3 => CustomGameMode.MoveAndStop,
+            4 => CustomGameMode.HotPotato,
+            5 => CustomGameMode.HideAndSeek,
+            6 => CustomGameMode.Speedrun,
+            7 => CustomGameMode.CaptureTheFlag,
+            8 => CustomGameMode.NaturalDisasters,
+            9 => CustomGameMode.RoomRush,
+            10 => CustomGameMode.AllInOne,
+            _ => CustomGameMode.Standard
+        };
+
+        public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode) => CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(customGameMode, out var option) && option.GetBool());
 
         [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize))]
         [HarmonyPostfix]
@@ -808,44 +831,47 @@ namespace EHR
             Achievements.LoadAllData();
 
 #if DEBUG
-        // Used for generating the table of roles for the README
-        try
-        {
-            var sb = new StringBuilder();
-            var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
+            // Used for generating the table of roles for the README
+            try
             {
-                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || HnSManager.AllHnSRoles.Contains(x)) return 4;
-                if (x.IsAdditionRole()) return 3;
-                if (x.IsImpostor() || x.IsMadmate()) return 0;
-                if (x.IsNeutral()) return 1;
-                if (x.IsCrewmate()) return 2;
-                return 4;
-            }).ToDictionary(x => x.Key, x => x.ToArray());
-            var max = grouped.Max(x => x.Value.Length);
-            for (int i = 0; i < max; i++)
-            {
-                var cr = grouped[2].ElementAtOrDefault(i);
-                var crew = Translator.GetString(cr.ToString());
-                var ir = grouped[0].ElementAtOrDefault(i);
-                var imp = Translator.GetString(ir.ToString());
-                if (ir == default) imp = string.Empty;
-                var nr = grouped[1].ElementAtOrDefault(i);
-                var neu = Translator.GetString(nr.ToString());
-                if (nr == default) neu = string.Empty;
-                var a = grouped[3].ElementAtOrDefault(i);
-                var add = Translator.GetString(a.ToString());
-                if (a == default) add = string.Empty;
-                sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {add,17} |");
-            }
+                var sb = new StringBuilder();
 
-            const string path = "./roles.txt";
-            if (!File.Exists(path)) File.Create(path).Close();
-            File.WriteAllText(path, sb.ToString());
-        }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+                var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
+                {
+                    if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || HnSManager.AllHnSRoles.Contains(x)) return 4;
+                    if (x.IsAdditionRole()) return 3;
+                    if (x.IsImpostor() || x.IsMadmate()) return 0;
+                    if (x.IsNeutral()) return 1;
+                    if (x.IsCrewmate()) return 2;
+                    return 4;
+                }).ToDictionary(x => x.Key, x => x.ToArray());
+
+                var max = grouped.Max(x => x.Value.Length);
+
+                for (int i = 0; i < max; i++)
+                {
+                    var cr = grouped[2].ElementAtOrDefault(i);
+                    var crew = Translator.GetString(cr.ToString());
+                    var ir = grouped[0].ElementAtOrDefault(i);
+                    var imp = Translator.GetString(ir.ToString());
+                    if (ir == default) imp = string.Empty;
+                    var nr = grouped[1].ElementAtOrDefault(i);
+                    var neu = Translator.GetString(nr.ToString());
+                    if (nr == default) neu = string.Empty;
+                    var a = grouped[3].ElementAtOrDefault(i);
+                    var add = Translator.GetString(a.ToString());
+                    if (a == default) add = string.Empty;
+                    sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {add,17} |");
+                }
+
+                const string path = "./roles.txt";
+                if (!File.Exists(path)) File.Create(path).Close();
+                File.WriteAllText(path, sb.ToString());
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 #endif
         }
 
@@ -985,24 +1011,6 @@ namespace EHR
             DeadImpCantSabotage = new BooleanOptionItem(201, "DeadImpCantSabotage", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard);
 
-            NonNeutralKillingRolesMinPlayer = new IntegerOptionItem(202, "NonNeutralKillingRolesMinPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetHeader(true)
-                .SetValueFormat(OptionFormat.Players);
-
-            NonNeutralKillingRolesMaxPlayer = new IntegerOptionItem(203, "NonNeutralKillingRolesMaxPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetValueFormat(OptionFormat.Players);
-
-            NeutralKillingRolesMinPlayer = new IntegerOptionItem(204, "NeutralKillingRolesMinPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetHeader(true)
-                .SetValueFormat(OptionFormat.Players);
-
-            NeutralKillingRolesMaxPlayer = new IntegerOptionItem(205, "NeutralKillingRolesMaxPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetValueFormat(OptionFormat.Players);
-
             NeutralRoleWinTogether = new BooleanOptionItem(208, "NeutralRoleWinTogether", false, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true);
@@ -1051,6 +1059,67 @@ namespace EHR
             AddBracketsToAddons = new BooleanOptionItem(13500, "BracketAddons", false, TabGroup.Addons)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true);
+
+            #endregion
+
+            #region RoleListMaker
+
+            new TextOptionItem(100030, "MenuTitle.RoleListMaker", TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(new Color32(0, 165, 255, byte.MaxValue));
+
+            int id = 19820;
+
+            foreach (Team team in Enum.GetValues<Team>()[1..3])
+            {
+                (int Min, int Max) defaultNum = team switch
+                {
+                    Team.Impostor => (0, 3),
+                    Team.Neutral => (0, 5),
+                    _ => (0, 15)
+                };
+                
+                var minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), defaultNum.Min, TabGroup.GameSettings)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetHeader(true)
+                    .SetColor(team.GetTeamColor());
+
+                var maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), defaultNum.Max, TabGroup.GameSettings)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetColor(team.GetTeamColor());
+                
+                FactionMinMaxSettings[team] = (minSetting, maxSetting);
+            }
+
+            HashSet<TabGroup> doneTabs = [];
+
+            foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
+            {
+                TabGroup tab = roleOptionType.GetTabFromOptionType();
+                Color roleOptionTypeColor = roleOptionType.GetRoleOptionTypeColor();
+                var options = new OptionItem[3];
+
+                options[0] = new BooleanOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.EnableLimit", false, tab)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetHeader(doneTabs.Add(tab))
+                    .SetColor(roleOptionTypeColor);
+
+                options[1] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Min", new(0, 15, 1), 1, tab)
+                    .SetParent(options[0])
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetValueFormat(OptionFormat.Players)
+                    .SetColor(roleOptionTypeColor);
+
+                options[2] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Max", new(0, 15, 1), 1, tab)
+                    .SetParent(options[0])
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetValueFormat(OptionFormat.Players)
+                    .SetColor(roleOptionTypeColor);
+
+                RoleSubCategoryLimits[roleOptionType] = options;
+            }
+
+            #endregion
 
             #region Roles/AddOns_Settings
 
@@ -1188,8 +1257,6 @@ namespace EHR
                 Logger.Info(" " + RoleLoadingText, MainLoadingText);
             }
 
-            #endregion
-
 
             LoadingPercentage = 60;
 
@@ -1315,6 +1382,8 @@ namespace EHR
 
             ShowAntiBlackoutWarning = new BooleanOptionItem(19421, "ShowAntiBlackoutWarning", true, TabGroup.SystemSettings);
 
+            PostLobbyCodeToEHRDiscordServer = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings);
+
             RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
                 .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
 
@@ -1332,14 +1401,16 @@ namespace EHR
 
             MainLoadingText = "Building Settings for Other Gamemodes";
 
+            AllInOneGameMode.SetupCustomOption();
+
             // SoloKombat
             SoloKombatManager.SetupCustomOption();
             // FFA
             FFAManager.SetupCustomOption();
             // Move And Stop
-            MoveAndStopManager.SetupCustomOption();
+            MoveAndStop.SetupCustomOption();
             // Hot Potato
-            HotPotatoManager.SetupCustomOption();
+            HotPotato.SetupCustomOption();
             // Speedrun
             SpeedrunManager.SetupCustomOption();
             // Hide And Seek
@@ -1393,7 +1464,7 @@ namespace EHR
             LoadingPercentage = 67;
 
 
-            //Maps Settings
+            // Map Settings
             new TextOptionItem(100024, "MenuTitle.MapsSettings", TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
@@ -1531,6 +1602,47 @@ namespace EHR
             CommsCamouflageDisableOnFungle = new BooleanOptionItem(22202, "CommsCamouflageDisableOnFungle", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflage)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+            CommsCamouflageLimit = new BooleanOptionItem(22203, "CommsCamouflageLimit", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflage)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+            CommsCamouflageLimitSetChance = new BooleanOptionItem(22204, "CommsCamouflageLimitSetChance", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+            CommsCamouflageLimitChance = new IntegerOptionItem(22205, "CommsCamouflageLimitChance", new(0, 100, 5), 50, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetValueFormat(OptionFormat.Percent)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+            CommsCamouflageLimitSetFrequency = new BooleanOptionItem(22206, "CommsCamouflageLimitSetFrequency", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+            CommsCamouflageLimitFrequency = new IntegerOptionItem(22207, "CommsCamouflageLimitFrequency", new(1, 10, 1), 2, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+            CommsCamouflageLimitSetMaxTimes = new BooleanOptionItem(22208, "CommsCamouflageLimitSetMaxTimes", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+            CommsCamouflageLimitMaxTimesPerGame = new IntegerOptionItem(22209, "CommsCamouflageLimitMaxTimesPerGame", new(1, 30, 1), 3, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
+                .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+            CommsCamouflageLimitMaxTimesPerRound = new IntegerOptionItem(22210, "CommsCamouflageLimitMaxTimesPerRound", new(1, 10, 1), 1, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetParent(CommsCamouflageLimit)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
 
             DisableReportWhenCC = new BooleanOptionItem(22300, "DisableReportWhenCC", false, TabGroup.GameSettings)
@@ -1677,8 +1789,39 @@ namespace EHR
             DisableSabotage = new BooleanOptionItem(22800, "DisableSabotage", false, TabGroup.GameSettings)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
+            DisableReactorOnSkeldAndMira = new BooleanOptionItem(22801, "DisableReactorOnSkeldAndMira", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableReactorOnPolus = new BooleanOptionItem(22802, "DisableReactorOnPolus", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableReactorOnAirship = new BooleanOptionItem(22803, "DisableReactorOnAirship", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableO2 = new BooleanOptionItem(22804, "DisableO2", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableComms = new BooleanOptionItem(22805, "DisableComms", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableLights = new BooleanOptionItem(22806, "DisableLights", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableMushroomMixup = new BooleanOptionItem(22807, "DisableMushroomMixup", false, TabGroup.GameSettings)
+                .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableCloseDoor = new BooleanOptionItem(22810, "DisableCloseDoor", false, TabGroup.GameSettings)
                 .SetParent(DisableSabotage)
+                .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+            DisableWhisperCommand = new BooleanOptionItem(22811, "DisableWhisperCommand", false, TabGroup.GameSettings)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
             LoadingPercentage = 75;
@@ -1835,340 +1978,263 @@ namespace EHR
 
             // Disable Short Tasks
             DisableShortTasks = new BooleanOptionItem(23000, "DisableShortTasks", false, TabGroup.TaskSettings)
-                .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
 
             DisableCleanVent = new BooleanOptionItem(23001, "DisableCleanVent", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableCalibrateDistributor = new BooleanOptionItem(23002, "DisableCalibrateDistributor", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableChartCourse = new BooleanOptionItem(23003, "DisableChartCourse", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 79;
 
             DisableStabilizeSteering = new BooleanOptionItem(23004, "DisableStabilizeSteering", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableCleanO2Filter = new BooleanOptionItem(23005, "DisableCleanO2Filter", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableUnlockManifolds = new BooleanOptionItem(23006, "DisableUnlockManifolds", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePrimeShields = new BooleanOptionItem(23007, "DisablePrimeShields", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableMeasureWeather = new BooleanOptionItem(23008, "DisableMeasureWeather", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 80;
 
             DisableBuyBeverage = new BooleanOptionItem(23009, "DisableBuyBeverage", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableAssembleArtifact = new BooleanOptionItem(23010, "DisableAssembleArtifact", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableSortSamples = new BooleanOptionItem(23011, "DisableSortSamples", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableProcessData = new BooleanOptionItem(23012, "DisableProcessData", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableRunDiagnostics = new BooleanOptionItem(23013, "DisableRunDiagnostics", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 81;
 
             DisableRepairDrill = new BooleanOptionItem(23014, "DisableRepairDrill", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableAlignTelescope = new BooleanOptionItem(23015, "DisableAlignTelescope", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableRecordTemperature = new BooleanOptionItem(23016, "DisableRecordTemperature", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableFillCanisters = new BooleanOptionItem(23017, "DisableFillCanisters", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 82;
 
             DisableMonitorTree = new BooleanOptionItem(23018, "DisableMonitorTree", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableStoreArtifacts = new BooleanOptionItem(23019, "DisableStoreArtifacts", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePutAwayPistols = new BooleanOptionItem(23020, "DisablePutAwayPistols", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePutAwayRifles = new BooleanOptionItem(23021, "DisablePutAwayRifles", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableMakeBurger = new BooleanOptionItem(23022, "DisableMakeBurger", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 83;
 
             DisableCleanToilet = new BooleanOptionItem(23023, "DisableCleanToilet", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableDecontaminate = new BooleanOptionItem(23024, "DisableDecontaminate", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableSortRecords = new BooleanOptionItem(23025, "DisableSortRecords", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableFixShower = new BooleanOptionItem(23026, "DisableFixShower", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePickUpTowels = new BooleanOptionItem(23027, "DisablePickUpTowels", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisablePolishRuby = new BooleanOptionItem(23028, "DisablePolishRuby", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableDressMannequin = new BooleanOptionItem(23029, "DisableDressMannequin", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableRoastMarshmallow = new BooleanOptionItem(23030, "DisableRoastMarshmallow", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableCollectSamples = new BooleanOptionItem(23031, "DisableCollectSamples", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             DisableReplaceParts = new BooleanOptionItem(23032, "DisableReplaceParts", false, TabGroup.TaskSettings)
-                .SetParent(DisableShortTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableShortTasks);
 
             LoadingPercentage = 84;
 
 
             // Disable Common Tasks
             DisableCommonTasks = new BooleanOptionItem(23100, "DisableCommonTasks", false, TabGroup.TaskSettings)
-                .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
 
             DisableSwipeCard = new BooleanOptionItem(23101, "DisableSwipeCardTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableFixWiring = new BooleanOptionItem(23102, "DisableFixWiring", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableEnterIdCode = new BooleanOptionItem(23103, "DisableEnterIdCode", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableInsertKeys = new BooleanOptionItem(23104, "DisableInsertKeys", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableScanBoardingPass = new BooleanOptionItem(23105, "DisableScanBoardingPass", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableCollectVegetables = new BooleanOptionItem(23106, "DisableCollectVegetables", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableMineOres = new BooleanOptionItem(23107, "DisableMineOres", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableExtractFuel = new BooleanOptionItem(23108, "DisableExtractFuel", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableCatchFish = new BooleanOptionItem(23109, "DisableCatchFish", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisablePolishGem = new BooleanOptionItem(23110, "DisablePolishGem", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableHelpCritter = new BooleanOptionItem(23111, "DisableHelpCritter", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             DisableHoistSupplies = new BooleanOptionItem(23112, "DisableHoistSupplies", false, TabGroup.TaskSettings)
-                .SetParent(DisableCommonTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableCommonTasks);
 
             LoadingPercentage = 85;
 
             // Disable Long Tasks
             DisableLongTasks = new BooleanOptionItem(23150, "DisableLongTasks", false, TabGroup.TaskSettings)
-                .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
 
             DisableSubmitScan = new BooleanOptionItem(23151, "DisableSubmitScanTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableUnlockSafe = new BooleanOptionItem(23152, "DisableUnlockSafeTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableStartReactor = new BooleanOptionItem(23153, "DisableStartReactorTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableResetBreaker = new BooleanOptionItem(23154, "DisableResetBreakerTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             LoadingPercentage = 86;
 
             DisableAlignEngineOutput = new BooleanOptionItem(23155, "DisableAlignEngineOutput", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableInspectSample = new BooleanOptionItem(23156, "DisableInspectSample", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableEmptyChute = new BooleanOptionItem(23157, "DisableEmptyChute", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableClearAsteroids = new BooleanOptionItem(23158, "DisableClearAsteroids", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableWaterPlants = new BooleanOptionItem(23159, "DisableWaterPlants", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableOpenWaterways = new BooleanOptionItem(23160, "DisableOpenWaterways", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             LoadingPercentage = 87;
 
             DisableReplaceWaterJug = new BooleanOptionItem(23161, "DisableReplaceWaterJug", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableRebootWifi = new BooleanOptionItem(23162, "DisableRebootWifi", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableDevelopPhotos = new BooleanOptionItem(23163, "DisableDevelopPhotos", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableRewindTapes = new BooleanOptionItem(23164, "DisableRewindTapes", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableStartFans = new BooleanOptionItem(23165, "DisableStartFans", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableFixAntenna = new BooleanOptionItem(23166, "DisableFixAntenna", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableBuildSandcastle = new BooleanOptionItem(23167, "DisableBuildSandcastle", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             LoadingPercentage = 88;
 
             DisableCrankGenerator = new BooleanOptionItem(23168, "DisableCrankGenerator", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableMonitorMushroom = new BooleanOptionItem(23169, "DisableMonitorMushroom", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisablePlayVideoGame = new BooleanOptionItem(23170, "DisablePlayVideoGame", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableFindSignal = new BooleanOptionItem(23171, "DisableFindSignal", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableThrowFisbee = new BooleanOptionItem(23172, "DisableThrowFisbee", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableLiftWeights = new BooleanOptionItem(23173, "DisableLiftWeights", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             DisableCollectShells = new BooleanOptionItem(23174, "DisableCollectShells", false, TabGroup.TaskSettings)
-                .SetParent(DisableLongTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableLongTasks);
 
             LoadingPercentage = 89;
 
 
             // Disable Divert Power, Weather Nodes etc. situational Tasks
             DisableOtherTasks = new BooleanOptionItem(23200, "DisableOtherTasks", false, TabGroup.TaskSettings)
-                .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
 
             DisableUploadData = new BooleanOptionItem(23205, "DisableUploadDataTask", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             DisableEmptyGarbage = new BooleanOptionItem(23206, "DisableEmptyGarbage", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             DisableFuelEngines = new BooleanOptionItem(23207, "DisableFuelEngines", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             DisableDivertPower = new BooleanOptionItem(23208, "DisableDivertPower", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             DisableActivateWeatherNodes = new BooleanOptionItem(23209, "DisableActivateWeatherNodes", false, TabGroup.TaskSettings)
-                .SetParent(DisableOtherTasks)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetParent(DisableOtherTasks);
 
             LoadingPercentage = 90;
             MainLoadingText = "Building Guesser Mode settings";

@@ -100,7 +100,7 @@ namespace EHR.Crewmate
 
         public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (killer != null)
+            if (killer != null && !target.Object.Is(CustomRoles.Unreportable))
             {
                 if (BloodhoundTargets.Contains(killer.PlayerId)) return false;
 

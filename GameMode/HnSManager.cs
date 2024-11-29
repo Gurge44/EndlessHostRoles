@@ -5,7 +5,6 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.GameMode.HideAndSeekRoles;
 using HarmonyLib;
-using Il2CppSystem.Text;
 using UnityEngine;
 
 namespace EHR
@@ -300,7 +299,7 @@ namespace EHR
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
         {
-            if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return string.Empty;
+            if (GameStates.IsLobby || !CustomGameMode.HideAndSeek.IsActiveOrIntegrated() || Main.HasJustStarted) return string.Empty;
 
             if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
 
@@ -485,7 +484,7 @@ namespace EHR
         {
             public static void Postfix()
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.HideAndSeek.IsActiveOrIntegrated() || Main.HasJustStarted) return;
 
                 long now = Utils.TimeStamp;
                 if (LastUpdate == now) return;

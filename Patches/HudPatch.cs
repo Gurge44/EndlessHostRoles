@@ -7,7 +7,6 @@ using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
-using Il2CppSystem.Text;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -24,6 +23,10 @@ namespace EHR.Patches
         private static long LastNullError;
 
         public static Color? CooldownTimerFlashColor = null;
+
+        public static string AchievementUnlockedText = string.Empty;
+
+        public static void ClearLowerInfoText() => LowerInfoText.text = string.Empty;
 
         public static bool Prefix(HudManager __instance)
         {
@@ -146,7 +149,7 @@ namespace EHR.Patches
                         __instance.SabotageButton
                     }.Do(x => x?.Hide());
                 }
-                else if (Options.CurrentGameMode != CustomGameMode.Standard) __instance.ReportButton?.Hide();
+                else if (!CustomGameMode.Standard.IsActiveOrIntegrated()) __instance.ReportButton?.Hide();
 
                 // The following will not be executed unless the game is in progress
                 if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -157,7 +160,7 @@ namespace EHR.Patches
 
                 if (SetHudActivePatch.IsActive)
                 {
-                    if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
+                    if (player.IsAlive() || !CustomGameMode.Standard.IsActiveOrIntegrated())
                     {
                         if (player.Data.Role is ShapeshifterRole ssrole)
                         {
@@ -225,7 +228,7 @@ namespace EHR.Patches
                                 break;
                         }
 
-                        if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !role.OnlySpawnsWithPets() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling)
+                        if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling && !Options.UseUnshiftTrigger.GetBool() && !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool()))
                             __instance.AbilityButton?.Hide();
 
                         if (LowerInfoText == null)
@@ -243,10 +246,11 @@ namespace EHR.Patches
                         {
                             CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
                             CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
-                            CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
-                            CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
+                            CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
+                            CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
                             CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, true),
                             CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
+                            CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotato.GetSuffixText(player.PlayerId)}",
                             CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                             _ => string.Empty
                         };
@@ -276,6 +280,13 @@ namespace EHR.Patches
                             if (CooldownTimerFlashColor.HasValue) CD_HUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, CD_HUDText.RemoveHtmlTags())}</b>";
 
                             LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
+                        }
+
+                        if (AchievementUnlockedText != string.Empty)
+                        {
+                            LowerInfoText.text = LowerInfoText.text == string.Empty
+                                ? AchievementUnlockedText
+                                : $"{AchievementUnlockedText}\n\n{LowerInfoText.text}\n\n\n\n";
                         }
 
                         LowerInfoText.enabled = hasCD || LowerInfoText.text != string.Empty;
@@ -616,7 +627,7 @@ namespace EHR.Patches
                 string roleInfo = player.GetRoleInfo();
                 var RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
 
-                if (Options.CurrentGameMode != CustomGameMode.Standard)
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
                     string[] splitted = roleInfo.Split(' ');
 
@@ -643,9 +654,9 @@ namespace EHR.Patches
                         {
                             const int max = 3;
                             IEnumerable<string> s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
-                            finalText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
+                            finalText += s.Aggregate("<size=65%>", (current, next) => current + next) + "</size>";
                             int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
-                            if (subRoles.Count > max) finalText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
+                            if (subRoles.Count > max) finalText += $"\r\n<size=65%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
                         }
 
                         string[] lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
@@ -730,7 +741,7 @@ namespace EHR.Patches
                         }
 
                         List<(int, byte)> list3 = [];
-                        foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
+                        foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStop.GetRankFromScore(id), id));
 
                         list3.Sort();
                         list3 = [.. list3.OrderBy(x => !Utils.GetPlayerById(x.Item2).IsAlive())];
@@ -738,7 +749,7 @@ namespace EHR.Patches
                         foreach ((int, byte) id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                         {
                             bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
-                            finalText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
+                            finalText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2].Replace("<size=2>", "<size=1.6>") : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
                         }
 
                         break;
@@ -746,7 +757,7 @@ namespace EHR.Patches
                     case CustomGameMode.HotPotato:
 
                         List<string> SummaryText4 = [];
-                        SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
+                        SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotato.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
 
                         finalText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 

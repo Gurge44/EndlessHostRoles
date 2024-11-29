@@ -16,8 +16,9 @@ namespace EHR.Crewmate
         private const int Id = 9300;
         private static List<byte> PlayerIdList = [];
 
-        public static OptionItem TrialLimitPerMeeting;
-        public static OptionItem TrialLimitPerGame;
+        private static OptionItem TrialLimitPerMeeting;
+        private static OptionItem TrialLimitPerGame;
+        private static OptionItem AbilityUseLimit;
 
         private static OptionItem TryHideMsg;
         private static OptionItem CanTrialMadmate;
@@ -31,7 +32,8 @@ namespace EHR.Crewmate
         public static OptionItem JudgeAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
-        private static Dictionary<byte, int> GlobalUseLimit = [];
+        private static Dictionary<byte, int> MeetingUseLimit = [];
+        private static Dictionary<byte, int> TotalUseLimit = [];
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -39,7 +41,8 @@ namespace EHR.Crewmate
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Judge);
             TrialLimitPerMeeting = new FloatOptionItem(Id + 10, "TrialLimitPerMeeting", new(0f, 15f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
-            TrialLimitPerGame = new FloatOptionItem(Id + 9, "AbilityUseLimit", new(0f, 30f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
+            TrialLimitPerGame = new FloatOptionItem(Id + 9, "TrialLimitPerGame", new(0f, 30f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
+            AbilityUseLimit = new FloatOptionItem(Id + 18, "AbilityUseLimit", new(0f, 30f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
             CanTrialMadmate = new BooleanOptionItem(Id + 12, "JudgeCanTrialMadmate", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
             CanTrialConverted = new BooleanOptionItem(Id + 16, "JudgeCanTrialConverted", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
             CanTrialCrewKilling = new BooleanOptionItem(Id + 13, "JudgeCanTrialnCrewKilling", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
@@ -54,20 +57,22 @@ namespace EHR.Crewmate
         public override void Init()
         {
             PlayerIdList = [];
-            GlobalUseLimit = [];
+            MeetingUseLimit = [];
+            TotalUseLimit = [];
         }
 
         public override void Add(byte playerId)
         {
             PlayerIdList.Add(playerId);
-            playerId.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
-            GlobalUseLimit[playerId] = TrialLimitPerGame.GetInt();
+            MeetingUseLimit[playerId] = TrialLimitPerMeeting.GetInt();
+            TotalUseLimit[playerId] = TrialLimitPerGame.GetInt();
+            playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
         }
 
         public override void OnReportDeadBody()
         {
             byte[] list = [.. PlayerIdList];
-            foreach (byte pid in list) pid.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
+            foreach (byte pid in list) MeetingUseLimit[pid] = TrialLimitPerMeeting.GetInt();
         }
 
         public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
@@ -120,7 +125,7 @@ namespace EHR.Crewmate
                         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} trialed {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
                         bool judgeSuicide;
 
-                        if (pc.GetAbilityUseLimit() < 1 || GlobalUseLimit[pc.PlayerId] < 1)
+                        if (pc.GetAbilityUseLimit() < 1 || MeetingUseLimit[pc.PlayerId] < 1 || TotalUseLimit[pc.PlayerId] < 1)
                         {
                             if (!isUI)
                                 Utils.SendMessage(GetString("JudgeTrialMax"), pc.PlayerId);
@@ -208,7 +213,8 @@ namespace EHR.Crewmate
                         string Name = dp.GetRealName();
 
                         pc.RpcRemoveAbilityUse();
-                        GlobalUseLimit[pc.PlayerId]--;
+                        MeetingUseLimit[pc.PlayerId]--;
+                        TotalUseLimit[pc.PlayerId]--;
 
                         LateTask.New(() =>
                         {

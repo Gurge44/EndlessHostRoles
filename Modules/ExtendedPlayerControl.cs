@@ -1,9 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
@@ -14,7 +14,6 @@ using EHR.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
-using Sentry.Internal.Extensions;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -69,8 +68,8 @@ namespace EHR
 
         public static bool CanUseVent(this PlayerControl player, int ventId)
         {
+            if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) return true;
             if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
-
             return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId))));
         }
 
@@ -103,11 +102,11 @@ namespace EHR
             VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>(), player);
         }
 
-        public static void SetChatVisible(this PlayerControl player) // Credit: NikoCat233 | Unused for now
+        public static void SetChatVisible(this PlayerControl player) // Credit: NikoCat233
         {
             if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost || GameStates.IsMeeting) return;
 
-            if (player.AmOwner)
+            if (player.IsHost())
             {
                 HudManager.Instance.Chat.SetVisible(true);
                 return;
@@ -150,15 +149,6 @@ namespace EHR
             vanillasend.Write((byte)RpcCalls.CloseMeeting);
             vanillasend.EndMessage();
             vanillasend.EndMessage();
-
-            //vanillasend.StartMessage(6);
-            //vanillasend.Write(AmongUsClient.Instance.GameId);
-            //vanillasend.Write(player.OwnerId);
-            //vanillasend.StartMessage((byte)GameDataTag.DespawnFlag);
-            //vanillasend.WritePacked(customNetId);
-            //vanillasend.EndMessage();
-            //vanillasend.EndMessage();
-            // Despawn here dont show chat button somehow
 
             AmongUsClient.Instance.SendOrDisconnect(vanillasend);
             vanillasend.Recycle();
@@ -364,6 +354,25 @@ namespace EHR
         public static void RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false)
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
+
+            if (AntiBlackout.SkipTasks || ExileController.Instance)
+            {
+                StackTrace stackTrace = new(1, true);
+                MethodBase callerMethod = stackTrace.GetFrame(0)?.GetMethod();
+                string callerMethodName = callerMethod?.Name;
+                string callerClassName = callerMethod?.DeclaringType?.FullName;
+                Logger.Warn($"{callerClassName}.{callerMethodName} tried to change the role basis of {player.GetNameWithRole()} during anti-blackout processing or ejection screen showing, delaying the code to run after these tasks are complete", "RpcChangeRoleBasis");
+                Main.Instance.StartCoroutine(DelayBasisChange());
+                return;
+
+                IEnumerator DelayBasisChange()
+                {
+                    while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
+                    yield return new WaitForSeconds(1f);
+                    Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
+                    player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
+                }
+            }
 
             byte playerId = player.PlayerId;
             int playerClientId = player.GetClientId();
@@ -884,7 +893,8 @@ namespace EHR
 
             pc.Kill(pc);
 
-            if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters) NaturalDisasters.RecordDeath(pc, deathReason);
+            if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                NaturalDisasters.RecordDeath(pc, deathReason);
         }
 
         public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
@@ -1054,7 +1064,7 @@ namespace EHR
 
         public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
         {
-            return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+            return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
         }
 
         public static string GetRoleColorCode(this PlayerControl player)
@@ -1218,6 +1228,8 @@ namespace EHR
                     return false;
                 case CustomGameMode.CaptureTheFlag:
                     return true;
+                case CustomGameMode.AllInOne:
+                    return !AllInOneGameMode.Taskers.Contains(pc.PlayerId);
             }
 
             if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
@@ -1276,6 +1288,7 @@ namespace EHR
                 CustomGameMode.CaptureTheFlag => false,
                 CustomGameMode.NaturalDisasters => false,
                 CustomGameMode.RoomRush => false,
+                CustomGameMode.AllInOne => false,
 
                 CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
                 CustomGameMode.Standard when pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool() => true,
@@ -1528,7 +1541,7 @@ namespace EHR
 
             Main.DiedThisRound.Add(target.PlayerId);
 
-            if (killer.IsLocalPlayer() && !killer.HasKillButton())
+            if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && CustomGameMode.Standard.IsActiveOrIntegrated())
                 Achievements.Type.InnocentKiller.Complete();
 
             switch (killer.PlayerId == target.PlayerId)
@@ -1582,7 +1595,7 @@ namespace EHR
                 }, 0.1f, log: false);
             }
         }
-        
+
         public static bool IsLocalPlayer(this PlayerControl pc) => pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
         public static bool IsLocalPlayer(this NetworkedPlayerInfo npi) => npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
 
@@ -1717,7 +1730,23 @@ namespace EHR
 
         public static RoleTypes GetRoleTypes(this PlayerControl pc)
         {
-            return pc.GetRoleMap().RoleType;
+            try
+            {
+                if (Main.HasJustStarted) throw new("HasJustStarted");
+                return pc.GetRoleMap().RoleType;
+            }
+            catch
+            {
+                return pc.GetCustomSubRoles() switch
+                {
+                    { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
+                    { } x when x.Contains(CustomRoles.Nimble) && !pc.HasDesyncRole() => RoleTypes.Engineer,
+                    { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
+                    { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
+                    { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
+                    _ => pc.GetCustomRole().GetRoleTypes()
+                };
+            }
         }
 
         public static bool Is(this PlayerControl target, CustomRoles role)

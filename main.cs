@@ -7,7 +7,6 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using BepInEx;
 using BepInEx.Configuration;
-using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
@@ -32,8 +31,8 @@ namespace EHR
         private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
         private const string DebugKeySalt = "59687b";
         private const string PluginGuid = "com.gurge44.endlesshostroles";
-        public const string PluginVersion = "5.0.3";
-        public const string PluginDisplayVersion = "5.0.3";
+        public const string PluginVersion = "5.2.0";
+        public const string PluginDisplayVersion = "5.2.0";
         public const bool TestBuild = true;
         public const string NeutralColor = "#ffab1b";
         public const string ImpostorColor = "#ff1919";
@@ -47,11 +46,13 @@ namespace EHR
         public const bool AllowPublicRoom = true;
         public const string ForkId = "EHR";
         public const string SupportedAUVersion = "2024.8.13";
+
         public static readonly Version Version = Version.Parse(PluginVersion);
-        public static ManualLogSource Logger;
+
+        //public static ManualLogSource Logger;
         public static bool HasArgumentException;
         public static string CredentialsText;
-        
+
         public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
         public static bool ChangedRole = false;
         public static OptionBackupData RealOptionsData;
@@ -250,33 +251,33 @@ namespace EHR
             LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
             EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
 
-            Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
+            //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
             coroutines = AddComponent<Coroutines>();
-            EHR.Logger.Enable();
-            EHR.Logger.Disable("NotifyRoles");
-            EHR.Logger.Disable("SwitchSystem");
-            EHR.Logger.Disable("ModNews");
-            EHR.Logger.Disable("CustomRpcSender");
+            Logger.Enable();
+            Logger.Disable("NotifyRoles");
+            Logger.Disable("SwitchSystem");
+            Logger.Disable("ModNews");
+            Logger.Disable("CustomRpcSender");
 
             if (!DebugModeManager.AmDebugger)
             {
-                EHR.Logger.Disable("2018k");
-                EHR.Logger.Disable("Github");
+                Logger.Disable("2018k");
+                Logger.Disable("Github");
                 //EHR.Logger.Disable("ReceiveRPC");
-                EHR.Logger.Disable("SendRPC");
-                EHR.Logger.Disable("SetRole");
-                EHR.Logger.Disable("Info.Role");
-                EHR.Logger.Disable("TaskState.Init");
+                Logger.Disable("SendRPC");
+                Logger.Disable("SetRole");
+                Logger.Disable("Info.Role");
+                Logger.Disable("TaskState.Init");
                 //EHR.Logger.Disable("Vote");
-                EHR.Logger.Disable("RpcSetNamePrivate");
+                Logger.Disable("RpcSetNamePrivate");
                 //EHR.Logger.Disable("SendChat");
-                EHR.Logger.Disable("SetName");
+                Logger.Disable("SetName");
                 //EHR.Logger.Disable("AssignRoles");
                 //EHR.Logger.Disable("RepairSystem");
                 //EHR.Logger.Disable("MurderPlayer");
                 //EHR.Logger.Disable("CheckMurder");
-                EHR.Logger.Disable("PlayerControl.RpcSetRole");
-                EHR.Logger.Disable("SyncCustomSettings");
+                Logger.Disable("PlayerControl.RpcSetRole");
+                Logger.Disable("SyncCustomSettings");
             }
             //EHR.Logger.isDetail = true;
 
@@ -367,6 +368,7 @@ namespace EHR
                     { CustomRoles.Convener, "#34eb7a" },
                     { CustomRoles.Mathematician, "#eb3474" },
                     { CustomRoles.Transmitter, "#c9a11e" },
+                    { CustomRoles.Ankylosaurus, "#7FE44C" },
                     { CustomRoles.Leery, "#32a852" },
                     { CustomRoles.Wizard, "#FD05CC" },
                     { CustomRoles.Negotiator, "#00c3ff" },
@@ -447,6 +449,7 @@ namespace EHR
                     { CustomRoles.ParityCop, "#0D57AF" },
                     { CustomRoles.TimeMaster, "#44baff" },
                     { CustomRoles.Crusader, "#C65C39" },
+                    { CustomRoles.Speedrunner, "#800080" },
                     // Neutrals
                     { CustomRoles.Arsonist, "#ff6633" },
                     { CustomRoles.Pyromaniac, "#ff6633" },
@@ -469,8 +472,8 @@ namespace EHR
                     { CustomRoles.Gamer, "#68bc71" },
                     { CustomRoles.DarkHide, "#483d8b" },
                     { CustomRoles.Workaholic, "#008b8b" },
-                    { CustomRoles.Speedrunner, "#800080" },
                     { CustomRoles.Collector, "#9d8892" },
+                    { CustomRoles.NecroGuesser, "#F6FE03" },
                     { CustomRoles.Provocateur, "#74ba43" },
                     { CustomRoles.Sunnyboy, "#ff9902" },
                     { CustomRoles.Poisoner, "#e70052" },
@@ -484,6 +487,8 @@ namespace EHR
                     { CustomRoles.HexMaster, "#ff00ff" },
                     { CustomRoles.Wraith, "#4B0082" },
                     { CustomRoles.NSerialKiller, "#233fcc" },
+                    { CustomRoles.Weatherman, "#347deb" },
+                    { CustomRoles.NoteKiller, "#4CA8E4" },
                     { CustomRoles.Vortex, "#a83293" },
                     { CustomRoles.Beehive, "#ffff00" },
                     { CustomRoles.RouleteGrandeur, "#a88332" },
@@ -505,6 +510,7 @@ namespace EHR
                     { CustomRoles.Hookshot, "#32a852" },
                     { CustomRoles.Sprayer, "#ffc038" },
                     { CustomRoles.PlagueDoctor, "#ff6633" },
+                    { CustomRoles.Curser, "#510c91" },
                     { CustomRoles.Postman, "#00b893" },
                     { CustomRoles.SchrodingersCat, "#616161" },
                     { CustomRoles.Shifter, "#777777" },
@@ -567,6 +573,7 @@ namespace EHR
                     { CustomRoles.Messenger, "#28b573" },
                     { CustomRoles.Dynamo, "#ebe534" },
                     { CustomRoles.AntiTP, "#fcba03" },
+                    { CustomRoles.Fragile, "#debe66" },
                     { CustomRoles.Allergic, "#e3bd56" },
                     { CustomRoles.Introvert, "#6293e3" },
                     { CustomRoles.Deadlined, "#ffa500" },
@@ -672,13 +679,13 @@ namespace EHR
             }
             catch (ArgumentException ex)
             {
-                EHR.Logger.Error("错误：字典出现重复项", "LoadDictionary");
-                EHR.Logger.Exception(ex, "LoadDictionary");
+                Logger.Error("错误：字典出现重复项", "LoadDictionary");
+                Logger.Exception(ex, "LoadDictionary");
                 HasArgumentException = true;
             }
             catch (Exception ex)
             {
-                EHR.Logger.Fatal(ex.ToString(), "Main");
+                Logger.Fatal(ex.ToString(), "Main");
             }
 
             CustomWinnerHolder.Reset();
@@ -691,9 +698,9 @@ namespace EHR
 
             IRandom.SetInstance(new NetRandomWrapper());
 
-            EHR.Logger.Info($"{Application.version}", "AmongUs Version");
+            Logger.Info($"{Application.version}", "AmongUs Version");
 
-            LogHandler handler = EHR.Logger.Handler("GitVersion");
+            LogHandler handler = Logger.Handler("GitVersion");
             handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");
             handler.Info($"{nameof(ThisAssembly.Git.Commit)}: {ThisAssembly.Git.Commit}");
             handler.Info($"{nameof(ThisAssembly.Git.Commits)}: {ThisAssembly.Git.Commits}");
@@ -703,6 +710,9 @@ namespace EHR
 
             ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
 
+            CustomLogger.ClearLog();
+            LogMonitor.StartMonitoring();
+
             Harmony.PatchAll();
 
             if (!DebugModeManager.AmDebugger)
@@ -710,7 +720,7 @@ namespace EHR
             else
                 ConsoleManager.CreateConsole();
 
-            EHR.Logger.Msg("========= EHR loaded! =========", "Plugin Load");
+            Logger.Msg("========= EHR loaded! =========", "Plugin Load");
         }
 
         public static void LoadRoleClasses()
@@ -809,6 +819,7 @@ namespace EHR
         DarkHide = CustomRoles.DarkHide,
         Workaholic = CustomRoles.Workaholic,
         Collector = CustomRoles.Collector,
+        NecroGuesser = CustomRoles.NecroGuesser,
         BloodKnight = CustomRoles.BloodKnight,
         Poisoner = CustomRoles.Poisoner,
         HexMaster = CustomRoles.HexMaster,
@@ -816,6 +827,8 @@ namespace EHR
         Necromancer = CustomRoles.Necromancer,
         Wraith = CustomRoles.Wraith,
         SerialKiller = CustomRoles.NSerialKiller,
+        Weatherman = CustomRoles.Weatherman,
+        NoteKiller = CustomRoles.NoteKiller,
         Vortex = CustomRoles.Vortex,
         Beehive = CustomRoles.Beehive,
         RouleteGrandeur = CustomRoles.RouleteGrandeur,
@@ -869,6 +882,7 @@ namespace EHR
         Bloodlust = CustomRoles.Bloodlust
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum AdditionalWinners
     {
         None = -1,
@@ -892,6 +906,7 @@ namespace EHR
         Phantom = CustomRoles.Phantasm,
         Sidekick = CustomRoles.Sidekick,
         Maverick = CustomRoles.Maverick,
+        Curser = CustomRoles.Curser,
         Postman = CustomRoles.Postman,
         Impartial = CustomRoles.Impartial,
         Gaslighter = CustomRoles.Gaslighter,
@@ -900,7 +915,10 @@ namespace EHR
         Backstabber = CustomRoles.Backstabber,
         Predator = CustomRoles.Predator,
         SoulHunter = CustomRoles.SoulHunter,
-        SchrodingersCat = CustomRoles.SchrodingersCat
+        SchrodingersCat = CustomRoles.SchrodingersCat,
+        Innocent = CustomRoles.Innocent,
+        NoteKiller = CustomRoles.NoteKiller,
+        NecroGuesser = CustomRoles.NecroGuesser
     }
 
     public enum SuffixModes

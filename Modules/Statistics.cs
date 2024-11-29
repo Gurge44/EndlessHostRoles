@@ -8,6 +8,7 @@ namespace EHR.Modules
 {
     public static class Statistics
     {
+        private const int MinPlayers = 3;
         private static bool OnlyVotingForKillersAsCrew = true;
         private static bool VotedBySomeone;
         public static int VentTimes;
@@ -15,6 +16,8 @@ namespace EHR.Modules
 
         public static void OnGameEnd()
         {
+            if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || Main.AllPlayerControls.Length <= 3) return;
+
             var lp = PlayerControl.LocalPlayer;
             var role = lp.GetCustomRole();
             var addons = lp.GetCustomSubRoles();
@@ -22,8 +25,6 @@ namespace EHR.Modules
             try
             {
                 bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || (CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust));
-
-                Reset();
 
                 switch (Options.CurrentGameMode)
                 {
@@ -61,6 +62,9 @@ namespace EHR.Modules
                     case CustomGameMode.RoomRush when won:
                         Achievements.Type.BestReactionTime.CompleteAfterGameEnd();
                         return;
+                    case CustomGameMode.Standard:
+                        Reset();
+                        break;
                 }
 
                 if (won && addons.Contains(CustomRoles.Undead) && CustomWinnerHolder.WinnerIds.ToValidPlayers().Count(x => x.Is(CustomRoles.Necromancer)) >= 3)
@@ -78,7 +82,7 @@ namespace EHR.Modules
                 if (Utils.GameStartTimeStamp + 90 > Utils.TimeStamp)
                     Achievements.Type.Speedrun.CompleteAfterGameEnd();
 
-                if (won && lp.IsMadmate() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()))
+                if (won && CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor && lp.IsMadmate() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()))
                     Achievements.Type.Carried.CompleteAfterGameEnd();
 
                 if (won && lp.IsNeutralKiller())
@@ -89,7 +93,7 @@ namespace EHR.Modules
                     if (Main.PlayerStates.Values.All(x => x.GetRealKiller() != lp.PlayerId))
                         Achievements.Type.InnocentImpostor.CompleteAfterGameEnd();
 
-                    if (Main.AllPlayerControls.Where(x => x.IsImpostor()).All(x => x.IsAlive()))
+                    if (Main.NormalOptions.NumImpostors > 1 && Main.AllPlayerControls.Where(x => x.IsImpostor()).All(x => x.IsAlive()))
                         Achievements.Type.ImpostorGang.CompleteAfterGameEnd();
                 }
 
@@ -137,7 +141,7 @@ namespace EHR.Modules
                         break;
                 }
 
-                int correctGuesses = Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId && x.deathReason == PlayerState.DeathReason.Gambled);
+                int correctGuesses = Main.PlayerStates.Values.Count(x => !x.Player.IsLocalPlayer() && x.GetRealKiller() == lp.PlayerId && x.deathReason == PlayerState.DeathReason.Gambled);
 
                 if (correctGuesses >= 1) Achievements.Type.LuckOrObservation.CompleteAfterGameEnd();
                 if (correctGuesses >= 2) Achievements.Type.BeginnerGuesser.CompleteAfterGameEnd();
@@ -153,10 +157,10 @@ namespace EHR.Modules
 
             void Reset()
             {
-                if (OnlyVotingForKillersAsCrew && lp.IsCrewmate()) Achievements.Type.MasterDetective.CompleteAfterGameEnd();
+                if (OnlyVotingForKillersAsCrew && lp.IsCrewmate() && !MeetingStates.FirstMeeting) Achievements.Type.MasterDetective.CompleteAfterGameEnd();
                 OnlyVotingForKillersAsCrew = true;
 
-                if (!VotedBySomeone && (lp.IsImpostor() || lp.IsNeutralKiller())) Achievements.Type.Unsuspected.CompleteAfterGameEnd();
+                if (!VotedBySomeone && (lp.IsImpostor() || lp.IsNeutralKiller()) && !MeetingStates.FirstMeeting) Achievements.Type.Unsuspected.CompleteAfterGameEnd();
                 VotedBySomeone = false;
 
                 if (VentTimes >= 50) Achievements.Type.Vectory.CompleteAfterGameEnd();
@@ -171,7 +175,7 @@ namespace EHR.Modules
         {
             try
             {
-                const float delay = 8f;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || Main.AllPlayerControls.Length <= MinPlayers) return;
 
                 PlayerControl lp = PlayerControl.LocalPlayer;
 
@@ -186,10 +190,10 @@ namespace EHR.Modules
                 if (!tie && exiled && exiledPlayer.Object.Is(CustomRoles.Jester))
                 {
                     if (states.Any(x => x.VoterId == lp.PlayerId && x.VotedForId == exiledPlayer.PlayerId))
-                        Achievements.Type.HowCouldIBelieveThem.CompleteAfterDelay(delay);
+                        Achievements.Type.HowCouldIBelieveThem.Complete();
 
                     if (amDictator && lpHasVS && lpVS.VotedForId == exiledPlayer.PlayerId)
-                        Achievements.Type.WhyJustWhy.CompleteAfterDelay(delay);
+                        Achievements.Type.WhyJustWhy.Complete();
                 }
 
                 if (lpHasVS)
@@ -204,10 +208,10 @@ namespace EHR.Modules
                     VotedBySomeone = true;
 
                 if (exiled && exiledPlayer.PlayerId == lp.PlayerId && Main.PlayerStates.Values.Any(x => x.SubRoles.Contains(CustomRoles.Bait) && x.GetRealKiller() == lp.PlayerId))
-                    Achievements.Type.Gotcha.CompleteAfterDelay(delay);
+                    Achievements.Type.Gotcha.Complete();
 
                 if (lp.Is(CustomRoles.Lyncher) && Main.PlayerStates.Values.Count(x => x.deathReason == PlayerState.DeathReason.Gambled && x.GetRealKiller() == lp.PlayerId) >= 3)
-                    Achievements.Type.GetLynched.CompleteAfterDelay(delay);
+                    Achievements.Type.GetLynched.Complete();
 
                 LateTask.New(() =>
                 {
@@ -229,7 +233,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role)) return;
+                if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role) || Main.AllPlayerControls.Length <= MinPlayers) return;
 
                 const float delay = 15f;
 
@@ -254,6 +258,8 @@ namespace EHR.Modules
         {
             try
             {
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= MinPlayers) return;
+
                 if (killer.IsLocalPlayer())
                 {
                     if (Main.AliveImpostorCount == 0 && killer.IsCrewmate() && target.IsImpostor() && !Main.AllAlivePlayerControls.Any(x => x.IsNeutralKiller()))
@@ -310,6 +316,8 @@ namespace EHR.Modules
         {
             try
             {
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || Main.AllPlayerControls.Length <= MinPlayers) return;
+
                 if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
                 {
                     Achievements.Type.ItsMorbinTime.Complete();

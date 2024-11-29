@@ -140,7 +140,7 @@ namespace EHR.Neutral
         public static bool CanBeCharmed(PlayerControl pc)
         {
             return pc != null && (pc.IsCrewmate() || pc.IsImpostor() ||
-                                  (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal);
+                                  (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser);
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 namespace EHR
 {
-    public class SpeedrunManager
+    public static class SpeedrunManager
     {
         private static OptionItem TaskFinishWins;
         private static OptionItem TimeStacksUp;
@@ -16,7 +17,7 @@ namespace EHR
 
         public static HashSet<byte> CanKill = [];
 
-        private static Dictionary<byte, int> Timers = [];
+        public static Dictionary<byte, int> Timers = [];
 
         public static void SetupCustomOption()
         {
@@ -49,15 +50,19 @@ namespace EHR
         public static void Init()
         {
             CanKill = [];
-            Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 5);
+            Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 7);
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) Timers.AdjustAllValues(x => x * 2);
         }
 
         public static void ResetTimer(PlayerControl pc)
         {
+            int timer = TimeLimit.GetInt();
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt();
+
             if (TimeStacksUp.GetBool())
-                Timers[pc.PlayerId] += TimeLimit.GetInt();
+                Timers[pc.PlayerId] += timer;
             else
-                Timers[pc.PlayerId] = TimeLimit.GetInt();
+                Timers[pc.PlayerId] = timer;
 
             Logger.Info($" Timer for {pc.GetRealName()} set to {Timers[pc.PlayerId]}", "Speedrun");
         }
@@ -68,7 +73,7 @@ namespace EHR
 
             CanKill.Add(pc.PlayerId);
             Main.AllPlayerKillCooldown[pc.PlayerId] = KillCooldown.GetInt();
-            pc.RpcChangeRoleBasis(CustomRoles.Runner);
+            pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.Runner);
             pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
             pc.SyncSettings();
             pc.SetKillCooldown(KillCooldown.GetInt());
@@ -97,7 +102,6 @@ namespace EHR
 
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time);
-
             return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, time);
         }
 
@@ -146,9 +150,10 @@ namespace EHR
         {
             private static long LastUpdate;
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId == 255) return;
 
                 if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
                 {
@@ -160,7 +165,6 @@ namespace EHR
 
                 long now = Utils.TimeStamp;
                 if (LastUpdate == now) return;
-
                 LastUpdate = now;
 
                 Timers.AdjustAllValues(x => x - 1);

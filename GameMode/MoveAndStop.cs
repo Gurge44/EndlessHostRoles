@@ -1,66 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using EHR.AddOns.Common;
 using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR
 {
-    public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char symbol, bool isRed, bool isYellow = false, bool moveAndStop = true)
+    public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char symbol, bool isRed, Func<char, int> randomRedTimeFunc, Func<char, int> randomGreenTimeFunc, bool isYellow = false)
     {
-        public int TotalGreenTime
-        {
-            get => totalGreenTime;
-            set => totalGreenTime = value;
-        }
+        private int TotalGreenTime { get; set; } = totalGreenTime;
 
-        public int TotalRedTime
-        {
-            get => totalRedTime;
-            set => totalRedTime = value;
-        }
+        private int TotalRedTime { get; set; } = totalRedTime;
 
-        public long StartTimeStamp
-        {
-            get => startTimeStamp;
-            set => startTimeStamp = value;
-        }
+        private long StartTimeStamp { get; set; } = startTimeStamp;
 
-        public char Symbol
-        {
-            get => symbol;
-            set => symbol = value;
-        }
+        private char Symbol { get; } = symbol;
 
-        public bool IsRed
-        {
-            get => isRed;
-            set => isRed = value;
-        }
+        public bool IsRed { get; private set; } = isRed;
 
-        public bool IsYellow
-        {
-            get => isYellow;
-            set => isYellow = value;
-        }
+        private Func<char, int> RandomRedTime { get; } = randomRedTimeFunc;
 
-        public bool MoveAndStop
-        {
-            get => moveAndStop;
-            set => moveAndStop = value;
-        }
+        private Func<char, int> RandomGreenTime { get; } = randomGreenTimeFunc;
+
+        private bool IsYellow { get; set; } = isYellow;
 
         private static int TotalYellowTime => 3;
 
-        public int Timer => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.TimeStamp - StartTimeStamp));
+        private int Timer => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.TimeStamp - StartTimeStamp));
 
         public string ColoredTimerString
         {
             get
             {
-                string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
+                string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "0") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
 
                 if (Timer is <= 19 and >= 10 && !IsYellow) result = $" {result}";
 
@@ -84,17 +58,14 @@ namespace EHR
                         break;
                     // Change from red to green
                     case true when !IsYellow:
-                        TotalGreenTime = MoveAndStop ? MoveAndStopManager.RandomGreenTime(Symbol) : Asthmatic.RandomGreenTime();
+                        TotalGreenTime = RandomGreenTime(Symbol);
                         IsRed = false;
                         break;
-                    default:
-                        if (IsYellow && !IsRed) // Change from yellow to red
-                        {
-                            TotalRedTime = MoveAndStop ? MoveAndStopManager.RandomRedTime(Symbol) : Asthmatic.RandomRedTime();
-                            IsYellow = false;
-                            IsRed = true;
-                        }
-
+                    // Change from yellow to red
+                    case false when IsYellow:
+                        TotalRedTime = RandomRedTime(Symbol);
+                        IsYellow = false;
+                        IsRed = true;
                         break;
                 }
 
@@ -103,37 +74,21 @@ namespace EHR
         }
     }
 
-    internal class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter rightCounter, float positionX, float positionY)
+    internal class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter rightCounter, float positionX, float positionY, int lives)
     {
-        public Counter LeftCounter
-        {
-            get => leftCounter;
-            set => leftCounter = value;
-        }
+        public Counter LeftCounter { get; } = leftCounter;
 
-        public Counter MiddleCounter
-        {
-            get => middleCounter;
-            set => middleCounter = value;
-        }
+        public Counter MiddleCounter { get; } = middleCounter;
 
-        public Counter RightCounter
-        {
-            get => rightCounter;
-            set => rightCounter = value;
-        }
+        public Counter RightCounter { get; } = rightCounter;
 
-        public float PositionX
-        {
-            get => positionX;
-            set => positionX = value;
-        }
+        public float PositionX { get; set; } = positionX;
 
-        public float PositionY
-        {
-            get => positionY;
-            set => positionY = value;
-        }
+        public float PositionY { get; set; } = positionY;
+
+        public int Lives { get; private set; } = lives;
+
+        private float LostLifeCooldownTimer { get; set; }
 
         public override string ToString()
         {
@@ -152,29 +107,51 @@ namespace EHR
             LeftCounter.Update();
             MiddleCounter.Update();
             RightCounter.Update();
+
+            if (LostLifeCooldownTimer > 0f) LostLifeCooldownTimer -= Time.deltaTime;
+        }
+
+        public bool RemoveLife(PlayerControl pc)
+        {
+            if (LostLifeCooldownTimer > 0f) return false;
+
+            Lives--;
+            LostLifeCooldownTimer = 1f;
+
+            if (Lives <= 0)
+            {
+                pc.Suicide();
+                return true;
+            }
+
+            pc.KillFlash();
+            pc.Notify(string.Format(GetString("MoveAndStop_LivesRemainingNotify"), Lives));
+
+            return false;
         }
     }
 
-    internal class MoveAndStopManager
+    internal static class MoveAndStop
     {
         private static Dictionary<byte, MoveAndStopPlayerData> AllPlayerTimers = [];
 
-        private static OptionItem MoveAndStop_GameTime;
-        private static OptionItem MoveAndStop_RightCounterGreenMin;
-        private static OptionItem MoveAndStop_RightCounterRedMin;
-        private static OptionItem MoveAndStop_RightCounterGreenMax;
-        private static OptionItem MoveAndStop_RightCounterRedMax;
-        private static OptionItem MoveAndStop_LeftCounterGreenMin;
-        private static OptionItem MoveAndStop_LeftCounterRedMin;
-        private static OptionItem MoveAndStop_LeftCounterGreenMax;
-        private static OptionItem MoveAndStop_LeftCounterRedMax;
-        private static OptionItem MoveAndStop_MiddleCounterGreenMin;
-        private static OptionItem MoveAndStop_MiddleCounterRedMin;
-        private static OptionItem MoveAndStop_MiddleCounterGreenMax;
-        private static OptionItem MoveAndStop_MiddleCounterRedMax;
-        private static OptionItem MoveAndStop_ExtraGreenTimeOnAirhip;
-        private static OptionItem MoveAndStop_ExtraGreenTimeOnFungle;
-        private static OptionItem MoveAndStop_EnableTutorial;
+        private static OptionItem GameTime;
+        private static OptionItem PlayerLives;
+        private static OptionItem RightCounterGreenMin;
+        private static OptionItem RightCounterRedMin;
+        private static OptionItem RightCounterGreenMax;
+        private static OptionItem RightCounterRedMax;
+        private static OptionItem LeftCounterGreenMin;
+        private static OptionItem LeftCounterRedMin;
+        private static OptionItem LeftCounterGreenMax;
+        private static OptionItem LeftCounterRedMax;
+        private static OptionItem MiddleCounterGreenMin;
+        private static OptionItem MiddleCounterRedMin;
+        private static OptionItem MiddleCounterGreenMax;
+        private static OptionItem MiddleCounterRedMax;
+        private static OptionItem ExtraGreenTimeOnAirhip;
+        private static OptionItem ExtraGreenTimeOnFungle;
+        private static OptionItem EnableTutorial;
 
         public static readonly HashSet<string> HasPlayed = [];
 
@@ -182,16 +159,14 @@ namespace EHR
 
         public static int RoundTime { get; set; }
 
-        public static bool HasJustStarted => MoveAndStop_GameTime.GetInt() - RoundTime < 30;
+        private static bool HasJustStarted => GameTime.GetInt() - RoundTime < 20;
 
-        public static bool Tutorial => MoveAndStop_EnableTutorial.GetBool();
-
-        private static int ExtraGreenTime => (MapNames)Main.NormalOptions.MapId switch
+        private static int ExtraGreenTime => Main.CurrentMap switch
         {
-            MapNames.Airship => MoveAndStop_ExtraGreenTimeOnAirhip.GetInt(),
-            MapNames.Fungle => MoveAndStop_ExtraGreenTimeOnFungle.GetInt(),
+            MapNames.Airship => ExtraGreenTimeOnAirhip.GetInt(),
+            MapNames.Fungle => ExtraGreenTimeOnFungle.GetInt(),
             _ => 0
-        };
+        } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? IRandom.Instance.Next(AllInOneGameMode.MoveAndStopMinGreenTimeBonus.GetInt(), AllInOneGameMode.MoveAndStopMaxGreenTimeBonus.GetInt() + 1) : 0);
 
         private static IntegerValueRule CounterValueRule => new(1, 100, 1);
         private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);
@@ -202,28 +177,30 @@ namespace EHR
 
         private static int StartingGreenTime(PlayerControl pc)
         {
-            return (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? Tutorial && !HasPlayed.Contains(pc.FriendCode) ? 70 : 50 : Tutorial && !HasPlayed.Contains(pc.FriendCode) ? 60 : 40;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 60;
+            bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode);
+            return Main.CurrentMap == MapNames.Airship ? tutorial ? 57 : 47 : tutorial ? 47 : 37;
         }
 
-        public static int RandomRedTime(char direction)
+        private static int RandomRedTime(char direction)
         {
             return direction switch
             {
-                '→' => Random.Next(MoveAndStop_RightCounterRedMin.GetInt(), MoveAndStop_RightCounterRedMax.GetInt()),
-                '●' => Random.Next(MoveAndStop_MiddleCounterRedMin.GetInt(), MoveAndStop_MiddleCounterRedMax.GetInt()),
-                '←' => Random.Next(MoveAndStop_LeftCounterRedMin.GetInt(), MoveAndStop_LeftCounterRedMax.GetInt()),
-                _ => throw new NotImplementedException()
+                '➡' => Random.Next(RightCounterRedMin.GetInt(), RightCounterRedMax.GetInt()),
+                '⇅' => Random.Next(MiddleCounterRedMin.GetInt(), MiddleCounterRedMax.GetInt()),
+                '⬅' => Random.Next(LeftCounterRedMin.GetInt(), LeftCounterRedMax.GetInt()),
+                _ => throw new ArgumentException("Invalid symbol representing the direction (RandomRedTime method in MoveAndStop.cs)", nameof(direction))
             };
         }
 
-        public static int RandomGreenTime(char direction)
+        private static int RandomGreenTime(char direction)
         {
             return ExtraGreenTime + direction switch
             {
-                '→' => Random.Next(MoveAndStop_RightCounterGreenMin.GetInt(), MoveAndStop_RightCounterGreenMax.GetInt()),
-                '●' => Random.Next(MoveAndStop_MiddleCounterGreenMin.GetInt(), MoveAndStop_MiddleCounterGreenMax.GetInt()),
-                '←' => Random.Next(MoveAndStop_LeftCounterGreenMin.GetInt(), MoveAndStop_LeftCounterGreenMax.GetInt()),
-                _ => throw new NotImplementedException()
+                '➡' => Random.Next(RightCounterGreenMin.GetInt(), RightCounterGreenMax.GetInt()),
+                '⇅' => Random.Next(MiddleCounterGreenMin.GetInt(), MiddleCounterGreenMax.GetInt()),
+                '⬅' => Random.Next(LeftCounterGreenMin.GetInt(), LeftCounterGreenMax.GetInt()),
+                _ => throw new ArgumentException("Invalid symbol representing the direction (RandomGreenTime method in MoveAndStop.cs)", nameof(direction))
             };
         }
 
@@ -258,28 +235,34 @@ namespace EHR
 
         public static void SetupCustomOption()
         {
-            MoveAndStop_GameTime = new IntegerOptionItem(68_213_001, "FFA_GameTime", new(30, 1200, 10), 900, TabGroup.GameSettings)
+            GameTime = new IntegerOptionItem(68_213_001, "FFA_GameTime", new(30, 1200, 10), 900, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.MoveAndStop)
                 .SetColor(new Color32(0, 255, 255, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetHeader(true);
 
-            MoveAndStop_RightCounterGreenMin = CreateSetting(68_213_002, "Right", false, true);
-            MoveAndStop_RightCounterRedMin = CreateSetting(68_213_003, "Right", true, true);
-            MoveAndStop_RightCounterGreenMax = CreateSetting(68_213_004, "Right", false, false);
-            MoveAndStop_RightCounterRedMax = CreateSetting(68_213_005, "Right", true, false);
-            MoveAndStop_LeftCounterGreenMin = CreateSetting(68_213_006, "Left", false, true);
-            MoveAndStop_LeftCounterRedMin = CreateSetting(68_213_007, "Left", true, true);
-            MoveAndStop_LeftCounterGreenMax = CreateSetting(68_213_008, "Left", false, false);
-            MoveAndStop_LeftCounterRedMax = CreateSetting(68_213_009, "Left", true, false);
-            MoveAndStop_MiddleCounterGreenMin = CreateSetting(68_213_010, "Middle", false, true);
-            MoveAndStop_MiddleCounterRedMin = CreateSetting(68_213_011, "Middle", true, true);
-            MoveAndStop_MiddleCounterGreenMax = CreateSetting(68_213_012, "Middle", false, false);
-            MoveAndStop_MiddleCounterRedMax = CreateSetting(68_213_013, "Middle", true, false);
-            MoveAndStop_ExtraGreenTimeOnAirhip = CreateExtraTimeSetting(68_213_014, "Airship", 20);
-            MoveAndStop_ExtraGreenTimeOnFungle = CreateExtraTimeSetting(68_213_015, "Fungle", 10);
+            PlayerLives = new IntegerOptionItem(68_213_017, "MoveAndStop_PlayerLives", new(1, 10, 1), 3, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.MoveAndStop)
+                .SetColor(new Color32(0, 255, 255, byte.MaxValue))
+                .SetValueFormat(OptionFormat.Health)
+                .SetHeader(true);
 
-            MoveAndStop_EnableTutorial = new BooleanOptionItem(68_213_016, "MoveAndStop_EnableTutorial", true, TabGroup.GameSettings)
+            RightCounterGreenMin = CreateSetting(68_213_002, "Right", false, true).SetHeader(true);
+            RightCounterRedMin = CreateSetting(68_213_003, "Right", true, true);
+            RightCounterGreenMax = CreateSetting(68_213_004, "Right", false, false);
+            RightCounterRedMax = CreateSetting(68_213_005, "Right", true, false);
+            LeftCounterGreenMin = CreateSetting(68_213_006, "Left", false, true);
+            LeftCounterRedMin = CreateSetting(68_213_007, "Left", true, true);
+            LeftCounterGreenMax = CreateSetting(68_213_008, "Left", false, false);
+            LeftCounterRedMax = CreateSetting(68_213_009, "Left", true, false);
+            MiddleCounterGreenMin = CreateSetting(68_213_010, "Middle", false, true);
+            MiddleCounterRedMin = CreateSetting(68_213_011, "Middle", true, true);
+            MiddleCounterGreenMax = CreateSetting(68_213_012, "Middle", false, false);
+            MiddleCounterRedMax = CreateSetting(68_213_013, "Middle", true, false);
+            ExtraGreenTimeOnAirhip = CreateExtraTimeSetting(68_213_014, "Airship", 20);
+            ExtraGreenTimeOnFungle = CreateExtraTimeSetting(68_213_015, "Fungle", 10);
+
+            EnableTutorial = new BooleanOptionItem(68_213_016, "MoveAndStop_EnableTutorial", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.MoveAndStop)
                 .SetHeader(true)
                 .SetColor(new Color32(0, 255, 255, byte.MaxValue));
@@ -287,25 +270,28 @@ namespace EHR
 
         public static void Init()
         {
-            if (Options.CurrentGameMode != CustomGameMode.MoveAndStop) return;
+            if (!CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) return;
 
             FixedUpdatePatch.LastSuffix = [];
             FixedUpdatePatch.Limit = [];
             AllPlayerTimers = [];
-            RoundTime = MoveAndStop_GameTime.GetInt() + 8;
+            RoundTime = GameTime.GetInt() + 8;
 
             FixedUpdatePatch.DoChecks = false;
-            LateTask.New(() => { FixedUpdatePatch.DoChecks = true; }, 10f, log: false);
+            LateTask.New(() => FixedUpdatePatch.DoChecks = true, 10f, log: false);
 
             long now = Utils.TimeStamp;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
+                int startingGreenTime = StartingGreenTime(pc);
+                Vector2 pos = pc.Pos();
+
                 AllPlayerTimers.TryAdd(pc.PlayerId, new(
-                    new(StartingGreenTime(pc), RandomRedTime('←'), now, '←', false),
-                    new(StartingGreenTime(pc), RandomRedTime('●'), now, '●', false),
-                    new(StartingGreenTime(pc), RandomRedTime('→'), now, '→', false),
-                    pc.Pos().x, pc.Pos().y));
+                    new(startingGreenTime, RandomRedTime('⬅'), now, '⬅', false, RandomRedTime, RandomGreenTime),
+                    new(startingGreenTime, RandomRedTime('⇅'), now, '⇅', false, RandomRedTime, RandomGreenTime),
+                    new(startingGreenTime, RandomRedTime('➡'), now, '➡', false, RandomRedTime, RandomGreenTime),
+                    pos.x, pos.y, PlayerLives.GetInt()));
 
                 float limit;
 
@@ -324,7 +310,7 @@ namespace EHR
             }
         }
 
-        public static int GetRankOfScore(byte playerId)
+        public static int GetRankFromScore(byte playerId)
         {
             try
             {
@@ -345,22 +331,26 @@ namespace EHR
 
             var text = timers.ToString();
 
-            if (HasJustStarted && Tutorial && !HasPlayed.Contains(pc.FriendCode)) text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
+            if (HasJustStarted && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) && Options.CurrentGameMode != CustomGameMode.AllInOne)
+                text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
 
             return text;
         }
 
+        public static int GetLivesRemaining(byte id) => AllPlayerTimers.TryGetValue(id, out MoveAndStopPlayerData data) ? data.Lives : 0;
+
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-        private class FixedUpdatePatch
+        private static class FixedUpdatePatch
         {
             public static bool DoChecks;
             private static long LastFixedUpdate;
             public static Dictionary<byte, string> LastSuffix = [];
             public static Dictionary<byte, float> Limit = [];
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks) return;
+                if (!GameStates.IsInTask || !CustomGameMode.MoveAndStop.IsActiveOrIntegrated() || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || __instance.PlayerId == 255) return;
 
                 PlayerControl pc = __instance;
 
@@ -395,9 +385,12 @@ namespace EHR
                             {
                                 // If: Right counter is red && player moved more than their limit
                                 case true when distanceX > limit:
-                                    pc.Suicide(); // Player suicides
-                                    goto End; // Skip the upcoming checks, the player is already dead
-                                // Else If: Right counter is yellow or green
+                                    if (data.RemoveLife(pc)) // Remove a life from the player
+                                        goto End; // If no lives left, kill them and skip the rest of the code
+
+                                    // If the player has lives left, update their position
+                                    goto case false;
+                                // Else If: the Right counter is yellow or green
                                 case false:
                                     data.PositionX = currentPosition.x; // Update the player's last position regardless of the distance
                                     break;
@@ -412,8 +405,8 @@ namespace EHR
                             {
                                 // The distance is negative here because it's the opposite direction as right
                                 case true when distanceX < -limit:
-                                    pc.Suicide();
-                                    goto End;
+                                    if (data.RemoveLife(pc)) goto End;
+                                    goto case false;
                                 case false:
                                     data.PositionX = currentPosition.x;
                                     break;
@@ -429,8 +422,8 @@ namespace EHR
                         {
                             // The player dies if either they moved up OR down too far
                             case true when distanceY > limit || distanceY < -limit:
-                                pc.Suicide();
-                                goto End;
+                                if (data.RemoveLife(pc)) goto End;
+                                goto case false;
                             case false:
                                 data.PositionY = currentPosition.y;
                                 break;
@@ -445,7 +438,8 @@ namespace EHR
 
                     string suffix = GetSuffixText(pc);
 
-                    if (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    if (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)
+                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
                     LastSuffix[pc.PlayerId] = suffix;
                 }

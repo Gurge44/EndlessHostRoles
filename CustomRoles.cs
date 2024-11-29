@@ -77,6 +77,7 @@
         Assassin, // Ninja
         Nuker,
         Nullifier,
+        Occultist,
         Overheat,
         Parasite,
         Penguin,
@@ -135,6 +136,7 @@
         Alchemist,
         Altruist,
         Analyst,
+        Ankylosaurus,
         Autocrat,
         Bane,
         Beacon,
@@ -163,6 +165,7 @@
         Doctor,
         DonutDelivery,
         Doormaster,
+        DoubleAgent,
         DovesOfNeace,
         Drainer,
         Druid,
@@ -268,6 +271,7 @@
         Chemist,
         Cherokious,
         Collector,
+        Curser,
         Deathknight,
         Gamer, // Demon
         Doppelganger,
@@ -298,8 +302,10 @@
         Maverick,
         Medusa,
         Mycologist,
+        NecroGuesser,
         Necromancer,
         Nonplus,
+        NoteKiller,
         Opportunist,
         Patroller,
         Pelican,
@@ -348,6 +354,7 @@
         Wraith,
         Werewolf,
         WeaponMaster,
+        Weatherman,
         Workaholic,
 
         // Solo Kombat
@@ -427,6 +434,7 @@
         EvilSpirit,
         Finder,
         Flashman,
+        Fragile,
         Fool,
         Giant,
         Glow,

@@ -18,10 +18,8 @@ namespace EHR
         private const string BanListPath = "./EHR_DATA/BanList.txt";
         private const string ModeratorListPath = "./EHR_DATA/Moderators.txt";
         private const string WhiteListListPath = "./EHR_DATA/WhiteList.txt";
-#pragma warning disable IDE0044 // Add readonly modifier
-        private static readonly List<string> EACList = []; // Don't make it read-only
-#pragma warning restore IDE0044 // Add readonly modifier
-        public static List<string> TempBanWhiteList = []; //To prevent writing to ban list
+        private static readonly List<string> EACList = [];
+        public static readonly List<string> TempBanWhiteList = []; // To prevent writing to the banlist
 
         public static void Init()
         {
@@ -55,12 +53,11 @@ namespace EHR
                 }
 
                 // Read EAC List
-                Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Config.EACList.txt");
+                Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Config.EACList.txt")!;
                 stream.Position = 0;
                 using StreamReader sr = new(stream, Encoding.UTF8);
-                string line;
 
-                while ((line = sr.ReadLine()) != null)
+                while (sr.ReadLine() is { } line)
                 {
                     if (line == "" || line.StartsWith("#")) continue;
 
@@ -75,7 +72,7 @@ namespace EHR
 
         private static string GetResourcesTxt(string path)
         {
-            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path)!;
             stream.Position = 0;
             using StreamReader reader = new(stream, Encoding.UTF8);
             return reader.ReadToEnd();
@@ -99,15 +96,17 @@ namespace EHR
         {
             if (!AmongUsClient.Instance.AmHost || player == null) return;
 
-            if (!CheckBanList(player.FriendCode, player.GetHashedPuid()) && !TempBanWhiteList.Contains(player.GetHashedPuid()))
+            string friendCode = player.FriendCode.Replace(':', '#');
+
+            if (!CheckBanList(friendCode, player.GetHashedPuid()) && !TempBanWhiteList.Contains(player.GetHashedPuid()))
             {
                 if (player.GetHashedPuid() != "" && player.GetHashedPuid() != null && player.GetHashedPuid() != "e3b0cb855")
                 {
-                    File.AppendAllText(BanListPath, $"{player.FriendCode},{player.GetHashedPuid()},{player.PlayerName.RemoveHtmlTags()}\n");
+                    File.AppendAllText(BanListPath, $"{friendCode},{player.GetHashedPuid()},{player.PlayerName.RemoveHtmlTags()}\n");
                     Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
                 }
                 else
-                    Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{player.FriendCode}/{player.GetHashedPuid()} to ban list!", "AddBanPlayer");
+                    Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{friendCode}/{player.GetHashedPuid()} to ban list!", "AddBanPlayer");
             }
         }
 
@@ -146,11 +145,11 @@ namespace EHR
 
         public static void CheckBanPlayer(ClientData player)
         {
-            if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool()) return;
+            if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool() || player == null) return;
 
-            string friendcode = player?.FriendCode;
+            string friendcode = player.FriendCode.Replace(':', '#');
 
-            if (friendcode?.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
+            if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
                 Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
@@ -158,7 +157,7 @@ namespace EHR
                 return;
             }
 
-            if (friendcode?.Count(c => c == '#') != 1)
+            if (friendcode.Count(c => c == '#') != 1)
             {
                 // This is part of eac, so that's why it will say banned by EAC list.
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
@@ -178,7 +177,7 @@ namespace EHR
                 return;
             }
 
-            if (CheckBanList(player?.FriendCode, player?.GetHashedPuid()))
+            if (CheckBanList(friendcode, player.GetHashedPuid()))
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
                 Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
@@ -186,7 +185,7 @@ namespace EHR
                 return;
             }
 
-            if (CheckEACList(player?.FriendCode, player?.GetHashedPuid()))
+            if (CheckEACList(friendcode, player.GetHashedPuid()))
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
                 Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
@@ -194,7 +193,7 @@ namespace EHR
                 return;
             }
 
-            if (TempBanWhiteList.Contains(player?.GetHashedPuid()))
+            if (TempBanWhiteList.Contains(player.GetHashedPuid()))
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
                 Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
@@ -203,11 +202,18 @@ namespace EHR
 
         public static bool CheckBanList(string code, string hashedpuid = "")
         {
+            code = code.Replace(':', '#');
+
             var OnlyCheckPuid = false;
 
-            if (code == "" && hashedpuid != "")
-                OnlyCheckPuid = true;
-            else if (code == "") return false;
+            switch (code)
+            {
+                case "" when hashedpuid != "":
+                    OnlyCheckPuid = true;
+                    break;
+                case "":
+                    return false;
+            }
 
             try
             {
@@ -215,9 +221,8 @@ namespace EHR
                 if (!File.Exists(BanListPath)) File.Create(BanListPath).Close();
 
                 using StreamReader sr = new(BanListPath);
-                string line;
 
-                while ((line = sr.ReadLine()) != null)
+                while (sr.ReadLine() is { } line)
                 {
                     if (line == "") continue;
 
@@ -238,6 +243,8 @@ namespace EHR
 
         public static bool CheckEACList(string code, string hashedPuid)
         {
+            code = code.Replace(':', '#');
+
             var OnlyCheckPuid = false;
 
             switch (code)
@@ -261,7 +268,8 @@ namespace EHR
             ClientData recentClient = AmongUsClient.Instance.GetRecentClient(clientId);
             if (recentClient == null) return;
 
-            if (!BanManager.CheckBanList(recentClient.FriendCode, recentClient.GetHashedPuid())) __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
+            if (!BanManager.CheckBanList(recentClient.FriendCode, recentClient.GetHashedPuid()))
+                __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
         }
     }
 }

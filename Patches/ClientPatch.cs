@@ -112,7 +112,7 @@ namespace EHR
     {
         public static bool Prefix( /*InnerNetClient __instance,*/ int clientId, bool ban)
         {
-            if (!AmongUsClient.Instance.AmHost) return true;
+            if (!AmongUsClient.Instance.AmHost && !OnGameJoinedPatch.JoiningGame) return true;
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {

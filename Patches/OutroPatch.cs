@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -66,7 +65,7 @@ namespace EHR
 
                 byte killerId = value.GetRealKiller();
                 bool gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-                bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush;
+                bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.AllInOne;
                 sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
                 if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
             }
@@ -116,7 +115,7 @@ namespace EHR
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.MoveAndStop:
-                        Main.AllPlayerControls.Do(x => MoveAndStopManager.HasPlayed.Add(x.FriendCode));
+                        Main.AllPlayerControls.Do(x => MoveAndStop.HasPlayed.Add(x.FriendCode));
                         break;
                     case CustomGameMode.RoomRush:
                         Main.AllPlayerControls.Do(x => RoomRush.HasPlayedFriendCodes.Add(x.FriendCode));
@@ -289,6 +288,14 @@ namespace EHR
                     WinnerText.color = Main.PlayerColors[winnerId];
                     goto EndOfText;
                 }
+                case CustomGameMode.AllInOne:
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = new Color32(245, 66, 173, 255);
+                    WinnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    WinnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
             }
 
             if (CustomWinnerHolder.WinnerTeam == CustomWinner.CustomTeam)
@@ -436,7 +443,7 @@ namespace EHR
                 case CustomGameMode.MoveAndStop:
                 {
                     List<(int, byte)> list = [];
-                    list.AddRange(cloneRoles.Select(id => (MoveAndStopManager.GetRankOfScore(id), id)));
+                    list.AddRange(cloneRoles.Select(id => (MoveAndStop.GetRankFromScore(id), id)));
 
                     list.Sort();
                     foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2))) sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
@@ -445,7 +452,7 @@ namespace EHR
                 }
                 case CustomGameMode.HotPotato:
                 {
-                    IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(HotPotatoManager.GetSurvivalTime);
+                    IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(HotPotato.GetSurvivalTime);
                     foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                     break;

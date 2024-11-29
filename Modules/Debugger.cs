@@ -1,11 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
-using BepInEx.Logging;
 using EHR.Modules;
+using UnityEngine;
 using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace EHR
@@ -81,8 +83,6 @@ namespace EHR
         {
             if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger)) return;
 
-            ManualLogSource logger = Main.Logger;
-
             if (SendToGameList.Contains(tag) || IsAlsoInGame) SendInGame($"[{tag}]{text}");
 
             string log_text;
@@ -105,49 +105,7 @@ namespace EHR
                 log_text = $"[{t}][{tag}]{text}";
             }
 
-            switch (level)
-            {
-                case LogLevel.Info when !multiLine:
-                    logger.LogInfo(log_text);
-                    break;
-                case LogLevel.Info:
-                    log_text.Split("\\n").Do(x => logger.LogInfo(x));
-                    break;
-                case LogLevel.Warning when !multiLine:
-                    logger.LogWarning(log_text);
-                    break;
-                case LogLevel.Warning:
-                    log_text.Split("\\n").Do(x => logger.LogWarning(x));
-                    break;
-                case LogLevel.Error when !multiLine:
-                    logger.LogError(log_text);
-                    break;
-                case LogLevel.Error:
-                    log_text.Split("\\n").Do(x => logger.LogError(x));
-                    break;
-                case LogLevel.Fatal when !multiLine:
-                    logger.LogFatal(log_text);
-                    break;
-                case LogLevel.Fatal:
-                    log_text.Split("\\n").Do(x => logger.LogFatal(x));
-                    break;
-                case LogLevel.Message when !multiLine:
-                    logger.LogMessage(log_text);
-                    break;
-                case LogLevel.Message:
-                    log_text.Split("\\n").Do(x => logger.LogMessage(x));
-                    break;
-                case LogLevel.Debug when !multiLine:
-                    logger.LogFatal(log_text);
-                    break;
-                case LogLevel.Debug:
-                    log_text.Split("\\n").Do(x => logger.LogFatal(x));
-                    break;
-                default:
-                    logger.LogWarning("Error: Invalid LogLevel");
-                    logger.LogInfo(log_text);
-                    break;
-            }
+            CustomLogger.Instance.Log(level.ToString(), log_text, multiLine);
         }
 
         public static void Test(object content, string tag = "======= Test =======", bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false)
@@ -188,12 +146,183 @@ namespace EHR
         public static void CurrentMethod([CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "")
         {
             StackFrame stack = new(1);
-            Msg($"\"{stack.GetMethod()?.ReflectedType?.Name}.{stack.GetMethod()?.Name}\" Called in \"{Path.GetFileName(fileName)}({lineNumber})\"", "Method");
+            MethodBase method = stack.GetMethod();
+            Msg($"\"{method?.ReflectedType?.Name}.{method?.Name}\" Called in \"{Path.GetFileName(fileName)}({lineNumber})\"", "Method");
         }
 
         public static LogHandler Handler(string tag)
         {
             return new(tag);
+        }
+    }
+
+    public class CustomLogger
+    {
+        private const string LOGFilePath = "./BepInEx/log.html";
+
+        private const string HtmlHeader =
+            """
+            <!DOCTYPE html>
+            <html lang='en'>
+            <head>
+              <meta charset='UTF-8'>
+              <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+              <title>EHR Log File</title>
+              <style>
+                  body { font-family: Arial, sans-serif; background-color: #1e1e1e; color: #aaaaaa; margin: 0; padding: 1rem; font-family: "Roboto Mono", "Consolas", "Courier New", monospace; }
+                  .log-entry { margin: 0; padding: 0; border-radius: 5px; letter-spacing: 0.1rem; }
+                  .info { background-color: transparent; }
+                  .warning { background-color: #ffff44; color: black; }
+                  .error { background-color: red; color: black; border-radius: 10px; margin: 1rem; }
+                  .fatal { background: linear-gradient(to bottom, #ff9999, #cc0000); color: black; border: 3px solid yellow; border-radius: 15px; padding: 1rem; }
+                  .debug { background-color: gray; color: white; }
+                  .message { color: aqua; }
+              </style>
+            </head>
+            <body>
+              <h1>EHR Log File</h1>
+              <div id='log-container'>
+
+            """;
+
+        private const string HtmlFooter =
+            """
+                 </div>
+                </body>
+                </html>
+            """;
+
+        private static CustomLogger PrivateInstance;
+        private float timer = 3f;
+
+        private CustomLogger()
+        {
+            if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
+            Main.Instance.StartCoroutine(InactivityCheck());
+        }
+
+        // Singleton to ensure a single logger instance
+        public static CustomLogger Instance
+        {
+            get { return PrivateInstance ??= new(); }
+        }
+
+        public static void ClearLog()
+        {
+            File.WriteAllText(LOGFilePath, HtmlHeader);
+        }
+
+        public void Log(string level, string message, bool multiLine = false)
+        {
+            if (multiLine) message = message.Replace("\\n", "<br>");
+
+            string logEntry = $"""
+                               <div class='log-entry {level.ToLower()}'>
+                                   {message}
+                               </div>
+                               """;
+
+            File.AppendAllText(LOGFilePath, logEntry);
+
+            timer = 3f;
+        }
+
+        private IEnumerator InactivityCheck()
+        {
+            while (timer > 0)
+            {
+                timer -= Time.deltaTime;
+                yield return null;
+            }
+
+            File.AppendAllText(LOGFilePath, HtmlFooter);
+            PrivateInstance = null;
+        }
+    }
+
+    public static class LogMonitor
+    {
+        private const string SourceLogFilePath = "./BepInEx/LogOutput.log";
+        private const string HtmlLogFilePath = "./EHR_DATA/log.html";
+        private static long LastProcessedLength;
+
+        public static void StartMonitoring()
+        {
+            Main.Instance.StartCoroutine(MonitorLog());
+            return;
+
+            IEnumerator MonitorLog()
+            {
+                while (true)
+                {
+                    ProcessLogUpdates();
+                    yield return new WaitForSeconds(1f);
+                }
+
+                // ReSharper disable once IteratorNeverReturns
+            }
+        }
+
+        private static void ProcessLogUpdates()
+        {
+            try
+            {
+                using FileStream stream = new FileStream(SourceLogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using StreamReader reader = new StreamReader(stream);
+
+                if (stream.Length == LastProcessedLength) return;
+
+                stream.Seek(LastProcessedLength, SeekOrigin.Begin);
+
+                string currentGroup = null;
+                string currentClass = "info";
+
+                while (reader.ReadLine() is { } line)
+                {
+                    if (line.StartsWith("["))
+                    {
+                        if (currentGroup != null)
+                        {
+                            AppendLogToHtml($"<div class=\"log-entry {currentClass}\">{currentGroup}</div>");
+                        }
+
+                        currentClass = line.Split(':')[0].TrimStart('[').Replace(" ", "").ToLower();
+                        currentGroup = line;
+                    }
+                    else if (currentGroup != null)
+                    {
+                        currentGroup += $"<br>{line}";
+                    }
+                }
+
+                if (currentGroup != null)
+                {
+                    AppendLogToHtml($"<div class=\"log-entry {currentClass}\">{currentGroup}</div>");
+                }
+
+                LastProcessedLength = stream.Length;
+            }
+            catch (Exception ex)
+            {
+                Utils.ThrowException(ex);
+            }
+        }
+
+        private static void AppendLogToHtml(string line)
+        {
+            string htmlEntry = ParseLogLine(line);
+            File.AppendAllText(HtmlLogFilePath, htmlEntry);
+        }
+
+        private static string ParseLogLine(string line)
+        {
+            string cssClass = line.Split(':')[0].TrimStart('[').Replace(" ", "").ToLower();
+
+            return $"""
+                    <div class="log-entry {cssClass}">
+                        {line}
+                    </div>
+                    """;
         }
     }
 }

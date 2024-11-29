@@ -307,9 +307,56 @@ namespace EHR
             ModifiedCooldownSec = Options.SabotageCooldown.GetFloat();
         }
 
-        public static bool Prefix([HarmonyArgument(0)] PlayerControl player)
+        public static bool Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
         {
-            if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) return false;
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
+
+            if (Options.DisableSabotage.GetBool())
+            {
+                SystemTypes systemTypes;
+
+                {
+                    MessageReader newReader = MessageReader.Get(msgReader);
+                    systemTypes = (SystemTypes)newReader.ReadByte();
+                    newReader.Recycle();
+                }
+
+                switch (systemTypes)
+                {
+                    case SystemTypes.Hallway:
+                    case SystemTypes.Storage:
+                    case SystemTypes.Cafeteria:
+                    case SystemTypes.UpperEngine:
+                    case SystemTypes.Nav:
+                    case SystemTypes.Admin:
+                        break;
+                    case SystemTypes.Reactor when Options.DisableReactorOnSkeldAndMira.GetBool():
+                    case SystemTypes.Electrical when Options.DisableLights.GetBool():
+                    case SystemTypes.LifeSupp when Options.DisableO2.GetBool():
+                        return false;
+                    default:
+                        if ((uint)systemTypes <= 21U)
+                        {
+                            switch (systemTypes)
+                            {
+                                case SystemTypes.Comms when Options.DisableComms.GetBool():
+                                case SystemTypes.Laboratory when Options.DisableReactorOnPolus.GetBool():
+                                    return false;
+                            }
+                        }
+                        else
+                        {
+                            switch (systemTypes)
+                            {
+                                case SystemTypes.MushroomMixupSabotage when Options.DisableMushroomMixup.GetBool():
+                                case SystemTypes.HeliSabotage when Options.DisableReactorOnAirship.GetBool():
+                                    return false;
+                            }
+                        }
+
+                        break;
+                }
+            }
 
             if (SecurityGuard.BlockSabo.Count > 0) return false;
 

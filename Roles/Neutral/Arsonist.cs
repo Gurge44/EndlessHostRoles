@@ -99,60 +99,69 @@ namespace EHR.Neutral
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
-            if (AmongUsClient.Instance.IsGameStarted) Ignite(physics);
+            if (AmongUsClient.Instance.IsGameStarted)
+                Ignite(physics);
         }
 
         private static void Ignite(PlayerPhysics physics)
         {
-            if (physics.myPlayer.IsDouseDone())
+            switch (ArsonistCanIgniteAnytime.GetBool())
             {
-                CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
-
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                    if (pc != physics.myPlayer)
-                        pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
-
-                foreach (PlayerControl pc in Main.AllPlayerControls) pc.KillFlash();
-
-                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
-                CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
-                return;
-            }
-
-            if (ArsonistCanIgniteAnytime.GetBool())
-            {
-                int douseCount = Utils.GetDousedPlayerCount(physics.myPlayer.PlayerId).Item1;
-
-                if (douseCount >= ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
+                case false when physics.myPlayer.IsDouseDone():
                 {
-                    if (douseCount > ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
+                    CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
 
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                        if (pc != physics.myPlayer)
+                            pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
+
+                    foreach (PlayerControl pc in Main.AllPlayerControls)
+                        pc.KillFlash();
+
+                    if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor)
+                        CustomWinnerHolder.Reset();
+
+                    CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                    CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
+                    return;
+                }
+                case true:
+                {
+                    int douseCount = Utils.GetDousedPlayerCount(physics.myPlayer.PlayerId).Doused;
+
+                    if (douseCount >= ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
                     {
-                        if (!physics.myPlayer.IsDousedPlayer(pc)) continue;
+                        if (douseCount > ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
 
-                        pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
-                    }
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                        {
+                            if (!physics.myPlayer.IsDousedPlayer(pc)) continue;
 
-                    physics.myPlayer.KillFlash();
+                            pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
+                        }
 
-                    int apc = Main.AllAlivePlayerControls.Length;
+                        physics.myPlayer.KillFlash();
 
-                    switch (apc)
-                    {
-                        case 1:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
-                            CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
-                            break;
-                        case 2:
-                            if (Main.AllAlivePlayerControls.Where(x => x.PlayerId != physics.myPlayer.PlayerId).All(x => x.GetCountTypes() == CountTypes.Crew))
-                            {
+                        int apc = Main.AllAlivePlayerControls.Length;
+
+                        switch (apc)
+                        {
+                            case 1:
                                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
                                 CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
-                            }
+                                break;
+                            case 2:
+                                if (Main.AllAlivePlayerControls.Where(x => x.PlayerId != physics.myPlayer.PlayerId).All(x => x.GetCountTypes() == CountTypes.Crew))
+                                {
+                                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
+                                    CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
+                                }
 
-                            break;
+                                break;
+                        }
                     }
+
+                    break;
                 }
             }
         }

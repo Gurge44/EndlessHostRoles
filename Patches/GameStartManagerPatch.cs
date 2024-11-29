@@ -228,23 +228,21 @@ namespace EHR
                 instance.StartButton.gameObject.SetActive(true);
                 instance.RulesPresetText.text = DestroyableSingleton<TranslationController>.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());
 
-                if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) == null)
-                    instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LocalButton);
-                else if (AmongUsClient.Instance.IsGamePublic)
-                    instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PublicHeader);
-                else
-                    instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PrivateHeader);
+                if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) == null) instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LocalButton);
+                else if (AmongUsClient.Instance.IsGamePublic) instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PublicHeader);
+                else instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PrivateHeader);
 
                 instance.HostPrivateButton.gameObject.SetActive(!AmongUsClient.Instance.IsGamePublic);
                 instance.HostPublicButton.gameObject.SetActive(AmongUsClient.Instance.IsGamePublic);
-                if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C)) ClipboardHelper.PutClipboardString(GameCode.IntToGameName(AmongUsClient.Instance.GameId));
+
+                if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
+                    ClipboardHelper.PutClipboardString(GameCode.IntToGameName(AmongUsClient.Instance.GameId));
 
                 if (GameData.Instance.PlayerCount != instance.LastPlayerCount)
                 {
                     instance.LastPlayerCount = GameData.Instance.PlayerCount;
                     var text = "<color=#FF0000FF>";
                     if (instance.LastPlayerCount > instance.MinPlayers) text = "<color=#00FF00FF>";
-
                     if (instance.LastPlayerCount == instance.MinPlayers) text = "<color=#FFFF00FF>";
 
                     instance.PlayerCounter.text = $"{text}{instance.LastPlayerCount}/{(AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame ? 15 : GameManager.Instance.LogicOptions.MaxPlayers)}";

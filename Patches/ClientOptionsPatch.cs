@@ -22,7 +22,7 @@ namespace EHR
         private static ClientOptionItem LobbyMusic;
         private static ClientOptionItem EnableCommandHelper;
 #if DEBUG
-    private static ClientOptionItem GodMode;
+        private static ClientOptionItem GodMode;
 #endif
 
         public static void Postfix(OptionsMenuBehaviour __instance)
@@ -171,22 +171,20 @@ namespace EHR
             if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null) EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
 
 #if DEBUG
-        if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)
-        {
-            GodMode = ClientOptionItem.Create("GodMode", Main.GodMode, __instance);
-        }
+            if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)
+            {
+                GodMode = ClientOptionItem.Create("GodMode", Main.GodMode, __instance);
+            }
 #endif
         }
     }
-
+    
     [HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Close))]
     public static class OptionsMenuBehaviourClosePatch
     {
         public static void Postfix()
         {
             ClientOptionItem.CustomBackground?.gameObject.SetActive(false);
-
-            if (GameStates.InGame && GameStates.IsVoting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) { }
         }
     }
 }

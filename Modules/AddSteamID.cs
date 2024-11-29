@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using static EHR.Translator;
 
 namespace EHR

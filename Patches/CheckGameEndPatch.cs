@@ -40,7 +40,7 @@ namespace EHR
 
             Predicate.CheckForGameEnd(out GameOverReason reason);
 
-            if (Options.CurrentGameMode != CustomGameMode.Standard)
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated())
             {
                 if (WinnerIds.Count > 0 || WinnerTeam != CustomWinner.Default)
                 {
@@ -221,6 +221,14 @@ namespace EHR
                             case CustomRoles.SchrodingersCat when !pc.IsConverted():
                                 WinnerIds.Remove(pc.PlayerId);
                                 break;
+                            case CustomRoles.Curser when WinnerTeam != CustomWinner.Crewmate:
+                                WinnerIds.Add(pc.PlayerId);
+                                AdditionalWinnerTeams.Add(AdditionalWinners.Curser);
+                                break;
+                            case CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller && NoteKiller.Kills >= NoteKiller.NumKillsNeededToWin:
+                                WinnerIds.Add(pc.PlayerId);
+                                AdditionalWinnerTeams.Add(AdditionalWinners.NoteKiller);
+                                break;
                         }
                     }
 
@@ -320,6 +328,15 @@ namespace EHR
 
         private static void StartEndGame(GameOverReason reason)
         {
+            try
+            {
+                LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.Ended);
+            }
+            catch (Exception e)
+            {
+                ThrowException(e);
+            }
+
             string msg = GetString("NotifyGameEnding");
 
             Main.AllPlayerControls.DoIf(
@@ -448,6 +465,11 @@ namespace EHR
         public static void SetPredicateToRoomRush()
         {
             Predicate = new RoomRushGameEndPredicate();
+        }
+
+        public static void SetPredicateToAllInOne()
+        {
+            Predicate = new AllInOneGameEndPredicate();
         }
 
         private class NormalGameEndPredicate : GameEndPredicate
@@ -710,10 +732,10 @@ namespace EHR
             {
                 reason = GameOverReason.ImpostorByKill;
 
-                if (MoveAndStopManager.RoundTime <= 0)
+                if (MoveAndStop.RoundTime <= 0)
                 {
                     PlayerControl[] apc = Main.AllPlayerControls;
-                    SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
+                    SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStop.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
                     return true;
                 }
 
@@ -731,7 +753,7 @@ namespace EHR
                         SetWinner(aapc[0]);
                         return true;
                     case 0:
-                        MoveAndStopManager.RoundTime = 0;
+                        MoveAndStop.RoundTime = 0;
                         Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
                         return false;
                 }
@@ -874,6 +896,38 @@ namespace EHR
                     case 0:
                         ResetAndSetWinner(CustomWinner.None);
                         Logger.Warn("No players alive. Force ending the game", "RoomRush");
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        private class AllInOneGameEndPredicate : GameEndPredicate
+        {
+            public override bool CheckForGameEnd(out GameOverReason reason)
+            {
+                reason = GameOverReason.ImpostorByKill;
+                return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+            }
+
+            private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+            {
+                reason = GameOverReason.ImpostorByKill;
+
+                PlayerControl[] appc = Main.AllAlivePlayerControls;
+
+                switch (appc.Length)
+                {
+                    case 1:
+                        PlayerControl winner = appc[0];
+                        Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "AllInOne");
+                        WinnerIds = [winner.PlayerId];
+                        Main.DoBlockNameChange = true;
+                        return true;
+                    case 0:
+                        ResetAndSetWinner(CustomWinner.None);
+                        Logger.Warn("No players alive. Force ending the game", "AllInOne");
                         return true;
                     default:
                         return false;

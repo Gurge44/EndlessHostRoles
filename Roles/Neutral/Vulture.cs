@@ -12,7 +12,7 @@ namespace EHR.Neutral
         private const int Id = 11600;
         private static List<byte> PlayerIdList = [];
 
-        public static List<byte> UnreportablePlayers = [];
+        public static HashSet<byte> UnreportablePlayers = [];
 
         private static OptionItem ArrowsPointingToDeadBody;
         private static OptionItem NumberOfReportsToWin;
@@ -144,19 +144,16 @@ namespace EHR.Neutral
 
         public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (pc.GetAbilityUseLimit() <= 0) return true;
+            if (pc.GetAbilityUseLimit() <= 0 || target.Object == null || target.Object.Is(CustomRoles.Unreportable)) return true;
 
             if (Utils.TimeStamp - LastReport < VultureReportCD.GetFloat()) return true;
 
             BodyReportCount++;
             pc.RpcRemoveAbilityUse();
 
-            if (target.Object != null)
-                foreach (byte apc in PlayerIdList)
-                    LocateArrow.Remove(apc, target.Object.transform.position);
+            foreach (byte apc in PlayerIdList) LocateArrow.Remove(apc, target.Object.transform.position);
 
             pc.Notify(GetString("VultureBodyReported"));
-            UnreportablePlayers.Remove(target.PlayerId);
             UnreportablePlayers.Add(target.PlayerId);
 
             return false;

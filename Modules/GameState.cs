@@ -97,6 +97,15 @@ namespace EHR
 
         public void SetMainRole(CustomRoles role)
         {
+            try
+            {
+                Utils.RemovePlayerFromPreviousRoleData(Player);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+
             countTypes = role.GetCountTypes();
 
             if (SubRoles.Contains(CustomRoles.Recruit))
@@ -123,7 +132,7 @@ namespace EHR
 
             Role.Add(PlayerId);
 
-            Logger.Info($"ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
+            Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
             if (!AmongUsClient.Instance.AmHost) return;
 
@@ -142,24 +151,29 @@ namespace EHR
 
                 if (Lyncher.On) Lyncher.Instances.ForEach(x => x.OnRoleChange(PlayerId));
 
-                if (!role.Is(Team.Impostor)) SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
+                if (!role.Is(Team.Impostor) && !(role == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
+                    SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
 
-                if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee) SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
+                if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee)
+                    SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
 
-                if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal)) jackal.SidekickId = PlayerId;
+                if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal))
+                    jackal.SidekickId = PlayerId;
 
                 LateTask.New(() => Player.CheckAndSetUnshiftState(), 1f, log: false);
 
-                if (Options.CurrentGameMode == CustomGameMode.Standard && !GameStates.IsMeeting && !AntiBlackout.SkipTasks)
+                if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                     Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
+
+                if (Options.UsePets.GetBool()) Player.RpcSetPetDesync(PetsPatch.GetPetId(), Player);
             }
 
             CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
-            RoleChangeTimes++;
+            if (Main.HasJustStarted || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
-            if (PlayerId == PlayerControl.LocalPlayer.PlayerId && RoleChangeTimes >= 3)
-                Achievements.Type.Transformer.Complete();
+            RoleChangeTimes++;
+            if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();
         }
 
         public void SetSubRole(CustomRoles role, bool AllReplace = false)
@@ -172,7 +186,8 @@ namespace EHR
                 Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
             }
 
-            if (!SubRoles.Contains(role)) SubRoles.Add(role);
+            if (!SubRoles.Contains(role))
+                SubRoles.Add(role);
 
             SetAddonCountTypes(role);
 
@@ -324,6 +339,9 @@ namespace EHR
             {
                 RPC.SendDeathReason(PlayerId, deathReason);
                 Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));
+
+                if (Utils.DoRPC && !CustomGameMode.Standard.IsActiveOrIntegrated())
+                    Main.AllPlayerControls.DoIf(x => x.IsNonHostModClient(), x => Player.RpcSetRoleDesync(RoleTypes.CrewmateGhost, x.GetClientId()));
             }
         }
 
@@ -387,7 +405,7 @@ namespace EHR
             {
                 bool alive = player.IsAlive();
 
-                if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)
+                if (alive && CustomGameMode.Speedrun.IsActiveOrIntegrated())
                 {
                     if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
 

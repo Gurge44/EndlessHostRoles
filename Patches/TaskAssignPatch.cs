@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -15,8 +16,7 @@ namespace EHR
     {
         public static Dictionary<TaskTypes, OptionItem> DisableTasksSettings = [];
 
-        public static void Prefix( /*ShipStatus __instance,*/
-            [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
+        public static void Prefix([HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
         {
             if (!AmongUsClient.Instance.AmHost) return;
 
@@ -100,24 +100,33 @@ namespace EHR
                 };
             }
 
-            if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool()) return;
+            if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool() && CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
             List<NormalPlayerTask> disabledTasks = [];
 
             foreach (NormalPlayerTask task in unusedTasks)
-                if (DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool())
+                if ((DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool()) || IsTaskAlwaysDisabled(task.TaskType))
                     disabledTasks.Add(task);
 
             foreach (NormalPlayerTask task in disabledTasks)
             {
-                Logger.Msg("Deleted assigned task: " + task.TaskType, "AddTask");
+                Logger.Msg($"Deleted assigned task: {task.TaskType}", "AddTask");
                 unusedTasks.Remove(task);
             }
+
+            return;
+
+            bool IsTaskAlwaysDisabled(TaskTypes type) => type switch
+            {
+                TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun or CustomGameMode.AllInOne,
+                TaskTypes.VentCleaning => CustomGameMode.RoomRush.IsActiveOrIntegrated(),
+                _ => false
+            };
         }
     }
 
     [HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.RpcSetTasks))]
-    internal class RpcSetTasksPatch
+    internal static class RpcSetTasksPatch
     {
         // Patch that overwrites the task just before assigning the task and sending the RPC
         // Do not interfere with vanilla task allocation process itself
@@ -247,6 +256,19 @@ namespace EHR
             // Convert list of tasks to array (Il2CppStructArray)
             taskTypeIds = new(TasksList.Count);
             for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i];
+
+
+            Il2CppSystem.Text.StringBuilder sb = new();
+
+            foreach (TaskTypes taskType in usedTaskTypes)
+            {
+                GetTaskFromTaskType(taskType).AppendTaskText(sb);
+            }
+
+            Logger.Info($" Assigned tasks:\n{sb.Replace("\r\n", "\n")}", pc.GetRealName(), multiLine: true);
+            return;
+
+            PlayerTask GetTaskFromTaskType(TaskTypes type) => ShortTasks.ToArray().Concat(LongTasks.ToArray()).FirstOrDefault(t => t.TaskType == type);
         }
 
         private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)

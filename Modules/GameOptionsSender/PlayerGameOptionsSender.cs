@@ -145,6 +145,7 @@ namespace EHR.Modules
 
                 switch (Options.CurrentGameMode)
                 {
+                    case CustomGameMode.AllInOne:
                     case CustomGameMode.FFA:
                         if (FFAManager.FFALowerVisionList.ContainsKey(player.PlayerId))
                         {
@@ -155,6 +156,7 @@ namespace EHR.Modules
                         else
                             SetMaxVision();
 
+                        if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                         break;
                     case CustomGameMode.CaptureTheFlag:
                         CTFManager.ApplyGameOptions(opt);
@@ -163,6 +165,7 @@ namespace EHR.Modules
                     case CustomGameMode.NaturalDisasters:
                         SetMaxVision();
                         NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
+                        if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.RoomRush;
                         break;
                     case CustomGameMode.RoomRush when RoomRush.VentLimit[player.PlayerId] > 0:
                         AURoleOptions.EngineerCooldown = 0.01f;
@@ -269,6 +272,7 @@ namespace EHR.Modules
                 President.OnAnyoneApplyGameOptions(opt);
                 Negotiator.OnAnyoneApplyGameOptions(opt, player.PlayerId);
                 Wizard.OnAnyoneApplyGameOptions(opt, player.PlayerId);
+                Curser.OnAnyoneApplyGameOptions(opt, player.PlayerId);
 
                 if (Sprayer.LowerVisionList.Contains(player.PlayerId))
                 {

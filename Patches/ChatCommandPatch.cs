@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.GameOptions;
 using Assets.CoreScripts;
@@ -178,6 +176,9 @@ namespace EHR
                 new(["readycheck", "rc", "проверитьготовность"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
                 new(["ready", "готов"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
                 new(["enableallroles", "всероли"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true),
+                new(["achievements", "достижения"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true),
+                new(["dn", "deathnote", "заметкамертвого"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, [GetString("CommandArgs.DeathNote.Name")]),
+                new(["w", "whisper", "шепот", "ш"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
 
                 // Commands with action handled elsewhere
                 new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -192,6 +193,8 @@ namespace EHR
         // Function to check if a player is a moderator
         public static bool IsPlayerModerator(string friendCode)
         {
+            friendCode = friendCode.Replace(':', '#');
+
             if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
 
             const string friendCodesFilePath = "./EHR_DATA/Moderators.txt";
@@ -209,6 +212,8 @@ namespace EHR
         // Function to check if a player is a VIP
         public static bool IsPlayerVIP(string friendCode)
         {
+            friendCode = friendCode.Replace(':', '#');
+
             if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool()) return false;
 
             const string friendCodesFilePath = "./EHR_DATA/VIPs.txt";
@@ -231,7 +236,7 @@ namespace EHR
 
             __instance.timeSinceLastMessage = 3f;
 
-            string text = __instance.freeChatField.textArea.text;
+            string text = __instance.freeChatField.textArea.text.Trim();
 
             if (ChatHistory.Count == 0 || ChatHistory[^1] != text) ChatHistory.Add(text);
 
@@ -243,8 +248,6 @@ namespace EHR
             Main.IsChatCommand = true;
 
             Logger.Info(text, "SendChat");
-
-            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
 
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -311,14 +314,101 @@ namespace EHR
                 __instance.freeChatField.textArea.Clear();
                 __instance.freeChatField.textArea.SetText(cancelVal);
             }
+            else ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
 
             if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Gamer))
-                Achievements.Type.WhatTheHell.CompleteAfterGameEnd();
+                Achievements.Type.WhatTheHell.Complete();
 
             return !canceled;
         }
 
+        private static void RequestCommandProcessingFromHost(string methodName, string text)
+        {
+            PlayerControl pc = PlayerControl.LocalPlayer;
+            MessageWriter w = AmongUsClient.Instance.StartRpc(pc.NetId, (byte)CustomRPC.RequestCommandProcessing);
+            w.Write(methodName);
+            w.Write(pc.PlayerId);
+            w.Write(text);
+            w.EndMessage();
+        }
+
         // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+        private static void WhisperCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+        {
+            if (Options.DisableWhisperCommand.GetBool())
+            {
+                Utils.SendMessage("\n", player.PlayerId, GetString("WhisperDisabled"));
+                return;
+            }
+
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(WhisperCommand), text);
+                return;
+            }
+
+            if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
+            if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+            Utils.SendMessage(args[2..].Join(delimiter: " "), targetId, string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName()));
+        }
+
+        private static void DeathNoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+        {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(DeathNoteCommand), text);
+                return;
+            }
+
+            if (!player.Is(CustomRoles.NoteKiller) || args.Length < 2) return;
+
+            if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+
+            var guess = args[1].ToLower();
+            guess = char.ToUpper(guess[0]) + guess[1..];
+            var deadPlayer = NoteKiller.RealNames.GetKeyByValue(guess);
+
+            if (deadPlayer == default && (!NoteKiller.RealNames.TryGetValue(default, out var name) || name != guess))
+            {
+                Utils.SendMessage(GetString("DeathNoteCommand.WrongName"), player.PlayerId);
+                return;
+            }
+
+            var pc = deadPlayer.GetPlayer();
+
+            if (pc == null || !pc.IsAlive())
+            {
+                Utils.SendMessage(GetString("DeathNoteCommand.PlayerNotFoundOrDead"), player.PlayerId);
+                return;
+            }
+
+            var state = Main.PlayerStates[pc.PlayerId];
+            state.deathReason = PlayerState.DeathReason.Kill;
+            state.RealKiller.ID = player.PlayerId;
+            state.SetDead();
+
+            pc.RpcExileV2();
+            SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
+
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathNoteCommand.Success"), deadPlayer.ColoredPlayerName()));
+            Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), deadPlayer.ColoredPlayerName()));
+
+            NoteKiller.Kills++;
+        }
+
+        private static void AchievementsCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+        {
+            Func<Achievements.Type, string> ToAchievementString = x => $"<b>{GetString($"Achievement.{x}")}</b> - {GetString($"Achievement.{x}.Description")}";
+
+            Achievements.Type[] allAchievements = Enum.GetValues<Achievements.Type>();
+            Achievements.Type[] union = Achievements.CompletedAchievements.Union(Achievements.WaitingAchievements).ToArray();
+            string completedAchievements = $"<size=70%>{union.Join(ToAchievementString, "\n")}</size>";
+            string incompleteAchievements = $"<size=70%>{allAchievements.Except(union).Join(ToAchievementString, "\n")}</size>";
+
+            Utils.SendMessage(incompleteAchievements, player.PlayerId, GetString("IncompleteAchievementsTitle"));
+            Utils.SendMessage(completedAchievements, player.PlayerId, GetString("CompletedAchievementsTitle") + $" <#00a5ff>(<#00ffa5>{union.Length}</color>/{allAchievements.Length})</color>");
+        }
 
         private static void EnableAllRolesCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
@@ -373,9 +463,10 @@ namespace EHR
                 return;
             }
 
-            IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Main.NormalOptions.NumImpostors);
-            IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Options.NeutralKillingRolesMaxPlayer.GetInt());
-            IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.NonNeutralKillingRolesMaxPlayer.GetInt());
+            int maxNeutrals = Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt();
+            IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
+            IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(maxNeutrals);
+            IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(maxNeutrals);
 
             allRoles.RemoveAll(x => x.IsImpostor());
             allRoles.RemoveAll(x => x.IsNK());
@@ -424,6 +515,12 @@ namespace EHR
 
         private static void NegotiationCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(NegotiationCommand), text);
+                return;
+            }
+
             if (!Negotiator.On || !player.IsAlive() || args.Length < 2 || !int.TryParse(args[1], out int index)) return;
 
             Negotiator.ReceiveCommand(player, index);
@@ -446,6 +543,12 @@ namespace EHR
 
         private static void NoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(NoteCommand), text);
+                return;
+            }
+
             if (player.Is(CustomRoles.Journalist) && player.IsAlive())
             {
                 if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
@@ -456,6 +559,12 @@ namespace EHR
 
         private static void AssumeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(AssumeCommand), text);
+                return;
+            }
+
             if (args.Length < 3 || !byte.TryParse(args[1], out byte id) || !int.TryParse(args[2], out int num) || !player.Is(CustomRoles.Assumer) || !player.IsAlive()) return;
 
             if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
@@ -470,7 +579,7 @@ namespace EHR
             PlayerControl VIPPc = Utils.GetPlayerById(VIPId);
             if (VIPPc == null) return;
 
-            string fc = VIPPc.FriendCode;
+            string fc = VIPPc.FriendCode.Replace(':', '#');
             if (!IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerNotVIP"), player.PlayerId);
 
             string[] lines = File.ReadAllLines("./EHR_DATA/VIPs.txt").Where(line => !line.Contains(fc)).ToArray();
@@ -485,7 +594,7 @@ namespace EHR
             PlayerControl newVIPPc = Utils.GetPlayerById(newVIPId);
             if (newVIPPc == null) return;
 
-            string fc = newVIPPc.FriendCode;
+            string fc = newVIPPc.FriendCode.Replace(':', '#');
             if (IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerAlreadyVIP"), player.PlayerId);
 
             File.AppendAllText("./EHR_DATA/VIPs.txt", $"\n{fc}");
@@ -494,6 +603,12 @@ namespace EHR
 
         private static void DecreeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(DecreeCommand), text);
+                return;
+            }
+
             if (!player.Is(CustomRoles.President)) return;
 
             if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
@@ -512,6 +627,12 @@ namespace EHR
 
         private static void HMCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(HMCommand), text);
+                return;
+            }
+
             if (Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
 
             Main.Instance.StartCoroutine(SendOnMeeting());
@@ -942,6 +1063,12 @@ namespace EHR
 
         private static void CheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(CheckCommand), text);
+                return;
+            }
+
             if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer) || player.GetAbilityUseLimit() < 1) return;
 
             if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte checkId, out CustomRoles checkRole, out _)) return;
@@ -957,6 +1084,12 @@ namespace EHR
 
         private static void ChatCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(ChatCommand), text);
+                return;
+            }
+
             if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.PlayerId.GetAbilityUseLimit() < 1) return;
 
             var vl2 = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
@@ -970,6 +1103,12 @@ namespace EHR
 
         private static void TargetCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(TargetCommand), text);
+                return;
+            }
+
             if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.PlayerId.GetAbilityUseLimit() < 1) return;
 
             var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
@@ -979,6 +1118,12 @@ namespace EHR
 
         private static void QSCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(QSCommand), text);
+                return;
+            }
+
             if (!QuizMaster.On || !player.IsAlive()) return;
 
             var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
@@ -989,6 +1134,12 @@ namespace EHR
 
         private static void QACommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(QACommand), text);
+                return;
+            }
+
             if (args.Length < 2 || !QuizMaster.On || !player.IsAlive()) return;
 
             var qm = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
@@ -999,6 +1150,12 @@ namespace EHR
 
         private static void AnswerCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(AnswerCommand), text);
+                return;
+            }
+
             if (args.Length < 2) return;
 
             Mathematician.Reply(player, args[1]);
@@ -1006,6 +1163,12 @@ namespace EHR
 
         private static void AskCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(AskCommand), text);
+                return;
+            }
+
             if (args.Length < 3 || !player.Is(CustomRoles.Mathematician)) return;
 
             if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
@@ -1015,6 +1178,12 @@ namespace EHR
 
         private static void VoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                RequestCommandProcessingFromHost(nameof(VoteCommand), text);
+                return;
+            }
+
             if (text.Length < 6 || !GameStates.IsMeeting) return;
 
             string toVote = text[6..].Replace(" ", string.Empty);
@@ -1036,6 +1205,7 @@ namespace EHR
 
         private static void SayCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
+            if (!AmongUsClient.Instance.AmHost && !IsPlayerModerator(player.FriendCode)) return;
             if (args.Length > 1) Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
         }
 
@@ -1307,7 +1477,7 @@ namespace EHR
             PlayerControl remModPc = Utils.GetPlayerById(remModId);
             if (remModPc == null) return;
 
-            string remFc = remModPc.FriendCode;
+            string remFc = remModPc.FriendCode.Replace(':', '#');
             if (!IsPlayerModerator(remFc)) Utils.SendMessage(GetString("PlayerNotMod"), player.PlayerId);
 
             File.WriteAllLines("./EHR_DATA/Moderators.txt", File.ReadAllLines("./EHR_DATA/Moderators.txt").Where(x => !x.Contains(remFc)));
@@ -1321,7 +1491,7 @@ namespace EHR
             PlayerControl newModPc = Utils.GetPlayerById(newModId);
             if (newModPc == null) return;
 
-            string fc = newModPc.FriendCode;
+            string fc = newModPc.FriendCode.Replace(':', '#');
             if (IsPlayerModerator(fc)) Utils.SendMessage(GetString("PlayerAlreadyMod"), player.PlayerId);
 
             File.AppendAllText("./EHR_DATA/Moderators.txt", $"\n{fc}");
@@ -1670,7 +1840,7 @@ namespace EHR
                             GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.VisualTasks, true);
                             break;
                         case "off":
-                            GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.VisualTasks, true);
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.VisualTasks, false);
                             break;
                     }
 
@@ -2072,19 +2242,18 @@ namespace EHR
 
         private static void SendRolesInfo(string role, byte playerId, bool isDev = false, bool isUp = false)
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard)
+            if (!CustomGameMode.Standard.IsActiveOrIntegrated())
             {
-                Utils.SendMessage(GetString($"ModeDescribe.{Options.CurrentGameMode}"), playerId);
-                if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
+                string text = GetString($"ModeDescribe.{Options.CurrentGameMode}");
+                bool allInOne = Options.CurrentGameMode == CustomGameMode.AllInOne;
+                Utils.SendMessage(allInOne ? "\n" : text, playerId, allInOne ? text : "");
+                if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) return;
             }
 
             role = role.Trim().ToLower();
             if (role.StartsWith("/r")) _ = role.Replace("/r", string.Empty);
-
             if (role.StartsWith("/up")) _ = role.Replace("/up", string.Empty);
-
             if (role.EndsWith("\r\n")) _ = role.Replace("\r\n", string.Empty);
-
             if (role.EndsWith("\n")) _ = role.Replace("\n", string.Empty);
 
             if (role == "")
@@ -2156,7 +2325,9 @@ namespace EHR
 
                 if (role.Equals(match, StringComparison.OrdinalIgnoreCase))
                 {
-                    Utils.SendMessage(GetString($"ModeDescribe.{gameMode}"), playerId, gmString);
+                    string text = GetString($"ModeDescribe.{gameMode}");
+                    bool allInOne = gameMode == CustomGameMode.AllInOne;
+                    Utils.SendMessage(allInOne ? "\n" : text, playerId, allInOne ? text : gmString);
                     return;
                 }
             }
@@ -2178,8 +2349,6 @@ namespace EHR
                 Logger.Warn("Chat message ignored, it was sent too soon after their last message", "ReceiveChat");
                 return;
             }
-
-            if (!CheckMute(player.PlayerId)) ChatManager.SendMessage(player, text);
 
             if (text.StartsWith("\n")) text = text[1..];
 
@@ -2267,6 +2436,8 @@ namespace EHR
                     LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
             }
 
+            if (!canceled) ChatManager.SendMessage(player, text);
+
             if (isCommand) LastSentCommand[player.PlayerId] = now;
 
             SpamManager.CheckSpam(player, text);
@@ -2314,7 +2485,8 @@ namespace EHR
             PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
             if (player == null) return;
 
-            foreach ((string msg, byte sendTo, string title, _) in LastMessages) SendMessage(player, msg, sendTo, title);
+            foreach ((string msg, byte sendTo, string title, _) in LastMessages)
+                SendMessage(player, msg, sendTo, title);
         }
 
         internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title)

@@ -171,14 +171,14 @@ namespace EHR
         }
 
         // Getter
-        public virtual string GetName(bool disableColor = false, bool console = false)
+        public string GetName(bool disableColor = false, bool console = false)
         {
             if (Name.Contains("CTA.FLAG")) return Utils.ColorString(NameColor, Translator.GetString("CTA.TeamEnabled.Prefix") + Name[8..] + Translator.GetString("CTA.TeamEnabled.Suffix"));
 
             return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
         }
 
-        public virtual bool GetBool()
+        public bool GetBool()
         {
             return (Parent == null || Parent.GetBool()) && Name switch
             {
@@ -209,9 +209,10 @@ namespace EHR
             return IsSingleValue ? SingleValue : AllValues[CurrentPreset];
         }
 
-        public virtual bool IsHiddenOn(CustomGameMode mode)
+        public bool IsCurrentlyHidden()
         {
-            return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode);
+            var mode = EHR.Options.CurrentGameMode;
+            return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode && !(mode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(GameMode, out var option) && option.GetBool()));
         }
 
         private bool CheckHidden()
@@ -221,7 +222,6 @@ namespace EHR
             for (var i = 0; i < 5; i++)
             {
                 if (AllOptions.First(x => x.Id == LastParent).Parent == null) break;
-
                 LastParent = AllOptions.First(x => x.Id == LastParent).Parent.Id;
             }
 
@@ -231,11 +231,10 @@ namespace EHR
         protected string ApplyFormat(string value)
         {
             if (ValueFormat == OptionFormat.None) return value;
-
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
 
-        protected virtual void Refresh()
+        private void Refresh()
         {
             if (OptionBehaviour is StringOption opt)
             {
@@ -335,7 +334,7 @@ namespace EHR
         private static readonly List<OptionItem> Options = new(1024);
         public static IReadOnlyDictionary<int, OptionItem> FastOptions => FastOpts;
         private static readonly Dictionary<int, OptionItem> FastOpts = new(1024);
-        public static int CurrentPreset { get; set; }
+        public static int CurrentPreset { get; private set; }
 
         #endregion
     }

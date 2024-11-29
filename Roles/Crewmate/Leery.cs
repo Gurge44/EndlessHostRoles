@@ -94,7 +94,7 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != LeeryId || seer.PlayerId != target.PlayerId || meeting || hud || !ShowNearestPlayerName.GetBool() || InvestigationEndTS == 0) return string.Empty;
+            if (seer.PlayerId != LeeryId || seer.PlayerId != target.PlayerId || meeting || hud || !ShowNearestPlayerName.GetBool() || InvestigationEndTS == 0 || !seer.IsAlive()) return string.Empty;
 
             string text = string.Format(Translator.GetString("LeerySuffix"), CurrentTarget.ColoredPlayerName());
             

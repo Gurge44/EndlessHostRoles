@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
@@ -18,11 +19,17 @@ namespace EHR
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameJoined))]
     internal static class OnGameJoinedPatch
     {
+        public static bool JoiningGame;
+
         public static void Postfix(AmongUsClient __instance)
         {
+            JoiningGame = true;
+
             while (!Options.IsLoaded) Task.Delay(1);
 
             Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
+
+            SetUpRoleTextPatch.IsInIntro = false;
 
             Main.PlayerVersion = [];
             RPC.RpcVersionCheck();
@@ -31,8 +38,8 @@ namespace EHR
             ChatUpdatePatch.DoBlockChat = false;
             GameStates.InGame = false;
             ErrorText.Instance?.Clear();
-            
-            Achievements.ShowWaitingAchievements();
+
+            LateTask.New(Achievements.ShowWaitingAchievements, 5f, log: false);
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -64,6 +71,23 @@ namespace EHR
                 Main.SetAddOns = [];
                 ChatCommands.DraftResult = [];
                 ChatCommands.DraftRoles = [];
+
+                LateTask.New(() =>
+                {
+                    JoiningGame = false;
+
+                    if (GameStates.IsOnlineGame && GameStates.IsVanillaServer)
+                    {
+                        try
+                        {
+                            LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby);
+                        }
+                        catch (Exception e)
+                        {
+                            Utils.ThrowException(e);
+                        }
+                    }
+                }, 5f, "NotifyLobbyCreated");
             }
         }
     }
@@ -73,8 +97,8 @@ namespace EHR
     {
         public static void Prefix( /*InnerNetClient __instance,*/ DisconnectReasons reason, string stringReason)
         {
-            ShowDisconnectPopupPatch.Reason = reason;
-            ShowDisconnectPopupPatch.StringReason = stringReason;
+            //ShowDisconnectPopupPatch.Reason = reason;
+            //ShowDisconnectPopupPatch.StringReason = stringReason;
             ErrorText.Instance.CheatDetected = false;
             ErrorText.Instance.SBDetected = false;
             ErrorText.Instance.Clear();
@@ -91,9 +115,9 @@ namespace EHR
 
             foreach (ClientData clientData in __instance.allClients)
                 if (clientData.Id == client.Id)
-                    return true;
+                    return false;
 
-            return false;
+            return true;
         }
 
         public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
@@ -106,7 +130,7 @@ namespace EHR
                 {
                     if (AmongUsClient.Instance.AmHost)
                     {
-                        if (!client.IsDisconnected() && client.Character.Data.IsIncomplete)
+                        if ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || ((client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length <= 15))
                         {
                             Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
                             AmongUsClient.Instance.KickPlayer(client.Id, false);
@@ -119,10 +143,15 @@ namespace EHR
                             MessageWriter retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
                             AmongUsClient.Instance.FinishRpcImmediately(retry);
                         }
+
+                        if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 18)
+                        {
+                            Disco.ChangeColor(client.Character);
+                        }
                     }
                 }
                 catch { }
-            }, 3f, "green bean kick late task", false);
+            }, 4.5f, "green bean kick late task", false);
 
             if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
             {
@@ -173,9 +202,9 @@ namespace EHR
             {
                 if (data != null && data.Character != null) StartGameHostPatch.DataDisconnected[data.Character.PlayerId] = true;
 
-                if (GameStates.IsInGame)
+                if (GameStates.IsInGame && data != null && data.Character != null)
                 {
-                    if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
+                    if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
 
                     if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                     {
@@ -195,6 +224,9 @@ namespace EHR
                             break;
                         case CustomRoles.Markseeker:
                             Markseeker.OnDeath(data.Character);
+                            break;
+                        case CustomRoles.Jackal:
+                            Jackal.Instances.Do(x => x.PromoteSidekick());
                             break;
                     }
 
@@ -267,7 +299,7 @@ namespace EHR
                         break;
                 }
 
-                Logger.Info($"{data?.PlayerName} - (ClientID: {data?.Id} / FriendCode: {data?.FriendCode}) - Disconnected: {reason}，Ping: ({AmongUsClient.Instance.Ping})", "Session");
+                Logger.Info($"{data?.PlayerName} - (ClientID: {data?.Id} / FriendCode: {data?.FriendCode}) - Disconnected: {reason}, Ping: ({AmongUsClient.Instance.Ping})", "Session");
 
                 if (AmongUsClient.Instance.AmHost)
                 {
@@ -506,7 +538,26 @@ namespace EHR
         {
             if (Main.IntroDestroyed || __instance == null) return;
 
-            Logger.Info($"{__instance.GetRealName()}'s color is {Palette.GetColorName(bodyColor)}", "RpcSetColor");
+            string colorName = Palette.GetColorName(bodyColor);
+            Logger.Info($"{__instance.GetRealName()}'s color is {colorName}", "RpcSetColor");
+
+            if (colorName == "???")
+            {
+                LateTask.New(() =>
+                {
+                    if (__instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
+                    {
+                        var client = __instance.GetClient();
+
+                        if (client != null)
+                        {
+                            Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
+                            AmongUsClient.Instance.KickPlayer(client.Id, false);
+                        }
+                    }
+                }, 5f, "fortegreen bean color kick");
+            }
+
             if (bodyColor == 255) return;
 
             Main.PlayerColors[__instance.PlayerId] = Palette.PlayerColors[bodyColor];

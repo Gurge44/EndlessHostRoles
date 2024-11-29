@@ -88,7 +88,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (Deathknight.DeathknightId == byte.MaxValue && !target.Is(CustomRoles.Loyal) && !target.IsConverted())
+            if (Deathknight.DeathknightId == byte.MaxValue && !target.Is(CustomRoles.Loyal) && !target.Is(CustomRoles.Curser) && !target.IsConverted())
             {
                 target.RpcChangeRoleBasis(CustomRoles.Deathknight);
                 target.RpcSetCustomRole(CustomRoles.Deathknight);
@@ -159,7 +159,7 @@ namespace EHR.Neutral
 
         public static bool CanBeUndead(PlayerControl pc)
         {
-            return pc != null && !pc.Is(CustomRoles.Deathknight) && !pc.Is(CustomRoles.Necromancer) && !pc.Is(CustomRoles.Undead) && !pc.Is(CustomRoles.Loyal) && !pc.IsConverted();
+            return pc != null && !pc.Is(CustomRoles.Deathknight) && !pc.Is(CustomRoles.Necromancer) && !pc.Is(CustomRoles.Undead) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser) && !pc.IsConverted();
         }
     }
 

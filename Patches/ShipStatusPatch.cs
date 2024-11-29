@@ -82,7 +82,7 @@ namespace EHR
 
             if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
 
-            if ((Options.CurrentGameMode != CustomGameMode.Standard || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
+            if ((!CustomGameMode.Standard.IsActiveOrIntegrated() || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
 
             if (player.Is(CustomRoles.Fool) && systemType is SystemTypes.Comms or SystemTypes.Electrical) return false;
 
@@ -176,7 +176,7 @@ namespace EHR
                     break;
                 }
                 case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
-                    if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
+                    if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
 
                     if (SecurityGuard.BlockSabo.Count > 0) return false;
 
@@ -222,7 +222,6 @@ namespace EHR
             {
                 case SystemTypes.Comms:
                     if (!Camouflage.CheckCamouflage()) Utils.NotifyRoles();
-
                     goto case SystemTypes.Electrical;
                 case SystemTypes.Reactor:
                 case SystemTypes.LifeSupp:
@@ -230,11 +229,14 @@ namespace EHR
                 case SystemTypes.HeliSabotage:
                 case SystemTypes.Electrical:
                 {
-                    if (player.Is(CustomRoles.Damocles) && Damocles.CountRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
+                    if (player.Is(CustomRoles.Damocles) && Damocles.CountRepairSabotage)
+                        Damocles.OnRepairSabotage(player.PlayerId);
 
-                    if (player.Is(CustomRoles.Stressed) && Stressed.CountRepairSabotage) Stressed.OnRepairSabotage(player);
+                    if (player.Is(CustomRoles.Stressed) && Stressed.CountRepairSabotage)
+                        Stressed.OnRepairSabotage(player);
 
-                    if (Main.PlayerStates[player.PlayerId].Role is Rogue rg) rg.OnFixSabotage();
+                    if (Main.PlayerStates[player.PlayerId].Role is Rogue rg)
+                        rg.OnFixSabotage();
 
                     break;
                 }
@@ -262,7 +264,7 @@ namespace EHR
     {
         public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
         {
-            bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush;
+            bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne;
 
             if (SecurityGuard.BlockSabo.Count > 0) allow = false;
 
@@ -312,7 +314,7 @@ namespace EHR
     {
         public static bool Prefix(ref bool __result)
         {
-            if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || Options.CurrentGameMode != CustomGameMode.Standard)
+            if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || !CustomGameMode.Standard.IsActiveOrIntegrated())
             {
                 __result = false;
                 return false;
@@ -535,7 +537,7 @@ namespace EHR
 
         public static bool BlockVentInteraction(PlayerControl pc)
         {
-            return !pc.AmOwner && (!pc.IsModClient() || (!pc.IsHost() && Options.CurrentGameMode == CustomGameMode.RoomRush)) && !pc.Data.IsDead && (pc.IsImpostor() || pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
+            return !pc.AmOwner && (!pc.IsModClient() || (!pc.IsHost() && CustomGameMode.RoomRush.IsActiveOrIntegrated())) && !pc.Data.IsDead && (pc.IsImpostor() || pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
         }
 
         public static void SerializeV2(VentilationSystem __instance, PlayerControl player = null)

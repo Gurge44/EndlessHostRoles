@@ -31,6 +31,8 @@ namespace EHR
             CustomRoles.Dad,
             CustomRoles.Whisperer,
             CustomRoles.Wizard,
+            CustomRoles.NoteKiller,
+            CustomRoles.Weatherman,
 
             // Add-ons
             CustomRoles.Energetic,
@@ -84,13 +86,9 @@ namespace EHR
         public static CustomRoles GetVNRole(this CustomRoles role, bool checkDesyncRole = false)
         {
             if (role.IsGhostRole()) return CustomRoles.GuardianAngel;
-
             if (role.IsVanilla()) return role;
-
             if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
-
             if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
-
             if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;
 
             bool UsePets = Options.UsePets.GetBool();
@@ -128,7 +126,9 @@ namespace EHR
                 CustomRoles.FireWorks => CustomRoles.Shapeshifter,
                 CustomRoles.SpeedBooster => CustomRoles.Crewmate,
                 CustomRoles.Dictator => CustomRoles.Crewmate,
+                CustomRoles.DoubleAgent => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
+                CustomRoles.Occultist => CustomRoles.Impostor,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
                 CustomRoles.Wasp => CustomRoles.Impostor,
                 CustomRoles.Assumer => CustomRoles.Impostor,
@@ -209,6 +209,7 @@ namespace EHR
                 CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
                 CustomRoles.Bane => CustomRoles.Crewmate,
                 CustomRoles.Transmitter => CustomRoles.Crewmate,
+                CustomRoles.Ankylosaurus => CustomRoles.Crewmate,
                 CustomRoles.Leery => CustomRoles.Crewmate,
                 CustomRoles.Altruist => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
                 CustomRoles.Negotiator => CustomRoles.Crewmate,
@@ -282,6 +283,7 @@ namespace EHR
                 CustomRoles.Speedrunner => CustomRoles.Crewmate,
                 CustomRoles.CursedWolf => CustomRoles.Impostor,
                 CustomRoles.Collector => CustomRoles.Crewmate,
+                CustomRoles.NecroGuesser => CustomRoles.Crewmate,
                 CustomRoles.SchrodingersCat => CustomRoles.Crewmate,
                 CustomRoles.ImperiusCurse => CustomRoles.Shapeshifter,
                 CustomRoles.QuickShooter => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -318,6 +320,7 @@ namespace EHR
                 CustomRoles.Doomsayer => CustomRoles.Crewmate,
                 CustomRoles.Godfather => CustomRoles.Impostor,
                 CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
+                CustomRoles.NoteKiller => CustomRoles.Crewmate,
 
                 // Vanilla roles (just in case)
                 CustomRoles.ImpostorEHR => CustomRoles.Impostor,
@@ -435,6 +438,7 @@ namespace EHR
                 CustomRoles.BloodKnight => RoleTypes.Impostor,
                 CustomRoles.Poisoner => RoleTypes.Impostor,
                 CustomRoles.NSerialKiller => RoleTypes.Impostor,
+                CustomRoles.Weatherman => RoleTypes.Impostor,
                 CustomRoles.Vortex => RoleTypes.Impostor,
                 CustomRoles.Beehive => RoleTypes.Impostor,
                 CustomRoles.RouleteGrandeur => RoleTypes.Impostor,
@@ -456,6 +460,7 @@ namespace EHR
                 CustomRoles.Hookshot => RoleTypes.Impostor,
                 CustomRoles.Sprayer => RoleTypes.Impostor,
                 CustomRoles.PlagueDoctor => RoleTypes.Impostor,
+                CustomRoles.Curser => RoleTypes.Impostor,
                 CustomRoles.Postman => RoleTypes.Impostor,
                 CustomRoles.Shifter => RoleTypes.Impostor,
                 CustomRoles.Impartial => RoleTypes.Impostor,
@@ -535,6 +540,8 @@ namespace EHR
                 CustomRoles.Rogue or
                 CustomRoles.Parasite or
                 CustomRoles.NSerialKiller or
+                CustomRoles.Weatherman or
+                CustomRoles.NoteKiller or
                 CustomRoles.Vortex or
                 CustomRoles.Beehive or
                 CustomRoles.RouleteGrandeur or
@@ -584,7 +591,7 @@ namespace EHR
 
         public static bool IsImpostor(this CustomRoles role)
         {
-            return role is
+            return (role == CustomRoles.DoubleAgent && Main.HasJustStarted) || role is
                 CustomRoles.Impostor or
                 CustomRoles.ImpostorEHR or
                 CustomRoles.Phantom or
@@ -618,6 +625,7 @@ namespace EHR
                 CustomRoles.Augmenter or
                 CustomRoles.Inhibitor or
                 CustomRoles.Kidnapper or
+                CustomRoles.Occultist or
                 CustomRoles.Wasp or
                 CustomRoles.Hypnotist or
                 CustomRoles.Assumer or
@@ -732,7 +740,7 @@ namespace EHR
 
         public static bool PetActivatedAbility(this CustomRoles role)
         {
-            if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;
+            if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) return true;
 
             if (!Options.UsePets.GetBool()) return false;
 
@@ -832,6 +840,7 @@ namespace EHR
         public static bool NeedsUpdateAfterDeath(this CustomRoles role)
         {
             return role is
+                CustomRoles.Weatherman or
                 CustomRoles.Altruist or
                 CustomRoles.Duellist;
         }
@@ -904,6 +913,7 @@ namespace EHR
         {
             return role is
                 CustomRoles.Wizard or
+                CustomRoles.Occultist or
                 CustomRoles.Warlock or
                 CustomRoles.Swiftclaw or
                 CustomRoles.Undertaker or
@@ -935,13 +945,16 @@ namespace EHR
                 CustomRoles.Bargainer or
                 CustomRoles.Chemist or
                 CustomRoles.Simon or
-                CustomRoles.Patroller;
+                CustomRoles.Patroller or
+                CustomRoles.Weatherman or
+                CustomRoles.NoteKiller;
         }
 
         public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
         {
-            return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
+            return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor() || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
             {
+                CustomRoles.Sleuth when pc.Is(CustomRoles.NecroGuesser) => false,
                 CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
                 CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
                 CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
@@ -1249,6 +1262,7 @@ namespace EHR
                 CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
                 CustomRoles.Sheriff => Sheriff.KeepsGameGoing.GetBool() ? CountTypes.Sheriff : CountTypes.Crew,
                 CustomRoles.Shifter => CountTypes.OutOfGame,
+                CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller => CountTypes.Crew,
 
                 _ => Enum.TryParse(role.ToString(), true, out CountTypes type)
                     ? type
@@ -1281,9 +1295,7 @@ namespace EHR
         public static RoleOptionType GetRoleOptionType(this CustomRoles role)
         {
             if (role.IsImpostor()) return role.GetImpostorRoleCategory();
-
             if (role.IsCrewmate()) return role.GetCrewmateRoleCategory();
-
             if (role.IsNeutral(true)) return role.GetNeutralRoleCategory();
 
             return RoleOptionType.Crewmate_Miscellaneous;
@@ -1370,6 +1382,7 @@ namespace EHR
                 CustomRoles.Tank => RoleOptionType.Neutral_Benign,
                 CustomRoles.Totocalcio => RoleOptionType.Neutral_Benign,
                 CustomRoles.Arsonist => RoleOptionType.Neutral_Evil,
+                CustomRoles.Curser => RoleOptionType.Neutral_Evil,
                 CustomRoles.Jester => RoleOptionType.Neutral_Evil,
                 CustomRoles.Gaslighter => RoleOptionType.Neutral_Evil,
                 CustomRoles.God => RoleOptionType.Neutral_Evil,
@@ -1378,6 +1391,7 @@ namespace EHR
                 CustomRoles.Mario => RoleOptionType.Neutral_Evil,
                 CustomRoles.Terrorist => RoleOptionType.Neutral_Evil,
                 CustomRoles.Collector => RoleOptionType.Neutral_Evil,
+                CustomRoles.NecroGuesser => RoleOptionType.Neutral_Evil,
                 CustomRoles.Vulture => RoleOptionType.Neutral_Evil,
                 CustomRoles.Workaholic => RoleOptionType.Neutral_Evil,
                 CustomRoles.Deathknight => RoleOptionType.Neutral_Evil,
@@ -1441,6 +1455,7 @@ namespace EHR
                 CustomRoles.Hypnotist => RoleOptionType.Impostor_Support,
                 CustomRoles.Librarian => RoleOptionType.Impostor_Support,
                 CustomRoles.Nullifier => RoleOptionType.Impostor_Support,
+                CustomRoles.Occultist => RoleOptionType.Impostor_Support,
                 CustomRoles.Silencer => RoleOptionType.Impostor_Support,
                 CustomRoles.Swapster => RoleOptionType.Impostor_Support,
                 CustomRoles.TimeThief => RoleOptionType.Impostor_Support,
@@ -1513,6 +1528,7 @@ namespace EHR
                 CustomRoles.Bloodhound => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Detective => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Doctor => RoleOptionType.Crewmate_Investigate,
+                CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Druid => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Enigma => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Farseer => RoleOptionType.Crewmate_Investigate,
@@ -1604,6 +1620,7 @@ namespace EHR
                 CustomRoles.President => RoleOptionType.Crewmate_Power,
                 CustomRoles.Speedrunner => RoleOptionType.Crewmate_Power,
                 CustomRoles.Telekinetic => RoleOptionType.Crewmate_Power,
+                CustomRoles.Ankylosaurus => RoleOptionType.Crewmate_Chaos,
                 CustomRoles.Car => RoleOptionType.Crewmate_Chaos,
                 CustomRoles.Dad => RoleOptionType.Crewmate_Chaos,
                 CustomRoles.Goose => RoleOptionType.Crewmate_Chaos,
@@ -1635,14 +1652,6 @@ namespace EHR
         Neutral_Benign,
         Neutral_Evil,
         Neutral_Killing
-    }
-
-    public enum SimpleRoleOptionType
-    {
-        Crewmate,
-        Impostor,
-        NK,
-        NNK
     }
 
     public enum AddonTypes
@@ -1681,6 +1690,8 @@ namespace EHR
         HexMaster,
         Wraith,
         NSerialKiller,
+        Weatherman,
+        NoteKiller,
         Vortex,
         Beehive,
         RouleteGrandeur,

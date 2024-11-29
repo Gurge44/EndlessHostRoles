@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Patches;
 
@@ -8,7 +7,6 @@ namespace EHR.Neutral
 {
     public class Shifter : RoleBase
     {
-        private const int Id = 644400;
         public static bool On;
 
         public static HashSet<byte> WasShifter = [];
@@ -17,22 +15,23 @@ namespace EHR.Neutral
         public static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
+        public static OptionItem CanGuess;
+        private static OptionItem CanBeKilled;
+        public static OptionItem CanBeVoted;
+        public static OptionItem CanVote;
 
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()
         {
-            Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Shifter);
-
-            KillCooldown = new FloatOptionItem(Id + 2, "AbilityCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
-
-            HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
+            StartSetup(644400)
+                .AutoSetupOption(ref KillCooldown, 15f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds, "AbilityCooldown")
+                .AutoSetupOption(ref CanVent, true)
+                .AutoSetupOption(ref HasImpostorVision, true, "ImpostorVision")
+                .AutoSetupOption(ref CanGuess, false)
+                .AutoSetupOption(ref CanBeKilled, true)
+                .AutoSetupOption(ref CanBeVoted, true)
+                .AutoSetupOption(ref CanVote, true);
         }
 
         public override void Init()
@@ -85,21 +84,7 @@ namespace EHR.Neutral
 
             CustomRoles targetRole = target.GetCustomRole();
 
-            switch (targetRole)
-            {
-                case CustomRoles.Enigma:
-                    Enigma.PlayerIdList.Remove(target.PlayerId);
-                    break;
-                case CustomRoles.Mediumshiper:
-                    Mediumshiper.PlayerIdList.Remove(target.PlayerId);
-                    break;
-                case CustomRoles.Mortician:
-                    Mortician.PlayerIdList.Remove(target.PlayerId);
-                    break;
-                case CustomRoles.Spiritualist:
-                    Spiritualist.PlayerIdList.Remove(target.PlayerId);
-                    break;
-            }
+            Utils.RemovePlayerFromPreviousRoleData(target);
 
             killer.RpcSetCustomRole(targetRole);
             killer.RpcChangeRoleBasis(targetRole);
@@ -148,6 +133,11 @@ namespace EHR.Neutral
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             hud.KillButton?.OverrideText(Translator.GetString("ShifterKillButtonText"));
+        }
+
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            return CanBeKilled.GetBool();
         }
     }
 }

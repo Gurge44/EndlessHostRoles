@@ -12,16 +12,17 @@ namespace EHR
             canUse = couldUse = false;
             // Even if you return this with false, usable items other than tasks will remain usable (buttons, etc.)
             if (Main.GM.Value && AmongUsClient.Instance.AmHost && GameStates.InGame) return false;
-
+            
             PlayerControl lp = PlayerControl.LocalPlayer;
+
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne && !AllInOneGameMode.Taskers.Contains(lp.PlayerId)) return false;
+
             return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && (!lp.Is(CustomRoles.Wizard) || HasTasksAsWizard()));
 
             bool HasTasksAsWizard()
             {
                 if (lp.GetTaskState().IsTaskFinished) return false;
-
                 if (!lp.IsAlive()) return true;
-
                 return lp.GetAbilityUseLimit() < 1f;
             }
         }
@@ -32,7 +33,7 @@ namespace EHR
     {
         public static void Postfix(EmergencyMinigame __instance)
         {
-            if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) __instance.Close();
+            if (Options.DisableMeeting.GetBool() || !CustomGameMode.Standard.IsActiveOrIntegrated()) __instance.Close();
         }
     }
 

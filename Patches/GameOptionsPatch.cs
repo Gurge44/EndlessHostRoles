@@ -11,7 +11,7 @@ namespace EHR.Patches
 
         public static bool Prefix(GameModes gameMode)
         {
-            if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned || !HudManager.Instance) return true;
+            if (!Options.IsLoaded || (AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned || !HudManager.Instance) return true;
 
             HudManager.Instance.ShowPopUp(Translator.GetString("HnSUnloadWarning"));
             return false;
@@ -19,7 +19,7 @@ namespace EHR.Patches
 
         public static void Postfix(GameModes gameMode)
         {
-            if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek) return;
+            if (!Options.IsLoaded || (!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek) return;
 
             if (!Warned)
             {
@@ -71,6 +71,7 @@ namespace EHR.Patches
 
             switch (Options.CurrentGameMode)
             {
+                case CustomGameMode.AllInOne:
                 case CustomGameMode.SoloKombat:
                 case CustomGameMode.FFA:
                 case CustomGameMode.RoomRush:

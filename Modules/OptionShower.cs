@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
@@ -42,7 +41,7 @@ namespace EHR
                 sb.Append($"<color=#ff0000>{GetString("Message.HideGameSettings")}</color>");
             else
             {
-                if (Options.CurrentGameMode == CustomGameMode.Standard)
+                if (CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
                     sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
                     sb.Append(GetString("ActiveRolesList")).Append('\n');
@@ -71,11 +70,11 @@ namespace EHR
                 Pages.Add("");
                 sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
 
-                if (Options.CurrentGameMode != CustomGameMode.HideAndSeek)
+                if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
                 {
                     foreach (KeyValuePair<CustomRoles, StringOptionItem> kvp in Options.CustomRoleSpawnChances)
                     {
-                        if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
+                        if (!kvp.Key.IsEnable() || kvp.Value.IsCurrentlyHidden()) continue;
 
                         sb.Append('\n');
                         sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  ×{kvp.Key.GetCount()}\n");
@@ -85,7 +84,7 @@ namespace EHR
 
                 foreach (OptionItem opt in OptionItem.AllOptions)
                 {
-                    if (opt.Id is >= 90000 and (< 600000 or > 700000) && !opt.IsHiddenOn(Options.CurrentGameMode) && opt.Parent == null && !opt.IsText)
+                    if (opt.Id is >= 90000 and (< 600000 or > 700000) && !opt.IsCurrentlyHidden() && opt.Parent == null && !opt.IsText)
                     {
                         if (opt.IsHeader) sb.Append('\n');
 
