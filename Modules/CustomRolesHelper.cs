@@ -1507,7 +1507,6 @@ namespace EHR
             return role switch
             {
                 CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
-                CustomRoles.Ankylosaurus => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.CyberStar => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Demolitionist => RoleOptionType.Crewmate_Miscellaneous,
@@ -1623,6 +1622,7 @@ namespace EHR
                 CustomRoles.President => RoleOptionType.Crewmate_Power,
                 CustomRoles.Speedrunner => RoleOptionType.Crewmate_Power,
                 CustomRoles.Telekinetic => RoleOptionType.Crewmate_Power,
+                CustomRoles.Ankylosaurus => RoleOptionType.Crewmate_Chaos,
                 CustomRoles.Car => RoleOptionType.Crewmate_Chaos,
                 CustomRoles.Dad => RoleOptionType.Crewmate_Chaos,
                 CustomRoles.Goose => RoleOptionType.Crewmate_Chaos,

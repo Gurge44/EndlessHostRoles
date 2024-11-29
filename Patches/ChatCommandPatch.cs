@@ -463,9 +463,10 @@ namespace EHR
                 return;
             }
 
-            IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Main.NormalOptions.NumImpostors);
-            IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Options.NeutralKillingRolesMaxPlayer.GetInt());
-            IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.NonNeutralKillingRolesMaxPlayer.GetInt());
+            int maxNeutrals = Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt();
+            IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
+            IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(maxNeutrals);
+            IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(maxNeutrals);
 
             allRoles.RemoveAll(x => x.IsImpostor());
             allRoles.RemoveAll(x => x.IsNK());

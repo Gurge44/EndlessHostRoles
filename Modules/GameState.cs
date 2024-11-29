@@ -170,7 +170,7 @@ namespace EHR
 
             CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
-            if (Main.HasJustStarted || PlayerControl.LocalPlayer.PlayerId != PlayerId) return;
+            if (Main.HasJustStarted || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
             RoleChangeTimes++;
             if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();

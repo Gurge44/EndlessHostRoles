@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.Impostor;
 using EHR.Neutral;
@@ -20,13 +19,6 @@ namespace EHR.Modules
         public static int AddPhantomNum;
 
         public static List<CustomRoles> AddonRolesList = [];
-
-        private static void GetNeutralCounts(int NKmaxOpt, int NKminOpt, int NNKmaxOpt, int NNKminOpt, ref int ResultNKnum, ref int ResultNNKnum)
-        {
-            var rd = IRandom.Instance;
-            if (NNKmaxOpt > 0 && NNKmaxOpt >= NNKminOpt) ResultNNKnum = rd.Next(NNKminOpt, NNKmaxOpt + 1);
-            if (NKmaxOpt > 0 && NKmaxOpt >= NKminOpt) ResultNKnum = rd.Next(NKminOpt, NKmaxOpt + 1);
-        }
 
         public static void SelectCustomRoles()
         {
@@ -69,11 +61,9 @@ namespace EHR.Modules
 
             var rd = IRandom.Instance;
             int playerCount = Main.AllAlivePlayerControls.Length;
-            int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
-            var optNonNeutralKillingNum = 0;
-            var optNeutralKillingNum = 0;
-
-            GetNeutralCounts(Options.NeutralKillingRolesMaxPlayer.GetInt(), Options.NeutralKillingRolesMinPlayer.GetInt(), Options.NonNeutralKillingRolesMaxPlayer.GetInt(), Options.NonNeutralKillingRolesMinPlayer.GetInt(), ref optNeutralKillingNum, ref optNonNeutralKillingNum);
+            
+            var impLimits = Options.FactionMinMaxSettings[Team.Impostor];
+            int optImpNum = rd.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt());
 
             var readyRoleNum = 0;
             var readyImpNum = 0;
@@ -138,23 +128,23 @@ namespace EHR.Modules
                     Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.LovingCrewmate, 100, 1));
                     Roles[RoleAssignType.Impostor].Add(new(CustomRoles.LovingImpostor, 100, 1));
                 }
-                else
-                    Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.LovingCrewmate, 100, 2));
+                else Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.LovingCrewmate, 100, 2));
             }
 
-            if (Roles[RoleAssignType.Impostor].Count == 0 && optNeutralKillingNum == 0 && optNonNeutralKillingNum == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
+            var neutralLimits = Options.FactionMinMaxSettings[Team.Neutral];
+
+            if (Roles[RoleAssignType.Impostor].Count == 0 && neutralLimits.MaxSetting.GetInt() == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
             {
                 Roles[RoleAssignType.Impostor].Add(new(CustomRoles.ImpostorEHR, 100, optImpNum));
                 Logger.Warn("Adding Vanilla Impostor", "CustomRoleSelector");
             }
 
-            if (Roles[RoleAssignType.Crewmate].Count == 0 && optNeutralKillingNum == 0 && optNonNeutralKillingNum == 0 && !Main.SetRoles.Values.Any(x => x.IsCrewmate()))
+            if (Roles[RoleAssignType.Crewmate].Count == 0 && neutralLimits.MaxSetting.GetInt() == 0 && !Main.SetRoles.Values.Any(x => x.IsCrewmate()))
             {
                 Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.CrewmateEHR, 100, playerCount));
                 Logger.Warn("Adding Vanilla Crewmates", "CustomRoleSelector");
             }
 
-            Logger.Info($"Number of NKs: {optNeutralKillingNum}, Number of NNKs: {optNonNeutralKillingNum}", "NeutralNum");
             Logger.Msg("=====================================================", "AllActiveRoles");
             Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "ImpRoles");
             Logger.Info(string.Join(", ", Roles[RoleAssignType.NeutralKilling].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "NKRoles");
@@ -187,13 +177,28 @@ namespace EHR.Modules
                     .Take(type switch
                     {
                         RoleAssignType.Impostor => optImpNum,
-                        RoleAssignType.NeutralKilling => optNeutralKillingNum,
-                        RoleAssignType.NonKillingNeutral => optNonNeutralKillingNum,
+                        RoleAssignType.NeutralKilling or RoleAssignType.NonKillingNeutral => neutralLimits.MaxSetting.GetInt(),
                         RoleAssignType.Crewmate => playerCount,
                         _ => 0
                     })
                     .ToList();
             }
+
+            int attempts = 0;
+
+            while (Roles[RoleAssignType.NeutralKilling].Count + Roles[RoleAssignType.NonKillingNeutral].Count > neutralLimits.MaxSetting.GetInt())
+            {
+                if (attempts++ > 100) break;
+
+                RoleAssignType type = rd.Next(2) == 0 ? RoleAssignType.NeutralKilling : RoleAssignType.NonKillingNeutral;
+                var toRemove = Roles[type].RandomElement();
+                Roles[type].Remove(toRemove);
+                
+                Logger.Warn($"Removed {toRemove.Role} from {type}", "CustomRoleSelector");
+            }
+
+            int nnkNum = Roles[RoleAssignType.NonKillingNeutral].Count;
+            int nkNum = Roles[RoleAssignType.NeutralKilling].Count;
 
             Logger.Msg("======================================================", "SelectedRoles");
             Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "SelectedImpostorRoles");
@@ -357,9 +362,9 @@ namespace EHR.Modules
                     NNKs = NNKRoleCounts;
 
                     // Assign roles set to ALWAYS
-                    if (readyNonNeutralKillingNum < optNonNeutralKillingNum)
+                    if (readyNonNeutralKillingNum < nnkNum)
                     {
-                        while (AlwaysNNKRoles.Count > 0 && optNonNeutralKillingNum > 0)
+                        while (AlwaysNNKRoles.Count > 0 && nnkNum > 0)
                         {
                             CustomRoles selected = AlwaysNNKRoles.RandomElement();
                             RoleAssignInfo info = NNKRoleCounts.FirstOrDefault(x => x.Role == selected);
@@ -375,14 +380,14 @@ namespace EHR.Modules
 
                             if (readyRoleNum >= playerCount) goto EndOfAssign;
 
-                            if (readyNonNeutralKillingNum >= optNonNeutralKillingNum) break;
+                            if (readyNonNeutralKillingNum >= nnkNum) break;
                         }
                     }
 
                     // Assign other roles when needed
-                    if (readyRoleNum < playerCount && readyNonNeutralKillingNum < optNonNeutralKillingNum)
+                    if (readyRoleNum < playerCount && readyNonNeutralKillingNum < nnkNum)
                     {
-                        while (ChanceNNKRoles.Count > 0 && optNonNeutralKillingNum > 0)
+                        while (ChanceNNKRoles.Count > 0 && nnkNum > 0)
                         {
                             CustomRoles selected = ChanceNNKRoles.RandomElement();
                             RoleAssignInfo info = NNKRoleCounts.FirstOrDefault(x => x.Role == selected);
@@ -401,7 +406,7 @@ namespace EHR.Modules
 
                             if (readyRoleNum >= playerCount) goto EndOfAssign;
 
-                            if (readyNonNeutralKillingNum >= optNonNeutralKillingNum) break;
+                            if (readyNonNeutralKillingNum >= nnkNum) break;
                         }
                     }
                 }
@@ -430,9 +435,9 @@ namespace EHR.Modules
                     NKs = NKRoleCounts;
 
                     // Assign roles set to ALWAYS
-                    if (readyNeutralKillingNum < optNeutralKillingNum)
+                    if (readyNeutralKillingNum < nkNum)
                     {
-                        while (AlwaysNKRoles.Count > 0 && optNeutralKillingNum > 0)
+                        while (AlwaysNKRoles.Count > 0 && nkNum > 0)
                         {
                             CustomRoles selected = AlwaysNKRoles.RandomElement();
                             RoleAssignInfo info = NKRoleCounts.FirstOrDefault(x => x.Role == selected);
@@ -448,14 +453,14 @@ namespace EHR.Modules
 
                             if (readyRoleNum >= playerCount) goto EndOfAssign;
 
-                            if (readyNeutralKillingNum >= optNeutralKillingNum) break;
+                            if (readyNeutralKillingNum >= nkNum) break;
                         }
                     }
 
                     // Assign other roles when needed
-                    if (readyRoleNum < playerCount && readyNeutralKillingNum < optNeutralKillingNum)
+                    if (readyRoleNum < playerCount && readyNeutralKillingNum < nkNum)
                     {
-                        while (ChanceNKRoles.Count > 0 && optNeutralKillingNum > 0)
+                        while (ChanceNKRoles.Count > 0 && nkNum > 0)
                         {
                             CustomRoles selected = ChanceNKRoles.RandomElement();
                             RoleAssignInfo info = NKRoleCounts.FirstOrDefault(x => x.Role == selected);
@@ -474,7 +479,7 @@ namespace EHR.Modules
 
                             if (readyRoleNum >= playerCount) goto EndOfAssign;
 
-                            if (readyNeutralKillingNum >= optNeutralKillingNum) break;
+                            if (readyNeutralKillingNum >= nkNum) break;
                         }
                     }
                 }
@@ -550,17 +555,12 @@ namespace EHR.Modules
             EndOfAssign:
 
             if (Imps.Length > 0) Logger.Info(string.Join(", ", Imps.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "ImpRoleResult");
-
             if (NNKs.Length > 0) Logger.Info(string.Join(", ", NNKs.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "NNKRoleResult");
-
             if (NKs.Length > 0) Logger.Info(string.Join(", ", NKs.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "NKRoleResult");
-
             if (Crews.Length > 0) Logger.Info(string.Join(", ", Crews.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "CrewRoleResult");
 
             if (rd.Next(0, 100) < Jester.SunnyboyChance.GetInt() && FinalRolesList.Remove(CustomRoles.Jester)) FinalRolesList.Add(CustomRoles.Sunnyboy);
-
             if (rd.Next(0, 100) < Sans.BardChance.GetInt() && FinalRolesList.Remove(CustomRoles.Sans)) FinalRolesList.Add(CustomRoles.Bard);
-
             if (rd.Next(0, 100) < Bomber.NukerChance.GetInt() && FinalRolesList.Remove(CustomRoles.Bomber)) FinalRolesList.Add(CustomRoles.Nuker);
 
             Logger.Info(string.Join(", ", FinalRolesList.Select(x => x.ToString())), "RoleResults");
