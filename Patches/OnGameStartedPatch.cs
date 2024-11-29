@@ -798,7 +798,8 @@ namespace EHR
 
                 HudManager.Instance.SetHudActive(true);
 
-                foreach (PlayerControl pc in Main.AllPlayerControls) pc.ResetKillCooldown();
+                foreach (PlayerControl pc in Main.AllPlayerControls)
+                    pc.ResetKillCooldown();
 
 
                 foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
@@ -1089,7 +1090,8 @@ namespace EHR
             public static void AssignDesyncRoles()
             {
                 // Assign desync roles
-                foreach ((byte playerId, CustomRoles role) in RoleResult.Where(x => x.Value.IsDesyncRole() || IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)).ToArray()) AssignDesyncRole(role, Utils.GetPlayerById(playerId), Senders, RoleMap, ForceImp(playerId) ? RoleTypes.Impostor : role.GetDYRole());
+                foreach ((byte playerId, CustomRoles role) in RoleResult.Where(x => x.Value.IsDesyncRole() || IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)).ToArray())
+                    AssignDesyncRole(role, Utils.GetPlayerById(playerId), Senders, RoleMap, ForceImp(playerId) ? RoleTypes.Impostor : role.GetDYRole());
 
                 return;
 
@@ -1186,6 +1188,36 @@ namespace EHR
             {
                 BlockSetRole = false;
                 Senders.Do(kvp => kvp.Value.SendMessage());
+
+                if (!CustomRoles.DoubleAgent.IsEnable()) return;
+
+                try
+                {
+                    RoleResult.DoIf(x => x.Value == CustomRoles.DoubleAgent, k =>
+                    {
+                        var da = k.Key.GetPlayer();
+                        if (da == null) return;
+
+                        var ci = da.GetClientId();
+                        if (ci == -1) return;
+
+                        RoleResult.DoIf(x => x.Value.IsImpostor(), x =>
+                        {
+                            var imp = x.Key.GetPlayer();
+                            if (imp == null) return;
+
+                            var previousRoleType = RoleMap[(k.Key, x.Key)].RoleType;
+
+                            imp.RpcSetRoleDesync(RoleTypes.Crewmate, ci);
+
+                            LateTask.New(() => imp.RpcSetRoleDesync(previousRoleType, ci), 7f, log: false);
+                        });
+                    });
+                }
+                catch (Exception e)
+                {
+                    Utils.ThrowException(e);
+                }
             }
 
             public static void EndReplace()
@@ -1207,6 +1239,7 @@ namespace EHR
                 if (CoShowIntroPatch.IntroStarted) return;
 
                 Logger.Warn("Starting intro manually", "StartGameHostPatch");
+
                 PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)PlayerNameColor.Set);
                 PlayerControl.LocalPlayer.StopAllCoroutines();
                 DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());

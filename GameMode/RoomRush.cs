@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
-using Beebyte.Obfuscator;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -231,7 +230,7 @@ namespace EHR
                 aapc.Do(x => x.Notify(time.ToString()));
                 yield return new WaitForSeconds(1f);
             }
-            
+
             Skip:
 
             if (ventLimit > 0) aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
@@ -295,7 +294,7 @@ namespace EHR
             }
 
             TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= 3;
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= AllInOneGameMode.RoomRushTimeLimitMultiplier.GetInt();
             Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
             if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
@@ -384,7 +383,7 @@ namespace EHR
 
                         int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
 
-                        if (DonePlayers.Count == 2 && timeLeft < TimeLeft && notAllInOne)
+                        if (DonePlayers.Count == 2 && timeLeft < TimeLeft && (notAllInOne || !AllInOneGameMode.RoomRushDontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool()))
                         {
                             Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
                             TimeLeft = timeLeft;
@@ -394,7 +393,7 @@ namespace EHR
                                 Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
                         }
 
-                        if (DonePlayers.Count == aapc.Length - 1 && notAllInOne)
+                        if (DonePlayers.Count == aapc.Length - 1 && (notAllInOne || !AllInOneGameMode.RoomRushDontKillLastPlayer.GetBool()))
                         {
                             PlayerControl last = aapc.First(x => !DonePlayers.Contains(x.PlayerId));
                             Logger.Info($"All players entered the correct room except one, killing the last player ({last.GetRealName()})", "RoomRush");
@@ -404,7 +403,7 @@ namespace EHR
                             return;
                         }
                     }
-                    else if ((room == null || room.RoomId != RoomGoal) && notAllInOne)
+                    else if ((room == null || room.RoomId != RoomGoal) && (notAllInOne || !AllInOneGameMode.RoomRushDontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool()))
                         DonePlayers.Remove(pc.PlayerId);
                 }
 

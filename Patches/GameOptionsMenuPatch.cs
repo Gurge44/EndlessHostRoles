@@ -146,9 +146,6 @@ namespace EHR
 
                             OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
 
-                            optionBehaviour.SetClickMask(__instance.ButtonClickMask);
-                            optionBehaviour.SetUpFromData(baseGameSetting, 20);
-                            ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour, index);
                             break;
                         }
                         case OptionTypes.String:
@@ -158,11 +155,9 @@ namespace EHR
 
                             OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
 
-                            if (option.Name == "GameMode" && !ModGameOptionsMenu.OptionList.ContainsValue(index)) GameSettingMenuPatch.GameModeBehaviour = (StringOption)optionBehaviour;
+                            if (option.Name == "GameMode" && !ModGameOptionsMenu.OptionList.ContainsValue(index))
+                                GameSettingMenuPatch.GameModeBehaviour = (StringOption)optionBehaviour;
 
-                            optionBehaviour.SetClickMask(__instance.ButtonClickMask);
-                            optionBehaviour.SetUpFromData(baseGameSetting, 20);
-                            ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour, index);
                             break;
                         }
                         case OptionTypes.Float:
@@ -173,16 +168,18 @@ namespace EHR
 
                             OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
 
-                            if (option.Name == "Preset" && !ModGameOptionsMenu.OptionList.ContainsValue(index)) GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
+                            if (option.Name == "Preset" && !ModGameOptionsMenu.OptionList.ContainsValue(index))
+                                GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
 
-                            optionBehaviour.SetClickMask(__instance.ButtonClickMask);
-                            optionBehaviour.SetUpFromData(baseGameSetting, 20);
-                            ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour, index);
                             break;
                         }
                         default:
                             continue;
                     }
+
+                    optionBehaviour.SetClickMask(__instance.ButtonClickMask);
+                    optionBehaviour.SetUpFromData(baseGameSetting, 20);
+                    ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour, index);
 
                     optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
                     optionBehaviour.SetClickMask(__instance.ButtonClickMask);

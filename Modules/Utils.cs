@@ -493,17 +493,25 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
         public static (string, Color) GetRoleText(byte seerId, byte targetId, bool pure = false, bool seeTargetBetrayalAddons = false)
         {
-            CustomRoles seerMainRole = Main.PlayerStates[seerId].MainRole;
-            List<CustomRoles> seerSubRoles = Main.PlayerStates[seerId].SubRoles;
+            PlayerState seerState = Main.PlayerStates[seerId];
+            PlayerState targetState = Main.PlayerStates[targetId];
 
-            CustomRoles targetMainRole = Main.PlayerStates[targetId].MainRole;
-            List<CustomRoles> targetSubRoles = Main.PlayerStates[targetId].SubRoles;
+            CustomRoles seerMainRole = seerState.MainRole;
+            List<CustomRoles> seerSubRoles = seerState.SubRoles;
 
-            bool self = seerId == targetId || Main.PlayerStates[seerId].IsDead;
+            CustomRoles targetMainRole = targetState.MainRole;
+            List<CustomRoles> targetSubRoles = targetState.SubRoles;
+
+            bool self = seerId == targetId || seerState.IsDead;
 
             if (!self && Main.DiedThisRound.Contains(seerId)) return (string.Empty, Color.white);
 
-            bool isHnsAgentOverride = CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor;
+            if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor)
+                targetMainRole = CustomRoles.Hider;
+
+            if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles.TryGetValue(targetId, out var shownRole))
+                targetMainRole = shownRole;
+
             var loversShowDifferentRole = false;
 
             if (!GameStates.IsEnded && targetMainRole == CustomRoles.LovingImpostor && !self && seerMainRole != CustomRoles.LovingCrewmate && !seerSubRoles.Contains(CustomRoles.Lovers))
@@ -518,8 +526,8 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 loversShowDifferentRole = true;
             }
 
-            string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
-            Color RoleColor = GetRoleColor(isHnsAgentOverride ? CustomRoles.Hider : loversShowDifferentRole ? CustomRoles.Impostor : targetMainRole);
+            string RoleText = GetRoleName(targetMainRole);
+            Color RoleColor = GetRoleColor(loversShowDifferentRole ? CustomRoles.Impostor : targetMainRole);
 
             if (LastImpostor.CurrentId == targetId) RoleText = GetRoleString("Last-") + RoleText;
 

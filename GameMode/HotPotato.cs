@@ -138,7 +138,9 @@ namespace EHR
                 if (resetTime)
                 {
                     int time = Time.GetInt();
-                    HotPotatoState.TimeLeft = Options.CurrentGameMode == CustomGameMode.AllInOne ? time * 3 : time;
+                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) time *= AllInOneGameMode.HotPotatoTimerMultiplier.GetInt();
+
+                    HotPotatoState.TimeLeft = time;
                     HotPotatoState.RoundNum++;
                 }
 

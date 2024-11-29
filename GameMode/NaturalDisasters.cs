@@ -255,7 +255,7 @@ namespace EHR
                 long now = Utils.TimeStamp;
 
                 int frequency = DisasterFrequency.GetInt();
-                if (Options.CurrentGameMode == CustomGameMode.AllInOne) frequency *= 5;
+                if (Options.CurrentGameMode == CustomGameMode.AllInOne) frequency *= AllInOneGameMode.NaturalDisastersDisasterSpawnCooldownMultiplier.GetInt();
 
                 if (now - LastDisaster >= frequency)
                 {
@@ -277,7 +277,7 @@ namespace EHR
 
                     SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
                     float warningTime = DisasterWarningTime.GetFloat();
-                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) warningTime *= 6;
+                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) warningTime *= AllInOneGameMode.NaturalDisastersWarningDurationMultiplier.GetInt();
                     PreparingDisasters.Add(new(position, warningTime, Sprite(disaster.Name), disaster.Name, room));
                 }
 

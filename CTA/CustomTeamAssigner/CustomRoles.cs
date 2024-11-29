@@ -165,6 +165,7 @@
         Doctor,
         DonutDelivery,
         Doormaster,
+        DoubleAgent,
         DovesOfNeace,
         Drainer,
         Druid,

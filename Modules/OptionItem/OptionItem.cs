@@ -212,7 +212,7 @@ namespace EHR
         public bool IsCurrentlyHidden()
         {
             var mode = EHR.Options.CurrentGameMode;
-            return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode && !(mode == CustomGameMode.AllInOne && GameMode is CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush));
+            return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode && !(mode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(GameMode, out var option) && option.GetBool()));
         }
 
         private bool CheckHidden()
@@ -222,7 +222,6 @@ namespace EHR
             for (var i = 0; i < 5; i++)
             {
                 if (AllOptions.First(x => x.Id == LastParent).Parent == null) break;
-
                 LastParent = AllOptions.First(x => x.Id == LastParent).Parent.Id;
             }
 
@@ -232,11 +231,10 @@ namespace EHR
         protected string ApplyFormat(string value)
         {
             if (ValueFormat == OptionFormat.None) return value;
-
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
 
-        protected void Refresh()
+        private void Refresh()
         {
             if (OptionBehaviour is StringOption opt)
             {
@@ -336,7 +334,7 @@ namespace EHR
         private static readonly List<OptionItem> Options = new(1024);
         public static IReadOnlyDictionary<int, OptionItem> FastOptions => FastOpts;
         private static readonly Dictionary<int, OptionItem> FastOpts = new(1024);
-        public static int CurrentPreset { get; set; }
+        public static int CurrentPreset { get; private set; }
 
         #endregion
     }

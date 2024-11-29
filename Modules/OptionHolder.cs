@@ -808,7 +808,7 @@ namespace EHR
             _ => CustomGameMode.Standard
         };
 
-        public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode) => CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && customGameMode is not CustomGameMode.FFA and not CustomGameMode.CaptureTheFlag and not CustomGameMode.HideAndSeek and not CustomGameMode.Standard and not CustomGameMode.AllInOne);
+        public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode) => CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(customGameMode, out var option) && option.GetBool());
 
         [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize))]
         [HarmonyPostfix]
@@ -1400,6 +1400,8 @@ namespace EHR
             #region Gamemodes
 
             MainLoadingText = "Building Settings for Other Gamemodes";
+
+            AllInOneGameMode.SetupCustomOption();
 
             // SoloKombat
             SoloKombatManager.SetupCustomOption();
