@@ -1,12 +1,13 @@
 ﻿global using Object = UnityEngine.Object;
+global using Vector2 = UnityEngine.Vector2;
+global using File = System.IO.File;
+global using StringBuilder = System.Text.StringBuilder;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
-using EHR.GameMode.HideAndSeekRoles;
 using EHR.Neutral;
 
 
@@ -18,19 +19,13 @@ namespace EHR
 
         public int CompareTo(RoleBase other)
         {
-            var thisName = GetType().Name;
-            var translatedName = Translator.GetString(thisName);
-            if (translatedName != string.Empty && !translatedName.StartsWith("*") && !translatedName.StartsWith("<INVALID"))
-            {
-                thisName = translatedName;
-            }
+            string thisName = GetType().Name;
+            string translatedName = Translator.GetString(thisName);
+            if (translatedName != string.Empty && !translatedName.StartsWith("*") && !translatedName.StartsWith("<INVALID")) thisName = translatedName;
 
-            var otherName = other.GetType().Name;
-            var translatedOtherName = Translator.GetString(otherName);
-            if (translatedOtherName != string.Empty && !translatedOtherName.StartsWith("*") && !translatedOtherName.StartsWith("<INVALID"))
-            {
-                otherName = translatedOtherName;
-            }
+            string otherName = other.GetType().Name;
+            string translatedOtherName = Translator.GetString(otherName);
+            if (translatedOtherName != string.Empty && !translatedOtherName.StartsWith("*") && !translatedOtherName.StartsWith("<INVALID")) otherName = translatedOtherName;
 
             return string.Compare(thisName, otherName, StringComparison.Ordinal);
         }
@@ -53,52 +48,34 @@ namespace EHR
 
         public virtual bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || Amnesiac.WasAmnesiac.Contains(pc.PlayerId) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc) && pc.Data.Role.Role is not RoleTypes.Engineer;
+            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || Amnesiac.WasAmnesiac.Contains(pc.PlayerId) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc);
+        }
+
+        public virtual bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return true;
         }
 
         public virtual bool CanUseSabotage(PlayerControl pc)
         {
-            return pc.Is(Team.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) && pc.IsAlive();
+            return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive());
         }
 
-        public virtual void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-        }
+        public virtual void ApplyGameOptions(IGameOptions opt, byte playerId) { }
 
-        public virtual void OnFixedUpdate(PlayerControl pc)
-        {
-        }
+        public virtual void OnFixedUpdate(PlayerControl pc) { }
 
-        public virtual void OnCheckPlayerPosition(PlayerControl pc)
-        {
-        }
+        public virtual void OnCheckPlayerPosition(PlayerControl pc) { }
 
-        public virtual void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
-        {
-        }
+        public virtual void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad) { }
 
-        public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
-        {
-            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
-            {
-                int time = Hider.TimeDecreaseOnTaskComplete.GetInt();
-                HnSManager.TimeLeft -= time;
-                pc.Notify(Translator.GetString("TimeDecreased"));
-                if (60 - (HnSManager.TimeLeft % 60) <= time) Utils.NotifyRoles();
-            }
-        }
+        public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount) { }
 
-        public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId)
-        {
-        }
+        public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId) { }
 
-        public virtual void OnEnterVent(PlayerControl pc, Vent vent)
-        {
-        }
+        public virtual void OnEnterVent(PlayerControl pc, Vent vent) { }
 
-        public virtual void OnExitVent(PlayerControl pc, Vent vent)
-        {
-        }
+        public virtual void OnExitVent(PlayerControl pc, Vent vent) { }
 
         public virtual void OnPet(PlayerControl pc)
         {
@@ -106,10 +83,12 @@ namespace EHR
 
             int x = IRandom.Instance.Next(1, 16);
             string suffix;
+
             if (x >= 14)
             {
                 x -= 13;
                 TaskState ts = pc.GetTaskState();
+
                 suffix = pc.GetCustomRoleTypes() switch
                 {
                     CustomRoleTypes.Impostor => $"Imp{x}",
@@ -118,7 +97,8 @@ namespace EHR
                     _ => x.ToString()
                 };
             }
-            else suffix = x.ToString();
+            else
+                suffix = x.ToString();
 
             pc.Notify(Translator.GetString($"NoPetActionMsg{suffix}"));
         }
@@ -138,9 +118,7 @@ namespace EHR
             return target != null && killer != null;
         }
 
-        public virtual void OnMurder(PlayerControl killer, PlayerControl target)
-        {
-        }
+        public virtual void OnMurder(PlayerControl killer, PlayerControl target) { }
 
         public virtual bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
@@ -157,30 +135,24 @@ namespace EHR
             return false;
         }
 
-        public virtual void OnReportDeadBody()
-        {
-        }
+        public virtual void OnReportDeadBody() { }
 
         public virtual bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
             return true;
         }
 
-        public virtual void AfterMeetingTasks()
-        {
-        }
+        public virtual void AfterMeetingTasks() { }
 
         public virtual string GetProgressText(byte playerId, bool comms)
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new();
             sb.Append(Utils.GetAbilityUseLimitDisplay(playerId));
             sb.Append(Utils.GetTaskCount(playerId, comms));
             return sb.ToString();
         }
 
-        public virtual void SetButtonTexts(HudManager hud, byte id)
-        {
-        }
+        public virtual void SetButtonTexts(HudManager hud, byte id) { }
 
         public virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
@@ -190,21 +162,24 @@ namespace EHR
         public virtual bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             if (Options.NeutralsKnowEachOther.GetBool() && seer.Is(Team.Neutral) && target.Is(Team.Neutral)) return true;
-            var seerRole = seer.GetCustomRole();
+
+            CustomRoles seerRole = seer.GetCustomRole();
             return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
         }
 
         // Option setup simplifier
-        protected OptionSetupHandler StartSetup(int id)
+        protected OptionSetupHandler StartSetup(int id, bool single = false)
         {
-            var role = Enum.Parse<CustomRoles>(this.GetType().Name, true);
+            var role = Enum.Parse<CustomRoles>(GetType().Name, true);
             var tab = TabGroup.OtherRoles;
+
             if (role.IsImpostor()) tab = TabGroup.ImpostorRoles;
-            else if (role.IsNeutral(check: true)) tab = TabGroup.NeutralRoles;
+            else if (role.IsNeutral(true)) tab = TabGroup.NeutralRoles;
             else if (role.IsCrewmate()) tab = TabGroup.CrewmateRoles;
 
-            Options.SetupRoleOptions(id++, tab, role);
-            return new(++id, tab, role);
+            if (single) Options.SetupSingleRoleOptions(id++, tab, role, hideMaxSetting: true);
+            else Options.SetupRoleOptions(id++, tab, role);
+            return new(id, tab, role);
         }
     }
 
@@ -217,7 +192,9 @@ namespace EHR
         {
             try
             {
-                var name = overrideName == "" ? IsGeneralOption() ? fieldName : $"{role}.{fieldName}" : overrideName;
+                bool generalOption = !Translator.GetString(fieldName).Contains("INVALID");
+                string name = overrideName == "" ? generalOption ? fieldName : $"{role}.{fieldName}" : overrideName;
+
                 field = (valueRule, defaultValue) switch
                 {
                     (null, bool bdv) => new BooleanOptionItem(++_id, name, bdv, tab),
@@ -227,8 +204,7 @@ namespace EHR
                     _ => throw new ArgumentException("The valueRule and defaultValue combination is not supported.")
                 };
 
-                field.SetParent(overrideParent ?? Parent);
-
+                field?.SetParent(overrideParent ?? Parent);
                 if (format != OptionFormat.None) field?.SetValueFormat(format);
             }
             catch (Exception e)
@@ -238,18 +214,11 @@ namespace EHR
             }
 
             return this;
-
-            bool IsGeneralOption() => !Translator.GetString(fieldName).Contains("INVALID");
         }
 
-        public void CreateOverrideTasksData() => Options.OverrideTasksData.Create(++_id, tab, role);
-    }
-
-    public enum OptionType
-    {
-        Boolean,
-        Int,
-        Float,
-        String
+        public void CreateOverrideTasksData()
+        {
+            Options.OverrideTasksData.Create(++_id, tab, role);
+        }
     }
 }

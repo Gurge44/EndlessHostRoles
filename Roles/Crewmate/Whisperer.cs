@@ -29,20 +29,25 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            int id = 649550;
+            var id = 649550;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Whisperer);
+
             Cooldown = new IntegerOptionItem(++id, "WhispererCooldown", new(0, 60, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Duration = new IntegerOptionItem(++id, "WhispererDuration", new(0, 60, 1), 7, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
                 .SetValueFormat(OptionFormat.Times);
+
             WhispererAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
                 .SetValueFormat(OptionFormat.Times);
@@ -69,10 +74,12 @@ namespace EHR.Crewmate
         public override void OnPet(PlayerControl pc)
         {
             if (Souls.Exists(x => x.IsQuestioning)) return;
-            var pos = pc.Pos();
-            var souls = Souls.FindAll(x => x.IsQuestionAble && Vector2.Distance(pos, x.Position) <= 1f);
+
+            Vector2 pos = pc.Pos();
+            List<Soul> souls = Souls.FindAll(x => x.IsQuestionAble && Vector2.Distance(pos, x.Position) <= 1f);
             if (souls.Count == 0) return;
-            var soul = souls.MinBy(x => Vector2.Distance(pos, x.Position));
+
+            Soul soul = souls.MinBy(x => Vector2.Distance(pos, x.Position));
             soul.QuestioningTime = Duration.GetInt();
             CurrentlyQuestioning.Name = soul.Player.PlayerId.ColoredPlayerName();
             Utils.SendRPC(CustomRPC.SyncRoleData, WhispererId, 1, CurrentlyQuestioning.Name);
@@ -83,10 +90,11 @@ namespace EHR.Crewmate
         {
             if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
-            var soul = Souls.Find(x => x.IsQuestioning);
+            Soul soul = Souls.Find(x => x.IsQuestioning);
             if (soul == null) return;
 
             byte soulPlayerId = soul.Player.PlayerId;
+
             if (Vector2.Distance(pc.Pos(), soul.Position) > 1f)
             {
                 soul.QuestioningTime = 0f;
@@ -95,6 +103,7 @@ namespace EHR.Crewmate
             }
 
             soul.QuestioningTime -= Time.fixedDeltaTime;
+
             if (soul.QuestioningTime <= 0f)
             {
                 soul.QuestioningTime = 0f;
@@ -108,10 +117,11 @@ namespace EHR.Crewmate
 
                 try
                 {
-                    var state = Main.PlayerStates[soulPlayerId];
-                    var killer = state.RealKiller;
+                    PlayerState state = Main.PlayerStates[soulPlayerId];
+                    (DateTime TimeStamp, byte ID) killer = state.RealKiller;
                     int next = IRandom.Instance.Next(4);
                     if (state.deathReason == PlayerState.DeathReason.Disconnected) next = 2;
+
                     info = next switch
                     {
                         0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(Utils.GetPlayerInfoById(killer.ID).DefaultOutfit.ColorId, out string colors), colors),
@@ -120,6 +130,7 @@ namespace EHR.Crewmate
                         3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), Main.PlayerStates[killer.ID].MainRole.ToColoredString()),
                         _ => string.Empty
                     };
+
                     info = $"{soulPlayerId.ColoredPlayerName()}: {info}";
                 }
                 catch (Exception e)
@@ -132,6 +143,7 @@ namespace EHR.Crewmate
                 {
                     Info.Add(info);
                     if (Info.Count > 5) Info.RemoveAt(0);
+
                     pc.RpcRemoveAbilityUse();
                     Utils.SendRPC(CustomRPC.SyncRoleData, WhispererId, 4, info);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -140,6 +152,7 @@ namespace EHR.Crewmate
             else
             {
                 if (Count++ < 10) return;
+
                 Count = 0;
                 CurrentlyQuestioning.Percent = 100 - (int)(soul.QuestioningTime * 100f / Duration.GetFloat());
                 Utils.SendRPC(CustomRPC.SyncRoleData, WhispererId, 2, CurrentlyQuestioning.Percent);
@@ -152,7 +165,7 @@ namespace EHR.Crewmate
         // Lighter color IDs: 3, 4, 5, 7, 10, 11, 13, 14, 16, 17 == Pink, Orange, Yellow, White, Cyan, Lime, Rose, Banana, Tan, Coral
         // Darker color IDs: 0, 1, 2, 6, 8, 9, 12, 15 == Red, Blue, Green, Black, Purple, Brown, Maroon, Gray
 
-        static string GetColorInfo(int colorId, out string colors)
+        private static string GetColorInfo(int colorId, out string colors)
         {
             var darker = new List<int> { 0, 1, 2, 6, 8, 9, 12, 15 };
             bool isDarker = darker.Contains(colorId);
@@ -166,6 +179,7 @@ namespace EHR.Crewmate
             foreach (Whisperer instance in Instances)
             {
                 if (instance.Souls.Exists(x => x.Player.PlayerId == target.PlayerId)) continue;
+
                 instance.Souls.Add(new(target));
                 Utils.SendRPC(CustomRPC.SyncRoleData, instance.WhispererId, 5, target.PlayerId);
             }
@@ -204,6 +218,7 @@ namespace EHR.Crewmate
                 case 4:
                     Info.Add(reader.ReadString());
                     if (Info.Count > 5) Info.RemoveAt(0);
+
                     break;
                 case 5:
                     Souls.Add(new(reader.ReadByte().GetPlayer()));
@@ -214,10 +229,11 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != WhispererId || meeting || (seer.IsModClient() && !hud)) return string.Empty;
+
             return "<size=70%>" + string.Join('\n', Info) + (CurrentlyQuestioning.Percent > 0 ? string.Format(Translator.GetString("WhispererQuestioning"), CurrentlyQuestioning.Name, CurrentlyQuestioning.Percent) : string.Empty) + "</size>";
         }
 
-        class Soul(PlayerControl player)
+        private class Soul(PlayerControl player)
         {
             public bool IsQuestionAble { get; set; }
             public Vector2 Position { get; } = player.Pos();

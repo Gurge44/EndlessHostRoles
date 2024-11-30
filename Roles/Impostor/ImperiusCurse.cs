@@ -11,9 +11,11 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(3700, TabGroup.ImpostorRoles, CustomRoles.ImperiusCurse);
+
             ShapeImperiusCurseShapeshiftDuration = new FloatOptionItem(3710, "ShapeshiftDuration", new(2.5f, 300f, 2.5f), 20f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ImperiusCurse])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ImperiusCurseShapeshiftCooldown = new FloatOptionItem(3711, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ImperiusCurse])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -49,7 +51,7 @@ namespace EHR.Impostor
                 {
                     if (!(!GameStates.IsInTask || !shapeshifter.IsAlive() || !target.IsAlive() || shapeshifter.inVent || target.inVent))
                     {
-                        var originPs = target.Pos();
+                        Vector2 originPs = target.Pos();
                         target.TP(shapeshifter.Pos());
                         shapeshifter.TP(originPs);
                     }

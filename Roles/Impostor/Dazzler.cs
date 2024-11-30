@@ -9,7 +9,7 @@ namespace EHR.Impostor
     public class Dazzler : RoleBase
     {
         private const int Id = 3500;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem ShapeshiftCooldown;
@@ -20,20 +20,31 @@ namespace EHR.Impostor
 
         public List<byte> PlayersDazzled = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Dazzler);
-            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
+
+            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DazzleCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
+
+            ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DazzleCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
                 .SetValueFormat(OptionFormat.Seconds);
-            CauseVision = new FloatOptionItem(Id + 13, "DazzlerCauseVision", new(0f, 5f, 0.05f), 0.4f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
+
+            CauseVision = new FloatOptionItem(Id + 13, "DazzlerCauseVision", new(0f, 5f, 0.05f), 0.4f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
                 .SetValueFormat(OptionFormat.Multiplier);
-            DazzleLimitOpt = new IntegerOptionItem(Id + 14, "DazzlerDazzleLimit", new(0, 15, 1), 1, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
+
+            DazzleLimitOpt = new IntegerOptionItem(Id + 14, "DazzlerDazzleLimit", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
                 .SetValueFormat(OptionFormat.Times);
-            ResetDazzledVisionOnDeath = new BooleanOptionItem(Id + 15, "DazzlerResetDazzledVisionOnDeath", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler]);
+
+            ResetDazzledVisionOnDeath = new BooleanOptionItem(Id + 15, "DazzlerResetDazzledVisionOnDeath", true, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler]);
+
             DazzlerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
                 .SetValueFormat(OptionFormat.Times);
@@ -41,13 +52,13 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             PlayersDazzled = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             PlayersDazzled = [];
             playerId.SetAbilityUseLimit(DazzleLimitOpt.GetInt());
         }
@@ -58,7 +69,10 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
@@ -76,7 +90,7 @@ namespace EHR.Impostor
 
         public static void SetDazzled(PlayerControl player, IGameOptions opt)
         {
-            foreach (var state in Main.PlayerStates)
+            foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
             {
                 if (state.Value.Role is Dazzler { IsEnable: true } dz)
                 {

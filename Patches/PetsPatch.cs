@@ -1,49 +1,36 @@
-﻿namespace EHR;
-
-public static class PetsPatch
+﻿namespace EHR
 {
-    public static void SetPet(PlayerControl player, string petId)
+    public static class PetsPatch
     {
-        if (player.Is(CustomRoles.GM)) return;
-        if (player.AmOwner)
+        public static void RpcRemovePet(PlayerControl pc)
         {
-            player.SetPet(petId);
-            return;
+            if (pc == null || !pc.Data.IsDead || pc.IsAlive()) return;
+
+            if (!GameStates.IsInGame) return;
+
+            if (!Options.RemovePetsAtDeadPlayers.GetBool()) return;
+
+            if (pc.CurrentOutfit.PetId == "") return;
+
+            var sender = CustomRpcSender.Create("Remove Pet From Dead Player");
+
+            pc.SetPet("");
+            pc.Data.DefaultOutfit.PetSequenceId += 10;
+
+            sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
+                .Write("")
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                .EndRpc();
+
+            sender.SendMessage();
         }
 
-        var setEmpty = petId == "";
-        if (player.Data.DefaultOutfit.PetId == "" || setEmpty) player.Data.DefaultOutfit.PetId = petId;
-        if (player.CurrentOutfit.PetId == "" || setEmpty) player.CurrentOutfit.PetId = petId;
-        foreach (var kvp in player.Data.Outfits)
+        public static string GetPetId()
         {
-            if (kvp.Value.PetId == "" || setEmpty)
-            {
-                kvp.Value.PetId = petId;
-            }
+            string[] pets = Options.PetToAssign;
+            string pet = pets[Options.PetToAssignToEveryone.GetValue()];
+            string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[IRandom.Instance.Next(0, pets.Length - 1)] : pet;
+            return petId;
         }
-
-        var sender = CustomRpcSender.Create(name: $"Set Pet to {petId} for {player.GetNameWithRole()}");
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetPetStr)
-            .Write(petId)
-            .Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-            .EndRpc();
-        sender.SendMessage();
-    }
-
-    public static void RpcRemovePet(PlayerControl pc)
-    {
-        if (pc == null || !pc.Data.IsDead || pc.IsAlive()) return;
-        if (!GameStates.IsInGame) return;
-        if (!Options.RemovePetsAtDeadPlayers.GetBool()) return;
-        if (pc.CurrentOutfit.PetId == "") return;
-
-        var sender = CustomRpcSender.Create(name: "Remove Pet From Dead Player");
-
-        pc.SetPet("");
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
-            .Write("")
-            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-            .EndRpc();
-        sender.SendMessage();
     }
 }

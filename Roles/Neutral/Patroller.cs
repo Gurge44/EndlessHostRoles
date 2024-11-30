@@ -25,12 +25,15 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Patroller);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Patroller])
                 .SetValueFormat(OptionFormat.Seconds);
+
             DecreasedKillCooldown = new FloatOptionItem(Id + 3, "DecreasedKillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Patroller])
                 .SetValueFormat(OptionFormat.Seconds);
+
             IncreasedSpeed = new FloatOptionItem(Id + 4, "GamblerSpeedup", new(0.05f, 5f, 0.05f), 1.75f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Patroller])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -47,6 +50,7 @@ namespace EHR.Neutral
             PatrollerId = playerId;
 
             LastRoom = null;
+
             RoomBoosts = ShipStatus.Instance.AllRooms
                 .Shuffle()
                 .Zip(Enum.GetValues<Boost>())
@@ -55,18 +59,30 @@ namespace EHR.Neutral
             playerId.SetAbilityUseLimit(1);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).GetPlainShipRoom() == RoomBoosts[Boost.Cooldown] ? DecreasedKillCooldown.GetFloat() : KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.inVent || pc.GetAbilityUseLimit() > 0 || pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent];
-        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.GetPlainShipRoom() == RoomBoosts[Boost.Sabotage]);
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).GetPlainShipRoom() == RoomBoosts[Boost.Cooldown] ? DecreasedKillCooldown.GetFloat() : KillCooldown.GetFloat();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return pc.inVent || pc.GetAbilityUseLimit() > 0 || pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent];
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return base.CanUseSabotage(pc) || pc.GetPlainShipRoom() == RoomBoosts[Boost.Sabotage];
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
-                AURoleOptions.PhantomCooldown = 1f;
-            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
-                AURoleOptions.ShapeshifterCooldown = 1f;
-            var room = Utils.GetPlayerById(id)?.GetPlainShipRoom();
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
+
+            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
+
+            PlainShipRoom room = Utils.GetPlayerById(id)?.GetPlainShipRoom();
             if (room == null) return;
+
             opt.SetVision(room == RoomBoosts[Boost.Vision]);
             opt.SetInt(Int32OptionNames.KillDistance, room == RoomBoosts[Boost.Range] ? 2 : 0);
             Main.AllPlayerSpeed[id] = room == RoomBoosts[Boost.Speed] ? IncreasedSpeed.GetFloat() : Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
@@ -75,36 +91,35 @@ namespace EHR.Neutral
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!pc.IsAlive() || !GameStates.IsInTask) return;
+
             Count++;
             if (Count < 20) return;
+
             Count = 0;
 
-            var room = pc.GetPlainShipRoom();
+            PlainShipRoom room = pc.GetPlainShipRoom();
             if ((LastRoom != null && room != null && room == LastRoom) || (LastRoom == null && room == null)) return;
+
             LastRoom = room;
 
             if (room != null)
             {
-                var roomName = Translator.GetString(room.RoomId.ToString());
+                string roomName = Translator.GetString(room.RoomId.ToString());
+
                 pc.Notify(RoomBoosts.Any(x => x.Value == room)
                     ? string.Format(Translator.GetString("PatrollerNotify"), roomName, Translator.GetString($"PatrollerBoost.{RoomBoosts.First(x => x.Value == room).Key}"))
                     : string.Format(Translator.GetString("PatrollerNotifyNoBoost"), roomName), 300f);
             }
-            else
-            {
-                NameNotifyManager.Notifies.Remove(pc.PlayerId);
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
 
             pc.MarkDirtySettings();
 
-            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                HudManager.Instance.SetHudActive(pc, pc.Data.Role, true);
+            if (pc.IsLocalPlayer()) HudManager.Instance.SetHudActive(pc, pc.Data.Role, true);
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             if (pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent]) return;
+
             pc.RpcRemoveAbilityUse();
         }
 
@@ -115,7 +130,7 @@ namespace EHR.Neutral
 
         public override void OnPet(PlayerControl pc)
         {
-            var s = RoomBoosts.Select(x => $"{Translator.GetString(x.Value.RoomId.ToString())} \u21e8 {Translator.GetString($"PatrollerBoost.{x.Key}")}");
+            IEnumerable<string> s = RoomBoosts.Select(x => $"{Translator.GetString(x.Value.RoomId.ToString())} \u21e8 {Translator.GetString($"PatrollerBoost.{x.Key}")}");
             pc.Notify(string.Join('\n', s));
         }
 
@@ -128,11 +143,12 @@ namespace EHR.Neutral
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+
             OnPet(shapeshifter);
             return false;
         }
 
-        enum Boost
+        private enum Boost
         {
             Speed,
             Range,

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
@@ -14,7 +13,7 @@ namespace EHR.Crewmate
     public class Alchemist : RoleBase
     {
         private const int Id = 5250;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem ShieldDuration;
@@ -37,34 +36,43 @@ namespace EHR.Crewmate
         private int ventedId = -10;
         public bool VisionPotionActive;
 
-        public override bool IsEnable => playerIdList.Count > 0;
-        bool IsInvis => InvisTime != -10;
+        public override bool IsEnable => PlayerIdList.Count > 0;
+        private bool IsInvis => InvisTime != -10;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
-            VentCooldown = new FloatOptionItem(Id + 11, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+
+            VentCooldown = new FloatOptionItem(Id + 11, "AlchemistAbilityCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShieldDuration = new FloatOptionItem(Id + 12, "AlchemistShieldDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             InvisDuration = new FloatOptionItem(Id + 13, "AlchemistInvisDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Speed = new FloatOptionItem(Id + 14, "AlchemistSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             SpeedDuration = new FloatOptionItem(Id + 15, "AlchemistSpeedDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Vision = new FloatOptionItem(Id + 16, "AlchemistVision", new(0f, 1f, 0.05f), 0.85f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             VisionOnLightsOut = new FloatOptionItem(Id + 17, "AlchemistVisionOnLightsOut", new(0f, 1f, 0.05f), 0.4f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             VisionDuration = new FloatOptionItem(Id + 18, "AlchemistVisionDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
         }
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             PotionID = 10;
             PlayerName = string.Empty;
             ventedId = -10;
@@ -76,7 +84,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             PlayerName = Utils.GetPlayerById(playerId).GetRealName();
             AlchemistId = playerId;
             PotionID = 10;
@@ -86,9 +94,10 @@ namespace EHR.Crewmate
             VisionPotionActive = false;
         }
 
-        void SendRPCData()
+        private void SendRPCData()
         {
             if (!IsEnable || !Utils.DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, SendOption.Reliable);
             writer.Write(AlchemistId);
             writer.Write(IsProtected);
@@ -103,6 +112,7 @@ namespace EHR.Crewmate
         {
             byte id = reader.ReadByte();
             if (Main.PlayerStates[id].Role is not Alchemist am) return;
+
             am.IsProtected = reader.ReadBoolean();
             am.PotionID = reader.ReadByte();
             am.PlayerName = reader.ReadString();
@@ -156,45 +166,49 @@ namespace EHR.Crewmate
         {
             if (Main.PlayerStates[player.PlayerId].Role is not Alchemist am) return;
 
-            NameNotifyManager.Notifies.Remove(player.PlayerId);
-
             switch (am.PotionID)
             {
                 case 1: // Shield
                     am.IsProtected = true;
                     player.Notify(GetString("AlchemistShielded"), ShieldDuration.GetInt());
+
                     LateTask.New(() =>
                     {
                         am.IsProtected = false;
                         player.Notify(GetString("AlchemistShieldOut"));
                     }, ShieldDuration.GetInt(), "Alchemist Shield");
+
                     break;
                 case 2: // Suicide
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
+
                     LateTask.New(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 1f : 0.1f, "Alchemist Suicide");
                     break;
                 case 3: // TP to random player
                     LateTask.New(() =>
                     {
                         List<PlayerControl> allAlivePlayer = [.. Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToArray()];
-                        var tar1 = allAlivePlayer[player.PlayerId];
+                        PlayerControl tar1 = allAlivePlayer[player.PlayerId];
                         allAlivePlayer.Remove(tar1);
-                        var tar2 = allAlivePlayer.RandomElement();
+                        PlayerControl tar2 = allAlivePlayer.RandomElement();
                         tar1.TP(tar2);
                         tar1.RPCPlayCustomSound("Teleport");
                     }, !isPet ? 2f : 0.1f, "AlchemistTPToRandomPlayer");
+
                     break;
                 case 4: // Increased speed
                     player.Notify(GetString("AlchemistHasSpeed"));
                     player.MarkDirtySettings();
-                    var tmpSpeed = Main.AllPlayerSpeed[player.PlayerId];
+                    float tmpSpeed = Main.AllPlayerSpeed[player.PlayerId];
                     Main.AllPlayerSpeed[player.PlayerId] = Speed.GetFloat();
+
                     LateTask.New(() =>
                     {
                         Main.AllPlayerSpeed[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId] - Speed.GetFloat() + tmpSpeed;
                         player.MarkDirtySettings();
                         player.Notify(GetString("AlchemistSpeedOut"));
                     }, SpeedDuration.GetInt(), "Alchemist Speed");
+
                     break;
                 case 5: // Quick fix next sabo
                     // Done when making the potion
@@ -206,15 +220,18 @@ namespace EHR.Crewmate
                     am.VisionPotionActive = true;
                     player.MarkDirtySettings();
                     player.Notify(GetString("AlchemistHasVision"), VisionDuration.GetFloat());
+
                     LateTask.New(() =>
                     {
                         am.VisionPotionActive = false;
                         player.MarkDirtySettings();
                         player.Notify(GetString("AlchemistVisionOut"));
                     }, VisionDuration.GetFloat(), "Alchemist Vision");
+
                     break;
                 case 10 when !player.Is(CustomRoles.Nimble):
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
+
                     player.Notify(GetString("AlchemistNoPotion"));
                     break;
             }
@@ -224,9 +241,10 @@ namespace EHR.Crewmate
             am.PotionID = 10;
         }
 
-        void SendRPC()
+        private void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable);
             writer.Write(AlchemistId);
             writer.Write(InvisTime.ToString());
@@ -237,12 +255,14 @@ namespace EHR.Crewmate
         {
             byte id = reader.ReadByte();
             if (Main.PlayerStates[id].Role is not Alchemist am) return;
+
             am.InvisTime = long.Parse(reader.ReadString());
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (UsePets.GetBool()) return;
+
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
@@ -250,10 +270,11 @@ namespace EHR.Crewmate
         public override void OnCoEnterVent(PlayerPhysics instance, int ventId)
         {
             if (PotionID != 6) return;
+
             PotionID = 10;
-            var pc = instance.myPlayer;
-            NameNotifyManager.Notifies.Remove(pc.PlayerId);
+            PlayerControl pc = instance.myPlayer;
             if (!AmongUsClient.Instance.AmHost) return;
+
             LateTask.New(() =>
             {
                 ventedId = ventId;
@@ -272,13 +293,14 @@ namespace EHR.Crewmate
         {
             if (!GameStates.IsInTask || !IsEnable) return;
 
-            var now = Utils.TimeStamp;
+            long now = Utils.TimeStamp;
 
             if (lastFixedTime != now && InvisTime != -10)
             {
                 lastFixedTime = now;
-                bool refresh = false;
-                var remainTime = InvisTime + (long)InvisDuration.GetFloat() - now;
+                var refresh = false;
+                long remainTime = InvisTime + (long)InvisDuration.GetFloat() - now;
+
                 switch (remainTime)
                 {
                     case < 0:
@@ -289,7 +311,7 @@ namespace EHR.Crewmate
                         InvisTime = -10;
                         break;
                     case <= 10 when !player.IsModClient():
-                        player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
+                        player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
                         break;
                 }
 
@@ -300,15 +322,18 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (!hud || seer == null || seer.PlayerId != target.PlayerId || !GameStates.IsInTask || seer.PlayerId != AlchemistId) return string.Empty;
+
             var str = new StringBuilder();
+
             if (IsInvis)
             {
-                var remainTime = InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
+                long remainTime = InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
                 str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
             }
             else
             {
                 var preText = $"<color=#00ffa5>{GetString("PotionInStore")}:</color>";
+
                 switch (PotionID)
                 {
                     case 1: // Shield
@@ -346,7 +371,9 @@ namespace EHR.Crewmate
         public override string GetProgressText(byte playerId, bool comms)
         {
             if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
+
             var str = new StringBuilder();
+
             switch (PotionID)
             {
                 case 1: // Shield
@@ -373,6 +400,7 @@ namespace EHR.Crewmate
             }
 
             if (FixNextSabo) str.Append($" <color=#777777>({GetString("QuickFix")})</color>");
+
             return str.ToString();
         }
 
@@ -426,8 +454,10 @@ namespace EHR.Crewmate
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (UsePets.GetBool()) hud.PetButton?.OverrideText(GetString("AlchemistVentButtonText"));
-            else hud.AbilityButton?.OverrideText(GetString("AlchemistVentButtonText"));
+            if (UsePets.GetBool())
+                hud.PetButton?.OverrideText(GetString("AlchemistVentButtonText"));
+            else
+                hud.AbilityButton?.OverrideText(GetString("AlchemistVentButtonText"));
         }
     }
 }

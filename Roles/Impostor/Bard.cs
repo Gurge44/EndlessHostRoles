@@ -17,13 +17,12 @@
             BardCreations = 0;
         }
 
-        public override void SetupCustomOption()
-        {
-        }
+        public override void SetupCustomOption() { }
 
         public static void OnMeetingHudDestroy(ref string name)
         {
             BardCreations++;
+
             try
             {
                 name = ModUpdater.Get("https://v1.hitokoto.cn/?encode=text");

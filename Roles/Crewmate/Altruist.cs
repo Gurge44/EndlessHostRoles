@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using UnityEngine;
+using EHR.Modules;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 
@@ -10,7 +10,6 @@ namespace EHR.Crewmate
     public class Altruist : RoleBase
     {
         public static bool On;
-        private static List<Altruist> Instances = [];
 
         private static OptionItem ReviveTime;
         private static OptionItem ReviveTargetCanReportTheirOwnBody;
@@ -41,14 +40,12 @@ namespace EHR.Crewmate
         public override void Init()
         {
             On = false;
-            Instances = [];
             RevivedPlayers = [];
         }
 
         public override void Add(byte playerId)
         {
             On = true;
-            Instances.Add(this);
             RevivingMode = true;
             ReviveTarget = byte.MaxValue;
             ReviveStartTS = 0;
@@ -71,13 +68,14 @@ namespace EHR.Crewmate
 
         public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (!RevivingMode) return true;
+            if (!RevivingMode || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Unreportable)) return true;
 
-            var state = Main.PlayerStates[reporter.PlayerId];
+            PlayerState state = Main.PlayerStates[reporter.PlayerId];
             state.deathReason = PlayerState.DeathReason.Sacrifice;
             state.RealKiller = (DateTime.Now, target.PlayerId);
             state.SetDead();
             reporter.RpcExileV2();
+            FixedUpdatePatch.LoversSuicide(reporter.PlayerId);
 
             RevivingMode = false;
             ReviveTarget = target.PlayerId;
@@ -90,23 +88,26 @@ namespace EHR.Crewmate
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (pc.IsAlive() || !GameStates.IsInTask || ReviveStartTS == 0 || ReviveTarget == byte.MaxValue) return;
+
             if (Utils.TimeStamp - ReviveStartTS < ReviveTime.GetInt())
             {
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 return;
             }
 
-            var rtg = ReviveTarget.GetPlayer();
+            PlayerControl rtg = ReviveTarget.GetPlayer();
             rtg?.RpcRevive();
             rtg?.TP(ReviveTargetPos);
             rtg?.Notify(Translator.GetString("RevivedByAltruist"), 15f);
 
             RevivedPlayers.Add(ReviveTarget);
 
-            var killer = rtg?.GetRealKiller();
+            PlayerControl killer = rtg == null ? null : rtg.GetRealKiller();
+
             if (killer != null && ReviveTargetsKillerGetsAlert.GetBool())
             {
                 if (ReviveTargetsKillerGetsArrow.GetBool()) TargetArrow.Add(killer.PlayerId, ReviveTarget);
+
                 killer.KillFlash();
                 killer.Notify(string.Format(Translator.GetString("AltruistKillerAlert"), ReviveTarget.ColoredPlayerName()), 10f);
             }
@@ -114,14 +115,19 @@ namespace EHR.Crewmate
             ReviveTarget = byte.MaxValue;
             ReviveStartTS = 0;
             ReviveTargetPos = Vector2.zero;
+
+            if (pc.IsLocalPlayer() && rtg != null && (rtg.IsImpostor() || rtg.IsNeutralKiller() || rtg.IsConverted()))
+                Achievements.Type.IWishIReported.Complete();
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
             if (lowLoad || !ReviveTargetsKillerGetsArrow.GetBool() || GameStates.IsMeeting || ExileController.Instance) return;
-            if (RevivedPlayers.FindFirst(x => x.GetPlayer()?.GetRealKiller()?.PlayerId == pc.PlayerId, out var revived))
+
+            if (RevivedPlayers.FindFirst(x => x.GetPlayer()?.GetRealKiller()?.PlayerId == pc.PlayerId, out byte revived))
             {
-                var revivedPlayer = revived.GetPlayer();
+                PlayerControl revivedPlayer = revived.GetPlayer();
+
                 if (revivedPlayer == null || !revivedPlayer.IsAlive())
                 {
                     TargetArrow.Remove(pc.PlayerId, revived);

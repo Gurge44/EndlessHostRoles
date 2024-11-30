@@ -20,6 +20,7 @@ namespace EHR.AddOns.Common
         public static OptionItem LovingImpostorSpawnChance;
         public static OptionItem LovingImpostorRoleForOtherImps;
         public static OptionItem PrivateChat;
+        public static OptionItem PrivateChatForLoversOnly;
         public static OptionItem GuessAbility;
 
         private static readonly string[] GuessModes =
@@ -69,6 +70,7 @@ namespace EHR.AddOns.Common
                 .SetParent(spawnOption)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetGameMode(customGameMode) as IntegerOptionItem;
+
             LoverSpawnChances = rateOption;
 
             LoverDieConsequence = new StringOptionItem(id + 3, "LoverDieConsequence", Consequences, 0, TabGroup.Addons)
@@ -88,45 +90,49 @@ namespace EHR.AddOns.Common
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            CrewLoversWinWithCrew = new BooleanOptionItem(id + 7, "CrewLoversWinWithCrew", true, TabGroup.Addons)
+            PrivateChatForLoversOnly = new BooleanOptionItem(id + 7, "PrivateChatForLoversOnly", false, TabGroup.Addons)
+                .SetParent(PrivateChat)
+                .SetGameMode(customGameMode);
+
+            CrewLoversWinWithCrew = new BooleanOptionItem(id + 8, "CrewLoversWinWithCrew", true, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            GuessAbility = new StringOptionItem(id + 8, "GuessAbility", GuessModes, 1, TabGroup.Addons)
+            GuessAbility = new StringOptionItem(id + 9, "GuessAbility", GuessModes, 1, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            LegacyLovers = new BooleanOptionItem(id + 9, "LegacyLovers", false, TabGroup.Addons)
+            LegacyLovers = new BooleanOptionItem(id + 10, "LegacyLovers", false, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode)
                 .RegisterUpdateValueEvent((_, _) => new[] { ImpCanBeInLove, CrewCanBeInLove, NeutralCanBeInLove }.Do(x => x.SetHidden(LegacyLovers.GetBool())));
 
-            LovingImpostorSpawnChance = new FloatOptionItem(id + 10, "LovingImpostorSpawnChance", new(0, 100, 5), 25, TabGroup.Addons)
+            LovingImpostorSpawnChance = new FloatOptionItem(id + 11, "LovingImpostorSpawnChance", new(0, 100, 5), 25, TabGroup.Addons)
                 .SetParent(LegacyLovers)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetGameMode(customGameMode);
 
-            LovingImpostorRoleForOtherImps = new StringOptionItem(id + 11, "LIRoleForOtherImps", LIRole, 2, TabGroup.Addons)
+            LovingImpostorRoleForOtherImps = new StringOptionItem(id + 12, "LIRoleForOtherImps", LIRole, 2, TabGroup.Addons)
                 .SetParent(LovingImpostorSpawnChance)
                 .SetGameMode(customGameMode);
 
-            ImpCanBeInLove = new BooleanOptionItem(id + 12, "ImpCanBeInLove", true, TabGroup.Addons)
+            ImpCanBeInLove = new BooleanOptionItem(id + 13, "ImpCanBeInLove", true, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetHidden(LegacyLovers.GetBool())
                 .SetGameMode(customGameMode);
 
-            CrewCanBeInLove = new BooleanOptionItem(id + 13, "CrewCanBeInLove", true, TabGroup.Addons)
+            CrewCanBeInLove = new BooleanOptionItem(id + 14, "CrewCanBeInLove", true, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetHidden(LegacyLovers.GetBool())
                 .SetGameMode(customGameMode);
 
-            NeutralCanBeInLove = new BooleanOptionItem(id + 14, "NeutralCanBeInLove", true, TabGroup.Addons)
+            NeutralCanBeInLove = new BooleanOptionItem(id + 15, "NeutralCanBeInLove", true, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetHidden(LegacyLovers.GetBool())
                 .SetGameMode(customGameMode);
 
 
-            var countOption = new IntegerOptionItem(id + 1, "NumberOfLovers", new(2, 2, 1), 2, TabGroup.Addons)
+            OptionItem countOption = new IntegerOptionItem(id + 1, "NumberOfLovers", new(2, 2, 1), 2, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetHidden(true)
                 .SetGameMode(customGameMode);
@@ -141,7 +147,7 @@ namespace EHR.AddOns.Common
         {
             try
             {
-                LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(countDead: true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
+                LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
             }
             catch
             {

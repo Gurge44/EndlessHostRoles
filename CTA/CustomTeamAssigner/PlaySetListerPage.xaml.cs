@@ -14,9 +14,12 @@ namespace CustomTeamAssigner
 {
     public partial class PlaySetListerPage : Page
     {
+        public static PlaySetListerPage Instance { get; private set; } = null!;
+        
         public PlaySetListerPage()
         {
             InitializeComponent();
+            Instance = this;
             TeamListBox.ItemsSource = Utils.Teams.Select(x => x.TeamName);
             MainGrid.Visibility = Visibility.Visible;
         }

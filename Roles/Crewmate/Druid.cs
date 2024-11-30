@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -14,7 +12,7 @@ namespace EHR.Crewmate
     public class Druid : RoleBase
     {
         private const int Id = 642800;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         public static OptionItem VentCooldown;
         private static OptionItem TriggerPlaceDelay;
@@ -28,23 +26,28 @@ namespace EHR.Crewmate
         private Dictionary<Vector2, int> TriggerIds = [];
         private Dictionary<Vector2, string> Triggers = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Druid);
+
             VentCooldown = new IntegerOptionItem(Id + 10, "VentCooldown", new(0, 60, 1), 15, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Seconds);
+
             TriggerPlaceDelay = new IntegerOptionItem(Id + 11, "DruidTriggerPlaceDelayOpt", new(1, 20, 1), 7, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimitOpt = new IntegerOptionItem(Id + 12, "AbilityUseLimit", new(0, 20, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
+
             DruidAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
@@ -52,7 +55,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             TriggerDelay = 0;
             Triggers = [];
             lastUpdate = TimeStamp;
@@ -60,7 +63,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             DruidPC = GetPlayerById(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             lastUpdate = TimeStamp;
@@ -76,12 +79,14 @@ namespace EHR.Crewmate
         public static void SendRPCAddTrigger(bool add, byte playerId, Vector2 position, string roomName = "")
         {
             if (!DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTrigger, SendOption.Reliable);
             writer.Write(add);
             writer.Write(playerId);
             writer.Write(position.x);
             writer.Write(position.y);
             if (add) writer.Write(roomName);
+
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -105,9 +110,7 @@ namespace EHR.Crewmate
                 di.Triggers.TryAdd(position, roomName);
             }
             else
-            {
                 di.Triggers.Remove(position);
-            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -120,10 +123,12 @@ namespace EHR.Crewmate
             PlaceTrigger(pc);
         }
 
-        void PlaceTrigger(PlayerControl pc, bool isPet = false)
+        private void PlaceTrigger(PlayerControl pc, bool isPet = false)
         {
             if (!IsEnable) return;
+
             if (pc == null || !GameStates.IsInTask) return;
+
             if (pc.GetAbilityUseLimit() < 1) return;
 
             long now = TimeStamp;
@@ -137,18 +142,16 @@ namespace EHR.Crewmate
                 TriggerIds.TryAdd(location, id);
             }
             else
-            {
                 TriggerDelay = now;
-            }
 
             pc.RpcRemoveAbilityUse();
         }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || Triggers.Count <= 0 || playerIdList.Contains(pc.PlayerId)) return;
+            if (!GameStates.IsInTask || Triggers.Count <= 0 || PlayerIdList.Contains(pc.PlayerId)) return;
 
-            foreach (var trigger in Triggers.Where(trigger => Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f))
+            foreach (KeyValuePair<Vector2, string> trigger in Triggers.Where(trigger => Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f))
             {
                 DruidPC.Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
                 Triggers.Remove(trigger.Key);
@@ -165,7 +168,7 @@ namespace EHR.Crewmate
 
             if (TriggerDelay + TriggerPlaceDelay.GetInt() < now)
             {
-                var id = pc.PlayerId;
+                byte id = pc.PlayerId;
                 TriggerDelay = 0;
                 (Vector2 location, string roomName) = pc.GetPositionInfo();
                 Triggers.TryAdd(location, roomName);
@@ -175,7 +178,7 @@ namespace EHR.Crewmate
                 return;
             }
 
-            var timeLeft = TriggerPlaceDelay.GetInt() - (now - TriggerDelay);
+            long timeLeft = TriggerPlaceDelay.GetInt() - (now - TriggerDelay);
             if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft, 2f));
 
             lastUpdate = now;
@@ -184,6 +187,7 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (hud) return GetHUDText(seer);
+
             if (seer == null || seer.IsModClient() || seer.PlayerId != target.PlayerId || seer.PlayerId != DruidPC.PlayerId) return string.Empty;
 
             if (Triggers.Count == 0) return string.Empty;
@@ -198,7 +202,7 @@ namespace EHR.Crewmate
             return sb.ToString();
         }
 
-        string GetHUDText(PlayerControl pc)
+        private string GetHUDText(PlayerControl pc)
         {
             if (pc == null || Triggers.Count == 0) return string.Empty;
 

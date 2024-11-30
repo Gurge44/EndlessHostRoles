@@ -5,17 +5,19 @@ namespace EHR.Impostor
 {
     internal class Capitalism : RoleBase
     {
-        public static Dictionary<byte, int> CapitalismAddTask = [];
-        public static Dictionary<byte, int> CapitalismAssignTask = [];
+        private static readonly Dictionary<byte, int> CapitalismAddTask = [];
+        public static readonly Dictionary<byte, int> CapitalismAssignTask = [];
         public static bool On;
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(16600, TabGroup.ImpostorRoles, CustomRoles.Capitalism);
+
             CapitalismSkillCooldown = new FloatOptionItem(16610, "CapitalismSkillCooldown", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CapitalismKillCooldown = new FloatOptionItem(16611, "KillCooldown", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -56,9 +58,9 @@ namespace EHR.Impostor
 
         public static bool AddTaskForPlayer(PlayerControl player)
         {
-            if (CapitalismAddTask.TryGetValue(player.PlayerId, out var amount))
+            if (CapitalismAddTask.TryGetValue(player.PlayerId, out int amount))
             {
-                var taskState = player.GetTaskState();
+                TaskState taskState = player.GetTaskState();
                 taskState.AllTasksCount += amount;
                 CapitalismAddTask.Remove(player.PlayerId);
                 taskState.CompletedTasksCount++;

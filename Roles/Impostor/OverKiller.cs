@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Hazel;
 using InnerNet;
-using UnityEngine;
 
 namespace EHR.Impostor
 {
@@ -16,7 +16,8 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(16900, TabGroup.ImpostorRoles, CustomRoles.OverKiller);
-            KillCooldown = new FloatOptionItem(16902, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
+
+            KillCooldown = new FloatOptionItem(16902, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.OverKiller])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -43,48 +44,61 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!killer.RpcCheckAndMurder(target, check: true)) return false;
+            if (!killer.RpcCheckAndMurder(target, true)) return false;
 
-            if (killer.PlayerId != target.PlayerId)
+            if (killer.PlayerId != target.PlayerId && !target.Is(CustomRoles.Unreportable))
             {
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
+
                 LateTask.New(() =>
                 {
-                    if (!OverDeadPlayerList.Contains(target.PlayerId)) OverDeadPlayerList.Add(target.PlayerId);
+                    if (!OverDeadPlayerList.Contains(target.PlayerId))
+                        OverDeadPlayerList.Add(target.PlayerId);
+
                     if (target.Is(CustomRoles.Avanger))
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
-                        {
+                        target.Suicide(PlayerState.DeathReason.Dismembered, killer);
+
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             pc.Suicide(PlayerState.DeathReason.Revenge, target);
-                        }
 
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                         return;
                     }
 
-                    var ops = target.Pos();
-                    var originPos = killer.Pos();
+                    Vector2 ops = target.Pos();
+                    Vector2 originPos = killer.Pos();
                     var rd = IRandom.Instance;
-                    for (int i = 0; i < 20; i++)
+
+                    Main.Instance.StartCoroutine(SpawnFakeDeadBodies());
+                    return;
+
+                    IEnumerator SpawnFakeDeadBodies()
                     {
-                        Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
-                        location += new Vector2(0, 0.3636f);
+                        for (var i = 0; i < 26; i++)
+                        {
+                            Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
+                            location += new Vector2(0, 0.3636f);
 
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetTransform.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-                        NetHelpers.WriteVector2(location, writer);
-                        writer.Write(target.NetTransform.lastSequenceId);
-                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetTransform.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+                            NetHelpers.WriteVector2(location, writer);
+                            writer.Write(target.NetTransform.lastSequenceId);
+                            AmongUsClient.Instance.FinishRpcImmediately(writer);
 
-                        target.NetTransform.SnapTo(location);
-                        killer.MurderPlayer(target, ExtendedPlayerControl.ResultFlags);
+                            target.NetTransform.SnapTo(location);
+                            killer.MurderPlayer(target, ExtendedPlayerControl.ResultFlags);
 
-                        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None);
-                        messageWriter.WriteNetObject(target);
-                        messageWriter.Write((byte)ExtendedPlayerControl.ResultFlags);
-                        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+                            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None);
+                            messageWriter.WriteNetObject(target);
+                            messageWriter.Write((byte)ExtendedPlayerControl.ResultFlags);
+                            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+
+                            if (i % 3 == 0) yield return null;
+                        }
+
+                        yield return null;
+                        killer.TP(originPos);
                     }
-
-                    killer.TP(originPos);
                 }, 0.05f, "OverKiller Murder");
             }
 

@@ -7,9 +7,7 @@ namespace EHR.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
-        public override void SetupCustomOption()
-        {
-        }
+        public override void SetupCustomOption() { }
 
         public override void Add(byte playerId)
         {
@@ -31,9 +29,9 @@ namespace EHR.Impostor
             opt.SetVision(true);
         }
 
-        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        public override bool CanUseKillButton(PlayerControl pc)
         {
-            return !killer.Is(CustomRoleTypes.Impostor);
+            return pc.IsAlive();
         }
     }
 }

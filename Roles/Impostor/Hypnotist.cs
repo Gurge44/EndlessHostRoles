@@ -55,7 +55,10 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public static bool OnAnyoneReport() => Instances.All(x => x.ActivateTS == 0);
+        public static bool OnAnyoneReport()
+        {
+            return Instances.All(x => x.ActivateTS == 0);
+        }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
@@ -75,19 +78,25 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            bool notify = false;
-            int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
-            if (ActivateTS != 0 && timeLeft <= 0)
+            if (ActivateTS == 0) return;
+
+            var notify = false;
+            var timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
+
+            switch (timeLeft)
             {
-                ActivateTS = 0;
-                notify = true;
-                pc.RpcResetAbilityCooldown();
-                if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
-            }
-            else if (ActivateTS != 0 && Count++ >= 30 && timeLeft <= 6)
-            {
-                Count = 0;
-                notify = true;
+                case <= 0:
+                    ActivateTS = 0;
+                    notify = true;
+                    pc.RpcResetAbilityCooldown();
+                    Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
+                    if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
+
+                    break;
+                case <= 6 when Count++ >= 30:
+                    Count = 0;
+                    notify = true;
+                    break;
             }
 
             if (notify) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -101,7 +110,8 @@ namespace EHR.Impostor
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || (seer.IsModClient() && !hud) || ActivateTS == 0) return string.Empty;
-            int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
+
+            var timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
             return timeLeft <= 5 ? $"\u25a9 ({timeLeft})" : "\u25a9";
         }
     }

@@ -31,15 +31,10 @@ namespace EHR.Patches
                             Region = Utils.GetRegionName();
                         }
 
-                        if (Lobbycode != "" && Region != "")
-                        {
-                            details = $"EHR - {Lobbycode} ({Region})";
-                        }
+                        if (Lobbycode != "" && Region != "") details = $"EHR - {Lobbycode} ({Region})";
                     }
                     else
-                    {
                         details = $"EHR v{Main.PluginDisplayVersion}";
-                    }
 
                     activity.Details = details;
                 }

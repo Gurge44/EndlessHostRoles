@@ -1,15 +1,13 @@
 using HarmonyLib;
 
-namespace EHR;
-
-[HarmonyPatch(typeof(ChatController), nameof(ChatController.Toggle))]
-class CancelBanMenuStuckPatch
+namespace EHR
 {
-    public static void Prefix(ChatController __instance)
+    [HarmonyPatch(typeof(ChatController), nameof(ChatController.Toggle))]
+    internal class CancelBanMenuStuckPatch
     {
-        if (__instance.IsOpenOrOpening && !__instance.IsAnimating)
+        public static void Prefix(ChatController __instance)
         {
-            __instance.banButton.SetVisible(false);
+            if (__instance.IsOpenOrOpening && !__instance.IsAnimating) __instance.banButton.SetVisible(false);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Text;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using static EHR.Options;
 
 namespace EHR.Crewmate
@@ -14,24 +13,31 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(6850, TabGroup.CrewmateRoles, CustomRoles.Lighter);
+
             LighterSkillCooldown = new FloatOptionItem(6852, "LighterSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             LighterSkillDuration = new FloatOptionItem(6853, "LighterSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             LighterVisionNormal = new FloatOptionItem(6854, "LighterVisionNormal", new(0f, 5f, 0.05f), 0.9f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             LighterVisionOnLightsOut = new FloatOptionItem(6855, "LighterVisionOnLightsOut", new(0f, 5f, 0.05f), 0.35f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             LighterSkillMaxOfUseage = new IntegerOptionItem(6856, "AbilityUseLimit", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
+
             LighterAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(6857, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
+
             LighterAbilityChargesWhenFinishedTasks = new FloatOptionItem(6858, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
@@ -63,8 +69,11 @@ namespace EHR.Crewmate
             if (IsAbilityActive)
             {
                 opt.SetVision(false);
-                if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionOnLightsOut.GetFloat() * 5);
-                else opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionNormal.GetFloat());
+
+                if (Utils.IsActive(SystemTypes.Electrical))
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionOnLightsOut.GetFloat() * 5);
+                else
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionNormal.GetFloat());
             }
         }
 
@@ -96,9 +105,10 @@ namespace EHR.Crewmate
             Light(pc);
         }
 
-        void Light(PlayerControl pc)
+        private void Light(PlayerControl pc)
         {
             if (IsAbilityActive) return;
+
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 IsAbilityActive = true;
@@ -109,10 +119,7 @@ namespace EHR.Crewmate
                 pc.MarkDirtySettings();
             }
             else
-            {
-                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId))
-                    pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
+                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
         }
 
         public override void OnReportDeadBody()

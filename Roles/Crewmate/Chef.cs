@@ -3,7 +3,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -21,7 +20,7 @@ namespace EHR.Crewmate
         private static OptionItem IncreasedVisionDuration;
         private static OptionItem ShieldDuration;
 
-        static readonly string[] EventTargets =
+        private static readonly string[] EventTargets =
         [
             "Chef.ET.RandomPlayer",
             "Chef.ET.NearestPlayer"
@@ -35,28 +34,36 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            int id = 648750;
+            var id = 648750;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Chef);
+
             EventTarget = new StringOptionItem(++id, "Chef.EventTarget", EventTargets, 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Chef]);
+
             RottenTime = new IntegerOptionItem(++id, "Chef.RottenTime", new(1, 60, 1), 15, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Chef])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SpitOutTime = new IntegerOptionItem(++id, "Chef.SpitOutTime", new(1, 60, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Chef])
                 .SetValueFormat(OptionFormat.Seconds);
+
             IncreasedSpeed = new FloatOptionItem(++id, "IncreasedSpeed", new(0f, 3f, 0.05f), 1.75f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Chef])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             IncreasedSpeedDuration = new IntegerOptionItem(++id, "IncreasedSpeedDuration", new(1, 60, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Chef])
                 .SetValueFormat(OptionFormat.Seconds);
+
             IncreasedVision = new FloatOptionItem(++id, "IncreasedVision", new(0f, 3f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Chef])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             IncreasedVisionDuration = new IntegerOptionItem(++id, "IncreasedVisionDuration", new(1, 60, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Chef])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShieldDuration = new IntegerOptionItem(++id, "ShieldDuration", new(1, 60, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Chef])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -81,9 +88,9 @@ namespace EHR.Crewmate
         {
             if (!pc.IsAlive()) return;
 
-            var pos = pc.Pos();
-            var aapc = Main.AllAlivePlayerControls.Without(pc).ToArray();
-            var target = EventTarget.GetValue() == 0 ? aapc.RandomElement() : aapc.MinBy(x => Vector2.Distance(x.Pos(), pos));
+            Vector2 pos = pc.Pos();
+            PlayerControl[] aapc = Main.AllAlivePlayerControls.Without(pc).ToArray();
+            PlayerControl target = EventTarget.GetValue() == 0 ? aapc.RandomElement() : aapc.MinBy(x => Vector2.Distance(x.Pos(), pos));
 
             if (target.Is(Team.Impostor) || target.IsNeutralKiller())
             {
@@ -103,7 +110,7 @@ namespace EHR.Crewmate
                                 NotifyAboutRandomFood(target, "ChefBoost.TP");
                                 break;
                             case 1:
-                                target.TPtoRndVent();
+                                target.TPToRandomVent();
                                 NotifyAboutRandomFood(target, "ChefBoost.TPToVent");
                                 break;
                         }
@@ -126,12 +133,15 @@ namespace EHR.Crewmate
                         break;
                 }
             }
+
+            if (target.IsLocalPlayer())
+                Achievements.Type.Delicious.Complete();
         }
 
-        static void NotifyAboutRandomFood(PlayerControl pc, string cause)
+        private static void NotifyAboutRandomFood(PlayerControl pc, string cause)
         {
-            var food = Translator.GetString($"ChefFood.{IRandom.Instance.Next(35)}");
-            var str = string.Format(Translator.GetString("ChefNotify"), food, Translator.GetString(cause));
+            string food = Translator.GetString($"ChefFood.{IRandom.Instance.Next(35)}");
+            string str = string.Format(Translator.GetString("ChefNotify"), food, Translator.GetString(cause));
             pc.Notify(str, 10f);
         }
 
@@ -139,7 +149,7 @@ namespace EHR.Crewmate
         {
             foreach (Chef chef in Instances)
             {
-                if (chef.ActiveEvents.TryGetValue(id, out var events))
+                if (chef.ActiveEvents.TryGetValue(id, out List<PlayerEvent> events))
                 {
                     foreach (PlayerEvent playerEvent in events)
                     {
@@ -158,10 +168,9 @@ namespace EHR.Crewmate
         {
             if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
-            if (ActiveEvents.TryGetValue(pc.PlayerId, out var events))
-                events.ToArray().Do(x => x.Update());
+            if (ActiveEvents.TryGetValue(pc.PlayerId, out List<PlayerEvent> events)) events.ToArray().Do(x => x.Update());
 
-            if (RottenFood.TryGetValue(pc.PlayerId, out var ts))
+            if (RottenFood.TryGetValue(pc.PlayerId, out long ts))
             {
                 if (Utils.TimeStamp - ts > RottenTime.GetInt())
                 {
@@ -197,6 +206,7 @@ namespace EHR.Crewmate
         public static void SpitOutFood(PlayerControl pc)
         {
             Instances.Do(x => x.RottenFood.Remove(pc.PlayerId));
+            NameNotifyManager.Notifies.Remove(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -236,24 +246,25 @@ namespace EHR.Crewmate
             if (meeting) return string.Empty;
 
             long now = Utils.TimeStamp;
-            if (ActiveEvents.TryGetValue(target.PlayerId, out var events) && (seer.PlayerId == target.PlayerId || seer.PlayerId == ChefId))
-                return $"<size=80%>{string.Join('\n', events.Select(e => string.Format(Translator.GetString("ChefBoostSuffix"), GetEventString(e), (e.Duration - (now - e.StartTimeStamp)))))}</size>";
+            if (ActiveEvents.TryGetValue(target.PlayerId, out List<PlayerEvent> events) && (seer.PlayerId == target.PlayerId || seer.PlayerId == ChefId)) return $"<size=80%>{string.Join('\n', events.Select(e => string.Format(Translator.GetString("ChefBoostSuffix"), GetEventString(e), e.Duration - (now - e.StartTimeStamp))))}</size>";
 
-            if (RottenFood.TryGetValue(seer.PlayerId, out var ts) && seer.PlayerId == target.PlayerId)
-                return string.Format(Translator.GetString("ChefRottenSuffix"), (RottenTime.GetInt() - (now - ts)));
+            if (RottenFood.TryGetValue(seer.PlayerId, out long ts) && seer.PlayerId == target.PlayerId) return string.Format(Translator.GetString("ChefRottenSuffix"), RottenTime.GetInt() - (now - ts));
 
             return string.Empty;
 
-            string GetEventString(PlayerEvent e) => e switch
+            string GetEventString(PlayerEvent e)
             {
-                IncreasedSpeedEvent => Translator.GetString("ChefBoost.Speed"),
-                IncreasedVisionEvent => Translator.GetString("ChefBoost.Vision"),
-                ShieldEvent => Translator.GetString("ChefBoost.Shield"),
-                _ => string.Empty
-            };
+                return e switch
+                {
+                    IncreasedSpeedEvent => Translator.GetString("ChefBoost.Speed"),
+                    IncreasedVisionEvent => Translator.GetString("ChefBoost.Vision"),
+                    ShieldEvent => Translator.GetString("ChefBoost.Shield"),
+                    _ => string.Empty
+                };
+            }
         }
 
-        abstract class PlayerEvent
+        private abstract class PlayerEvent
         {
             protected abstract PlayerControl Player { get; }
             protected abstract Chef Instance { get; }
@@ -263,12 +274,14 @@ namespace EHR.Crewmate
 
             protected void AddEventToDictionary()
             {
-                if (!Instance.ActiveEvents.ContainsKey(Player.PlayerId)) Instance.ActiveEvents[Player.PlayerId] = [this];
-                else Instance.ActiveEvents[Player.PlayerId].Add(this);
+                if (!Instance.ActiveEvents.ContainsKey(Player.PlayerId))
+                    Instance.ActiveEvents[Player.PlayerId] = [this];
+                else
+                    Instance.ActiveEvents[Player.PlayerId].Add(this);
             }
         }
 
-        sealed class IncreasedSpeedEvent : PlayerEvent
+        private sealed class IncreasedSpeedEvent : PlayerEvent
         {
             public IncreasedSpeedEvent(PlayerControl player, Chef instance)
             {
@@ -306,7 +319,7 @@ namespace EHR.Crewmate
             }
         }
 
-        sealed class IncreasedVisionEvent : PlayerEvent
+        private sealed class IncreasedVisionEvent : PlayerEvent
         {
             public IncreasedVisionEvent(PlayerControl player, Chef instance)
             {
@@ -340,7 +353,7 @@ namespace EHR.Crewmate
             }
         }
 
-        sealed class ShieldEvent : PlayerEvent
+        private sealed class ShieldEvent : PlayerEvent
         {
             public ShieldEvent(PlayerControl player, Chef instance)
             {

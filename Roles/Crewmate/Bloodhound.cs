@@ -29,18 +29,24 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Bloodhound);
+
             ArrowsPointingToDeadBody = new BooleanOptionItem(Id + 10, "BloodhoundArrowsPointingToDeadBody", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+
             LeaveDeadBodyUnreportable = new BooleanOptionItem(Id + 11, "BloodhoundLeaveDeadBodyUnreportable", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+
             NotifyKiller = new BooleanOptionItem(Id + 14, "BloodhoundNotifyKiller", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+
             UseLimitOpt = new IntegerOptionItem(Id + 12, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
                 .SetValueFormat(OptionFormat.Times);
+
             BloodhoundAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 15, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
                 .SetValueFormat(OptionFormat.Times);
@@ -84,24 +90,21 @@ namespace EHR.Crewmate
 
             foreach (byte id in PlayerIdList)
             {
-                var player = Utils.GetPlayerById(id);
+                PlayerControl player = Utils.GetPlayerById(id);
                 if (player == null || !player.IsAlive()) continue;
 
-                var pos = target.Pos();
+                Vector2 pos = target.Pos();
                 LocateArrow.Add(id, pos);
             }
         }
 
         public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (killer != null)
+            if (killer != null && !target.Object.Is(CustomRoles.Unreportable))
             {
-                if (BloodhoundTargets.Contains(killer.PlayerId))
-                {
-                    return false;
-                }
+                if (BloodhoundTargets.Contains(killer.PlayerId)) return false;
 
-                var pos = target.Object.Pos();
+                Vector2 pos = target.Object.Pos();
                 LocateArrow.Remove(pc.PlayerId, pos);
 
                 if (pc.GetAbilityUseLimit() >= 1)
@@ -112,22 +115,15 @@ namespace EHR.Crewmate
                     pc.Notify(GetString("BloodhoundTrackRecorded"));
                     pc.RpcRemoveAbilityUse();
 
-                    if (LeaveDeadBodyUnreportable.GetBool())
-                    {
-                        UnreportablePlayers.Add(target.PlayerId);
-                    }
+                    if (LeaveDeadBodyUnreportable.GetBool()) UnreportablePlayers.Add(target.PlayerId);
 
                     if (NotifyKiller.GetBool()) killer.Notify(GetString("BloodhoundKillerNotify"));
                 }
                 else
-                {
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                }
             }
             else
-            {
                 pc.Notify(GetString("BloodhoundNoTrack"));
-            }
 
             return false;
         }
@@ -135,7 +131,9 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+
             if (GameStates.IsMeeting || seer.PlayerId != BloodhoundId || hud) return string.Empty;
+
             if (Main.PlayerStates[seer.PlayerId].Role is not Bloodhound bh) return string.Empty;
 
             return bh.BloodhoundTargets.Count > 0 ? bh.BloodhoundTargets.Select(targetId => TargetArrow.GetArrows(seer, targetId)).Aggregate(string.Empty, (current, arrow) => current + Utils.ColorString(seer.GetRoleColor(), arrow)) : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));

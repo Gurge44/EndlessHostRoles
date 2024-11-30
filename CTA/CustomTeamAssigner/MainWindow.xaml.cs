@@ -12,7 +12,7 @@ using System.Windows;
 
 namespace CustomTeamAssigner
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public static MainWindow Instance { get; private set; } = null!;
 
@@ -21,7 +21,7 @@ namespace CustomTeamAssigner
             InitializeComponent();
             Instance = this;
         }
-
+        
         void ImportPlaySet(object sender, RoutedEventArgs e)
         {
             OpenFileDialog ofd = new()
@@ -47,6 +47,22 @@ namespace CustomTeamAssigner
             Utils.SetMainWindowContents(Visibility.Collapsed);
         }
 
-        void Exit(object sender, RoutedEventArgs e) => Close();
+        private void QMQuestionsClick(object sender, RoutedEventArgs e)
+        {
+            Utils.SetMainWindowContents(Visibility.Collapsed);
+            Navigator.NavigationService.Navigate(new QMQuestions());
+        }
+
+        private void OpenRoleDescFinder(object sender, RoutedEventArgs e)
+        {
+            Utils.SetMainWindowContents(Visibility.Collapsed);
+            Navigator.NavigationService.Navigate(new RoleDescFinder());
+        }
+
+        private void OpenTemplateCreator(object sender, RoutedEventArgs e)
+        {
+            Utils.SetMainWindowContents(Visibility.Collapsed);
+            Navigator.NavigationService.Navigate(new RichTextEditor());
+        }
     }
 }

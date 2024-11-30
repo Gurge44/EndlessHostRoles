@@ -18,7 +18,7 @@ namespace EHR.Modules
         public static void Initialize()
         {
             AssignedGhostRoles = [];
-            GhostRoles = Enum.GetValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && x.IsEnable() && x.GetMode() != 0).ToList();
+            GhostRoles = Enum.GetValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && IRandom.Instance.Next(100) < x.GetMode()).ToList();
 
             Logger.Msg($"Ghost roles: {GhostRoles.Join()}", "GhostRoles");
             Haunter.AllHauntedPlayers = [];
@@ -28,7 +28,7 @@ namespace EHR.Modules
         {
             if (GhostRoles.Count == 0) return;
 
-            var suitableRole = GetSuitableGhostRole(pc);
+            CustomRoles suitableRole = GetSuitableGhostRole(pc);
             Logger.Warn($"Assigning Ghost Role: {pc.GetNameWithRole()} => {suitableRole}", "GhostRolesManager");
 
             IGhostRole instance = CreateGhostRoleInstance(suitableRole);
@@ -47,9 +47,9 @@ namespace EHR.Modules
         {
             if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
 
-            var pc = Utils.GetPlayerById(id);
+            PlayerControl pc = Utils.GetPlayerById(id);
             if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
-            
+
             IGhostRole instance = CreateGhostRoleInstance(role);
             instance.OnAssign(pc);
             Main.ResetCamPlayerList.Add(pc.PlayerId);
@@ -58,32 +58,34 @@ namespace EHR.Modules
 
         public static void NotifyAboutGhostRole(PlayerControl pc, bool first = false)
         {
-            if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole)) return;
+            if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole)) return;
+
             if (!first && pc.IsModClient()) return;
 
             CustomRoles role = ghostRole.Role;
-            var info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));
+            (string Split, string Message) info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));
             var text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Message}</size>";
             var notifyText = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Split}</size>";
             Utils.SendMessage(title: text, sendTo: pc.PlayerId, text: "\n");
-            pc.Notify(notifyText, 5 * text.Count(x => x == '\n'));
+            pc.Notify(notifyText, 5 + (5 * text.Count(x => x == '\n')));
             return;
 
             (string Split, string Message) GetMessage(string baseMessage)
             {
-                var message = baseMessage;
-                for (int i = 50; i < message.Length; i += 50)
+                string message = baseMessage;
+
+                for (var i = 50; i < message.Length; i += 50)
                 {
                     int index = message.LastIndexOf(' ', i);
-                    if (index != -1)
-                    {
-                        message = message.Insert(index + 1, "\n");
-                    }
+                    if (index != -1) message = message.Insert(index + 1, "\n");
                 }
 
                 return (ApplyFormat(message), ApplyFormat(baseMessage));
 
-                string ApplyFormat(string m) => Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
+                string ApplyFormat(string m)
+                {
+                    return Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
+                }
             }
         }
 
@@ -91,23 +93,35 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
-                if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
-                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit) || pc.Is(CustomRoles.Backstabber)) return false;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
 
-                var suitableRole = GetSuitableGhostRole(pc);
+                if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
+
+                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit) || pc.Is(CustomRoles.Curser)) return false;
+
+                switch (pc.GetCustomRole())
+                {
+                    case CustomRoles.Backstabber: return false;
+                    case CustomRoles.Workaholic when !Workaholic.WorkaholicCannotWinAtDeath.GetBool(): return false;
+                }
+
+                CustomRoles suitableRole = GetSuitableGhostRole(pc);
+
                 return suitableRole switch
                 {
                     CustomRoles.Specter when IsPartnerPickedRole() => false,
                     _ => suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole)
                 };
 
-                bool IsPartnerPickedRole() => Main.PlayerStates[pc.PlayerId].Role switch
+                bool IsPartnerPickedRole()
                 {
-                    Romantic when Romantic.HasPickedPartner => true,
-                    Totocalcio tc when tc.BetPlayer != byte.MaxValue => true,
-                    _ => false
-                };
+                    return Main.PlayerStates[pc.PlayerId].Role switch
+                    {
+                        Romantic when Romantic.HasPickedPartner => true,
+                        Totocalcio tc when tc.BetPlayer != byte.MaxValue => true,
+                        _ => false
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -125,20 +139,30 @@ namespace EHR.Modules
         {
             try
             {
-                var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
+                Type ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
                 var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
                 return ghostRoleInstance;
             }
             catch (InvalidOperationException)
             {
                 if (!check) Logger.Error($"Ghost role {ghostRole} not found", "CreateGhostRoleInstance");
+
                 return null;
             }
             catch (Exception e)
             {
                 if (!check) Utils.ThrowException(e);
+
                 return null;
             }
+        }
+
+        public static void RemoveGhostRole(byte id)
+        {
+            if (!AssignedGhostRoles.TryGetValue(id, out (CustomRoles Role, IGhostRole Instance) ghostRole)) return;
+
+            Main.PlayerStates[id].RemoveSubRole(ghostRole.Role);
+            AssignedGhostRoles.Remove(id);
         }
     }
 }

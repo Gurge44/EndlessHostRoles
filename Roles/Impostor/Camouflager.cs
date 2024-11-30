@@ -20,22 +20,31 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Camouflager);
-            CamouflageCooldown = new FloatOptionItem(Id + 2, "CamouflageCooldown", new(1f, 60f, 1f), 25f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
+
+            CamouflageCooldown = new FloatOptionItem(Id + 2, "CamouflageCooldown", new(1f, 60f, 1f), 25f, TabGroup.ImpostorRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Seconds);
-            CamouflageDuration = new FloatOptionItem(Id + 3, "CamouflageDuration", new(1f, 30f, 1f), 12f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
+
+            CamouflageDuration = new FloatOptionItem(Id + 3, "CamouflageDuration", new(1f, 30f, 1f), 12f, TabGroup.ImpostorRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Seconds);
-            CamoLimitOpt = new IntegerOptionItem(Id + 4, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
+
+            CamoLimitOpt = new IntegerOptionItem(Id + 4, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityUseGainWithEachKill = new FloatOptionItem(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
+
             DoesntSpawnOnFungle = new BooleanOptionItem(Id + 6, "DoesntSpawnOnFungle", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager]);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = CamouflageCooldown.GetFloat();
+            if (Options.UsePhantomBasis.GetBool())
+                AURoleOptions.PhantomCooldown = CamouflageCooldown.GetFloat();
             else
             {
                 AURoleOptions.ShapeshifterCooldown = CamouflageCooldown.GetFloat();
@@ -57,45 +66,46 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool())
+            bool unshift = Options.UseUnshiftTrigger.GetBool();
+
+            if (!shapeshifting && !unshift)
             {
+                IsActive = false;
                 Camouflage.CheckCamouflage();
                 return true;
             }
 
-            if (pc.GetAbilityUseLimit() < 1)
-            {
-                pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
-            }
+            if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool() && !unshift) pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
 
             pc.RpcRemoveAbilityUse();
             IsActive = true;
             Camouflage.CheckCamouflage();
 
-            return !Options.UseUnshiftTrigger.GetBool();
+            if (unshift)
+            {
+                LateTask.New(() =>
+                {
+                    if (!IsActive) return;
+
+                    IsActive = false;
+                    Camouflage.CheckCamouflage();
+                }, CamouflageDuration.GetFloat());
+            }
+
+            return !unshift;
         }
 
         public override void OnReportDeadBody()
-        {
-            Reset();
-        }
-
-        public static void Reset()
         {
             IsActive = false;
             Camouflage.CheckCamouflage();
         }
 
-        public static void IsDead(PlayerControl target)
+        public static void IsDead()
         {
-            if (!target.IsAlive() || GameStates.IsMeeting) return;
-
-            if (target.Is(CustomRoles.Camouflager))
-            {
-                IsActive = false;
-                Camouflage.CheckCamouflage();
-                Utils.NotifyRoles(ForceLoop: true);
-            }
+            IsActive = false;
+            Camouflage.CheckCamouflage();
+            Utils.NotifyRoles(ForceLoop: true);
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)

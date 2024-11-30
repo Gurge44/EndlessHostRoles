@@ -29,16 +29,15 @@ namespace EHR.AddOns.GhostRoles
         public Team Team => Team.Crewmate | Team.Neutral;
         public int Cooldown => 900;
 
-        public void OnProtect(PlayerControl pc, PlayerControl target)
-        {
-        }
+        public void OnProtect(PlayerControl pc, PlayerControl target) { }
 
         public void OnAssign(PlayerControl pc)
         {
             HaunterId = pc.PlayerId;
+
             LateTask.New(() =>
             {
-                var taskState = pc.GetTaskState();
+                TaskState taskState = pc.GetTaskState();
                 if (taskState == null) return;
 
                 taskState.HasTasks = true;
@@ -54,17 +53,23 @@ namespace EHR.AddOns.GhostRoles
 
         public void SetupCustomOption()
         {
-            Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter, zeroOne: true);
+            Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter);
+
             TasksBeforeBeingKnown = new IntegerOptionItem(649302, "Haunter.TasksBeforeBeingKnown", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+
             RevealNeutralKillers = new BooleanOptionItem(649303, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+
             RevealMadmates = new BooleanOptionItem(649304, "Haunter.RevealMadmates", true, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+
             NumberOfReveals = new IntegerOptionItem(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+
             CanWinWithCrewmates = new StringOptionItem(649306, "Haunter.CanWinWithCrewmates", WinWithCrewOpts, 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+
             Options.OverrideTasksData.Create(649307, TabGroup.OtherRoles, CustomRoles.Haunter);
         }
 
@@ -73,7 +78,8 @@ namespace EHR.AddOns.GhostRoles
             if (WarnedImps.Count > 0) return;
 
             WarnedImps = [];
-            var filtered = Main.AllAlivePlayerControls.Where(x =>
+
+            IEnumerable<PlayerControl> filtered = Main.AllAlivePlayerControls.Where(x =>
             {
                 return x.GetTeam() switch
                 {
@@ -83,7 +89,8 @@ namespace EHR.AddOns.GhostRoles
                     _ => false
                 };
             });
-            foreach (var imp in filtered)
+
+            foreach (PlayerControl imp in filtered)
             {
                 TargetArrow.Add(imp.PlayerId, pc.PlayerId);
                 WarnedImps.Add(imp.PlayerId);
@@ -99,10 +106,11 @@ namespace EHR.AddOns.GhostRoles
 
             List<byte> targets = [];
             int numOfReveals = NumberOfReveals.GetInt();
-            for (int i = 0; i < numOfReveals; i++)
+
+            for (var i = 0; i < numOfReveals; i++)
             {
-                var index = IRandom.Instance.Next(WarnedImps.Count);
-                var target = WarnedImps[index];
+                int index = IRandom.Instance.Next(WarnedImps.Count);
+                byte target = WarnedImps[index];
                 targets.Add(target);
                 WarnedImps.Remove(target);
                 TargetArrow.Remove(target, pc.PlayerId);
@@ -122,7 +130,7 @@ namespace EHR.AddOns.GhostRoles
 
             if (WarnedImps.Any(imp => TargetArrow.GetArrows(Utils.GetPlayerById(imp), pc.PlayerId) == "・"))
             {
-                foreach (var imp in WarnedImps)
+                foreach (byte imp in WarnedImps)
                 {
                     TargetArrow.Remove(imp, pc.PlayerId);
                     Utils.GetPlayerById(imp)?.Notify(Translator.GetString("HaunterStopped"), 7f);
@@ -137,10 +145,12 @@ namespace EHR.AddOns.GhostRoles
 
         public static string GetSuffix(PlayerControl seer)
         {
-            foreach (var role in GhostRolesManager.AssignedGhostRoles.Values)
+            foreach ((CustomRoles Role, IGhostRole Instance) role in GhostRolesManager.AssignedGhostRoles.Values)
             {
                 if (role.Instance is not Haunter haunter) continue;
+
                 if (!haunter.WarnedImps.Contains(seer.PlayerId)) continue;
+
                 return TargetArrow.GetArrows(seer, haunter.HaunterId);
             }
 

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using AmongUs.GameOptions;
 using static EHR.Options;
 
@@ -8,22 +7,21 @@ namespace EHR.Neutral
     public class FFF : RoleBase
     {
         private const int Id = 11300;
-        public static List<byte> PlayerIdList = [];
-        public static bool On;
+        private static bool On;
 
-        public static OptionItem ChooseConverted;
-        public static OptionItem MisFireKillTarget;
+        private static OptionItem ChooseConverted;
+        private static OptionItem MisFireKillTarget;
 
-        public static OptionItem CanKillLovers;
-        public static OptionItem CanKillMadmate;
-        public static OptionItem CanKillCharmed;
-        public static OptionItem CanKillSidekicks;
-        public static OptionItem CanKillEgoists;
-        public static OptionItem CanKillContagious;
-        public static OptionItem CanKillUndead;
+        private static OptionItem CanKillLovers;
+        private static OptionItem CanKillMadmate;
+        private static OptionItem CanKillCharmed;
+        private static OptionItem CanKillSidekicks;
+        private static OptionItem CanKillEgoists;
+        private static OptionItem CanKillContagious;
+        private static OptionItem CanKillUndead;
 
-        public static OptionItem ChangeRoleWhenCantWin;
-        public static OptionItem ChangeRole;
+        private static OptionItem ChangeRoleWhenCantWin;
+        private static OptionItem ChangeRole;
 
         private static readonly CustomRoles[] ChangeRoles =
         [
@@ -59,19 +57,20 @@ namespace EHR.Neutral
 
         public override void Init()
         {
-            PlayerIdList = [];
             On = false;
             IsWon = false;
         }
 
         public override void Add(byte playerId)
         {
-            PlayerIdList.Add(playerId);
             On = true;
             IsWon = false;
         }
 
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return false;
+        }
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
@@ -86,6 +85,7 @@ namespace EHR.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (killer == null || target == null) return false;
+
             if (killer.PlayerId == target.PlayerId) return true;
 
             if (target.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Madmate)
@@ -94,6 +94,7 @@ namespace EHR.Neutral
                 if (!ChooseConverted.GetBool())
                 {
                     if (killer.RpcCheckAndMurder(target)) IsWon = true;
+
                     Logger.Info($"{killer.GetRealName()} killed right target case 1", "FFF");
                     return false;
                 }
@@ -111,6 +112,7 @@ namespace EHR.Neutral
                 )
                 {
                     if (killer.RpcCheckAndMurder(target)) IsWon = true;
+
                     Logger.Info($"{killer.GetRealName()} killed right target case 2", "FFF");
                     return false;
                 }
@@ -129,18 +131,21 @@ namespace EHR.Neutral
             return false;
         }
 
-        private static bool IsConvertedMainRole(CustomRoles role) => role is
-            CustomRoles.Gangster or
-            CustomRoles.Succubus or
-            CustomRoles.Deathknight or
-            CustomRoles.Necromancer or
-            CustomRoles.Refugee or
-            CustomRoles.Romantic or
-            CustomRoles.RuthlessRomantic or
-            CustomRoles.VengefulRomantic or
-            CustomRoles.Sidekick or
-            CustomRoles.Jackal or
-            CustomRoles.Virus;
+        private static bool IsConvertedMainRole(CustomRoles role)
+        {
+            return role is
+                CustomRoles.Gangster or
+                CustomRoles.Succubus or
+                CustomRoles.Deathknight or
+                CustomRoles.Necromancer or
+                CustomRoles.Refugee or
+                CustomRoles.Romantic or
+                CustomRoles.RuthlessRomantic or
+                CustomRoles.VengefulRomantic or
+                CustomRoles.Sidekick or
+                CustomRoles.Jackal or
+                CustomRoles.Virus;
+        }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
@@ -148,7 +153,7 @@ namespace EHR.Neutral
 
             if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.TrueForAll(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
             {
-                var role = ChangeRoles[ChangeRole.GetValue()];
+                CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
                 pc.RpcSetCustomRole(role);
             }
         }

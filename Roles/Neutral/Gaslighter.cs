@@ -15,7 +15,7 @@ namespace EHR.Neutral
         public static OptionItem WinCondition;
         private static OptionItem CycleRepeats;
 
-        static readonly string[] WinConditionOptions =
+        private static readonly string[] WinConditionOptions =
         [
             "GaslighterWinCondition.CrewLoses",
             "GaslighterWinCondition.IfAlive",
@@ -56,7 +56,10 @@ namespace EHR.Neutral
             CycleFinished = false;
         }
 
-        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
 
         public override void SetKillCooldown(byte id)
         {
@@ -77,20 +80,20 @@ namespace EHR.Neutral
                 foreach (Gaslighter instance in Instances)
                 {
                     foreach (byte id in exileIds)
-                    {
                         if (id == instance.GaslighterId)
                             instance.CursedPlayers.Clear();
-                    }
                 }
 
                 List<byte> curseDeathList = [];
+
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     foreach (Gaslighter instance in Instances)
                     {
                         if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
 
-                        var gaslighter = instance.GaslighterId.GetPlayer();
+                        PlayerControl gaslighter = instance.GaslighterId.GetPlayer();
+
                         if (instance.CursedPlayers.Contains(pc.PlayerId) && gaslighter != null && gaslighter.IsAlive())
                         {
                             pc.SetRealKiller(gaslighter);
@@ -117,10 +120,7 @@ namespace EHR.Neutral
                 CycleFinished = true;
                 CurrentRound = Round.Kill;
             }
-            else if (!CycleFinished || CycleRepeats.GetBool())
-            {
-                CurrentRound++;
-            }
+            else if (!CycleFinished || CycleRepeats.GetBool()) CurrentRound++;
 
             float limit = CurrentRound switch
             {
@@ -128,9 +128,10 @@ namespace EHR.Neutral
                 Round.Shield => Medic.SkillLimit,
                 _ => 0
             };
+
             GaslighterId.SetAbilityUseLimit(limit);
 
-            var pc = GaslighterId.GetPlayer();
+            PlayerControl pc = GaslighterId.GetPlayer();
             pc?.ResetKillCooldown();
             pc?.Notify(Translator.GetString($"Gaslighter.{CurrentRound}"));
 
@@ -145,15 +146,20 @@ namespace EHR.Neutral
                     return true;
                 case Round.Knight when killer.GetAbilityUseLimit() > 0 && !target.Is(CustomRoles.Knighted):
                     target.RpcSetCustomRole(CustomRoles.Knighted);
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                    Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                     killer.RpcRemoveAbilityUse();
                     killer.SetKillCooldown();
                     return false;
                 case Round.Curse:
                     CursedPlayers.Add(target.PlayerId);
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                     killer.SetKillCooldown();
                     return false;
                 case Round.Shield when killer.GetAbilityUseLimit() > 0:
                     ShieldedPlayers.Add(target.PlayerId);
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                    Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                     killer.RpcRemoveAbilityUse();
                     killer.SetKillCooldown();
                     return false;
@@ -162,9 +168,16 @@ namespace EHR.Neutral
             return false;
         }
 
-        public static bool IsShielded(PlayerControl target) => On && Instances.Exists(i => i.ShieldedPlayers.Contains(target.PlayerId));
-        public static bool IsCursed(PlayerControl target) => On && Instances.Exists(i => i.CursedPlayers.Contains(target.PlayerId));
-        
+        public static bool IsShielded(PlayerControl target)
+        {
+            return On && Instances.Exists(i => i.ShieldedPlayers.Contains(target.PlayerId));
+        }
+
+        private static bool IsCursed(PlayerControl target)
+        {
+            return On && Instances.Exists(i => i.CursedPlayers.Contains(target.PlayerId));
+        }
+
         public override string GetProgressText(byte playerId, bool comms)
         {
             return CurrentRound is Round.Knight or Round.Shield
@@ -175,21 +188,25 @@ namespace EHR.Neutral
         public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)
         {
             bool seerIsGaslighter = seer.Is(CustomRoles.Gaslighter);
-            if (!seerIsGaslighter && seer.PlayerId != target.PlayerId) return string.Empty;
-            var sb = new System.Text.StringBuilder();
-            if (IsShielded(target)) sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
+            var sb = new StringBuilder();
+            if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId)) sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
+
             if (IsCursed(target) && (meeting || seerIsGaslighter)) sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
+
             return sb.ToString();
         }
 
-        public bool AddAsAdditionalWinner() => WinCondition.GetValue() switch
+        public bool AddAsAdditionalWinner()
         {
-            0 => CustomWinnerHolder.WinnerTeam != CustomWinner.Crewmate,
-            1 => GaslighterId.GetPlayer()?.IsAlive() == true,
-            _ => false
-        };
+            return WinCondition.GetValue() switch
+            {
+                0 => CustomWinnerHolder.WinnerTeam != CustomWinner.Crewmate,
+                1 => GaslighterId.GetPlayer()?.IsAlive() == true,
+                _ => false
+            };
+        }
 
-        enum Round
+        private enum Round
         {
             Kill,
             Knight,

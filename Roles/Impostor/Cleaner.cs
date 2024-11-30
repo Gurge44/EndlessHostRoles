@@ -9,9 +9,9 @@ namespace EHR.Impostor
     {
         public static bool On;
         public static List<byte> CleanerBodies = [];
-        public static OptionItem CleanerKillCooldown;
-        public static OptionItem KillCooldownAfterCleaning;
-        public static OptionItem CannotCleanWhenKCDIsntUp;
+        private static OptionItem CleanerKillCooldown;
+        private static OptionItem KillCooldownAfterCleaning;
+        private static OptionItem CannotCleanWhenKCDIsntUp;
 
         private bool CanVent;
         private bool HasImpostorVision;
@@ -25,12 +25,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(2600, TabGroup.ImpostorRoles, CustomRoles.Cleaner);
+
             CleanerKillCooldown = new FloatOptionItem(2610, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
-            KillCooldownAfterCleaning = new FloatOptionItem(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
+
+            KillCooldownAfterCleaning = new FloatOptionItem(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CannotCleanWhenKCDIsntUp = new BooleanOptionItem(2612, "CannotCleanWhenKCDIsntUp", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner]);
         }
@@ -86,7 +89,8 @@ namespace EHR.Impostor
                 hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
                 hud.ReportButton?.OverrideText(Translator.GetString("MedusaReportButtonText"));
             }
-            else hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
+            else
+                hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
         }
 
         public override bool CheckReportDeadBody(PlayerControl cleaner, NetworkedPlayerInfo target, PlayerControl killer)

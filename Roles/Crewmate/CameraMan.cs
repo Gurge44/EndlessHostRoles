@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -10,7 +9,7 @@ namespace EHR.Crewmate
     public class CameraMan : RoleBase
     {
         private const int Id = 641600;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem UseLimitOpt;
@@ -22,22 +21,27 @@ namespace EHR.Crewmate
         private Vector2 BasePos;
 
         private bool IsTeleported;
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.CameraMan);
+
             VentCooldown = new FloatOptionItem(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
+
             TPBackWhenMoveAway = new BooleanOptionItem(Id + 14, "TPBackWhenMoveAway", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan]);
+
             CameraManAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
@@ -45,7 +49,8 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
+
             CameraPosition = Main.CurrentMap switch
             {
                 MapNames.Skeld => new(-13.5f, -5.5f),
@@ -60,7 +65,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             IsTeleported = false;
         }
@@ -83,20 +88,33 @@ namespace EHR.Crewmate
                 {
                     BasePos = pc.Pos();
                     if (pc.TP(CameraPosition)) IsTeleported = true;
-                }, UsePets.GetBool() ? 0.1f : 2f, "CameraMan Teleport");
+                }, 2f, "CameraMan Teleport");
             }
             else
+                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            if (pc == null) return;
+
+            if (pc.GetAbilityUseLimit() >= 1)
             {
-                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+                pc.RpcRemoveAbilityUse();
+
+                BasePos = pc.Pos();
+                if (pc.TP(CameraPosition)) IsTeleported = true;
             }
+            else
+                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsTeleported || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance) return;
+            if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance) return;
 
-            pc.TP(BasePos);
             IsTeleported = false;
+            LateTask.New(() => pc.TP(BasePos), 2f, "CameraMan Teleport Back");
         }
 
         public override void OnReportDeadBody()

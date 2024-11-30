@@ -8,6 +8,7 @@
         public static OptionItem Speed;
         public static OptionItem CanVent;
         public static OptionItem BlindTime;
+        public static OptionItem KillCooldown;
 
         public override bool IsEnable => On;
         public Team Team => Team.Impostor;
@@ -27,14 +28,22 @@
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
+
             Speed = new FloatOptionItem(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
+
             CanVent = new BooleanOptionItem(69_211_204, "CanVent", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
+
             BlindTime = new FloatOptionItem(69_211_206, "BlindTime", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetValueFormat(OptionFormat.Seconds)
+                .SetColor(new(255, 25, 25, byte.MaxValue));
+
+            KillCooldown = new IntegerOptionItem(69_211_207, "KillCooldown", new(0, 60, 1), 10, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(255, 25, 25, byte.MaxValue));

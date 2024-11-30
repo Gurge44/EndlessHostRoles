@@ -13,9 +13,11 @@
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(649650, TabGroup.ImpostorRoles, CustomRoles.Ventriloquist);
+
             UseLimit = new IntegerOptionItem(649652, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Ventriloquist])
                 .SetValueFormat(OptionFormat.Times);
+
             VentriloquistAbilityUseGainWithEachKill = new FloatOptionItem(649653, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Ventriloquist])
                 .SetValueFormat(OptionFormat.Times);

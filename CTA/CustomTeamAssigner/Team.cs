@@ -20,11 +20,7 @@ namespace CustomTeamAssigner
 
         public string RoleRevealScreenBackgroundColor { get; set; } = "*";
 
-        public string TeamName
-        {
-            get => teamName;
-            set => teamName = value;
-        }
+        public string TeamName { get; set; } = teamName;
 
         public List<CustomRoles> TeamMembers { get; set; } = [];
 
@@ -102,6 +98,7 @@ namespace CustomTeamAssigner
             return TeamName == team.TeamName;
         }
 
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
         public override int GetHashCode() => TeamName.GetHashCode();
     }
 }

@@ -17,11 +17,15 @@ namespace EHR.Impostor
             On = false;
         }
 
-        public override void Add(byte playerId) => On = true;
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
 
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swapster);
+
             SSCD = new FloatOptionItem(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapster])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -36,18 +40,17 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl swapster, PlayerControl target, bool shapeshifting)
         {
             if (swapster == null || target == null || swapster == target || !shapeshifting) return true;
-            if (FirstSwapTarget.TryGetValue(swapster.PlayerId, out var firstTargetId))
+
+            if (FirstSwapTarget.TryGetValue(swapster.PlayerId, out byte firstTargetId))
             {
-                var firstTarget = Utils.GetPlayerById(firstTargetId);
-                var pos = firstTarget.Pos();
+                PlayerControl firstTarget = Utils.GetPlayerById(firstTargetId);
+                Vector2 pos = firstTarget.Pos();
                 firstTarget.TP(target);
                 target.TP(pos);
                 FirstSwapTarget.Remove(swapster.PlayerId);
             }
             else
-            {
                 FirstSwapTarget[swapster.PlayerId] = target.PlayerId;
-            }
 
             return false;
         }

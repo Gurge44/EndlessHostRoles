@@ -10,46 +10,52 @@ namespace EHR.Impostor
     public class EvilDiviner : RoleBase
     {
         private const int Id = 2700;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem DivinationMaxCount;
-        public static OptionItem EDAbilityUseGainWithEachKill;
+        public static OptionItem EdAbilityUseGainWithEachKill;
 
         private bool CanVent;
 
-        public List<byte> DivinationTarget = [];
+        private List<byte> DivinationTarget = [];
         private bool HasImpVision;
         private bool IsRitualist;
         private float KCD;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilDiviner);
-            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
+
+            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Seconds);
-            DivinationMaxCount = new IntegerOptionItem(Id + 11, "DivinationMaxCount", new(0, 15, 1), 1, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
+
+            DivinationMaxCount = new IntegerOptionItem(Id + 11, "DivinationMaxCount", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Times);
-            EDAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
+
+            EdAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Times);
         }
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             DivinationTarget = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             DivinationTarget = [];
 
             IsRitualist = Main.PlayerStates[playerId].MainRole == CustomRoles.Ritualist;
             playerId.SetAbilityUseLimit(IsRitualist ? Ritualist.RitualMaxCount.GetInt() : DivinationMaxCount.GetInt());
+
             if (IsRitualist)
             {
                 KCD = Ritualist.KillCooldown.GetFloat();
@@ -74,9 +80,10 @@ namespace EHR.Impostor
             opt.SetVision(HasImpVision);
         }
 
-        static void SendRPC(byte playerId, byte targetId)
+        private static void SendRPC(byte playerId, byte targetId)
         {
             if (!Utils.DoRPC) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEvilDiviner, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(targetId);
@@ -98,7 +105,10 @@ namespace EHR.Impostor
             return !(killer.GetAbilityUseLimit() >= 1) || killer.CheckDoubleTrigger(target, () => { SetDivination(killer, target); });
         }
 
-        public bool IsDivination(byte target) => DivinationTarget.Contains(target);
+        public bool IsDivination(byte target)
+        {
+            return DivinationTarget.Contains(target);
+        }
 
         public void SetDivination(PlayerControl killer, PlayerControl target)
         {
@@ -117,6 +127,7 @@ namespace EHR.Impostor
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             if (base.KnowRole(seer, target)) return true;
+
             return Main.PlayerStates[seer.PlayerId].Role is EvilDiviner ed && ed.DivinationTarget.Contains(target.PlayerId);
         }
     }

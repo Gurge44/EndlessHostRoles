@@ -4,6 +4,9 @@
     {
         public AddonTypes Type => AddonTypes.ImpOnly;
 
-        public void SetupCustomOption() => Options.SetupAdtRoleOptions(16050, CustomRoles.Swift, canSetNum: true, tab: TabGroup.Addons);
+        public void SetupCustomOption()
+        {
+            Options.SetupAdtRoleOptions(16050, CustomRoles.Swift, canSetNum: true, tab: TabGroup.Addons);
+        }
     }
 }

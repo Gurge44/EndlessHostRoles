@@ -1,5 +1,6 @@
 ﻿using EHR;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -16,11 +17,11 @@ namespace CustomTeamAssigner
 {
     internal static class Utils
     {
-        public static HashSet<Team> Teams = [];
+        public static readonly HashSet<Team> Teams = [];
 
         public const string OutputFileName = "CTA_Data.txt";
 
-        public static Dictionary<CustomRoles, string> RoleNames = new()
+        private static readonly Dictionary<CustomRoles, string> RoleNames = new()
         {
             { CustomRoles.Hacker, "Anonymous" },
             { CustomRoles.Sans, "Arrogance" },
@@ -47,13 +48,16 @@ namespace CustomTeamAssigner
             { CustomRoles.FFF, "Hater" },
             { CustomRoles.NSerialKiller, "Serial Killer" },
             { CustomRoles.DarkHide, "Stalker" },
-            { CustomRoles.ToiletMaster, "Toilet Master" }
+            { CustomRoles.ToiletMaster, "Toilet Master" },
+            { CustomRoles.Mediumshiper, "Medium" },
+            { CustomRoles.PlagueDoctor, "Infection"}
         };
 
         public static void SetMainWindowContents(Visibility visibility)
         {
             MainWindow.Instance.Title.Visibility = visibility;
             MainWindow.Instance.MainGrid.Children.OfType<Button>().Do(x => x.Visibility = visibility);
+            MainWindow.Instance.ButtonGroup.Visibility = visibility;
         }
 
         public static Color ToColor(this string htmlColor)
@@ -67,6 +71,8 @@ namespace CustomTeamAssigner
                 return Color.FromRgb(0, 0, 0);
             }
         }
+        
+        public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", string.Empty);
 
         public static void Do<T>(this IEnumerable<T> enumerable, Action<T> action)
         {
@@ -75,8 +81,23 @@ namespace CustomTeamAssigner
                 action(item);
             }
         }
+        
+        public static List<T> Shuffle<T>(this IEnumerable<T> collection)
+        {
+            var list = collection.ToList();
+            int n = list.Count;
+            var r = new Random();
+            while (n > 1)
+            {
+                n--;
+                int k = r.Next(n + 1);
+                (list[n], list[k]) = (list[k], list[n]);
+            }
 
-        public static IEnumerable<CustomRoles> GetAllValidRoles() => Enum.GetValues<CustomRoles>().Where(x => !Teams.Any(t => t.TeamMembers.Contains(x)) && !x.ToString().Contains("EHR") && x < CustomRoles.NotAssigned && x is not (CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.GM or CustomRoles.Convict or CustomRoles.Impostor or CustomRoles.Shapeshifter or CustomRoles.Crewmate or CustomRoles.Engineer or CustomRoles.Scientist or CustomRoles.GuardianAngel));
+            return list;
+        }
+
+        public static IEnumerable<CustomRoles> GetAllValidRoles() => Enum.GetValues<CustomRoles>().Where(x => !Teams.Any(t => t.TeamMembers.Contains(x)) && !x.ToString().Contains("EHR") && x < CustomRoles.NotAssigned && x is not (CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Runner or CustomRoles.CTFPlayer or CustomRoles.NDPlayer or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jet or CustomRoles.Detector or CustomRoles.Jumper or CustomRoles.Venter or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Dasher or CustomRoles.GM or CustomRoles.Convict or CustomRoles.Impostor or CustomRoles.Shapeshifter or CustomRoles.Crewmate or CustomRoles.Engineer or CustomRoles.Scientist or CustomRoles.GuardianAngel or CustomRoles.Phantom or CustomRoles.Tracker or CustomRoles.Noisemaker));
 
         public static string GetActualRoleName(CustomRoles role)
         {
@@ -103,11 +124,11 @@ namespace CustomTeamAssigner
             return sb.ToString();
         }
 
-        public static CustomRoles GetInternalRoleName(this string roleName)
+        public static CustomRoles GetCustomRole(this string roleName)
         {
             if (roleName == "Guess Manager") return CustomRoles.GuessManagerRole;
             var role = RoleNames.FirstOrDefault(x => x.Value == roleName).Key;
-            return role != default ? role : Enum.Parse<CustomRoles>(roleName.Replace(" ", string.Empty));
+            return role != default ? role : Enum.Parse<CustomRoles>(roleName.Replace(" ", string.Empty), true);
         }
     }
 }

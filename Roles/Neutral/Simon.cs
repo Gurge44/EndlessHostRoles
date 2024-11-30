@@ -34,9 +34,11 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Simon);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Simon])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Simon]);
         }
@@ -58,17 +60,27 @@ namespace EHR.Neutral
             Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 1, DoMode);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.IsAlive();
-        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (!(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return base.CanUseSabotage(pc) || !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool());
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-                AURoleOptions.PhantomCooldown = 1f;
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-                AURoleOptions.ShapeshifterCooldown = 1f;
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
+
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -92,9 +104,10 @@ namespace EHR.Neutral
             if (size != MarkedPlayers.Count) Utils.SendRPC(CustomRPC.SyncRoleData, physics.myPlayer.PlayerId, 2);
 
             Executed = true;
-            foreach (var kvp in MarkedPlayers)
+
+            foreach (KeyValuePair<byte, (bool DoAction, Instruction Instruction)> kvp in MarkedPlayers)
             {
-                var pc = Utils.GetPlayerById(kvp.Key);
+                PlayerControl pc = Utils.GetPlayerById(kvp.Key);
                 if (pc == null || !pc.IsAlive()) continue;
 
                 pc.Notify(Translator.GetString(GetNotify(kvp.Value.Instruction, kvp.Value.DoAction, false)), 300f);
@@ -103,11 +116,12 @@ namespace EHR.Neutral
             Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
         }
 
-        static string GetNotify(Instruction instruction, bool doAction, bool forSimon)
+        private static string GetNotify(Instruction instruction, bool doAction, bool forSimon)
         {
             if (!forSimon)
             {
                 if (instruction == Instruction.Kill) return doAction ? "SimonKill" : "SimonDontKill";
+
                 return doAction ? "SimonTask" : "SimonDontTask";
             }
 
@@ -136,6 +150,7 @@ namespace EHR.Neutral
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+
             OnPet(shapeshifter);
             return false;
         }
@@ -145,11 +160,14 @@ namespace EHR.Neutral
             if (Executed)
             {
                 Executed = false;
-                foreach (var kvp in MarkedPlayers)
+
+                foreach (KeyValuePair<byte, (bool DoAction, Instruction Instruction)> kvp in MarkedPlayers)
                 {
                     if (!kvp.Value.DoAction || kvp.Value.Instruction == Instruction.None) continue;
-                    var pc = Utils.GetPlayerById(kvp.Key);
+
+                    PlayerControl pc = Utils.GetPlayerById(kvp.Key);
                     if (pc == null || !pc.IsAlive()) continue;
+
                     pc.Suicide();
                 }
             }
@@ -183,27 +201,35 @@ namespace EHR.Neutral
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Simon simon) return string.Empty;
+
             bool self = seer.PlayerId == target.PlayerId;
             if (seer.IsModClient() && !hud && self) return string.Empty;
 
             if (self) return Translator.GetString(simon.DoMode ? "SimonDoMode" : "SimonDontMode");
-            if (simon.MarkedPlayers.TryGetValue(target.PlayerId, out var value)) return Translator.GetString(GetNotify(value.Instruction, value.DoAction, true));
+
+            if (simon.MarkedPlayers.TryGetValue(target.PlayerId, out (bool DoAction, Instruction Instruction) value)) return Translator.GetString(GetNotify(value.Instruction, value.DoAction, true));
 
             return string.Empty;
         }
 
         public static void RemoveTarget(PlayerControl pc, Instruction instruction)
         {
-            foreach (var simon in Instances)
+            foreach (Simon simon in Instances)
             {
                 if (!simon.Executed) continue;
-                if (simon.MarkedPlayers.TryGetValue(pc.PlayerId, out var value))
+
+                if (simon.MarkedPlayers.TryGetValue(pc.PlayerId, out (bool DoAction, Instruction Instruction) value))
                 {
                     if (value.Instruction != instruction) continue;
+
                     if (value.DoAction) pc.Notify(Utils.ColorString(Color.green, "\u2713"));
                     else pc.Suicide();
+
                     simon.MarkedPlayers.Remove(pc.PlayerId);
                     Utils.SendRPC(CustomRPC.SyncRoleData, simon.SimonId, 4, pc.PlayerId);
+
+                    if (pc.IsLocalPlayer())
+                        Achievements.Type.SimonSays.Complete();
                 }
             }
         }

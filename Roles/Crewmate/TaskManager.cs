@@ -1,13 +1,14 @@
-﻿using System.Text;
-
-namespace EHR.Crewmate
+﻿namespace EHR.Crewmate
 {
     internal class TaskManager : RoleBase
     {
         public static bool On;
         public override bool IsEnable => On;
 
-        public override void SetupCustomOption() => Options.SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        public override void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        }
 
         public override void Add(byte playerId)
         {

@@ -6,169 +6,136 @@ using UnityEngine;
 
 namespace EHR.Impostor
 {
-    public class Stealth : RoleBase
+    public sealed class Stealth : RoleBase
     {
-        private const int Id = 641900;
-        private static List<byte> PlayerIdList = [];
+        private static readonly LogHandler Logger = EHR.Logger.Handler(nameof(Stealth));
 
         private static OptionItem OptionExcludeImpostors;
         private static OptionItem OptionDarkenDuration;
 
-        private static bool ExcludeImpostors;
-        private static float DarkenDuration;
-        private PlayerControl[] DarkenedPlayers = [];
-        private SystemTypes? DarkenedRoom;
-        private float DarkenTimer;
+        public static bool On;
+        private float darkenDuration;
+        private PlayerControl[] darkenedPlayers;
+        private SystemTypes? darkenedRoom;
+        private float darkenTimer;
 
+        private bool excludeImpostors;
         private PlayerControl StealthPC;
-
-        public override bool IsEnable => PlayerIdList.Count > 0;
+        public override bool IsEnable => On;
 
         public override void SetupCustomOption()
         {
-            Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Stealth);
-            OptionExcludeImpostors = new BooleanOptionItem(Id + 10, "StealthExcludeImpostors", false, TabGroup.ImpostorRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Stealth]);
-            OptionDarkenDuration = new FloatOptionItem(Id + 20, "StealthDarkenDuration", new(0.5f, 10f, 0.5f), 3f, TabGroup.ImpostorRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Stealth])
-                .SetValueFormat(OptionFormat.Seconds);
+            StartSetup(641900)
+                .AutoSetupOption(ref OptionExcludeImpostors, true)
+                .AutoSetupOption(ref OptionDarkenDuration, 5f, new FloatValueRule(0.5f, 30f, 0.5f), OptionFormat.Seconds);
         }
 
-        public override void Init()
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            PlayerIdList = [];
-            ExcludeImpostors = OptionExcludeImpostors.GetBool();
-            DarkenDuration = DarkenTimer = OptionDarkenDuration.GetFloat();
-        }
+            if (!base.OnCheckMurder(killer, target)) return true;
 
-        public override void Add(byte playerId)
-        {
-            StealthPC = Utils.GetPlayerById(playerId);
-            DarkenedPlayers = null;
+            IEnumerable<PlayerControl> playersToDarken = FindPlayersInSameRoom(target);
 
-            PlayerIdList.Add(playerId);
-        }
-
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
-
-        public override void OnMurder(PlayerControl killer, PlayerControl target)
-        {
-            if (!IsEnable) return;
-
-            var playersToDarken = FindPlayersInSameRoom(target);
             if (playersToDarken == null)
             {
-                Logger.Info("The room will not dim because the hit detection for the room cannot be obtained.", "Stealth");
-                return;
+                Logger.Info("No players to darken");
+                return true;
             }
 
-            if (ExcludeImpostors)
-            {
-                playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoleTypes.Impostor)).ToArray();
-            }
+            if (excludeImpostors) playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoles.Impostor));
 
             DarkenPlayers(playersToDarken);
+            return true;
         }
 
-        /// <summary>Get all players in the same room as you</summary>
-        PlayerControl[] FindPlayersInSameRoom(PlayerControl killedPlayer)
+        private IEnumerable<PlayerControl> FindPlayersInSameRoom(PlayerControl killedPlayer)
         {
-            var room = killedPlayer.GetPlainShipRoom();
+            PlainShipRoom room = killedPlayer.GetPlainShipRoom();
             if (room == null) return null;
 
-            RpcDarken(room.RoomId);
-            return Main.AllAlivePlayerControls.Where(p => p.PlayerId != StealthPC.PlayerId && p.GetPlainShipRoom() == room).ToArray();
+            Collider2D roomArea = room.roomArea;
+            SystemTypes roomName = room.RoomId;
+            RpcDarken(roomName);
+            return Main.AllAlivePlayerControls.Where(player => player != StealthPC && player.Collider.IsTouching(roomArea));
         }
 
-        /// <summary>Give the given player zero visibility for <see cref="DarkenDuration"/> seconds.</summary>
-        void DarkenPlayers(PlayerControl[] playersToDarken)
+        private void DarkenPlayers(IEnumerable<PlayerControl> playersToDarken)
         {
-            DarkenedPlayers = [.. playersToDarken];
-            foreach (PlayerControl player in playersToDarken)
+            darkenedPlayers = playersToDarken.ToArray();
+
+            foreach (PlayerControl player in darkenedPlayers)
             {
                 Main.PlayerStates[player.PlayerId].IsBlackOut = true;
                 player.MarkDirtySettings();
             }
         }
 
+        public override void Init()
+        {
+            On = false;
+            excludeImpostors = OptionExcludeImpostors.GetBool();
+            darkenDuration = OptionDarkenDuration.GetFloat();
+        }
+
+        public override void Add(byte playerId)
+        {
+            On = true;
+            StealthPC = playerId.GetPlayer();
+        }
+
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost) return;
 
-            // when you're darkening someone
-            if (DarkenedPlayers != null)
+            if (darkenedPlayers != null)
             {
-                // reduce timer
-                DarkenTimer -= Time.fixedDeltaTime;
-                // When the timer reaches 0, return everyone's vision and reset the timer and darkening player.
-                if (DarkenTimer <= 0)
-                {
-                    ResetDarkenState();
-                }
+                darkenTimer -= Time.fixedDeltaTime;
+                if (darkenTimer <= 0) ResetDarkenState();
             }
         }
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable) return;
-            if (AmongUsClient.Instance.AmHost)
+            if (AmongUsClient.Instance.AmHost) ResetDarkenState();
+        }
+
+        private void RpcDarken(SystemTypes? roomType)
+        {
+            Logger.Info($"Darkened room set to {roomType?.ToString() ?? "null"}");
+            darkenedRoom = roomType;
+            Utils.SendRPC(CustomRPC.SyncRoleData, StealthPC.PlayerId, (byte?)roomType ?? byte.MaxValue);
+        }
+
+        public void ReceiveRPC(MessageReader reader)
+        {
+            byte roomId = reader.ReadByte();
+            darkenedRoom = roomId == byte.MaxValue ? null : (SystemTypes)roomId;
+        }
+
+        private void ResetDarkenState()
+        {
+            if (darkenedPlayers != null)
             {
-                ResetDarkenState();
-            }
-        }
-
-        void RpcDarken(SystemTypes? roomType)
-        {
-            if (!IsEnable) return;
-            Logger.Info($"Set the darkened room to {roomType?.ToString() ?? "null"}", "Stealth");
-            DarkenedRoom = roomType;
-            SendRPC(roomType);
-        }
-
-        void SendRPC(SystemTypes? roomType)
-        {
-            if (!IsEnable) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.StealthDarken, SendOption.Reliable);
-            writer.Write(StealthPC.PlayerId);
-            writer.Write((byte?)roomType ?? byte.MaxValue);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            var roomId = reader.ReadByte();
-            var stealthId = reader.ReadByte();
-            ((Stealth)Main.PlayerStates[stealthId].Role).DarkenedRoom = roomId == byte.MaxValue ? null : (SystemTypes)roomId;
-        }
-
-        /// <summary>Removes the darkening effect that has occurred.</summary>
-        void ResetDarkenState()
-        {
-            if (!IsEnable) return;
-            if (DarkenedPlayers != null)
-            {
-                foreach (PlayerControl player in DarkenedPlayers)
+                foreach (PlayerControl player in darkenedPlayers)
                 {
                     Main.PlayerStates[player.PlayerId].IsBlackOut = false;
                     player.MarkDirtySettings();
                 }
 
-                DarkenedPlayers = null;
+                darkenedPlayers = null;
             }
 
-            DarkenTimer = DarkenDuration;
+            darkenTimer = darkenDuration;
             RpcDarken(null);
-            Utils.NotifyRoles(SpecifySeer: StealthPC, SpecifyTarget: StealthPC);
+            Utils.NotifyRoles(SpecifySeer: StealthPC);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl seen, bool isForMeeting = false, bool isForHud = false)
         {
-            if (Main.PlayerStates[seer.PlayerId].Role is not Stealth { IsEnable: true }) return string.Empty;
-            target ??= seer;
-            // During the meeting, unless it's my suffix, or it's dark everywhere, I won't show anything.
-            return meeting || target != seer || !DarkenedRoom.HasValue || (seer.IsModClient() && !hud)
-                ? string.Empty
-                : string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(DarkenedRoom.Value));
+            seen ??= seer;
+            if (isForMeeting || seer != StealthPC || seen != StealthPC || !darkenedRoom.HasValue) return base.GetSuffix(seer, seen, isForMeeting, isForHud);
+
+            return string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value));
         }
     }
 }

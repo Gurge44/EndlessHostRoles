@@ -17,6 +17,7 @@
                 float speed = Main.AllPlayerSpeed[pc.PlayerId];
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                 pc.MarkDirtySettings();
+
                 LateTask.New(() =>
                 {
                     Main.AllPlayerSpeed[pc.PlayerId] = speed;

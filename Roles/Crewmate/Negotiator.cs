@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Crewmate
 {
@@ -10,11 +11,12 @@ namespace EHR.Crewmate
         public static bool On;
         private static List<Negotiator> Instances = [];
 
+        private static OptionItem MinVotingTimeLeftToNegotiate;
         private static OptionItem LowVision;
         private static OptionItem LowSpeed;
         private static OptionItem AbilityUseLimit;
-        public static OptionItem AbilityUseGainWithEachTaskCompleted;
-        public static OptionItem AbilityChargesWhenFinishedTasks;
+        private static OptionItem AbilityUseGainWithEachTaskCompleted;
+        private static OptionItem AbilityChargesWhenFinishedTasks;
         private byte NegotiatorId;
         private NegotiationType Penalty;
         private Dictionary<byte, HashSet<NegotiationType>> PermanentPenalties;
@@ -25,6 +27,7 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             StartSetup(647950)
+                .AutoSetupOption(ref MinVotingTimeLeftToNegotiate, 10, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
                 .AutoSetupOption(ref LowVision, 0.4f, new FloatValueRule(0f, 1f, 0.05f), OptionFormat.Multiplier)
                 .AutoSetupOption(ref LowSpeed, 0.9f, new FloatValueRule(0.1f, 2f, 0.1f), OptionFormat.Multiplier)
                 .AutoSetupOption(ref AbilityUseLimit, 0, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
@@ -52,9 +55,10 @@ namespace EHR.Crewmate
         public static void OnAnyoneApplyGameOptions(IGameOptions opt, byte id)
         {
             bool lowVision = false, lowSpeed = false;
+
             foreach (Negotiator instance in Instances)
             {
-                if (instance.PermanentPenalties.TryGetValue(id, out var penalties))
+                if (instance.PermanentPenalties.TryGetValue(id, out HashSet<NegotiationType> penalties))
                 {
                     lowVision |= penalties.Contains(NegotiationType.LowVision);
                     lowSpeed |= penalties.Contains(NegotiationType.LowSpeed);
@@ -63,7 +67,7 @@ namespace EHR.Crewmate
 
             if (lowVision)
             {
-                var vision = LowVision.GetFloat();
+                float vision = LowVision.GetFloat();
 
                 opt.SetVision(false);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, vision);
@@ -77,24 +81,29 @@ namespace EHR.Crewmate
         {
             if (TargetId != byte.MaxValue)
             {
-                var target = TargetId.GetPlayer();
+                PlayerControl target = TargetId.GetPlayer();
                 TargetId = byte.MaxValue;
                 if (target == null || !target.IsAlive()) return;
-                var negotiator = NegotiatorId.GetPlayer();
+
+                PlayerControl negotiator = NegotiatorId.GetPlayer();
 
                 switch (Penalty)
                 {
                     case NegotiationType.Suicide:
-                        target.Suicide(PlayerState.DeathReason.Negotiation, negotiator);
+                        LateTask.New(() => target.Suicide(PlayerState.DeathReason.Negotiation, negotiator), 1f, log: false);
                         break;
                     case NegotiationType.HarmfulAddon:
-                        var addon = Options.GroupedAddons[AddonTypes.Harmful].Shuffle().FirstOrDefault(x => CustomRolesHelper.CheckAddonConflict(x, target));
+                        CustomRoles addon = Options.GroupedAddons[AddonTypes.Harmful].Shuffle().FirstOrDefault(x => CustomRolesHelper.CheckAddonConflict(x, target));
                         if (addon != default) target.RpcSetCustomRole(addon);
+
                         break;
                     case NegotiationType.LowVision:
                     case NegotiationType.LowSpeed:
-                        if (PermanentPenalties.TryGetValue(target.PlayerId, out var penalties)) penalties.Add(Penalty);
-                        else PermanentPenalties[target.PlayerId] = [Penalty];
+                        if (PermanentPenalties.TryGetValue(target.PlayerId, out HashSet<NegotiationType> penalties))
+                            penalties.Add(Penalty);
+                        else
+                            PermanentPenalties[target.PlayerId] = [Penalty];
+
                         break;
                 }
 
@@ -104,13 +113,13 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl voter, PlayerControl target)
         {
-            if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
+            if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || MinVotingTimeLeftToNegotiate.GetInt() > MeetingTimeManager.VotingTimeLeft || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
             TargetId = target.PlayerId;
             Penalty = NegotiationType.Suicide;
             voter.RpcRemoveAbilityUse();
 
-            var message = Enum.GetValues<NegotiationType>().Aggregate(Translator.GetString("Negotiator.TargetMessage"), (s, x) => $"{s}\n{(int)x}) {Translator.GetString($"Negotiator.Type.{x}")}");
+            string message = Enum.GetValues<NegotiationType>().Aggregate(Translator.GetString("Negotiator.TargetMessage"), (s, x) => $"{s}\n{(int)x}) {Translator.GetString($"Negotiator.Type.{x}")}");
             Utils.SendMessage(message, target.PlayerId, Translator.GetString("Negotiator.Title"));
 
             Main.DontCancelVoteList.Add(voter.PlayerId);
@@ -122,14 +131,15 @@ namespace EHR.Crewmate
             foreach (Negotiator instance in Instances)
             {
                 if (pc.PlayerId != instance.TargetId || !pc.IsAlive()) continue;
-                NegotiationType type = (NegotiationType)index;
+
+                var type = (NegotiationType)index;
                 instance.Penalty = type;
-                var text = string.Format(Translator.GetString("Negotiator.TargetPickSuccess"), Translator.GetString($"Negotiator.Type.{type}"));
+                string text = string.Format(Translator.GetString("Negotiator.TargetPickSuccess"), Translator.GetString($"Negotiator.Type.{type}"));
                 Utils.SendMessage(text, pc.PlayerId, Translator.GetString("Negotiator.Title"));
             }
         }
 
-        enum NegotiationType
+        private enum NegotiationType
         {
             Suicide,
             HarmfulAddon,

@@ -8,8 +8,8 @@ namespace EHR.Neutral
 
         public static OptionItem OppoImmuneToAttacksWhenTasksDone;
         public static OptionItem CanVent;
-        public static OptionItem VentCooldown;
-        public static OptionItem MaxInVentTime;
+        private static OptionItem VentCooldown;
+        private static OptionItem MaxInVentTime;
         public override bool IsEnable => On;
 
         public override void Add(byte playerId)
@@ -38,16 +38,21 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(10100, TabGroup.NeutralRoles, CustomRoles.Opportunist);
+
             OppoImmuneToAttacksWhenTasksDone = new BooleanOptionItem(10110, "ImmuneToAttacksWhenTasksDone", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Opportunist]);
+
             CanVent = new BooleanOptionItem(10111, "CanVent", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Opportunist]);
+
             VentCooldown = new FloatOptionItem(10112, "VentCooldown", new(0f, 120f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CanVent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             MaxInVentTime = new FloatOptionItem(10113, "MaxInVentTime", new(0f, 120f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(CanVent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             Options.OverrideTasksData.Create(10114, TabGroup.NeutralRoles, CustomRoles.Opportunist);
         }
     }

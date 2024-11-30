@@ -1,6 +1,5 @@
 ﻿using AmongUs.GameOptions;
 using EHR.Modules;
-using UnityEngine;
 
 namespace EHR.Impostor
 {
@@ -13,6 +12,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(3600, TabGroup.ImpostorRoles, CustomRoles.Escapee);
+
             Options.EscapeeSSCD = new FloatOptionItem(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapee])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -32,16 +32,20 @@ namespace EHR.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (Options.UsePets.GetBool()) hud.PetButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
-            else hud.AbilityButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
+            if (Options.UsePets.GetBool())
+                hud.PetButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
+            else
+                hud.AbilityButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = Options.EscapeeSSCD.GetFloat();
+            if (Options.UsePhantomBasis.GetBool())
+                AURoleOptions.PhantomCooldown = Options.EscapeeSSCD.GetFloat();
             else
             {
                 if (Options.UsePets.GetBool()) return;
+
                 AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 1f;
             }
@@ -68,17 +72,12 @@ namespace EHR.Impostor
                 pc.RPCPlayCustomSound("Teleport");
             }
             else
-            {
                 EscapeeLocation = pc.Pos();
-            }
         }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (shapeshifting || Options.UseUnshiftTrigger.GetBool())
-            {
-                TeleportOrMark(shapeshifter);
-            }
+            if (shapeshifting || Options.UseUnshiftTrigger.GetBool()) TeleportOrMark(shapeshifter);
 
             return false;
         }

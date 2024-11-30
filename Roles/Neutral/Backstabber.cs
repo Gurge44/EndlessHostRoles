@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Neutral
 {
@@ -17,15 +18,19 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            int id = 649150;
+            var id = 649150;
             Options.SetupRoleOptions(id++, TabGroup.NeutralRoles, CustomRoles.Backstabber);
+
             KillCooldown = new FloatOptionItem(++id, "KillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Backstabber])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(++id, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Backstabber]);
+
             HasImpostorVision = new BooleanOptionItem(++id, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Backstabber]);
+
             RevealAfterKilling = new BooleanOptionItem(++id, "Backstabber.RevealAfterKilling", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Backstabber]);
         }
@@ -42,19 +47,40 @@ namespace EHR.Neutral
             playerId.SetAbilityUseLimit(1);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() > 0f;
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.GetAbilityUseLimit() > 0f;
+        }
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
+            if (killer.PlayerId == target.PlayerId) return;
+            
             Team targetTeam = target.GetTeam();
+
             Team = targetTeam switch
             {
                 EHR.Team.Impostor => WinningTeam.NK,
                 _ => WinningTeam.Imp
             };
+            
+            if (targetTeam == EHR.Team.Crewmate && killer.IsLocalPlayer())
+                Achievements.Type.StabbingTheBack.Complete();
 
             killer.RpcRemoveAbilityUse();
             killer.Notify(string.Format(Translator.GetString("Backstabber.MurderNotify"), Utils.ColorString(targetTeam.GetTeamColor(), Translator.GetString(targetTeam.ToString())), Translator.GetString($"BackstabberTeam.{Team}")), 10f);
@@ -78,7 +104,7 @@ namespace EHR.Neutral
             };
         }
 
-        enum WinningTeam
+        private enum WinningTeam
         {
             Crew,
             Imp,

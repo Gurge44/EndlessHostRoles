@@ -1,100 +1,103 @@
 using System;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using UnityEngine;
 
-namespace EHR;
-
-[HarmonyPatch(typeof(TaskAdderGame), nameof(TaskAdderGame.ShowFolder))]
-static class ShowFolderPatch
+namespace EHR
 {
-    private static TaskFolder CustomRolesFolder;
-
-    public static void Prefix(TaskAdderGame __instance, [HarmonyArgument(0)] TaskFolder taskFolder)
+    [HarmonyPatch(typeof(TaskAdderGame), nameof(TaskAdderGame.ShowFolder))]
+    internal static class ShowFolderPatch
     {
-        if (__instance.Root == taskFolder && CustomRolesFolder == null)
-        {
-            TaskFolder rolesFolder = Object.Instantiate(
-                __instance.RootFolderPrefab,
-                __instance.transform
-            );
-            rolesFolder.gameObject.SetActive(false);
-            rolesFolder.FolderName = Main.ModName;
-            CustomRolesFolder = rolesFolder;
-            __instance.Root.SubFolders.Add(rolesFolder);
-        }
-    }
+        private static TaskFolder CustomRolesFolder;
 
-    public static void Postfix(TaskAdderGame __instance, [HarmonyArgument(0)] TaskFolder taskFolder)
-    {
-        Logger.Info("Opened " + taskFolder.FolderName, "TaskFolder");
-        float xCursor = 0f;
-        float yCursor = 0f;
-        float maxHeight = 0f;
-        if (CustomRolesFolder != null && CustomRolesFolder.FolderName == taskFolder.FolderName)
+        public static void Prefix(TaskAdderGame __instance, [HarmonyArgument(0)] TaskFolder taskFolder)
         {
-            var list = Enum.GetValues<CustomRoles>();
-            foreach (var cRoleID in list)
+            if (__instance.Root == taskFolder && CustomRolesFolder == null)
             {
-                TaskAddButton button = Object.Instantiate(__instance.RoleButton);
-                button.Text.text = Utils.GetRoleName(cRoleID);
-                __instance.AddFileAsChild(CustomRolesFolder, button, ref xCursor, ref yCursor, ref maxHeight);
-                var roleBehaviour = new RoleBehaviour
+                TaskFolder rolesFolder = Object.Instantiate(
+                    __instance.RootFolderPrefab,
+                    __instance.transform
+                );
+
+                rolesFolder.gameObject.SetActive(false);
+                rolesFolder.FolderName = Main.ModName;
+                CustomRolesFolder = rolesFolder;
+                __instance.Root.SubFolders.Add(rolesFolder);
+            }
+        }
+
+        public static void Postfix(TaskAdderGame __instance, [HarmonyArgument(0)] TaskFolder taskFolder)
+        {
+            Logger.Info("Opened " + taskFolder.FolderName, "TaskFolder");
+            var xCursor = 0f;
+            var yCursor = 0f;
+            var maxHeight = 0f;
+
+            if (CustomRolesFolder != null && CustomRolesFolder.FolderName == taskFolder.FolderName)
+            {
+                CustomRoles[] list = Enum.GetValues<CustomRoles>();
+
+                foreach (CustomRoles cRoleID in list)
                 {
-                    Role = (RoleTypes)cRoleID + 1000
-                };
-                button.Role = roleBehaviour;
+                    TaskAddButton button = Object.Instantiate(__instance.RoleButton);
+                    button.Text.text = Utils.GetRoleName(cRoleID);
+                    __instance.AddFileAsChild(CustomRolesFolder, button, ref xCursor, ref yCursor, ref maxHeight);
 
-                var roleColor = Utils.GetRoleColor(cRoleID);
+                    var roleBehaviour = new RoleBehaviour
+                    {
+                        Role = (RoleTypes)cRoleID + 1000
+                    };
 
-                button.FileImage.color = roleColor;
-                button.RolloverHandler.OutColor = roleColor;
-                button.RolloverHandler.OverColor = new(roleColor.r * 0.5f, roleColor.g * 0.5f, roleColor.b * 0.5f);
+                    button.Role = roleBehaviour;
+
+                    Color roleColor = Utils.GetRoleColor(cRoleID);
+
+                    button.FileImage.color = roleColor;
+                    button.RolloverHandler.OutColor = roleColor;
+                    button.RolloverHandler.OverColor = new(roleColor.r * 0.5f, roleColor.g * 0.5f, roleColor.b * 0.5f);
+                }
             }
         }
     }
-}
 
-[HarmonyPatch(typeof(TaskAddButton), nameof(TaskAddButton.Update))]
-class TaskAddButtonUpdatePatch
-{
-    public static bool Prefix(TaskAddButton __instance)
+    [HarmonyPatch(typeof(TaskAddButton), nameof(TaskAddButton.Update))]
+    internal class TaskAddButtonUpdatePatch
     {
-        try
+        public static bool Prefix(TaskAddButton __instance)
         {
-            if ((int)__instance.Role.Role >= 1000)
+            try
             {
-                var PlayerCustomRole = PlayerControl.LocalPlayer.GetCustomRole();
-                CustomRoles FileCustomRole = (CustomRoles)__instance.Role.Role - 1000;
-                __instance.Overlay.enabled = PlayerCustomRole == FileCustomRole;
+                if ((int)__instance.Role.Role >= 1000)
+                {
+                    CustomRoles PlayerCustomRole = PlayerControl.LocalPlayer.GetCustomRole();
+                    CustomRoles FileCustomRole = (CustomRoles)__instance.Role.Role - 1000;
+                    __instance.Overlay.enabled = PlayerCustomRole == FileCustomRole;
+                }
             }
-        }
-        catch
-        {
-        }
+            catch { }
 
-        return true;
+            return true;
+        }
     }
-}
 
-[HarmonyPatch(typeof(TaskAddButton), nameof(TaskAddButton.AddTask))]
-static class AddTaskButtonPatch
-{
-    public static bool Prefix(TaskAddButton __instance)
+    [HarmonyPatch(typeof(TaskAddButton), nameof(TaskAddButton.AddTask))]
+    internal static class AddTaskButtonPatch
     {
-        try
+        public static bool Prefix(TaskAddButton __instance)
         {
-            if ((int)__instance.Role.Role >= 1000)
+            try
             {
-                CustomRoles FileCustomRole = (CustomRoles)__instance.Role.Role - 1000;
-                PlayerControl.LocalPlayer.RpcSetCustomRole(FileCustomRole);
-                PlayerControl.LocalPlayer.RpcSetRole(FileCustomRole.GetRoleTypes(), true);
-                return false;
+                if ((int)__instance.Role.Role >= 1000)
+                {
+                    CustomRoles FileCustomRole = (CustomRoles)__instance.Role.Role - 1000;
+                    PlayerControl.LocalPlayer.RpcSetCustomRole(FileCustomRole);
+                    PlayerControl.LocalPlayer.RpcSetRole(FileCustomRole.GetRoleTypes(), true);
+                    return false;
+                }
             }
-        }
-        catch
-        {
-        }
+            catch { }
 
-        return true;
+            return true;
+        }
     }
 }

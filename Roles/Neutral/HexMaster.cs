@@ -1,26 +1,25 @@
 using EHR.Impostor;
 using static EHR.Options;
 
-namespace EHR.Neutral;
-
-public class HexMaster : RoleBase
+namespace EHR.Neutral
 {
-    private const int Id = 11900;
-    public static OptionItem ModeSwitchAction;
-
-    public override bool IsEnable => false;
-
-    public override void SetupCustomOption()
+    public class HexMaster : RoleBase
     {
-        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HexMaster);
-        ModeSwitchAction = new StringOptionItem(Id + 10, "WitchModeSwitchAction", Witch.SwitchTriggerText, 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HexMaster]);
-    }
+        private const int Id = 11900;
+        public static OptionItem ModeSwitchAction;
 
-    public override void Init()
-    {
-    }
+        public override bool IsEnable => false;
 
-    public override void Add(byte playerId)
-    {
+        public override void SetupCustomOption()
+        {
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HexMaster);
+
+            ModeSwitchAction = new StringOptionItem(Id + 10, "WitchModeSwitchAction", Witch.SwitchTriggerText, 2, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.HexMaster]);
+        }
+
+        public override void Init() { }
+
+        public override void Add(byte playerId) { }
     }
 }

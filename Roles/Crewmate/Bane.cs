@@ -1,6 +1,4 @@
-﻿using AmongUs.GameOptions;
-
-namespace EHR.Crewmate
+﻿namespace EHR.Crewmate
 {
     public class Bane : RoleBase
     {
@@ -17,14 +15,18 @@ namespace EHR.Crewmate
             On = true;
         }
 
-        public override void SetupCustomOption() => Options.SetupRoleOptions(642600, TabGroup.CrewmateRoles, CustomRoles.Bane);
+        public override void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(642600, TabGroup.CrewmateRoles, CustomRoles.Bane);
+        }
 
         public static void OnKilled(PlayerControl killer)
         {
-            if (killer == null) return;
-            if (!killer.GetCustomRole().IsImpostor()) return;
+            if (killer == null || killer.Is(CustomRoles.Bloodlust)) return;
 
-            killer.RpcSetCustomRole(killer.Is(RoleTypes.Shapeshifter) ? CustomRoles.ShapeshifterEHR : killer.IsImpostor() ? CustomRoles.ImpostorEHR : CustomRoles.Amnesiac);
+            CustomRoles erasedRole = killer.IsImpostor() ? CustomRoles.ImpostorEHR : killer.IsCrewmate() ? CustomRoles.CrewmateEHR : CustomRoles.Amnesiac;
+            killer.RpcSetCustomRole(erasedRole);
+            killer.RpcChangeRoleBasis(erasedRole);
         }
     }
 }

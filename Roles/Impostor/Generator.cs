@@ -7,17 +7,20 @@ namespace EHR.Impostor
 {
     internal static class GeneratorStatic
     {
-        private static int GetDefaultCost(this Action action) => action switch
+        private static int GetDefaultCost(this Action action)
         {
-            Action.Kill => 5,
-            Action.Shapeshift => 10,
-            Action.Vent => 20,
-            Action.Sabotage => 15,
+            return action switch
+            {
+                Action.Kill => 5,
+                Action.Shapeshift => 10,
+                Action.Vent => 20,
+                Action.Sabotage => 15,
 
-            _ => 15
-        };
+                _ => 15
+            };
+        }
 
-        enum Action
+        private enum Action
         {
             Kill,
             Shapeshift,
@@ -47,19 +50,24 @@ namespace EHR.Impostor
             {
                 const int id = 11385;
                 Options.SetupRoleOptions(id, TabGroup.ImpostorRoles, CustomRoles.Generator);
+
                 ChargesGainedPerSecond = new IntegerOptionItem(id + 2, "Generator.ChargesGainedEverySecond", new(1, 30, 1), 1, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
+
                 StartingCharges = new IntegerOptionItem(id + 3, "Generator.StartingCharges", new(0, 100, 1), 0, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
+
                 ChargesLostWhileShiftedPerSecond = new IntegerOptionItem(id + 4, "Generator.ChargesLostWhileShiftedPerSecond", new(1, 30, 1), 1, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
+
                 MaxChargesStored = new IntegerOptionItem(id + 5, "Generator.MaxChargesStored", new(0, 200, 1), 100, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
 
-                foreach (var action in Enum.GetValues<Action>())
+                foreach (Action action in Enum.GetValues<Action>())
                 {
-                    var option = new IntegerOptionItem(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
+                    OptionItem option = new IntegerOptionItem(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
                         .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
+
                     ActionCostSettings.Add(action, option);
                 }
             }
@@ -92,13 +100,16 @@ namespace EHR.Impostor
 
                 long now = Utils.TimeStamp;
                 if (now <= LastUpdate) return;
+
                 LastUpdate = now;
 
                 int beforeCharges = Charges;
                 bool shifted = pc.IsShifted();
 
-                if (shifted) Charges -= ChargesLostWhileShifted;
-                else Charges += Gain;
+                if (shifted)
+                    Charges -= ChargesLostWhileShifted;
+                else
+                    Charges += Gain;
 
                 Charges = Math.Clamp(Charges, 0, MaxChargesStored.GetInt());
 
@@ -123,6 +134,7 @@ namespace EHR.Impostor
                         physics.RpcBootFromVent(ventId);
                         physics.myPlayer.Notify(string.Format(Translator.GetString("Generator.Notify.NotEnoughCharges"), cost));
                     }, 0.5f, "Generator not enough charges to vent");
+
                     return;
                 }
 
@@ -134,6 +146,7 @@ namespace EHR.Impostor
                 if (!base.OnCheckMurder(killer, target)) return false;
 
                 int cost = ActionCosts[Action.Kill];
+
                 if (Charges < cost)
                 {
                     killer.Notify(string.Format(Translator.GetString("Generator.Notify.NotEnoughCharges"), cost));

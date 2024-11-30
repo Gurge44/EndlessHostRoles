@@ -1,5 +1,4 @@
 ﻿using AmongUs.GameOptions;
-using UnityEngine;
 
 namespace EHR.Impostor
 {
@@ -11,7 +10,8 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(3800, TabGroup.ImpostorRoles, CustomRoles.Miner);
-            Options.MinerSSCD = new FloatOptionItem(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
+
+            Options.MinerSSCD = new FloatOptionItem(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Miner])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -28,10 +28,12 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = Options.MinerSSCD.GetFloat();
+            if (Options.UsePhantomBasis.GetBool())
+                AURoleOptions.PhantomCooldown = Options.MinerSSCD.GetFloat();
             else
             {
                 if (Options.UsePets.GetBool()) return;
+
                 AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 1f;
             }
@@ -39,8 +41,10 @@ namespace EHR.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (Options.UsePets.GetBool()) hud.PetButton?.OverrideText(Translator.GetString("MinerTeleButtonText"));
-            else hud.AbilityButton?.OverrideText(Translator.GetString("MinerTeleButtonText"));
+            if (Options.UsePets.GetBool())
+                hud.PetButton?.OverrideText(Translator.GetString("MinerTeleButtonText"));
+            else
+                hud.AbilityButton?.OverrideText(Translator.GetString("MinerTeleButtonText"));
         }
 
         public override void OnPet(PlayerControl pc)
@@ -51,6 +55,7 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+
             TeleportToVent(shapeshifter);
 
             return false;
@@ -66,7 +71,7 @@ namespace EHR.Impostor
         {
             if (Main.LastEnteredVent.ContainsKey(pc.PlayerId))
             {
-                var position = Main.LastEnteredVentLocation[pc.PlayerId];
+                Vector2 position = Main.LastEnteredVentLocation[pc.PlayerId];
                 pc.TP(new Vector2(position.x, position.y));
             }
         }

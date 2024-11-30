@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace EHR.Crewmate
@@ -20,6 +21,7 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(5647, TabGroup.CrewmateRoles, CustomRoles.Car);
+
             PropelDistance = new FloatOptionItem(5649, "Car.PropelDistance", new(1f, 20f, 0.5f), 5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Car]);
         }
@@ -42,12 +44,13 @@ namespace EHR.Crewmate
             if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
             if (Count++ < 5) return;
+
             Count = 0;
 
-            var pos = pc.Pos();
+            Vector2 pos = pc.Pos();
             if (Vector2.Distance(pos, LastPosition) < 0.1f) return;
 
-            var direction = pos.x < LastPosition.x
+            Direction direction = pos.x < LastPosition.x
                 ? pos.y < LastPosition.y
                     ? Direction.DownLeft
                     : pos.y > LastPosition.y
@@ -67,18 +70,18 @@ namespace EHR.Crewmate
 
             LastPosition = pos;
 
-            if (Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out var target) && CurrentlyPropelling.Add(target.PlayerId))
-                Main.Instance.StartCoroutine(Propel(pc, target, direction));
+            if (Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out PlayerControl target) && CurrentlyPropelling.Add(target.PlayerId)) Main.Instance.StartCoroutine(Propel(pc, target, direction));
         }
 
-        System.Collections.IEnumerator Propel(PlayerControl car, PlayerControl target, Direction direction)
+        private IEnumerator Propel(PlayerControl car, PlayerControl target, Direction direction)
         {
-            var oldSpeed = Main.AllPlayerSpeed[target.PlayerId];
+            float oldSpeed = Main.AllPlayerSpeed[target.PlayerId];
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.MarkDirtySettings();
 
-            var pos = car.Pos();
-            var addVector = direction switch
+            Vector2 pos = car.Pos();
+
+            Vector2 addVector = direction switch
             {
                 Direction.Left => new(-0.25f, 0),
                 Direction.UpLeft => new(-0.25f, 0.25f),
@@ -91,11 +94,13 @@ namespace EHR.Crewmate
                 _ => Vector2.zero
             };
 
-            var distance = PropelDistance.GetFloat();
-            var collider = target.Collider;
-            for (var newPos = target.Pos(); Vector2.Distance(pos, newPos) < distance && GameStates.IsInTask; newPos += addVector)
+            float distance = PropelDistance.GetFloat();
+            Collider2D collider = target.Collider;
+
+            for (Vector2 newPos = target.Pos(); Vector2.Distance(pos, newPos) < distance && GameStates.IsInTask; newPos += addVector)
             {
                 if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos, Constants.ShipOnlyMask, false)) break;
+
                 target.TP(newPos, log: false);
                 yield return new WaitForSeconds(0.05f);
             }
@@ -106,7 +111,7 @@ namespace EHR.Crewmate
             CurrentlyPropelling.Remove(target.PlayerId);
         }
 
-        enum Direction
+        private enum Direction
         {
             Left,
             UpLeft,

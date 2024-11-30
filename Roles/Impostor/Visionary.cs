@@ -18,15 +18,19 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
+
             UseLimit = new IntegerOptionItem(16152, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Times);
+
             VisionaryAbilityUseGainWithEachKill = new FloatOptionItem(16153, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Times);
+
             ShapeshiftCooldown = new FloatOptionItem(16154, "ShapeshiftCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ChanceOfSeeingAllAlignmentsOnStart = new FloatOptionItem(16155, "ChanceOfSeeingAllAlignmentsOnStart", new(0f, 100f, 1f), 0f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Percent);
@@ -61,6 +65,7 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             if (!shapeshifting) return true;
+
             if (RevealedPlayerIds.Contains(target.PlayerId) || shapeshifter.GetAbilityUseLimit() < 1) return false;
 
             RevealedPlayerIds.Add(target.PlayerId);

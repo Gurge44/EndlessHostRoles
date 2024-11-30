@@ -13,9 +13,67 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="bg.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Remove="bg.jpg" />
+    <Resource Include="bg.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <None Remove="Resources\add.svg" />
+    <Resource Include="Resources\add.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\back.svg" />
+    <Resource Include="Resources\back.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\copy.svg" />
+    <Resource Include="Resources\copy.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\delete.svg" />
+    <Resource Include="Resources\delete.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\discard.svg" />
+    <Resource Include="Resources\discard.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\edit.svg" />
+    <Resource Include="Resources\edit.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\import.svg" />
+    <Resource Include="Resources\import.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\new-file.svg" />
+    <Resource Include="Resources\new-file.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\question.svg" />
+    <Resource Include="Resources\question.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\save.svg" />
+    <Resource Include="Resources\save.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\save-as.svg" />
+    <Resource Include="Resources\save-as.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\search.svg" />
+    <Resource Include="Resources\search.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Resources\template.svg" />
+    <Resource Include="Resources\template.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SharpVectors" Version="1.8.4.2" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.4.2" />
   </ItemGroup>
 
 </Project>

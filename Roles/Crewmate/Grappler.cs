@@ -48,7 +48,8 @@ namespace EHR.Crewmate
                 InUse = true;
                 GrapplerId.GetPlayer().RpcRemoveAbilityUse();
             }
-            else InUse = false;
+            else
+                InUse = false;
 
             Utils.SendRPC(CustomRPC.SyncRoleData, GrapplerId, InUse);
         }
