@@ -126,14 +126,8 @@ internal class ChangeRoleSettings
 
     public static void Postfix(AmongUsClient __instance)
     {
-        try
-        {
-            LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Game);
-        }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        try { LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Game); }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         SetUpRoleTextPatch.IsInIntro = true;
 
@@ -157,14 +151,8 @@ internal class ChangeRoleSettings
 
             Utils.GameStartTimeStamp = Utils.TimeStamp;
 
-            try
-            {
-                Main.AllRoleClasses.Do(x => x.Init());
-            }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
+            try { Main.AllRoleClasses.Do(x => x.Init()); }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             Main.PlayerStates = [];
 
@@ -337,16 +325,13 @@ internal class ChangeRoleSettings
                 DoubleShot.Init();
                 Circumvent.Init();
             }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "Init Roles");
-            }
+            catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }
 
             Main.ChangedRole = false;
 
             try
             {
-                SoloKombatManager.Init();
+                SoloPVP.Init();
                 FFAManager.Init();
                 MoveAndStop.Init();
                 HotPotato.Init();
@@ -354,10 +339,7 @@ internal class ChangeRoleSettings
                 SpeedrunManager.Init();
                 AllInOneGameMode.Init();
             }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
@@ -747,10 +729,7 @@ internal static class StartGameHostPatch
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex.ToString(), "OnGameStartedPatch Add methods");
-                }
+                catch (Exception ex) { Logger.Error(ex.ToString(), "OnGameStartedPatch Add methods"); }
             }
 
             try
@@ -763,10 +742,7 @@ internal static class StartGameHostPatch
                 Allergic.Init();
                 Lovers.Init();
             }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             LateTask.New(CustomTeamManager.InitializeCustomTeamPlayers, 7f, log: false);
 
@@ -956,10 +932,7 @@ internal static class StartGameHostPatch
     {
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            try
-            {
-                SetRoleSelf(pc);
-            }
+            try { SetRoleSelf(pc); }
             catch { }
         }
     }
@@ -1214,10 +1187,7 @@ internal static class StartGameHostPatch
                     });
                 });
             }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         public static void EndReplace()

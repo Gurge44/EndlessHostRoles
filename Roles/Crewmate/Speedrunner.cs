@@ -80,7 +80,7 @@ internal class Speedrunner : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.Is(Team.Crewmate) || meeting || SpeedrunnerPC == null) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.Is(Team.Crewmate) || meeting || SpeedrunnerPC == null || !SpeedrunnerPC.IsAlive() || !seer.IsAlive()) return string.Empty;
 
         TaskState ts = SpeedrunnerPC.GetTaskState();
         if (ts.CompletedTasksCount < SpeedrunnerNotifyAtXTasksLeft.GetInt() || !SpeedrunnerNotifyKillers.GetBool()) return string.Empty;

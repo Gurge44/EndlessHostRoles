@@ -213,7 +213,7 @@ internal static class CheckMurderPatch
         {
             case CustomGameMode.AllInOne when CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !killer.Is(CustomRoles.Killer):
             case CustomGameMode.SoloKombat:
-                SoloKombatManager.OnPlayerAttack(killer, target);
+                SoloPVP.OnPlayerAttack(killer, target);
                 return false;
             case CustomGameMode.AllInOne when CustomGameMode.FFA.IsActiveOrIntegrated() && killer.Is(CustomRoles.Killer):
             case CustomGameMode.FFA:
@@ -1019,10 +1019,7 @@ internal static class ReportDeadBodyPatch
 
             AfterReportTasks(__instance, target);
         }
-        catch (Exception e)
-        {
-            ThrowException(e);
-        }
+        catch (Exception e) { ThrowException(e); }
 
         return true;
     }
@@ -1256,10 +1253,7 @@ internal static class FixedUpdatePatch
             BufferTime[id]--;
         }
 
-        try
-        {
-            DoPostfix(__instance);
-        }
+        try { DoPostfix(__instance); }
         catch (Exception ex)
         {
             long now = TimeStamp;
@@ -1578,7 +1572,7 @@ internal static class FixedUpdatePatch
                     switch (Options.CurrentGameMode)
                     {
                         case CustomGameMode.SoloKombat:
-                            SoloKombatManager.GetNameNotify(target, ref RealName);
+                            SoloPVP.GetNameNotify(target, ref RealName);
                             break;
                     }
 
@@ -1725,7 +1719,7 @@ internal static class FixedUpdatePatch
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.SoloKombat:
-                        Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
+                        Suffix.Append(SoloPVP.GetDisplayHealth(target));
                         break;
                     case CustomGameMode.FFA:
                         Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
@@ -1746,7 +1740,7 @@ internal static class FixedUpdatePatch
                         Suffix.Append(RoomRush.GetSuffix(seer));
                         break;
                     case CustomGameMode.AllInOne:
-                        if (alive) Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
+                        if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target));
                         if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
                         if (self && alive && !seer.Is(CustomRoles.Killer)) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
                         if (self) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - "));

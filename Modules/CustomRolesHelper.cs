@@ -45,7 +45,7 @@ internal static class CustomRolesHelper
     public static bool IsForOtherGameMode(this CustomRoles role)
     {
         return HnSManager.AllHnSRoles.Contains(role) || role is
-            CustomRoles.KB_Normal or
+            CustomRoles.Fighter or
             CustomRoles.Killer or
             CustomRoles.Tasker or
             CustomRoles.Potato or
@@ -385,7 +385,7 @@ internal static class CustomRolesHelper
         return role switch
         {
             // SoloKombat
-            CustomRoles.KB_Normal => RoleTypes.Impostor,
+            CustomRoles.Fighter => RoleTypes.Impostor,
             // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
             // Move And Stop

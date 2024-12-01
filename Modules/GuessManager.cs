@@ -612,10 +612,7 @@ public static class GuessManager
             writer.Write(pc.PlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        finally
-        {
-            GameEndChecker.ShouldNotCheck = false;
-        }
+        finally { GameEndChecker.ShouldNotCheck = false; }
     }
 
     private static void ProcessGuess(PlayerControl pc, MeetingHud meetingHud)
@@ -664,10 +661,7 @@ public static class GuessManager
                 meetingHud.ClearVote();
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static bool MsgToPlayerAndRole(string msg, out byte id, out CustomRoles role, out string error)
@@ -975,7 +969,7 @@ public static class GuessManager
                     or CustomRoles.Disco
                     or CustomRoles.Giant
                     or CustomRoles.NotAssigned
-                    or CustomRoles.KB_Normal
+                    or CustomRoles.Fighter
                     or CustomRoles.Paranoia
                     or CustomRoles.SuperStar
                     or CustomRoles.Konan

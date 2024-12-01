@@ -358,7 +358,7 @@ public enum CustomRoles
     Workaholic,
 
     // Solo Kombat
-    KB_Normal,
+    Fighter,
 
     // FFA
     Killer,

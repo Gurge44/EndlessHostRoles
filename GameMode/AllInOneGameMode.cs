@@ -32,16 +32,18 @@ public static class AllInOneGameMode
 
         foreach (CustomGameMode mode in Enum.GetValues<CustomGameMode>())
         {
-            if (mode is CustomGameMode.Standard or gameMode) continue;
+            if (mode is CustomGameMode.Standard or gameMode or CustomGameMode.All) continue;
 
             bool defaultValue = mode is CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.SoloKombat or CustomGameMode.Speedrun;
 
             GameModeIntegrationSettings[mode] = new BooleanOptionItem(id++, $"AllInOne.{mode}.Integration", defaultValue, TabGroup.GameSettings)
+                .SetHeader((int)mode == 2)
                 .SetGameMode(gameMode)
                 .SetColor(color);
         }
 
         HotPotatoTimerMultiplier = new IntegerOptionItem(id++, "AllInOne.HotPotato.TimerMultiplier", new(1, 10, 1), 3, TabGroup.GameSettings)
+            .SetHeader(true)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetGameMode(gameMode)
             .SetColor(color);
@@ -96,20 +98,18 @@ public static class AllInOneGameMode
 
     public static CustomGameMode GetPrioritizedGameModeForRoles()
     {
-        Dictionary<CustomGameMode, int> order = new()
+        return new[]
         {
-            { CustomGameMode.HideAndSeek, 0 },
-            { CustomGameMode.CaptureTheFlag, 1 },
-            { CustomGameMode.FFA, 2 },
-            { CustomGameMode.SoloKombat, 3 },
-            { CustomGameMode.RoomRush, 4 },
-            { CustomGameMode.Speedrun, 5 },
-            { CustomGameMode.NaturalDisasters, 6 },
-            { CustomGameMode.MoveAndStop, 7 },
-            { CustomGameMode.HotPotato, 8 }
-        };
-
-        return order.Where(x => x.Key.IsActiveOrIntegrated()).MinBy(x => x.Value).Key;
+            CustomGameMode.HideAndSeek,
+            CustomGameMode.CaptureTheFlag,
+            CustomGameMode.FFA,
+            CustomGameMode.SoloKombat,
+            CustomGameMode.RoomRush,
+            CustomGameMode.Speedrun,
+            CustomGameMode.NaturalDisasters,
+            CustomGameMode.MoveAndStop,
+            CustomGameMode.HotPotato
+        }.First(x => x.IsActiveOrIntegrated());
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -146,8 +146,8 @@ public static class AllInOneGameMode
                     Logger.Info($"{__instance.GetRealName()} is near an incomplete task, changing role to Tasker", "AllInOneGameMode");
                     break;
                 case false when Taskers.Remove(__instance.PlayerId):
-                    __instance.RpcChangeRoleBasis(CustomRoles.KB_Normal);
-                    __instance.RpcSetCustomRole(CustomRoles.KB_Normal);
+                    __instance.RpcChangeRoleBasis(CustomRoles.Fighter);
+                    __instance.RpcSetCustomRole(CustomRoles.Fighter);
                     Logger.Info($"{__instance.GetRealName()} is no longer near an incomplete task, changing role to KB_Normal", "AllInOneGameMode");
                     break;
             }

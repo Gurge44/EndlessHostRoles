@@ -200,10 +200,7 @@ internal static class SetEverythingUpPatch
                 }
             }
         }
-        catch (Exception e)
-        {
-            Logger.Error(e.ToString(), "OutroPatch.SetEverythingUpPatch.Postfix");
-        }
+        catch (Exception e) { Logger.Error(e.ToString(), "OutroPatch.SetEverythingUpPatch.Postfix"); }
 
         End:
 
@@ -223,14 +220,12 @@ internal static class SetEverythingUpPatch
         {
             case CustomGameMode.SoloKombat:
             {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.WinText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                __instance.WinText.fontSize -= 5f;
-                __instance.WinText.color = Main.PlayerColors[winnerId];
-                __instance.BackgroundBar.material.color = new Color32(245, 82, 82, 255);
-                WinnerText.text = $"<color=#f55252>{GetString("ModeSoloKombat")}</color>";
-                WinnerText.color = Color.red;
-                goto EndOfText;
+                var color = new Color32(245, 82, 82, 255);
+                __instance.BackgroundBar.material.color = color;
+                WinnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
+                WinnerText.color = color;
+                AdditionalWinnerText = string.Format(GetString("SoloKombat.WinnersKillCount"), SoloPVP.KBScore[CustomWinnerHolder.WinnerIds.First()]);
+                goto Skip;
             }
             case CustomGameMode.FFA:
             {
@@ -423,7 +418,7 @@ internal static class SetEverythingUpPatch
             case CustomGameMode.SoloKombat:
             {
                 List<(int, byte)> list = [];
-                list.AddRange(cloneRoles.Select(id => (SoloKombatManager.GetRankOfScore(id), id)));
+                list.AddRange(cloneRoles.Select(id => (SoloPVP.GetRankFromScore(id), id)));
 
                 list.Sort();
                 foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2))) sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);

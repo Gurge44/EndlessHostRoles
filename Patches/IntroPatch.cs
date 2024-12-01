@@ -30,10 +30,9 @@ internal static class SetUpRoleTextPatch
                 case CustomGameMode.SoloKombat:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : new(255, 255, 255, 255);
-                    CustomRoles role = lp.GetCustomRole();
                     __instance.YouAreText.color = color;
-                    __instance.RoleText.text = Utils.GetRoleName(role);
-                    __instance.RoleText.color = Utils.GetRoleColor(role);
+                    __instance.RoleText.text = GetString("SoloKombat");
+                    __instance.RoleText.color = Utils.GetRoleColor(lp.GetCustomRole());
                     __instance.RoleBlurbText.color = color;
                     __instance.RoleBlurbText.text = lp.GetRoleInfo();
                     break;
@@ -189,10 +188,7 @@ internal static class CoBeginPatch
 
                 sb.Append(text + "\n");
             }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "Platform");
-            }
+            catch (Exception ex) { Logger.Exception(ex, "Platform"); }
         }
 
         sb.Append("------------Vanilla Settings------------\n");
@@ -263,10 +259,7 @@ internal static class CoBeginPatch
                 Utils.LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 
@@ -899,16 +892,10 @@ internal static class IntroCutsceneDestroyPatch
                                     pc.RpcShapeshift(pc, false);
                                     pc.Notify(GetString("GLHF"), 2f);
                                 }
-                                catch (Exception ex)
-                                {
-                                    Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift");
-                                }
+                                catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.foreachCycle");
-                        }
+                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.foreachCycle"); }
                     }, 0.4f, "Show Pet For Everyone");
                 }
                 catch { }

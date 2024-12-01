@@ -350,7 +350,7 @@ internal static class ChatCommands
 
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-        Utils.SendMessage(args[2..].Join(delimiter: " "), targetId, string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName()));
+        Utils.SendMessage(args[2..].Join(delimiter: " "), targetId, string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName(), player.PlayerId));
     }
 
     private static void DeathNoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)

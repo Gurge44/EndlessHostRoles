@@ -328,14 +328,8 @@ internal static class GameEndChecker
 
     private static void StartEndGame(GameOverReason reason)
     {
-        try
-        {
-            LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.Ended);
-        }
-        catch (Exception e)
-        {
-            ThrowException(e);
-        }
+        try { LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.Ended); }
+        catch (Exception e) { ThrowException(e); }
 
         string msg = GetString("NotifyGameEnding");
 
@@ -631,14 +625,13 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
 
-            if (SoloKombatManager.RoundTime > 0) return false;
+            if (SoloPVP.RoundTime > 0) return false;
 
-            PlayerControl winner = Main.AllPlayerControls.FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloKombatManager.GetRankOfScore(x.PlayerId) == 1) ?? Main.AllAlivePlayerControls[0];
+            HashSet<byte> winners = [Main.AllPlayerControls.FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloPVP.GetRankFromScore(x.PlayerId) == 1)?.PlayerId ?? Main.AllAlivePlayerControls[0].PlayerId];
+            int kills = SoloPVP.KBScore[winners.First()];
+            winners.UnionWith(SoloPVP.KBScore.Where(x => x.Value == kills).Select(x => x.Key));
 
-            WinnerIds =
-            [
-                winner.PlayerId
-            ];
+            WinnerIds = winners;
 
             Main.DoBlockNameChange = true;
 

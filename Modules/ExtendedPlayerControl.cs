@@ -161,14 +161,8 @@ internal static class ExtendedPlayerControl
 
     public static ClientData GetClient(this PlayerControl player)
     {
-        try
-        {
-            return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Character.PlayerId == player.PlayerId);
-        }
-        catch
-        {
-            return null;
-        }
+        try { return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Character.PlayerId == player.PlayerId); }
+        catch { return null; }
     }
 
     public static int GetClientId(this PlayerControl player)
@@ -244,10 +238,7 @@ internal static class ExtendedPlayerControl
 
             foreach (PlayerControl seer in Main.AllPlayerControls)
             {
-                try
-                {
-                    Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-                }
+                try { Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name; }
                 catch { }
             }
 
@@ -255,10 +246,7 @@ internal static class ExtendedPlayerControl
 
             player.RpcSetName(name);
         }
-        catch (Exception e)
-        {
-            ThrowException(e);
-        }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static void RpcSetNamePrivate(this PlayerControl player, string name, PlayerControl seer = null, bool force = false)
@@ -1245,7 +1233,7 @@ internal static class ExtendedPlayerControl
         return pc.GetCustomRole() switch
         {
             // SoloKombat
-            CustomRoles.KB_Normal => pc.SoloAlive(),
+            CustomRoles.Fighter => pc.SoloAlive(),
             // FFA
             CustomRoles.Killer => pc.IsAlive(),
             // Move And Stop
@@ -1413,7 +1401,7 @@ internal static class ExtendedPlayerControl
 
         Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
-            CustomRoles.KB_Normal => SoloKombatManager.KB_ATKCooldown.GetFloat(),
+            CustomRoles.Fighter => SoloPVP.KB_ATKCooldown.GetFloat(),
             CustomRoles.Killer => FFAManager.FFAKcd.GetFloat(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };

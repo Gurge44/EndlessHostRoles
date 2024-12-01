@@ -868,10 +868,7 @@ public static class Options
             if (!File.Exists(path)) File.Create(path).Close();
             File.WriteAllText(path, sb.ToString());
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
 #endif
     }
 
@@ -1078,7 +1075,7 @@ public static class Options
                 Team.Neutral => (0, 5),
                 _ => (0, 15)
             };
-                
+
             var minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), defaultNum.Min, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
@@ -1087,7 +1084,7 @@ public static class Options
             var maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), defaultNum.Max, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(team.GetTeamColor());
-                
+
             FactionMinMaxSettings[team] = (minSetting, maxSetting);
         }
 
@@ -1227,14 +1224,8 @@ public static class Options
                 RoleLoadingText = $"{index}/{allRoles} ({roleClass.GetType().Name})";
                 Log();
 
-                try
-                {
-                    roleClass.SetupCustomOption();
-                }
-                catch (Exception e)
-                {
-                    Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}");
-                }
+                try { roleClass.SetupCustomOption(); }
+                catch (Exception e) { Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}"); }
 
                 yield return null;
             }
@@ -1404,7 +1395,7 @@ public static class Options
         AllInOneGameMode.SetupCustomOption();
 
         // SoloKombat
-        SoloKombatManager.SetupCustomOption();
+        SoloPVP.SetupCustomOption();
         // FFA
         FFAManager.SetupCustomOption();
         // Move And Stop

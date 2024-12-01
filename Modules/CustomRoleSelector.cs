@@ -62,7 +62,7 @@ internal static class CustomRoleSelector
         {
             Dictionary<CustomGameMode, CustomRoles> gameModeRoles = new()
             {
-                { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
+                { CustomGameMode.SoloKombat, CustomRoles.Fighter },
                 { CustomGameMode.FFA, CustomRoles.Killer },
                 { CustomGameMode.MoveAndStop, CustomRoles.Tasker },
                 { CustomGameMode.HotPotato, CustomRoles.Potato },
@@ -103,7 +103,7 @@ internal static class CustomRoleSelector
 
         var rd = IRandom.Instance;
         int playerCount = Main.AllAlivePlayerControls.Length;
-            
+
         var impLimits = Options.FactionMinMaxSettings[Team.Impostor];
         int optImpNum = rd.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt());
 
@@ -235,7 +235,7 @@ internal static class CustomRoleSelector
             RoleAssignType type = rd.Next(2) == 0 ? RoleAssignType.NeutralKilling : RoleAssignType.NonKillingNeutral;
             var toRemove = Roles[type].RandomElement();
             Roles[type].Remove(toRemove);
-                
+
             Logger.Warn($"Removed {toRemove.Role} from {type}", "CustomRoleSelector");
         }
 

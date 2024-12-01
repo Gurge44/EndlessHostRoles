@@ -188,10 +188,7 @@ public static class Utils
             ClientData client = AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Id == id);
             return client;
         }
-        catch
-        {
-            return null;
-        }
+        catch { return null; }
     }
 
     public static bool IsActive(SystemTypes type)
@@ -472,10 +469,7 @@ public static class Utils
                 ? GetString($"Rate{role.GetMode()}")
                 : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
         }
-        catch (KeyNotFoundException)
-        {
-            mode = GetString("Rate0");
-        }
+        catch (KeyNotFoundException) { mode = GetString("Rate0"); }
 
         mode = mode.Replace("color=", string.Empty);
         return parentheses ? $"({mode})" : mode;
@@ -623,14 +617,8 @@ public static class Utils
 
         MessageWriter w;
 
-        try
-        {
-            w = CreateRPC(rpc);
-        }
-        catch
-        {
-            return;
-        }
+        try { w = CreateRPC(rpc); }
+        catch { return; }
 
         try
         {
@@ -673,19 +661,13 @@ public static class Utils
                         {
                             if (o != null && Enum.TryParse(o.GetType(), o.ToString(), out object e) && e != null) w.WritePacked((int)e);
                         }
-                        catch (InvalidCastException e)
-                        {
-                            ThrowException(e);
-                        }
+                        catch (InvalidCastException e) { ThrowException(e); }
 
                         break;
                 }
             }
         }
-        finally
-        {
-            EndRPC(w);
-        }
+        finally { EndRPC(w); }
     }
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
@@ -1068,14 +1050,8 @@ public static class Utils
         StringBuilder ProgressText = new();
         PlayerControl pc = GetPlayerById(playerId);
 
-        try
-        {
-            ProgressText.Append(Main.PlayerStates[playerId].Role.GetProgressText(playerId, comms));
-        }
-        catch (Exception ex)
-        {
-            Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex, "Utils.GetProgressText");
-        }
+        try { ProgressText.Append(Main.PlayerStates[playerId].Role.GetProgressText(playerId, comms)); }
+        catch (Exception ex) { Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex, "Utils.GetProgressText"); }
 
         if (pc.Is(CustomRoles.Damocles)) ProgressText.Append($" {Damocles.GetProgressText(playerId)}");
         if (pc.Is(CustomRoles.Stressed)) ProgressText.Append($" {Stressed.GetProgressText(playerId)}");
@@ -1110,10 +1086,7 @@ public static class Utils
 
             return ColorString(TextColor, $" ({Math.Round(limit, 1)})");
         }
-        catch
-        {
-            return string.Empty;
-        }
+        catch { return string.Empty; }
     }
 
     public static string GetTaskCount(byte playerId, bool comms, bool moveAndStop = false)
@@ -1147,10 +1120,7 @@ public static class Utils
             string Completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
             return ColorString(TextColor, $" {(moveAndStop ? "<size=2>" : string.Empty)}{Completed}/{taskState.AllTasksCount}{(moveAndStop ? $" <#ffffff>({MoveAndStop.GetLivesRemaining(playerId)} \u2665)</color></size>" : string.Empty)}");
         }
-        catch
-        {
-            return string.Empty;
-        }
+        catch { return string.Empty; }
     }
 
     public static void ShowActiveSettingsHelp(byte PlayerId = byte.MaxValue)
@@ -1206,10 +1176,7 @@ public static class Utils
 
         void CheckAndAppendOptionString(OptionItem item)
         {
-            if (item.GetBool() && item.Parent == null && !item.IsCurrentlyHidden())
-            {
-                sb.Append($"\n{item.GetName(true)}: {item.GetString()}");
-            }
+            if (item.GetBool() && item.Parent == null && !item.IsCurrentlyHidden()) { sb.Append($"\n{item.GetName(true)}: {item.GetString()}"); }
         }
     }
 
@@ -1243,10 +1210,7 @@ public static class Utils
                     ? GetString($"Rate{role.Key.GetMode()}")
                     : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role.Key].GetInt()}");
             }
-            catch (KeyNotFoundException)
-            {
-                continue;
-            }
+            catch (KeyNotFoundException) { continue; }
 
             mode = mode.Replace("color=", string.Empty);
 
@@ -1294,10 +1258,7 @@ public static class Utils
                     ? GetString($"Rate{role.Key.GetMode()}")
                     : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role.Key].GetInt()}");
             }
-            catch (KeyNotFoundException)
-            {
-                continue;
-            }
+            catch (KeyNotFoundException) { continue; }
 
             mode = mode.Replace("color=", string.Empty);
 
@@ -1348,10 +1309,7 @@ public static class Utils
                     ? GetString($"Rate{role.GetMode()}")
                     : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
             }
-            catch (KeyNotFoundException)
-            {
-                continue;
-            }
+            catch (KeyNotFoundException) { continue; }
 
             mode = mode.Replace("color=", string.Empty);
 
@@ -1427,30 +1385,21 @@ public static class Utils
                 sb.Append("\n<#c4aa02>\u2605</color> ").Append(EndGamePatch.SummaryText[id] /*.RemoveHtmlTags()*/);
                 cloneRoles.Remove(id);
             }
-            catch (Exception ex)
-            {
-                ThrowException(ex);
-            }
+            catch (Exception ex) { ThrowException(ex); }
         }
 
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.SoloKombat:
                 List<(int, byte)> list = [];
-                list.AddRange(cloneRoles.Select(id => (SoloKombatManager.GetRankOfScore(id), id)));
+                list.AddRange(cloneRoles.Select(id => (SoloPVP.GetRankFromScore(id), id)));
 
                 list.Sort();
 
                 foreach ((int, byte) id in list)
                 {
-                    try
-                    {
-                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
-                    }
-                    catch (Exception ex)
-                    {
-                        ThrowException(ex);
-                    }
+                    try { sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]); }
+                    catch (Exception ex) { ThrowException(ex); }
                 }
 
                 break;
@@ -1462,14 +1411,8 @@ public static class Utils
 
                 foreach ((int, byte) id in list2)
                 {
-                    try
-                    {
-                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
-                    }
-                    catch (Exception ex)
-                    {
-                        ThrowException(ex);
-                    }
+                    try { sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]); }
+                    catch (Exception ex) { ThrowException(ex); }
                 }
 
                 break;
@@ -1481,14 +1424,8 @@ public static class Utils
 
                 foreach ((int, byte) id in list3)
                 {
-                    try
-                    {
-                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
-                    }
-                    catch (Exception ex)
-                    {
-                        ThrowException(ex);
-                    }
+                    try { sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]); }
+                    catch (Exception ex) { ThrowException(ex); }
                 }
 
                 break;
@@ -1501,14 +1438,8 @@ public static class Utils
             case CustomGameMode.HideAndSeek:
                 foreach (byte id in cloneRoles)
                 {
-                    try
-                    {
-                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
-                    }
-                    catch (Exception ex)
-                    {
-                        ThrowException(ex);
-                    }
+                    try { sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]); }
+                    catch (Exception ex) { ThrowException(ex); }
                 }
 
                 break;
@@ -1523,10 +1454,7 @@ public static class Utils
 
                         sb.Append("\n\u3000 ").Append(summaryText);
                     }
-                    catch (Exception ex)
-                    {
-                        ThrowException(ex);
-                    }
+                    catch (Exception ex) { ThrowException(ex); }
                 }
 
                 break;
@@ -1642,14 +1570,8 @@ public static class Utils
         text = text.Replace("色", string.Empty);
         int color;
 
-        try
-        {
-            color = int.Parse(text);
-        }
-        catch
-        {
-            color = -1;
-        }
+        try { color = int.Parse(text); }
+        catch { color = -1; }
 
         color = text switch
         {
@@ -1741,10 +1663,7 @@ public static class Utils
             else
                 Logger.Msg("No Player to change to Refugee.", "Add Refugee");
         }
-        catch (Exception e)
-        {
-            ThrowException(e);
-        }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
@@ -1815,10 +1734,7 @@ public static class Utils
             string pureTitle = title.RemoveHtmlTags();
             Logger.Info($" Message: {pureText[..(pureText.Length <= 300 ? pureText.Length : 300)]} - To: {(sendTo == byte.MaxValue ? "Everyone" : $"{GetPlayerById(sendTo)?.GetRealName()}")} - Title: {pureTitle[..(pureTitle.Length <= 300 ? pureTitle.Length : 300)]}", "SendMessage");
         }
-        catch
-        {
-            Logger.Info(" Message sent", "SendMessage");
-        }
+        catch { Logger.Info(" Message sent", "SendMessage"); }
 
         text = text.RemoveHtmlTagsTemplate();
 
@@ -2165,7 +2081,7 @@ public static class Utils
                             SelfSuffix.Append(FFAManager.GetPlayerArrow(seer));
                             break;
                         case CustomGameMode.SoloKombat:
-                            SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer));
+                            SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer));
                             break;
                         case CustomGameMode.MoveAndStop:
                             SelfSuffix.Append(MoveAndStop.GetSuffixText(seer));
@@ -2190,7 +2106,7 @@ public static class Utils
                             break;
                         case CustomGameMode.AllInOne:
                             bool alive = seer.IsAlive();
-                            if (alive) SelfSuffix.Append(SoloKombatManager.GetDisplayHealth(seer) + "\n");
+                            if (alive) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer) + "\n");
                             if (alive) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
                             SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
                             if (alive && !seer.Is(CustomRoles.Killer)) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
@@ -2281,7 +2197,7 @@ public static class Utils
                     switch (Options.CurrentGameMode)
                     {
                         case CustomGameMode.SoloKombat:
-                            SoloKombatManager.GetNameNotify(seer, ref SelfName);
+                            SoloPVP.GetNameNotify(seer, ref SelfName);
                             SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
                             break;
                         case CustomGameMode.FFA:
@@ -2311,10 +2227,7 @@ public static class Utils
                             continue;
                         }
 
-                        if ((IsActive(SystemTypes.MushroomMixupSabotage) || MushroomMixup) && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(seer.PlayerId))
-                        {
-                            target.RpcSetNamePrivate("<size=0%>", force: NoCache);
-                        }
+                        if ((IsActive(SystemTypes.MushroomMixupSabotage) || MushroomMixup) && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(seer.PlayerId)) { target.RpcSetNamePrivate("<size=0%>", force: NoCache); }
                         else
                         {
                             TargetMark.Clear();
@@ -2488,7 +2401,7 @@ public static class Utils
                                 switch (Options.CurrentGameMode)
                                 {
                                     case CustomGameMode.SoloKombat:
-                                        TargetSuffix.Append(SoloKombatManager.GetDisplayHealth(target));
+                                        TargetSuffix.Append(SoloPVP.GetDisplayHealth(target));
                                         break;
                                     case CustomGameMode.HideAndSeek:
                                         TargetSuffix.Append(HnSManager.GetSuffixText(seer, target));
@@ -3268,10 +3181,7 @@ public static class Utils
             sprite.hideFlags |= HideFlags.HideAndDontSave | HideFlags.DontSaveInEditor;
             return CachedSprites[path + pixelsPerUnit] = sprite;
         }
-        catch
-        {
-            Logger.Error($"Error loading texture from: {path}", "LoadImage");
-        }
+        catch { Logger.Error($"Error loading texture from: {path}", "LoadImage"); }
 
         return null;
     }
@@ -3287,10 +3197,7 @@ public static class Utils
             texture.LoadImage(ms.ToArray(), false);
             return texture;
         }
-        catch
-        {
-            Logger.Error($"Error loading texture: {path}", "LoadImage");
-        }
+        catch { Logger.Error($"Error loading texture: {path}", "LoadImage"); }
 
         return null;
     }

@@ -648,7 +648,7 @@ public class Main : BasePlugin
                 { CustomRoles.Mare, "#ff1919" },
 
                 // SoloKombat
-                { CustomRoles.KB_Normal, "#f55252" },
+                { CustomRoles.Fighter, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
                 // Move And Stop

@@ -214,7 +214,7 @@ internal static class HudManagerPatch
                         case CustomRoles.Medic:
                             usedButton?.OverrideText(GetString("MedicalerButtonText"));
                             break;
-                        case CustomRoles.KB_Normal:
+                        case CustomRoles.Fighter:
                             __instance.KillButton?.OverrideText(GetString("GamerButtonText"));
                             break;
                         case CustomRoles.Deputy:
@@ -244,7 +244,7 @@ internal static class HudManagerPatch
 
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
-                        CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
+                        CustomGameMode.SoloKombat => SoloPVP.GetHudText(),
                         CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
                         CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
@@ -377,10 +377,7 @@ internal static class HudManagerPatch
             LastNullError = Utils.TimeStamp + 2;
             Utils.ThrowException(e);
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 
@@ -507,7 +504,7 @@ internal static class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 break;
 
-            case CustomRoles.KB_Normal:
+            case CustomRoles.Fighter:
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
                 __instance.ReportButton?.ToggleVisible(false);
@@ -691,12 +688,12 @@ internal static class TaskPanelBehaviourPatch
                     PlayerControl lpc = PlayerControl.LocalPlayer;
 
                     finalText += "\r\n<size=90%>";
-                    finalText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]:N1}";
-                    finalText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]:N1}";
-                    finalText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]:N1}";
+                    finalText += $"\r\n{GetString("PVP.ATK")}: {SoloPVP.PlayerATK[lpc.PlayerId]:N1}";
+                    finalText += $"\r\n{GetString("PVP.DF")}: {SoloPVP.PlayerDF[lpc.PlayerId]:N1}";
+                    finalText += $"\r\n{GetString("PVP.RCO")}: {SoloPVP.PlayerHPReco[lpc.PlayerId]:N1}";
                     finalText += "\r\n</size>";
 
-                    finalText += Main.PlayerStates.Keys.OrderBy(SoloKombatManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloKombatManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloKombatManager.KBScore.GetValueOrDefault(x, 0))}");
+                    finalText += Main.PlayerStates.Keys.OrderBy(SoloPVP.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloPVP.GetRankFromScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.KBScore.GetValueOrDefault(x, 0))}");
 
                     finalText += "</size>";
                     break;
@@ -877,10 +874,7 @@ internal static class CoShowIntroPatch
                     Utils.SyncAllSettings();
                 }
             }
-            catch
-            {
-                Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin");
-            }
+            catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
         }, 4f, "Assign Tasks");
     }
 }
