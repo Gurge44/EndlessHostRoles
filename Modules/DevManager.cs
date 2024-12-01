@@ -108,7 +108,8 @@ namespace EHR
                 new("planegame#5847", "#44fff7", "Kopp56", true), // Kopp56 PRO
                 new("clovesorry#6973", "#191970", "Master", true), // MAT
                 new("ivorywish#3580", "#ff0000", "YouTuber", true), // Erik Carr
-                new("cleardress#6310", "#ffffff", "<#00BFFF>一</color><#48D1CC>个</color><#7CFC00>热狗</color><#32CD32>uwu</color>", true), // ABoringCat
+                new("cleardress#6310", "#ffffff", "<#00BFFF>一</color><#48D1CC>个</color><#7CFC00>热狗</color><#32CD32>uwu</color>", true), // ABoringCat (CN Translator Team Leader)
+                new("alphacook#6624", "#ff0000", "Translator CN", true), // Dispenser (CN Translator Member)
                 new("rainypearl#9545", "#A020F0", "YouTuber", true), // bielModzs
                 new("kiltedbill#4145", isUp: true), // tsaki84
                 new("onlyfax#3941", "#ff0000", "YouTuber", true), // The Nick AG

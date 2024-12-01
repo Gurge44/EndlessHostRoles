@@ -73,6 +73,7 @@ namespace EHR
         public static Dictionary<CustomRoles, StringOptionItem> CustomRoleSpawnChances;
         public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
 
+        public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
         public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
 
         public static readonly string[] Rates =
@@ -221,10 +222,6 @@ namespace EHR
         public static OptionItem UniqueNeutralRevealScreen;
 
 
-        public static OptionItem NonNeutralKillingRolesMinPlayer;
-        public static OptionItem NonNeutralKillingRolesMaxPlayer;
-        public static OptionItem NeutralKillingRolesMinPlayer;
-        public static OptionItem NeutralKillingRolesMaxPlayer;
         public static OptionItem NeutralRoleWinTogether;
         public static OptionItem NeutralWinTogether;
         public static OptionItem NeutralsKnowEachOther;
@@ -1014,24 +1011,6 @@ namespace EHR
             DeadImpCantSabotage = new BooleanOptionItem(201, "DeadImpCantSabotage", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard);
 
-            NonNeutralKillingRolesMinPlayer = new IntegerOptionItem(202, "NonNeutralKillingRolesMinPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetHeader(true)
-                .SetValueFormat(OptionFormat.Players);
-
-            NonNeutralKillingRolesMaxPlayer = new IntegerOptionItem(203, "NonNeutralKillingRolesMaxPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetValueFormat(OptionFormat.Players);
-
-            NeutralKillingRolesMinPlayer = new IntegerOptionItem(204, "NeutralKillingRolesMinPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetHeader(true)
-                .SetValueFormat(OptionFormat.Players);
-
-            NeutralKillingRolesMaxPlayer = new IntegerOptionItem(205, "NeutralKillingRolesMaxPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetValueFormat(OptionFormat.Players);
-
             NeutralRoleWinTogether = new BooleanOptionItem(208, "NeutralRoleWinTogether", false, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true);
@@ -1080,6 +1059,67 @@ namespace EHR
             AddBracketsToAddons = new BooleanOptionItem(13500, "BracketAddons", false, TabGroup.Addons)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true);
+
+            #endregion
+
+            #region RoleListMaker
+
+            new TextOptionItem(100030, "MenuTitle.RoleListMaker", TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColor(new Color32(0, 165, 255, byte.MaxValue));
+
+            int id = 19820;
+
+            foreach (Team team in Enum.GetValues<Team>()[1..3])
+            {
+                (int Min, int Max) defaultNum = team switch
+                {
+                    Team.Impostor => (0, 3),
+                    Team.Neutral => (0, 5),
+                    _ => (0, 15)
+                };
+                
+                var minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), defaultNum.Min, TabGroup.GameSettings)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetHeader(true)
+                    .SetColor(team.GetTeamColor());
+
+                var maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), defaultNum.Max, TabGroup.GameSettings)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetColor(team.GetTeamColor());
+                
+                FactionMinMaxSettings[team] = (minSetting, maxSetting);
+            }
+
+            HashSet<TabGroup> doneTabs = [];
+
+            foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
+            {
+                TabGroup tab = roleOptionType.GetTabFromOptionType();
+                Color roleOptionTypeColor = roleOptionType.GetRoleOptionTypeColor();
+                var options = new OptionItem[3];
+
+                options[0] = new BooleanOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.EnableLimit", false, tab)
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetHeader(doneTabs.Add(tab))
+                    .SetColor(roleOptionTypeColor);
+
+                options[1] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Min", new(0, 15, 1), 1, tab)
+                    .SetParent(options[0])
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetValueFormat(OptionFormat.Players)
+                    .SetColor(roleOptionTypeColor);
+
+                options[2] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Max", new(0, 15, 1), 1, tab)
+                    .SetParent(options[0])
+                    .SetGameMode(CustomGameMode.Standard)
+                    .SetValueFormat(OptionFormat.Players)
+                    .SetColor(roleOptionTypeColor);
+
+                RoleSubCategoryLimits[roleOptionType] = options;
+            }
+
+            #endregion
 
             #region Roles/AddOns_Settings
 
@@ -1216,8 +1256,6 @@ namespace EHR
             {
                 Logger.Info(" " + RoleLoadingText, MainLoadingText);
             }
-
-            #endregion
 
 
             LoadingPercentage = 60;
@@ -1389,37 +1427,6 @@ namespace EHR
 
             LoadingPercentage = 65;
             MainLoadingText = "Building game settings";
-
-            new TextOptionItem(100030, "MenuTitle.RoleListMaker", TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColor(new Color32(0, 165, 255, byte.MaxValue));
-
-            int id = 19820;
-
-            foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
-            {
-                Color roleOptionTypeColor = roleOptionType.GetRoleOptionTypeColor();
-                var options = new OptionItem[3];
-
-                options[0] = new BooleanOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.EnableLimit", false, TabGroup.GameSettings)
-                    .SetGameMode(CustomGameMode.Standard)
-                    .SetHeader(true)
-                    .SetColor(roleOptionTypeColor);
-
-                options[1] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Min", new(0, 15, 1), 1, TabGroup.GameSettings)
-                    .SetParent(options[0])
-                    .SetGameMode(CustomGameMode.Standard)
-                    .SetValueFormat(OptionFormat.Players)
-                    .SetColor(roleOptionTypeColor);
-
-                options[2] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Max", new(0, 15, 1), 1, TabGroup.GameSettings)
-                    .SetParent(options[0])
-                    .SetGameMode(CustomGameMode.Standard)
-                    .SetValueFormat(OptionFormat.Players)
-                    .SetColor(roleOptionTypeColor);
-
-                RoleSubCategoryLimits[roleOptionType] = options;
-            }
 
             new TextOptionItem(100023, "MenuTitle.Ejections", TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)

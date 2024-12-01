@@ -246,6 +246,7 @@ namespace EHR
                             case CustomRoles.EvilGuesser when Main.GuesserGuessed[pc.PlayerId] >= Options.EGCanGuessTime.GetInt():
                                 ShowMessage("EGGuessMax");
                                 return true;
+                            case CustomRoles.Shifter when !Shifter.CanGuess.GetBool():
                             case CustomRoles.Phantasm when !Options.PhantomCanGuess.GetBool():
                             case CustomRoles.Terrorist when !Options.TerroristCanGuess.GetBool():
                             case CustomRoles.Workaholic when !Workaholic.WorkaholicCanGuess.GetBool():
