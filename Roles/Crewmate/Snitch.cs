@@ -69,14 +69,14 @@ public class Snitch : RoleBase
         IsComplete[playerId] = false;
     }
 
-    public static bool IsThisRole(byte playerId)
+    public static bool IsSnitch(byte playerId)
     {
         return PlayerIdList.Contains(playerId);
     }
 
     private static bool GetExpose(PlayerControl pc)
     {
-        if (!IsThisRole(pc.PlayerId) || !pc.IsAlive() || pc.Is(CustomRoles.Madmate)) return false;
+        if (!IsSnitch(pc.PlayerId) || !pc.IsAlive() || pc.Is(CustomRoles.Madmate)) return false;
 
         byte snitchId = pc.PlayerId;
         return IsExposed[snitchId];
@@ -175,7 +175,7 @@ public class Snitch : RoleBase
 
     public static void OnCompleteTask(PlayerControl player)
     {
-        if (!IsThisRole(player.PlayerId) || player.Is(CustomRoles.Madmate)) return;
+        if (!IsSnitch(player.PlayerId) || player.Is(CustomRoles.Madmate)) return;
 
         CheckTask(player);
     }

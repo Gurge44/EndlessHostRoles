@@ -101,7 +101,7 @@ public class Sniper : RoleBase
         MeetingReset = false;
     }
 
-    private static bool IsThisRole(byte playerId)
+    private static bool IsSniper(byte playerId)
     {
         return PlayerIdList.Contains(playerId);
     }
@@ -197,7 +197,7 @@ public class Sniper : RoleBase
 
     private bool Snipe(PlayerControl sniper, bool shapeshifting, bool isPet = false)
     {
-        if (!IsThisRole(sniper.PlayerId) || !sniper.IsAlive()) return true;
+        if (!IsSniper(sniper.PlayerId) || !sniper.IsAlive()) return true;
 
         byte sniperId = sniper.PlayerId;
 
@@ -295,7 +295,7 @@ public class Sniper : RoleBase
 
     public override void OnFixedUpdate(PlayerControl sniper)
     {
-        if (!IsThisRole(sniper.PlayerId) || !sniper.IsAlive()) return;
+        if (!IsSniper(sniper.PlayerId) || !sniper.IsAlive()) return;
 
         if (!AimAssist) return;
 
@@ -346,7 +346,7 @@ public class Sniper : RoleBase
 
     public static string GetShotNotify(byte seerId)
     {
-        if (AimAssist && IsThisRole(seerId))
+        if (AimAssist && IsSniper(seerId))
         {
             if (Main.PlayerStates[seerId].Role is not Sniper sp) return string.Empty;
 
@@ -374,7 +374,7 @@ public class Sniper : RoleBase
             hud.PetButton.OverrideText(GetString(bulletCount <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
         else
         {
-            if (IsThisRole(id)) hud.AbilityButton.SetUsesRemaining(bulletCount);
+            if (IsSniper(id)) hud.AbilityButton.SetUsesRemaining(bulletCount);
 
             hud.AbilityButton.OverrideText(GetString(bulletCount <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
         }

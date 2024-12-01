@@ -70,7 +70,7 @@ public class Vampire : RoleBase
         }
     }
 
-    public static bool IsThisRole(byte playerId)
+    public static bool IsVampire(byte playerId)
     {
         return PlayerIdList.Contains(playerId);
     }
@@ -87,7 +87,7 @@ public class Vampire : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsThisRole(killer.PlayerId)) return true;
+        if (!IsVampire(killer.PlayerId)) return true;
 
         if (target.Is(CustomRoles.Bait)) return true;
 
@@ -120,7 +120,7 @@ public class Vampire : RoleBase
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance) return;
 
         byte vampireID = vampire.PlayerId;
-        if (!IsThisRole(vampire.PlayerId)) return;
+        if (!IsVampire(vampire.PlayerId)) return;
 
         List<byte> targetList = [.. BittenPlayers.Where(b => b.Value.VampireId == vampireID).Select(b => b.Key)];
 
