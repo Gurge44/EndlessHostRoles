@@ -187,6 +187,11 @@ namespace EHR.Crewmate
             return $"<#ff0000>O<sub>2</sub>:</color> {Utils.ColorString(GetLevelColor(), OxygenLevel.ToString())}%";
         }
 
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
+
         private enum Level
         {
             Blind,

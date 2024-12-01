@@ -167,6 +167,17 @@ namespace EHR
             return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
         }
 
+        protected bool IsThisRole(PlayerControl pc)
+        {
+            return pc.GetCustomRole() == Enum.Parse<CustomRoles>(GetType().Name, true);
+        }
+
+        protected bool IsThisRole(byte id)
+        {
+            var role = Main.PlayerStates.TryGetValue(id, out var state) ? state.MainRole : CustomRoles.NotAssigned;
+            return role == Enum.Parse<CustomRoles>(GetType().Name, true);
+        }
+
         // Option setup simplifier
         protected OptionSetupHandler StartSetup(int id, bool single = false)
         {
@@ -179,6 +190,7 @@ namespace EHR
 
             if (single) Options.SetupSingleRoleOptions(id++, tab, role, hideMaxSetting: true);
             else Options.SetupRoleOptions(id++, tab, role);
+
             return new(id, tab, role);
         }
     }

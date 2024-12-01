@@ -58,5 +58,10 @@ namespace EHR.Crewmate
         {
             UseAbility(pc);
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

@@ -1485,7 +1485,7 @@ namespace EHR
         public static void RpcExileV2(this PlayerControl player)
         {
             player.Exiled();
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             FixedUpdatePatch.LoversSuicide(player.PlayerId);
         }

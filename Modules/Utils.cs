@@ -148,10 +148,14 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                 }
             }
 
-            if (AmongUsClient.Instance.AmHost)
+            switch (AmongUsClient.Instance.AmHost)
             {
-                nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
-                nt.SetDirtyBit(uint.MaxValue);
+                case true:
+                    nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
+                    nt.SetDirtyBit(uint.MaxValue);
+                    break;
+                case false when !nt.AmOwner:
+                    return false;
             }
 
             var newSid = (ushort)(nt.lastSequenceId + 8);
@@ -3090,88 +3094,94 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
         public static string SummaryTexts(byte id, bool disableColor = true, bool check = false)
         {
-            //var RolePos = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.English or SupportedLangs.Russian ? 37 : 34;
-            //var KillsPos = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.English or SupportedLangs.Russian ? 14 : 12;
-            string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-
-            if (id == PlayerControl.LocalPlayer.PlayerId)
-                name = DataManager.player.Customization.Name;
-            else
-                name = GetPlayerById(id)?.Data.PlayerName ?? name;
-
-            TaskState taskState = Main.PlayerStates[id].TaskState;
-            string TaskCount;
-
-            if (taskState.HasTasks)
+            try
             {
-                NetworkedPlayerInfo info = GetPlayerInfoById(id);
-                Color TaskCompleteColor = HasTasks(info) ? Color.green : Color.cyan;
-                Color NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white;
+                string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
 
-                if (Workhorse.IsThisRole(id)) NonCompleteColor = Workhorse.RoleColor;
+                if (id == PlayerControl.LocalPlayer.PlayerId)
+                    name = DataManager.player.Customization.Name;
+                else
+                    name = GetPlayerById(id)?.Data.PlayerName ?? name;
 
-                Color NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
+                TaskState taskState = Main.PlayerStates[id].TaskState;
+                string TaskCount;
 
-                if (Main.PlayerStates.TryGetValue(id, out PlayerState ps))
+                if (taskState.HasTasks)
                 {
-                    NormalColor = ps.MainRole switch
+                    NetworkedPlayerInfo info = GetPlayerInfoById(id);
+                    Color TaskCompleteColor = HasTasks(info) ? Color.green : Color.cyan;
+                    Color NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white;
+
+                    if (Workhorse.IsThisRole(id)) NonCompleteColor = Workhorse.RoleColor;
+
+                    Color NormalColor = taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
+
+                    if (Main.PlayerStates.TryGetValue(id, out PlayerState ps))
                     {
-                        CustomRoles.Crewpostor => Color.red,
-                        CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
-                        _ => NormalColor
-                    };
+                        NormalColor = ps.MainRole switch
+                        {
+                            CustomRoles.Crewpostor => Color.red,
+                            CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
+                            _ => NormalColor
+                        };
+                    }
+
+                    Color TextColor = NormalColor;
+                    var Completed = $"{taskState.CompletedTasksCount}";
+                    TaskCount = ColorString(TextColor, $" ({Completed}/{taskState.AllTasksCount})");
+                }
+                else
+                    TaskCount = string.Empty;
+
+                var summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, true)}{TaskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
+
+                switch (Options.CurrentGameMode)
+                {
+                    case CustomGameMode.SoloKombat:
+                        summary = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>" : $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
+                        if (GetProgressText(id).Trim() == string.Empty) return string.Empty;
+
+                        break;
+                    case CustomGameMode.FFA:
+                        summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, true)}";
+                        break;
+                    case CustomGameMode.Speedrun:
+                    case CustomGameMode.MoveAndStop:
+                        summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
+                        break;
+                    case CustomGameMode.HotPotato:
+                        int time = HotPotato.GetSurvivalTime(id);
+                        summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
+                        break;
+                    case CustomGameMode.NaturalDisasters:
+                        int time2 = NaturalDisasters.SurvivalTime(id);
+                        summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time2 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time2}</color>s")}</color>  ({GetVitalText(id, true)})";
+                        break;
+                    case CustomGameMode.RoomRush:
+                        int time3 = RoomRush.GetSurvivalTime(id);
+                        summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({GetVitalText(id, true)})";
+                        break;
+                    case CustomGameMode.CaptureTheFlag:
+                        summary = $"{ColorString(Main.PlayerColors[id], name)}: {CTFManager.GetStatistics(id)}";
+                        if (CTFManager.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
+                        break;
+                    case CustomGameMode.AllInOne:
+                        string survivalTimeText = !Main.PlayerStates[id].IsDead ? string.Empty : $" ({GetString("SurvivedTimePrefix")}: <#f542ad>{RoomRush.GetSurvivalTime(id)}s</color>)";
+                        summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount}{GetKillCountText(id, true)} ({GetVitalText(id, true)}){survivalTimeText}";
+                        break;
                 }
 
-                Color TextColor = NormalColor;
-                var Completed = $"{taskState.CompletedTasksCount}";
-                TaskCount = ColorString(TextColor, $" ({Completed}/{taskState.AllTasksCount})");
+                return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
+                    ? "INVALID"
+                    : disableColor
+                        ? summary.RemoveHtmlTags()
+                        : summary;
             }
-            else
-                TaskCount = string.Empty;
-
-            var summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, true)}{TaskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
-
-            switch (Options.CurrentGameMode)
+            catch (Exception e)
             {
-                case CustomGameMode.SoloKombat:
-                    summary = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>" : $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
-                    if (GetProgressText(id).Trim() == string.Empty) return string.Empty;
-
-                    break;
-                case CustomGameMode.FFA:
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, true)}";
-                    break;
-                case CustomGameMode.Speedrun:
-                case CustomGameMode.MoveAndStop:
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
-                    break;
-                case CustomGameMode.HotPotato:
-                    int time = HotPotato.GetSurvivalTime(id);
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
-                    break;
-                case CustomGameMode.NaturalDisasters:
-                    int time2 = NaturalDisasters.SurvivalTime(id);
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time2 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time2}</color>s")}</color>  ({GetVitalText(id, true)})";
-                    break;
-                case CustomGameMode.RoomRush:
-                    int time3 = RoomRush.GetSurvivalTime(id);
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({GetVitalText(id, true)})";
-                    break;
-                case CustomGameMode.CaptureTheFlag:
-                    summary = $"{ColorString(Main.PlayerColors[id], name)}: {CTFManager.GetStatistics(id)}";
-                    if (CTFManager.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
-                    break;
-                case CustomGameMode.AllInOne:
-                    string survivalTimeText = !Main.PlayerStates[id].IsDead ? string.Empty : $" ({GetString("SurvivedTimePrefix")}: <#f542ad>{RoomRush.GetSurvivalTime(id)}s</color>)";
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount}{GetKillCountText(id, true)} ({GetVitalText(id, true)}){survivalTimeText}";
-                    break;
+                ThrowException(e);
+                return $"{id.ColoredPlayerName()} - ERROR";
             }
-
-            return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
-                ? "INVALID"
-                : disableColor
-                    ? summary.RemoveHtmlTags()
-                    : summary;
         }
 
         public static string GetRemainingKillers(bool notify = false, bool president = false)

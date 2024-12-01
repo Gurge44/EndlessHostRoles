@@ -144,5 +144,10 @@ namespace EHR.Crewmate
             else
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

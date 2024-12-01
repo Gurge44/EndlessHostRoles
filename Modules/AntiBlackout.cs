@@ -107,7 +107,19 @@ namespace EHR
 
             IsDeadCache.Clear();
             IsCached = false;
-            if (doSend) SendGameData();
+
+            if (doSend)
+            {
+                SendGameData();
+                LateTask.New(RestoreIsDeadByExile, 0.3f, "AntiBlackOut.RestoreIsDeadByExile");
+            }
+        }
+
+        private static void RestoreIsDeadByExile()
+        {
+            var sender = CustomRpcSender.Create("AntiBlackout.RestoreIsDeadByExile", SendOption.Reliable);
+            Main.AllPlayerControls.DoIf(x => x.Data.IsDead && !x.Data.Disconnected, x => sender.AutoStartRpc(x.NetId, (byte)RpcCalls.Exiled).EndRpc());
+            sender.SendMessage();
         }
 
         public static void SendGameData([CallerMemberName] string callerMethodName = "")

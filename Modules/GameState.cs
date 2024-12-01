@@ -533,7 +533,7 @@ namespace EHR
         {
             get
             {
-                if (!IsOnlineGame) return false;
+                if (IsLocalGame && !IsNotJoined) return true;
 
                 const string domain = "among.us";
 

@@ -201,5 +201,10 @@ namespace EHR.Crewmate
                         state.FinishPatrolling();
             }, 0.1f, "SentinelFinishPatrol");
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

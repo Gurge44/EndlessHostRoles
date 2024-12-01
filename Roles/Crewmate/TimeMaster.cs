@@ -141,5 +141,10 @@ namespace EHR.Crewmate
                 player.Notify(Translator.GetString("TimeMasterSkillStop"), (int)player.GetAbilityUseLimit());
             }
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

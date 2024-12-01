@@ -506,10 +506,7 @@ namespace EHR
                         CustomRoles.NiceGuesser
                         => PlayerControl.LocalPlayer.KillSfx,
 
-                    CustomRoles.Swooper or
-                        CustomRoles.Wraith or
-                        CustomRoles.Chameleon or
-                        CustomRoles.Drainer
+                    CustomRoles.Drainer
                         => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
 
                     CustomRoles.Addict or
@@ -534,10 +531,15 @@ namespace EHR
 
                     CustomRoles.Noisemaker
                         or CustomRoles.NoisemakerEHR
+                        or CustomRoles.DarkHide
+                        or CustomRoles.Specter
                         => GetIntroSound(RoleTypes.Noisemaker),
 
                     CustomRoles.Phantom
                         or CustomRoles.PhantomEHR
+                        or CustomRoles.Swooper
+                        or CustomRoles.Wraith
+                        or CustomRoles.Chameleon
                         => GetIntroSound(RoleTypes.Phantom),
 
                     CustomRoles.Shapeshifter

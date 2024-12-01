@@ -211,6 +211,11 @@ namespace EHR.Crewmate
             return $"<#ffffff>{Timer}</color>{base.GetProgressText(playerId, comms)}";
         }
 
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
+
         private enum Mode
         {
             TeleportTarget,

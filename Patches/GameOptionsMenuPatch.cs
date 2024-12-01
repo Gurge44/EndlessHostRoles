@@ -511,10 +511,9 @@ namespace EHR
                     __instance.Value = (float)Math.Round(__instance.Value, 2);
                     break;
                 case StringNames.GameNumImpostors:
-                    __instance.ValidRange = new(1, Crowded.MaxImpostors);
+                    __instance.ValidRange = new(0, Crowded.MaxImpostors);
                     __instance.Value = (float)Math.Round(__instance.Value, 2);
                     if (DebugModeManager.AmDebugger) __instance.ValidRange.min = 0;
-
                     break;
             }
 

@@ -304,6 +304,11 @@ namespace EHR.Crewmate
             return true;
         }
 
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
+
         private enum ToiletVisibilityOptions
         {
             Instant,

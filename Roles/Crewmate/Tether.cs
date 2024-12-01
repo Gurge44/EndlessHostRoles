@@ -145,5 +145,10 @@ namespace EHR.Crewmate
         {
             return Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

@@ -291,5 +291,10 @@ namespace EHR.Impostor
             target.RpcCheckAndMurder(target);
             return false;
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return UsedRole != CustomRoles.Chameleon || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

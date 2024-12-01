@@ -109,7 +109,7 @@ namespace EHR
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerJoined))]
     internal static class OnPlayerJoinedPatch
     {
-        private static bool IsDisconnected(this ClientData client)
+        public static bool IsDisconnected(this ClientData client)
         {
             var __instance = AmongUsClient.Instance;
 

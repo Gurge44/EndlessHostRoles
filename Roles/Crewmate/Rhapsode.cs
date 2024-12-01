@@ -131,5 +131,10 @@ namespace EHR.Crewmate
 
             return $"\u25b6 ({AbilityDuration.GetInt() - (Utils.TimeStamp - ActivateTimeStamp)}s)";
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

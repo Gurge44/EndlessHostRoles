@@ -459,5 +459,10 @@ namespace EHR.Crewmate
             else
                 hud.AbilityButton?.OverrideText(GetString("AlchemistVentButtonText"));
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

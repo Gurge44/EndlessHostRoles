@@ -109,5 +109,10 @@ namespace EHR.Crewmate
                 player.Notify(Translator.GetString("SecurityGuardSkillStop"));
             }
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

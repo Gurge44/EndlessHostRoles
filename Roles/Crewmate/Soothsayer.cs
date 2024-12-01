@@ -49,7 +49,7 @@ namespace EHR.Crewmate
 
         public static void OnAnyoneDeath(PlayerControl killer, PlayerControl target)
         {
-            Instances.DoIf(x => x.Target == target.PlayerId, _ => Main.AllAlivePlayerControls.Do(p => p.Notify(string.Format(Translator.GetString("SoothsayerDiedNotify"), Utils.ColorString(Main.PlayerColors.GetValueOrDefault(killer.PlayerId), killer.GetRealName())), 10f)));
+            Instances.DoIf(x => x.Target == killer.PlayerId, _ => Main.AllAlivePlayerControls.Do(p => p.Notify(string.Format(Translator.GetString("SoothsayerDiedNotify"), Utils.ColorString(Main.PlayerColors.GetValueOrDefault(killer.PlayerId), killer.GetRealName())), 10f)));
         }
     }
 }

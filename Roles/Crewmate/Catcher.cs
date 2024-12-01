@@ -180,5 +180,10 @@ namespace EHR.Crewmate
 
             return string.Format(Translator.GetString("Catcher.Suffix"), TrapPlaceDelay.GetInt() - (Utils.TimeStamp - DelayStartTS));
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

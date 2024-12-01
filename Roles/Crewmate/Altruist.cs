@@ -160,5 +160,10 @@ namespace EHR.Crewmate
             if (ReviveStartTS != 0) return string.Format(Translator.GetString("AltruistSuffixRevive"), ReviveTime.GetInt() - (Utils.TimeStamp - ReviveStartTS));
             return string.Format(Translator.GetString("AltruistSuffix"), Translator.GetString(RevivingMode ? "AltruistReviveMode" : "AltruistReportMode"));
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

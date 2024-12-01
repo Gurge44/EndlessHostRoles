@@ -12,6 +12,7 @@ using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
 using EHR.Modules;
 using EHR.Neutral;
+using EHR.Patches;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine;
@@ -25,6 +26,8 @@ namespace EHR
     [BepInPlugin(PluginGuid, "EHR", PluginVersion)]
     [BepInIncompatibility("jp.ykundesu.supernewroles")]
     [BepInIncompatibility("MalumMenu")]
+    [BepInIncompatibility("com.ten.thebetterroles")]
+    [BepInIncompatibility("xyz.crowdedmods.crowdedmod")]
     [BepInProcess("Among Us.exe")]
     public class Main : BasePlugin
     {
@@ -709,6 +712,13 @@ namespace EHR
             handler.Info($"{nameof(ThisAssembly.Git.Tag)}: {ThisAssembly.Git.Tag}");
 
             ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
+            ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
+            ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
+            ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
+
+            NormalGameOptionsV08.RecommendedImpostors = NormalGameOptionsV08.MaxImpostors = Enumerable.Repeat(127, 127).ToArray();
+            NormalGameOptionsV08.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
+            HideNSeekGameOptionsV08.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
 
             CustomLogger.ClearLog();
             LogMonitor.StartMonitoring();

@@ -95,5 +95,10 @@ namespace EHR.Crewmate
 
             OverrideTasksData.Create(9516, TabGroup.CrewmateRoles, CustomRoles.Mayor);
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

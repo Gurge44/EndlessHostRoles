@@ -147,5 +147,10 @@ namespace EHR.Crewmate
         {
             hud.AbilityButton?.OverrideText(Translator.GetString("AddictVentButtonText"));
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

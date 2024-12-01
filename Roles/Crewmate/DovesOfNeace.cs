@@ -96,5 +96,10 @@ namespace EHR.Crewmate
             pc.RPCPlayCustomSound("Dove");
             pc.Notify(string.Format(Translator.GetString("DovesOfNeaceOnGuard"), pc.GetAbilityUseLimit()));
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

@@ -315,5 +315,10 @@ namespace EHR.Impostor
 
             return aa == null ? string.Empty : $"<#ffff00>\u26a0 {Delay.GetInt() - (Utils.TimeStamp - aa.ExtraAbilityStartTimeStamp):N0}</color>";
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !IsMonitor || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }
