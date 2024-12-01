@@ -1,66 +1,65 @@
 ﻿using System.Collections.Generic;
 
-namespace EHR.AddOns.Common
+namespace EHR.AddOns.Common;
+
+public class Deadlined : IAddon
 {
-    public class Deadlined : IAddon
+    private static HashSet<byte> DidTask = [];
+    private static long MeetingEndTS;
+    private static OptionItem InactiveTime;
+    public AddonTypes Type => AddonTypes.Harmful;
+
+    public void SetupCustomOption()
     {
-        private static HashSet<byte> DidTask = [];
-        private static long MeetingEndTS;
-        private static OptionItem InactiveTime;
-        public AddonTypes Type => AddonTypes.Harmful;
+        Options.SetupAdtRoleOptions(649292, CustomRoles.Deadlined, canSetNum: true, teamSpawnOptions: true);
 
-        public void SetupCustomOption()
+        InactiveTime = new IntegerOptionItem(649299, "Deadlined.InactiveTime", new(0, 60, 1), 15, TabGroup.Addons)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Deadlined])
+            .SetValueFormat(OptionFormat.Seconds);
+    }
+
+    public static void SetDone(PlayerControl pc)
+    {
+        DidTask.Add(pc.PlayerId);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+    }
+
+    public static void AfterMeetingTasks()
+    {
+        DidTask = [];
+        MeetingEndTS = Utils.TimeStamp;
+
+        foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            Options.SetupAdtRoleOptions(649292, CustomRoles.Deadlined, canSetNum: true, teamSpawnOptions: true);
-
-            InactiveTime = new IntegerOptionItem(649299, "Deadlined.InactiveTime", new(0, 60, 1), 15, TabGroup.Addons)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Deadlined])
-                .SetValueFormat(OptionFormat.Seconds);
+            TaskState ts = pc.GetTaskState();
+            if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || (!ts.HasTasks && !pc.CanUseKillButton()))) Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Deadlined);
         }
+    }
 
-        public static void SetDone(PlayerControl pc)
+    public static void OnMeetingStart()
+    {
+        if (MeetingStates.FirstMeeting) return;
+
+        if (MeetingEndTS + InactiveTime.GetInt() > Utils.TimeStamp) return;
+
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            DidTask.Add(pc.PlayerId);
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (!pc.Is(CustomRoles.Deadlined)) continue;
+
+            if (!DidTask.Contains(pc.PlayerId)) pc.Suicide();
         }
+    }
 
-        public static void AfterMeetingTasks()
-        {
-            DidTask = [];
-            MeetingEndTS = Utils.TimeStamp;
+    public static string GetSuffix(PlayerControl seer, bool hud = false)
+    {
+        if (!seer.Is(CustomRoles.Deadlined) || (seer.IsModClient() && !hud)) return string.Empty;
 
-            foreach (PlayerControl pc in Main.AllPlayerControls)
-            {
-                TaskState ts = pc.GetTaskState();
-                if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || (!ts.HasTasks && !pc.CanUseKillButton()))) Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Deadlined);
-            }
-        }
+        if (DidTask.Contains(seer.PlayerId) || MeetingStates.FirstMeeting) return "<#00ff00>\u2713</color>";
 
-        public static void OnMeetingStart()
-        {
-            if (MeetingStates.FirstMeeting) return;
+        long now = Utils.TimeStamp;
 
-            if (MeetingEndTS + InactiveTime.GetInt() > Utils.TimeStamp) return;
-
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                if (!pc.Is(CustomRoles.Deadlined)) continue;
-
-                if (!DidTask.Contains(pc.PlayerId)) pc.Suicide();
-            }
-        }
-
-        public static string GetSuffix(PlayerControl seer, bool hud = false)
-        {
-            if (!seer.Is(CustomRoles.Deadlined) || (seer.IsModClient() && !hud)) return string.Empty;
-
-            if (DidTask.Contains(seer.PlayerId) || MeetingStates.FirstMeeting) return "<#00ff00>\u2713</color>";
-
-            long now = Utils.TimeStamp;
-
-            return MeetingEndTS + InactiveTime.GetInt() <= now
-                ? Translator.GetString("Deadlined.MustDoTask")
-                : string.Format(Translator.GetString("Deadlined.SafeTime"), InactiveTime.GetInt() - (now - MeetingEndTS));
-        }
+        return MeetingEndTS + InactiveTime.GetInt() <= now
+            ? Translator.GetString("Deadlined.MustDoTask")
+            : string.Format(Translator.GetString("Deadlined.SafeTime"), InactiveTime.GetInt() - (now - MeetingEndTS));
     }
 }

@@ -4,59 +4,58 @@ using InnerNet;
 using TMPro;
 using UnityEngine;
 
-namespace EHR
+namespace EHR;
+
+[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.FixedUpdate))]
+public static class LobbyFixedUpdatePatch
 {
-    [HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.FixedUpdate))]
-    public static class LobbyFixedUpdatePatch
+    private static GameObject Paint;
+
+    public static void Postfix()
     {
-        private static GameObject Paint;
-
-        public static void Postfix()
+        if (Paint == null)
         {
-            if (Paint == null)
-            {
-                GameObject LeftBox = GameObject.Find("Leftbox");
+            GameObject LeftBox = GameObject.Find("Leftbox");
 
-                if (LeftBox != null)
-                {
-                    Paint = Object.Instantiate(LeftBox, LeftBox.transform.parent.transform);
-                    Paint.name = "Lobby Paint";
-                    Paint.transform.localPosition = new(0.042f, -2.59f, -10.5f);
-                    var renderer = Paint.GetComponent<SpriteRenderer>();
-                    renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
-                }
+            if (LeftBox != null)
+            {
+                Paint = Object.Instantiate(LeftBox, LeftBox.transform.parent.transform);
+                Paint.name = "Lobby Paint";
+                Paint.transform.localPosition = new(0.042f, -2.59f, -10.5f);
+                var renderer = Paint.GetComponent<SpriteRenderer>();
+                renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
             }
         }
     }
+}
 
-    [HarmonyPatch(typeof(HostInfoPanel), nameof(HostInfoPanel.SetUp))]
-    public static class HostInfoPanelSetUpPatch
+[HarmonyPatch(typeof(HostInfoPanel), nameof(HostInfoPanel.SetUp))]
+public static class HostInfoPanelSetUpPatch
+{
+    private static TextMeshPro HostText;
+
+    public static void Postfix(HostInfoPanel __instance)
     {
-        private static TextMeshPro HostText;
+        if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
 
-        public static void Postfix(HostInfoPanel __instance)
-        {
-            if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
+        string icon = Translator.GetString("Icon");
+        string name = GameData.Instance?.GetHost()?.PlayerName?.RemoveHtmlTags()?.Split('\n').FirstOrDefault(x => x.Contains(icon))?.Split(icon)[^1] ?? string.Empty;
+        if (name == string.Empty) return;
 
-            string icon = Translator.GetString("Icon");
-            string name = GameData.Instance?.GetHost()?.PlayerName?.RemoveHtmlTags()?.Split('\n').FirstOrDefault(x => x.Contains(icon))?.Split(icon)[^1] ?? string.Empty;
-            if (name == string.Empty) return;
+        string text = AmongUsClient.Instance.AmHost
+            ? Translator.GetString("YouAreHostSuffix")
+            : name;
 
-            string text = AmongUsClient.Instance.AmHost
-                ? Translator.GetString("YouAreHostSuffix")
-                : name;
-
-            HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
-        }
+        HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
     }
+}
 
-    public static class LobbyPatch
+public static class LobbyPatch
+{
+    public static bool IsGlitchedRoomCode()
     {
-        public static bool IsGlitchedRoomCode()
-        {
-            string roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId).ToUpper();
-            string[] badEndings = ["IJPG", "SZAF", "LDQG", "ALGG", "UMPG", "GFXG", "JTFG", "PATG", "WMPG", "FUGG", "YTHG", "UFLG", "FBGG", "ZCQG", "RGGG", "ZHLG", "PJDG", "KJQG", "VDXG", "LCAF"];
-            return badEndings.Any(roomCode.EndsWith);
-        }
+        string roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId).ToUpper();
+        string[] badEndings = ["IJPG", "SZAF", "LDQG", "ALGG", "UMPG", "GFXG", "JTFG", "PATG", "WMPG", "FUGG", "YTHG", "UFLG", "FBGG", "ZCQG", "RGGG", "ZHLG", "PJDG", "KJQG", "VDXG", "LCAF"];
+        return badEndings.Any(roomCode.EndsWith);
     }
 }

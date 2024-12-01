@@ -1,12 +1,11 @@
-﻿namespace EHR.AddOns.Common
-{
-    internal class Haste : IAddon
-    {
-        public AddonTypes Type => AddonTypes.Helpful;
+﻿namespace EHR.AddOns.Common;
 
-        public void SetupCustomOption()
-        {
-            Options.SetupAdtRoleOptions(14550, CustomRoles.Haste, canSetNum: true, teamSpawnOptions: true);
-        }
+internal class Haste : IAddon
+{
+    public AddonTypes Type => AddonTypes.Helpful;
+
+    public void SetupCustomOption()
+    {
+        Options.SetupAdtRoleOptions(14550, CustomRoles.Haste, canSetNum: true, teamSpawnOptions: true);
     }
 }

@@ -1,40 +1,39 @@
-﻿namespace EHR.Crewmate
+﻿namespace EHR.Crewmate;
+
+public class Inquirer : RoleBase
 {
-    public class Inquirer : RoleBase
+    public static OptionItem FailChance;
+    private static OptionItem AbilityUseLimit;
+    private static OptionItem AbilityUseGainWithEachTaskCompleted;
+    private static OptionItem AbilityChargesWhenFinishedTasks;
+
+    public override bool IsEnable => false;
+
+    public override void SetupCustomOption()
     {
-        public static OptionItem FailChance;
-        private static OptionItem AbilityUseLimit;
-        private static OptionItem AbilityUseGainWithEachTaskCompleted;
-        private static OptionItem AbilityChargesWhenFinishedTasks;
+        Options.SetupRoleOptions(649710, TabGroup.CrewmateRoles, CustomRoles.Inquirer);
 
-        public override bool IsEnable => false;
+        FailChance = new IntegerOptionItem(649712, "Inquirer.FailChance", new(0, 100, 5), 20, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
+            .SetValueFormat(OptionFormat.Percent);
 
-        public override void SetupCustomOption()
-        {
-            Options.SetupRoleOptions(649710, TabGroup.CrewmateRoles, CustomRoles.Inquirer);
+        AbilityUseLimit = new IntegerOptionItem(649713, "Inquirer.AbilityUseLimit", new(0, 10, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
+            .SetValueFormat(OptionFormat.Times);
 
-            FailChance = new IntegerOptionItem(649712, "Inquirer.FailChance", new(0, 100, 5), 20, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
-                .SetValueFormat(OptionFormat.Percent);
+        AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(649714, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.8f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
+            .SetValueFormat(OptionFormat.Times);
 
-            AbilityUseLimit = new IntegerOptionItem(649713, "Inquirer.AbilityUseLimit", new(0, 10, 1), 1, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
-                .SetValueFormat(OptionFormat.Times);
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(649715, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
+            .SetValueFormat(OptionFormat.Times);
+    }
 
-            AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(649714, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.8f, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
-                .SetValueFormat(OptionFormat.Times);
+    public override void Init() { }
 
-            AbilityChargesWhenFinishedTasks = new FloatOptionItem(649715, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
-                .SetValueFormat(OptionFormat.Times);
-        }
-
-        public override void Init() { }
-
-        public override void Add(byte playerId)
-        {
-            playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
-        }
+    public override void Add(byte playerId)
+    {
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 }

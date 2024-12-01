@@ -4,194 +4,193 @@ using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Neutral
+namespace EHR.Neutral;
+
+public class Spiritcaller : RoleBase
 {
-    public class Spiritcaller : RoleBase
+    private const int Id = 13400;
+    private static List<byte> PlayerIdList = [];
+
+    private static Dictionary<byte, long> PlayersHaunted = [];
+
+    private static OptionItem KillCooldown;
+    public static OptionItem CanVent;
+    public static OptionItem ImpostorVision;
+    private static OptionItem SpiritMax;
+    public static OptionItem SpiritAbilityCooldown;
+    private static OptionItem SpiritFreezeTime;
+    private static OptionItem SpiritProtectTime;
+    private static OptionItem SpiritCauseVision;
+    private static OptionItem SpiritCauseVisionTime;
+
+    private static long ProtectTimeStamp;
+
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
+    public override void SetupCustomOption()
     {
-        private const int Id = 13400;
-        private static List<byte> PlayerIdList = [];
+        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Spiritcaller);
 
-        private static Dictionary<byte, long> PlayersHaunted = [];
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        private static OptionItem KillCooldown;
-        public static OptionItem CanVent;
-        public static OptionItem ImpostorVision;
-        private static OptionItem SpiritMax;
-        public static OptionItem SpiritAbilityCooldown;
-        private static OptionItem SpiritFreezeTime;
-        private static OptionItem SpiritProtectTime;
-        private static OptionItem SpiritCauseVision;
-        private static OptionItem SpiritCauseVisionTime;
+        CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
 
-        private static long ProtectTimeStamp;
+        ImpostorVision = new BooleanOptionItem(Id + 12, "ImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
 
-        public override bool IsEnable => PlayerIdList.Count > 0;
+        SpiritMax = new IntegerOptionItem(Id + 13, "SpiritcallerSpiritMax", new(1, 15, 1), 2, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            .SetValueFormat(OptionFormat.Times);
 
-        public override void SetupCustomOption()
+        SpiritAbilityCooldown = new FloatOptionItem(Id + 14, "SpiritcallerSpiritAbilityCooldown", new(5f, 90f, 1f), 30f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        SpiritFreezeTime = new FloatOptionItem(Id + 15, "SpiritcallerFreezeTime", new(0f, 30f, 1f), 3f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        SpiritProtectTime = new FloatOptionItem(Id + 16, "SpiritcallerProtectTime", new(0f, 30f, 1f), 5f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        SpiritCauseVision = new FloatOptionItem(Id + 17, "SpiritcallerCauseVision", new(0f, 5f, 0.05f), 0.4f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            .SetValueFormat(OptionFormat.Multiplier);
+
+        SpiritCauseVisionTime = new FloatOptionItem(Id + 18, "SpiritcallerCauseVisionTime", new(0f, 45f, 1f), 10f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            .SetValueFormat(OptionFormat.Seconds);
+    }
+
+    public override void Init()
+    {
+        PlayerIdList = [];
+        ProtectTimeStamp = 0;
+        PlayersHaunted = [];
+    }
+
+    public override void Add(byte playerId)
+    {
+        PlayerIdList.Add(playerId);
+        playerId.SetAbilityUseLimit(SpiritMax.GetInt());
+        ProtectTimeStamp = 0;
+    }
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(ImpostorVision.GetBool());
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return CanVent.GetBool();
+    }
+
+    public static bool InProtect(PlayerControl player)
+    {
+        return player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.TimeStamp;
+    }
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (killer.GetAbilityUseLimit() < 1) return true;
+
+        if (!target.GetCustomRole().IsAbleToBeSidekicked() && !target.GetCustomRole().IsImpostor())
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Spiritcaller);
+            killer.RpcRemoveAbilityUse();
 
-            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
-                .SetValueFormat(OptionFormat.Seconds);
+            target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
-            CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
+            var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
+            writer.StartMessage(target.GetClientId());
 
-            ImpostorVision = new BooleanOptionItem(Id + 12, "ImpostorVision", true, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
+            writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                .Write(target.Data.NetId)
+                .Write(GetString("SpiritcallerNoticeTitle"))
+                .EndRpc();
 
-            SpiritMax = new IntegerOptionItem(Id + 13, "SpiritcallerSpiritMax", new(1, 15, 1), 2, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
-                .SetValueFormat(OptionFormat.Times);
+            writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
+                .Write(GetString("SpiritcallerNoticeMessage"))
+                .EndRpc();
 
-            SpiritAbilityCooldown = new FloatOptionItem(Id + 14, "SpiritcallerSpiritAbilityCooldown", new(5f, 90f, 1f), 30f, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
-                .SetValueFormat(OptionFormat.Seconds);
+            writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                .Write(target.Data.NetId)
+                .Write(target.Data.PlayerName)
+                .EndRpc();
 
-            SpiritFreezeTime = new FloatOptionItem(Id + 15, "SpiritcallerFreezeTime", new(0f, 30f, 1f), 3f, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            SpiritProtectTime = new FloatOptionItem(Id + 16, "SpiritcallerProtectTime", new(0f, 30f, 1f), 5f, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            SpiritCauseVision = new FloatOptionItem(Id + 17, "SpiritcallerCauseVision", new(0f, 5f, 0.05f), 0.4f, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
-                .SetValueFormat(OptionFormat.Multiplier);
-
-            SpiritCauseVisionTime = new FloatOptionItem(Id + 18, "SpiritcallerCauseVisionTime", new(0f, 45f, 1f), 10f, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
-                .SetValueFormat(OptionFormat.Seconds);
+            writer.EndMessage();
+            writer.SendMessage();
         }
 
-        public override void Init()
+        return true;
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (!GameStates.IsInTask) return;
+
+        if (pc.Is(CustomRoles.Spiritcaller))
         {
-            PlayerIdList = [];
-            ProtectTimeStamp = 0;
-            PlayersHaunted = [];
+            if (ProtectTimeStamp < Utils.TimeStamp && ProtectTimeStamp != 0) ProtectTimeStamp = 0;
+        }
+        else if (PlayersHaunted.ContainsKey(pc.PlayerId) && PlayersHaunted[pc.PlayerId] < Utils.TimeStamp)
+        {
+            PlayersHaunted.Remove(pc.PlayerId);
+            pc.MarkDirtySettings();
+        }
+    }
+
+    public static void HauntPlayer(PlayerControl target)
+    {
+        if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Spiritcaller), GetString("HauntedByEvilSpirit")));
+
+        if (SpiritCauseVisionTime.GetFloat() > 0 && !PlayersHaunted.ContainsKey(target.PlayerId))
+        {
+            long time = Utils.TimeStamp + (long)SpiritCauseVisionTime.GetFloat();
+            PlayersHaunted.Add(target.PlayerId, time);
         }
 
-        public override void Add(byte playerId)
+        if (SpiritFreezeTime.GetFloat() > 0)
         {
-            PlayerIdList.Add(playerId);
-            playerId.SetAbilityUseLimit(SpiritMax.GetInt());
-            ProtectTimeStamp = 0;
-        }
+            float tmpSpeed = Main.AllPlayerSpeed[target.PlayerId];
+            Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
+            ReportDeadBodyPatch.CanReport[target.PlayerId] = false;
+            target.MarkDirtySettings();
 
-        public override void SetKillCooldown(byte id)
-        {
-            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            opt.SetVision(ImpostorVision.GetBool());
-        }
-
-        public override bool CanUseImpostorVentButton(PlayerControl pc)
-        {
-            return CanVent.GetBool();
-        }
-
-        public static bool InProtect(PlayerControl player)
-        {
-            return player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.TimeStamp;
-        }
-
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-        {
-            if (killer.GetAbilityUseLimit() < 1) return true;
-
-            if (!target.GetCustomRole().IsAbleToBeSidekicked() && !target.GetCustomRole().IsImpostor())
+            LateTask.New(() =>
             {
-                killer.RpcRemoveAbilityUse();
-
-                target.RpcSetCustomRole(CustomRoles.EvilSpirit);
-
-                var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
-                writer.StartMessage(target.GetClientId());
-
-                writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
-                    .Write(target.Data.NetId)
-                    .Write(GetString("SpiritcallerNoticeTitle"))
-                    .EndRpc();
-
-                writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
-                    .Write(GetString("SpiritcallerNoticeMessage"))
-                    .EndRpc();
-
-                writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
-                    .Write(target.Data.NetId)
-                    .Write(target.Data.PlayerName)
-                    .EndRpc();
-
-                writer.EndMessage();
-                writer.SendMessage();
-            }
-
-            return true;
-        }
-
-        public override void OnFixedUpdate(PlayerControl pc)
-        {
-            if (!GameStates.IsInTask) return;
-
-            if (pc.Is(CustomRoles.Spiritcaller))
-            {
-                if (ProtectTimeStamp < Utils.TimeStamp && ProtectTimeStamp != 0) ProtectTimeStamp = 0;
-            }
-            else if (PlayersHaunted.ContainsKey(pc.PlayerId) && PlayersHaunted[pc.PlayerId] < Utils.TimeStamp)
-            {
-                PlayersHaunted.Remove(pc.PlayerId);
-                pc.MarkDirtySettings();
-            }
-        }
-
-        public static void HauntPlayer(PlayerControl target)
-        {
-            if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Spiritcaller), GetString("HauntedByEvilSpirit")));
-
-            if (SpiritCauseVisionTime.GetFloat() > 0 && !PlayersHaunted.ContainsKey(target.PlayerId))
-            {
-                long time = Utils.TimeStamp + (long)SpiritCauseVisionTime.GetFloat();
-                PlayersHaunted.Add(target.PlayerId, time);
-            }
-
-            if (SpiritFreezeTime.GetFloat() > 0)
-            {
-                float tmpSpeed = Main.AllPlayerSpeed[target.PlayerId];
-                Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
-                ReportDeadBodyPatch.CanReport[target.PlayerId] = false;
+                Main.AllPlayerSpeed[target.PlayerId] = Main.AllPlayerSpeed[target.PlayerId] - Main.MinSpeed + tmpSpeed;
+                ReportDeadBodyPatch.CanReport[target.PlayerId] = true;
                 target.MarkDirtySettings();
+                RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
+            }, SpiritFreezeTime.GetFloat(), "SpiritcallerFreezeTime");
 
-                LateTask.New(() =>
-                {
-                    Main.AllPlayerSpeed[target.PlayerId] = Main.AllPlayerSpeed[target.PlayerId] - Main.MinSpeed + tmpSpeed;
-                    ReportDeadBodyPatch.CanReport[target.PlayerId] = true;
-                    target.MarkDirtySettings();
-                    RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
-                }, SpiritFreezeTime.GetFloat(), "SpiritcallerFreezeTime");
-
-                if (target.IsLocalPlayer())
-                    Achievements.Type.TooCold.CompleteAfterGameEnd();
-            }
+            if (target.IsLocalPlayer())
+                Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
+    }
 
-        public static void ReduceVision(IGameOptions opt, PlayerControl target)
+    public static void ReduceVision(IGameOptions opt, PlayerControl target)
+    {
+        if (PlayersHaunted.ContainsKey(target.PlayerId))
         {
-            if (PlayersHaunted.ContainsKey(target.PlayerId))
-            {
-                opt.SetVision(false);
-                opt.SetFloat(FloatOptionNames.CrewLightMod, SpiritCauseVision.GetFloat());
-                opt.SetFloat(FloatOptionNames.ImpostorLightMod, SpiritCauseVision.GetFloat());
-            }
+            opt.SetVision(false);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, SpiritCauseVision.GetFloat());
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, SpiritCauseVision.GetFloat());
         }
+    }
 
-        public static void ProtectSpiritcaller()
-        {
-            ProtectTimeStamp = Utils.TimeStamp + (long)SpiritProtectTime.GetFloat();
-        }
+    public static void ProtectSpiritcaller()
+    {
+        ProtectTimeStamp = Utils.TimeStamp + (long)SpiritProtectTime.GetFloat();
     }
 }

@@ -1,24 +1,23 @@
 ﻿using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.AddOns.Common
+namespace EHR.AddOns.Common;
+
+internal class Guesser : IAddon
 {
-    internal class Guesser : IAddon
+    public static OptionItem GCanGuessAdt;
+    public static OptionItem GTryHideMsg;
+    public AddonTypes Type => AddonTypes.Helpful;
+
+    public void SetupCustomOption()
     {
-        public static OptionItem GCanGuessAdt;
-        public static OptionItem GTryHideMsg;
-        public AddonTypes Type => AddonTypes.Helpful;
+        SetupAdtRoleOptions(19100, CustomRoles.Guesser, canSetNum: true, tab: TabGroup.Addons, teamSpawnOptions: true);
 
-        public void SetupCustomOption()
-        {
-            SetupAdtRoleOptions(19100, CustomRoles.Guesser, canSetNum: true, tab: TabGroup.Addons, teamSpawnOptions: true);
+        GCanGuessAdt = new BooleanOptionItem(19110, "GCanGuessAdt", false, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
 
-            GCanGuessAdt = new BooleanOptionItem(19110, "GCanGuessAdt", false, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
-
-            GTryHideMsg = new BooleanOptionItem(19111, "GuesserTryHideMsg", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
-                .SetColor(Color.green);
-        }
+        GTryHideMsg = new BooleanOptionItem(19111, "GuesserTryHideMsg", true, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
+            .SetColor(Color.green);
     }
 }

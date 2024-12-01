@@ -7,299 +7,298 @@ using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Impostor
+namespace EHR.Impostor;
+
+/*
+ * Tiers and their perks
+ *
+ * Tier 0: Regular Impostor, higher KCD: normal KCD * 1.25, short kill range
+ * Tier 1: Increased Kill Range to Long, normal KCD
+ * Tier 2: Lower KCD: normal KCD * 0.85
+ * Tier 3: Dual Pistols (2 separate KCDs, KCDs = normal KCD * 1.5)
+ * Tier 4: Normal KCD for both pistols
+ * Tier 5: Delayed Kills
+ *
+ * XP rewards
+ *
+ * Kill, Sabotage, Unique vent usage, Non-teamed player ejected
+ * XP needed to level up: 100
+ *
+ */
+public class Mafioso : RoleBase
 {
-    /*
-     * Tiers and their perks
-     *
-     * Tier 0: Regular Impostor, higher KCD: normal KCD * 1.25, short kill range
-     * Tier 1: Increased Kill Range to Long, normal KCD
-     * Tier 2: Lower KCD: normal KCD * 0.85
-     * Tier 3: Dual Pistols (2 separate KCDs, KCDs = normal KCD * 1.5)
-     * Tier 4: Normal KCD for both pistols
-     * Tier 5: Delayed Kills
-     *
-     * XP rewards
-     *
-     * Kill, Sabotage, Unique vent usage, Non-teamed player ejected
-     * XP needed to level up: 100
-     *
-     */
-    public class Mafioso : RoleBase
+    private const int Id = 642200;
+    private static List<byte> PlayerIdList = [];
+
+    private static OptionItem Delay;
+    private static OptionItem RewardForKilling;
+    private static OptionItem RewardForSabotaging;
+    private static OptionItem RewardForVenting;
+    private static OptionItem RewardForOtherPlayerEjected;
+    private long lastUpdate;
+
+    private byte MafiosoId;
+
+    private int Pistol1CD;
+    private int Pistol2CD;
+
+    private List<int> PreviouslyUsedVents = [];
+
+    private int Tier;
+    private int XP;
+
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
+    public override void SetupCustomOption()
     {
-        private const int Id = 642200;
-        private static List<byte> PlayerIdList = [];
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mafioso);
 
-        private static OptionItem Delay;
-        private static OptionItem RewardForKilling;
-        private static OptionItem RewardForSabotaging;
-        private static OptionItem RewardForVenting;
-        private static OptionItem RewardForOtherPlayerEjected;
-        private long lastUpdate;
+        Delay = new IntegerOptionItem(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        private byte MafiosoId;
+        RewardForKilling = new IntegerOptionItem(Id + 11, "MafiosoRewardForKilling", new(0, 100, 5), 40, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
 
-        private int Pistol1CD;
-        private int Pistol2CD;
+        RewardForSabotaging = new IntegerOptionItem(Id + 12, "MafiosoRewardForSabotaging", new(0, 100, 5), 25, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
 
-        private List<int> PreviouslyUsedVents = [];
+        RewardForVenting = new IntegerOptionItem(Id + 13, "MafiosoRewardForVenting", new(0, 100, 5), 10, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
 
-        private int Tier;
-        private int XP;
+        RewardForOtherPlayerEjected = new IntegerOptionItem(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(0, 100, 5), 30, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+    }
 
-        public override bool IsEnable => PlayerIdList.Count > 0;
+    public override void Init()
+    {
+        PlayerIdList = [];
+        PreviouslyUsedVents = [];
+        Tier = 0;
+        XP = 0;
+        Pistol1CD = 0;
+        Pistol2CD = 0;
+        lastUpdate = TimeStamp + 30;
+        MafiosoId = byte.MaxValue;
+    }
 
-        public override void SetupCustomOption()
+    public override void Add(byte playerId)
+    {
+        PlayerIdList.Add(playerId);
+        lastUpdate = TimeStamp + 8;
+        MafiosoId = playerId;
+        PreviouslyUsedVents = [];
+        Tier = 0;
+        XP = 0;
+        Pistol1CD = 0;
+        Pistol2CD = 0;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        opt.SetInt(Int32OptionNames.KillDistance, Tier > 0 ? 2 : 0);
+    }
+
+    public override void SetKillCooldown(byte playerId)
+    {
+        Main.AllPlayerKillCooldown[playerId] = Tier switch
         {
-            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mafioso);
+            0 => (float)Math.Round(DefaultKillCooldown * 1.25, 2),
+            1 => DefaultKillCooldown,
+            2 => (float)Math.Round(DefaultKillCooldown * 0.85, 2),
+            _ => 1f
+        };
+    }
 
-            Delay = new IntegerOptionItem(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
-                .SetValueFormat(OptionFormat.Seconds);
+    private void SendRPC()
+    {
+        if (!IsEnable || !DoRPC) return;
 
-            RewardForKilling = new IntegerOptionItem(Id + 11, "MafiosoRewardForKilling", new(0, 100, 5), 40, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, SendOption.Reliable);
+        writer.Write(MafiosoId);
+        writer.Write(Tier);
+        writer.Write(XP);
+        writer.Write(PreviouslyUsedVents.Count);
 
-            RewardForSabotaging = new IntegerOptionItem(Id + 12, "MafiosoRewardForSabotaging", new(0, 100, 5), 25, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+        if (PreviouslyUsedVents.Count > 0)
+            foreach (int vent in PreviouslyUsedVents.ToArray())
+                writer.Write(vent);
 
-            RewardForVenting = new IntegerOptionItem(Id + 13, "MafiosoRewardForVenting", new(0, 100, 5), 10, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
 
-            RewardForOtherPlayerEjected = new IntegerOptionItem(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(0, 100, 5), 30, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
+    public void ReceiveRPC(MessageReader reader)
+    {
+        Tier = reader.ReadInt32();
+        XP = reader.ReadInt32();
+        PreviouslyUsedVents.Clear();
+        int elements = reader.ReadInt32();
+
+        if (elements > 0)
+            for (var i = 0; i < elements; i++)
+                PreviouslyUsedVents.Add(reader.ReadInt32());
+    }
+
+    private void SendRPCSyncPistolCD()
+    {
+        if (!IsEnable || !DoRPC) return;
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable);
+        writer.Write(MafiosoId);
+        writer.Write(Pistol1CD);
+        writer.Write(Pistol2CD);
+        writer.Write(lastUpdate.ToString());
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public void ReceiveRPCSyncPistolCD(MessageReader reader)
+    {
+        Pistol1CD = reader.ReadInt32();
+        Pistol2CD = reader.ReadInt32();
+        lastUpdate = long.Parse(reader.ReadString());
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (!GameStates.IsInTask || !IsEnable || pc == null || !pc.IsAlive()) return;
+
+        if (XP >= 100 && Tier < 5)
+        {
+            XP -= 100;
+            Tier++;
+
+            SendRPC();
+            pc.MarkDirtySettings();
+            pc.ResetKillCooldown();
+            pc.Notify(GetString("MafiosoLevelUp"));
         }
 
-        public override void Init()
+        if (lastUpdate >= TimeStamp) return;
+
+        lastUpdate = TimeStamp;
+
+        int before1CD = Pistol1CD;
+        int before2CD = Pistol2CD;
+
+        if (Pistol1CD > 0) Pistol1CD--;
+
+        if (Pistol2CD > 0) Pistol2CD--;
+
+        if (before1CD != Pistol1CD || before2CD != Pistol2CD)
         {
-            PlayerIdList = [];
-            PreviouslyUsedVents = [];
-            Tier = 0;
-            XP = 0;
-            Pistol1CD = 0;
-            Pistol2CD = 0;
-            lastUpdate = TimeStamp + 30;
-            MafiosoId = byte.MaxValue;
+            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (pc.IsNonHostModClient()) SendRPCSyncPistolCD();
         }
+    }
 
-        public override void Add(byte playerId)
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (!GameStates.IsInTask || target == null || killer == null || !killer.Is(CustomRoles.Mafioso) || Tier < 3 || !IsEnable) return true;
+
+        if (Pistol1CD > 0 && Pistol2CD > 0) return false;
+
+        int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
+        KCD++;
+
+        if (Pistol1CD <= 0)
         {
-            PlayerIdList.Add(playerId);
-            lastUpdate = TimeStamp + 8;
-            MafiosoId = playerId;
-            PreviouslyUsedVents = [];
-            Tier = 0;
-            XP = 0;
-            Pistol1CD = 0;
-            Pistol2CD = 0;
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte id)
-        {
-            opt.SetInt(Int32OptionNames.KillDistance, Tier > 0 ? 2 : 0);
-        }
-
-        public override void SetKillCooldown(byte playerId)
-        {
-            Main.AllPlayerKillCooldown[playerId] = Tier switch
-            {
-                0 => (float)Math.Round(DefaultKillCooldown * 1.25, 2),
-                1 => DefaultKillCooldown,
-                2 => (float)Math.Round(DefaultKillCooldown * 0.85, 2),
-                _ => 1f
-            };
-        }
-
-        private void SendRPC()
-        {
-            if (!IsEnable || !DoRPC) return;
-
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, SendOption.Reliable);
-            writer.Write(MafiosoId);
-            writer.Write(Tier);
-            writer.Write(XP);
-            writer.Write(PreviouslyUsedVents.Count);
-
-            if (PreviouslyUsedVents.Count > 0)
-                foreach (int vent in PreviouslyUsedVents.ToArray())
-                    writer.Write(vent);
-
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public void ReceiveRPC(MessageReader reader)
-        {
-            Tier = reader.ReadInt32();
-            XP = reader.ReadInt32();
-            PreviouslyUsedVents.Clear();
-            int elements = reader.ReadInt32();
-
-            if (elements > 0)
-                for (var i = 0; i < elements; i++)
-                    PreviouslyUsedVents.Add(reader.ReadInt32());
-        }
-
-        private void SendRPCSyncPistolCD()
-        {
-            if (!IsEnable || !DoRPC) return;
-
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable);
-            writer.Write(MafiosoId);
-            writer.Write(Pistol1CD);
-            writer.Write(Pistol2CD);
-            writer.Write(lastUpdate.ToString());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public void ReceiveRPCSyncPistolCD(MessageReader reader)
-        {
-            Pistol1CD = reader.ReadInt32();
-            Pistol2CD = reader.ReadInt32();
-            lastUpdate = long.Parse(reader.ReadString());
-        }
-
-        public override void OnFixedUpdate(PlayerControl pc)
-        {
-            if (!GameStates.IsInTask || !IsEnable || pc == null || !pc.IsAlive()) return;
-
-            if (XP >= 100 && Tier < 5)
-            {
-                XP -= 100;
-                Tier++;
-
-                SendRPC();
-                pc.MarkDirtySettings();
-                pc.ResetKillCooldown();
-                pc.Notify(GetString("MafiosoLevelUp"));
-            }
-
-            if (lastUpdate >= TimeStamp) return;
-
-            lastUpdate = TimeStamp;
-
-            int before1CD = Pistol1CD;
-            int before2CD = Pistol2CD;
-
-            if (Pistol1CD > 0) Pistol1CD--;
-
-            if (Pistol2CD > 0) Pistol2CD--;
-
-            if (before1CD != Pistol1CD || before2CD != Pistol2CD)
-            {
-                NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                if (pc.IsNonHostModClient()) SendRPCSyncPistolCD();
-            }
-        }
-
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-        {
-            if (!GameStates.IsInTask || target == null || killer == null || !killer.Is(CustomRoles.Mafioso) || Tier < 3 || !IsEnable) return true;
-
-            if (Pistol1CD > 0 && Pistol2CD > 0) return false;
-
-            int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
-            KCD++;
-
-            if (Pistol1CD <= 0)
-            {
-                Pistol1CD = KCD;
-                NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
-            }
-            else if (Pistol2CD <= 0)
-            {
-                Pistol2CD = KCD;
-                NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
-            }
-
-            if (Tier >= 5)
-            {
-                LateTask.New(() =>
-                {
-                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse ---- Can be null since it's a task that completes later
-                    if (target != null && target.IsAlive() && GameStates.IsInTask) target.Suicide(PlayerState.DeathReason.Kill, killer);
-                }, Delay.GetInt(), "Mafioso Tier 5 Kill Delay");
-
-                return false;
-            }
-
-            if (Pistol1CD > 1 && Pistol2CD > 1) LateTask.New(() => { killer.SetKillCooldown(Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
-
-            return true;
-        }
-
-        public override void OnReportDeadBody()
-        {
-            if (!IsEnable) return;
-
-            PreviouslyUsedVents.Clear();
-            int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
-            KCD++;
             Pistol1CD = KCD;
+            NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
+        }
+        else if (Pistol2CD <= 0)
+        {
             Pistol2CD = KCD;
-            lastUpdate = TimeStamp;
-            SendRPC();
-            SendRPCSyncPistolCD();
+            NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
         }
 
-        public override string GetProgressText(byte id, bool comms)
+        if (Tier >= 5)
         {
-            return id.IsPlayerModClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
-        }
-
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
-        {
-            if (!hud || Main.PlayerStates[seer.PlayerId].Role is not Mafioso { IsEnable: true } mo) return string.Empty;
-
-            if (mo.Tier >= 3)
+            LateTask.New(() =>
             {
-                string CD;
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse ---- Can be null since it's a task that completes later
+                if (target != null && target.IsAlive() && GameStates.IsInTask) target.Suicide(PlayerState.DeathReason.Kill, killer);
+            }, Delay.GetInt(), "Mafioso Tier 5 Kill Delay");
 
-                if (mo.Pistol1CD <= 0 && mo.Pistol2CD <= 0)
-                    CD = "<color=#00ff00>Can Kill</color>";
-                else
-                    CD = $"<color=#ff1919>CD:</color> <b>{Math.Min(mo.Pistol1CD, mo.Pistol2CD)}</b>s";
-
-                return string.Format(GetString("MafiosoHUDTextWithDualPistols"), mo.Tier, mo.XP, CD);
-            }
-
-            return string.Format(GetString("MafiosoHUDText"), mo.Tier, mo.XP);
+            return false;
         }
 
-        public override void OnMurder(PlayerControl killer, PlayerControl target)
-        {
-            if (!IsEnable) return;
+        if (Pistol1CD > 1 && Pistol2CD > 1) LateTask.New(() => { killer.SetKillCooldown(Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
 
-            XP += RewardForKilling.GetInt();
-            SendRPC();
+        return true;
+    }
+
+    public override void OnReportDeadBody()
+    {
+        if (!IsEnable) return;
+
+        PreviouslyUsedVents.Clear();
+        int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
+        KCD++;
+        Pistol1CD = KCD;
+        Pistol2CD = KCD;
+        lastUpdate = TimeStamp;
+        SendRPC();
+        SendRPCSyncPistolCD();
+    }
+
+    public override string GetProgressText(byte id, bool comms)
+    {
+        return id.IsPlayerModClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+    {
+        if (!hud || Main.PlayerStates[seer.PlayerId].Role is not Mafioso { IsEnable: true } mo) return string.Empty;
+
+        if (mo.Tier >= 3)
+        {
+            string CD;
+
+            if (mo.Pistol1CD <= 0 && mo.Pistol2CD <= 0)
+                CD = "<color=#00ff00>Can Kill</color>";
+            else
+                CD = $"<color=#ff1919>CD:</color> <b>{Math.Min(mo.Pistol1CD, mo.Pistol2CD)}</b>s";
+
+            return string.Format(GetString("MafiosoHUDTextWithDualPistols"), mo.Tier, mo.XP, CD);
         }
 
-        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        return string.Format(GetString("MafiosoHUDText"), mo.Tier, mo.XP);
+    }
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (!IsEnable) return;
+
+        XP += RewardForKilling.GetInt();
+        SendRPC();
+    }
+
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
+    {
+        if (!IsEnable) return;
+
+        if (PreviouslyUsedVents.Contains(vent.Id)) return;
+
+        PreviouslyUsedVents.Add(vent.Id);
+        XP += RewardForVenting.GetInt();
+        SendRPC();
+    }
+
+    public override bool OnSabotage(PlayerControl pc)
+    {
+        XP += RewardForSabotaging.GetInt();
+        SendRPC();
+        return true;
+    }
+
+    public static void OnCrewmateEjected()
+    {
+        foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
         {
-            if (!IsEnable) return;
-
-            if (PreviouslyUsedVents.Contains(vent.Id)) return;
-
-            PreviouslyUsedVents.Add(vent.Id);
-            XP += RewardForVenting.GetInt();
-            SendRPC();
-        }
-
-        public override bool OnSabotage(PlayerControl pc)
-        {
-            XP += RewardForSabotaging.GetInt();
-            SendRPC();
-            return true;
-        }
-
-        public static void OnCrewmateEjected()
-        {
-            foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+            if (state.Value.Role is Mafioso { IsEnable: true } mo)
             {
-                if (state.Value.Role is Mafioso { IsEnable: true } mo)
-                {
-                    mo.XP += RewardForOtherPlayerEjected.GetInt();
-                    mo.SendRPC();
-                }
+                mo.XP += RewardForOtherPlayerEjected.GetInt();
+                mo.SendRPC();
             }
         }
     }

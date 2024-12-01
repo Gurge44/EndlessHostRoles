@@ -1,42 +1,41 @@
 ﻿using System.Collections.Generic;
 
-namespace EHR.AddOns.GhostRoles
+namespace EHR.AddOns.GhostRoles;
+
+internal class Minion : IGhostRole
 {
-    internal class Minion : IGhostRole
+    public static HashSet<byte> BlindPlayers = [];
+
+    private static OptionItem BlindDuration;
+    private static OptionItem CD;
+
+    public Team Team => Team.Impostor;
+    public int Cooldown => CD.GetInt();
+
+    public void OnProtect(PlayerControl pc, PlayerControl target)
     {
-        public static HashSet<byte> BlindPlayers = [];
+        if (!BlindPlayers.Add(target.PlayerId)) return;
 
-        private static OptionItem BlindDuration;
-        private static OptionItem CD;
+        target.MarkDirtySettings();
 
-        public Team Team => Team.Impostor;
-        public int Cooldown => CD.GetInt();
-
-        public void OnProtect(PlayerControl pc, PlayerControl target)
+        LateTask.New(() =>
         {
-            if (!BlindPlayers.Add(target.PlayerId)) return;
+            if (BlindPlayers.Remove(target.PlayerId)) target.MarkDirtySettings();
+        }, BlindDuration.GetFloat(), "Remove Minion Blindness");
+    }
 
-            target.MarkDirtySettings();
+    public void OnAssign(PlayerControl pc) { }
 
-            LateTask.New(() =>
-            {
-                if (BlindPlayers.Remove(target.PlayerId)) target.MarkDirtySettings();
-            }, BlindDuration.GetFloat(), "Remove Minion Blindness");
-        }
+    public void SetupCustomOption()
+    {
+        Options.SetupRoleOptions(649000, TabGroup.OtherRoles, CustomRoles.Minion);
 
-        public void OnAssign(PlayerControl pc) { }
+        BlindDuration = new IntegerOptionItem(649002, "MinionBlindDuration", new(1, 90, 1), 5, TabGroup.OtherRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        public void SetupCustomOption()
-        {
-            Options.SetupRoleOptions(649000, TabGroup.OtherRoles, CustomRoles.Minion);
-
-            BlindDuration = new IntegerOptionItem(649002, "MinionBlindDuration", new(1, 90, 1), 5, TabGroup.OtherRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            CD = new IntegerOptionItem(649003, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
-                .SetValueFormat(OptionFormat.Seconds);
-        }
+        CD = new IntegerOptionItem(649003, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
+            .SetValueFormat(OptionFormat.Seconds);
     }
 }

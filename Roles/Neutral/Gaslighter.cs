@@ -4,214 +4,213 @@ using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Patches;
 
-namespace EHR.Neutral
+namespace EHR.Neutral;
+
+public class Gaslighter : RoleBase
 {
-    public class Gaslighter : RoleBase
+    public static bool On;
+    private static List<Gaslighter> Instances = [];
+
+    private static OptionItem KillCooldown;
+    public static OptionItem WinCondition;
+    private static OptionItem CycleRepeats;
+
+    private static readonly string[] WinConditionOptions =
+    [
+        "GaslighterWinCondition.CrewLoses",
+        "GaslighterWinCondition.IfAlive",
+        "GaslighterWinCondition.LastStanding"
+    ];
+
+    private Round CurrentRound;
+    private HashSet<byte> CursedPlayers;
+    private bool CycleFinished;
+
+    private byte GaslighterId;
+    private HashSet<byte> ShieldedPlayers;
+
+    public override bool IsEnable => On;
+
+    public override void SetupCustomOption()
     {
-        public static bool On;
-        private static List<Gaslighter> Instances = [];
+        StartSetup(648350)
+            .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref WinCondition, 0, WinConditionOptions)
+            .AutoSetupOption(ref CycleRepeats, false);
+    }
 
-        private static OptionItem KillCooldown;
-        public static OptionItem WinCondition;
-        private static OptionItem CycleRepeats;
+    public override void Init()
+    {
+        On = false;
+        Instances = [];
+    }
 
-        private static readonly string[] WinConditionOptions =
-        [
-            "GaslighterWinCondition.CrewLoses",
-            "GaslighterWinCondition.IfAlive",
-            "GaslighterWinCondition.LastStanding"
-        ];
+    public override void Add(byte playerId)
+    {
+        On = true;
+        Instances.Add(this);
+        GaslighterId = playerId;
+        CurrentRound = default;
+        CursedPlayers = [];
+        ShieldedPlayers = [];
+        CycleFinished = false;
+    }
 
-        private Round CurrentRound;
-        private HashSet<byte> CursedPlayers;
-        private bool CycleFinished;
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return pc.IsAlive();
+    }
 
-        private byte GaslighterId;
-        private HashSet<byte> ShieldedPlayers;
-
-        public override bool IsEnable => On;
-
-        public override void SetupCustomOption()
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = CurrentRound switch
         {
-            StartSetup(648350)
-                .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-                .AutoSetupOption(ref WinCondition, 0, WinConditionOptions)
-                .AutoSetupOption(ref CycleRepeats, false);
-        }
+            Round.Kill => KillCooldown.GetFloat(),
+            Round.Knight => Monarch.KnightCooldown.GetFloat(),
+            Round.Curse => Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown),
+            Round.Shield => Medic.CD.GetFloat(),
+            _ => Options.DefaultKillCooldown
+        };
+    }
 
-        public override void Init()
+    public static void OnExile(byte[] exileIds)
+    {
+        try
         {
-            On = false;
-            Instances = [];
-        }
-
-        public override void Add(byte playerId)
-        {
-            On = true;
-            Instances.Add(this);
-            GaslighterId = playerId;
-            CurrentRound = default;
-            CursedPlayers = [];
-            ShieldedPlayers = [];
-            CycleFinished = false;
-        }
-
-        public override bool CanUseKillButton(PlayerControl pc)
-        {
-            return pc.IsAlive();
-        }
-
-        public override void SetKillCooldown(byte id)
-        {
-            Main.AllPlayerKillCooldown[id] = CurrentRound switch
+            foreach (Gaslighter instance in Instances)
             {
-                Round.Kill => KillCooldown.GetFloat(),
-                Round.Knight => Monarch.KnightCooldown.GetFloat(),
-                Round.Curse => Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown),
-                Round.Shield => Medic.CD.GetFloat(),
-                _ => Options.DefaultKillCooldown
-            };
-        }
+                foreach (byte id in exileIds)
+                    if (id == instance.GaslighterId)
+                        instance.CursedPlayers.Clear();
+            }
 
-        public static void OnExile(byte[] exileIds)
-        {
-            try
+            List<byte> curseDeathList = [];
+
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 foreach (Gaslighter instance in Instances)
                 {
-                    foreach (byte id in exileIds)
-                        if (id == instance.GaslighterId)
-                            instance.CursedPlayers.Clear();
-                }
+                    if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
 
-                List<byte> curseDeathList = [];
+                    PlayerControl gaslighter = instance.GaslighterId.GetPlayer();
 
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    foreach (Gaslighter instance in Instances)
+                    if (instance.CursedPlayers.Contains(pc.PlayerId) && gaslighter != null && gaslighter.IsAlive())
                     {
-                        if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
-
-                        PlayerControl gaslighter = instance.GaslighterId.GetPlayer();
-
-                        if (instance.CursedPlayers.Contains(pc.PlayerId) && gaslighter != null && gaslighter.IsAlive())
-                        {
-                            pc.SetRealKiller(gaslighter);
-                            curseDeathList.Add(pc.PlayerId);
-                        }
+                        pc.SetRealKiller(gaslighter);
+                        curseDeathList.Add(pc.PlayerId);
                     }
                 }
-
-                CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. curseDeathList]);
-            }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
-        }
-
-        public override void AfterMeetingTasks()
-        {
-            ShieldedPlayers.Clear();
-            CursedPlayers.Clear();
-
-            if (CurrentRound == Round.Shield)
-            {
-                CycleFinished = true;
-                CurrentRound = Round.Kill;
-            }
-            else if (!CycleFinished || CycleRepeats.GetBool()) CurrentRound++;
-
-            float limit = CurrentRound switch
-            {
-                Round.Knight => Monarch.KnightMax.GetFloat(),
-                Round.Shield => Medic.SkillLimit,
-                _ => 0
-            };
-
-            GaslighterId.SetAbilityUseLimit(limit);
-
-            PlayerControl pc = GaslighterId.GetPlayer();
-            pc?.ResetKillCooldown();
-            pc?.Notify(Translator.GetString($"Gaslighter.{CurrentRound}"));
-
-            LateTask.New(() => pc?.SetKillCooldown(), 1.5f, log: false);
-        }
-
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-        {
-            switch (CurrentRound)
-            {
-                case Round.Kill:
-                    return true;
-                case Round.Knight when killer.GetAbilityUseLimit() > 0 && !target.Is(CustomRoles.Knighted):
-                    target.RpcSetCustomRole(CustomRoles.Knighted);
-                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                    Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
-                    killer.RpcRemoveAbilityUse();
-                    killer.SetKillCooldown();
-                    return false;
-                case Round.Curse:
-                    CursedPlayers.Add(target.PlayerId);
-                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                    killer.SetKillCooldown();
-                    return false;
-                case Round.Shield when killer.GetAbilityUseLimit() > 0:
-                    ShieldedPlayers.Add(target.PlayerId);
-                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                    Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
-                    killer.RpcRemoveAbilityUse();
-                    killer.SetKillCooldown();
-                    return false;
             }
 
-            return false;
+            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. curseDeathList]);
         }
-
-        public static bool IsShielded(PlayerControl target)
+        catch (Exception e)
         {
-            return On && Instances.Exists(i => i.ShieldedPlayers.Contains(target.PlayerId));
+            Utils.ThrowException(e);
         }
+    }
 
-        private static bool IsCursed(PlayerControl target)
+    public override void AfterMeetingTasks()
+    {
+        ShieldedPlayers.Clear();
+        CursedPlayers.Clear();
+
+        if (CurrentRound == Round.Shield)
         {
-            return On && Instances.Exists(i => i.CursedPlayers.Contains(target.PlayerId));
+            CycleFinished = true;
+            CurrentRound = Round.Kill;
         }
+        else if (!CycleFinished || CycleRepeats.GetBool()) CurrentRound++;
 
-        public override string GetProgressText(byte playerId, bool comms)
+        float limit = CurrentRound switch
         {
-            return CurrentRound is Round.Knight or Round.Shield
-                ? base.GetProgressText(playerId, comms)
-                : Utils.GetTaskCount(playerId, comms);
-        }
+            Round.Knight => Monarch.KnightMax.GetFloat(),
+            Round.Shield => Medic.SkillLimit,
+            _ => 0
+        };
 
-        public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)
+        GaslighterId.SetAbilityUseLimit(limit);
+
+        PlayerControl pc = GaslighterId.GetPlayer();
+        pc?.ResetKillCooldown();
+        pc?.Notify(Translator.GetString($"Gaslighter.{CurrentRound}"));
+
+        LateTask.New(() => pc?.SetKillCooldown(), 1.5f, log: false);
+    }
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        switch (CurrentRound)
         {
-            bool seerIsGaslighter = seer.Is(CustomRoles.Gaslighter);
-            var sb = new StringBuilder();
-            if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId)) sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
-
-            if (IsCursed(target) && (meeting || seerIsGaslighter)) sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
-
-            return sb.ToString();
+            case Round.Kill:
+                return true;
+            case Round.Knight when killer.GetAbilityUseLimit() > 0 && !target.Is(CustomRoles.Knighted):
+                target.RpcSetCustomRole(CustomRoles.Knighted);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+                killer.RpcRemoveAbilityUse();
+                killer.SetKillCooldown();
+                return false;
+            case Round.Curse:
+                CursedPlayers.Add(target.PlayerId);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                killer.SetKillCooldown();
+                return false;
+            case Round.Shield when killer.GetAbilityUseLimit() > 0:
+                ShieldedPlayers.Add(target.PlayerId);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+                killer.RpcRemoveAbilityUse();
+                killer.SetKillCooldown();
+                return false;
         }
 
-        public bool AddAsAdditionalWinner()
+        return false;
+    }
+
+    public static bool IsShielded(PlayerControl target)
+    {
+        return On && Instances.Exists(i => i.ShieldedPlayers.Contains(target.PlayerId));
+    }
+
+    private static bool IsCursed(PlayerControl target)
+    {
+        return On && Instances.Exists(i => i.CursedPlayers.Contains(target.PlayerId));
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        return CurrentRound is Round.Knight or Round.Shield
+            ? base.GetProgressText(playerId, comms)
+            : Utils.GetTaskCount(playerId, comms);
+    }
+
+    public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)
+    {
+        bool seerIsGaslighter = seer.Is(CustomRoles.Gaslighter);
+        var sb = new StringBuilder();
+        if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId)) sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
+
+        if (IsCursed(target) && (meeting || seerIsGaslighter)) sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
+
+        return sb.ToString();
+    }
+
+    public bool AddAsAdditionalWinner()
+    {
+        return WinCondition.GetValue() switch
         {
-            return WinCondition.GetValue() switch
-            {
-                0 => CustomWinnerHolder.WinnerTeam != CustomWinner.Crewmate,
-                1 => GaslighterId.GetPlayer()?.IsAlive() == true,
-                _ => false
-            };
-        }
+            0 => CustomWinnerHolder.WinnerTeam != CustomWinner.Crewmate,
+            1 => GaslighterId.GetPlayer()?.IsAlive() == true,
+            _ => false
+        };
+    }
 
-        private enum Round
-        {
-            Kill,
-            Knight,
-            Curse,
-            Shield
-        }
+    private enum Round
+    {
+        Kill,
+        Knight,
+        Curse,
+        Shield
     }
 }

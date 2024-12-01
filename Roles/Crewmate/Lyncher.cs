@@ -4,152 +4,151 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
-namespace EHR.Crewmate
+namespace EHR.Crewmate;
+
+public class Lyncher : RoleBase
 {
-    public class Lyncher : RoleBase
+    public static bool On;
+    public static List<Lyncher> Instances = [];
+
+    private static OptionItem TaskNum;
+    public static OptionItem GuessMode;
+    private static OptionItem Vision;
+
+    private static readonly string[] GuessModes =
+    [
+        "RoleOff", // 0
+        "Untouched", // 1
+        "RoleOn" // 2
+    ];
+
+    private static Dictionary<byte, List<char>> AllRoleNames = [];
+
+    private Dictionary<byte, List<char>> KnownCharacters = [];
+    private byte LyncherId;
+    private int TasksCompleted;
+
+    public override bool IsEnable => On;
+
+    public override void SetupCustomOption()
     {
-        public static bool On;
-        public static List<Lyncher> Instances = [];
+        var id = 648550;
+        Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Lyncher);
 
-        private static OptionItem TaskNum;
-        public static OptionItem GuessMode;
-        private static OptionItem Vision;
+        TaskNum = new IntegerOptionItem(++id, "Lyncher.TaskNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
 
-        private static readonly string[] GuessModes =
-        [
-            "RoleOff", // 0
-            "Untouched", // 1
-            "RoleOn" // 2
-        ];
+        GuessMode = new StringOptionItem(++id, "Lyncher.GuessMode", GuessModes, 1, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
 
-        private static Dictionary<byte, List<char>> AllRoleNames = [];
+        Vision = new FloatOptionItem(++id, "Vision", new(0f, 1.5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
 
-        private Dictionary<byte, List<char>> KnownCharacters = [];
-        private byte LyncherId;
-        private int TasksCompleted;
+        Options.OverrideTasksData.Create(++id, TabGroup.CrewmateRoles, CustomRoles.Lyncher);
+    }
 
-        public override bool IsEnable => On;
+    public override void Init()
+    {
+        On = false;
+        Instances = [];
+        AllRoleNames = [];
+        KnownCharacters = [];
+        LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle()), 10f, log: false);
+    }
 
-        public override void SetupCustomOption()
+    public override void Add(byte playerId)
+    {
+        On = true;
+        Instances.Add(this);
+        LyncherId = playerId;
+        TasksCompleted = 0;
+        Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
+
+        if (Main.HasJustStarted)
+            LateTask.New(Action, 12f, log: false);
+        else
+            Action();
+
+        return;
+
+        void Action()
         {
-            var id = 648550;
-            Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Lyncher);
-
-            TaskNum = new IntegerOptionItem(++id, "Lyncher.TaskNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
-
-            GuessMode = new StringOptionItem(++id, "Lyncher.GuessMode", GuessModes, 1, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
-
-            Vision = new FloatOptionItem(++id, "Vision", new(0f, 1.5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
-                .SetValueFormat(OptionFormat.Multiplier)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
-
-            Options.OverrideTasksData.Create(++id, TabGroup.CrewmateRoles, CustomRoles.Lyncher);
+            KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>());
         }
+    }
 
-        public override void Init()
-        {
-            On = false;
-            Instances = [];
-            AllRoleNames = [];
-            KnownCharacters = [];
-            LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle()), 10f, log: false);
-        }
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(false);
+        opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
+        opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
+    }
 
-        public override void Add(byte playerId)
+    public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
+    {
+        if (!pc.IsAlive()) return;
+
+        TasksCompleted++;
+
+        if (TasksCompleted >= TaskNum.GetInt())
         {
-            On = true;
-            Instances.Add(this);
-            LyncherId = playerId;
+            RevealLetter();
             TasksCompleted = 0;
-            Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
-
-            if (Main.HasJustStarted)
-                LateTask.New(Action, 12f, log: false);
-            else
-                Action();
-
-            return;
-
-            void Action()
-            {
-                KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>());
-            }
+            Utils.NotifyRoles(SpecifySeer: pc);
         }
+        else
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
+    }
+
+    private void RevealLetter()
+    {
+        Dictionary<byte, char> nextLetters = AllRoleNames.ToDictionary(x => x.Key, x => x.Value.Except(KnownCharacters[x.Key]).RandomElement());
+
+        KnownCharacters.Do(x =>
         {
-            opt.SetVision(false);
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
-        }
+            x.Value.Add(nextLetters[x.Key]);
+            Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, x.Key, nextLetters[x.Key]);
+        });
+    }
 
-        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
+    public void OnRoleChange(byte id)
+    {
+        Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 3, id);
+        CustomRoles newRole = Main.PlayerStates[id].MainRole;
+        AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle();
+        int count = KnownCharacters[id].Count;
+        KnownCharacters[id] = AllRoleNames[id].Take(count).ToList();
+        KnownCharacters[id].ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, id, x));
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        switch (reader.ReadPackedInt32())
         {
-            if (!pc.IsAlive()) return;
-
-            TasksCompleted++;
-
-            if (TasksCompleted >= TaskNum.GetInt())
-            {
-                RevealLetter();
-                TasksCompleted = 0;
-                Utils.NotifyRoles(SpecifySeer: pc);
-            }
-            else
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-
-            Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
+            case 1:
+                TasksCompleted = reader.ReadPackedInt32();
+                break;
+            case 2:
+                KnownCharacters[reader.ReadByte()].Add(reader.ReadString()[0]);
+                break;
+            case 3:
+                KnownCharacters[reader.ReadByte()].Clear();
+                break;
         }
+    }
 
-        private void RevealLetter()
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+    {
+        if (seer.PlayerId != LyncherId) return string.Empty;
+
+        return (seer.PlayerId == target.PlayerId) switch
         {
-            Dictionary<byte, char> nextLetters = AllRoleNames.ToDictionary(x => x.Key, x => x.Value.Except(KnownCharacters[x.Key]).RandomElement());
-
-            KnownCharacters.Do(x =>
-            {
-                x.Value.Add(nextLetters[x.Key]);
-                Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, x.Key, nextLetters[x.Key]);
-            });
-        }
-
-        public void OnRoleChange(byte id)
-        {
-            Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 3, id);
-            CustomRoles newRole = Main.PlayerStates[id].MainRole;
-            AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle();
-            int count = KnownCharacters[id].Count;
-            KnownCharacters[id] = AllRoleNames[id].Take(count).ToList();
-            KnownCharacters[id].ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, id, x));
-        }
-
-        public void ReceiveRPC(MessageReader reader)
-        {
-            switch (reader.ReadPackedInt32())
-            {
-                case 1:
-                    TasksCompleted = reader.ReadPackedInt32();
-                    break;
-                case 2:
-                    KnownCharacters[reader.ReadByte()].Add(reader.ReadString()[0]);
-                    break;
-                case 3:
-                    KnownCharacters[reader.ReadByte()].Clear();
-                    break;
-            }
-        }
-
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
-        {
-            if (seer.PlayerId != LyncherId) return string.Empty;
-
-            return (seer.PlayerId == target.PlayerId) switch
-            {
-                false when KnownCharacters.TryGetValue(target.PlayerId, out List<char> chars) && chars.Count > 0 => string.Join(' ', chars),
-                true when !seer.IsModClient() || hud => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
-                _ => string.Empty
-            };
-        }
+            false when KnownCharacters.TryGetValue(target.PlayerId, out List<char> chars) && chars.Count > 0 => string.Join(' ', chars),
+            true when !seer.IsModClient() || hud => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
+            _ => string.Empty
+        };
     }
 }
