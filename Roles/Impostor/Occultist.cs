@@ -127,14 +127,14 @@ public class Occultist : RoleBase
                 var player = id.GetPlayer();
                 if (player == null) continue;
 
+                if (!player.Is(Team.Impostor))
+                    player.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Refugee : CustomRoles.Madmate);
+
                 player.RpcRevive();
                 player.TP(data.Position);
                 player.Notify(Translator.GetString("RevivedByOccultist"), 15f);
 
                 OccultistPC.Notify(string.Format(Translator.GetString("OccultistRevived"), player.PlayerId.ColoredPlayerName()));
-
-                if (!player.Is(Team.Impostor))
-                    player.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Refugee : CustomRoles.Madmate);
 
                 data.Done = true;
             }
