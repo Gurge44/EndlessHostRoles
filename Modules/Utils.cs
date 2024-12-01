@@ -2954,7 +2954,7 @@ public static class Utils
         var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
         if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-        var filename = $"{f}EHR-v{Main.PluginVersion}-LOG";
+        var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
         FileInfo[] files = [new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log"), new($"{Environment.CurrentDirectory}/BepInEx/log.html")];
         files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
 
