@@ -1233,7 +1233,7 @@ internal static class ExtendedPlayerControl
         return pc.GetCustomRole() switch
         {
             // SoloKombat
-            CustomRoles.Fighter => pc.SoloAlive(),
+            CustomRoles.KB_Normal => pc.SoloAlive(),
             // FFA
             CustomRoles.Killer => pc.IsAlive(),
             // Move And Stop
@@ -1401,7 +1401,7 @@ internal static class ExtendedPlayerControl
 
         Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
-            CustomRoles.Fighter => SoloPVP.KB_ATKCooldown.GetFloat(),
+            CustomRoles.KB_Normal => SoloPVP.KB_ATKCooldown.GetFloat(),
             CustomRoles.Killer => FFAManager.FFAKcd.GetFloat(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };

@@ -969,7 +969,7 @@ public static class GuessManager
                     or CustomRoles.Disco
                     or CustomRoles.Giant
                     or CustomRoles.NotAssigned
-                    or CustomRoles.Fighter
+                    or CustomRoles.KB_Normal
                     or CustomRoles.Paranoia
                     or CustomRoles.SuperStar
                     or CustomRoles.Konan

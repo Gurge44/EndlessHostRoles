@@ -146,8 +146,8 @@ public static class AllInOneGameMode
                     Logger.Info($"{__instance.GetRealName()} is near an incomplete task, changing role to Tasker", "AllInOneGameMode");
                     break;
                 case false when Taskers.Remove(__instance.PlayerId):
-                    __instance.RpcChangeRoleBasis(CustomRoles.Fighter);
-                    __instance.RpcSetCustomRole(CustomRoles.Fighter);
+                    __instance.RpcChangeRoleBasis(CustomRoles.KB_Normal);
+                    __instance.RpcSetCustomRole(CustomRoles.KB_Normal);
                     Logger.Info($"{__instance.GetRealName()} is no longer near an incomplete task, changing role to KB_Normal", "AllInOneGameMode");
                     break;
             }

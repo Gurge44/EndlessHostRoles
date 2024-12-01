@@ -75,7 +75,7 @@ internal static class SoloPVP
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
 
-        KB_BootVentWhenDead = new BooleanOptionItem(66_233_009, "KB_BootVentWhenDead", false, TabGroup.GameSettings)
+        KB_BootVentWhenDead = new BooleanOptionItem(66_233_009, "KB_BootVentWhenDead", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue));
     }
@@ -133,6 +133,7 @@ internal static class SoloPVP
     private static string GetStatsForVanilla(PlayerControl pc)
     {
         string finalText = string.Empty;
+        if (pc.IsHost()) return finalText;
 
         finalText += "<size=70%>";
         finalText += $"\n{Translator.GetString("PVP.ATK")}: {PlayerATK[pc.PlayerId]:N1}";

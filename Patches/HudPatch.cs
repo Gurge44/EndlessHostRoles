@@ -214,7 +214,7 @@ internal static class HudManagerPatch
                         case CustomRoles.Medic:
                             usedButton?.OverrideText(GetString("MedicalerButtonText"));
                             break;
-                        case CustomRoles.Fighter:
+                        case CustomRoles.KB_Normal:
                             __instance.KillButton?.OverrideText(GetString("GamerButtonText"));
                             break;
                         case CustomRoles.Deputy:
@@ -504,7 +504,7 @@ internal static class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 break;
 
-            case CustomRoles.Fighter:
+            case CustomRoles.KB_Normal:
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
                 __instance.ReportButton?.ToggleVisible(false);

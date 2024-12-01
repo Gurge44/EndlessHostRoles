@@ -62,7 +62,7 @@ internal static class CustomRoleSelector
         {
             Dictionary<CustomGameMode, CustomRoles> gameModeRoles = new()
             {
-                { CustomGameMode.SoloKombat, CustomRoles.Fighter },
+                { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
                 { CustomGameMode.FFA, CustomRoles.Killer },
                 { CustomGameMode.MoveAndStop, CustomRoles.Tasker },
                 { CustomGameMode.HotPotato, CustomRoles.Potato },

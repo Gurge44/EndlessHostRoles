@@ -220,10 +220,9 @@ internal static class SetEverythingUpPatch
         {
             case CustomGameMode.SoloKombat:
             {
-                var color = new Color32(245, 82, 82, 255);
-                __instance.BackgroundBar.material.color = color;
-                WinnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
-                WinnerText.color = color;
+                __instance.BackgroundBar.material.color = new Color32(245, 82, 82, 255);
+                CustomWinnerText = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
+                CustomWinnerColor = "#f55252";
                 AdditionalWinnerText = string.Format(GetString("SoloKombat.WinnersKillCount"), SoloPVP.KBScore[CustomWinnerHolder.WinnerIds.First()]);
                 goto Skip;
             }
