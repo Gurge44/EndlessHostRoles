@@ -1203,7 +1203,6 @@
   "MenuTitle.Guessers": "★ 賭怪模式 ★",
   "MenuTitle.CTA": "★ 自定義陣營分配 ★",
   "MenuTitle.AFKDetection": "★ 掛機檢測 ★",
-  "MenuTitle.RoleListMaker": "★ 職業清單製作器 ★",
   "ReadyCheckMessage": "遊戲即將開始，為了確定有多少玩家已準備好開始遊戲。\\n請輸入<b>/ready</b>讓房主知道你沒有在掛機。",
   "ReadyCheckTitle": "<#ffff00>★ 準備檢查 ★</color>",
   "EveryoneReadyTitle": "<#00ff00>所有人都準備好了!</color>",
