@@ -1203,7 +1203,6 @@
   "MenuTitle.Guessers": "★ 猜测模式 ★",
   "MenuTitle.CTA": "★ 自定义团队分配 ★",
   "MenuTitle.AFKDetection": "★ AFK 检测 ★",
-  "MenuTitle.RoleListMaker": "★ 职业列表制作者 ★",
   "ReadyCheckMessage": "要开始了!\\n在聊天框中键入<b>/ready</b>以准备.",
   "ReadyCheckTitle": "<#ff00>★就绪检查★</color>",
   "EveryoneReadyTitle": "<#00ff00>所有人都准备好了!</color>",
