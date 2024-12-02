@@ -1203,7 +1203,6 @@
   "MenuTitle.Guessers": "★ Guesser Mode ★",
   "MenuTitle.CTA": "★ Custom Team Assignment ★",
   "MenuTitle.AFKDetection": "★ AFK Detection ★",
-  "MenuTitle.RoleListMaker": "★ Role List Maker ★",
   "ReadyCheckMessage": "The host is checking how many players are ready to start the game.\\nPlease type <b>/ready</b> to let the host know you're not AFK.",
   "ReadyCheckTitle": "<#ffff00>★ Ready Check ★</color>",
   "EveryoneReadyTitle": "<#00ff00>Everyone is ready!</color>",
