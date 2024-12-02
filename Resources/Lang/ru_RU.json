@@ -1203,7 +1203,6 @@
   "MenuTitle.Guessers": "★ Режим Угадывателей ★",
   "MenuTitle.CTA": "★ Кастомные Команды ★",
   "MenuTitle.AFKDetection": "★ Детектор АФК ★",
-  "MenuTitle.RoleListMaker": "★ Настройка кол-ва ролей определённых категорий ★",
   "ReadyCheckMessage": "Хост проверяет, как много игроков готовы к игре.\\nНапишите <b>/ready</b>, чтобы дать хосту знать о своей готовности.",
   "ReadyCheckTitle": "<#ffff00>★ Проверка Готовности ★</color>",
   "EveryoneReadyTitle": "<#00ff00>Все готовы к игре!</color>",
