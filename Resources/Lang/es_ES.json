@@ -1203,7 +1203,6 @@
   "MenuTitle.Guessers": "★ Modo Adivino ★",
   "MenuTitle.CTA": "★ Asignación Personalizada de Equipos ★",
   "MenuTitle.AFKDetection": "★ Detección AFK ★",
-  "MenuTitle.RoleListMaker": "★ Role List Maker ★",
   "ReadyCheckMessage": "El host está comprobando cuantos jugadores están listos para empezar el juego.\\nPor favor escribe <b>/ready</b> para hacerle saber al host que no estás AFK.",
   "ReadyCheckTitle": "<#ffff00>★ Revisión de Listos ★</color>",
   "EveryoneReadyTitle": "<#00ff00>¡Todos están listos!</color>",
