@@ -67,36 +67,36 @@ public static class GuessManager
         return false;
     }
 
-/*
-    public static byte GetColorFromMsg(string msg)
-    {
-        if (ConfirmIncludeMsg(msg, "红|紅|red")) return 0;
-        if (ConfirmIncludeMsg(msg, "蓝|藍|深蓝|blue")) return 1;
-        if (ConfirmIncludeMsg(msg, "绿|綠|深绿|green")) return 2;
-        if (ConfirmIncludeMsg(msg, "粉红|粉紅|pink")) return 3;
-        if (ConfirmIncludeMsg(msg, "橘|橘|orange")) return 4;
-        if (ConfirmIncludeMsg(msg, "黄|黃|yellow")) return 5;
-        if (ConfirmIncludeMsg(msg, "黑|黑|black")) return 6;
-        if (ConfirmIncludeMsg(msg, "白|白|white")) return 7;
-        if (ConfirmIncludeMsg(msg, "紫|紫|perple")) return 8;
-        if (ConfirmIncludeMsg(msg, "棕|棕|brown")) return 9;
-        if (ConfirmIncludeMsg(msg, "青|青|cyan")) return 10;
-        if (ConfirmIncludeMsg(msg, "黄绿|黃綠|浅绿|lime")) return 11;
-        if (ConfirmIncludeMsg(msg, "红褐|紅褐|深红|maroon")) return 12;
-        if (ConfirmIncludeMsg(msg, "玫红|玫紅|浅粉|rose")) return 13;
-        if (ConfirmIncludeMsg(msg, "焦黄|焦黃|淡黄|banana")) return 14;
-        if (ConfirmIncludeMsg(msg, "灰|灰|gray")) return 15;
-        if (ConfirmIncludeMsg(msg, "茶|茶|tan")) return 16;
-        if (ConfirmIncludeMsg(msg, "珊瑚|珊瑚|coral")) return 17;
-        return byte.MaxValue;
-    }
+    /*
+        public static byte GetColorFromMsg(string msg)
+        {
+            if (ConfirmIncludeMsg(msg, "红|紅|red")) return 0;
+            if (ConfirmIncludeMsg(msg, "蓝|藍|深蓝|blue")) return 1;
+            if (ConfirmIncludeMsg(msg, "绿|綠|深绿|green")) return 2;
+            if (ConfirmIncludeMsg(msg, "粉红|粉紅|pink")) return 3;
+            if (ConfirmIncludeMsg(msg, "橘|橘|orange")) return 4;
+            if (ConfirmIncludeMsg(msg, "黄|黃|yellow")) return 5;
+            if (ConfirmIncludeMsg(msg, "黑|黑|black")) return 6;
+            if (ConfirmIncludeMsg(msg, "白|白|white")) return 7;
+            if (ConfirmIncludeMsg(msg, "紫|紫|perple")) return 8;
+            if (ConfirmIncludeMsg(msg, "棕|棕|brown")) return 9;
+            if (ConfirmIncludeMsg(msg, "青|青|cyan")) return 10;
+            if (ConfirmIncludeMsg(msg, "黄绿|黃綠|浅绿|lime")) return 11;
+            if (ConfirmIncludeMsg(msg, "红褐|紅褐|深红|maroon")) return 12;
+            if (ConfirmIncludeMsg(msg, "玫红|玫紅|浅粉|rose")) return 13;
+            if (ConfirmIncludeMsg(msg, "焦黄|焦黃|淡黄|banana")) return 14;
+            if (ConfirmIncludeMsg(msg, "灰|灰|gray")) return 15;
+            if (ConfirmIncludeMsg(msg, "茶|茶|tan")) return 16;
+            if (ConfirmIncludeMsg(msg, "珊瑚|珊瑚|coral")) return 17;
+            return byte.MaxValue;
+        }
 
-    private static bool ConfirmIncludeMsg(string msg, string key)
-    {
-        var keys = key.Split('|');
-        return keys.Any(msg.Contains);
-    }
-*/
+        private static bool ConfirmIncludeMsg(string msg, string key)
+        {
+            var keys = key.Split('|');
+            return keys.Any(msg.Contains);
+        }
+    */
 
     public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false)
     {
@@ -111,15 +111,9 @@ public static class GuessManager
         int operate; // 1: ID, 2: Guess
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id"))
-            operate = 1;
-        else if (CheckCommand(ref msg, "shoot|guess|bet|st|bt|猜|赌", false))
-            operate = 2;
-        else
-        {
-            Logger.Msg("Not a guessing command", "Msg Guesser");
-            return false;
-        }
+        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
+        else if (CheckCommand(ref msg, "shoot|guess|bet|st|bt|猜|赌", false)) operate = 2;
+        else return false;
 
         Logger.Msg(msg, "Msg Guesser");
         Logger.Msg($"{operate}", "Operate");
@@ -958,22 +952,22 @@ public static class GuessManager
             foreach (CustomRoles role in sortedRoles)
             {
                 if (role is CustomRoles.GM
-                    or CustomRoles.SpeedBooster
-                    or CustomRoles.Engineer
-                    or CustomRoles.Crewmate
-                    or CustomRoles.Oblivious
-                    or CustomRoles.Scientist
-                    or CustomRoles.Impostor
-                    or CustomRoles.Shapeshifter
-                    or CustomRoles.Flashman
-                    or CustomRoles.Disco
-                    or CustomRoles.Giant
-                    or CustomRoles.NotAssigned
-                    or CustomRoles.KB_Normal
-                    or CustomRoles.Paranoia
-                    or CustomRoles.SuperStar
-                    or CustomRoles.Konan
-                    or CustomRoles.GuardianAngelEHR
+                            or CustomRoles.SpeedBooster
+                            or CustomRoles.Engineer
+                            or CustomRoles.Crewmate
+                            or CustomRoles.Oblivious
+                            or CustomRoles.Scientist
+                            or CustomRoles.Impostor
+                            or CustomRoles.Shapeshifter
+                            or CustomRoles.Flashman
+                            or CustomRoles.Disco
+                            or CustomRoles.Giant
+                            or CustomRoles.NotAssigned
+                            or CustomRoles.KB_Normal
+                            or CustomRoles.Paranoia
+                            or CustomRoles.SuperStar
+                            or CustomRoles.Konan
+                            or CustomRoles.GuardianAngelEHR
                    )
                     continue;
 

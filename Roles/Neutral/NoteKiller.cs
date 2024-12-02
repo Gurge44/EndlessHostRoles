@@ -16,7 +16,7 @@ public class NoteKiller : RoleBase
     private static OptionItem WinCondition;
     private static OptionItem NumPlayersToKill;
     private static OptionItem CanVent;
-    private static OptionItem HasImpostorVision;
+    private static OptionItem ImpostorVision;
 
     private static readonly string[] WinConditions =
     [
@@ -51,7 +51,7 @@ public class NoteKiller : RoleBase
             .AutoSetupOption(ref WinCondition, 0, WinConditions)
             .AutoSetupOption(ref NumPlayersToKill, 2, new IntegerValueRule(0, 14, 1))
             .AutoSetupOption(ref CanVent, true)
-            .AutoSetupOption(ref HasImpostorVision, true);
+            .AutoSetupOption(ref ImpostorVision, true);
     }
 
     public override void Init()
@@ -91,7 +91,7 @@ public class NoteKiller : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        opt.SetVision(HasImpostorVision.GetBool());
+        opt.SetVision(ImpostorVision.GetBool());
 
         if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
             AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();

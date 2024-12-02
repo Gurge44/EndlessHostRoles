@@ -146,9 +146,9 @@ public abstract class OptionItem
         });
     }
 
-    private OptionItem SetChild(OptionItem child)
+    private void SetChild(OptionItem child)
     {
-        return Do(i => i.Children.Add(child));
+        Do(i => i.Children.Add(child));
     }
 
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
@@ -296,10 +296,10 @@ public abstract class OptionItem
     public static void SyncAllOptions(int targetId = -1)
     {
         if (
-            Main.AllPlayerControls.Length <= 1
-            || AmongUsClient.Instance.AmHost == false
-            || PlayerControl.LocalPlayer == null
-        )
+                Main.AllPlayerControls.Length <= 1
+                || AmongUsClient.Instance.AmHost == false
+                || PlayerControl.LocalPlayer == null
+            )
             return;
 
         RPC.SyncCustomSettingsRPC(targetId);
@@ -311,10 +311,7 @@ public abstract class OptionItem
     {
         if (UpdateValueEvent == null) return;
 
-        try
-        {
-            UpdateValueEvent(this, new(beforeValue, currentValue));
-        }
+        try { UpdateValueEvent(this, new(beforeValue, currentValue)); }
         catch (Exception ex)
         {
             Logger.Error($"[{Name}] - Exception occurred when calling UpdateValueEvent", "OptionItem.UpdateValueEvent");

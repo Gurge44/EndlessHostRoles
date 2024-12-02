@@ -225,6 +225,11 @@ internal class ChangeRoleSettings
 
             Options.UsedButtonCount = 0;
 
+            var impLimits = Options.FactionMinMaxSettings[Team.Impostor];
+            int optImpNum = IRandom.Instance.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt() + 1);
+            GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = optImpNum;
+            GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, optImpNum);
+
             GameOptionsManager.Instance.currentNormalGameOptions.ConfirmImpostor = false;
             Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);
 
@@ -671,8 +676,8 @@ internal static class StartGameHostPatch
                 .Select(x =>
                 {
                     PlayerControl suitablePlayer = aapc
-                        .OrderBy(p => addonNum[p])
-                        .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
+                                                   .OrderBy(p => addonNum[p])
+                                                   .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
 
                     if (suitablePlayer != null) addonNum[suitablePlayer]++;
 
@@ -1146,9 +1151,9 @@ internal static class StartGameHostPatch
 
                         // send rpc set role for other clients
                         sender.AutoStartRpc(seer.NetId, (byte)RpcCalls.SetRole, targetClientId)
-                            .Write((ushort)roleType)
-                            .Write(true) // canOverride
-                            .EndRpc();
+                              .Write((ushort)roleType)
+                              .Write(true) // canOverride
+                              .EndRpc();
                     }
                     catch { }
                 }

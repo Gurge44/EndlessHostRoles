@@ -14,7 +14,7 @@ public class Shifter : RoleBase
 
     public static OptionItem KillCooldown;
     private static OptionItem CanVent;
-    private static OptionItem HasImpostorVision;
+    private static OptionItem ImpostorVision;
     public static OptionItem CanGuess;
     private static OptionItem CanBeKilled;
     public static OptionItem CanBeVoted;
@@ -27,7 +27,7 @@ public class Shifter : RoleBase
         StartSetup(644400)
             .AutoSetupOption(ref KillCooldown, 15f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds, "AbilityCooldown")
             .AutoSetupOption(ref CanVent, true)
-            .AutoSetupOption(ref HasImpostorVision, true, "ImpostorVision")
+            .AutoSetupOption(ref ImpostorVision, true)
             .AutoSetupOption(ref CanGuess, false)
             .AutoSetupOption(ref CanBeKilled, true)
             .AutoSetupOption(ref CanBeVoted, true)
@@ -65,7 +65,7 @@ public class Shifter : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        opt.SetVision(HasImpostorVision.GetBool());
+        opt.SetVision(ImpostorVision.GetBool());
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

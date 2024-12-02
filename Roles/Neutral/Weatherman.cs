@@ -9,7 +9,7 @@ public class Weatherman : RoleBase
     public static OptionItem AbilityCooldown;
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
-    private static OptionItem HasImpostorVision;
+    private static OptionItem ImpostorVision;
 
     public override bool IsEnable => On;
 
@@ -19,7 +19,7 @@ public class Weatherman : RoleBase
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref CanVent, true)
-            .AutoSetupOption(ref HasImpostorVision, true);
+            .AutoSetupOption(ref ImpostorVision, true);
     }
 
     public override void Init()
@@ -40,7 +40,7 @@ public class Weatherman : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        opt.SetVision(HasImpostorVision.GetBool());
+        opt.SetVision(ImpostorVision.GetBool());
 
         if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
             AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();

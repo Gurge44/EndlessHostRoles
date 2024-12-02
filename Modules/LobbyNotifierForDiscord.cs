@@ -49,10 +49,7 @@ public static class LobbyNotifierForDiscord
     {
         var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
 
-        if (timeSinceLastRequest < BufferTime)
-        {
-            yield return new WaitForSeconds(BufferTime - timeSinceLastRequest);
-        }
+        if (timeSinceLastRequest < BufferTime) { yield return new WaitForSeconds(BufferTime - timeSinceLastRequest); }
 
         LastRequestTimeStamp = Utils.TimeStamp;
 
@@ -83,10 +80,7 @@ public static class LobbyNotifierForDiscord
 
                 Logger.Msg($"Token for room {roomCode}: {Token}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
             }
-            catch (Exception ex)
-            {
-                Logger.Msg($"Failed to parse token from response: {ex.Message}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
-            }
+            catch (Exception ex) { Logger.Msg($"Failed to parse token from response: {ex.Message}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest"); }
 
             Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, Translator.GetString("Message.LobbyCodeSent"));
         }
@@ -119,10 +113,7 @@ public static class LobbyNotifierForDiscord
 
         var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
 
-        if (timeSinceLastRequest < BufferTime)
-        {
-            yield return new WaitForSeconds(BufferTime - timeSinceLastRequest);
-        }
+        if (timeSinceLastRequest < BufferTime) { yield return new WaitForSeconds(BufferTime - timeSinceLastRequest); }
 
         LastRequestTimeStamp = Utils.TimeStamp;
 
@@ -155,6 +146,15 @@ public enum LobbyStatus
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.ExitGame))]
 static class ExitGamePatch
 {
+    public static void Prefix()
+    {
+        if (SetUpRoleTextPatch.IsInIntro)
+        {
+            SetUpRoleTextPatch.IsInIntro = false;
+            Utils.NotifyRoles(NoCache: true);
+        }
+    }
+
     public static void Postfix()
     {
         LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.Closed);

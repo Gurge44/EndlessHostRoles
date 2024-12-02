@@ -1603,7 +1603,7 @@ public static class Utils
     public static void ShowHelp(byte ID)
     {
         PlayerControl player = GetPlayerById(ID);
-        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player, false)).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.Where(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ColorString(GetColor(i), x)).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), ID, GetString("CommandList"));
+        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player, false) && !x.CommandForms.Contains("help")).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.TakeWhile(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ColorString(GetColor(i), x)).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), ID, GetString("CommandList"));
         return;
 
         Color GetColor(int i)
@@ -2494,58 +2494,58 @@ public static class Utils
         pc.SetName(newOutfit.PlayerName);
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetName)
-            .Write(pc.Data.NetId)
-            .Write(newOutfit.PlayerName)
-            .EndRpc();
+              .Write(pc.Data.NetId)
+              .Write(newOutfit.PlayerName)
+              .EndRpc();
 
         Main.AllPlayerNames[pc.PlayerId] = newOutfit.PlayerName;
 
         pc.SetColor(newOutfit.ColorId);
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
-            .Write(pc.Data.NetId)
-            .Write((byte)newOutfit.ColorId)
-            .EndRpc();
+              .Write(pc.Data.NetId)
+              .Write((byte)newOutfit.ColorId)
+              .EndRpc();
 
         pc.SetHat(newOutfit.HatId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.HatSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetHatStr)
-            .Write(newOutfit.HatId)
-            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr))
-            .EndRpc();
+              .Write(newOutfit.HatId)
+              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr))
+              .EndRpc();
 
         pc.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.SkinSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetSkinStr)
-            .Write(newOutfit.SkinId)
-            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
-            .EndRpc();
+              .Write(newOutfit.SkinId)
+              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
+              .EndRpc();
 
         pc.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.VisorSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetVisorStr)
-            .Write(newOutfit.VisorId)
-            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
-            .EndRpc();
+              .Write(newOutfit.VisorId)
+              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
+              .EndRpc();
 
         pc.SetPet(newOutfit.PetId);
         pc.Data.DefaultOutfit.PetSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
-            .Write(newOutfit.PetId)
-            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-            .EndRpc();
+              .Write(newOutfit.PetId)
+              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+              .EndRpc();
 
         pc.SetNamePlate(newOutfit.NamePlateId);
         pc.Data.DefaultOutfit.NamePlateSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetNamePlateStr)
-            .Write(newOutfit.NamePlateId)
-            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr))
-            .EndRpc();
+              .Write(newOutfit.NamePlateId)
+              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr))
+              .EndRpc();
 
         sender.SendMessage();
     }
@@ -2708,10 +2708,10 @@ public static class Utils
                     pc.MarkDirtySettings();
 
                     LateTask.New(() =>
-                        {
-                            Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
-                            pc.MarkDirtySettings();
-                        }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
+                                 {
+                                     Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
+                                     pc.MarkDirtySettings();
+                                 }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
                 }
 
                 if (Options.UsePets.GetBool()) pc.AddAbilityCD(false);

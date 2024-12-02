@@ -54,7 +54,9 @@ internal static class TextBoxTMPSetTextPatch
 
             foreach (Command cmd in ChatCommands.AllCommands)
             {
-                foreach (string form in cmd.CommandForms)
+                string[] commandForms = english ? cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii)).ToArray() : cmd.CommandForms;
+
+                foreach (string form in commandForms)
                 {
                     if (english && !form.All(char.IsAscii)) continue;
 
@@ -215,10 +217,7 @@ internal static class TextBoxTMPSetTextPatch
             PlaceHolderText.enabled = true;
             CommandInfoText.enabled = true;
         }
-        catch
-        {
-            Destroy();
-        }
+        catch { Destroy(); }
 
         return;
 
@@ -251,7 +250,7 @@ internal static class TextBoxTMPSetTextPatch
 
 // Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
 [HarmonyPatch(typeof(TextBoxTMP))]
-public class TextBoxPatch
+public static class TextBoxPatch
 {
     [HarmonyPatch(nameof(TextBoxTMP.SetText))]
     [HarmonyPrefix]

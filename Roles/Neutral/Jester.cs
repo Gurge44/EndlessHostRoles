@@ -27,12 +27,12 @@ internal class Jester : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jester]);
 
         VentCooldown = new FloatOptionItem(10913, "VentCooldown", new(0f, 60f, 0.5f), 0f, TabGroup.NeutralRoles)
-            .SetParent(JesterCanVent)
-            .SetValueFormat(OptionFormat.Seconds);
+                       .SetParent(JesterCanVent)
+                       .SetValueFormat(OptionFormat.Seconds);
 
         MaxInVentTime = new FloatOptionItem(10914, "MaxInVentTime", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles)
-            .SetParent(JesterCanVent)
-            .SetValueFormat(OptionFormat.Seconds);
+                        .SetParent(JesterCanVent)
+                        .SetValueFormat(OptionFormat.Seconds);
 
         BlockVentMovement = new BooleanOptionItem(10916, "BlockVentMovement", false, TabGroup.NeutralRoles)
             .SetParent(JesterCanVent);
@@ -41,8 +41,8 @@ internal class Jester : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jester]);
 
         SunnyboyChance = new IntegerOptionItem(10915, "SunnyboyChance", new(0, 100, 5), 0, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Jester])
-            .SetValueFormat(OptionFormat.Percent);
+                         .SetParent(CustomRoleSpawnChances[CustomRoles.Jester])
+                         .SetValueFormat(OptionFormat.Percent);
     }
 
     public override void Add(byte playerId)
@@ -64,6 +64,6 @@ internal class Jester : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return !BlockVentMovement.GetBool() || pc.GetClosestVent()?.Id == ventId;
+        return !IsThisRole(pc) || !BlockVentMovement.GetBool() || pc.GetClosestVent()?.Id == ventId;
     }
 }

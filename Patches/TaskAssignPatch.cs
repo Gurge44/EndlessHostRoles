@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -185,9 +186,9 @@ internal static class RpcSetTasksPatch
         if (pc.Is(CustomRoles.Workhorse)) (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
         // Capitalism is going to harm people~
-        if (Capitalism.CapitalismAssignTask.ContainsKey(pc.PlayerId))
+        if (Capitalism.CapitalismAssignTask.TryGetValue(pc.PlayerId, out int extraTasksNum))
         {
-            NumShortTasks += Capitalism.CapitalismAssignTask[pc.PlayerId];
+            NumShortTasks += extraTasksNum;
             Capitalism.CapitalismAssignTask.Remove(pc.PlayerId);
         }
 
@@ -209,7 +210,7 @@ internal static class RpcSetTasksPatch
 
         // Reference: ShipStatus.Begin
         // Processing to delete unnecessary assigned tasks
-        // If the setting is to assign common tasks, delete all other than common tasks
+        // If the setting is to assign common tasks, delete all others than common tasks
         // Empty the list if no common tasks are assigned
         int defaultCommonTasksNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
@@ -219,7 +220,7 @@ internal static class RpcSetTasksPatch
             TasksList.Clear();
 
         // HashSet where assigned tasks will be placed
-        // Prevent multiple assignments of the same task
+        // Prevents multiple assignments of the same task
         Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
         var start2 = 0;
         var start3 = 0;
@@ -253,24 +254,29 @@ internal static class RpcSetTasksPatch
             ShortTasks
         );
 
-        // Convert list of tasks to array (Il2CppStructArray)
+        // Convert the list of tasks to array (Il2CppStructArray)
         taskTypeIds = new(TasksList.Count);
-        for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i];
+        for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i]; // False error
 
+        #region Logging
 
-        Il2CppSystem.Text.StringBuilder sb = new();
-
-        foreach (TaskTypes taskType in usedTaskTypes)
+        try
         {
-            GetTaskFromTaskType(taskType).AppendTaskText(sb);
+            NormalPlayerTask[] allTasks = ShortTasks.ToArray().Concat(LongTasks.ToArray()).ToArray();
+            Il2CppSystem.Text.StringBuilder sb = new();
+
+            foreach (TaskTypes taskType in usedTaskTypes) { GetTaskFromTaskType(taskType).AppendTaskText(sb); }
+
+            Logger.Info($" Assigned tasks:\n{sb.Replace("\r\n", "\n").ToString()}", pc.GetRealName(), multiLine: true);
+
+            PlayerTask GetTaskFromTaskType(TaskTypes type) => allTasks.FirstOrDefault(t => t.TaskType == type);
         }
+        catch (Exception e) { Utils.ThrowException(e); }
 
-        Logger.Info($" Assigned tasks:\n{sb.Replace("\r\n", "\n")}", pc.GetRealName(), multiLine: true);
-        return;
-
-        PlayerTask GetTaskFromTaskType(TaskTypes type) => ShortTasks.ToArray().Concat(LongTasks.ToArray()).FirstOrDefault(t => t.TaskType == type);
+        #endregion
     }
 
+    // All errors below are false
     private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
     {
         for (var i = 0; i < list.Count - 1; i++)

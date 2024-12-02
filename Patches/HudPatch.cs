@@ -794,10 +794,10 @@ internal static class TaskPanelBehaviourPatch
                 case CustomGameMode.NaturalDisasters:
 
                     finalText += Main.AllPlayerControls
-                        .Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId)))
-                        .OrderByDescending(x => x.alive)
-                        .ThenByDescending(x => x.time)
-                        .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+                                     .Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId)))
+                                     .OrderByDescending(x => x.alive)
+                                     .ThenByDescending(x => x.time)
+                                     .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
 
                     finalText += "</size>";
                     break;
@@ -805,10 +805,10 @@ internal static class TaskPanelBehaviourPatch
                 case CustomGameMode.RoomRush:
 
                     finalText += Main.AllPlayerControls
-                        .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
-                        .OrderByDescending(x => x.alive)
-                        .ThenByDescending(x => x.time)
-                        .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+                                     .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
+                                     .OrderByDescending(x => x.alive)
+                                     .ThenByDescending(x => x.time)
+                                     .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
 
                     finalText += "</size>";
                     break;
@@ -865,7 +865,7 @@ internal static class CoShowIntroPatch
                 {
                     ShipStatusBeginPatch.RolesIsAssigned = true;
 
-                    // Assign tasks after assign all roles, as it should be
+                    // Assign tasks after assigning all roles, as it should be
                     ShipStatus.Instance.Begin();
 
                     GameOptionsSender.AllSenders.Clear();

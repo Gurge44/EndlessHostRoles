@@ -44,6 +44,10 @@ public static class Camouflage
     public static List<byte> ResetSkinAfterDeathPlayers = [];
     private static HashSet<byte> WaitingForSkinChange = [];
 
+    private static int SkippedCamoTimes;
+    private static int CamoTimesThisGame;
+    public static int CamoTimesThisRound;
+
     public static void Init()
     {
         IsCamouflage = false;
@@ -70,36 +74,32 @@ public static class Camouflage
 
     public static void SetPetForOutfitIfNecessary(NetworkedPlayerInfo.PlayerOutfit outfit)
     {
-        if (Options.UsePets.GetBool() && outfit.PetId == "")
-        {
-            outfit.PetId = PetsPatch.GetPetId();
-        }
+        if (Options.UsePets.GetBool() && outfit.PetId == "") { outfit.PetId = PetsPatch.GetPetId(); }
     }
 
-    private static int SkippedCamoTimes;
-    private static int CamoTimesThisGame;
-    public static int CamoTimesThisRound;
-
-    private static bool ShouldCamouflage()
+    private static bool ShouldCamouflage(bool alreadyCamouflaged)
     {
         if (Camouflager.On && Camouflager.IsActive) return true;
-            
+
         if (Main.CurrentMap == MapNames.Fungle && Options.CommsCamouflageDisableOnFungle.GetBool()) return false;
 
         if (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())
         {
-            if (Options.CommsCamouflageLimitSetChance.GetBool() && IRandom.Instance.Next(100) < Options.CommsCamouflageLimitChance.GetInt()) return false;
-            if (Options.CommsCamouflageLimitSetFrequency.GetBool() && ++SkippedCamoTimes < Options.CommsCamouflageLimitFrequency.GetInt()) return false;
-
-            if (Options.CommsCamouflageLimitSetMaxTimes.GetBool())
+            if (!alreadyCamouflaged)
             {
-                if (CamoTimesThisGame++ >= Options.CommsCamouflageLimitMaxTimesPerGame.GetInt()) return false;
-                if (CamoTimesThisRound++ >= Options.CommsCamouflageLimitMaxTimesPerRound.GetInt()) return false;
+                if (Options.CommsCamouflageLimitSetChance.GetBool() && IRandom.Instance.Next(100) < Options.CommsCamouflageLimitChance.GetInt()) return false;
+                if (Options.CommsCamouflageLimitSetFrequency.GetBool() && ++SkippedCamoTimes < Options.CommsCamouflageLimitFrequency.GetInt()) return false;
+
+                if (Options.CommsCamouflageLimitSetMaxTimes.GetBool())
+                {
+                    if (CamoTimesThisGame++ >= Options.CommsCamouflageLimitMaxTimesPerGame.GetInt()) return false;
+                    if (CamoTimesThisRound++ >= Options.CommsCamouflageLimitMaxTimesPerRound.GetInt()) return false;
+                }
             }
-                
+
             return true;
         }
-            
+
         return false;
     }
 
@@ -109,7 +109,7 @@ public static class Camouflage
 
         bool oldIsCamouflage = IsCamouflage;
 
-        IsCamouflage = ShouldCamouflage();
+        IsCamouflage = ShouldCamouflage(oldIsCamouflage);
 
         if (oldIsCamouflage != IsCamouflage)
         {
@@ -187,41 +187,41 @@ public static class Camouflage
         target.SetColor(newOutfit.ColorId);
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
-            .Write(target.Data.NetId)
-            .Write((byte)newOutfit.ColorId)
-            .EndRpc();
+              .Write(target.Data.NetId)
+              .Write((byte)newOutfit.ColorId)
+              .EndRpc();
 
         target.SetHat(newOutfit.HatId, newOutfit.ColorId);
         target.Data.DefaultOutfit.HatSequenceId += 10;
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
-            .Write(newOutfit.HatId)
-            .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
-            .EndRpc();
+              .Write(newOutfit.HatId)
+              .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
+              .EndRpc();
 
         target.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
         target.Data.DefaultOutfit.SkinSequenceId += 10;
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
-            .Write(newOutfit.SkinId)
-            .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
-            .EndRpc();
+              .Write(newOutfit.SkinId)
+              .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
+              .EndRpc();
 
         target.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
         target.Data.DefaultOutfit.VisorSequenceId += 10;
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
-            .Write(newOutfit.VisorId)
-            .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
-            .EndRpc();
+              .Write(newOutfit.VisorId)
+              .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
+              .EndRpc();
 
         target.SetPet(newOutfit.PetId);
         target.Data.DefaultOutfit.PetSequenceId += 10;
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
-            .Write(newOutfit.PetId)
-            .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-            .EndRpc();
+              .Write(newOutfit.PetId)
+              .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+              .EndRpc();
 
         sender.SendMessage();
     }
@@ -229,7 +229,7 @@ public static class Camouflage
     public static void OnFixedUpdate(PlayerControl pc)
     {
         if (pc.IsLocalPlayer()) CheckCamouflage();
-            
+
         if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat) return;
 
         RpcSetSkin(pc);

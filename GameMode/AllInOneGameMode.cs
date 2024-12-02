@@ -26,7 +26,7 @@ public static class AllInOneGameMode
 
     public static void SetupCustomOption()
     {
-        var id = 69_217_001;
+        var id = 69_218_001;
         var color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : Color.magenta;
         const CustomGameMode gameMode = CustomGameMode.AllInOne;
 
@@ -37,58 +37,58 @@ public static class AllInOneGameMode
             bool defaultValue = mode is CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.SoloKombat or CustomGameMode.Speedrun;
 
             GameModeIntegrationSettings[mode] = new BooleanOptionItem(id++, $"AllInOne.{mode}.Integration", defaultValue, TabGroup.GameSettings)
-                .SetHeader((int)mode == 2)
-                .SetGameMode(gameMode)
-                .SetColor(color);
+                                                .SetHeader((int)mode == 2)
+                                                .SetGameMode(gameMode)
+                                                .SetColor(color);
         }
 
         HotPotatoTimerMultiplier = new IntegerOptionItem(id++, "AllInOne.HotPotato.TimerMultiplier", new(1, 10, 1), 3, TabGroup.GameSettings)
-            .SetHeader(true)
-            .SetValueFormat(OptionFormat.Multiplier)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                   .SetHeader(true)
+                                   .SetValueFormat(OptionFormat.Multiplier)
+                                   .SetGameMode(gameMode)
+                                   .SetColor(color);
 
         MoveAndStopMinGreenTimeBonus = new IntegerOptionItem(id++, "AllInOne.MoveAndStop.MinGreenTimeBonus", new(0, 60, 1), 5, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.Seconds)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                       .SetValueFormat(OptionFormat.Seconds)
+                                       .SetGameMode(gameMode)
+                                       .SetColor(color);
 
         MoveAndStopMaxGreenTimeBonus = new IntegerOptionItem(id++, "AllInOne.MoveAndStop.MaxGreenTimeBonus", new(0, 60, 1), 20, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.Seconds)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                       .SetValueFormat(OptionFormat.Seconds)
+                                       .SetGameMode(gameMode)
+                                       .SetColor(color);
 
         NaturalDisastersDisasterSpawnCooldownMultiplier = new IntegerOptionItem(id++, "AllInOne.NaturalDisasters.DisasterSpawnCooldownMultiplier", new(1, 10, 1), 4, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.Multiplier)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                                          .SetValueFormat(OptionFormat.Multiplier)
+                                                          .SetGameMode(gameMode)
+                                                          .SetColor(color);
 
         NaturalDisastersWarningDurationMultiplier = new IntegerOptionItem(id++, "AllInOne.NaturalDisasters.WarningDurationMultiplier", new(1, 10, 1), 6, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.Multiplier)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                                    .SetValueFormat(OptionFormat.Multiplier)
+                                                    .SetGameMode(gameMode)
+                                                    .SetColor(color);
 
         RoomRushTimeLimitMultiplier = new IntegerOptionItem(id++, "AllInOne.RoomRush.TimeLimitMultiplier", new(1, 10, 1), 3, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.Multiplier)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                      .SetValueFormat(OptionFormat.Multiplier)
+                                      .SetGameMode(gameMode)
+                                      .SetColor(color);
 
         RoomRushDontKillLastPlayer = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontKillLastPlayer", true, TabGroup.GameSettings)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                     .SetGameMode(gameMode)
+                                     .SetColor(color);
 
         RoomRushDontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom", true, TabGroup.GameSettings)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                                                   .SetGameMode(gameMode)
+                                                                   .SetColor(color);
 
         RoomRushDontKillPlayersOutsideRoomWhenTimeRunsOut = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontKillPlayersOutsideRoomWhenTimeRunsOut", true, TabGroup.GameSettings)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                                            .SetGameMode(gameMode)
+                                                            .SetColor(color);
 
         SpeedrunTimeLimitMultiplier = new IntegerOptionItem(id, "AllInOne.Speedrun.TimeLimitMultiplier", new(1, 10, 1), 3, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.Multiplier)
-            .SetGameMode(gameMode)
-            .SetColor(color);
+                                      .SetValueFormat(OptionFormat.Multiplier)
+                                      .SetGameMode(gameMode)
+                                      .SetColor(color);
     }
 
     public static void Init()

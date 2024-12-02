@@ -326,6 +326,7 @@ public class Main : BasePlugin
                 { CustomRoles.TrackerEHR, "#34ad50" },
                 { CustomRoles.NoisemakerEHR, "#ff4a62" },
                 // Crewmates
+                { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },
                 { CustomRoles.Needy, "#a4dffe" },
                 { CustomRoles.SabotageMaster, "#3333ff" },
@@ -737,9 +738,9 @@ public class Main : BasePlugin
         try
         {
             AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
-                .GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
-                .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
+                                            .GetTypes()
+                                            .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
+                                            .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
 
             AllRoleClasses.Sort();
         }

@@ -112,8 +112,9 @@ public static class Statistics
                 case CustomWinner.Innocent:
                 case CustomWinner.Jester:
 
-                    if (CustomWinnerHolder.AdditionalWinnerTeams.Contains(AdditionalWinners.Executioner) ||
-                        CustomWinnerHolder.WinnerIds.ToValidPlayers().Any(x => x.GetCustomRole() is CustomRoles.Executioner or CustomRoles.Innocent or CustomRoles.Jester))
+                    if (won && role is CustomRoles.Executioner or CustomRoles.Innocent or CustomRoles.Jester &&
+                        (CustomWinnerHolder.AdditionalWinnerTeams.Contains(AdditionalWinners.Executioner) ||
+                         CustomWinnerHolder.WinnerIds.ToValidPlayers().Any(x => x.GetCustomRole() is CustomRoles.Executioner or CustomRoles.Innocent or CustomRoles.Jester)))
                         Achievements.Type.CoordinatedAttack.CompleteAfterGameEnd();
 
                     break;
@@ -148,10 +149,7 @@ public static class Statistics
             if (correctGuesses >= 4) Achievements.Type.GuessMaster.CompleteAfterGameEnd();
             if (correctGuesses >= 6) Achievements.Type.BestGuesserAward.CompleteAfterGameEnd();
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         return;
 
@@ -223,10 +221,7 @@ public static class Statistics
                     Achievements.Type.Duel.Complete();
             }, 12f, log: false);
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void OnRoleSelectionComplete()
@@ -248,10 +243,7 @@ public static class Statistics
                     break;
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void OnMurder(PlayerControl killer, PlayerControl target)
@@ -306,10 +298,7 @@ public static class Statistics
                     Achievements.Type.YouDidTheExactOppositeOfWhatYouWereSupposedToDo.Complete();
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void OnShapeshift(PlayerControl shapeshifter, bool shapeshifting, bool animated)
@@ -324,9 +313,6 @@ public static class Statistics
                 if (shapeshifter.Is(CustomRoles.Disco)) Achievements.Type.Prankster.Complete();
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
