@@ -228,8 +228,15 @@ public class OptionSetupHandler(int id, TabGroup tab, CustomRoles role)
         return this;
     }
 
-    public void CreateOverrideTasksData()
+    public OptionSetupHandler CreateOverrideTasksData()
     {
         Options.OverrideTasksData.Create(++_id, tab, role);
+        return this;
+    }
+
+    public OptionSetupHandler CreateVoteCancellingSetting(ref OptionItem field)
+    {
+        field = Options.CreateVoteCancellingUseSetting(++_id, role, tab);
+        return this;
     }
 }

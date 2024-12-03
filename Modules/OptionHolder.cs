@@ -681,7 +681,6 @@ public static class Options
     public static OptionItem UseUnshiftTriggerForNKs;
     public static OptionItem UsePhantomBasis;
     public static OptionItem UsePhantomBasisForNKs;
-    public static OptionItem UseVoteCancelling;
     public static OptionItem AutoKickStart;
     public static OptionItem AutoKickStartAsBan;
     public static OptionItem AutoKickStartTimes;
@@ -1931,11 +1930,6 @@ public static class Options
                                 .SetGameMode(CustomGameMode.Standard)
                                 .SetParent(UsePhantomBasis)
                                 .SetColor(new Color32(255, 255, 44, byte.MaxValue));
-
-        UseVoteCancelling = new BooleanOptionItem(23852, "UseVoteCancelling", false, TabGroup.TaskSettings)
-                            .SetGameMode(CustomGameMode.Standard)
-                            .SetHeader(true)
-                            .SetColor(new Color32(0, 65, 196, byte.MaxValue));
 
         EveryoneCanVent = new BooleanOptionItem(23853, "EveryoneCanVent", false, TabGroup.TaskSettings)
                           .SetGameMode(CustomGameMode.Standard)

@@ -325,7 +325,8 @@ internal static class SoloPVP
 
             if (!__instance.SoloAlive())
             {
-                if (__instance.inVent && KB_BootVentWhenDead.GetBool()) __instance.MyPhysics.RpcExitVent(2);
+                if (__instance.inVent && KB_BootVentWhenDead.GetBool())
+                    __instance.MyPhysics.RpcExitVent(2);
 
                 Vector2 pos = Pelican.GetBlackRoomPS();
                 float dis = Vector2.Distance(pos, __instance.Pos());
