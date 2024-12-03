@@ -1,75 +1,74 @@
 ﻿using System.Collections.Generic;
 using static EHR.Options;
 
-namespace EHR.Impostor
+namespace EHR.Impostor;
+
+public class Cantankerous : RoleBase
 {
-    public class Cantankerous : RoleBase
+    private const int Id = 642860;
+    private static List<byte> PlayerIdList = [];
+
+    private static OptionItem PointsGainedPerEjection;
+    private static OptionItem StartingPoints;
+    private static OptionItem KCD;
+
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
+    public override void SetupCustomOption()
     {
-        private const int Id = 642860;
-        private static List<byte> PlayerIdList = [];
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Cantankerous);
 
-        private static OptionItem PointsGainedPerEjection;
-        private static OptionItem StartingPoints;
-        private static OptionItem KCD;
+        KCD = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        public override bool IsEnable => PlayerIdList.Count > 0;
+        PointsGainedPerEjection = new IntegerOptionItem(Id + 6, "CantankerousPointsGainedPerEjection", new(1, 5, 1), 2, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
+            .SetValueFormat(OptionFormat.Times);
 
-        public override void SetupCustomOption()
-        {
-            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Cantankerous);
+        StartingPoints = new IntegerOptionItem(Id + 7, "CantankerousStartingPoints", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
+            .SetValueFormat(OptionFormat.Times);
+    }
 
-            KCD = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
-                .SetValueFormat(OptionFormat.Seconds);
+    public override void Init()
+    {
+        PlayerIdList = [];
+    }
 
-            PointsGainedPerEjection = new IntegerOptionItem(Id + 6, "CantankerousPointsGainedPerEjection", new(1, 5, 1), 2, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
-                .SetValueFormat(OptionFormat.Times);
+    public override void Add(byte playerId)
+    {
+        PlayerIdList.Add(playerId);
+        playerId.SetAbilityUseLimit(StartingPoints.GetInt());
+    }
 
-            StartingPoints = new IntegerOptionItem(Id + 7, "CantankerousStartingPoints", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
-                .SetValueFormat(OptionFormat.Times);
-        }
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+    }
 
-        public override void Init()
-        {
-            PlayerIdList = [];
-        }
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return pc.GetAbilityUseLimit() > 0;
+    }
 
-        public override void Add(byte playerId)
-        {
-            PlayerIdList.Add(playerId);
-            playerId.SetAbilityUseLimit(StartingPoints.GetInt());
-        }
+    public static void OnCrewmateEjected()
+    {
+        int value = PointsGainedPerEjection.GetInt();
 
-        public override void SetKillCooldown(byte id)
-        {
-            Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
-        }
+        foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+            if (state.Value.Role is Cantankerous)
+                Utils.GetPlayerById(state.Key).RpcIncreaseAbilityUseLimitBy(value);
+    }
 
-        public override bool CanUseKillButton(PlayerControl pc)
-        {
-            return pc.GetAbilityUseLimit() > 0;
-        }
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (!base.OnCheckMurder(killer, target)) return false;
 
-        public static void OnCrewmateEjected()
-        {
-            int value = PointsGainedPerEjection.GetInt();
+        if (killer.GetAbilityUseLimit() <= 0) return false;
 
-            foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
-                if (state.Value.Role is Cantankerous)
-                    Utils.GetPlayerById(state.Key).RpcIncreaseAbilityUseLimitBy(value);
-        }
+        killer.RpcRemoveAbilityUse();
 
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-        {
-            if (!base.OnCheckMurder(killer, target)) return false;
-
-            if (killer.GetAbilityUseLimit() <= 0) return false;
-
-            killer.RpcRemoveAbilityUse();
-
-            return true;
-        }
+        return true;
     }
 }

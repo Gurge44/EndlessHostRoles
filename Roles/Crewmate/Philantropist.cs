@@ -1,4 +1,3 @@
-﻿namespace EHR.Crewmate
-{
-    internal class Philantropist { }
-}
+﻿namespace EHR.Crewmate;
+
+internal class Philantropist { }

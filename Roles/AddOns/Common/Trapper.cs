@@ -1,18 +1,17 @@
 ﻿using static EHR.Options;
 
-namespace EHR.AddOns.Common
+namespace EHR.AddOns.Common;
+
+internal class Trapper : IAddon
 {
-    internal class Trapper : IAddon
+    public AddonTypes Type => AddonTypes.Mixed;
+
+    public void SetupCustomOption()
     {
-        public AddonTypes Type => AddonTypes.Mixed;
+        SetupAdtRoleOptions(13800, CustomRoles.Trapper, canSetNum: true, teamSpawnOptions: true);
 
-        public void SetupCustomOption()
-        {
-            SetupAdtRoleOptions(13800, CustomRoles.Trapper, canSetNum: true, teamSpawnOptions: true);
-
-            TrapperBlockMoveTime = new FloatOptionItem(13813, "TrapperBlockMoveTime", new(0f, 180f, 1f), 5f, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Trapper])
-                .SetValueFormat(OptionFormat.Seconds);
-        }
+        TrapperBlockMoveTime = new FloatOptionItem(13813, "TrapperBlockMoveTime", new(0f, 180f, 1f), 5f, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Trapper])
+            .SetValueFormat(OptionFormat.Seconds);
     }
 }

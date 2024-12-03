@@ -2,76 +2,75 @@
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Crewmate
+namespace EHR.Crewmate;
+
+internal class Witness : RoleBase
 {
-    internal class Witness : RoleBase
+    public static Dictionary<byte, long> AllKillers = [];
+
+    public static bool On;
+    public override bool IsEnable => On;
+
+    public override void SetupCustomOption()
     {
-        public static Dictionary<byte, long> AllKillers = [];
+        SetupRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness);
 
-        public static bool On;
-        public override bool IsEnable => On;
+        WitnessCD = new FloatOptionItem(8552, "AbilityCD", new(0f, 60f, 2.5f), 10f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        public override void SetupCustomOption()
-        {
-            SetupRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness);
+        WitnessTime = new IntegerOptionItem(8553, "WitnessTime", new(0, 90, 1), 10, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
+            .SetValueFormat(OptionFormat.Seconds);
 
-            WitnessCD = new FloatOptionItem(8552, "AbilityCD", new(0f, 60f, 2.5f), 10f, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
-                .SetValueFormat(OptionFormat.Seconds);
+        WitnessUsePet = CreatePetUseSetting(8554, CustomRoles.Witness);
+    }
 
-            WitnessTime = new IntegerOptionItem(8553, "WitnessTime", new(0, 90, 1), 10, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
-                .SetValueFormat(OptionFormat.Seconds);
+    public override void Add(byte playerId)
+    {
+        On = true;
+    }
 
-            WitnessUsePet = CreatePetUseSetting(8554, CustomRoles.Witness);
-        }
+    public override void Init()
+    {
+        On = false;
+        AllKillers = [];
+    }
 
-        public override void Add(byte playerId)
-        {
-            On = true;
-        }
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = WitnessCD.GetFloat();
+    }
 
-        public override void Init()
-        {
-            On = false;
-            AllKillers = [];
-        }
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(false);
+    }
 
-        public override void SetKillCooldown(byte id)
-        {
-            Main.AllPlayerKillCooldown[id] = WitnessCD.GetFloat();
-        }
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(Translator.GetString("WitnessButtonText"));
+    }
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            opt.SetVision(false);
-        }
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return pc.IsAlive();
+    }
 
-        public override void SetButtonTexts(HudManager hud, byte id)
-        {
-            hud.KillButton?.OverrideText(Translator.GetString("WitnessButtonText"));
-        }
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        killer.SetKillCooldown();
+        killer.Notify(AllKillers.ContainsKey(target.PlayerId) ? Translator.GetString("WitnessFoundKiller") : Translator.GetString("WitnessFoundInnocent"));
+        return false;
+    }
 
-        public override bool CanUseKillButton(PlayerControl pc)
-        {
-            return pc.IsAlive();
-        }
+    public override void OnReportDeadBody()
+    {
+        AllKillers.Clear();
+    }
 
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-        {
-            killer.SetKillCooldown();
-            killer.Notify(AllKillers.ContainsKey(target.PlayerId) ? Translator.GetString("WitnessFoundKiller") : Translator.GetString("WitnessFoundInnocent"));
-            return false;
-        }
-
-        public override void OnReportDeadBody()
-        {
-            AllKillers.Clear();
-        }
-
-        public override void OnFixedUpdate(PlayerControl pc)
-        {
-            if (AllKillers.TryGetValue(pc.PlayerId, out long ktime) && ktime + WitnessTime.GetInt() < Utils.TimeStamp) AllKillers.Remove(pc.PlayerId);
-        }
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (AllKillers.TryGetValue(pc.PlayerId, out long ktime) && ktime + WitnessTime.GetInt() < Utils.TimeStamp) AllKillers.Remove(pc.PlayerId);
     }
 }

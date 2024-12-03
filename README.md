@@ -379,6 +379,11 @@ Source language: English
 > - Reference: Custom Region Installer (adding modded regions)
 >
 
+### :star: [Crowded](https://github.com/CrowdedMods/CrowdedMod)
+
+>
+> - Crowded is integrated into EHR
+
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
 
 ##### Developers:

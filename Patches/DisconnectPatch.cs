@@ -1,15 +1,15 @@
 using HarmonyLib;
 
-namespace EHR
+namespace EHR;
+
+[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnDisconnected))]
+internal static class OnDisconnectedPatch
 {
-    [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnDisconnected))]
-    internal static class OnDisconnectedPatch
+    public static void Postfix( /*AmongUsClient __instance*/)
     {
-        public static void Postfix( /*AmongUsClient __instance*/)
-        {
-            Main.VisibleTasksCount = false;
-        }
+        Main.VisibleTasksCount = false;
     }
+}
 /*
     [HarmonyPatch(typeof(DisconnectPopup), nameof(DisconnectPopup.DoShow))]
     internal static class ShowDisconnectPopupPatch
@@ -141,4 +141,3 @@ namespace EHR
         }
     }
 */
-}

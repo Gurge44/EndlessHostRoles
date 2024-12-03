@@ -1,14 +1,13 @@
 ﻿using static EHR.Options;
 
-namespace EHR.AddOns.Common
-{
-    internal class Glow : IAddon
-    {
-        public AddonTypes Type => AddonTypes.Mixed;
+namespace EHR.AddOns.Common;
 
-        public void SetupCustomOption()
-        {
-            SetupAdtRoleOptions(14020, CustomRoles.Glow, canSetNum: true, teamSpawnOptions: true);
-        }
+internal class Glow : IAddon
+{
+    public AddonTypes Type => AddonTypes.Mixed;
+
+    public void SetupCustomOption()
+    {
+        SetupAdtRoleOptions(14020, CustomRoles.Glow, canSetNum: true, teamSpawnOptions: true);
     }
 }

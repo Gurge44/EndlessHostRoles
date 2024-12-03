@@ -1,12 +1,11 @@
-﻿namespace EHR.AddOns.Common
-{
-    internal class Avanger : IAddon
-    {
-        public AddonTypes Type => AddonTypes.Harmful;
+﻿namespace EHR.AddOns.Common;
 
-        public void SetupCustomOption()
-        {
-            Options.SetupAdtRoleOptions(15100, CustomRoles.Avanger, canSetNum: true, teamSpawnOptions: true);
-        }
+internal class Avanger : IAddon
+{
+    public AddonTypes Type => AddonTypes.Harmful;
+
+    public void SetupCustomOption()
+    {
+        Options.SetupAdtRoleOptions(15100, CustomRoles.Avanger, canSetNum: true, teamSpawnOptions: true);
     }
 }

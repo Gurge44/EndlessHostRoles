@@ -1,84 +1,83 @@
 using System;
 
-namespace EHR
+namespace EHR;
+
+public abstract class ValueRule<T>(T minValue, T maxValue, T step)
 {
-    public abstract class ValueRule<T>(T minValue, T maxValue, T step)
+    public ValueRule((T, T, T) tuple)
+        : this(tuple.Item1, tuple.Item2, tuple.Item3) { }
+
+    public T MinValue { get; protected set; } = minValue;
+    public T MaxValue { get; protected set; } = maxValue;
+    public T Step { get; protected set; } = step;
+
+    public abstract int RepeatIndex(int value);
+    public abstract T GetValueByIndex(int index);
+    public abstract int GetNearestIndex(T num);
+}
+
+public class IntegerValueRule : ValueRule<int>
+{
+    public IntegerValueRule(int minValue, int maxValue, int step)
+        : base(minValue, maxValue, step) { }
+
+    public IntegerValueRule((int, int, int) tuple)
+        : base(tuple) { }
+
+    public static implicit operator IntegerValueRule((int, int, int) tuple)
     {
-        public ValueRule((T, T, T) tuple)
-            : this(tuple.Item1, tuple.Item2, tuple.Item3) { }
-
-        public T MinValue { get; protected set; } = minValue;
-        public T MaxValue { get; protected set; } = maxValue;
-        public T Step { get; protected set; } = step;
-
-        public abstract int RepeatIndex(int value);
-        public abstract T GetValueByIndex(int index);
-        public abstract int GetNearestIndex(T num);
+        return new(tuple);
     }
 
-    public class IntegerValueRule : ValueRule<int>
+    public override int RepeatIndex(int value)
     {
-        public IntegerValueRule(int minValue, int maxValue, int step)
-            : base(minValue, maxValue, step) { }
+        int MaxIndex = (MaxValue - MinValue) / Step;
+        value %= MaxIndex + 1;
+        if (value < 0) value = MaxIndex;
 
-        public IntegerValueRule((int, int, int) tuple)
-            : base(tuple) { }
-
-        public static implicit operator IntegerValueRule((int, int, int) tuple)
-        {
-            return new(tuple);
-        }
-
-        public override int RepeatIndex(int value)
-        {
-            int MaxIndex = (MaxValue - MinValue) / Step;
-            value %= MaxIndex + 1;
-            if (value < 0) value = MaxIndex;
-
-            return value;
-        }
-
-        public override int GetValueByIndex(int index)
-        {
-            return (RepeatIndex(index) * Step) + MinValue;
-        }
-
-        public override int GetNearestIndex(int num)
-        {
-            return (int)Math.Round((num - MinValue) / (float)Step);
-        }
+        return value;
     }
 
-    public class FloatValueRule : ValueRule<float>
+    public override int GetValueByIndex(int index)
     {
-        public FloatValueRule(float minValue, float maxValue, float step)
-            : base(minValue, maxValue, step) { }
+        return (RepeatIndex(index) * Step) + MinValue;
+    }
 
-        public FloatValueRule((float, float, float) tuple)
-            : base(tuple) { }
+    public override int GetNearestIndex(int num)
+    {
+        return (int)Math.Round((num - MinValue) / (float)Step);
+    }
+}
 
-        public static implicit operator FloatValueRule((float, float, float) tuple)
-        {
-            return new(tuple);
-        }
+public class FloatValueRule : ValueRule<float>
+{
+    public FloatValueRule(float minValue, float maxValue, float step)
+        : base(minValue, maxValue, step) { }
 
-        public override int RepeatIndex(int value)
-        {
-            var MaxIndex = (int)((MaxValue - MinValue) / Step);
-            value %= MaxIndex + 1;
-            if (value < 0) value = MaxIndex;
+    public FloatValueRule((float, float, float) tuple)
+        : base(tuple) { }
 
-            return value;
-        }
+    public static implicit operator FloatValueRule((float, float, float) tuple)
+    {
+        return new(tuple);
+    }
 
-        public override float GetValueByIndex(int index)
-        {
-            return (RepeatIndex(index) * Step) + MinValue;
-        }
+    public override int RepeatIndex(int value)
+    {
+        var MaxIndex = (int)((MaxValue - MinValue) / Step);
+        value %= MaxIndex + 1;
+        if (value < 0) value = MaxIndex;
 
-        public override int GetNearestIndex(float num)
-        {
-            return (int)Math.Round((num - MinValue) / Step);
-        }
+        return value;
+    }
+
+    public override float GetValueByIndex(int index)
+    {
+        return (RepeatIndex(index) * Step) + MinValue;
+    }
+
+    public override int GetNearestIndex(float num)
+    {
+        return (int)Math.Round((num - MinValue) / Step);
     }
 }

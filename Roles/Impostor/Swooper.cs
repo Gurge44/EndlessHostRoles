@@ -8,288 +8,292 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Impostor
+namespace EHR.Impostor;
+
+public class Swooper : RoleBase
 {
-    public class Swooper : RoleBase
+    private const int Id = 4200;
+    private static List<byte> PlayerIdList = [];
+
+    private static OptionItem SwooperCooldown;
+    private static OptionItem SwooperDuration;
+    private static OptionItem SwooperVentNormallyOnCooldown;
+    private static OptionItem SwooperLimitOpt;
+    public static OptionItem SwooperAbilityUseGainWithEachKill;
+    private int CD;
+
+    private float Cooldown;
+
+    private int Count;
+    private float Duration;
+
+    private long InvisTime;
+
+    private long lastFixedTime;
+    private long lastTime;
+    private byte SwooperId;
+
+    private CustomRoles UsedRole;
+    private int ventedId;
+    private bool VentNormallyOnCooldown;
+
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
+    private bool CanGoInvis => GameStates.IsInTask && InvisTime == -10 && lastTime == -10;
+    private bool IsInvis => InvisTime != -10;
+
+    public override void SetupCustomOption()
     {
-        private const int Id = 4200;
-        private static List<byte> PlayerIdList = [];
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
 
-        private static OptionItem SwooperCooldown;
-        private static OptionItem SwooperDuration;
-        private static OptionItem SwooperVentNormallyOnCooldown;
-        private static OptionItem SwooperLimitOpt;
-        public static OptionItem SwooperAbilityUseGainWithEachKill;
-        private int CD;
+        SwooperCooldown = new FloatOptionItem(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        private float Cooldown;
+        SwooperDuration = new FloatOptionItem(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        private int Count;
-        private float Duration;
+        SwooperVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
 
-        private long InvisTime;
+        SwooperLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+            .SetValueFormat(OptionFormat.Times);
 
-        private long lastFixedTime;
-        private long lastTime;
-        private byte SwooperId;
+        SwooperAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+            .SetValueFormat(OptionFormat.Times);
+    }
 
-        private CustomRoles UsedRole;
-        private int ventedId;
-        private bool VentNormallyOnCooldown;
+    public override void Init()
+    {
+        PlayerIdList = [];
+        InvisTime = -10;
+        lastTime = -10;
+        ventedId = -10;
+        CD = 0;
+        SwooperId = byte.MaxValue;
+    }
 
-        public override bool IsEnable => PlayerIdList.Count > 0;
+    public override void Add(byte playerId)
+    {
+        PlayerIdList.Add(playerId);
+        SwooperId = playerId;
 
-        private bool CanGoInvis => GameStates.IsInTask && InvisTime == -10 && lastTime == -10;
-        private bool IsInvis => InvisTime != -10;
+        InvisTime = -10;
+        lastTime = -10;
+        ventedId = -10;
+        CD = 0;
 
-        public override void SetupCustomOption()
+        UsedRole = Main.PlayerStates[playerId].MainRole;
+
+        switch (UsedRole)
         {
-            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
-
-            SwooperCooldown = new FloatOptionItem(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            SwooperDuration = new FloatOptionItem(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            SwooperVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
-
-            SwooperLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
-                .SetValueFormat(OptionFormat.Times);
-
-            SwooperAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
-                .SetValueFormat(OptionFormat.Times);
+            case CustomRoles.Swooper:
+                playerId.SetAbilityUseLimit(SwooperLimitOpt.GetInt());
+                Cooldown = SwooperCooldown.GetFloat();
+                Duration = SwooperDuration.GetFloat();
+                VentNormallyOnCooldown = SwooperVentNormallyOnCooldown.GetBool();
+                break;
+            case CustomRoles.Chameleon:
+                playerId.SetAbilityUseLimit(Chameleon.UseLimitOpt.GetInt());
+                Cooldown = Chameleon.ChameleonCooldown.GetFloat();
+                Duration = Chameleon.ChameleonDuration.GetFloat();
+                VentNormallyOnCooldown = true;
+                break;
+            case CustomRoles.Wraith:
+                Cooldown = Wraith.WraithCooldown.GetFloat();
+                Duration = Wraith.WraithDuration.GetFloat();
+                VentNormallyOnCooldown = Wraith.WraithVentNormallyOnCooldown.GetBool();
+                break;
         }
+    }
 
-        public override void Init()
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        try
         {
-            PlayerIdList = [];
-            InvisTime = -10;
-            lastTime = -10;
-            ventedId = -10;
-            CD = 0;
-            SwooperId = byte.MaxValue;
-        }
-
-        public override void Add(byte playerId)
-        {
-            PlayerIdList.Add(playerId);
-            SwooperId = playerId;
-
-            InvisTime = -10;
-            lastTime = -10;
-            ventedId = -10;
-            CD = 0;
-
-            UsedRole = Main.PlayerStates[playerId].MainRole;
-
-            switch (UsedRole)
+            if (UsedRole == CustomRoles.Chameleon)
             {
-                case CustomRoles.Swooper:
-                    playerId.SetAbilityUseLimit(SwooperLimitOpt.GetInt());
-                    Cooldown = SwooperCooldown.GetFloat();
-                    Duration = SwooperDuration.GetFloat();
-                    VentNormallyOnCooldown = SwooperVentNormallyOnCooldown.GetBool();
-                    break;
-                case CustomRoles.Chameleon:
-                    playerId.SetAbilityUseLimit(Chameleon.UseLimitOpt.GetInt());
-                    Cooldown = Chameleon.ChameleonCooldown.GetFloat();
-                    Duration = Chameleon.ChameleonDuration.GetFloat();
-                    VentNormallyOnCooldown = true;
-                    break;
-                case CustomRoles.Wraith:
-                    Cooldown = Wraith.WraithCooldown.GetFloat();
-                    Duration = Wraith.WraithDuration.GetFloat();
-                    VentNormallyOnCooldown = Wraith.WraithVentNormallyOnCooldown.GetBool();
-                    break;
+                AURoleOptions.EngineerCooldown = Cooldown + 1f;
+            }
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return pc.Data.RoleType != RoleTypes.Engineer;
+    }
+
+    private void SendRPC()
+    {
+        if (!IsEnable || !Utils.DoRPC) return;
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, SendOption.Reliable);
+        writer.Write(SwooperId);
+        writer.Write(InvisTime.ToString());
+        writer.Write(lastTime.ToString());
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        InvisTime = long.Parse(reader.ReadString());
+        lastTime = long.Parse(reader.ReadString());
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        InvisTime = -10;
+        lastTime = Utils.TimeStamp;
+        SendRPC();
+    }
+
+    public override void OnFixedUpdate(PlayerControl player)
+    {
+        if (!GameStates.IsInTask || !IsEnable || Main.HasJustStarted || ExileController.Instance || player == null) return;
+
+        if (Count++ < 30) return;
+
+        Count = 0;
+
+        long now = Utils.TimeStamp;
+
+        if (lastTime != -10)
+        {
+            if (!player.IsModClient() && UsedRole != CustomRoles.Chameleon)
+            {
+                long cooldown = lastTime + (long)Cooldown - now;
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
+
+                CD = (int)cooldown;
+            }
+
+            if (lastTime + (long)Cooldown < now)
+            {
+                lastTime = -10;
+                if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"), 10f);
+
+                SendRPC();
+                CD = 0;
             }
         }
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        if (lastFixedTime != now && IsInvis)
         {
-            try
+            lastFixedTime = now;
+            var refresh = false;
+            long remainTime = InvisTime + (long)Duration - now;
+
+            switch (remainTime)
             {
-                if (UsedRole == CustomRoles.Chameleon)
-                {
-                    AURoleOptions.EngineerCooldown = Cooldown + 1f;
-                }
-            }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
-        }
-
-        public override bool CanUseImpostorVentButton(PlayerControl pc)
-        {
-            return pc.Data.RoleType != RoleTypes.Engineer;
-        }
-
-        private void SendRPC()
-        {
-            if (!IsEnable || !Utils.DoRPC) return;
-
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, SendOption.Reliable);
-            writer.Write(SwooperId);
-            writer.Write(InvisTime.ToString());
-            writer.Write(lastTime.ToString());
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-
-        public void ReceiveRPC(MessageReader reader)
-        {
-            InvisTime = long.Parse(reader.ReadString());
-            lastTime = long.Parse(reader.ReadString());
-        }
-
-        public override void AfterMeetingTasks()
-        {
-            InvisTime = -10;
-            lastTime = Utils.TimeStamp;
-            SendRPC();
-        }
-
-        public override void OnFixedUpdate(PlayerControl player)
-        {
-            if (!GameStates.IsInTask || !IsEnable || Main.HasJustStarted || ExileController.Instance || player == null) return;
-
-            if (Count++ < 30) return;
-
-            Count = 0;
-
-            long now = Utils.TimeStamp;
-
-            if (lastTime != -10)
-            {
-                if (!player.IsModClient() && UsedRole != CustomRoles.Chameleon)
-                {
-                    long cooldown = lastTime + (long)Cooldown - now;
-                    if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
-
-                    CD = (int)cooldown;
-                }
-
-                if (lastTime + (long)Cooldown < now)
-                {
-                    lastTime = -10;
-                    if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"), 10f);
-
+                case < 0:
+                    lastTime = now;
+                    Vector2 pos = player.Pos();
+                    player.MyPhysics?.RpcBootFromVent(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId);
+                    player.Notify(GetString("SwooperInvisStateOut"));
+                    InvisTime = -10;
                     SendRPC();
-                    CD = 0;
-                }
+                    refresh = true;
+                    LateTask.New(() => player.TP(pos), 0.5f, log: false);
+                    break;
+                case <= 10 when !player.IsModClient():
+                    player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
+                    break;
             }
 
-            if (lastFixedTime != now && IsInvis)
+            if (refresh) SendRPC();
+        }
+    }
+
+    public override void OnCoEnterVent(PlayerPhysics __instance, int ventId)
+    {
+        if (!AmongUsClient.Instance.AmHost || IsInvis) return;
+
+        PlayerControl pc = __instance.myPlayer;
+
+        LateTask.New(() =>
+        {
+            float limit = pc.GetAbilityUseLimit();
+            bool wraith = UsedRole == CustomRoles.Wraith;
+
+            if (CanGoInvis && (wraith || limit >= 1))
             {
-                lastFixedTime = now;
-                var refresh = false;
-                long remainTime = InvisTime + (long)Duration - now;
+                ventedId = ventId;
 
-                switch (remainTime)
-                {
-                    case < 0:
-                        lastTime = now;
-                        Vector2 pos = player.Pos();
-                        player.MyPhysics?.RpcBootFromVent(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId);
-                        player.Notify(GetString("SwooperInvisStateOut"));
-                        InvisTime = -10;
-                        SendRPC();
-                        refresh = true;
-                        LateTask.New(() => player.TP(pos), 0.5f, log: false);
-                        break;
-                    case <= 10 when !player.IsModClient():
-                        player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
-                        break;
-                }
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
+                writer.WritePacked(ventId);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
 
-                if (refresh) SendRPC();
+                InvisTime = Utils.TimeStamp;
+                if (!wraith) pc.RpcRemoveAbilityUse();
+
+                SendRPC();
+                pc.Notify(GetString("SwooperInvisState"), Duration);
             }
-        }
-
-        public override void OnCoEnterVent(PlayerPhysics __instance, int ventId)
-        {
-            if (!AmongUsClient.Instance.AmHost || IsInvis) return;
-
-            PlayerControl pc = __instance.myPlayer;
-
-            LateTask.New(() =>
+            else if (!VentNormallyOnCooldown)
             {
-                float limit = pc.GetAbilityUseLimit();
-                bool wraith = UsedRole == CustomRoles.Wraith;
-
-                if (CanGoInvis && (wraith || limit >= 1))
-                {
-                    ventedId = ventId;
-
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
-                    writer.WritePacked(ventId);
-                    AmongUsClient.Instance.FinishRpcImmediately(writer);
-
-                    InvisTime = Utils.TimeStamp;
-                    if (!wraith) pc.RpcRemoveAbilityUse();
-
-                    SendRPC();
-                    pc.Notify(GetString("SwooperInvisState"), Duration);
-                }
-                else if (!VentNormallyOnCooldown)
-                {
-                    __instance.RpcBootFromVent(ventId);
-                    pc.Notify(GetString("SwooperInvisInCooldown"));
-                }
-            }, 0.5f, "Swooper Vent");
-        }
-
-        public override void OnEnterVent(PlayerControl pc, Vent vent)
-        {
-            if (!IsInvis || InvisTime == Utils.TimeStamp) return;
-
-            InvisTime = -10;
-            lastTime = Utils.TimeStamp;
-            SendRPC();
-
-            pc?.MyPhysics?.RpcBootFromVent(vent.Id);
-            pc?.Notify(GetString("SwooperInvisStateOut"));
-        }
-
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
-        {
-            if (!hud || seer == null || seer.PlayerId != SwooperId || !GameStates.IsInTask || ExileController.Instance || !seer.IsAlive()) return string.Empty;
-
-            var str = new StringBuilder();
-
-            if (IsInvis)
-            {
-                long remainTime = InvisTime + (long)Duration - Utils.TimeStamp;
-                str.Append(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
+                __instance.RpcBootFromVent(ventId);
+                pc.Notify(GetString("SwooperInvisInCooldown"));
             }
-            else if (lastTime != -10)
-            {
-                long cooldown = lastTime + (long)Cooldown - Utils.TimeStamp;
-                str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
-            }
-            else
-                str.Append(GetString("SwooperCanVent"));
+        }, 0.5f, "Swooper Vent");
+    }
 
-            return str.ToString();
-        }
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
+    {
+        if (!IsInvis || InvisTime == Utils.TimeStamp) return;
 
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        InvisTime = -10;
+        lastTime = Utils.TimeStamp;
+        SendRPC();
+
+        pc?.MyPhysics?.RpcBootFromVent(vent.Id);
+        pc?.Notify(GetString("SwooperInvisStateOut"));
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+    {
+        if (!hud || seer == null || seer.PlayerId != SwooperId || !GameStates.IsInTask || ExileController.Instance || !seer.IsAlive()) return string.Empty;
+
+        var str = new StringBuilder();
+
+        if (IsInvis)
         {
-            if (Medic.ProtectList.Contains(target.PlayerId)) return false;
-
-            if (target.Is(CustomRoles.Bait)) return true;
-
-            if (!IsInvis) return true;
-
-            killer.SetKillCooldown();
-            target.SetRealKiller(killer);
-            target.RpcCheckAndMurder(target);
-            return false;
+            long remainTime = InvisTime + (long)Duration - Utils.TimeStamp;
+            str.Append(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
         }
+        else if (lastTime != -10)
+        {
+            long cooldown = lastTime + (long)Cooldown - Utils.TimeStamp;
+            str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
+        }
+        else
+            str.Append(GetString("SwooperCanVent"));
+
+        return str.ToString();
+    }
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (Medic.ProtectList.Contains(target.PlayerId)) return false;
+
+        if (target.Is(CustomRoles.Bait)) return true;
+
+        if (!IsInvis) return true;
+
+        killer.SetKillCooldown();
+        target.SetRealKiller(killer);
+        target.RpcCheckAndMurder(target);
+        return false;
+    }
+
+    public override bool CanUseVent(PlayerControl pc, int ventId)
+    {
+        return UsedRole != CustomRoles.Chameleon || pc.GetClosestVent()?.Id == ventId;
     }
 }

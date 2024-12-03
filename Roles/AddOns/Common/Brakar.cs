@@ -1,14 +1,13 @@
 ﻿using static EHR.Options;
 
-namespace EHR.AddOns.Common
-{
-    internal class Brakar : IAddon
-    {
-        public AddonTypes Type => AddonTypes.Mixed;
+namespace EHR.AddOns.Common;
 
-        public void SetupCustomOption()
-        {
-            SetupAdtRoleOptions(14900, CustomRoles.Brakar, canSetNum: true, teamSpawnOptions: true);
-        }
+internal class Brakar : IAddon
+{
+    public AddonTypes Type => AddonTypes.Mixed;
+
+    public void SetupCustomOption()
+    {
+        SetupAdtRoleOptions(14900, CustomRoles.Brakar, canSetNum: true, teamSpawnOptions: true);
     }
 }

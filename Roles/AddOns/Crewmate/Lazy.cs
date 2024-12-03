@@ -1,20 +1,19 @@
 ﻿using static EHR.Options;
 
-namespace EHR.AddOns.Crewmate
+namespace EHR.AddOns.Crewmate;
+
+internal class Lazy : IAddon
 {
-    internal class Lazy : IAddon
+    public AddonTypes Type => AddonTypes.Helpful;
+
+    public void SetupCustomOption()
     {
-        public AddonTypes Type => AddonTypes.Helpful;
+        SetupAdtRoleOptions(14100, CustomRoles.Lazy, canSetNum: true);
 
-        public void SetupCustomOption()
-        {
-            SetupAdtRoleOptions(14100, CustomRoles.Lazy, canSetNum: true);
+        TasklessCrewCanBeLazy = new BooleanOptionItem(14110, "TasklessCrewCanBeLazy", false, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Lazy]);
 
-            TasklessCrewCanBeLazy = new BooleanOptionItem(14110, "TasklessCrewCanBeLazy", false, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Lazy]);
-
-            TaskBasedCrewCanBeLazy = new BooleanOptionItem(14120, "TaskBasedCrewCanBeLazy", false, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Lazy]);
-        }
+        TaskBasedCrewCanBeLazy = new BooleanOptionItem(14120, "TaskBasedCrewCanBeLazy", false, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Lazy]);
     }
 }

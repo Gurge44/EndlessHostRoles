@@ -2,98 +2,102 @@
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Crewmate
+namespace EHR.Crewmate;
+
+internal class Mayor : RoleBase
 {
-    internal class Mayor : RoleBase
+    public static Dictionary<byte, int> MayorUsedButtonCount = [];
+
+    public static bool On;
+
+    public static OptionItem MayorAdditionalVote;
+    public static OptionItem MayorHasPortableButton;
+    public static OptionItem MayorNumOfUseButton;
+    public static OptionItem MayorHideVote;
+    public static OptionItem MayorRevealWhenDoneTasks;
+    public static OptionItem MayorSeesVoteColorsWhenDoneTasks;
+    public override bool IsEnable => On;
+
+    public override void Add(byte playerId)
     {
-        public static Dictionary<byte, int> MayorUsedButtonCount = [];
+        On = true;
+        MayorUsedButtonCount[playerId] = 0;
+    }
 
-        public static bool On;
+    public override void Init()
+    {
+        On = false;
+    }
 
-        public static OptionItem MayorAdditionalVote;
-        public static OptionItem MayorHasPortableButton;
-        public static OptionItem MayorNumOfUseButton;
-        public static OptionItem MayorHideVote;
-        public static OptionItem MayorRevealWhenDoneTasks;
-        public static OptionItem MayorSeesVoteColorsWhenDoneTasks;
-        public override bool IsEnable => On;
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (UsePets.GetBool()) return;
 
-        public override void Add(byte playerId)
-        {
-            On = true;
-            MayorUsedButtonCount[playerId] = 0;
-        }
+        AURoleOptions.EngineerCooldown =
+            !MayorUsedButtonCount.TryGetValue(playerId, out int count) || count < MayorNumOfUseButton.GetInt()
+                ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
+                : 300f;
 
-        public override void Init()
-        {
-            On = false;
-        }
+        AURoleOptions.EngineerInVentMaxTime = 1f;
+    }
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            if (UsePets.GetBool()) return;
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (!MayorHasPortableButton.GetBool()) return;
 
-            AURoleOptions.EngineerCooldown =
-                !MayorUsedButtonCount.TryGetValue(playerId, out int count) || count < MayorNumOfUseButton.GetInt()
-                    ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
-                    : 300f;
+        if (UsePets.GetBool())
+            hud.PetButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
+        else
+            hud.AbilityButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
+    }
 
-            AURoleOptions.EngineerInVentMaxTime = 1f;
-        }
+    public override void OnPet(PlayerControl pc)
+    {
+        Button(pc);
+    }
 
-        public override void SetButtonTexts(HudManager hud, byte id)
-        {
-            if (!MayorHasPortableButton.GetBool()) return;
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
+    {
+        pc.MyPhysics?.RpcBootFromVent(vent.Id);
+        Button(pc);
+    }
 
-            if (UsePets.GetBool())
-                hud.PetButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
-            else
-                hud.AbilityButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
-        }
+    private static void Button(PlayerControl pc)
+    {
+        if (!MayorHasPortableButton.GetBool()) return;
 
-        public override void OnPet(PlayerControl pc)
-        {
-            Button(pc);
-        }
+        if (MayorUsedButtonCount.TryGetValue(pc.PlayerId, out int count) && count < MayorNumOfUseButton.GetInt()) pc.ReportDeadBody(null);
+    }
 
-        public override void OnEnterVent(PlayerControl pc, Vent vent)
-        {
-            pc.MyPhysics?.RpcBootFromVent(vent.Id);
-            Button(pc);
-        }
+    public override void SetupCustomOption()
+    {
+        SetupRoleOptions(9500, TabGroup.CrewmateRoles, CustomRoles.Mayor);
 
-        private static void Button(PlayerControl pc)
-        {
-            if (!MayorHasPortableButton.GetBool()) return;
+        MayorAdditionalVote = new IntegerOptionItem(9510, "MayorAdditionalVote", new(0, 90, 1), 2, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor])
+            .SetValueFormat(OptionFormat.Votes);
 
-            if (MayorUsedButtonCount.TryGetValue(pc.PlayerId, out int count) && count < MayorNumOfUseButton.GetInt()) pc.ReportDeadBody(null);
-        }
+        MayorHasPortableButton = new BooleanOptionItem(9511, "MayorHasPortableButton", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
 
-        public override void SetupCustomOption()
-        {
-            SetupRoleOptions(9500, TabGroup.CrewmateRoles, CustomRoles.Mayor);
+        MayorNumOfUseButton = new IntegerOptionItem(9512, "MayorNumOfUseButton", new(1, 90, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(MayorHasPortableButton)
+            .SetValueFormat(OptionFormat.Times);
 
-            MayorAdditionalVote = new IntegerOptionItem(9510, "MayorAdditionalVote", new(0, 90, 1), 2, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor])
-                .SetValueFormat(OptionFormat.Votes);
+        MayorHideVote = new BooleanOptionItem(9513, "MayorHideVote", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
 
-            MayorHasPortableButton = new BooleanOptionItem(9511, "MayorHasPortableButton", true, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
+        MayorRevealWhenDoneTasks = new BooleanOptionItem(9514, "MayorRevealWhenDoneTasks", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
 
-            MayorNumOfUseButton = new IntegerOptionItem(9512, "MayorNumOfUseButton", new(1, 90, 1), 1, TabGroup.CrewmateRoles)
-                .SetParent(MayorHasPortableButton)
-                .SetValueFormat(OptionFormat.Times);
+        MayorSeesVoteColorsWhenDoneTasks = new BooleanOptionItem(9515, "MayorSeesVoteColorsWhenDoneTasks", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
 
-            MayorHideVote = new BooleanOptionItem(9513, "MayorHideVote", false, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
+        OverrideTasksData.Create(9516, TabGroup.CrewmateRoles, CustomRoles.Mayor);
+    }
 
-            MayorRevealWhenDoneTasks = new BooleanOptionItem(9514, "MayorRevealWhenDoneTasks", false, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
-
-            MayorSeesVoteColorsWhenDoneTasks = new BooleanOptionItem(9515, "MayorSeesVoteColorsWhenDoneTasks", true, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
-
-            OverrideTasksData.Create(9516, TabGroup.CrewmateRoles, CustomRoles.Mayor);
-        }
+    public override bool CanUseVent(PlayerControl pc, int ventId)
+    {
+        return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
     }
 }

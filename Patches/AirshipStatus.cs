@@ -1,14 +1,13 @@
 using HarmonyLib;
 
-namespace EHR
+namespace EHR;
+
+// From: https://github.com/yukieiji/ExtremeRoles/blob/master/ExtremeRoles/Patches/AirshipStatusPatch.cs
+[HarmonyPatch(typeof(AirshipStatus), nameof(AirshipStatus.PrespawnStep))]
+public static class AirshipStatusPrespawnStepPatch
 {
-    //参考元:https://github.com/yukieiji/ExtremeRoles/blob/master/ExtremeRoles/Patches/AirshipStatusPatch.cs
-    [HarmonyPatch(typeof(AirshipStatus), nameof(AirshipStatus.PrespawnStep))]
-    public static class AirshipStatusPrespawnStepPatch
+    public static bool Prefix()
     {
-        public static bool Prefix()
-        {
-            return !PlayerControl.LocalPlayer.Is(CustomRoles.GM);
-        }
+        return !PlayerControl.LocalPlayer.Is(CustomRoles.GM);
     }
 }

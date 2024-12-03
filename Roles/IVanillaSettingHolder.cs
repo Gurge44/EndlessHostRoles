@@ -1,8 +1,7 @@
-﻿namespace EHR
+﻿namespace EHR;
+
+internal interface IVanillaSettingHolder
 {
-    internal interface IVanillaSettingHolder
-    {
-        public TabGroup Tab { get; }
-        public void SetupCustomOption();
-    }
+    public TabGroup Tab { get; }
+    public void SetupCustomOption();
 }

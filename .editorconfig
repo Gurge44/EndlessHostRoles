@@ -8,7 +8,7 @@ dotnet_diagnostic.ide0060.severity = none
 csharp_using_directive_placement = outside_namespace:silent
 csharp_prefer_simple_using_statement = true:suggestion
 csharp_prefer_braces = true:silent
-csharp_style_namespace_declarations = block_scoped:silent
+csharp_style_namespace_declarations = file_scoped:none
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = true:silent
 csharp_style_prefer_primary_constructors = true:suggestion
@@ -54,6 +54,16 @@ csharp_style_var_when_type_is_apparent = true:none
 csharp_style_var_elsewhere = false:none
 
 # ReSharper properties
+resharper_align_linq_query = true
+resharper_align_multiline_argument = true
+resharper_align_multiline_binary_patterns = true
+resharper_align_multiline_calls_chain = true
+resharper_align_multiline_extends_list = true
+resharper_align_multiline_parameter = true
+resharper_align_multiline_type_parameter_constraints = true
+resharper_align_multiline_type_parameter_list = true
+resharper_align_multiple_declaration = true
+resharper_align_tuple_components = true
 resharper_braces_for_dowhile = required_for_multiline
 resharper_braces_for_fixed = required_for_multiline
 resharper_braces_for_for = required_for_multiline
@@ -63,7 +73,21 @@ resharper_braces_for_lock = required_for_multiline
 resharper_braces_for_using = required_for_multiline
 resharper_braces_for_while = required_for_multiline
 resharper_braces_redundant = true
+resharper_csharp_indent_statement_pars = outside_and_inside
+resharper_csharp_outdent_commas = true
+resharper_csharp_stick_comment = false
+resharper_default_internal_modifier = implicit
+resharper_default_private_modifier = explicit
+resharper_default_value_when_type_not_evident = default_expression
 resharper_for_built_in_types = use_var_when_evident
+resharper_indent_braces_inside_statement_conditions = false
+resharper_indent_nested_foreach_stmt = true
+resharper_indent_nested_for_stmt = true
+resharper_indent_nested_while_stmt = true
+resharper_indent_primary_constructor_decl_pars = inside
+resharper_local_function_body = expression_body
+resharper_object_creation_when_type_not_evident = explicitly_typed
+resharper_parentheses_non_obvious_operations = none, shift, bitwise_and, bitwise_exclusive_or, bitwise_inclusive_or, bitwise, conditional_and, conditional_or, conditional
 
 # Microsoft .NET properties
 dotnet_style_qualification_for_event = false:none

@@ -2,67 +2,66 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EHR.Crewmate
+namespace EHR.Crewmate;
+
+internal class Detective : RoleBase
 {
-    internal class Detective : RoleBase
+    public static OptionItem DetectiveCanknowKiller;
+    public static OptionItem DetectiveCanknowDeathReason;
+    public static OptionItem DetectiveCanknowAddons;
+    public static OptionItem DetectiveCanknowKillTime;
+
+    public static Dictionary<byte, string> DetectiveNotify = [];
+
+    public override bool IsEnable => false;
+
+    public override void SetupCustomOption()
     {
-        public static OptionItem DetectiveCanknowKiller;
-        public static OptionItem DetectiveCanknowDeathReason;
-        public static OptionItem DetectiveCanknowAddons;
-        public static OptionItem DetectiveCanknowKillTime;
+        Options.SetupRoleOptions(6600, TabGroup.CrewmateRoles, CustomRoles.Detective);
 
-        public static Dictionary<byte, string> DetectiveNotify = [];
+        DetectiveCanknowKiller = new BooleanOptionItem(6610, "DetectiveCanknowKiller", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
 
-        public override bool IsEnable => false;
+        DetectiveCanknowDeathReason = new BooleanOptionItem(6611, "DetectiveCanknowDeathReason", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
 
-        public override void SetupCustomOption()
+        DetectiveCanknowAddons = new BooleanOptionItem(6612, "DetectiveCanknowAddons", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
+
+        DetectiveCanknowKillTime = new BooleanOptionItem(6613, "DetectiveCanknowKillTime", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
+    }
+
+    public override void Init() { }
+
+    public override void Add(byte playerId) { }
+
+    public static void OnReportDeadBody(PlayerControl player, PlayerControl tpc)
+    {
+        string msg = string.Format(Translator.GetString("DetectiveNoticeVictim"), tpc.GetRealName(), tpc.GetCustomRole().ToColoredString());
+
+        if (DetectiveCanknowKiller.GetBool())
         {
-            Options.SetupRoleOptions(6600, TabGroup.CrewmateRoles, CustomRoles.Detective);
+            PlayerControl realKiller = tpc.GetRealKiller();
 
-            DetectiveCanknowKiller = new BooleanOptionItem(6610, "DetectiveCanknowKiller", true, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
-
-            DetectiveCanknowDeathReason = new BooleanOptionItem(6611, "DetectiveCanknowDeathReason", true, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
-
-            DetectiveCanknowAddons = new BooleanOptionItem(6612, "DetectiveCanknowAddons", true, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
-
-            DetectiveCanknowKillTime = new BooleanOptionItem(6613, "DetectiveCanknowKillTime", true, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
+            if (realKiller == null)
+                msg += "；" + Translator.GetString("DetectiveNoticeKillerNotFound");
+            else
+                msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKiller"), realKiller.GetCustomRole().ToColoredString());
         }
 
-        public override void Init() { }
+        if (DetectiveCanknowDeathReason.GetBool()) msg += "；" + string.Format(Translator.GetString("DetectiveNoticeDeathReason"), Translator.GetString($"DeathReason.{Main.PlayerStates[tpc.PlayerId].deathReason}"));
 
-        public override void Add(byte playerId) { }
+        if (DetectiveCanknowAddons.GetBool()) msg += "；" + string.Format(Translator.GetString("DetectiveNoticeAddons"), string.Join(", ", tpc.GetCustomSubRoles().Select(x => x.ToColoredString())));
 
-        public static void OnReportDeadBody(PlayerControl player, PlayerControl tpc)
+        if (DetectiveCanknowKillTime.GetBool())
         {
-            string msg = string.Format(Translator.GetString("DetectiveNoticeVictim"), tpc.GetRealName(), tpc.GetCustomRole().ToColoredString());
-
-            if (DetectiveCanknowKiller.GetBool())
-            {
-                PlayerControl realKiller = tpc.GetRealKiller();
-
-                if (realKiller == null)
-                    msg += "；" + Translator.GetString("DetectiveNoticeKillerNotFound");
-                else
-                    msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKiller"), realKiller.GetCustomRole().ToColoredString());
-            }
-
-            if (DetectiveCanknowDeathReason.GetBool()) msg += "；" + string.Format(Translator.GetString("DetectiveNoticeDeathReason"), Translator.GetString($"DeathReason.{Main.PlayerStates[tpc.PlayerId].deathReason}"));
-
-            if (DetectiveCanknowAddons.GetBool()) msg += "；" + string.Format(Translator.GetString("DetectiveNoticeAddons"), string.Join(", ", tpc.GetCustomSubRoles().Select(x => x.ToColoredString())));
-
-            if (DetectiveCanknowKillTime.GetBool())
-            {
-                DateTime deathTimeStamp = Main.PlayerStates[tpc.PlayerId].RealKiller.TimeStamp;
-                DateTime now = DateTime.Now;
-                double timeSpanSeconds = (now - deathTimeStamp).TotalSeconds;
-                msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKillTime"), (int)timeSpanSeconds);
-            }
-
-            DetectiveNotify.Add(player.PlayerId, msg);
+            DateTime deathTimeStamp = Main.PlayerStates[tpc.PlayerId].RealKiller.TimeStamp;
+            DateTime now = DateTime.Now;
+            double timeSpanSeconds = (now - deathTimeStamp).TotalSeconds;
+            msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKillTime"), (int)timeSpanSeconds);
         }
+
+        DetectiveNotify.Add(player.PlayerId, msg);
     }
 }
