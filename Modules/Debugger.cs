@@ -201,7 +201,6 @@ public class CustomLogger
         Main.Instance.StartCoroutine(InactivityCheck());
     }
 
-    // Singleton to ensure a single logger instance
     public static CustomLogger Instance
     {
         get { return PrivateInstance ??= new(); }
@@ -209,6 +208,9 @@ public class CustomLogger
 
     public static void ClearLog()
     {
+        if (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0)
+            Utils.DumpLog(false);
+        
         File.WriteAllText(LOGFilePath, HtmlHeader);
     }
 
@@ -237,91 +239,5 @@ public class CustomLogger
 
         File.AppendAllText(LOGFilePath, HtmlFooter);
         PrivateInstance = null;
-    }
-}
-
-public static class LogMonitor
-{
-    private const string SourceLogFilePath = "./BepInEx/LogOutput.log";
-    private const string HtmlLogFilePath = "./EHR_DATA/log.html";
-    private static long LastProcessedLength;
-
-    public static void StartMonitoring()
-    {
-        Main.Instance.StartCoroutine(MonitorLog());
-        return;
-
-        IEnumerator MonitorLog()
-        {
-            while (true)
-            {
-                ProcessLogUpdates();
-                yield return new WaitForSeconds(1f);
-            }
-
-            // ReSharper disable once IteratorNeverReturns
-        }
-    }
-
-    private static void ProcessLogUpdates()
-    {
-        try
-        {
-            using FileStream stream = new FileStream(SourceLogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using StreamReader reader = new StreamReader(stream);
-
-            if (stream.Length == LastProcessedLength) return;
-
-            stream.Seek(LastProcessedLength, SeekOrigin.Begin);
-
-            string currentGroup = null;
-            string currentClass = "info";
-
-            while (reader.ReadLine() is { } line)
-            {
-                if (line.StartsWith("["))
-                {
-                    if (currentGroup != null)
-                    {
-                        AppendLogToHtml($"<div class=\"log-entry {currentClass}\">{currentGroup}</div>");
-                    }
-
-                    currentClass = line.Split(':')[0].TrimStart('[').Replace(" ", "").ToLower();
-                    currentGroup = line;
-                }
-                else if (currentGroup != null)
-                {
-                    currentGroup += $"<br>{line}";
-                }
-            }
-
-            if (currentGroup != null)
-            {
-                AppendLogToHtml($"<div class=\"log-entry {currentClass}\">{currentGroup}</div>");
-            }
-
-            LastProcessedLength = stream.Length;
-        }
-        catch (Exception ex)
-        {
-            Utils.ThrowException(ex);
-        }
-    }
-
-    private static void AppendLogToHtml(string line)
-    {
-        string htmlEntry = ParseLogLine(line);
-        File.AppendAllText(HtmlLogFilePath, htmlEntry);
-    }
-
-    private static string ParseLogLine(string line)
-    {
-        string cssClass = line.Split(':')[0].TrimStart('[').Replace(" ", "").ToLower();
-
-        return $"""
-                <div class="log-entry {cssClass}">
-                    {line}
-                </div>
-                """;
     }
 }

@@ -1532,18 +1532,42 @@ internal static class ExtendedPlayerControl
         if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && CustomGameMode.Standard.IsActiveOrIntegrated())
             Achievements.Type.InnocentKiller.Complete();
 
+        if (Options.AnonymousBodies.GetBool())
+        {
+            Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
+            target.SyncSettings();
+            var newSkin = new NetworkedPlayerInfo.PlayerOutfit().Set(GetString("Dead"), 15, "", "", "", "", "");
+            RpcChangeSkin(target, newSkin);
+            LateTask.New(() =>
+            {
+                target.RpcExileV2();
+                LateTask.New(DoKill, 0.5f, "Anonymous Body Delay 2");
+                LateTask.New(() =>
+                {
+                    if (GameStates.IsEnded) return;
+                    Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    target.MarkDirtySettings();
+                }, 0.7f, "Anonymous Body Delay 3");
+            }, 0.1f, "Anonymous Body Delay 1");
+            return;
+        }
+
         switch (killer.PlayerId == target.PlayerId)
         {
             case true when killer.shapeshifting:
-                LateTask.New(() => killer.RpcMurderPlayer(target, true), 1.5f, "Shapeshifting Suicide Delay");
+                LateTask.New(DoKill, 1.5f, "Shapeshifting Suicide Delay");
                 return;
             case false when !killer.Is(CustomRoles.Pestilence) && Main.PlayerStates[target.PlayerId].Role is SchrodingersCat cat:
                 cat.OnCheckMurderAsTarget(killer, target);
                 return;
             default:
-                killer.RpcMurderPlayer(target, true);
+                DoKill();
                 break;
         }
+
+        return;
+
+        void DoKill() => killer.RpcMurderPlayer(target, true);
     }
 
     public static bool RpcCheckAndMurder(this PlayerControl killer, PlayerControl target, bool check = false)

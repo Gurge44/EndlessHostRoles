@@ -2025,6 +2025,7 @@ public static class Utils
                     Main.PlayerStates.Values.Do(x => SelfSuffix.Append(x.Role.GetSuffix(seer, seer, meeting: isForMeeting)));
 
                     SelfSuffix.Append(Spurt.GetSuffix(seer));
+                    SelfSuffix.Append(Dynamo.GetSuffix(seer));
 
                     SelfSuffix.Append(CustomTeamManager.GetSuffix(seer));
 

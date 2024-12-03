@@ -677,6 +677,7 @@ public static class Options
 
     public static OptionItem UsePets;
     public static OptionItem PetToAssignToEveryone;
+    public static OptionItem AnonymousBodies;
     public static OptionItem UseUnshiftTrigger;
     public static OptionItem UseUnshiftTriggerForNKs;
     public static OptionItem UsePhantomBasis;
@@ -1910,6 +1911,11 @@ public static class Options
         PetToAssignToEveryone = new StringOptionItem(23854, "PetToAssign", PetToAssign, 24, TabGroup.TaskSettings)
                                 .SetParent(UsePets)
                                 .SetColor(new Color32(60, 0, 255, byte.MaxValue));
+        
+        AnonymousBodies = new BooleanOptionItem(23852, "AnonymousBodies", false, TabGroup.TaskSettings)
+                          .SetGameMode(CustomGameMode.Standard)
+                          .SetHeader(true)
+                          .SetColor(new Color32(0, 165, 255, byte.MaxValue));
 
         UseUnshiftTrigger = new BooleanOptionItem(23871, "UseUnshiftTrigger", false, TabGroup.TaskSettings)
                             .SetGameMode(CustomGameMode.Standard)
