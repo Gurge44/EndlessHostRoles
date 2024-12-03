@@ -88,42 +88,37 @@ public class Oracle : RoleBase
         else
             text = "Crew";
 
-        if (FailChance.GetInt() > 0)
+        if (IRandom.Instance.Next(100) < FailChance.GetInt())
         {
-            int random_number_1 = IRandom.Instance.Next(1, 101);
+            int next = IRandom.Instance.Next(1, 3);
 
-            if (random_number_1 <= FailChance.GetInt())
+            text = text switch
             {
-                int random_number_2 = IRandom.Instance.Next(1, 3);
-
-                text = text switch
+                "Crew" => next switch
                 {
-                    "Crew" => random_number_2 switch
-                    {
-                        1 => "Neut",
-                        2 => "Imp",
-                        _ => text
-                    },
-                    "Neut" => random_number_2 switch
-                    {
-                        1 => "Crew",
-                        2 => "Imp",
-                        _ => text
-                    },
-                    "Imp" => random_number_2 switch
-                    {
-                        1 => "Neut",
-                        2 => "Crew",
-                        _ => text
-                    },
+                    1 => "Neut",
+                    2 => "Imp",
                     _ => text
-                };
-            }
+                },
+                "Neut" => next switch
+                {
+                    1 => "Crew",
+                    2 => "Imp",
+                    _ => text
+                },
+                "Imp" => next switch
+                {
+                    1 => "Neut",
+                    2 => "Crew",
+                    _ => text
+                },
+                _ => text
+            };
         }
 
         string msg = string.Format(GetString("OracleCheck." + text), target.GetRealName());
 
-        Utils.SendMessage(GetString("OracleCheck") + "\n" + msg + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
+        Utils.SendMessage($"{GetString("OracleCheck")}\n{msg}\n\n{string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit())}", player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;

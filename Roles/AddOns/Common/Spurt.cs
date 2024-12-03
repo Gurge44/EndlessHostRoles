@@ -77,7 +77,7 @@ internal class Spurt : IAddon
     {
         if (!player.Is(CustomRoles.Spurt) || !DisplaysCharge.GetBool() || GameStates.IsMeeting) return string.Empty;
 
-        int fontsize = isforhud ? 100 : 65;
+        int fontsize = isforhud ? 90 : 65;
 
         return $"<size={fontsize}%>{string.Format(Translator.GetString("SpurtSuffix"), DetermineCharge(player))}</size>";
     }

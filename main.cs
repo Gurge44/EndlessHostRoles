@@ -719,7 +719,6 @@ public class Main : BasePlugin
         HideNSeekGameOptionsV08.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
 
         CustomLogger.ClearLog();
-        LogMonitor.StartMonitoring();
 
         Harmony.PatchAll();
 

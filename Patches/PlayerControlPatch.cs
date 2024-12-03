@@ -1400,28 +1400,19 @@ internal static class FixedUpdatePatch
                 if (Main.PlayerStates.TryGetValue(playerId, out PlayerState playerState) && inTask && alive)
                 {
                     List<CustomRoles> subRoles = playerState.SubRoles;
-                    if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
-
-                    if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
 
                     if (!lowLoad)
                     {
+                        if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
+                        if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
-
                         if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
-
                         if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
-
                         if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
-
                         if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
-
                         if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
-
                         if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
-
                         if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
-
                         if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
                     }
                 }

@@ -26,6 +26,7 @@ internal static class SoloPVP
 
     private static Dictionary<byte, int> BackCountdown = [];
     private static Dictionary<byte, long> LastHurt = [];
+    private static Dictionary<byte, long> LastRecover = [];
 
     public static bool SoloAlive(this PlayerControl pc)
     {
@@ -91,6 +92,7 @@ internal static class SoloPVP
         PlayerDF = [];
 
         LastHurt = [];
+        LastRecover = [];
         OriginalSpeed = [];
         BackCountdown = [];
         KBScore = [];
@@ -107,6 +109,7 @@ internal static class SoloPVP
             KBScore.TryAdd(pc.PlayerId, 0);
 
             LastHurt.TryAdd(pc.PlayerId, Utils.TimeStamp);
+            LastRecover.TryAdd(pc.PlayerId, Utils.TimeStamp);
         }
     }
 
@@ -322,17 +325,20 @@ internal static class SoloPVP
 
             if (!__instance.SoloAlive())
             {
-                if (__instance.inVent && KB_BootVentWhenDead.GetBool()) __instance.MyPhysics.RpcExitVent(2);
+                if (__instance.inVent && KB_BootVentWhenDead.GetBool())
+                    __instance.MyPhysics.RpcExitVent(2);
 
                 Vector2 pos = Pelican.GetBlackRoomPS();
                 float dis = Vector2.Distance(pos, __instance.Pos());
                 if (dis > 1f) __instance.TP(pos);
             }
-
+            
             var notifyRoles = false;
+            long now = Utils.TimeStamp;
 
-            if (LastHurt[id] + KB_RecoverAfterSecond.GetInt() < Utils.TimeStamp && PlayerHP[id] < PlayerHPMax[id] && __instance.SoloAlive() && !__instance.inVent)
+            if (LastHurt[id] + KB_RecoverAfterSecond.GetInt() < now && LastRecover[id] != now && PlayerHP[id] < PlayerHPMax[id] && __instance.SoloAlive() && !__instance.inVent)
             {
+                LastRecover[id] = now;
                 PlayerHP[id] += PlayerHPReco[id];
                 PlayerHP[id] = Math.Min(PlayerHPMax[id], PlayerHP[id]);
                 notifyRoles = true;
@@ -353,7 +359,7 @@ internal static class SoloPVP
                 notifyRoles = true;
             }
 
-            if (NameNotify.ContainsKey(id) && NameNotify[id].TimeStamp < Utils.TimeStamp)
+            if (NameNotify.ContainsKey(id) && NameNotify[id].TimeStamp < now)
             {
                 NameNotify.Remove(id);
                 notifyRoles = true;
@@ -362,8 +368,8 @@ internal static class SoloPVP
             if (notifyRoles) Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance);
 
 
-            if (LastFixedUpdate == Utils.TimeStamp) return;
-            LastFixedUpdate = Utils.TimeStamp;
+            if (LastFixedUpdate == now) return;
+            LastFixedUpdate = now;
 
             RoundTime--;
         }

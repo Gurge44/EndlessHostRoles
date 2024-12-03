@@ -87,7 +87,7 @@ public static class Camouflage
         {
             if (!alreadyCamouflaged)
             {
-                if (Options.CommsCamouflageLimitSetChance.GetBool() && IRandom.Instance.Next(100) < Options.CommsCamouflageLimitChance.GetInt()) return false;
+                if (Options.CommsCamouflageLimitSetChance.GetBool() && IRandom.Instance.Next(100) >= Options.CommsCamouflageLimitChance.GetInt()) return false;
                 if (Options.CommsCamouflageLimitSetFrequency.GetBool() && ++SkippedCamoTimes < Options.CommsCamouflageLimitFrequency.GetInt()) return false;
 
                 if (Options.CommsCamouflageLimitSetMaxTimes.GetBool())

@@ -195,8 +195,8 @@ public static class Utils
     {
         try
         {
-            if (GameStates.IsLobby || !ShipStatus.Instance.Systems.TryGetValue(type, out ISystemType systemType)) return false;
-
+            if (GameStates.IsLobby || !ShipStatus.Instance || !ShipStatus.Instance.Systems.TryGetValue(type, out ISystemType systemType)) return false;
+            
             int mapId = Main.NormalOptions.MapId;
 
             switch (type)
@@ -282,14 +282,11 @@ public static class Utils
         if (HasImpVision)
         {
             opt.SetFloat(FloatOptionNames.CrewLightMod, opt.GetFloat(FloatOptionNames.ImpostorLightMod));
-
             if (IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, opt.GetFloat(FloatOptionNames.CrewLightMod) * 5);
-
             return;
         }
 
         opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.CrewLightMod));
-
         if (IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
     }
 
@@ -2028,6 +2025,7 @@ public static class Utils
                     Main.PlayerStates.Values.Do(x => SelfSuffix.Append(x.Role.GetSuffix(seer, seer, meeting: isForMeeting)));
 
                     SelfSuffix.Append(Spurt.GetSuffix(seer));
+                    SelfSuffix.Append(Dynamo.GetSuffix(seer));
 
                     SelfSuffix.Append(CustomTeamManager.GetSuffix(seer));
 
