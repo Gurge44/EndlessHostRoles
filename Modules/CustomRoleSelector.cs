@@ -123,7 +123,7 @@ internal static class CustomRoleSelector
 
             RoleAssignInfo info = new(role, chance, count);
 
-            if (role.IsImpostor()) Roles[RoleAssignType.Impostor].Add(info);
+            if (role.IsImpostor() && role != CustomRoles.DoubleAgent) Roles[RoleAssignType.Impostor].Add(info);
             else if (role.IsNK()) Roles[RoleAssignType.NeutralKilling].Add(info);
             else if (role.IsNonNK()) Roles[RoleAssignType.NonKillingNeutral].Add(info);
             else Roles[RoleAssignType.Crewmate].Add(info);
