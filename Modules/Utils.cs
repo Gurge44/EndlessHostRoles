@@ -195,7 +195,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
         {
             try
             {
-                if (GameStates.IsLobby || !ShipStatus.Instance.Systems.TryGetValue(type, out ISystemType systemType)) return false;
+                if (GameStates.IsLobby || !ShipStatus.Instance || !ShipStatus.Instance.Systems.TryGetValue(type, out ISystemType systemType)) return false;
 
                 int mapId = Main.NormalOptions.MapId;
 
