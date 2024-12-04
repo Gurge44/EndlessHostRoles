@@ -17,12 +17,12 @@ public class Negotiator : RoleBase
     private static OptionItem AbilityUseLimit;
     private static OptionItem AbilityUseGainWithEachTaskCompleted;
     private static OptionItem AbilityChargesWhenFinishedTasks;
+
+    public static OptionItem CancelVote;
     private byte NegotiatorId;
     private NegotiationType Penalty;
     private Dictionary<byte, HashSet<NegotiationType>> PermanentPenalties;
     private byte TargetId;
-
-    public static OptionItem CancelVote;
 
     public override bool IsEnable => On;
 
@@ -118,8 +118,10 @@ public class Negotiator : RoleBase
     {
         if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || MinVotingTimeLeftToNegotiate.GetInt() > MeetingTimeManager.VotingTimeLeft || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
+        bool votedLast = MeetingHud.Instance.playerStates.All(x => x.TargetPlayerId == voter.PlayerId || x.DidVote);
+
         TargetId = target.PlayerId;
-        Penalty = NegotiationType.Suicide;
+        Penalty = votedLast ? NegotiationType.HarmfulAddon : NegotiationType.Suicide;
         voter.RpcRemoveAbilityUse();
 
         string message = Enum.GetValues<NegotiationType>().Aggregate(Translator.GetString("Negotiator.TargetMessage"), (s, x) => $"{s}\n{(int)x}) {Translator.GetString($"Negotiator.Type.{x}")}");

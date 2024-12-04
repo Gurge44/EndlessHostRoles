@@ -113,16 +113,13 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.GetClientId());
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray");
-        }
+        catch (Exception ex) { Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray"); }
     }
 
     public static void RemoveSender(PlayerControl player)
     {
         PlayerGameOptionsSender sender = AllSenders.OfType<PlayerGameOptionsSender>()
-            .FirstOrDefault(sender => sender.player.PlayerId == player.PlayerId);
+                                                   .FirstOrDefault(sender => sender.player.PlayerId == player.PlayerId);
 
         if (sender == null) return;
 
@@ -153,8 +150,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                         opt.SetFloat(FloatOptionNames.CrewLightMod, FFAManager.FFALowerVision.GetFloat());
                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, FFAManager.FFALowerVision.GetFloat());
                     }
-                    else
-                        SetMaxVision();
+                    else SetMaxVision();
 
                     if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                     break;
@@ -229,7 +225,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             else
                 AURoleOptions.NoisemakerImpostorAlert = CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool();
 
-            if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
+            try
+            {
+                if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
 

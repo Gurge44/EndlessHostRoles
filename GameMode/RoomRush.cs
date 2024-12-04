@@ -247,9 +247,11 @@ public static class RoomRush
     {
         if (GameStates.IsEnded) return;
 
+        MapNames map = Main.CurrentMap;
+
         SystemTypes previous = !initial
             ? RoomGoal
-            : Main.CurrentMap switch
+            : map switch
             {
                 MapNames.Skeld => SystemTypes.Cafeteria,
                 MapNames.Mira => SystemTypes.Launchpad,
@@ -257,7 +259,7 @@ public static class RoomRush
                 MapNames.Polus => SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
                 MapNames.Fungle => SystemTypes.Dropship,
-                _ => throw new ArgumentOutOfRangeException(Main.CurrentMap.ToString(), "Invalid map")
+                _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
             };
 
         DonePlayers.Clear();
@@ -267,20 +269,19 @@ public static class RoomRush
         float distance = initial ? 50 : Vector2.Distance(goalPos, previousPos);
         float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         var time = (int)Math.Ceiling(distance / speed);
-        MapNames map = Main.CurrentMap;
         Dictionary<(SystemTypes, SystemTypes), int> multipliers = Multipliers[map == MapNames.Dleks ? MapNames.Skeld : map];
         time *= multipliers.GetValueOrDefault((previous, RoomGoal), multipliers.GetValueOrDefault((RoomGoal, previous), 1));
 
-        bool involvesDecontamination = Main.CurrentMap switch
+        bool involvesDecontamination = map switch
         {
             MapNames.Mira => !(previous is SystemTypes.Laboratory or SystemTypes.Reactor && RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor) && (previous is SystemTypes.Laboratory or SystemTypes.Reactor || RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
             _ => false
         };
 
-        if (involvesDecontamination) time += 15;
+        if (involvesDecontamination) time += map == MapNames.Polus ? 9 : 15;
 
-        switch (Main.CurrentMap)
+        switch (map)
         {
             case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
                 time = (int)(time * 0.4f);
@@ -295,7 +296,7 @@ public static class RoomRush
 
         TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= AllInOneGameMode.RoomRushTimeLimitMultiplier.GetInt();
-        Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
+        Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "RoomRush");
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
@@ -308,7 +309,7 @@ public static class RoomRush
         {
             Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = speed;
             PlayerControl.LocalPlayer.SyncSettings();
-        }, Utils.CalculatePingDelay() * 2f);
+        }, Utils.CalculatePingDelay());
     }
 
     private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)

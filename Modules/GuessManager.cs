@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.AddOns.Common;
@@ -735,13 +736,13 @@ public static class GuessManager
 
                 index++;
 
-                if (index <= (Page - 1) * 40)
+                if (index <= (Page - 1) * MaxOneScreenRole)
                 {
                     RoleBtn.gameObject.SetActive(false);
                     continue;
                 }
 
-                if (Page * 40 < index)
+                if (Page * MaxOneScreenRole < index)
                 {
                     RoleBtn.gameObject.SetActive(false);
                     continue;
@@ -980,7 +981,8 @@ public static class GuessManager
 
             void CreateRole(CustomRoles role)
             {
-                if (40 <= i[(int)role.GetCustomRoleTypes()]) i[(int)role.GetCustomRoleTypes()] = 0;
+                int customRoleTypes = (int)role.GetCustomRoleTypes();
+                if (MaxOneScreenRole <= i[customRoleTypes]) i[customRoleTypes] = 0;
 
                 Transform buttonParent = new GameObject().transform;
                 buttonParent.SetParent(container);
@@ -993,8 +995,8 @@ public static class GuessManager
 
                 RoleButtons[role.GetCustomRoleTypes()].Add(button);
                 buttons.Add(button);
-                int row = i[(int)role.GetCustomRoleTypes()] / 5;
-                int col = i[(int)role.GetCustomRoleTypes()] % 5;
+                int row = i[customRoleTypes] / 5;
+                int col = i[customRoleTypes] % 5;
                 buttonParent.localPosition = new(-3.47f + (1.75f * col), 1.5f - (0.45f * row), -200f);
                 buttonParent.localScale = new(0.55f, 0.55f, 1f);
                 label.text = GetString(role.ToString());
@@ -1003,7 +1005,7 @@ public static class GuessManager
                 label.transform.localPosition = new(0, 0, label.transform.localPosition.z);
                 label.transform.localScale *= 1.6f;
                 label.autoSizeTextContainer = true;
-                _ = i[(int)role.GetCustomRoleTypes()];
+                _ = i[customRoleTypes];
 
                 button.GetComponent<PassiveButton>().OnClick.RemoveAllListeners();
 
@@ -1018,7 +1020,7 @@ public static class GuessManager
                         }
                         else
                         {
-                            if (!(__instance.state == MeetingHud.VoteStates.Voted || __instance.state == MeetingHud.VoteStates.NotVoted) || !PlayerControl.LocalPlayer.IsAlive()) return;
+                            if (!(__instance.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted) || !PlayerControl.LocalPlayer.IsAlive()) return;
 
                             Logger.Msg($"Click: {pc.GetNameWithRole().RemoveHtmlTags()} => {role}", "Guesser UI");
 
@@ -1035,7 +1037,7 @@ public static class GuessManager
                     }));
                 }
 
-                i[(int)role.GetCustomRoleTypes()]++;
+                i[customRoleTypes]++;
             }
 
             container.transform.localScale *= 0.75f;
@@ -1120,6 +1122,7 @@ public static class GuessManager
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     private static class StartMeetingPatch
     {
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(MeetingHud __instance)
         {
             PlayerControl lp = PlayerControl.LocalPlayer;
@@ -1150,6 +1153,7 @@ public static class GuessManager
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]
     private static class MeetingHudOnDestroyGuesserUIClose
     {
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
             Object.Destroy(TextTemplate.gameObject);

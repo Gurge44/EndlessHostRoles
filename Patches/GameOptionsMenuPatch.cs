@@ -701,14 +701,8 @@ public static class StringOptionPatch
                     string str = Translator.GetString($"{roleName}InfoLong");
                     string infoLong;
 
-                    try
-                    {
-                        infoLong = HnSManager.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length];
-                    }
-                    catch
-                    {
-                        infoLong = str;
-                    }
+                    try { infoLong = HnSManager.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
+                    catch { infoLong = str; }
 
                     var info = $"{value.ToColoredString()}: {infoLong}";
                     GameSettingMenu.Instance.MenuDescriptionText.text = info;
@@ -888,10 +882,6 @@ public class GameSettingMenuPatch
             button.activeTextColor = button.inactiveTextColor = Color.white;
             button.selectedTextColor = new(0.7f, 0.7f, 0.7f);
 
-            // var activeButton = Utils.LoadSprite($"EHR.Resources.Images.TabIcon_{tab}.png", 100f);
-            // button.inactiveSprites.GetComponent<SpriteRenderer>().sprite = activeButton /*Utils.LoadSprite($"EHR.Resources.Tab_Small_{tab}.png", 100f)*/;
-            // button.activeSprites.GetComponent<SpriteRenderer>().sprite = activeButton;
-            // button.selectedSprites.GetComponent<SpriteRenderer>().sprite = activeButton;
             Color color = tab switch
             {
                 TabGroup.SystemSettings => new(0.2f, 0.2f, 0.2f),
@@ -1258,11 +1248,13 @@ public class GameSettingMenuPatch
     public static void ClosePostfix()
     {
         foreach (PassiveButton button in ModSettingsButtons.Values) Object.Destroy(button);
-
         foreach (GameOptionsMenu tab in ModSettingsTabs.Values) Object.Destroy(tab);
 
         ModSettingsButtons = [];
         ModSettingsTabs = [];
+
+        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && !GameStates.IsVanillaServer)
+            DestroyableSingleton<HudManager>.Instance.ShowPopUp(Translator.GetString("ModdedServerDoesntSupportCNOMessage"));
     }
 }
 
