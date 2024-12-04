@@ -2247,7 +2247,7 @@
   "Warning.MismatchedVersion": "<b>{0}</b> tem uma versão diferente de <b>{1}</b>",
   "Warning.AutoExitAtMismatchedVersion": "O anfitrião não possui ou tem uma versão diferente de {0}\nVocê será expulso em {1}",
   "EnabledGMWarning": "Você ativou o Modo Mestre. Isso fará com que você comece cada partida como um fantasma. Devido a um problema desconhecido, as partidas podem terminar instantaneamente com a mensagem \"Todos morreram\". Se isso acontecer, desative o Modo Mestre, por favor.",
-  "ModdedServerDoesntSupportCNOMessage": "⚠ <b>WARNING</b> ⚠\\nYou have enabled a game mode that requires custom net objects (fortegreen players) to show some pixel art to vanilla (non-modded) players. The current server you are using is modded (MNA/MEU/MAS), which doesn't support this. Please use another game mode (we have plenty that don't require custom net objects) or switch to another server (e.g. North America, Europe, Asia).",
+  "ModdedServerDoesntSupportCNOMessage": "⚠ <b>AVISO</b> ⚠\\nVocê ativou um modo de jogo quer requer objetos net personalizados (jogadores fortegreen) para exibir alguma arte pixelizada para jogadores vanilla (sem mod). O servidor que você está usando é modificado (MNA/MEU/MAS), o qual não suporta isso. Por favor, use outro modo de jogo (nós temos vários que não exigem objetos net personalizados) ou troque de servidor (Exemplo: América do Norte, Europa, Ásia).",
   "Commands.NoAccess": "Você não tem acesso a esse comando ou não pode usá-lo atualmente",
   "CommandDescription.LT": "Ver o temporizador do lobby",
   "CommandDescription.Dump": "Salva um arquivo Log no Desktop",
