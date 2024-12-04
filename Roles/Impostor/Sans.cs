@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Neutral;
+using Hazel;
 using static EHR.Options;
 
 namespace EHR.Impostor;
@@ -15,8 +17,8 @@ public class Sans : RoleBase
     private static OptionItem ReduceKillCooldown;
     private static OptionItem MinKillCooldown;
     public static OptionItem BardChance;
-    private bool CanVent;
 
+    private bool CanVent;
     private float DefaultKCD;
     private bool HasImpostorVision;
     private float MinKCD;
@@ -24,6 +26,7 @@ public class Sans : RoleBase
     private float NowCooldown;
     private float ReduceKCD;
     private bool ResetKCDOnMeeting;
+    private byte SansID;
 
     private CustomRoles UsedRole;
 
@@ -56,6 +59,7 @@ public class Sans : RoleBase
     {
         PlayerIdList.Add(playerId);
 
+        SansID = playerId;
         UsedRole = Main.PlayerStates[playerId].MainRole;
 
         switch (UsedRole)
@@ -104,12 +108,12 @@ public class Sans : RoleBase
         return CanVent;
     }
 
-    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         NowCooldown = Math.Clamp(NowCooldown - ReduceKCD, MinKCD, DefaultKCD);
+        Utils.SendRPC(CustomRPC.SyncRoleData, SansID, NowCooldown);
         killer?.ResetKillCooldown();
         killer?.SyncSettings();
-        return base.OnCheckMurder(killer, target);
     }
 
     public override void OnReportDeadBody()
@@ -117,5 +121,18 @@ public class Sans : RoleBase
         if (!ResetKCDOnMeeting) return;
 
         NowCooldown = DefaultKCD;
+        Utils.SendRPC(CustomRPC.SyncRoleData, SansID, NowCooldown);
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        double reduction = Math.Round(DefaultKCD - NowCooldown, 1);
+        string nowKCD = string.Format(Translator.GetString("KCD"), Math.Round(NowCooldown, 1));
+        return $"{base.GetProgressText(playerId, comms)} <#ffffff>-</color> {nowKCD} <#8B0000>(-{reduction}s)</color>";
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        NowCooldown = reader.ReadSingle();
     }
 }

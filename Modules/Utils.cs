@@ -196,7 +196,7 @@ public static class Utils
         try
         {
             if (GameStates.IsLobby || !ShipStatus.Instance || !ShipStatus.Instance.Systems.TryGetValue(type, out ISystemType systemType)) return false;
-            
+
             int mapId = Main.NormalOptions.MapId;
 
             switch (type)
@@ -2492,58 +2492,58 @@ public static class Utils
         pc.SetName(newOutfit.PlayerName);
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetName)
-              .Write(pc.Data.NetId)
-              .Write(newOutfit.PlayerName)
-              .EndRpc();
+            .Write(pc.Data.NetId)
+            .Write(newOutfit.PlayerName)
+            .EndRpc();
 
         Main.AllPlayerNames[pc.PlayerId] = newOutfit.PlayerName;
 
         pc.SetColor(newOutfit.ColorId);
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
-              .Write(pc.Data.NetId)
-              .Write((byte)newOutfit.ColorId)
-              .EndRpc();
+            .Write(pc.Data.NetId)
+            .Write((byte)newOutfit.ColorId)
+            .EndRpc();
 
         pc.SetHat(newOutfit.HatId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.HatSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetHatStr)
-              .Write(newOutfit.HatId)
-              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr))
-              .EndRpc();
+            .Write(newOutfit.HatId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr))
+            .EndRpc();
 
         pc.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.SkinSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetSkinStr)
-              .Write(newOutfit.SkinId)
-              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
-              .EndRpc();
+            .Write(newOutfit.SkinId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
+            .EndRpc();
 
         pc.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.VisorSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetVisorStr)
-              .Write(newOutfit.VisorId)
-              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
-              .EndRpc();
+            .Write(newOutfit.VisorId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
+            .EndRpc();
 
         pc.SetPet(newOutfit.PetId);
         pc.Data.DefaultOutfit.PetSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
-              .Write(newOutfit.PetId)
-              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-              .EndRpc();
+            .Write(newOutfit.PetId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+            .EndRpc();
 
         pc.SetNamePlate(newOutfit.NamePlateId);
         pc.Data.DefaultOutfit.NamePlateSequenceId += 10;
 
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetNamePlateStr)
-              .Write(newOutfit.NamePlateId)
-              .Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr))
-              .EndRpc();
+            .Write(newOutfit.NamePlateId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr))
+            .EndRpc();
 
         sender.SendMessage();
     }
@@ -2712,7 +2712,19 @@ public static class Utils
                                  }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
                 }
 
-                if (Options.UsePets.GetBool()) pc.AddAbilityCD(false);
+                if (Options.UsePets.GetBool())
+                {
+                    pc.AddAbilityCD(false);
+
+                    if (pc.CurrentOutfit.PetId == "")
+                    {
+                        LateTask.New(() =>
+                        {
+                            string petId = PetsPatch.GetPetId();
+                            pc.RpcSetPetDesync(petId, pc);
+                        }, 3f, "No Pet Reassign");
+                    }
+                }
 
                 pc.CheckAndSetUnshiftState(false);
 
@@ -3302,10 +3314,22 @@ public static class Utils
         return Main.PlayerVersion.ContainsKey(id);
     }
 
+    // The minimum number of seconds that should be waited between two CheckMurder calls
     public static float CalculatePingDelay()
     {
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
-        float divice = !CustomGameMode.Standard.IsActiveOrIntegrated() ? 3000f : 2000f;
+        float divice = Options.CurrentGameMode switch
+        {
+            CustomGameMode.SoloKombat => 1500f,
+            CustomGameMode.FFA => 1000f,
+            CustomGameMode.HideAndSeek => 2500f,
+            CustomGameMode.Speedrun => 2500f,
+            CustomGameMode.RoomRush => 1700f,
+            CustomGameMode.CaptureTheFlag => 1800f,
+            CustomGameMode.AllInOne => 1500f,
+            _ => 2000f
+        };
+
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f);
         return minTime;
     }

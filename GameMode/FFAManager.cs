@@ -172,10 +172,7 @@ internal static class FFAManager
             rank += KillCount.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId); // In the old version, the struct 'KeyValuePair' was checked for equality using the inefficient runtime-provided implementation
             return rank;
         }
-        catch
-        {
-            return Main.AllPlayerControls.Length;
-        }
+        catch { return Main.AllPlayerControls.Length; }
     }
 
     public static string GetHudText()
@@ -333,11 +330,13 @@ internal static class FFAManager
                 }
                 // Mixed
                 default:
-                    LateTask.New(() => { killer.TPToRandomVent(); }, 0.5f, "FFA-Event-TP");
+                    LateTask.New(() => killer.TPToRandomVent(), 0.5f, "FFA-Event-TP");
                     killer.Notify(GetString("FFA-Event-GetTP"));
                     Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                     break;
             }
+
+            if (killer.IsHost()) Main.AllPlayerKillCooldown[killer.PlayerId] += Utils.CalculatePingDelay();
 
             if (sync || Math.Abs(nowKCD - Main.AllPlayerKillCooldown[killer.PlayerId]) > 0.1f)
             {
@@ -414,7 +413,7 @@ internal static class FFAManager
                     if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat) continue;
 
                     PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a =>
-                        pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+                                                                                     pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
 
                     if (filtered.Length == 0) break;
 

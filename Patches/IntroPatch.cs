@@ -719,27 +719,27 @@ internal static class BeginCrewmatePatch
         return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType)?.IntroSound;
     }
 
-/*
-    private static async void StartFadeIntro(IntroCutscene __instance, Color start, Color end)
-    {
-        await Task.Delay(1000);
-        int milliseconds = 0;
-        while (true)
+    /*
+        private static async void StartFadeIntro(IntroCutscene __instance, Color start, Color end)
         {
-            await Task.Delay(20);
-            milliseconds += 20;
-            float time = milliseconds / (float)500;
-            Color LerpingColor = Color.Lerp(start, end, time);
-            if (__instance == null || milliseconds > 500)
+            await Task.Delay(1000);
+            int milliseconds = 0;
+            while (true)
             {
-                Logger.Info("ループを終了します", "StartFadeIntro");
-                break;
-            }
+                await Task.Delay(20);
+                milliseconds += 20;
+                float time = milliseconds / (float)500;
+                Color LerpingColor = Color.Lerp(start, end, time);
+                if (__instance == null || milliseconds > 500)
+                {
+                    Logger.Info("ループを終了します", "StartFadeIntro");
+                    break;
+                }
 
-            __instance.BackgroundBar.material.color = LerpingColor;
+                __instance.BackgroundBar.material.color = LerpingColor;
+            }
         }
-    }
-*/
+    */
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
@@ -821,26 +821,29 @@ internal static class IntroCutsceneDestroyPatch
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
                 }
 
-                int kcd = Options.StartingKillCooldown.GetInt();
+                if (CustomGameMode.Standard.IsActiveOrIntegrated())
+                {
+                    int kcd = Options.StartingKillCooldown.GetInt();
 
-                if (kcd is not 10 and > 0 && !CustomGameMode.FFA.IsActiveOrIntegrated())
-                {
-                    LateTask.New(() =>
+                    if (kcd is not 10 and > 0)
                     {
-                        foreach (PlayerControl pc in aapc)
+                        LateTask.New(() =>
                         {
-                            pc.ResetKillCooldown();
-                            pc.SetKillCooldown(kcd - 2);
-                        }
-                    }, 2f, "FixKillCooldownTask");
-                }
-                else if (Options.FixFirstKillCooldown.GetBool() && CustomGameMode.Standard.IsActiveOrIntegrated())
-                {
-                    LateTask.New(() =>
+                            foreach (PlayerControl pc in aapc)
+                            {
+                                pc.ResetKillCooldown();
+                                pc.SetKillCooldown(kcd - 2);
+                            }
+                        }, 2f, "FixKillCooldownTask");
+                    }
+                    else if (Options.FixFirstKillCooldown.GetBool())
                     {
-                        aapc.Do(x => x.ResetKillCooldown());
-                        aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
-                    }, 2f, "FixKillCooldownTask");
+                        LateTask.New(() =>
+                        {
+                            aapc.Do(x => x.ResetKillCooldown());
+                            aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                        }, 2f, "FixKillCooldownTask");
+                    }
                 }
             }
 
@@ -855,7 +858,8 @@ internal static class IntroCutsceneDestroyPatch
 
             PlayerControl lp = PlayerControl.LocalPlayer;
 
-            if (lp.GetRoleTypes() == RoleTypes.Shapeshifter) lp.RpcChangeRoleBasis(lp.GetCustomRole());
+            if (lp.GetRoleTypes() == RoleTypes.Shapeshifter)
+                lp.RpcChangeRoleBasis(lp.GetCustomRole());
 
             if (Options.UsePets.GetBool())
             {
