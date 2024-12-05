@@ -478,7 +478,7 @@ public static class CTFManager
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || !__instance.IsHost()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255 || !__instance.IsHost()) return;
 
             TeamData.Values.Do(x => x.Update());
         }

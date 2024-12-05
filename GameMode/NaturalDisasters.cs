@@ -206,7 +206,7 @@ public static class NaturalDisasters
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || !__instance.IsHost()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || __instance.PlayerId == 255 || !__instance.IsHost()) return;
 
             UpdatePreparingDisasters();
 

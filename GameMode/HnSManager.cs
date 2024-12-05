@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
@@ -482,6 +483,7 @@ internal static class HnSManager
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     private class FixedUpdatePatch
     {
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.HideAndSeek.IsActiveOrIntegrated() || Main.HasJustStarted) return;

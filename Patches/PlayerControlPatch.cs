@@ -227,6 +227,10 @@ internal static class CheckMurderPatch
                 return false;
             case CustomGameMode.AllInOne:
                 if (killer.Is(CustomRoles.Killer)) killer.Kill(target);
+                if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
+                    CTFManager.OnCheckMurder(killer, target);
+                if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
+                    HnSManager.OnCheckMurder(killer, target);
                 return false;
             case CustomGameMode.Speedrun:
                 killer.Kill(target);

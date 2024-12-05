@@ -54,7 +54,7 @@ csharp_style_var_when_type_is_apparent = true:none
 csharp_style_var_elsewhere = false:none
 
 # ReSharper properties
-resharper_align_linq_query = true
+resharper_align_linq_query = false
 resharper_align_multiline_argument = true
 resharper_align_multiline_binary_patterns = true
 resharper_align_multiline_calls_chain = true
