@@ -111,6 +111,8 @@ internal static class EndGamePatch
             Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
             GameOptionsSender.AllSenders.Clear();
             GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
+            
+            ChatCommands.Spectators.Clear();
 
             switch (Options.CurrentGameMode)
             {

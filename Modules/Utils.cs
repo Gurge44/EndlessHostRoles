@@ -1090,7 +1090,7 @@ public static class Utils
     {
         try
         {
-            if (playerId == 0 && Main.GM.Value) return string.Empty;
+            if ((playerId == 0 && Main.GM.Value) || ChatCommands.Spectators.Contains(playerId)) return string.Empty;
 
             TaskState taskState = Main.PlayerStates[playerId].TaskState;
             if (!taskState.HasTasks) return string.Empty;

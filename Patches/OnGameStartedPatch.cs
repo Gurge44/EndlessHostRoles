@@ -224,6 +224,9 @@ internal class ChangeRoleSettings
             VentilationSystemDeterioratePatch.LastClosestVent = [];
 
             Options.UsedButtonCount = 0;
+            
+            ChatCommands.LastSpectators.Clear();
+            ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 
             var impLimits = Options.FactionMinMaxSettings[Team.Impostor];
             int optImpNum = IRandom.Instance.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt() + 1);
@@ -430,6 +433,9 @@ internal static class StartGameHostPatch
             {
                 // For loop is necessary, or else when a client times out, a foreach loop will throw:
                 // System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
+
+                int readyClientsNum = 0;
+                
                 for (var i = 0; i < AUClient.allClients.Count; i++)
                 {
                     ClientData clientData = AUClient.allClients[i]; // False error
@@ -445,7 +451,11 @@ internal static class StartGameHostPatch
                             AUClient.OnPlayerLeft(clientData, DisconnectReasons.ClientTimeout);
                         }
                     }
+
+                    if (clientData.IsReady) readyClientsNum++;
                 }
+                
+                LoadingScreen.Hint += string.Format(GetString("ReadyClientsInfo"), $"{readyClientsNum}/{AUClient.allClients.Count}");
             }
 
             yield return null;

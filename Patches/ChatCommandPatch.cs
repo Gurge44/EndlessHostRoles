@@ -103,6 +103,9 @@ internal static class ChatCommands
 
     public static Dictionary<byte, List<CustomRoles>> DraftRoles = [];
     public static Dictionary<byte, CustomRoles> DraftResult = [];
+    
+    public static HashSet<byte> Spectators = [];
+    public static HashSet<byte> LastSpectators = [];
 
     private static HashSet<byte> ReadyPlayers = [];
 
@@ -172,13 +175,14 @@ internal static class ChatCommands
             new(["mute", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
             new(["unmute", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, [GetString("CommandArgs.Unmute.Id")]),
             new(["draftstart", "ds", "драфтстарт", "启用草稿", "todosescolhem-iniciar"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DraftStartCommand, true),
-            new(["draft", "драфт", "选择草稿", "todosescolhem-escolher"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, true, [GetString("CommandArgs.Draft.Number")]),
+            new(["draft", "драфт", "选择草稿", "todosescolhem-escolher"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, false, [GetString("CommandArgs.Draft.Number")]),
             new(["readycheck", "rc", "проверитьготовность", "准备检测", "verificação-de-prontidão"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
             new(["ready", "готов", "准备", "pronto"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
             new(["enableallroles", "всероли", "启用所有职业", "habilitar-todas-as-funções"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true),
             new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true),
             new(["dn", "deathnote", "заметкамертвого", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, [GetString("CommandArgs.DeathNote.Name")]),
             new(["w", "whisper", "шепот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
+            new(["spectate", "спектейт", "观战", "espectar"], "", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -238,7 +242,8 @@ internal static class ChatCommands
 
         string text = __instance.freeChatField.textArea.text.Trim();
 
-        if (ChatHistory.Count == 0 || ChatHistory[^1] != text) ChatHistory.Add(text);
+        if (ChatHistory.Count == 0 || ChatHistory[^1] != text)
+            ChatHistory.Add(text);
 
         ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
 
@@ -334,6 +339,29 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void SpectateCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(SpectateCommand), text);
+            return;
+        }
+        
+        if (LastSpectators.Contains(player.PlayerId))
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.WasSpectatingLastRound"));
+            return;
+        }
+
+        if (!Spectators.Add(player.PlayerId))
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.AlreadySpectating"));
+            return;
+        }
+        
+        Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.Success"));
+    }
+    
     private static void WhisperCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (Options.DisableWhisperCommand.GetBool())

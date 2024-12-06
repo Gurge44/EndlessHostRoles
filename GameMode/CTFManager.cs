@@ -215,6 +215,7 @@ public static class CTFManager
             // Assign players to teams
             List<PlayerControl> players = Main.AllAlivePlayerControls.Shuffle().ToList();
             if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+            if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
             int blueCount = players.Count / 2;
             HashSet<byte> bluePlayers = [];

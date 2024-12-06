@@ -909,13 +909,24 @@ internal static class IntroCutsceneDestroyPatch
 
             if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift())) LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
 
+            float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
+
             if (Main.GM.Value && lp.Is(CustomRoles.GM))
             {
                 LateTask.New(() =>
                 {
                     lp.RpcExile();
                     Main.PlayerStates[lp.PlayerId].SetDead();
-                }, CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFAChatDuringGame.GetBool() ? 12.5f : 1f, "Set GM Dead");
+                }, specExileDelay, "Set GM Dead");
+            }
+
+            foreach (byte spectator in ChatCommands.Spectators)
+            {
+                LateTask.New(() =>
+                {
+                    spectator.GetPlayer().RpcExileV2();
+                    Main.PlayerStates[spectator].SetDead();
+                }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
             }
 
             if (Options.RandomSpawn.GetBool())

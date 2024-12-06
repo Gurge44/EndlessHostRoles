@@ -129,6 +129,8 @@ internal static class HnSManager
             PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
         }
 
+        allPlayers.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
+
         allPlayers.Shuffle();
 
         Dictionary<Team, int> memberNum = new()

@@ -65,13 +65,13 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     }
 }
 
-internal class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter rightCounter, float positionX, float positionY, int lives)
+internal class MoveAndStopPlayerData(Counter[] counters, float positionX, float positionY, int lives)
 {
-    public Counter LeftCounter { get; } = leftCounter;
+    public Counter LeftCounter { get; } = counters[0];
 
-    public Counter MiddleCounter { get; } = middleCounter;
+    public Counter MiddleCounter { get; } = counters[1];
 
-    public Counter RightCounter { get; } = rightCounter;
+    public Counter RightCounter { get; } = counters[2];
 
     public float PositionX { get; set; } = positionX;
 
@@ -278,11 +278,8 @@ internal static class MoveAndStop
             int startingGreenTime = StartingGreenTime(pc);
             Vector2 pos = pc.Pos();
 
-            AllPlayerTimers.TryAdd(pc.PlayerId, new(
-                new(startingGreenTime, RandomRedTime('⬅'), now, '⬅', false, RandomRedTime, RandomGreenTime),
-                new(startingGreenTime, RandomRedTime('⇅'), now, '⇅', false, RandomRedTime, RandomGreenTime),
-                new(startingGreenTime, RandomRedTime('➡'), now, '➡', false, RandomRedTime, RandomGreenTime),
-                pos.x, pos.y, PlayerLives.GetInt()));
+            Counter[] counters = new[] {'⬅', '⇅', '➡'}.Select(x => new Counter(startingGreenTime, RandomRedTime(x), now, x, false, RandomRedTime, RandomGreenTime)).ToArray();
+            AllPlayerTimers[pc.PlayerId] = new(counters, pos.x, pos.y, PlayerLives.GetInt());
 
             float limit;
 

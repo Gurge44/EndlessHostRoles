@@ -237,6 +237,9 @@ internal static class CustomRoleSelector
             RoleResult[PlayerControl.LocalPlayer.PlayerId] = CustomRoles.GM;
         }
 
+        AllPlayers.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
+        RoleResult.AddRange(ChatCommands.Spectators.ToDictionary(x => x, _ => CustomRoles.GM));
+
         // Pre-Assigned Roles By Host Are Selected First
         foreach ((byte id, CustomRoles role) in Main.SetRoles.AddRange(ChatCommands.DraftResult, false))
         {
@@ -590,7 +593,7 @@ internal static class CustomRoleSelector
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (Main.GM.Value && pc.IsHost())
+                if ((Main.GM.Value && pc.IsHost()) || ChatCommands.Spectators.Contains(pc.PlayerId))
                 {
                     RoleResult[pc.PlayerId] = CustomRoles.GM;
                     continue;
