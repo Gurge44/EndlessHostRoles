@@ -564,6 +564,7 @@ internal static class StartGameHostPatch
                     if (value.RoleList.Count == 0) value.SpawnFlag = false;
 
                     if (Main.GM.Value) value.RoleList.Remove(0);
+                    value.RoleList.ExceptWith(ChatCommands.Spectators);
 
                     if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> combos) && combos.Values.Any(l => l.Contains(addon)))
                     {
@@ -674,6 +675,7 @@ internal static class StartGameHostPatch
             // Add-on assignment
             PlayerControl[] aapc = Main.AllAlivePlayerControls.Shuffle();
             if (Main.GM.Value) aapc = aapc.Without(PlayerControl.LocalPlayer).ToArray();
+            aapc = aapc.Where(x => !ChatCommands.Spectators.Contains(x.PlayerId)).ToArray();
 
             Dictionary<PlayerControl, int> addonNum = aapc.ToDictionary(x => x, _ => 0);
 
