@@ -2421,6 +2421,7 @@
   "NeutralRoles": "<color=#ffab1b>【 ★ 中立職業 ★ 】</color>",
   "AddonRoles": "<color=#ff9ace>【 ★ 附加職業 ★ 】</color>",
   "GhostRoles": "<color=#888888>【 ★ 幽靈職業 ★ 】</color>",
+  "AnonymousBodies": "Anonymous Bodies",
   "LoadingHint.0": "你知道嗎?\n你可以將你選擇的職業加入自訂的新陣營!\n詳情見我們網站上的說明(主選單上的連結)!",
   "LoadingHint.1": "你知道嗎?\n你可以通過在大廳中使用/combo來禁止某些職業與附加職業組合!\n在遊戲結束後試試看吧!",
   "LoadingHint.2": "你知道嗎?\n你可以使用自訂翻譯檔案來自定職業、附加職業、設定等的名稱!",
