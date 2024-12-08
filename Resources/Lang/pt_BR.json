@@ -2421,6 +2421,7 @@
   "NeutralRoles": "<color=#ffab1b>【 ★ Funções Neutras ★ 】</color>",
   "AddonRoles": "<color=#ff9ace>【 ★ Atributos ★ 】</color>",
   "GhostRoles": "<color=#888888>【 ★ Funções Fantasmas ★ 】</color>",
+  "AnonymousBodies": "Anonymous Bodies",
   "LoadingHint.0": "<color=#08FA99>Você sabia?</color>\nVocê pode colocar funções de sua escolha em times personalizados!\nVeja as instruções na nossa pagina (link no menu principal)!",
   "LoadingHint.1": "<color=#08FA99>Você sabia?</color>\nVocê pode forçar ou banir certos combos de função e atributo usando /combo no lobby!\nTente após esse jogo!",
   "LoadingHint.2": "<color=#08FA99>Você sabia?</color>\nVocê pode mudar o nome de funções, atributos, configurações, etc usando arquivos de tradução personalizados!",
