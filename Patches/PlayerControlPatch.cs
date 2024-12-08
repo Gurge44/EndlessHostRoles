@@ -227,10 +227,13 @@ internal static class CheckMurderPatch
                 return false;
             case CustomGameMode.AllInOne:
                 if (killer.Is(CustomRoles.Killer)) killer.Kill(target);
+
                 if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
                     CTFManager.OnCheckMurder(killer, target);
+
                 if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
                     HnSManager.OnCheckMurder(killer, target);
+
                 return false;
             case CustomGameMode.Speedrun:
                 killer.Kill(target);
@@ -278,9 +281,9 @@ internal static class CheckMurderPatch
                     return false;
                 case true when killer.GetCustomRole().GetDYRole() == RoleTypes.Impostor:
                     if (killer.CheckDoubleTrigger(target, () =>
-                        {
-                            if (CheckMurder()) killer.RpcCheckAndMurder(target);
-                        }))
+                    {
+                        if (CheckMurder()) killer.RpcCheckAndMurder(target);
+                    }))
                         killer.RpcCheckAndMurder(target);
 
                     return false;
@@ -697,7 +700,7 @@ internal static class MurderPlayerPatch
             delay = Math.Max(delay, 0.15f);
             if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
 
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 击杀诱饵 => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} killed Bait => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
 
             LateTask.New(() =>
             {
@@ -1614,9 +1617,9 @@ internal static class FixedUpdatePatch
                         if (seer.IsDousedPlayer(target))
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
                         else if (
-                            Arsonist.CurrentDousingTarget != byte.MaxValue &&
-                            Arsonist.CurrentDousingTarget == target.PlayerId
-                        )
+                                Arsonist.CurrentDousingTarget != byte.MaxValue &&
+                                Arsonist.CurrentDousingTarget == target.PlayerId
+                            )
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
 
                         break;
@@ -1624,9 +1627,9 @@ internal static class FixedUpdatePatch
                         if (seer.IsDrawPlayer(target))
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
                         else if (
-                            Revolutionist.CurrentDrawTarget != byte.MaxValue &&
-                            Revolutionist.CurrentDrawTarget == target.PlayerId
-                        )
+                                Revolutionist.CurrentDrawTarget != byte.MaxValue &&
+                                Revolutionist.CurrentDrawTarget == target.PlayerId
+                            )
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
 
                         break;
@@ -2352,5 +2355,14 @@ internal static class ShouldProcessRpcPatch
     {
         __result = true;
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.RpcBootFromVent))]
+static class BootFromVentPatch
+{
+    public static bool Prefix(PlayerPhysics __instance)
+    {
+        return !GameStates.IsInTask || ExileController.Instance || __instance == null || __instance.myPlayer == null || !__instance.myPlayer.IsAlive() || !__instance.myPlayer.Is(CustomRoles.Nimble);
     }
 }

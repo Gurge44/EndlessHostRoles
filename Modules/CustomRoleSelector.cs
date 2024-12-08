@@ -142,21 +142,22 @@ internal static class CustomRoleSelector
         }
 
         var neutralLimits = Options.FactionMinMaxSettings[Team.Neutral];
+        var numNeutrals = IRandom.Instance.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1);
 
-        if (Roles[RoleAssignType.Impostor].Count == 0 && neutralLimits.MaxSetting.GetInt() == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
+        if (Roles[RoleAssignType.Impostor].Count == 0 && numNeutrals == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
         {
             Roles[RoleAssignType.Impostor].Add(new(CustomRoles.ImpostorEHR, 100, optImpNum));
             Logger.Warn("Adding Vanilla Impostor", "CustomRoleSelector");
         }
 
-        if (Roles[RoleAssignType.Crewmate].Count == 0 && neutralLimits.MaxSetting.GetInt() == 0 && !Main.SetRoles.Values.Any(x => x.IsCrewmate()))
+        if (Roles[RoleAssignType.Crewmate].Count == 0 && numNeutrals == 0 && !Main.SetRoles.Values.Any(x => x.IsCrewmate()))
         {
             Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.CrewmateEHR, 100, playerCount));
             Logger.Warn("Adding Vanilla Crewmates", "CustomRoleSelector");
         }
 
         Logger.Info($"Number of Impostors: {optImpNum}", "FactionLimits");
-        Logger.Info($"Number of Neutrals: {neutralLimits.MinSetting.GetInt()} - {neutralLimits.MaxSetting.GetInt()}", "FactionLimits");
+        Logger.Info($"Number of Neutrals: {neutralLimits.MinSetting.GetInt()} - {neutralLimits.MaxSetting.GetInt()} => {numNeutrals}", "FactionLimits");
 
         Logger.Msg("=====================================================", "AllActiveRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "ImpRoles");
@@ -166,24 +167,17 @@ internal static class CustomRoleSelector
         Logger.Msg("=====================================================", "AllActiveRoles");
 
         Dictionary<RoleOptionType, int> subCategoryLimits = Options.RoleSubCategoryLimits
-            .Where(x => x.Value[0].GetBool())
+            .Where(x => x.Key.GetTabFromOptionType() == TabGroup.NeutralRoles || x.Value[0].GetBool())
             .ToDictionary(x => x.Key, x => IRandom.Instance.Next(x.Value[1].GetInt(), x.Value[2].GetInt() + 1));
 
         if (subCategoryLimits.Count > 0) Logger.Info($"Sub-Category Limits: {string.Join(", ", subCategoryLimits.Select(x => $"{x.Key}: {x.Value}"))}", "SubCategoryLimits");
 
-        
-        var nkHasLimit = subCategoryLimits.TryGetValue(RoleOptionType.Neutral_Killing, out var nkSetLimit);
-        var nkLimit = nkHasLimit ? nkSetLimit : neutralLimits.MaxSetting.GetInt();
-        
-        var neHasLimit = subCategoryLimits.TryGetValue(RoleOptionType.Neutral_Evil, out var neLimit);
-        var nbHasLimit = subCategoryLimits.TryGetValue(RoleOptionType.Neutral_Benign, out var nbLimit);
+        int nkLimit = subCategoryLimits[RoleOptionType.Neutral_Killing];
+        int nnkLimit = subCategoryLimits[RoleOptionType.Neutral_Evil] + subCategoryLimits[RoleOptionType.Neutral_Benign];
 
-        int nnkLimit = neHasLimit && nbHasLimit ? neLimit + nbLimit : neHasLimit ? neLimit : nbHasLimit ? nbLimit : neutralLimits.MaxSetting.GetInt() - (nkHasLimit ? nkSetLimit : 0);
-        
         Logger.Info($"Number of Neutral Killing roles to select: {nkLimit}", "NeutralKillingLimit");
         Logger.Info($"Number of Non-Killing Neutral roles to select: {nnkLimit}", "NonKillingNeutralLimit");
-        
-        
+
         foreach (RoleAssignType type in Roles.Keys.ToArray())
         {
             Roles[type] = Roles[type]
@@ -191,10 +185,10 @@ internal static class CustomRoleSelector
                 .OrderBy(x => x.SpawnChance != 100)
                 .DistinctBy(x => x.Role)
                 .Select(x => (
-                    Info: x,
-                    Limit: subCategoryLimits.TryGetValue(x.OptionType, out var limit)
-                        ? (Exists: true, Value: limit)
-                        : (Exists: false, Value: 0)))
+                            Info: x,
+                            Limit: subCategoryLimits.TryGetValue(x.OptionType, out var limit)
+                                ? (Exists: true, Value: limit)
+                                : (Exists: false, Value: 0)))
                 .GroupBy(x => x.Info.OptionType)
                 .Select(x => (Grouping: x, x.FirstOrDefault().Limit))
                 .SelectMany(x => x.Limit.Exists ? x.Grouping.Take(x.Limit.Value) : x.Grouping)
@@ -211,9 +205,16 @@ internal static class CustomRoleSelector
                 .ToList();
         }
 
+        Logger.Msg("======================================================", "PreSelectedRoles");
+        Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "PreSelectedImpostorRoles");
+        Logger.Info(string.Join(", ", Roles[RoleAssignType.NeutralKilling].Select(x => x.Role.ToString())), "PreSelectedNKRoles");
+        Logger.Info(string.Join(", ", Roles[RoleAssignType.NonKillingNeutral].Select(x => x.Role.ToString())), "PreSelectedNNKRoles");
+        Logger.Info(string.Join(", ", Roles[RoleAssignType.Crewmate].Select(x => x.Role.ToString())), "PreSelectedCrewRoles");
+        Logger.Msg("======================================================", "PreSelectedRoles");
+
         int attempts = 0;
 
-        while (Roles[RoleAssignType.NeutralKilling].Count + Roles[RoleAssignType.NonKillingNeutral].Count > neutralLimits.MaxSetting.GetInt())
+        while (Roles[RoleAssignType.NeutralKilling].Count + Roles[RoleAssignType.NonKillingNeutral].Count > numNeutrals)
         {
             if (attempts++ > 100) break;
 

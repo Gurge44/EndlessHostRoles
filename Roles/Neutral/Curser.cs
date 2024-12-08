@@ -73,10 +73,10 @@ public class Curser : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.CheckDoubleTrigger(target, () =>
-            {
-                KnownFactionPlayers.Add(target.PlayerId);
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-            }))
+        {
+            KnownFactionPlayers.Add(target.PlayerId);
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+        }))
         {
             int random = IRandom.Instance.Next(4);
 
@@ -86,7 +86,7 @@ public class Curser : RoleBase
                     target.RpcRemoveAbilityUse();
                     break;
                 case 1:
-                    var addons = Options.GroupedAddons[AddonTypes.Harmful].Where(x => !target.Is(x) && CustomRolesHelper.CheckAddonConflict(x, target));
+                    var addons = Options.GroupedAddons[AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target));
                     target.RpcSetCustomRole(addons.RandomElement());
                     break;
                 case 2:
@@ -118,10 +118,7 @@ public class Curser : RoleBase
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, vision);
             }
 
-            if (instance.LowerSpeedPlayers.Contains(playerId))
-            {
-                Main.AllPlayerSpeed[playerId] = LowerSpeed.GetFloat();
-            }
+            if (instance.LowerSpeedPlayers.Contains(playerId)) { Main.AllPlayerSpeed[playerId] = LowerSpeed.GetFloat(); }
         }
     }
 
