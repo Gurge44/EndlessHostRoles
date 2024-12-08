@@ -2421,6 +2421,7 @@
   "NeutralRoles": "<color=#ffab1b>【 ★ 中立职业 ★ 】</color>",
   "AddonRoles": "<color=#ff9ace>【 ★ 附加职业 ★ 】</color>",
   "GhostRoles": "<color=#888888>【 ★ 鬼魂职业 ★ 】</color>",
+  "AnonymousBodies": "Anonymous Bodies",
   "LoadingHint.0": "您知道吗?\n您可以自定义团队分配!\n详细见我们网站上的说明(主菜单上面的链接)!",
   "LoadingHint.1": "您知道吗？\n您可以在大厅中使用 /combo 指令强制禁止某些职业和附加组件组合！\n在这场比赛后试一试吧！",
   "LoadingHint.2": "您知道吗？\n您可以使用自定义命名职业,附加职业,设置等名称！",
