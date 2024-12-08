@@ -2421,6 +2421,7 @@
   "NeutralRoles": "<color=#ffab1b>【 ★ Neutral Roles ★ 】</color>",
   "AddonRoles": "<color=#ff9ace>【 ★ Add-ons ★ 】</color>",
   "GhostRoles": "<color=#888888>【 ★ Ghost Roles ★ 】</color>",
+  "AnonymousBodies": "Anonymous Bodies",
   "LoadingHint.0": "Did you know?\nYou can put roles of your choice into custom teams!\nView instructions on our website (link on main menu)!",
   "LoadingHint.1": "Did you know?\nYou can force or ban certain role and add-on combos using /combo in lobby!\nGive it a try after this game!",
   "LoadingHint.2": "Did you know?\nYou can change roles', add-ons', settings', etc. names using custom translation files!",
