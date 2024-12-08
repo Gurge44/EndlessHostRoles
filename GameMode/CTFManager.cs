@@ -322,7 +322,7 @@ public static class CTFManager
         if (enemy.IsNearFlag(pos)) enemy.PickUpFlag(pc.PlayerId);
     }
 
-    public static void ApplyGameOptions(IGameOptions opt)
+    public static void ApplyGameOptions()
     {
         AURoleOptions.ShapeshifterCooldown = 1f;
     }
@@ -479,9 +479,15 @@ public static class CTFManager
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255 || !__instance.IsHost()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255) return;
 
-            TeamData.Values.Do(x => x.Update());
+            if (__instance.IsHost()) TeamData.Values.Do(x => x.Update());
+            
+            if (!PlayerTeams.TryGetValue(__instance.PlayerId, out var team)) return;
+            bool blue = team == CTFTeam.Blue;
+            int colorId = blue ? 1 : 5;
+            if (__instance.Data.DefaultOutfit.ColorId != colorId)
+                Utils.RpcChangeSkin(__instance, blue ? BlueOutfit : YellowOutfit);
         }
     }
 }

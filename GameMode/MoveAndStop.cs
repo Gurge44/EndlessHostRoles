@@ -170,7 +170,11 @@ internal static class MoveAndStop
     {
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 60;
         bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode);
-        return Main.CurrentMap == MapNames.Airship ? tutorial ? 57 : 47 : tutorial ? 47 : 37;
+        
+        int time = 37;
+        if (tutorial) time += 10;
+        if (Main.CurrentMap == MapNames.Airship) time += 10;
+        return time;
     }
 
     private static int RandomRedTime(char direction)
@@ -232,7 +236,7 @@ internal static class MoveAndStop
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
 
-        PlayerLives = new IntegerOptionItem(68_213_017, "MoveAndStop_PlayerLives", new(1, 10, 1), 3, TabGroup.GameSettings)
+        PlayerLives = new IntegerOptionItem(68_213_017, "MoveAndStop_PlayerLives", new(1, 10, 1), 2, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health)

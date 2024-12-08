@@ -104,8 +104,8 @@ internal static class ChatCommands
     public static Dictionary<byte, List<CustomRoles>> DraftRoles = [];
     public static Dictionary<byte, CustomRoles> DraftResult = [];
     
-    public static HashSet<byte> Spectators = [];
-    public static HashSet<byte> LastSpectators = [];
+    public static readonly HashSet<byte> Spectators = [];
+    public static readonly HashSet<byte> LastSpectators = [];
 
     private static HashSet<byte> ReadyPlayers = [];
 

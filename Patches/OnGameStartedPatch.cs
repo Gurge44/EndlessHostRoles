@@ -455,7 +455,8 @@ internal static class StartGameHostPatch
                     if (clientData.IsReady) readyClientsNum++;
                 }
                 
-                LoadingScreen.Hint += string.Format(GetString("ReadyClientsInfo"), $"{readyClientsNum}/{AUClient.allClients.Count}");
+                if (!LoadingScreen.Hint.Contains('/'))
+                    LoadingScreen.Hint += string.Format(GetString("ReadyClientsInfo"), $"{readyClientsNum}/{AUClient.allClients.Count}", (int)Math.Round(timer));
             }
 
             yield return null;
