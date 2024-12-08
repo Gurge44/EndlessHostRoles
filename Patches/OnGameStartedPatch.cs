@@ -518,7 +518,7 @@ internal static class StartGameHostPatch
                 HashSet<byte> bloodlustList = [], nimbleList = [], physicistList = [], finderList = [], noisyList = [];
                 bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> banned);
 
-                if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn)
+                if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn || bloodlustSpawn)
                 {
                     foreach (PlayerControl player in Main.AllPlayerControls)
                     {
@@ -535,15 +535,12 @@ internal static class StartGameHostPatch
                         if (kp.Value.IsCrewmate())
                         {
                             if (!bloodlustBanned && !kp.Value.IsTaskBasedCrewmate()) bloodlustList.Add(player.PlayerId);
-
                             if (!nimbleBanned) nimbleList.Add(player.PlayerId);
 
                             if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
                             {
                                 if (!physicistBanned) physicistList.Add(player.PlayerId);
-
                                 if (!finderBanned) finderList.Add(player.PlayerId);
-
                                 if (!noisyBanned) noisyList.Add(player.PlayerId);
                             }
                         }
