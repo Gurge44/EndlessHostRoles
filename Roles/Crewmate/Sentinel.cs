@@ -11,6 +11,7 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
 {
     private List<byte> LastNearbyKillers = [];
     private long LastUpdate;
+    private Dictionary<byte, long> LastPostitionCheck = [];
 
     public byte SentinelId => sentinelId;
 
@@ -51,10 +52,10 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
 
         long now = TimeStamp;
         if (LastUpdate >= now) return;
-
         LastUpdate = now;
 
-        if (PatrolStartTimeStamp + PatrolDuration < now) FinishPatrolling();
+        if (PatrolStartTimeStamp + PatrolDuration < now)
+            FinishPatrolling();
     }
 
     public void OnCheckPlayerPosition(PlayerControl pc)
@@ -62,9 +63,9 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
         if (!IsPatrolling) return;
 
         long now = TimeStamp;
-        if (LastUpdate >= now) return;
-
-        LastUpdate = now;
+        LastPostitionCheck.TryAdd(pc.PlayerId, now);
+        if (LastPostitionCheck[pc.PlayerId] >= now) return;
+        LastPostitionCheck[pc.PlayerId] = now;
 
         PlayerControl[] killers = NearbyKillers;
 
@@ -72,9 +73,9 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
         bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
 
         long timeLeft = PatrolDuration - (TimeStamp - PatrolStartTimeStamp);
+        
         if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
-
-        if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft));
+        if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft), 1.1f, overrideAll: true);
 
         LastNearbyKillers = killers.Select(x => x.PlayerId).ToList();
     }
@@ -84,7 +85,8 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
         IsPatrolling = false;
         if (!GameStates.IsInTask) return;
 
-        foreach (PlayerControl pc in NearbyKillers) pc.Suicide(realKiller: Sentinel);
+        foreach (PlayerControl pc in NearbyKillers)
+            pc.Suicide(realKiller: Sentinel);
 
         Sentinel.MarkDirtySettings();
     }
@@ -180,14 +182,16 @@ internal class Sentinel : RoleBase
     {
         if (!IsEnable) return;
 
-        foreach (PatrollingState state in PatrolStates) state.Update();
+        foreach (PatrollingState state in PatrolStates)
+            state.Update();
     }
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
         if (!IsEnable) return;
 
-        foreach (PatrollingState state in PatrolStates) state.OnCheckPlayerPosition(pc);
+        foreach (PatrollingState state in PatrolStates)
+            state.OnCheckPlayerPosition(pc);
     }
 
     public override void OnReportDeadBody()

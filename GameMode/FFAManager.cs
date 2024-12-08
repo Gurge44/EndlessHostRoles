@@ -145,6 +145,7 @@ internal static class FFAManager
 
         PlayerControl[] allPlayers = Main.AllAlivePlayerControls;
         if (Main.GM.Value && AmongUsClient.Instance.AmHost) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer).ToArray();
+        allPlayers = allPlayers.ExceptBy(ChatCommands.Spectators, x => x.PlayerId).ToArray();
 
         foreach (PlayerControl pc in allPlayers) KillCount[pc.PlayerId] = 0;
 

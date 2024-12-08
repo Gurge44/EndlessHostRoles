@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using EHR.Impostor;
 using static EHR.Options;
 
 namespace EHR.AddOns.Common;

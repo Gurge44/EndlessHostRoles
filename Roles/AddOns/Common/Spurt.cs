@@ -37,7 +37,7 @@ internal class Spurt : IAddon
             .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        DisplaysCharge = new BooleanOptionItem(id + 9, "EnableSpurtCharge", false, TabGroup.Addons)
+        DisplaysCharge = new BooleanOptionItem(id + 9, "EnableSpurtCharge", true, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt]);
     }
 

@@ -155,7 +155,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                     break;
                 case CustomGameMode.CaptureTheFlag:
-                    CTFManager.ApplyGameOptions(opt);
+                    CTFManager.ApplyGameOptions();
                     SetMaxVision();
                     break;
                 case CustomGameMode.NaturalDisasters:

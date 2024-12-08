@@ -11,24 +11,16 @@ namespace EHR;
 public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char symbol, bool isRed, Func<char, int> randomRedTimeFunc, Func<char, int> randomGreenTimeFunc, bool isYellow = false)
 {
     private int TotalGreenTime { get; set; } = totalGreenTime;
-
-    private int TotalRedTime { get; set; } = totalRedTime;
-
+    public int TotalRedTime { get; private set; } = totalRedTime;
     private long StartTimeStamp { get; set; } = startTimeStamp;
-
     private char Symbol { get; } = symbol;
-
     public bool IsRed { get; private set; } = isRed;
-
     private Func<char, int> RandomRedTime { get; } = randomRedTimeFunc;
-
     private Func<char, int> RandomGreenTime { get; } = randomGreenTimeFunc;
-
     private bool IsYellow { get; set; } = isYellow;
-
     private static int TotalYellowTime => 3;
 
-    private int Timer => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.TimeStamp - StartTimeStamp));
+    public int Timer => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.TimeStamp - StartTimeStamp));
 
     public string ColoredTimerString
     {
@@ -37,7 +29,6 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
             string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "0") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
 
             if (Timer is <= 19 and >= 10 && !IsYellow) result = $" {result}";
-
             if (Timer % 10 == 1 && !IsYellow) result = result.Insert(result.Length - 9, " ");
 
             return $"<font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\"><size=130%>{result}</size></font>";
@@ -74,13 +65,13 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     }
 }
 
-internal class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter rightCounter, float positionX, float positionY, int lives)
+internal class MoveAndStopPlayerData(Counter[] counters, float positionX, float positionY, int lives)
 {
-    public Counter LeftCounter { get; } = leftCounter;
+    public Counter LeftCounter { get; } = counters[0];
 
-    public Counter MiddleCounter { get; } = middleCounter;
+    public Counter MiddleCounter { get; } = counters[1];
 
-    public Counter RightCounter { get; } = rightCounter;
+    public Counter RightCounter { get; } = counters[2];
 
     public float PositionX { get; set; } = positionX;
 
@@ -179,7 +170,11 @@ internal static class MoveAndStop
     {
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 60;
         bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode);
-        return Main.CurrentMap == MapNames.Airship ? tutorial ? 57 : 47 : tutorial ? 47 : 37;
+        
+        int time = 37;
+        if (tutorial) time += 10;
+        if (Main.CurrentMap == MapNames.Airship) time += 10;
+        return time;
     }
 
     private static int RandomRedTime(char direction)
@@ -241,7 +236,7 @@ internal static class MoveAndStop
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
 
-        PlayerLives = new IntegerOptionItem(68_213_017, "MoveAndStop_PlayerLives", new(1, 10, 1), 3, TabGroup.GameSettings)
+        PlayerLives = new IntegerOptionItem(68_213_017, "MoveAndStop_PlayerLives", new(1, 10, 1), 2, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health)
@@ -287,11 +282,8 @@ internal static class MoveAndStop
             int startingGreenTime = StartingGreenTime(pc);
             Vector2 pos = pc.Pos();
 
-            AllPlayerTimers.TryAdd(pc.PlayerId, new(
-                new(startingGreenTime, RandomRedTime('⬅'), now, '⬅', false, RandomRedTime, RandomGreenTime),
-                new(startingGreenTime, RandomRedTime('⇅'), now, '⇅', false, RandomRedTime, RandomGreenTime),
-                new(startingGreenTime, RandomRedTime('➡'), now, '➡', false, RandomRedTime, RandomGreenTime),
-                pos.x, pos.y, PlayerLives.GetInt()));
+            Counter[] counters = new[] {'⬅', '⇅', '➡'}.Select(x => new Counter(startingGreenTime, RandomRedTime(x), now, x, false, RandomRedTime, RandomGreenTime)).ToArray();
+            AllPlayerTimers[pc.PlayerId] = new(counters, pos.x, pos.y, PlayerLives.GetInt());
 
             float limit;
 
@@ -375,13 +367,13 @@ internal static class MoveAndStop
 
                 float limit = Limit.GetValueOrDefault(pc.PlayerId, 2f);
 
+                // Now we can check the components of the direction vector to determine the movement direction
                 switch (direction.x)
                 {
-                    // Now we can check the components of the direction vector to determine the movement direction
                     // Player is moving right
                     case > 0:
                     {
-                        switch (data.RightCounter.IsRed)
+                        switch (IsCounterRed(data.RightCounter))
                         {
                             // If: Right counter is red && player moved more than their limit
                             case true when distanceX > limit:
@@ -401,7 +393,7 @@ internal static class MoveAndStop
                     // Player is moving left
                     case < 0:
                     {
-                        switch (data.LeftCounter.IsRed)
+                        switch (IsCounterRed(data.LeftCounter))
                         {
                             // The distance is negative here because it's the opposite direction as right
                             case true when distanceX < -limit:
@@ -418,7 +410,7 @@ internal static class MoveAndStop
 
                 if (direction.y is > 0 or < 0) // y > 0 means the player is moving up, y < 0 means the player is moving down
                 {
-                    switch (data.MiddleCounter.IsRed)
+                    switch (IsCounterRed(data.MiddleCounter))
                     {
                         // The player dies if either they moved up OR down too far
                         case true when distanceY > limit || distanceY < -limit:
@@ -442,13 +434,14 @@ internal static class MoveAndStop
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
                 LastSuffix[pc.PlayerId] = suffix;
+
+                bool IsCounterRed(Counter counter) => counter.IsRed && (pc.IsHost() || counter.Timer != counter.TotalRedTime);
             }
 
             NoSuffix:
 
             long now = Utils.TimeStamp;
             if (LastFixedUpdate == now) return;
-
             LastFixedUpdate = now;
 
             RoundTime--;

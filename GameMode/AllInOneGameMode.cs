@@ -118,7 +118,7 @@ public static class AllInOneGameMode
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.IsEnded || !CustomGameMode.AllInOne.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.IsEnded || !CustomGameMode.AllInOne.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255 || __instance.Is(CustomRoles.Killer) || CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) return;
 
             var gameModes = Enum.GetValues<CustomGameMode>().Where(x => x.IsActiveOrIntegrated()).Split(x => x is CustomGameMode.CaptureTheFlag or CustomGameMode.FFA or CustomGameMode.SoloKombat);
             if (gameModes.TrueList.Count == 0 || gameModes.FalseList.Count == 0) return;

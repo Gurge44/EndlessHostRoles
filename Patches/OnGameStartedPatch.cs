@@ -224,6 +224,9 @@ internal class ChangeRoleSettings
             VentilationSystemDeterioratePatch.LastClosestVent = [];
 
             Options.UsedButtonCount = 0;
+            
+            ChatCommands.LastSpectators.Clear();
+            ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 
             var impLimits = Options.FactionMinMaxSettings[Team.Impostor];
             int optImpNum = IRandom.Instance.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt() + 1);
@@ -430,6 +433,9 @@ internal static class StartGameHostPatch
             {
                 // For loop is necessary, or else when a client times out, a foreach loop will throw:
                 // System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
+
+                int readyClientsNum = 0;
+                
                 for (var i = 0; i < AUClient.allClients.Count; i++)
                 {
                     ClientData clientData = AUClient.allClients[i]; // False error
@@ -445,7 +451,12 @@ internal static class StartGameHostPatch
                             AUClient.OnPlayerLeft(clientData, DisconnectReasons.ClientTimeout);
                         }
                     }
+
+                    if (clientData.IsReady) readyClientsNum++;
                 }
+                
+                if (!LoadingScreen.Hint.Contains('/'))
+                    LoadingScreen.Hint += string.Format(GetString("ReadyClientsInfo"), $"{readyClientsNum}/{AUClient.allClients.Count}", (int)Math.Round(timer));
             }
 
             yield return null;
@@ -507,7 +518,7 @@ internal static class StartGameHostPatch
                 HashSet<byte> bloodlustList = [], nimbleList = [], physicistList = [], finderList = [], noisyList = [];
                 bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> banned);
 
-                if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn)
+                if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn || bloodlustSpawn)
                 {
                     foreach (PlayerControl player in Main.AllPlayerControls)
                     {
@@ -524,15 +535,12 @@ internal static class StartGameHostPatch
                         if (kp.Value.IsCrewmate())
                         {
                             if (!bloodlustBanned && !kp.Value.IsTaskBasedCrewmate()) bloodlustList.Add(player.PlayerId);
-
                             if (!nimbleBanned) nimbleList.Add(player.PlayerId);
 
                             if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
                             {
                                 if (!physicistBanned) physicistList.Add(player.PlayerId);
-
                                 if (!finderBanned) finderList.Add(player.PlayerId);
-
                                 if (!noisyBanned) noisyList.Add(player.PlayerId);
                             }
                         }
@@ -554,6 +562,7 @@ internal static class StartGameHostPatch
                     if (value.RoleList.Count == 0) value.SpawnFlag = false;
 
                     if (Main.GM.Value) value.RoleList.Remove(0);
+                    value.RoleList.ExceptWith(ChatCommands.Spectators);
 
                     if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> combos) && combos.Values.Any(l => l.Contains(addon)))
                     {
@@ -664,6 +673,7 @@ internal static class StartGameHostPatch
             // Add-on assignment
             PlayerControl[] aapc = Main.AllAlivePlayerControls.Shuffle();
             if (Main.GM.Value) aapc = aapc.Without(PlayerControl.LocalPlayer).ToArray();
+            aapc = aapc.Where(x => !ChatCommands.Spectators.Contains(x.PlayerId)).ToArray();
 
             Dictionary<PlayerControl, int> addonNum = aapc.ToDictionary(x => x, _ => 0);
 

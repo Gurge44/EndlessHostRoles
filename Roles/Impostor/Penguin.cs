@@ -211,6 +211,8 @@ public class Penguin : RoleBase
         Penguin_.MarkDirtySettings();
         LogSpeed();
         Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
+        
+        if (IsGoose) Penguin_.SetKillCooldown();
     }
 
     private void LogSpeed()

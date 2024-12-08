@@ -366,7 +366,7 @@ public static class RoomRush
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameGoing || Main.HasJustStarted || !CustomGameMode.RoomRush.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !__instance.IsHost()) return;
+            if (!GameGoing || Main.HasJustStarted || !CustomGameMode.RoomRush.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId == 255 || !__instance.IsHost()) return;
 
             long now = Utils.TimeStamp;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
