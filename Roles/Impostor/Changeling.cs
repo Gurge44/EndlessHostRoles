@@ -64,10 +64,7 @@ internal class Changeling : RoleBase
             rolesList.RemoveAll(x => !x.IsImpostor() || x.IsVanilla() || x.IsAdditionRole());
             return rolesList;
         }
-        catch
-        {
-            return [];
-        }
+        catch { return []; }
     }
 
     public override void Add(byte playerId)
@@ -76,16 +73,15 @@ internal class Changeling : RoleBase
         ChangelingId = playerId;
         ChangedRole[playerId] = false;
 
-        try
-        {
-            CurrentRole = Roles.First();
-            Utils.SendRPC(CustomRPC.SyncChangeling, playerId, (int)CurrentRole);
-        }
-        catch (InvalidOperationException)
+        if (Roles.Count == 0)
         {
             Logger.Error("No roles for Changeling", "Changeling");
             Utils.GetPlayerById(playerId).RpcSetCustomRole(CustomRoles.ImpostorEHR);
+            return;
         }
+
+        CurrentRole = Roles[0];
+        Utils.SendRPC(CustomRPC.SyncChangeling, playerId, (int)CurrentRole);
     }
 
     public override void Init()
@@ -98,7 +94,7 @@ internal class Changeling : RoleBase
     private void SelectNextRole(PlayerControl pc)
     {
         int currentIndex = Roles.IndexOf(CurrentRole);
-        CurrentRole = currentIndex == Roles.Count - 1 ? Roles.First() : Roles[currentIndex + 1];
+        CurrentRole = currentIndex == Roles.Count - 1 ? Roles[0] : Roles[currentIndex + 1];
         Utils.SendRPC(CustomRPC.SyncChangeling, pc.PlayerId, (int)CurrentRole);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
@@ -123,9 +119,10 @@ internal class Changeling : RoleBase
         LateTask.New(() =>
         {
             shapeshifter.RpcSetCustomRole(CurrentRole);
+            shapeshifter.RpcChangeRoleBasis(CurrentRole);
             ChangedRole[shapeshifter.PlayerId] = true;
             shapeshifter.RpcResetAbilityCooldown();
-            if (!DisableShapeshiftAnimations.GetBool()) LateTask.New(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1f, log: false);
+            if (!DisableShapeshiftAnimations.GetBool()) LateTask.New(() => shapeshifter.RpcShapeshift(shapeshifter, false), 1f, log: false);
         }, 0.3f, log: false);
 
         return false;

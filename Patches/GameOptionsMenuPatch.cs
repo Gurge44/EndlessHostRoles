@@ -50,12 +50,14 @@ public static class GameOptionsMenuPatch
     private static void InitializePostfix()
     {
         GameObject optionMenu = GameObject.Find("PlayerOptionsMenu(Clone)");
-        optionMenu?.transform.FindChild("Background")?.gameObject.SetActive(false);
+        if (optionMenu == null) return;
+
+        optionMenu.transform.FindChild("Background")?.gameObject.SetActive(false);
 
         // By TommyXL
         LateTask.New(() =>
         {
-            Transform menuDescription = optionMenu?.transform.FindChild("What Is This?");
+            Transform menuDescription = optionMenu.transform.FindChild("What Is This?");
             if (menuDescription == null) return;
 
             Transform infoImage = menuDescription.transform.FindChild("InfoImage");
@@ -82,7 +84,8 @@ public static class GameOptionsMenuPatch
                 cubeObject.transform.localScale = new(0.61f, 0.64f, 1f);
             }
 
-            GameSettingMenu.Instance.MenuDescriptionText.m_marginWidth = 2.5f;
+            if (GameSettingMenu.Instance != null && GameSettingMenu.Instance.MenuDescriptionText != null)
+                GameSettingMenu.Instance.MenuDescriptionText.m_marginWidth = 2.5f;
         }, 0.2f, log: false);
     }
 
@@ -346,7 +349,9 @@ public static class GameOptionsMenuPatch
         }
 
         __instance.ControllerSelectable.Clear();
-        foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>()) __instance.ControllerSelectable.Add(x);
+
+        foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>())
+            __instance.ControllerSelectable.Add(x);
 
         __instance.scrollBar.SetYBoundsMax(-num - 1.65f);
     }
@@ -475,9 +480,7 @@ public static class NumberOptionPatch
         get
         {
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) return 5;
-
             if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) return 10;
-
             return 1;
         }
     }
@@ -655,9 +658,8 @@ public static class StringOptionPatch
 
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
-
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
-
+                if (role == CustomRoles.DoubleAgent) name += Translator.GetString("ExperimentalRoleIndicator");
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
@@ -760,9 +762,8 @@ public static class StringOptionPatch
 
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
-
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
-
+                if (role == CustomRoles.DoubleAgent) name += Translator.GetString("ExperimentalRoleIndicator");
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
@@ -1004,7 +1005,6 @@ public class GameSettingMenuPatch
         plus.OnClick.AddListener((Action)(() =>
         {
             if (PresetBehaviour == null) __instance.ChangeTab(3, false);
-
             PresetBehaviour.Increase();
         }));
 
@@ -1050,9 +1050,9 @@ public class GameSettingMenuPatch
             GameModeBehaviour.Increase();
         }));
 
-        float Offset = !russian ? 1.15f : 2.25f;
+        float offset = !russian ? 1.15f : 2.25f;
         cycle.activeTextColor = cycle.inactiveTextColor = cycle.disabledTextColor = cycle.selectedTextColor = Color.white;
-        cycle.transform.localPosition = new(Offset, 0.08f, 1f);
+        cycle.transform.localPosition = new(offset, 0.08f, 1f);
 
 
         FreeChatInputField freeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
@@ -1155,7 +1155,9 @@ public class GameSettingMenuPatch
         if (HiddenBySearch.Any())
         {
             HiddenBySearch.Do(x => x.SetHidden(false));
-            if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu GameSettings) && GameSettings != null) GameOptionsMenuPatch.ReCreateSettings(GameSettings);
+
+            if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu GameSettings) && GameSettings != null)
+                GameOptionsMenuPatch.ReCreateSettings(GameSettings);
 
             HiddenBySearch.Clear();
         }

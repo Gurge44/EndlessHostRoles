@@ -384,7 +384,7 @@ internal static class ExtendedPlayerControl
         };
 
         bool oldRoleIsDesync = playerRole.IsDesyncRole();
-        bool newRoleIsDesync = newCustomRole.IsDesyncRole();
+        bool newRoleIsDesync = newCustomRole.IsDesyncRole() || player.Is(CustomRoles.Bloodlust);
 
         CustomRoles newRoleVN = newCustomRole.GetVNRole();
         RoleTypes newRoleDY = newCustomRole.GetDYRole();
@@ -682,7 +682,7 @@ internal static class ExtendedPlayerControl
     {
         if (GameStates.IsLobby) return;
 
-        //Kill flash (blackout + reactor flash) processing
+        // Kill flash (blackout + reactor flash) processing
 
         SystemTypes systemtypes = (MapNames)Main.NormalOptions.MapId switch
         {
@@ -691,7 +691,7 @@ internal static class ExtendedPlayerControl
             _ => SystemTypes.Reactor
         };
 
-        bool ReactorCheck = IsActive(systemtypes); //Checking whether the reactor sabotage is active
+        bool ReactorCheck = IsActive(systemtypes); // Checking whether the reactor sabotage is active
 
         float Duration = Options.KillFlashDuration.GetFloat();
         if (ReactorCheck) Duration += 0.2f; // Extend blackout during reactor
@@ -1538,10 +1538,12 @@ internal static class ExtendedPlayerControl
             target.SyncSettings();
             var newSkin = new NetworkedPlayerInfo.PlayerOutfit().Set(GetString("Dead"), 15, "", "", "", "", "");
             RpcChangeSkin(target, newSkin);
+
             LateTask.New(() =>
             {
                 target.RpcExileV2();
                 LateTask.New(DoKill, 0.5f, "Anonymous Body Delay 2");
+
                 LateTask.New(() =>
                 {
                     if (GameStates.IsEnded) return;
@@ -1549,6 +1551,7 @@ internal static class ExtendedPlayerControl
                     target.MarkDirtySettings();
                 }, 0.7f, "Anonymous Body Delay 3");
             }, 0.1f, "Anonymous Body Delay 1");
+
             return;
         }
 
