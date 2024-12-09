@@ -3809,7 +3809,7 @@
   "Echo.DisableVentingWhileControlling": "Disable Venting While Controlling",
   "NiceHacker": "Hacker",
   "NiceHackerInfo": "Observa la Mesa de Admin desde cualquier lugar",
-  "NiceHackerInfoLong": "(Impostores):\\nEste rol es diferente para clientes modificados y clientes vanilla.\\n\\nComo cliente modificado, cuando abres el mapa (y tienes usos de habilidad restantes), el mapa de admin aparecerá. Podrás ser capas de moverte teniendo el mapa abierto dependiendo de las configuraciones.\\n\\nComo un cliente vanilla, puedes entrar a una ventila/acariciar para obtener una notificación diciendo cuantas personas están en diferentes habitaciones en la nave (esencialmente mapa de admin).",
+  "NiceHackerInfoLong": "(Tripulantes):\\nEste rol es diferente para clientes modificados y clientes vanilla.\\n\\nComo cliente modificado, cuando abres el mapa (y tienes usos de habilidad restantes), el mapa de admin aparecerá. Podrás ser capas de moverte teniendo el mapa abierto dependiendo de las configuraciones.\\n\\nComo un cliente vanilla, puedes entrar a una ventila/acariciar para obtener una notificación diciendo cuantas personas están en diferentes habitaciones en la nave (esencialmente mapa de admin).",
   "NiceHackerModdedClientAbilityUseSecondsMultiplier": "Clientes modificados, por 1 uso de habilidad, pueden ver el mapa de Admin",
   "NiceHackerModdedClientCanMoveWhileViewingMap": "Clientes modificados pueden moverse mientras ven el mapa de Admin",
   "NiceHackerVanillaClientSeesInfoFor": "Clientes vanilla ven notificación de información de admin",
