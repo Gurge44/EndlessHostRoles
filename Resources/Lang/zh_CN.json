@@ -1207,6 +1207,7 @@
   "ReadyCheckTitle": "<#ff00>★就绪检查★</color>",
   "EveryoneReadyTitle": "<#00ff00>所有人都准备好了!</color>",
   "PlayersNotReadyTitle": "<#ffff00><#ffab1b>{0}</color>个玩家还没准备!</color>他们是:",
+  "SpectatorsList": "<#888888>The following </color>{0}<#888888> players are spectating:</color>",
   "ShieldPersonDiedFirst": "首刀保护（仅限上一局第一个被杀）",
   "SidekickKnowOtherSidekick": "<color=#00b4eb>跟班</color>互相认识",
   "SidekickCanKillSidekick": "<color=#00b4eb>跟班</color>可以击杀其他<color=#00b4eb>跟班</color>",
