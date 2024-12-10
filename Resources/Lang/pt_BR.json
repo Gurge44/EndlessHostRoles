@@ -1207,6 +1207,7 @@
   "ReadyCheckTitle": "<#ffff00>★ Verificação de Prontidão★</color>",
   "EveryoneReadyTitle": "<#00ff00>Todos estão prontos!</color>",
   "PlayersNotReadyTitle": "<#ffff00><#ffab1b>{0}</color> jogadores não estão prontos!</color> São eles:",
+  "SpectatorsList": "<#888888>The following </color>{0}<#888888> players are spectating:</color>",
   "ShieldPersonDiedFirst": "Dar um escudo ao jogador que morreu primeiro no último jogo",
   "SidekickKnowOtherSidekick": "<color=#00b4eb>Ajudantes</color> conhecem uns aos outros",
   "SidekickCanKillSidekick": "<color=#00b4eb>Ajudantes</color> podem matar outros <color=#00b4eb>Ajudantes</color>",
