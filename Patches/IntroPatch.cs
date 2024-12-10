@@ -30,7 +30,7 @@ internal static class SetUpRoleTextPatch
                 case CustomGameMode.SoloKombat:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.color = color;
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
                     __instance.RoleText.text = GetString("SoloKombat");
                     __instance.RoleText.color = Utils.GetRoleColor(lp.GetCustomRole());
                     __instance.RoleBlurbText.color = color;
@@ -90,7 +90,7 @@ internal static class SetUpRoleTextPatch
                 case CustomGameMode.NaturalDisasters:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#03fc4a", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.color = color;
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
                     __instance.RoleText.text = GetString("NDPlayer");
                     __instance.RoleText.color = color;
                     __instance.RoleBlurbText.color = color;
@@ -100,7 +100,7 @@ internal static class SetUpRoleTextPatch
                 case CustomGameMode.RoomRush:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#ffab1b", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.color = color;
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
                     __instance.RoleText.text = GetString("RRPlayer");
                     __instance.RoleText.color = color;
                     __instance.RoleBlurbText.color = color;
@@ -110,7 +110,7 @@ internal static class SetUpRoleTextPatch
                 case CustomGameMode.AllInOne:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.color = color;
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
                     __instance.RoleText.text = GetString("AllInOne");
                     __instance.RoleText.color = color;
                     __instance.RoleBlurbText.color = color;
@@ -473,8 +473,6 @@ internal static class BeginCrewmatePatch
                     => GetIntroSound(RoleTypes.Impostor),
 
                 CustomRoles.SabotageMaster or
-                    CustomRoles.Engineer or
-                    CustomRoles.EngineerEHR or
                     CustomRoles.Inhibitor or
                     CustomRoles.Saboteur or
                     CustomRoles.SecurityGuard or
@@ -487,7 +485,13 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Gambler
                     => GetIntroSound(RoleTypes.Shapeshifter),
 
-                CustomRoles.Doctor or
+                CustomRoles.Engineer or
+                    CustomRoles.EngineerEHR
+                    => GetIntroSound(RoleTypes.Engineer),
+                    
+                CustomRoles.Scientist or
+                    CustomRoles.ScientistEHR or
+                    CustomRoles.Doctor or
                     CustomRoles.Medic
                     => GetIntroSound(RoleTypes.Scientist),
 
@@ -519,11 +523,13 @@ internal static class BeginCrewmatePatch
                     => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
 
                 CustomRoles.Tracker
+                    or CustomRoles.TrackerEHR
                     or CustomRoles.EvilTracker
                     => GetIntroSound(RoleTypes.Tracker),
 
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
+                    or CustomRoles.CyberStar
                     or CustomRoles.DarkHide
                     or CustomRoles.Specter
                     => GetIntroSound(RoleTypes.Noisemaker),
@@ -554,7 +560,8 @@ internal static class BeginCrewmatePatch
             __instance.TeamTitle.text = Utils.GetRoleName(role);
             __instance.TeamTitle.color = Utils.GetRoleColor(role);
             __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
-            __instance.ImpostorText.gameObject.SetActive(false);
+            __instance.ImpostorText.gameObject.SetActive(true);
+            __instance.ImpostorText.text = GetString("SubText.GM");
         }
 
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || PlayerControl.LocalPlayer.Is(CustomRoles.Parasite) || PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor))
