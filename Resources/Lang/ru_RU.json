@@ -1207,6 +1207,7 @@
   "ReadyCheckTitle": "<#ffff00>★ Проверка Готовности ★</color>",
   "EveryoneReadyTitle": "<#00ff00>Все готовы к игре!</color>",
   "PlayersNotReadyTitle": "<#ffff00><#ffab1b>{0}</color> игрок(-ов) не готов(-ы) к игре!</color> Не готовы:",
+  "SpectatorsList": "<#888888>The following </color>{0}<#888888> players are spectating:</color>",
   "ShieldPersonDiedFirst": "Щит для первого убитого в прошлой игре",
   "SidekickKnowOtherSidekick": "<color=#00b4eb>Сайдкики</color> знают друг друга",
   "SidekickCanKillSidekick": "<color=#00b4eb>Сайдкики</color> способны убить других <color=#00b4eb>Сайдкиков</color>",
