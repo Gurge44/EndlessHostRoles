@@ -529,6 +529,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
+                    or CustomRoles.CyberStar
                     or CustomRoles.DarkHide
                     or CustomRoles.Specter
                     => GetIntroSound(RoleTypes.Noisemaker),
