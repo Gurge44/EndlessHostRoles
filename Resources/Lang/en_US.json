@@ -7,6 +7,7 @@
   "Icon": "♥",
   "NameColor": "#00ffa5",
   "Server": "<#00ffa5>Server:</color> <b>{0}</b>",
+  "SubText.GM": "Spectate the chaos!",
   "SubText.Crewmate": "Find and exile the <color=#ff1919>Impostors</color>",
   "SubText.Impostor": "Sabotage and kill everyone",
   "SubText.Neutral": "A team on their own",
