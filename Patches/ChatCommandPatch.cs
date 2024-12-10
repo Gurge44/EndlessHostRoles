@@ -364,6 +364,8 @@ internal static class ChatCommands
     
     private static void WhisperCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
+        if (!player.IsAlive()) return;
+        
         if (Options.DisableWhisperCommand.GetBool())
         {
             Utils.SendMessage("\n", player.PlayerId, GetString("WhisperDisabled"));
@@ -378,7 +380,12 @@ internal static class ChatCommands
 
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-        Utils.SendMessage(args[2..].Join(delimiter: " "), targetId, string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName(), player.PlayerId));
+        
+        string msg = args[2..].Join(delimiter: " ");
+        string title = string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName(), player.PlayerId);
+        
+        Utils.SendMessage(msg, targetId, title);
+        ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
     }
 
     private static void DeathNoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -447,6 +454,7 @@ internal static class ChatCommands
     {
         Utils.SendMessage(GetString("ReadyCheckMessage"), title: GetString("ReadyCheckTitle"));
         ReadyPlayers = [player.PlayerId];
+        ReadyPlayers.UnionWith(Spectators);
         Main.Instance.StartCoroutine(Countdown());
         return;
 
@@ -470,6 +478,8 @@ internal static class ChatCommands
                 Utils.SendMessage("\n", player.PlayerId, GetString("EveryoneReadyTitle"));
             else
                 Utils.SendMessage(string.Join(", ", notReadyPlayers.Select(x => x.ColoredPlayerName())), player.PlayerId, string.Format(GetString("PlayersNotReadyTitle"), notReadyPlayers.Length));
+            
+            if (Spectators.Count > 0) Utils.SendMessage(string.Join(", ", Spectators.Select(x => x.ColoredPlayerName())), player.PlayerId, string.Format(GetString("SpectatorsList"), Spectators.Count));
         }
     }
 
@@ -2478,7 +2488,7 @@ internal static class ChatUpdatePatch
     public static bool DoBlockChat;
     public static bool LoversMessage;
 
-    private static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
+    public static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
 
     public static void Postfix(ChatController __instance)
     {

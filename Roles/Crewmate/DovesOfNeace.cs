@@ -99,6 +99,6 @@ internal class DovesOfNeace : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId;
+        return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
 }
