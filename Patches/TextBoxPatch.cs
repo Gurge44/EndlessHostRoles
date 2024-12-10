@@ -22,6 +22,7 @@ internal static class TextBoxTMPSetTextPatch
 {
     private static TextMeshPro PlaceHolderText;
     private static TextMeshPro CommandInfoText;
+    private static TextMeshPro AdditionalInfoText;
 
     public static bool IsInvalidCommand;
 
@@ -130,9 +131,27 @@ internal static class TextBoxTMPSetTextPatch
                 CommandInfoText.transform.SetAsLastSibling();
             }
 
+            if (AdditionalInfoText == null)
+            {
+                HudManager hud = DestroyableSingleton<HudManager>.Instance;
+                AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
+                AdditionalInfoText.name = "AdditionalInfoText";
+                AdditionalInfoText.alignment = TextAlignmentOptions.Left;
+                AdditionalInfoText.verticalAlignment = VerticalAlignmentOptions.Top;
+                AdditionalInfoText.transform.localPosition = new(-5f, 0f, 0f);
+                AdditionalInfoText.overflowMode = TextOverflowModes.Overflow;
+                AdditionalInfoText.enableWordWrapping = false;
+                AdditionalInfoText.color = Color.white;
+                AdditionalInfoText.fontSize = AdditionalInfoText.fontSizeMax = AdditionalInfoText.fontSizeMin = 1.8f;
+                AdditionalInfoText.sortingOrder = 1000;
+                AdditionalInfoText.transform.SetAsLastSibling();
+            }
+
             string inputForm = input.TrimStart('/');
             string text = "/" + (exactMatch ? inputForm : command.CommandForms.Where(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
+
+            string additionalInfo = string.Empty;
 
             if (exactMatch && command.Arguments.Length > 0)
             {
@@ -151,7 +170,9 @@ internal static class TextBoxTMPSetTextPatch
                     if (command.ArgsDescriptions.Length <= i) break;
 
                     int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
-                    string arg = poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
+                    string arg = say ? args[0] : poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
+
+                    string argName = command.Arguments.Split(' ')[i];
                     bool current = spaces - 1 == i, invalid = IsInvalidArg(), valid = IsValidArg();
 
                     info += "\n" + (invalid, current, valid) switch
@@ -167,11 +188,18 @@ internal static class TextBoxTMPSetTextPatch
                     info += $"   - <b>{arg}</b>{GetExtraArgInfo()}: {command.ArgsDescriptions[i]}";
                     if (current || invalid || valid) info += "</color>";
 
+                    if (additionalInfo.Length == 0 && argName.Replace('[', '{').Replace(']', '}') is "{id}" or "{id1}" or "{id2}")
+                    {
+                        var allIds = Main.AllPlayerControls.ToDictionary(x => x.PlayerId.ColoredPlayerName(), x => x.PlayerId);
+                        additionalInfo = $"<b><u>{Translator.GetString("PlayerIdList").TrimEnd(' ')}</u></b>\n{string.Join('\n', allIds.Select(x => $"<b>{x.Key}</b> \uffeb <b>{x.Value}</b>"))}";
+                        OptionShower.CurrentPage = 0;
+                    }
+
                     continue;
 
                     bool IsInvalidArg()
                     {
-                        return arg != command.Arguments.Split(' ')[i] && command.Arguments.Split(' ')[i] switch
+                        return arg != argName && argName switch
                         {
                             "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out byte id) || Main.AllPlayerControls.All(x => x.PlayerId != id),
                             "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out int num) || num < 0,
@@ -186,7 +214,7 @@ internal static class TextBoxTMPSetTextPatch
 
                     bool IsValidArg()
                     {
-                        return command.Arguments.Split(' ')[i].Replace('[', '{').Replace(']', '}') switch
+                        return argName switch
                         {
                             "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out byte id) && Main.AllPlayerControls.Any(x => x.PlayerId == id),
                             "{team}" => arg is "crew" or "imp",
@@ -201,7 +229,7 @@ internal static class TextBoxTMPSetTextPatch
                     {
                         return !IsValidArg()
                             ? string.Empty
-                            : command.Arguments.Split(' ')[i] switch
+                            : argName switch
                             {
                                 "{id}" or "{id1}" or "{id2}" => $" ({byte.Parse(arg).ColoredPlayerName()})",
                                 "{role}" or "{addon}" when ChatCommands.GetRoleByName(arg, out CustomRoles role) => $" ({role.ToColoredString()})",
@@ -213,11 +241,17 @@ internal static class TextBoxTMPSetTextPatch
 
             PlaceHolderText.text = text;
             CommandInfoText.text = info;
+            AdditionalInfoText.text = additionalInfo;
 
             PlaceHolderText.enabled = true;
             CommandInfoText.enabled = true;
+            AdditionalInfoText.enabled = true;
         }
-        catch { Destroy(); }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+            Destroy();
+        }
 
         return;
 
@@ -225,6 +259,7 @@ internal static class TextBoxTMPSetTextPatch
         {
             if (PlaceHolderText != null) PlaceHolderText.enabled = false;
             if (CommandInfoText != null) CommandInfoText.enabled = false;
+            if (AdditionalInfoText != null) AdditionalInfoText.enabled = false;
         }
     }
 
@@ -234,6 +269,9 @@ internal static class TextBoxTMPSetTextPatch
 
         __instance.freeChatField.textArea.SetText(PlaceHolderText.text);
         __instance.freeChatField.textArea.compoText = "";
+
+        if (AdditionalInfoText != null && AdditionalInfoText.text != "")
+            OptionShower.CurrentPage = 0;
     }
 
     public static void Update()
@@ -243,6 +281,7 @@ internal static class TextBoxTMPSetTextPatch
             bool open = HudManager.Instance?.Chat?.IsOpenOrOpening ?? false;
             PlaceHolderText?.gameObject.SetActive(open);
             CommandInfoText?.gameObject.SetActive(open);
+            AdditionalInfoText?.gameObject.SetActive(open);
         }
         catch { }
     }

@@ -81,7 +81,7 @@ public class President : RoleBase
                     break;
                 case Decree.GovernmentRecruiting:
                     DecreeSettings[decree].Add(new StringOptionItem(++id, "President.GovernmentRecruiting.RecruitedRole", GovernmentRecruitRoles.Select(x => x.ToColoredString()).ToArray(), 0, tab, noTranslation: true)
-                        .SetParent(DecreeSettings[decree][0]));
+                                                   .SetParent(DecreeSettings[decree][0]));
 
                     break;
             }
@@ -233,9 +233,10 @@ public class President : RoleBase
         }
 
         CustomRoles role = GovernmentRecruitRoles[DecreeSettings[Decree.GovernmentRecruiting][1].GetValue()];
-        if (role.IsDesyncRole() && target.GetRoleTypes() != role.GetDYRole()) role = CustomRoles.NiceGuesser;
 
         target.RpcSetCustomRole(role);
+        target.RpcChangeRoleBasis(role);
+
         Utils.SendMessage("\n", target.PlayerId, Translator.GetString("President.Recruit.TargetNotifyMessage"));
         Main.DontCancelVoteList.Add(voter.PlayerId);
         return true;

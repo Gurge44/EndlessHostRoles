@@ -377,7 +377,6 @@ internal static class CustomRolesHelper
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
         if (!load && Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
-
         if (!load && Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Shapeshifter;
 
         bool UsePets = !load && Options.UsePets.GetBool();
@@ -591,7 +590,7 @@ internal static class CustomRolesHelper
 
     public static bool IsImpostor(this CustomRoles role)
     {
-        return role is
+        return (role == CustomRoles.DoubleAgent && !Main.IntroDestroyed) || role is
             CustomRoles.DoubleAgent or
             CustomRoles.Impostor or
             CustomRoles.ImpostorEHR or

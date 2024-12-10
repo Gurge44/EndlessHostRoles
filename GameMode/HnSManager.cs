@@ -124,9 +124,11 @@ internal static class HnSManager
 
         if (Main.GM.Value)
         {
-            allPlayers.RemoveAll(x => x.IsHost());
-            PlayerRoles[0] = (new Hider(), CustomRoles.GM);
-            PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
+            allPlayers.RemoveAll(x => x.IsLocalPlayer());
+            PlayerControl lp = PlayerControl.LocalPlayer;
+            result[lp] = CustomRoles.GM;
+            PlayerRoles[lp.PlayerId] = (new Hider(), CustomRoles.GM);
+            lp.RpcSetCustomRole(CustomRoles.GM);
         }
 
         allPlayers.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
@@ -173,7 +175,8 @@ internal static class HnSManager
             .GroupBy(x => x.First, x => x.Second)
             .ToDictionary(x => x.Key, x => x.ToArray());
 
-        if (memberNum[Team.Neutral] > 0 && HideAndSeekRoles.TryGetValue(Team.Neutral, out Dictionary<CustomRoles, int> neutrals)) HideAndSeekRoles[Team.Neutral] = neutrals.Shuffle().ToDictionary(x => x.Key, x => x.Value);
+        if (memberNum[Team.Neutral] > 0 && HideAndSeekRoles.TryGetValue(Team.Neutral, out Dictionary<CustomRoles, int> neutrals))
+            HideAndSeekRoles[Team.Neutral] = neutrals.Shuffle().ToDictionary(x => x.Key, x => x.Value);
 
         foreach ((Team team, Dictionary<CustomRoles, int> roleCounts) in HideAndSeekRoles)
         {
@@ -181,10 +184,7 @@ internal static class HnSManager
             {
                 if (playerTeams[team].Length == 0 || memberNum[team] <= 0) continue;
             }
-            catch (KeyNotFoundException)
-            {
-                continue;
-            }
+            catch (KeyNotFoundException) { continue; }
 
             foreach ((CustomRoles role, int count) in roleCounts)
             {
@@ -205,7 +205,6 @@ internal static class HnSManager
                     catch (Exception e)
                     {
                         if (e is IndexOutOfRangeException) break;
-
                         Utils.ThrowException(e);
                     }
                 }

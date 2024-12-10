@@ -20,7 +20,7 @@ internal class ControllerManagerUpdatePatch
 
     public static void Postfix( /*ControllerManager __instance*/)
     {
-        if (GameStates.IsLobby)
+        if (GameStates.IsLobby && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
             if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
@@ -28,10 +28,12 @@ internal class ControllerManagerUpdatePatch
                 if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
                     OptionShower.CurrentPage = i;
 
-            if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled) GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
+            if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
+                GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
         }
 
-        if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X)) ExileController.Instance?.ReEnableGameplay();
+        if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))
+            ExileController.Instance?.ReEnableGameplay();
 
         if (KeysDown(KeyCode.LeftAlt, KeyCode.Return)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
 
@@ -172,7 +174,8 @@ internal class ControllerManagerUpdatePatch
             HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
         }
 
-        if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting) MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
+        if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting)
+            MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
 
         if (KeysDown(KeyCode.Return, KeyCode.D, KeyCode.LeftShift) && GameStates.IsInGame)
         {
@@ -192,32 +195,32 @@ internal class ControllerManagerUpdatePatch
             foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)
                 PlayerControl.LocalPlayer.RpcCompleteTask(task.Id);
 
-        if (Input.GetKeyDown(KeyCode.Y) && !GameStates.IsMeeting)
+        if (Input.GetKeyDown(KeyCode.Y) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
             RPC.SyncCustomSettingsRPC();
             Logger.SendInGame(GetString("SyncCustomSettingsRPC"));
         }
 
-        if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting)
+        if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
             Main.VisibleTasksCount = !Main.VisibleTasksCount;
             DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
         }
 
-        if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting)
+        if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
             Logger.SendInGame(PlayerControl.LocalPlayer.Pos().ToString());
             Logger.SendInGame(PlayerControl.LocalPlayer.GetPlainShipRoom()?.RoomId.ToString() ?? "null");
         }
 
-        if (Input.GetKeyDown(KeyCode.C) && !GameStates.IsMeeting)
+        if (Input.GetKeyDown(KeyCode.C) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
                 if (!pc.AmOwner)
                     pc.MyPhysics.RpcEnterVent(2);
         }
 
-        if (Input.GetKeyDown(KeyCode.V) && !GameStates.IsMeeting)
+        if (Input.GetKeyDown(KeyCode.V) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
             Vector2 pos = PlayerControl.LocalPlayer.NetTransform.transform.position;
 
@@ -231,14 +234,15 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.B) && !GameStates.IsMeeting)
+        if (Input.GetKeyDown(KeyCode.B) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
                 if (!pc.AmOwner)
                     pc.MyPhysics.RpcExitVent(2);
         }
 
-        if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting) VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
+        if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+            VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
 
 #endif
     }

@@ -42,18 +42,16 @@ public static class LobbyNotifierForDiscord
 
         var serverName = Utils.GetRegionName();
         var language = Translator.GetUserTrueLang().ToString();
-        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}"));
+        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", gameId));
     }
 
-    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version)
+    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId)
     {
         var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
-
-        if (timeSinceLastRequest < BufferTime) { yield return new WaitForSeconds(BufferTime - timeSinceLastRequest); }
-
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime - timeSinceLastRequest);
         LastRequestTimeStamp = Utils.TimeStamp;
 
-        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\"}}";
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
         UnityWebRequest request = new UnityWebRequest(WebhookUrl, "POST")
@@ -112,9 +110,7 @@ public static class LobbyNotifierForDiscord
         if (string.IsNullOrEmpty(Token)) yield break;
 
         var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
-
-        if (timeSinceLastRequest < BufferTime) { yield return new WaitForSeconds(BufferTime - timeSinceLastRequest); }
-
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime - timeSinceLastRequest);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\"}}";
