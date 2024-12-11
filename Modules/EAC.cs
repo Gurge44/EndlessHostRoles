@@ -70,7 +70,7 @@ internal static class EAC
 
                     break;
                 case RpcCalls.ReportDeadBody:
-                    sr.ReadByte();
+                    var targetId = sr.ReadByte();
 
                     if (GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost())
                     {
@@ -88,6 +88,28 @@ internal static class EAC
                         HandleCheat(pc, "Try to Report body out of game B");
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] attempted to report a body that may have been illegally killed, but was rejected", "EAC");
                         return true;
+                    }
+                    
+                    if (GameManager.Instance.TryCast<HideAndSeekManager>())
+                    {
+                        WarnHost();
+                        Report(pc, "Try to Report body in Hide and Seek");
+                        HandleCheat(pc, "Try to Report body in Hide and Seek");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] attempted to report a body in Hide and Seek, rejected", "EAC");
+                        return true;
+                    }
+                    
+                    if (targetId != byte.MaxValue)
+                    {
+                        bool bodyExists = Object.FindObjectsOfType<DeadBody>().Any(deadBody => deadBody.ParentId == targetId);
+                        if (!bodyExists && targetId != pc.PlayerId && (!MeetingHud.Instance || MeetingHud.Instance.state != MeetingHud.VoteStates.Animating))
+                        {
+                            WarnHost();
+                            Report(pc, "Try to Report body that doesn't exist");
+                            HandleCheat(pc, "Try to Report body that doesn't exist");
+                            Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] attempted to report a body that does't exist", "EAC");
+                            return true;
+                        }
                     }
 
                     break;
