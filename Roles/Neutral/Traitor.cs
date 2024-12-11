@@ -14,6 +14,9 @@ public class Traitor : RoleBase
     private static OptionItem HasImpostorVision;
     public static OptionItem CanSabotage;
     public static OptionItem CanGetImpostorOnlyAddons;
+    private static OptionItem LegacyTraitor;
+    private static OptionItem TraitorShapeshiftCD;
+    private static OptionItem TraitorShapeshiftDur;
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -35,6 +38,17 @@ public class Traitor : RoleBase
             
         CanGetImpostorOnlyAddons = new BooleanOptionItem(Id + 16, "CanGetImpostorOnlyAddons", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
+
+        LegacyTraitor = new BooleanOptionItem(Id + 17, "LegacyTraitor", false, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
+
+        TraitorShapeshiftCD = new FloatOptionItem(Id + 19, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.NeutralRoles)
+                .SetParent(LegacyTraitor)
+                .SetValueFormat(OptionFormat.Seconds);
+
+        TraitorShapeshiftDur = new FloatOptionItem(Id + 21, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.NeutralRoles)
+                .SetParent(LegacyTraitor)
+                .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
@@ -60,6 +74,8 @@ public class Traitor : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetVision(HasImpostorVision.GetBool());
+        AURoleOptions.ShapeshifterCooldown = TraitorShapeshiftCD.GetFloat();
+        AURoleOptions.ShapeshifterDuration = TraitorShapeshiftDur.GetFloat();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -70,5 +86,6 @@ public class Traitor : RoleBase
     public override bool CanUseSabotage(PlayerControl pc)
     {
         return base.CanUseSabotage(pc) || (CanSabotage.GetBool() && pc.IsAlive());
+
     }
 }

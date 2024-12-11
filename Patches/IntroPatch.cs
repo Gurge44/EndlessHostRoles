@@ -443,6 +443,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Divinator or
                     CustomRoles.Mediumshiper or
                     CustomRoles.DovesOfNeace or
+                    CustomRoles.Observer or
                     CustomRoles.Spiritualist or
                     CustomRoles.Spiritcaller or
                     CustomRoles.Beacon or
@@ -524,6 +525,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Tracker
                     or CustomRoles.TrackerEHR
+                    or CustomRoles.Scout
                     or CustomRoles.EvilTracker
                     => GetIntroSound(RoleTypes.Tracker),
 

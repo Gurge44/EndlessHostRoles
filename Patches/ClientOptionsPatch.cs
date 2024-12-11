@@ -9,6 +9,7 @@ public static class OptionsMenuBehaviourStartPatch
 {
     private static ClientOptionItem GM;
     private static ClientOptionItem UnlockFPS;
+    private static ClientOptionItem ShowFPS;
     private static ClientOptionItem AutoStart;
     private static ClientOptionItem ForceOwnLanguage;
     private static ClientOptionItem ForceOwnLanguageRoleName;
@@ -57,7 +58,12 @@ public static class OptionsMenuBehaviourStartPatch
                 Logger.SendInGame(string.Format(Translator.GetString("FPSSetTo"), Application.targetFrameRate));
             }
         }
-
+    
+        if (ShowFPS == null || ShowFPS.ToggleButton == null)
+        {
+            ShowFPS = ClientOptionItem.Create("ShowFPS", Main.ShowFps, __instance);
+        }
+    
         if (AutoStart == null || AutoStart.ToggleButton == null)
         {
             AutoStart = ClientOptionItem.Create("AutoStart", Main.AutoStart, __instance, AutoStartButtonToggle);

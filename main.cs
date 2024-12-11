@@ -145,6 +145,7 @@ public class Main : BasePlugin
     public static ConfigEntry<int> MessageWait { get; private set; }
     public static ConfigEntry<bool> GM { get; private set; }
     public static ConfigEntry<bool> UnlockFps { get; private set; }
+    public static ConfigEntry<bool> ShowFps { get; private set; }
     public static ConfigEntry<bool> AutoStart { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguage { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguageRoleName { get; private set; }
@@ -240,6 +241,7 @@ public class Main : BasePlugin
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
         GM = Config.Bind("Client Options", "GM", false);
         UnlockFps = Config.Bind("Client Options", "UnlockFPS", false);
+        ShowFps = Config.Bind("Client Options", "ShowFPS", false);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
         ForceOwnLanguage = Config.Bind("Client Options", "ForceOwnLanguage", false);
         ForceOwnLanguageRoleName = Config.Bind("Client Options", "ForceOwnLanguageRoleName", false);

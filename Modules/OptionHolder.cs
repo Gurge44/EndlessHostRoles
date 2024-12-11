@@ -269,6 +269,7 @@ public static class Options
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyMafia;
+    public static OptionItem LegacyTraitor;
     public static OptionItem MarioVentNumWin;
     public static OptionItem MarioVentCD;
     public static OptionItem VeteranSkillCooldown;
