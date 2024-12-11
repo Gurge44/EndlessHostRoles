@@ -47,6 +47,17 @@ internal static class PingTrackerUpdatePatch
             _ => "#ff4500"
         };
 
+        if (Main.ShowFps.Value)
+            {
+                var FPSGame = 1.0f / Time.deltaTime;
+                Color fpscolor = Color.green;
+
+                if (FPSGame < 20f) fpscolor = Color.red;
+                else if (FPSGame < 40f) fpscolor = Color.yellow;
+
+                Sb.Append($"\r\n{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + ((int)FPSGame).ToString())}");
+            }
+
         Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
         Sb.Append($"<color={color}>{ping} {GetString("PingText")}</color>");
         Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
