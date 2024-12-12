@@ -2419,6 +2419,7 @@
   "MuteMessage": "<#ff0000>你被禁言且無法說話。禁言會在 <#ffff00>{0}</color> 秒</color>後解除",
   "WhisperTitle": "{0} <#ffffff>(ID <#00ffa5>{1}</color>) whispers to you:</color>",
   "DisableWhisperCommand": "禁用 /whisper 指令",
+  "DisableSpectateCommand": "Disable /spectate command",
   "WhisperDisabled": "<#ff0000>X</color> /whisper 指令在該大廳中被禁止使用",
   "ThankYouForUsingEHR": "感謝你使用EHR模組!",
   "GMRoles": "<color=#ff5b70>【 ★ 職業列表 ★ 】</color>",
