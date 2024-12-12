@@ -1521,6 +1521,12 @@ internal static class ExtendedPlayerControl
 
         target.SetRealKiller(killer, true);
 
+        if (target.PlayerId == Godfather.GodfatherTarget)
+        {
+            var realKiller = Main.PlayerStates.TryGetValue(target.PlayerId, out var state) ? state.RealKiller.ID.GetPlayer() ?? killer : killer;
+            realKiller.RpcSetCustomRole(CustomRoles.Refugee);
+        }
+
         if (target.Is(CustomRoles.Jackal)) Jackal.Instances.Do(x => x.PromoteSidekick());
 
         Main.DiedThisRound.Add(target.PlayerId);

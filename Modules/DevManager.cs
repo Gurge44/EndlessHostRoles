@@ -137,6 +137,8 @@ public static class DevManager
             new("seriouslug#1532", "#FF2400", "ZEN", true), // Zypherus
             new("potatotall#5573", isUp: true), // V.K
             new("kamedexter#7241", "#ff0000", "YouTuber", true), // Lean
+            new("faintforge#1505", isUp: true), // hira._.gana
+            new("rarespite#3723", isUp: true), // Buddah2400
 
             // Sponsor
             new("recentduct#6068", "#FF00FF", "高冷男模法师", false, true),

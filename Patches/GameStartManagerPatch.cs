@@ -333,7 +333,7 @@ public static class GameStartManagerPatch
                 if (Timer <= 60) suffix = Utils.ColorString((int)Timer % 2 == 0 ? Color.yellow : Color.red, suffix);
 
                 if (Options.NoGameEnd.GetBool())
-                    suffix += Utils.ColorString(Color.yellow, $"\u26a0 <b>{GetString("NoGameEnd").ToUpper()}</b> \u26a0");
+                    suffix = suffix.Insert(0, Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}") + Utils.ColorString(Color.gray, " | "));
 
                 TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 
