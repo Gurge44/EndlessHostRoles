@@ -102,7 +102,7 @@ public static class CTFManager
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color);
 
-        TagCooldown = new FloatOptionItem(id + 7, "CTF_TagCooldown", new(0f, 10f, 0.5f), 2f, TabGroup.GameSettings)
+        TagCooldown = new FloatOptionItem(id + 7, "CTF_TagCooldown", new(0f, 30f, 0.5f), 6.5f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color);
@@ -482,10 +482,11 @@ public static class CTFManager
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255) return;
 
             if (__instance.IsHost()) TeamData.Values.Do(x => x.Update());
-            
+
             if (!PlayerTeams.TryGetValue(__instance.PlayerId, out var team)) return;
             bool blue = team == CTFTeam.Blue;
             int colorId = blue ? 1 : 5;
+
             if (__instance.Data.DefaultOutfit.ColorId != colorId)
                 Utils.RpcChangeSkin(__instance, blue ? BlueOutfit : YellowOutfit);
         }

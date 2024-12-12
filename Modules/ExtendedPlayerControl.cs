@@ -322,6 +322,9 @@ internal static class ExtendedPlayerControl
             return;
         }
 
+        if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out var name))
+            player.RpcSetNameEx(name);
+
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
@@ -1288,14 +1291,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseSabotage(this PlayerControl pc)
     {
-        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
-
-        if (pc.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
-        {
-            pc.Notify(GetString("TraineeNotify"));
-            return false;
-        }
-
+        if (!pc.IsAlive() || pc.inVent || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
         return Main.PlayerStates.TryGetValue(pc.PlayerId, out PlayerState state) && state.Role.CanUseSabotage(pc);
     }
 

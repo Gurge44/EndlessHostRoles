@@ -84,7 +84,7 @@ public class PlayerState(byte playerId)
     public (DateTime TimeStamp, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
     public RoleBase Role = new VanillaRole();
 
-    public int RoleChangeTimes;
+    private int RoleChangeTimes = -1;
     public bool IsDead { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     // ReSharper disable once InconsistentNaming
@@ -97,14 +97,8 @@ public class PlayerState(byte playerId)
 
     public void SetMainRole(CustomRoles role)
     {
-        try
-        {
-            Utils.RemovePlayerFromPreviousRoleData(Player);
-        }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        try { Utils.RemovePlayerFromPreviousRoleData(Player); }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         countTypes = role.GetCountTypes();
 
@@ -437,14 +431,8 @@ public class TaskState
                 if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
             }
 
-            try
-            {
-                Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount);
-            }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
+            try { Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount); }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             List<CustomRoles> addons = Main.PlayerStates[player.PlayerId].SubRoles;
 

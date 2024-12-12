@@ -923,13 +923,13 @@ internal static class IntroCutsceneDestroyPatch
             foreach (byte spectator in ChatCommands.Spectators)
             {
                 LateTask.New(() =>
-                {
-                    spectator.GetPlayer().RpcExileV2();
-                    Main.PlayerStates[spectator].SetDead();
-                }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
+                             {
+                                 spectator.GetPlayer().RpcExileV2();
+                                 Main.PlayerStates[spectator].SetDead();
+                             }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
             }
 
-            if (Options.RandomSpawn.GetBool())
+            if (Options.RandomSpawn.GetBool() && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
             {
                 RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
                 {

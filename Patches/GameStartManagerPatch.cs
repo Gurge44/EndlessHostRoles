@@ -20,14 +20,8 @@ public static class GameStartManagerUpdatePatch
 {
     public static void Prefix(GameStartManager __instance)
     {
-        try
-        {
-            __instance.MinPlayers = 1;
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "Surely this can't be causing an issue, right?");
-        }
+        try { __instance.MinPlayers = 1; }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "Surely this can't be causing an issue, right?"); }
     }
 }
 
@@ -97,10 +91,7 @@ public static class GameStartManagerPatch
                 AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
                 AURoleOptions.ProtectionDurationSeconds = 0f;
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString(), "GameStartManagerStartPatch.Postfix (1)");
-            }
+            catch (Exception ex) { Logger.Error(ex.ToString(), "GameStartManagerStartPatch.Postfix (1)"); }
         }
     }
 
@@ -202,10 +193,7 @@ public static class GameStartManagerPatch
                 }
             }
             catch (NullReferenceException) { }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (2)");
-            }
+            catch (Exception ex) { Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (2)"); }
 
             return false;
         }
@@ -214,10 +202,7 @@ public static class GameStartManagerPatch
         {
             if (!GameData.Instance || !GameManager.Instance || !AmongUsClient.Instance.AmHost) return;
 
-            try
-            {
-                instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId);
-            }
+            try { instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId); }
             catch (Exception e)
             {
                 ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
@@ -347,6 +332,9 @@ public static class GameStartManagerPatch
                 var suffix = $"{minutes:00}:{seconds:00}";
                 if (Timer <= 60) suffix = Utils.ColorString((int)Timer % 2 == 0 ? Color.yellow : Color.red, suffix);
 
+                if (Options.NoGameEnd.GetBool())
+                    suffix += Utils.ColorString(Color.yellow, $"\u26a0 <b>{GetString("NoGameEnd").ToUpper()}</b> \u26a0");
+
                 TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 
                 if (tmp.text == string.Empty)
@@ -365,10 +353,7 @@ public static class GameStartManagerPatch
                 tmp.text = suffix;
             }
             catch (NullReferenceException) { }
-            catch (Exception e)
-            {
-                Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)");
-            }
+            catch (Exception e) { Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)"); }
         }
 
         private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
