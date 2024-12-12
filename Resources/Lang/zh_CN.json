@@ -2419,6 +2419,7 @@
   "MuteMessage": "<#ff0000>你被禁言了，不能发消息，这将会持续<#ffff00>{0}</color>秒</color>",
   "WhisperTitle": "{0} 悄悄地对你说:",
   "DisableWhisperCommand": "禁用 /whisper 指令",
+  "DisableSpectateCommand": "Disable /spectate command",
   "WhisperDisabled": "<#ff0000>X</color> 此大厅内禁用/whisper 指令。",
   "ThankYouForUsingEHR": "感谢您游玩EHR模组!",
   "GMRoles": "<color=#ff5b70>【 ★ 职业列表★ 】</color>",
