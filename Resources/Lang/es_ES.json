@@ -2419,6 +2419,7 @@
   "MuteMessage": "<#ff0000>Fuiste silenciado y no puedes enviar mensajes. El silenciamiento expirará en <#ffff00>{0}</color> segundos.</color>",
   "WhisperTitle": "{0} <#ffffff>(ID <#00ffa5>{1}</color>) whispers to you:</color>",
   "DisableWhisperCommand": "Disable /whisper command",
+  "DisableSpectateCommand": "Disable /spectate command",
   "WhisperDisabled": "<#ff0000>X</color> The /whisper command is disabled in this lobby.",
   "ThankYouForUsingEHR": "¡Gracias por usar EHR!",
   "GMRoles": "<color=#ff5b70>【 ★ Roles ★ 】</color>",
