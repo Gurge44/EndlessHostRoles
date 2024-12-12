@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using HarmonyLib;
 using InnerNet;
 using TMPro;
@@ -57,5 +58,27 @@ public static class LobbyPatch
         string roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId).ToUpper();
         string[] badEndings = ["IJPG", "SZAF", "LDQG", "ALGG", "UMPG", "GFXG", "JTFG", "PATG", "WMPG", "FUGG", "YTHG", "UFLG", "FBGG", "ZCQG", "RGGG", "ZHLG", "PJDG", "KJQG", "VDXG", "LCAF"];
         return badEndings.Any(roomCode.EndsWith);
+    }
+}
+
+// https://github.com/SuperNewRoles/SuperNewRoles/blob/master/SuperNewRoles/Patches/LobbyBehaviourPatch.cs
+[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
+static class LobbyBehaviourUpdatePatch
+{
+    public static void Postfix(LobbyBehaviour __instance)
+    {
+        // ReSharper disable once ConvertToLocalFunction
+        Func<ISoundPlayer, bool> lobbybgm = x => x.Name.Equals("MapTheme");
+        ISoundPlayer MapThemeSound = SoundManager.Instance.soundPlayers.Find(lobbybgm);
+        if (!Main.LobbyMusic.Value)
+        {
+            if (MapThemeSound == null) return;
+            SoundManager.Instance.StopNamedSound("MapTheme");
+        }
+        else
+        {
+            if (MapThemeSound != null) return;
+            SoundManager.Instance.CrossFadeSound("MapTheme", __instance.MapTheme, 0.5f);
+        }
     }
 }

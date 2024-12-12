@@ -86,7 +86,7 @@ internal class Speedrunner : RoleBase
         if (ts.CompletedTasksCount < SpeedrunnerNotifyAtXTasksLeft.GetInt() || !SpeedrunnerNotifyKillers.GetBool()) return string.Empty;
 
         string speedrunnerName = SpeedrunnerPC.PlayerId.ColoredPlayerName();
-        string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");
+        string notifyString = "\n" + Translator.GetString("SpeedrunnerHasXTasksLeft");
         return string.Format(notifyString, speedrunnerName, ts.RemainingTasksCount);
     }
 }

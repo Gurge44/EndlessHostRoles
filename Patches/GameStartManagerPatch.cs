@@ -347,7 +347,7 @@ public static class GameStartManagerPatch
                     tmp.outlineColor = Color.black;
                     tmp.outlineWidth = 0.4f;
                     tmp.transform.localPosition += new Vector3(-0.8f, -0.42f, 0f);
-                    tmp.transform.localScale = new(0.5f, 0.5f, 1f);
+                    tmp.transform.localScale = new(0.6f, 0.6f, 1f);
                 }
 
                 tmp.text = suffix;

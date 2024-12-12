@@ -9,6 +9,7 @@ public static class OptionsMenuBehaviourStartPatch
 {
     private static ClientOptionItem GM;
     private static ClientOptionItem UnlockFPS;
+    private static ClientOptionItem ShowFPS;
     private static ClientOptionItem AutoStart;
     private static ClientOptionItem ForceOwnLanguage;
     private static ClientOptionItem ForceOwnLanguageRoleName;
@@ -57,7 +58,12 @@ public static class OptionsMenuBehaviourStartPatch
                 Logger.SendInGame(string.Format(Translator.GetString("FPSSetTo"), Application.targetFrameRate));
             }
         }
-
+    
+        if (ShowFPS == null || ShowFPS.ToggleButton == null)
+        {
+            ShowFPS = ClientOptionItem.Create("ShowFPS", Main.ShowFps, __instance);
+        }
+    
         if (AutoStart == null || AutoStart.ToggleButton == null)
         {
             AutoStart = ClientOptionItem.Create("AutoStart", Main.AutoStart, __instance, AutoStartButtonToggle);
@@ -72,13 +78,17 @@ public static class OptionsMenuBehaviourStartPatch
             }
         }
 
-        if (ForceOwnLanguage == null || ForceOwnLanguage.ToggleButton == null) ForceOwnLanguage = ClientOptionItem.Create("ForceOwnLanguage", Main.ForceOwnLanguage, __instance);
+        if (ForceOwnLanguage == null || ForceOwnLanguage.ToggleButton == null)
+            ForceOwnLanguage = ClientOptionItem.Create("ForceOwnLanguage", Main.ForceOwnLanguage, __instance);
 
-        if (ForceOwnLanguageRoleName == null || ForceOwnLanguageRoleName.ToggleButton == null) ForceOwnLanguageRoleName = ClientOptionItem.Create("ForceOwnLanguageRoleName", Main.ForceOwnLanguageRoleName, __instance);
+        if (ForceOwnLanguageRoleName == null || ForceOwnLanguageRoleName.ToggleButton == null)
+            ForceOwnLanguageRoleName = ClientOptionItem.Create("ForceOwnLanguageRoleName", Main.ForceOwnLanguageRoleName, __instance);
 
-        if (EnableCustomButton == null || EnableCustomButton.ToggleButton == null) EnableCustomButton = ClientOptionItem.Create("EnableCustomButton", Main.EnableCustomButton, __instance);
+        if (EnableCustomButton == null || EnableCustomButton.ToggleButton == null)
+            EnableCustomButton = ClientOptionItem.Create("EnableCustomButton", Main.EnableCustomButton, __instance);
 
-        if (EnableCustomSoundEffect == null || EnableCustomSoundEffect.ToggleButton == null) EnableCustomSoundEffect = ClientOptionItem.Create("EnableCustomSoundEffect", Main.EnableCustomSoundEffect, __instance);
+        if (EnableCustomSoundEffect == null || EnableCustomSoundEffect.ToggleButton == null)
+            EnableCustomSoundEffect = ClientOptionItem.Create("EnableCustomSoundEffect", Main.EnableCustomSoundEffect, __instance);
 
         if (SwitchVanilla == null || SwitchVanilla.ToggleButton == null)
         {
@@ -109,7 +119,8 @@ public static class OptionsMenuBehaviourStartPatch
             }
         }
 
-        if (DarkTheme == null || DarkTheme.ToggleButton == null) DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
+        if (DarkTheme == null || DarkTheme.ToggleButton == null)
+            DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
 
         if (HorseMode == null || HorseMode.ToggleButton == null)
         {
@@ -147,25 +158,12 @@ public static class OptionsMenuBehaviourStartPatch
             }
         }
 
-        if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null) ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
+        if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null)
+            ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
 
         if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
         {
-            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance, LobbyMusicButtonToggle);
-
-            void LobbyMusicButtonToggle()
-            {
-                if (!Main.LobbyMusic.Value && GameStates.IsLobby)
-                {
-                    SoundManager.Instance.StopAllSound();
-
-                    LateTask.New(() =>
-                    {
-                        Main.LobbyMusic.Value = true;
-                        LobbyMusic.UpdateToggle();
-                    }, 5f, log: false);
-                }
-            }
+            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance);
         }
 
         if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null) EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
