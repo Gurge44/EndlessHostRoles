@@ -2419,6 +2419,7 @@
   "MuteMessage": "<#ff0000>Você está mutado e não pode enviar mensagens. O silenciamento irá expirar em <#ffff00>{0}</color> segundos.</color>",
   "WhisperTitle": "{0} <#ffffff>(ID <#00ffa5>{1}</color>) sussurra para você:</color>",
   "DisableWhisperCommand": "Desativar o comando /whisper",
+  "DisableSpectateCommand": "Disable /spectate command",
   "WhisperDisabled": "<#ff0000>X</color> O comando /whisper está desativado neste lobby.",
   "ThankYouForUsingEHR": "Obrigado por usar o EHR!",
   "GMRoles": "<color=#ff5b70>【 ★ Funções ★ 】</color>",
