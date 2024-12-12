@@ -2419,6 +2419,7 @@
   "MuteMessage": "<#ff0000>Вас замутили. Вы не можете отправлять сообщения. Мут закончится через <#ffff00>{0}</color> секунд(-ы).</color>",
   "WhisperTitle": "{0} <#ffffff>(ID <#00ffa5>{1}</color>) шепчет тебе:</color>",
   "DisableWhisperCommand": "Выключить команду /whisper",
+  "DisableSpectateCommand": "Disable /spectate command",
   "WhisperDisabled": "Отказано в доступе\\nКоманда <b>/whisper</b> отключена в настройках игры.",
   "ThankYouForUsingEHR": "Спасибо за использование EHR!",
   "GMRoles": "<color=#ff5b70>【 ★ Роли ★ 】</color>",
