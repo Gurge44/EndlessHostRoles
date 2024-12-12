@@ -50,18 +50,16 @@ internal static class PingTrackerUpdatePatch
         var FPSGame = 1.0f / Time.deltaTime;
         Color fpscolor = Color.green;
 
-        if (FPSGame < 20f) fpscolor = Color.red;
-        else if (FPSGame < 40f) fpscolor = Color.yellow;
+       if (Main.ShowFps.Value)
+        {
+            var FPSGame = 1.0f / Time.deltaTime;
+            Color fpscolor = Color.green;
 
-        Sb.Append($"\r\n{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + ((int)FPSGame).ToString())}");
+            if (FPSGame < 20f) fpscolor = Color.red;
+            else if (FPSGame < 40f) fpscolor = Color.yellow;
 
-        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
-        Sb.Append($"<color={color}>{ping} {GetString("PingText")}</color>");
-        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
-        Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
-        if (GameStates.InGame) Sb.Append("\r\n.");
-    }
-}
+            Sb.Append($"\r\n{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + ((int)FPSGame).ToString())}");
+        }
 
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
 internal static class VersionShowerStartPatch
