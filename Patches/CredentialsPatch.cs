@@ -47,19 +47,32 @@ internal static class PingTrackerUpdatePatch
             _ => "#ff4500"
         };
 
-        var FPSGame = 1.0f / Time.deltaTime;
-        Color fpscolor = Color.green;
+        AppendSeparator();
+        Sb.Append($"<color={color}>{ping} {GetString("PingText")}</color>");
+        AppendSeparator();
+        Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
 
-       if (Main.ShowFps.Value)
+        if (Main.ShowFps.Value)
         {
-            var FPSGame = 1.0f / Time.deltaTime;
-            Color fpscolor = Color.green;
+            var fps = 1.0f / Time.deltaTime;
 
-            if (FPSGame < 20f) fpscolor = Color.red;
-            else if (FPSGame < 40f) fpscolor = Color.yellow;
+            Color fpscolor = fps switch
+            {
+                < 10f => Color.red,
+                < 30f => Color.yellow,
+                _ => Color.green
+            };
 
-            Sb.Append($"\r\n{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + ((int)FPSGame).ToString())}");
+            AppendSeparator();
+            Sb.Append($"{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + ((int)fps))}");
         }
+
+        if (GameStates.InGame) Sb.Append("\r\n.");
+        return;
+
+        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+    }
+}
 
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
 internal static class VersionShowerStartPatch
@@ -135,10 +148,7 @@ static class FriendsListUIOpenPatch
     {
         try
         {
-            if (__instance.gameObject.activeSelf || __instance.currentSceneName == "")
-            {
-                __instance.Close();
-            }
+            if (__instance.gameObject.activeSelf || __instance.currentSceneName == "") { __instance.Close(); }
             else
             {
                 FriendsListBar[] componentsInChildren = __instance.GetComponentsInChildren<FriendsListBar>(true);
@@ -230,10 +240,7 @@ static class FriendsListUIOpenPatch
                 ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         return false;
     }
@@ -268,14 +275,8 @@ internal static class TitleLogoPatch
 
         if (Ambience != null)
         {
-            try
-            {
-                __instance.playButton.transform.gameObject.SetActive(true);
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn(ex.ToString(), "MainMenuLoader");
-            }
+            try { __instance.playButton.transform.gameObject.SetActive(true); }
+            catch (Exception ex) { Logger.Warn(ex.ToString(), "MainMenuLoader"); }
         }
 
         if (!(LeftPanel = GameObject.Find("LeftPanel"))) return;
@@ -298,10 +299,7 @@ internal static class TitleLogoPatch
         foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons)
             kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
 
-        try
-        {
-            mainButtons.Keys.Flatten().DoIf(x => x != null, x => x.buttonText.color = Color.white);
-        }
+        try { mainButtons.Keys.Flatten().DoIf(x => x != null, x => x.buttonText.color = Color.white); }
         catch { }
 
         GameObject.Find("Divider")?.SetActive(false);
