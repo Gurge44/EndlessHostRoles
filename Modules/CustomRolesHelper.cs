@@ -33,6 +33,7 @@ internal static class CustomRolesHelper
         CustomRoles.Wizard,
         CustomRoles.NoteKiller,
         CustomRoles.Weatherman,
+        CustomRoles.Amogus,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -437,6 +438,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Amogus => RoleTypes.Impostor,
             CustomRoles.Weatherman => RoleTypes.Impostor,
             CustomRoles.Vortex => RoleTypes.Impostor,
             CustomRoles.Beehive => RoleTypes.Impostor,
@@ -539,6 +541,7 @@ internal static class CustomRolesHelper
             CustomRoles.Rogue or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Amogus or
             CustomRoles.Weatherman or
             CustomRoles.NoteKiller or
             CustomRoles.Vortex or
@@ -948,7 +951,8 @@ internal static class CustomRolesHelper
             CustomRoles.Simon or
             CustomRoles.Patroller or
             CustomRoles.Weatherman or
-            CustomRoles.NoteKiller;
+            CustomRoles.NoteKiller or
+            CustomRoles.Amogus;
     }
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
@@ -1692,6 +1696,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Amogus,
     Weatherman,
     NoteKiller,
     Vortex,

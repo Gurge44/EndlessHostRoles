@@ -19,9 +19,6 @@ public static class AllInOneGameMode
     public static OptionItem NaturalDisastersDisasterSpawnCooldownMultiplier;
     public static OptionItem NaturalDisastersWarningDurationMultiplier;
     public static OptionItem RoomRushTimeLimitMultiplier;
-    public static OptionItem RoomRushDontKillLastPlayer;
-    public static OptionItem RoomRushDontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom;
-    public static OptionItem RoomRushDontKillPlayersOutsideRoomWhenTimeRunsOut;
     public static OptionItem SpeedrunTimeLimitMultiplier;
 
     public static void SetupCustomOption()
@@ -70,18 +67,6 @@ public static class AllInOneGameMode
 
         RoomRushTimeLimitMultiplier = new IntegerOptionItem(id++, "AllInOne.RoomRush.TimeLimitMultiplier", new(1, 10, 1), 3, TabGroup.GameSettings)
             .SetValueFormat(OptionFormat.Multiplier)
-            .SetGameMode(gameMode)
-            .SetColor(color);
-
-        RoomRushDontKillLastPlayer = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontKillLastPlayer", true, TabGroup.GameSettings)
-            .SetGameMode(gameMode)
-            .SetColor(color);
-
-        RoomRushDontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom", true, TabGroup.GameSettings)
-            .SetGameMode(gameMode)
-            .SetColor(color);
-
-        RoomRushDontKillPlayersOutsideRoomWhenTimeRunsOut = new BooleanOptionItem(id++, "AllInOne.RoomRush.DontKillPlayersOutsideRoomWhenTimeRunsOut", true, TabGroup.GameSettings)
             .SetGameMode(gameMode)
             .SetColor(color);
 

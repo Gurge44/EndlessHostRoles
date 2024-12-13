@@ -122,15 +122,7 @@ internal static class HnSManager
         Dictionary<PlayerControl, CustomRoles> result = [];
         List<PlayerControl> allPlayers = [.. Main.AllPlayerControls];
 
-        if (Main.GM.Value)
-        {
-            allPlayers.RemoveAll(x => x.IsLocalPlayer());
-            PlayerControl lp = PlayerControl.LocalPlayer;
-            result[lp] = CustomRoles.GM;
-            PlayerRoles[lp.PlayerId] = (new Hider(), CustomRoles.GM);
-            lp.RpcSetCustomRole(CustomRoles.GM);
-        }
-
+        if (Main.GM.Value) allPlayers.RemoveAll(x => x.IsLocalPlayer());
         allPlayers.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
         allPlayers.Shuffle();
@@ -153,7 +145,7 @@ internal static class HnSManager
                 if (pc == null) continue;
 
                 result[pc] = item.Value;
-                allPlayers.Remove(pc);
+                allPlayers.RemoveAll(x => x.PlayerId == item.Key);
 
                 KeyValuePair<Team, Dictionary<CustomRoles, int>> role = HideAndSeekRoles.FirstOrDefault(x => x.Value.ContainsKey(item.Value));
                 role.Value[item.Value]--;
@@ -232,6 +224,13 @@ internal static class HnSManager
             .ToDictionary(x => x.GetType().Name, x => x);
 
         PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
+
+        if (Main.GM.Value)
+        {
+            PlayerControl lp = PlayerControl.LocalPlayer;
+            result[lp] = CustomRoles.GM;
+            PlayerRoles[lp.PlayerId] = (new Hider(), CustomRoles.GM);
+        }
 
         LateTask.New(() => result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
 

@@ -11,7 +11,7 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(ControllerManager), nameof(ControllerManager.Update))]
-internal class ControllerManagerUpdatePatch
+internal static class ControllerManagerUpdatePatch
 {
     private static readonly (int, int)[] Resolutions = [(480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080)];
     private static int ResolutionIndex;
@@ -20,143 +20,147 @@ internal class ControllerManagerUpdatePatch
 
     public static void Postfix( /*ControllerManager __instance*/)
     {
-        if (GameStates.IsLobby && !HudManager.Instance.Chat.IsOpenOrOpening)
+        try
         {
-            if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
-
-            for (var i = 0; i < 9; i++)
-                if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
-                    OptionShower.CurrentPage = i;
-
-            if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
-                GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
-        }
-
-        if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))
-            ExileController.Instance?.ReEnableGameplay();
-
-        if (KeysDown(KeyCode.LeftAlt, KeyCode.Return)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
-
-        if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting) && CustomGameMode.Standard.IsActiveOrIntegrated())
-        {
-            if (Input.GetKey(KeyCode.F1))
+            if (GameStates.IsLobby && (HudManager.Instance.Chat == null || !HudManager.Instance.Chat.IsOpenOrOpening))
             {
-                if (!InGameRoleInfoMenu.Showing) InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
+                if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
-                InGameRoleInfoMenu.Show();
+                for (var i = 0; i < 9; i++)
+                    if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
+                        OptionShower.CurrentPage = i;
+
+                if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
+                    GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
+            }
+
+            if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))
+                ExileController.Instance?.ReEnableGameplay();
+
+            if (KeysDown(KeyCode.LeftAlt, KeyCode.Return)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
+
+            if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting) && CustomGameMode.Standard.IsActiveOrIntegrated())
+            {
+                if (Input.GetKey(KeyCode.F1))
+                {
+                    if (!InGameRoleInfoMenu.Showing) InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
+
+                    InGameRoleInfoMenu.Show();
+                }
+                else
+                    InGameRoleInfoMenu.Hide();
             }
             else
                 InGameRoleInfoMenu.Hide();
-        }
-        else
-            InGameRoleInfoMenu.Hide();
 
-        if (Input.GetKeyDown(KeyCode.F11))
-        {
-            ResolutionIndex++;
-            if (ResolutionIndex >= Resolutions.Length) ResolutionIndex = 0;
-
-            ResolutionManager.SetResolution(Resolutions[ResolutionIndex].Item1, Resolutions[ResolutionIndex].Item2, false);
-            SetResolutionManager.Postfix();
-        }
-
-        if (KeysDown(KeyCode.F5, KeyCode.T))
-        {
-            Logger.Info("Reloading Custom Translation File", "KeyCommand");
-            LoadLangs();
-            Logger.SendInGame("Reloaded Custom Translation File");
-        }
-
-        if (KeysDown(KeyCode.F5, KeyCode.X))
-        {
-            Logger.Info("Exported Custom Translation File", "KeyCommand");
-            ExportCustomTranslation();
-            Logger.SendInGame("Exported Custom Translation File");
-        }
-
-        if (KeysDown(KeyCode.F1, KeyCode.LeftControl))
-        {
-            Logger.Info("Log dumped", "KeyCommand");
-            Utils.DumpLog();
-        }
-
-        if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined) Utils.CopyCurrentSettings();
-
-        if (!AmongUsClient.Instance.AmHost) return;
-
-        if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift)) HudManager.Instance.Chat.SetVisible(true);
-
-        if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
-        {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-            GameManager.Instance.LogicFlow.CheckEndCriteria();
-        }
-
-        if (KeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsInGame)
-        {
-            if (GameStates.IsMeeting)
-                MeetingHud.Instance.RpcClose();
-            else
-                PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown && !HudManager.Instance.Chat.IsOpenOrOpening)
-        {
-            Logger.Info("Countdown timer set to 0", "KeyCommand");
-            GameStartManager.Instance.countDownTimer = 0;
-        }
-
-        if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown && GameStates.IsLobby)
-        {
-            GameStartManager.Instance.ResetStartState();
-            Logger.SendInGame(GetString("CancelStartCountDown"));
-        }
-
-        if (KeysDown(KeyCode.N, KeyCode.LeftShift, KeyCode.LeftControl))
-        {
-            Main.IsChatCommand = true;
-            Utils.ShowActiveSettingsHelp();
-        }
-
-        if (KeysDown(KeyCode.N, KeyCode.LeftControl) && !Input.GetKey(KeyCode.LeftShift))
-        {
-            Main.IsChatCommand = true;
-            Utils.ShowActiveSettings();
-        }
-
-        if (KeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift) && !IsResetting)
-        {
-            IsResetting = true;
-            Main.Instance.StartCoroutine(Reset());
-
-            IEnumerator Reset()
+            if (Input.GetKeyDown(KeyCode.F11))
             {
-                for (var index = 0; index < OptionItem.AllOptions.Count; index++)
+                ResolutionIndex++;
+                if (ResolutionIndex >= Resolutions.Length) ResolutionIndex = 0;
+
+                ResolutionManager.SetResolution(Resolutions[ResolutionIndex].Item1, Resolutions[ResolutionIndex].Item2, false);
+                SetResolutionManager.Postfix();
+            }
+
+            if (KeysDown(KeyCode.F5, KeyCode.T))
+            {
+                Logger.Info("Reloading Custom Translation File", "KeyCommand");
+                LoadLangs();
+                Logger.SendInGame("Reloaded Custom Translation File");
+            }
+
+            if (KeysDown(KeyCode.F5, KeyCode.X))
+            {
+                Logger.Info("Exported Custom Translation File", "KeyCommand");
+                ExportCustomTranslation();
+                Logger.SendInGame("Exported Custom Translation File");
+            }
+
+            if (KeysDown(KeyCode.F1, KeyCode.LeftControl))
+            {
+                Logger.Info("Log dumped", "KeyCommand");
+                Utils.DumpLog();
+            }
+
+            if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined) Utils.CopyCurrentSettings();
+
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift)) HudManager.Instance.Chat.SetVisible(true);
+
+            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
+            {
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                GameManager.Instance.LogicFlow.CheckEndCriteria();
+            }
+
+            if (KeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsInGame)
+            {
+                if (GameStates.IsMeeting)
+                    MeetingHud.Instance.RpcClose();
+                else
+                    PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
+            }
+
+            if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown && !HudManager.Instance.Chat.IsOpenOrOpening)
+            {
+                Logger.Info("Countdown timer set to 0", "KeyCommand");
+                GameStartManager.Instance.countDownTimer = 0;
+            }
+
+            if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown && GameStates.IsLobby)
+            {
+                GameStartManager.Instance.ResetStartState();
+                Logger.SendInGame(GetString("CancelStartCountDown"));
+            }
+
+            if (KeysDown(KeyCode.N, KeyCode.LeftShift, KeyCode.LeftControl))
+            {
+                Main.IsChatCommand = true;
+                Utils.ShowActiveSettingsHelp();
+            }
+
+            if (KeysDown(KeyCode.N, KeyCode.LeftControl) && !Input.GetKey(KeyCode.LeftShift))
+            {
+                Main.IsChatCommand = true;
+                Utils.ShowActiveSettings();
+            }
+
+            if (KeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift) && !IsResetting)
+            {
+                IsResetting = true;
+                Main.Instance.StartCoroutine(Reset());
+
+                IEnumerator Reset()
                 {
-                    OptionItem option = OptionItem.AllOptions[index];
-                    if (option.Id > 0) option.SetValue(option.DefaultValue);
+                    for (var index = 0; index < OptionItem.AllOptions.Count; index++)
+                    {
+                        OptionItem option = OptionItem.AllOptions[index];
+                        if (option.Id > 0) option.SetValue(option.DefaultValue);
 
-                    if (index % 100 == 0) yield return null;
+                        if (index % 100 == 0) yield return null;
+                    }
+
+                    IsResetting = false;
                 }
+            }
 
-                IsResetting = false;
+            if (KeysDown(KeyCode.Return, KeyCode.E, KeyCode.LeftShift) && GameStates.IsInGame)
+            {
+                PlayerControl.LocalPlayer.Data.IsDead = true;
+                Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
+                PlayerControl.LocalPlayer.RpcExileV2();
+                Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
+                Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
+            }
+
+            if (KeysDown(KeyCode.F2, KeyCode.LeftControl))
+            {
+                Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
+                Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
             }
         }
-
-        if (KeysDown(KeyCode.Return, KeyCode.E, KeyCode.LeftShift) && GameStates.IsInGame)
-        {
-            PlayerControl.LocalPlayer.Data.IsDead = true;
-            Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
-            PlayerControl.LocalPlayer.RpcExileV2();
-            Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
-            Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
-        }
-
-        if (KeysDown(KeyCode.F2, KeyCode.LeftControl))
-        {
-            Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
-            Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
-        }
+        catch { }
 
         if (!Options.NoGameEnd.GetBool()) return;
 

@@ -212,18 +212,26 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Crewmate].Select(x => x.Role.ToString())), "PreSelectedCrewRoles");
         Logger.Msg("======================================================", "PreSelectedRoles");
 
-        int attempts = 0;
-
-        while (Roles[RoleAssignType.NeutralKilling].Count + Roles[RoleAssignType.NonKillingNeutral].Count > numNeutrals)
+        try
         {
-            if (attempts++ > 100) break;
+            int attempts = 0;
+            List<RoleAssignType> types = [RoleAssignType.NeutralKilling, RoleAssignType.NonKillingNeutral];
 
-            RoleAssignType type = rd.Next(2) == 0 ? RoleAssignType.NeutralKilling : RoleAssignType.NonKillingNeutral;
-            var toRemove = Roles[type].RandomElement();
-            Roles[type].Remove(toRemove);
+            while (Roles[RoleAssignType.NeutralKilling].Count + Roles[RoleAssignType.NonKillingNeutral].Count > numNeutrals)
+            {
+                if (attempts++ > 100) break;
 
-            Logger.Info($"Removed {toRemove.Role} from {type}", "CustomRoleSelector");
+                if (types.FindFirst(x => Roles[x].Count == 0, out var nullType)) types.Remove(nullType);
+                if (types.Count == 0) break;
+                RoleAssignType type = types.RandomElement();
+            
+                var toRemove = Roles[type].RandomElement();
+                Roles[type].Remove(toRemove);
+
+                Logger.Info($"Removed {toRemove.Role} from {type}", "CustomRoleSelector");
+            }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         int nnkNum = Roles[RoleAssignType.NonKillingNeutral].Count;
         int nkNum = Roles[RoleAssignType.NeutralKilling].Count;

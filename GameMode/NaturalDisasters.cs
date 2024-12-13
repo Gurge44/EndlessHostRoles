@@ -664,8 +664,9 @@ public static class NaturalDisasters
 
         public override bool RemoveIfExpired()
         {
-            if (base.RemoveIfExpired())
+            if (Duration == 0 || Utils.TimeStamp - StartTimeStamp >= Duration)
             {
+                ActiveDisasters.Remove(this);
                 Utils.NotifyRoles();
                 return true;
             }
@@ -884,6 +885,7 @@ public static class NaturalDisasters
 
         public static void RemoveRandomSinkhole()
         {
+            if (Sinkholes.Count == 0) return;
             (Vector2 Position, NaturalDisaster NetObject) remove = Sinkholes.RandomElement();
             remove.NetObject.Despawn();
             Sinkholes.Remove(remove);
