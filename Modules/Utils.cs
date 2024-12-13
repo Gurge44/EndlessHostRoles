@@ -779,6 +779,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Amogus:
             case CustomRoles.NoteKiller:
             case CustomRoles.Vortex:
             case CustomRoles.Beehive:
@@ -2652,6 +2653,7 @@ public static class Utils
             CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
             CustomRoles.NoteKiller => NoteKiller.AbilityCooldown.GetInt(),
             CustomRoles.Weatherman => Weatherman.AbilityCooldown.GetInt(),
+            CustomRoles.Amogus => Amogus.AbilityCooldown.GetInt(),
             _ => -1
         };
 
@@ -2864,7 +2866,7 @@ public static class Utils
             Postman.CheckAndResetTargets(target, true);
             Hitman.CheckAndResetTargets();
 
-            if (!disconnect && !onMeeting)
+            if (!onMeeting && !disconnect)
             {
                 Hacker.AddDeadBody(target);
                 Mortician.OnPlayerDead(target);
@@ -2880,6 +2882,9 @@ public static class Utils
 
                 TargetDies(target.GetRealKiller(), target);
             }
+            
+            if (!onMeeting) 
+                Amogus.OnAnyoneDead(target);
 
             Adventurer.OnAnyoneDead(target);
             Whisperer.OnAnyoneDied(target);

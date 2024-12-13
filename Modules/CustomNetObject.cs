@@ -189,7 +189,9 @@ namespace EHR
                 msg.EndMessage();
                 AmongUsClient.Instance.SendOrDisconnect(msg);
                 msg.Recycle();
-                if (PlayerControl.AllPlayerControls.Contains(playerControl)) PlayerControl.AllPlayerControls.Remove(playerControl);
+                
+                if (PlayerControl.AllPlayerControls.Contains(playerControl))
+                    PlayerControl.AllPlayerControls.Remove(playerControl);
 
                 LateTask.New(() =>
                 {
@@ -289,7 +291,8 @@ namespace EHR
                 LateTask.New(() =>
                 {
                     // Fix for Host
-                    if (!HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId)) playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                    if (!HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId))
+                        playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
                 }, 0.1f);
 
                 LateTask.New(() =>
@@ -324,6 +327,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
+            if (GameStates.IsEnded) return;
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;

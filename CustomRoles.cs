@@ -261,6 +261,7 @@ public enum CustomRoles
 
     Agitater,
     Amnesiac,
+    Amogus,
     Arsonist,
     Backstabber,
     Bandit,

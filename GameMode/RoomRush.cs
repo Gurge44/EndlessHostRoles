@@ -18,6 +18,9 @@ public static class RoomRush
     private static OptionItem VentTimes;
     private static OptionItem DisplayRoomName;
     private static OptionItem DisplayArrowToRoom;
+    private static OptionItem DontKillLastPlayer;
+    private static OptionItem DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom;
+    private static OptionItem DontKillPlayersOutsideRoomWhenTimeRunsOut;
 
     public static readonly HashSet<string> HasPlayedFriendCodes = [];
 
@@ -126,7 +129,7 @@ public static class RoomRush
         Color color = Utils.GetRoleColor(CustomRoles.RRPlayer);
         const CustomGameMode gameMode = CustomGameMode.RoomRush;
 
-        GlobalTimeMultiplier = new FloatOptionItem(id++, "RR_GlobalTimeMultiplier", new(0.05f, 2f, 0.05f), 1f, TabGroup.GameSettings)
+        GlobalTimeMultiplier = new FloatOptionItem(id++, "RR_GlobalTimeMultiplier", new(0.05f, 3f, 0.05f), 1f, TabGroup.GameSettings)
             .SetHeader(true)
             .SetColor(color)
             .SetGameMode(gameMode);
@@ -148,6 +151,18 @@ public static class RoomRush
         DisplayArrowToRoom = new BooleanOptionItem(id, "RR_DisplayArrowToRoom", false, TabGroup.GameSettings)
             .SetColor(color)
             .SetGameMode(gameMode);
+
+        DontKillLastPlayer = new BooleanOptionItem(id++, "RR_DontKillLastPlayer", true, TabGroup.GameSettings)
+            .SetGameMode(gameMode)
+            .SetColor(color);
+
+        DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom = new BooleanOptionItem(id++, "RR_DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom", true, TabGroup.GameSettings)
+            .SetGameMode(gameMode)
+            .SetColor(color);
+
+        DontKillPlayersOutsideRoomWhenTimeRunsOut = new BooleanOptionItem(id, "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut", true, TabGroup.GameSettings)
+            .SetGameMode(gameMode)
+            .SetColor(color);
     }
 
     public static int GetSurvivalTime(byte id)
@@ -234,7 +249,11 @@ public static class RoomRush
 
         Skip:
 
-        if (ventLimit > 0) aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+        if (ventLimit > 0)
+        {
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) aapc.DoIf(x => x.GetRoleMap().RoleType is RoleTypes.Crewmate or RoleTypes.Noisemaker or RoleTypes.Scientist or RoleTypes.Tracker, x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+            else aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+        }
 
         Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
@@ -297,7 +316,7 @@ public static class RoomRush
 
         TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= AllInOneGameMode.RoomRushTimeLimitMultiplier.GetInt();
-        Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "RoomRush");
+        Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "RoomRush");
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
@@ -385,7 +404,7 @@ public static class RoomRush
 
                     int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
 
-                    if (DonePlayers.Count == 2 && timeLeft < TimeLeft && (notAllInOne || !AllInOneGameMode.RoomRushDontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool()))
+                    if (DonePlayers.Count == 2 && timeLeft < TimeLeft && (notAllInOne || !DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool()))
                     {
                         Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
                         TimeLeft = timeLeft;
@@ -395,7 +414,7 @@ public static class RoomRush
                             Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
                     }
 
-                    if (DonePlayers.Count == aapc.Length - 1 && (notAllInOne || !AllInOneGameMode.RoomRushDontKillLastPlayer.GetBool()))
+                    if (DonePlayers.Count == aapc.Length - 1 && (notAllInOne || !DontKillLastPlayer.GetBool()))
                     {
                         PlayerControl last = aapc.First(x => !DonePlayers.Contains(x.PlayerId));
                         Logger.Info($"All players entered the correct room except one, killing the last player ({last.GetRealName()})", "RoomRush");
@@ -405,7 +424,7 @@ public static class RoomRush
                         return;
                     }
                 }
-                else if ((room == null || room.RoomId != RoomGoal) && (notAllInOne || !AllInOneGameMode.RoomRushDontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool()))
+                else if ((room == null || room.RoomId != RoomGoal) && (notAllInOne || !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool()))
                     DonePlayers.Remove(pc.PlayerId);
             }
 
