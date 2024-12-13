@@ -23,12 +23,15 @@ public class SabotageMaster : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     private static OptionItem UsesUsedWhenFixingReactorOrO2;
     private static OptionItem UsesUsedWhenFixingLightsOrComms;
+    private static OptionItem CanFixSabotageFromAnywhereWithPet;
+    private static OptionItem MaxFixedViaPet;
 
     private static bool DoorsProgressing;
     private bool fixedSabotage;
     private byte SMId;
 
     public float UsedSkillCount;
+    private int PetLimit;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -70,6 +73,12 @@ public class SabotageMaster : RoleBase
         UsesUsedWhenFixingLightsOrComms = new FloatOptionItem(Id + 18, "SMUsesUsedWhenFixingLightsOrComms", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
+        
+        CanFixSabotageFromAnywhereWithPet = new BooleanOptionItem(Id + 20, "SMCanFixSabotageFromAnywhereWithPet", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+        
+        MaxFixedViaPet = new IntegerOptionItem(Id + 21, "SMMaxFixedViaPet", new(1, 30, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(CanFixSabotageFromAnywhereWithPet);
     }
 
     public override void Init()
@@ -82,6 +91,7 @@ public class SabotageMaster : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
+        PetLimit = MaxFixedViaPet.GetInt();
         UsedSkillCount = 0;
         SMId = playerId;
     }
@@ -97,6 +107,33 @@ public class SabotageMaster : RoleBase
         double limit = Math.Round(SkillLimit.GetInt() - UsedSkillCount, 1);
         string colored = Utils.ColorString(Utils.GetRoleColor(CustomRoles.SabotageMaster).ShadeColor(0.25f), limit.ToString(CultureInfo.CurrentCulture));
         return $"({colored}){base.GetProgressText(playerId, comms)}";
+    }
+
+    public override void OnPet(PlayerControl pc)
+    {
+        SystemTypes[] systemTypes = [SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.HeliSabotage, SystemTypes.Comms];
+        if (!CanFixSabotageFromAnywhereWithPet.GetBool() || !systemTypes.FindFirst(Utils.IsActive, out var activeSystem) || PetLimit-- < 1) return;
+
+        switch (activeSystem)
+        {
+            case SystemTypes.Electrical:
+                var switchSystem = ShipStatus.Instance.Systems[SystemTypes.Electrical].TryCast<SwitchSystem>();
+                if (switchSystem == null) break;
+                switchSystem.ActualSwitches = switchSystem.ExpectedSwitches;
+                switchSystem.IsDirty = true;
+                break;
+            case SystemTypes.Reactor:
+            case SystemTypes.Laboratory:
+            case SystemTypes.LifeSupp:
+                ShipStatus.Instance.UpdateSystem(activeSystem, pc, 16);
+                break;
+            case SystemTypes.HeliSabotage:
+                ShipStatus.Instance.UpdateSystem(activeSystem, pc, 17);
+                goto case SystemTypes.Reactor;
+            case SystemTypes.Comms:
+                if (Main.NormalOptions.MapId is 1 or 5) ShipStatus.Instance.UpdateSystem(activeSystem, pc, 17);
+                goto case SystemTypes.Reactor;
+        }
     }
 
     public void SendRPC()
