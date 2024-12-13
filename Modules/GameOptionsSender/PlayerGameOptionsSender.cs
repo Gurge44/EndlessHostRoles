@@ -119,7 +119,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     public static void RemoveSender(PlayerControl player)
     {
         PlayerGameOptionsSender sender = AllSenders.OfType<PlayerGameOptionsSender>()
-                                                   .FirstOrDefault(sender => sender.player.PlayerId == player.PlayerId);
+            .FirstOrDefault(sender => sender.player.PlayerId == player.PlayerId);
 
         if (sender == null) return;
 
@@ -410,7 +410,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float killCooldown)) AURoleOptions.KillCooldown = Mathf.Max(0.01f, killCooldown);
 
-            if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out float speed)) AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 3f);
+            if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out float speed))
+            {
+                const float limit = 3f;
+                if (Mathf.Approximately(speed, 0f)) speed = Main.MinSpeed;
+                AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, -limit, limit);
+            }
 
             state.TaskState.HasTasks = Utils.HasTasks(player.Data, false);
             if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead) opt.SetBool(BoolOptionNames.AnonymousVotes, false);

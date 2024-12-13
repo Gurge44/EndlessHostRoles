@@ -143,14 +143,14 @@ public class Dad : RoleBase
     {
         On = true;
         Instances.Add(this);
-        //Main.AllPlayerSpeed[playerId] *= -1;
+        Main.AllPlayerSpeed[playerId] *= -1;
         DadId = playerId;
         Alcohol = StartingAlcohol.GetInt();
         LastUpdate = Utils.TimeStamp;
         Count = 0;
         Shop = ShipStatus.Instance.AllVents.RandomElement();
         DoneTasks = false;
-        SelectedAbility = default;
+        SelectedAbility = default(Ability);
         MilkTimer = 315569520;
         UsingAbilities = [];
         SuperVisionTS = 0;
