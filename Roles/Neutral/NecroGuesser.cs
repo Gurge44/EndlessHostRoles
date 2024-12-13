@@ -4,11 +4,11 @@ public class NecroGuesser : RoleBase
 {
     public static bool On;
 
-    public override bool IsEnable => On;
-
-    private static OptionItem NumGuessesToWin;
+    public static OptionItem NumGuessesToWin;
 
     public int GuessedPlayers;
+
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {

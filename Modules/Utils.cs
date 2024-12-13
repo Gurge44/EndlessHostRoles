@@ -1360,11 +1360,11 @@ public static class Utils
         }
     }
 
-    public static void ShowLastRoles(byte PlayerId = byte.MaxValue)
+    public static void ShowLastRoles(byte playerId = byte.MaxValue)
     {
         if (AmongUsClient.Instance.IsGameStarted)
         {
-            SendMessage(GetString("CantUse.lastroles"), PlayerId);
+            SendMessage(GetString("CantUse.lastroles"), playerId);
             return;
         }
 
@@ -1460,25 +1460,25 @@ public static class Utils
 
         sb.Append("</size>");
 
-        SendMessage("\n", PlayerId, sb.ToString());
+        SendMessage("\n", playerId, sb.ToString());
     }
 
-    public static void ShowKillLog(byte PlayerId = byte.MaxValue)
+    public static void ShowKillLog(byte playerId = byte.MaxValue)
     {
         if (GameStates.IsInGame)
         {
-            SendMessage(GetString("CantUse.killlog"), PlayerId);
+            SendMessage(GetString("CantUse.killlog"), playerId);
             return;
         }
 
-        if (EndGamePatch.KillLog != string.Empty) SendMessage(EndGamePatch.KillLog, PlayerId);
+        if (EndGamePatch.KillLog != string.Empty) SendMessage(EndGamePatch.KillLog, playerId);
     }
 
-    public static void ShowLastResult(byte PlayerId = byte.MaxValue)
+    public static void ShowLastResult(byte playerId = byte.MaxValue)
     {
         if (GameStates.IsInGame)
         {
-            SendMessage(GetString("CantUse.lastresult"), PlayerId);
+            SendMessage(GetString("CantUse.lastresult"), playerId);
             return;
         }
 
@@ -1486,24 +1486,38 @@ public static class Utils
 
         StringBuilder sb = new();
         if (SetEverythingUpPatch.LastWinsText != string.Empty) sb.Append($"<size=90%>{GetString("LastResult")} {SetEverythingUpPatch.LastWinsText}</size>");
-
         if (SetEverythingUpPatch.LastWinsReason != string.Empty) sb.Append($"\n<size=90%>{GetString("LastEndReason")} {SetEverythingUpPatch.LastWinsReason}</size>");
-
-        if (sb.Length > 0) SendMessage("\n", PlayerId, sb.ToString());
+        if (sb.Length > 0) SendMessage("\n", playerId, sb.ToString());
     }
 
-    public static void ShowLastAddOns(byte PlayerId = byte.MaxValue)
+    public static void ShowLastAddOns(byte playerId = byte.MaxValue)
     {
         if (GameStates.IsInGame)
         {
-            SendMessage(GetString("CantUse.lastresult"), PlayerId);
+            SendMessage(GetString("CantUse.lastresult"), playerId);
             return;
         }
 
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
         string result = Main.LastAddOns.Values.Join(delimiter: "\n");
-        SendMessage("\n", PlayerId, result);
+        SendMessage("\n", playerId, result);
+    }
+
+    public static string GetWinCountsString()
+    {
+        if (!Main.NumWinsPerGM.TryGetValue(Options.CurrentGameMode, out var dictionary) || dictionary.Count == 0) return string.Empty;
+
+        StringBuilder sb = new();
+        sb.AppendLine($"<#ffffff><u>{GetString("WinsCountTitle")}:</u></color>");
+
+        foreach ((string friendcode, int wins) in dictionary)
+        {
+            if (!Main.AllAlivePlayerControls.FindFirst(x => x.FriendCode == friendcode, out var player)) continue;
+            sb.AppendLine($"{player.PlayerId.ColoredPlayerName()}: {wins}");
+        }
+
+        return sb.ToString().Trim();
     }
 
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
@@ -2644,16 +2658,17 @@ public static class Utils
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
             CustomRoles.Abyssbringer => Abyssbringer.BlackHolePlaceCooldown.GetInt(),
             CustomRoles.Warlock => Warlock.IsCursed ? -1 : Warlock.ShapeshiftCooldown.GetInt(),
+            CustomRoles.Stasis => Stasis.AbilityCooldown.GetInt() + (includeDuration ? Stasis.AbilityDuration.GetInt() : 0),
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
             CustomRoles.Hypnotist => Hypnotist.AbilityCooldown.GetInt() + (includeDuration ? Hypnotist.AbilityDuration.GetInt() : 0),
             CustomRoles.Parasite => (int)Parasite.SSCD + (includeDuration ? (int)Parasite.SSDur : 0),
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
             CustomRoles.Nonplus => Nonplus.BlindCooldown.GetInt() + (includeDuration ? Nonplus.BlindDuration.GetInt() : 0),
+            CustomRoles.Amogus => Amogus.AbilityCooldown.GetInt() + (includeDuration ? Amogus.AbilityDuration.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
             CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
             CustomRoles.NoteKiller => NoteKiller.AbilityCooldown.GetInt(),
             CustomRoles.Weatherman => Weatherman.AbilityCooldown.GetInt(),
-            CustomRoles.Amogus => Amogus.AbilityCooldown.GetInt(),
             _ => -1
         };
 
@@ -2882,8 +2897,8 @@ public static class Utils
 
                 TargetDies(target.GetRealKiller(), target);
             }
-            
-            if (!onMeeting) 
+
+            if (!onMeeting)
                 Amogus.OnAnyoneDead(target);
 
             Adventurer.OnAnyoneDead(target);

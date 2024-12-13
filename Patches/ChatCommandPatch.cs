@@ -103,7 +103,7 @@ internal static class ChatCommands
 
     public static Dictionary<byte, List<CustomRoles>> DraftRoles = [];
     public static Dictionary<byte, CustomRoles> DraftResult = [];
-    
+
     public static readonly HashSet<byte> Spectators = [];
     public static readonly HashSet<byte> LastSpectators = [];
 
@@ -341,12 +341,18 @@ internal static class ChatCommands
 
     private static void SpectateCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
+        if (Options.DisableSpectateCommand.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateDisabled"));
+            return;
+        }
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(SpectateCommand), text);
             return;
         }
-        
+
         if (LastSpectators.Contains(player.PlayerId))
         {
             Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.WasSpectatingLastRound"));
@@ -358,14 +364,14 @@ internal static class ChatCommands
             Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.AlreadySpectating"));
             return;
         }
-        
+
         Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.Success"));
     }
-    
+
     private static void WhisperCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (!player.IsAlive()) return;
-        
+
         if (Options.DisableWhisperCommand.GetBool())
         {
             Utils.SendMessage("\n", player.PlayerId, GetString("WhisperDisabled"));
@@ -380,10 +386,10 @@ internal static class ChatCommands
 
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-        
+
         string msg = args[2..].Join(delimiter: " ");
         string title = string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName(), player.PlayerId);
-        
+
         Utils.SendMessage(msg, targetId, title);
         ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
     }
@@ -478,7 +484,7 @@ internal static class ChatCommands
                 Utils.SendMessage("\n", player.PlayerId, GetString("EveryoneReadyTitle"));
             else
                 Utils.SendMessage(string.Join(", ", notReadyPlayers.Select(x => x.ColoredPlayerName())), player.PlayerId, string.Format(GetString("PlayersNotReadyTitle"), notReadyPlayers.Length));
-            
+
             if (Spectators.Count > 0) Utils.SendMessage(string.Join(", ", Spectators.Select(x => x.ColoredPlayerName())), player.PlayerId, string.Format(GetString("SpectatorsList"), Spectators.Count));
         }
     }

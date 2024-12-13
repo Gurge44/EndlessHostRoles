@@ -132,6 +132,7 @@ internal static class CustomRolesHelper
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Occultist => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Wasp => CustomRoles.Impostor,
             CustomRoles.Assumer => CustomRoles.Impostor,
             CustomRoles.Augmenter => CustomRoles.Shapeshifter,
@@ -629,6 +630,7 @@ internal static class CustomRolesHelper
             CustomRoles.Augmenter or
             CustomRoles.Inhibitor or
             CustomRoles.Kidnapper or
+            CustomRoles.Stasis or
             CustomRoles.Occultist or
             CustomRoles.Wasp or
             CustomRoles.Hypnotist or
@@ -918,6 +920,7 @@ internal static class CustomRolesHelper
     {
         return role is
             CustomRoles.Wizard or
+            CustomRoles.Stasis or
             CustomRoles.Occultist or
             CustomRoles.Warlock or
             CustomRoles.Swiftclaw or
@@ -1485,6 +1488,7 @@ internal static class CustomRolesHelper
             CustomRoles.RiftMaker => RoleOptionType.Impostor_Concealing,
             CustomRoles.Scavenger => RoleOptionType.Impostor_Concealing,
             CustomRoles.ImperiusCurse => RoleOptionType.Impostor_Concealing,
+            CustomRoles.Stasis => RoleOptionType.Impostor_Concealing,
             CustomRoles.Swiftclaw => RoleOptionType.Impostor_Concealing,
             CustomRoles.Swooper => RoleOptionType.Impostor_Concealing,
             CustomRoles.Stealth => RoleOptionType.Impostor_Concealing,

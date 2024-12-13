@@ -108,6 +108,7 @@ public class Main : BasePlugin
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;
 
+    public static Dictionary<CustomGameMode, Dictionary<string, int>> NumWinsPerGM = [];
     public static HashSet<byte> DiedThisRound = [];
     public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
@@ -740,9 +741,9 @@ public class Main : BasePlugin
         try
         {
             AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
-                                            .GetTypes()
-                                            .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
-                                            .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
+                                        .GetTypes()
+                                        .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
+                                        .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
 
             AllRoleClasses.Sort();
         }

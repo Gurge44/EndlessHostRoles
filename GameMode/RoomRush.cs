@@ -148,7 +148,7 @@ public static class RoomRush
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        DisplayArrowToRoom = new BooleanOptionItem(id, "RR_DisplayArrowToRoom", false, TabGroup.GameSettings)
+        DisplayArrowToRoom = new BooleanOptionItem(id++, "RR_DisplayArrowToRoom", false, TabGroup.GameSettings)
             .SetColor(color)
             .SetGameMode(gameMode);
 

@@ -315,25 +315,28 @@ public class ParityCop : RoleBase
 
         switch (firstRoleClass)
         {
-            case Lawyer when Lawyer.Target[first.PlayerId] == second.PlayerId: return true;
-            case Totocalcio tc when tc.BetPlayer == second.PlayerId: return true;
-            case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == second.PlayerId: return true;
-            case Necromancer when secondRoleClass is Deathknight: return true;
+            case Lawyer when Lawyer.Target[first.PlayerId] == second.PlayerId:
+            case Totocalcio tc when tc.BetPlayer == second.PlayerId:
+            case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == second.PlayerId:
+            case Necromancer when secondRoleClass is Deathknight:
+                return true;
         }
 
         switch (secondRoleClass)
         {
-            case Lawyer when Lawyer.Target[second.PlayerId] == first.PlayerId: return true;
-            case Totocalcio tc when tc.BetPlayer == first.PlayerId: return true;
-            case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == first.PlayerId: return true;
-            case Necromancer when firstRoleClass is Deathknight: return true;
+            case Lawyer when Lawyer.Target[second.PlayerId] == first.PlayerId:
+            case Totocalcio tc when tc.BetPlayer == first.PlayerId:
+            case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == first.PlayerId:
+            case Necromancer when firstRoleClass is Deathknight:
+                return true;
         }
 
         if (CustomTeamManager.AreInSameCustomTeam(first.PlayerId, second.PlayerId)) return true;
-
         if (firstSubRoles.Contains(CustomRoles.Bloodlust) || secondSubRoles.Contains(CustomRoles.Bloodlust)) return false;
-
         if (firstRole.IsNeutral() && secondRole.IsNeutral()) return false;
+
+        if (firstSubRoles.Contains(CustomRoles.Rascal) && secondTeam != Team.Impostor) return false;
+        if (secondSubRoles.Contains(CustomRoles.Rascal) && firstTeam != Team.Impostor) return false;
 
         return firstTeam == secondTeam || firstRole == secondRole;
     }

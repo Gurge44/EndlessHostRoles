@@ -148,6 +148,11 @@ public static class Statistics
             if (correctGuesses >= 2) Achievements.Type.BeginnerGuesser.CompleteAfterGameEnd();
             if (correctGuesses >= 4) Achievements.Type.GuessMaster.CompleteAfterGameEnd();
             if (correctGuesses >= 6) Achievements.Type.BestGuesserAward.CompleteAfterGameEnd();
+
+
+            Main.NumWinsPerGM.TryAdd(Options.CurrentGameMode, []);
+            Main.NumWinsPerGM[Options.CurrentGameMode].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.FriendCode, _ => 0), overrideExistingKeys: false);
+            Main.NumWinsPerGM[Options.CurrentGameMode].AdjustAllValues(x => ++x);
         }
         catch (Exception e) { Utils.ThrowException(e); }
 

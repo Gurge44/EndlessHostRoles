@@ -1,4 +1,5 @@
 using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
@@ -365,8 +366,9 @@ public static class SabotageSystemTypeRepairDamagePatch
             return false;
         }
 
-        if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
+        if (Rhapsode.CheckAbilityUse(player) || Stasis.IsTimeFrozen) return false;
 
+        if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
         if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
 
         bool allow = player.GetCustomRole() switch

@@ -288,10 +288,11 @@ public static class GameStartManagerPatch
             {
                 if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return;
 
+                var canStartGame = true;
+                var mismatchedClientName = string.Empty;
+
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    var canStartGame = true;
-
                     foreach (ClientData client in AmongUsClient.Instance.allClients)
                     {
                         if (client.Character == null) continue;
@@ -299,7 +300,11 @@ public static class GameStartManagerPatch
                         var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
                         if (dummyComponent != null && dummyComponent.enabled) continue;
 
-                        if (!MatchVersions(client.Character.PlayerId, true)) canStartGame = false;
+                        if (!MatchVersions(client.Character.PlayerId, true))
+                        {
+                            canStartGame = false;
+                            mismatchedClientName = client.Character.PlayerId.ColoredPlayerName();
+                        }
                     }
 
                     if (!canStartGame) __instance.StartButton.gameObject.SetActive(false);
@@ -334,6 +339,12 @@ public static class GameStartManagerPatch
 
                 if (Options.NoGameEnd.GetBool())
                     suffix = suffix.Insert(0, Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}") + Utils.ColorString(Color.gray, " | "));
+
+                if (!canStartGame)
+                {
+                    suffix = suffix.Insert(0, Utils.ColorString(Color.red, string.Format(GetString("VersionMismatch"), mismatchedClientName)) + "\n");
+                    suffix += "\n";
+                }
 
                 TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 

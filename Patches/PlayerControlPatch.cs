@@ -777,7 +777,7 @@ internal static class ShapeshiftPatch
 
         if (AmongUsClient.Instance.AmHost && shapeshifting)
         {
-            if (!Rhapsode.CheckAbilityUse(shapeshifter)) return false;
+            if (!Rhapsode.CheckAbilityUse(shapeshifter) || Stasis.IsTimeFrozen) return false;
 
             if (shapeshifter.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
             {
@@ -1988,7 +1988,7 @@ internal static class CoEnterVentPatch
             return true;
         }
 
-        if (!Rhapsode.CheckAbilityUse(__instance.myPlayer))
+        if (!Rhapsode.CheckAbilityUse(__instance.myPlayer) || Stasis.IsTimeFrozen)
         {
             LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
             return true;
@@ -2287,19 +2287,6 @@ internal static class CmdCheckAppearPatch
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         return false;
-    }
-}
-
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckVanish))]
-internal static class CheckVanishPatch
-{
-    public static bool Prefix(PlayerControl __instance)
-    {
-        Logger.Info($" {__instance.GetNameWithRole()}", "CheckVanish");
-        bool allow = Main.PlayerStates[__instance.PlayerId].Role.OnVanish(__instance);
-        if (!allow) LateTask.New(__instance.RpcResetAbilityCooldown, 0.2f, log: false);
-
-        return true;
     }
 }
 

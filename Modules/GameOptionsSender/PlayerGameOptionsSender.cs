@@ -400,15 +400,18 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 AURoleOptions.ShapeshifterDuration = 1f;
             }
 
-            if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) AURoleOptions.PhantomDuration = 1f;
+            if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger())
+                AURoleOptions.PhantomDuration = 1f;
 
-            if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) AURoleOptions.ShapeshifterDuration = 0f;
+            if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger())
+                AURoleOptions.ShapeshifterDuration = 0f;
 
             // ===================================================================================================================
 
             AURoleOptions.EngineerCooldown = Mathf.Max(0.01f, AURoleOptions.EngineerCooldown);
 
-            if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float killCooldown)) AURoleOptions.KillCooldown = Mathf.Max(0.01f, killCooldown);
+            if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float killCooldown))
+                AURoleOptions.KillCooldown = Mathf.Max(0.01f, killCooldown);
 
             if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out float speed))
             {
@@ -428,7 +431,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     Options.AdditionalEmergencyCooldownTime.GetInt());
             }
 
-            if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount) opt.SetInt(Int32OptionNames.EmergencyCooldown, 3600);
+            if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount)
+                opt.SetInt(Int32OptionNames.EmergencyCooldown, 3600);
 
             MeetingTimeManager.ApplyGameOptions(opt);
 
@@ -456,8 +460,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         }
         catch (Exception e)
         {
-            Logger.Fatal($"Error for {player.GetRealName()} ({player.GetCustomRole()}): {e}", "PlayerGameOptionsSender.BuildGameOptions");
-            Logger.SendInGame($"Error syncing settings for {player.GetRealName()} - Please report this bug to the developer AND SEND LOGS");
+            Logger.Error($"Error for {player.GetRealName()} ({player.GetCustomRole()}): {e}", "PlayerGameOptionsSender.BuildGameOptions");
             return BasedGameOptions;
         }
     }

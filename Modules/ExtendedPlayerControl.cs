@@ -1804,14 +1804,11 @@ internal static class ExtendedPlayerControl
 
         List<CustomRoles> subRoles = target.GetCustomSubRoles();
         if (subRoles.Contains(CustomRoles.Bloodlust) || target.IsConverted()) return Team.Neutral;
-
         if (subRoles.Contains(CustomRoles.Madmate)) return Team.Impostor;
 
         CustomRoles role = target.GetCustomRole();
         if (role.IsImpostorTeamV2()) return Team.Impostor;
-
         if (role.IsNeutralTeamV2()) return Team.Neutral;
-
         return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;
     }
 

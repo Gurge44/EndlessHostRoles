@@ -41,7 +41,7 @@ public static class ModUpdater
         if (!IsChecked)
         {
             bool done = CheckReleaseFromGithub(Main.BetaBuildUrl.Value != "").GetAwaiter().GetResult();
-            Logger.Warn("done: " + done, "CheckRelease");
+            Logger.Msg("done: " + done, "CheckRelease");
             Logger.Info("hasupdate: " + HasUpdate, "CheckRelease");
             Logger.Info("forceupdate: " + ForceUpdate, "CheckRelease");
             Logger.Info("downloadUrl: " + DownloadUrl, "CheckRelease");
@@ -61,17 +61,14 @@ public static class ModUpdater
             using StreamReader reader = new(stream);
             result = reader.ReadToEnd();
         }
-        finally
-        {
-            stream.Close();
-        }
+        finally { stream.Close(); }
 
         return result;
     }
 
     public static async Task<bool> CheckReleaseFromGithub(bool beta = false)
     {
-        Logger.Warn("Checking GitHub Release", "CheckRelease");
+        Logger.Msg("Checking GitHub Release", "CheckRelease");
         const string url = URLGithub + "/releases/latest";
 
         try
@@ -191,10 +188,7 @@ public static class ModUpdater
                     }
                 }
             }
-            catch (Exception e)
-            {
-                Logger.Error($"Failed to clear update residue\n{e}", "DeleteOldFiles");
-            }
+            catch (Exception e) { Logger.Error($"Failed to clear update residue\n{e}", "DeleteOldFiles"); }
         }
     }
 

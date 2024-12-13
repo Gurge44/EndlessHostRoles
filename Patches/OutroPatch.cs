@@ -111,7 +111,7 @@ internal static class EndGamePatch
             Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
             GameOptionsSender.AllSenders.Clear();
             GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
-            
+
             ChatCommands.Spectators.Clear();
 
             switch (Options.CurrentGameMode)
@@ -495,6 +495,14 @@ internal static class SetEverythingUpPatch
         }
 
         sb.Append("</font>");
+
+        var winCounts = Utils.GetWinCountsString();
+
+        if (winCounts != string.Empty)
+        {
+            sb.Append("\n\n");
+            sb.Append(winCounts);
+        }
 
         var RoleSummary = RoleSummaryObject.GetComponent<TextMeshPro>();
         RoleSummary.alignment = TextAlignmentOptions.TopLeft;

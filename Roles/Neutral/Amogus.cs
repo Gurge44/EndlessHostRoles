@@ -10,33 +10,24 @@ namespace EHR.Neutral;
 public class Amogus : RoleBase
 {
     public static bool On;
-    public static List<Amogus> Instances = [];
+    private static List<Amogus> Instances = [];
 
     private static OptionItem StartingLevel;
     private static OptionItem SugomaSpeed;
     private static OptionItem SuspiciousSusArrowsToBodies;
     private static OptionItem UltimateSusVotesPerKill;
     public static OptionItem AbilityCooldown;
-    private static OptionItem AbilityDuration;
+    public static OptionItem AbilityDuration;
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private static OptionItem ImpostorVision;
-
-    public override bool IsEnable => On;
-
-    enum Levels
-    {
-        Amogus,
-        Sugoma,
-        Sumogus,
-        SuspiciousSus,
-        UltimateSus
-    }
+    private long AmogusFormEndTS;
 
     private byte AmogusID;
-    private long AmogusFormEndTS;
     private Levels CurrentLevel;
     public int ExtraVotes;
+
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -107,9 +98,7 @@ public class Amogus : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (CurrentLevel >= Levels.SuspiciousSus)
-        {
             Main.AllAlivePlayerControls.Do(x => TargetArrow.Add(AmogusID, x.PlayerId));
-        }
 
         AmogusFormEndTS = Utils.TimeStamp + AbilityDuration.GetInt();
         Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 1, AmogusFormEndTS);
@@ -135,6 +124,7 @@ public class Amogus : RoleBase
         if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive()) return;
 
         long now = Utils.TimeStamp;
+
         if (AmogusFormEndTS != 0 && AmogusFormEndTS <= now)
         {
             FormExpired();
@@ -146,7 +136,7 @@ public class Amogus : RoleBase
     {
         TargetArrow.RemoveAllTarget(AmogusID);
         LocateArrow.RemoveAllTarget(AmogusID);
-            
+
         AmogusFormEndTS = 0;
         Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 1, AmogusFormEndTS);
     }
@@ -157,9 +147,8 @@ public class Amogus : RoleBase
         {
             CurrentLevel++;
             Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 2, (int)CurrentLevel);
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
         }
-        
+
         switch (CurrentLevel)
         {
             case Levels.SuspiciousSus:
@@ -167,6 +156,7 @@ public class Amogus : RoleBase
                 break;
             case Levels.UltimateSus:
                 ExtraVotes += UltimateSusVotesPerKill.GetInt();
+                Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 3, ExtraVotes);
                 break;
         }
     }
@@ -200,6 +190,9 @@ public class Amogus : RoleBase
             case 2:
                 CurrentLevel = (Levels)reader.ReadPackedInt32();
                 break;
+            case 3:
+                ExtraVotes = reader.ReadPackedInt32();
+                break;
         }
     }
 
@@ -209,7 +202,23 @@ public class Amogus : RoleBase
 
         var sb = new StringBuilder();
         if (AmogusFormEndTS != 0) sb.Append($"\u25a9 ({Utils.TimeStamp - AmogusFormEndTS}s)\n");
+        if (!hud) sb.Append("<size=70%>");
         sb.Append(string.Format(Translator.GetString("Amogus.Suffix"), Translator.GetString($"Amogus.Levels.{CurrentLevel}")));
+        if (!hud) sb.Append("</size>");
         return sb.ToString();
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        return $"{base.GetProgressText(playerId, comms)} {string.Format(Translator.GetString("ExtraVotesPT"), ExtraVotes)}";
+    }
+
+    enum Levels
+    {
+        Amogus,
+        Sugoma,
+        Sumogus,
+        SuspiciousSus,
+        UltimateSus
     }
 }
