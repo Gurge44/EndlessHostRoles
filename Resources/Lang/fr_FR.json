@@ -1357,6 +1357,8 @@
   "SabotageMasterFixesElectrical": "Can Fix Lights With One Switch",
   "SMUsesUsedWhenFixingReactorOrO2": "Uses it takes to fix Reactor/O2",
   "SMUsesUsedWhenFixingLightsOrComms": "Uses it takes to fix Lights/Comms",
+  "SMCanFixSabotageFromAnywhereWithPet": "Can Fix Sabotages From Anywhere If Pets Are On",
+  "SMMaxFixedViaPet": "Max Sabotages Fixed Via Pet",
   "SheriffCanKill%role%": "Can Kill %role%",
   "SheriffCanKillNeutrals": "Can Kill <color=#ffab1b>Neutrals</color>",
   "SheriffCanKillNeutralsMode": "<color=#ffab1b>Neutral</color> Configuration",
