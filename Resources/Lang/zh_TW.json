@@ -1357,6 +1357,8 @@
   "SabotageMasterFixesElectrical": "秒修關燈破壞",
   "SMUsesUsedWhenFixingReactorOrO2": "修理反應堆/氧氣所需要的數量",
   "SMUsesUsedWhenFixingLightsOrComms": "修理燈光/通訊所需要的數量",
+  "SMCanFixSabotageFromAnywhereWithPet": "Can Fix Sabotages From Anywhere If Pets Are On",
+  "SMMaxFixedViaPet": "Max Sabotages Fixed Via Pet",
   "SheriffCanKill%role%": "可以執法%role%",
   "SheriffCanKillNeutrals": "可以執法<color=#ffab1b>中立陣營</color>",
   "SheriffCanKillNeutralsMode": "可以執法的<color=#ffab1b>中立</color>職業",
