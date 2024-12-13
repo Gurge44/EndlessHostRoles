@@ -1357,6 +1357,8 @@
   "SabotageMasterFixesElectrical": "只需一个开关就能修好灯",
   "SMUsesUsedWhenFixingReactorOrO2": "修复 反应堆/氧气 的所需技能次数",
   "SMUsesUsedWhenFixingLightsOrComms": "修复 照明/通信 所需的技能次数",
+  "SMCanFixSabotageFromAnywhereWithPet": "Can Fix Sabotages From Anywhere If Pets Are On",
+  "SMMaxFixedViaPet": "Max Sabotages Fixed Via Pet",
   "SheriffCanKill%role%": "可以执法%role%",
   "SheriffCanKillNeutrals": "可以执法<color=#ffab1b>中立阵营</color>",
   "SheriffCanKillNeutralsMode": "<color=#ffab1b>中立</color> 允许拥有附加职业",
