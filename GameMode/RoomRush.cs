@@ -46,6 +46,7 @@ public static class RoomRush
             [(SystemTypes.Admin, SystemTypes.LifeSupp)] = 4,
             [(SystemTypes.Electrical, SystemTypes.MedBay)] = 3,
             [(SystemTypes.Electrical, SystemTypes.Security)] = 3,
+            [(SystemTypes.Electrical, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.MedBay, SystemTypes.Security)] = 3,
             [(SystemTypes.Admin, SystemTypes.Security)] = 2,
             [(SystemTypes.Storage, SystemTypes.Security)] = 2,
@@ -396,7 +397,7 @@ public static class RoomRush
 
                 bool notAllInOne = Options.CurrentGameMode != CustomGameMode.AllInOne;
 
-                if (pc.IsAlive() && !pc.inMovingPlat && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
+                if (pc.IsAlive() && !pc.inMovingPlat && !pc.inVent && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
                 {
                     Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
                     pc.Notify($"{DonePlayers.Count}.", 2f);

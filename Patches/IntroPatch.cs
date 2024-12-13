@@ -132,7 +132,7 @@ internal static class SetUpRoleTextPatch
 
                     foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles)
                     {
-                        if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
+                        if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && (subRole == CustomRoles.Lovers)) continue;
 
                         __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                     }
@@ -147,7 +147,7 @@ internal static class SetUpRoleTextPatch
         {
             LateTask.New(() =>
             {
-                if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || lp == null) return;
+                if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || (lp == null)) return;
 
                 lp.SetName(Main.AllPlayerNames[lp.PlayerId]);
             }, 1f, "Reset Name For Modded Client");
@@ -198,8 +198,10 @@ internal static class CoBeginPatch
         sb.Append("------------Modded Settings------------\n");
 
         foreach (OptionItem o in OptionItem.AllOptions)
+        {
             if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals("0%")))
                 sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
+        }
 
         sb.Append("-------------Other Information-------------\n");
         sb.Append($"Number of players: {Main.AllPlayerControls.Length}\n");
@@ -245,7 +247,7 @@ internal static class CoBeginPatch
 
                     for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
                     {
-                        if (tooLong && i > 296) break;
+                        if (tooLong && (i > 296)) break;
 
                         int index = longInfo.LastIndexOf(' ', i);
                         if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
@@ -297,7 +299,7 @@ internal static class BeginCrewmatePatch
             return false;
         }
 
-        if (role == CustomRoles.LovingCrewmate || PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
+        if ((role == CustomRoles.LovingCrewmate) || PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
@@ -314,8 +316,10 @@ internal static class BeginCrewmatePatch
                 teamToDisplay = new();
 
                 foreach (PlayerControl pc in Main.AllPlayerControls)
+                {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
                         teamToDisplay.Add(pc);
+                }
             }
         }
 
@@ -324,8 +328,10 @@ internal static class BeginCrewmatePatch
             teamToDisplay = new();
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
-                if (FFAManager.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && team == ffaTeam)
+            {
+                if (FFAManager.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && (team == ffaTeam))
                     teamToDisplay.Add(pc);
+            }
         }
 
         return true;
@@ -393,7 +399,7 @@ internal static class BeginCrewmatePatch
                     break;
             }
 
-            if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Exists(x => x.IsLocalPlayer()))
+            if ((Main.LoversPlayers.Count == 2) && Main.LoversPlayers.Exists(x => x.IsLocalPlayer()))
             {
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                 byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
@@ -444,6 +450,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Divinator or
                     CustomRoles.Mediumshiper or
                     CustomRoles.DovesOfNeace or
+                    CustomRoles.Observer or
                     CustomRoles.Spiritualist or
                     CustomRoles.Spiritcaller or
                     CustomRoles.Beacon or
@@ -489,7 +496,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Engineer or
                     CustomRoles.EngineerEHR
                     => GetIntroSound(RoleTypes.Engineer),
-                    
+
                 CustomRoles.Scientist or
                     CustomRoles.ScientistEHR or
                     CustomRoles.Doctor or
@@ -525,6 +532,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Tracker
                     or CustomRoles.TrackerEHR
+                    or CustomRoles.Scout
                     or CustomRoles.EvilTracker
                     => GetIntroSound(RoleTypes.Tracker),
 
@@ -582,14 +590,16 @@ internal static class BeginCrewmatePatch
             {
                 if (team.RoleRevealScreenTitle != "*") __instance.TeamTitle.text = team.RoleRevealScreenTitle;
 
-                if (team.RoleRevealScreenBackgroundColor != "*" && ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color bgColor)) __instance.TeamTitle.color = __instance.BackgroundBar.material.color = bgColor;
+                if ((team.RoleRevealScreenBackgroundColor != "*") && ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color bgColor)) __instance.TeamTitle.color = __instance.BackgroundBar.material.color = bgColor;
 
                 __instance.ImpostorText.gameObject.SetActive(team.RoleRevealScreenSubtitle != "*");
                 __instance.ImpostorText.text = team.RoleRevealScreenSubtitle;
 
                 foreach (PlayerControl pc in Main.AllPlayerControls)
+                {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
                         teamToDisplay.Add(pc);
+                }
             }
         }
 
@@ -710,16 +720,14 @@ internal static class BeginCrewmatePatch
 
         return;
 
-        AudioClip GetAudioClipFromCustomRoleType()
-        {
-            return PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
+        AudioClip GetAudioClipFromCustomRoleType() =>
+            PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
             {
                 CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                 CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                 CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
                 _ => GetIntroSound(RoleTypes.Crewmate)
             };
-        }
     }
 
     private static AudioClip GetIntroSound(RoleTypes roleType)
@@ -931,13 +939,13 @@ internal static class IntroCutsceneDestroyPatch
             foreach (byte spectator in ChatCommands.Spectators)
             {
                 LateTask.New(() =>
-                {
-                    spectator.GetPlayer().RpcExileV2();
-                    Main.PlayerStates[spectator].SetDead();
-                }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
+                             {
+                                 spectator.GetPlayer().RpcExileV2();
+                                 Main.PlayerStates[spectator].SetDead();
+                             }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
             }
 
-            if (Options.RandomSpawn.GetBool())
+            if (Options.RandomSpawn.GetBool() && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
             {
                 RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
                 {
@@ -949,7 +957,7 @@ internal static class IntroCutsceneDestroyPatch
                     _ => null
                 };
 
-                if (map != null && AmongUsClient.Instance.AmHost) aapc.Do(map.RandomTeleport);
+                if ((map != null) && AmongUsClient.Instance.AmHost) aapc.Do(map.RandomTeleport);
             }
 
             if (lp.HasDesyncRole())
@@ -974,8 +982,10 @@ internal static class IntroCutsceneDestroyPatch
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
         }
         else
+        {
             foreach (PlayerControl player in Main.AllPlayerControls)
                 Main.PlayerStates[player.PlayerId].InitTask(player);
+        }
 
         Logger.Info("OnDestroy", "IntroCutscene");
     }

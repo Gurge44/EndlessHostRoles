@@ -180,6 +180,7 @@ public static class Options
     public static OptionItem DisableSabotage;
 
     public static OptionItem DisableWhisperCommand;
+    public static OptionItem DisableSpectateCommand;
 
     public static OptionItem DisableReactorOnSkeldAndMira;
     public static OptionItem DisableReactorOnPolus;
@@ -269,6 +270,7 @@ public static class Options
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyMafia;
+    public static OptionItem LegacyTraitor;
     public static OptionItem MarioVentNumWin;
     public static OptionItem MarioVentCD;
     public static OptionItem VeteranSkillCooldown;
@@ -1819,6 +1821,9 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableWhisperCommand = new BooleanOptionItem(22811, "DisableWhisperCommand", false, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+        DisableSpectateCommand = new BooleanOptionItem(22812, "DisableSpectateCommand", false, TabGroup.GameSettings)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 75;

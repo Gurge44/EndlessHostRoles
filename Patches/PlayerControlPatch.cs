@@ -607,7 +607,6 @@ internal static class MurderPlayerPatch
         if (OverKiller.OverDeadPlayerList.Contains(target.PlayerId)) return;
 
         PlayerControl killer = __instance; // Alternative variable
-        if (target.PlayerId == Godfather.GodfatherTarget) killer.RpcSetCustomRole(CustomRoles.Refugee);
 
         PlagueDoctor.OnAnyMurder();
 
@@ -1334,9 +1333,9 @@ internal static class FixedUpdatePatch
 
             // Kick low level people
             if (!lowLoad && GameStates.IsLobby && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
-                    (player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt()) ||
-                    player.Data.FriendCode == string.Empty
-                ))
+                (player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt()) ||
+                player.Data.FriendCode == string.Empty
+            ))
             {
                 LevelKickBufferTime--;
 

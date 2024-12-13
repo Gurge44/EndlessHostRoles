@@ -22,10 +22,7 @@ internal static class CustomTeamManager
             CustomTeams = File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
             RefreshCustomOptions();
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     private static void RefreshCustomOptions()
@@ -85,7 +82,6 @@ internal static class CustomTeamManager
                 foreach (byte target in players)
                 {
                     if (player == target) continue;
-
                     TargetArrow.Add(player, target);
                 }
             }
@@ -95,7 +91,6 @@ internal static class CustomTeamManager
     public static string GetSuffix(PlayerControl seer)
     {
         if (seer == null || EnabledCustomTeams.Count == 0 || Main.HasJustStarted || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
-
         return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
     }
 
@@ -117,10 +112,10 @@ internal static class CustomTeamManager
             CustomTeam team = aliveTeamPlayers.Keys.First();
 
             if (aliveTeamPlayers.Count == 1 && Main.AllAlivePlayerControls.All(x =>
-                {
-                    CustomTeam customTeam = GetCustomTeam(x.PlayerId);
-                    return customTeam != null && customTeam.Equals(team);
-                }))
+            {
+                CustomTeam customTeam = GetCustomTeam(x.PlayerId);
+                return customTeam != null && customTeam.Equals(team);
+            }))
             {
                 WinnerTeam = team;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
@@ -128,10 +123,7 @@ internal static class CustomTeamManager
                 return true;
             }
         }
-        catch
-        {
-            return false;
-        }
+        catch { return false; }
 
         return false;
     }
@@ -190,14 +182,8 @@ internal static class CustomTeamManager
 
                 TeamMembers = parts[4].Split(',').Select(x => Enum.Parse<CustomRoles>(x, true)).ToList();
             }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
-            finally
-            {
-                CustomTeams.Add(this);
-            }
+            catch (Exception e) { Utils.ThrowException(e); }
+            finally { CustomTeams.Add(this); }
         }
 
         public List<CustomRoles> TeamMembers { get; } = [];
@@ -218,14 +204,9 @@ internal static class CustomTeamManager
     internal class CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows)
     {
         public readonly List<BooleanOptionItem> AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows];
-        public CustomTeam Team { get; set; } = team;
+        public CustomTeam Team { get; } = team;
 
-        public BooleanOptionItem Enabled { get; set; } = enabled;
-        public BooleanOptionItem KnowRoles { get; set; } = knowRoles;
-        public BooleanOptionItem WinWithOriginalTeam { get; set; } = winWithOriginalTeam;
-        public BooleanOptionItem KillEachOther { get; set; } = killEachOther;
-        public BooleanOptionItem GuessEachOther { get; set; } = guessEachOther;
-        public BooleanOptionItem Arrows { get; set; } = arrows;
+        public BooleanOptionItem Enabled { get; } = enabled;
     }
 }
 

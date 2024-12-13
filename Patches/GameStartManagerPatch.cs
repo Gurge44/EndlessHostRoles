@@ -20,14 +20,8 @@ public static class GameStartManagerUpdatePatch
 {
     public static void Prefix(GameStartManager __instance)
     {
-        try
-        {
-            __instance.MinPlayers = 1;
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "Surely this can't be causing an issue, right?");
-        }
+        try { __instance.MinPlayers = 1; }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "Surely this can't be causing an issue, right?"); }
     }
 }
 
@@ -97,10 +91,7 @@ public static class GameStartManagerPatch
                 AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
                 AURoleOptions.ProtectionDurationSeconds = 0f;
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString(), "GameStartManagerStartPatch.Postfix (1)");
-            }
+            catch (Exception ex) { Logger.Error(ex.ToString(), "GameStartManagerStartPatch.Postfix (1)"); }
         }
     }
 
@@ -202,10 +193,7 @@ public static class GameStartManagerPatch
                 }
             }
             catch (NullReferenceException) { }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (2)");
-            }
+            catch (Exception ex) { Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (2)"); }
 
             return false;
         }
@@ -214,10 +202,7 @@ public static class GameStartManagerPatch
         {
             if (!GameData.Instance || !GameManager.Instance || !AmongUsClient.Instance.AmHost) return;
 
-            try
-            {
-                instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId);
-            }
+            try { instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId); }
             catch (Exception e)
             {
                 ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
@@ -347,6 +332,9 @@ public static class GameStartManagerPatch
                 var suffix = $"{minutes:00}:{seconds:00}";
                 if (Timer <= 60) suffix = Utils.ColorString((int)Timer % 2 == 0 ? Color.yellow : Color.red, suffix);
 
+                if (Options.NoGameEnd.GetBool())
+                    suffix = suffix.Insert(0, Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}") + Utils.ColorString(Color.gray, " | "));
+
                 TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 
                 if (tmp.text == string.Empty)
@@ -359,16 +347,13 @@ public static class GameStartManagerPatch
                     tmp.outlineColor = Color.black;
                     tmp.outlineWidth = 0.4f;
                     tmp.transform.localPosition += new Vector3(-0.8f, -0.42f, 0f);
-                    tmp.transform.localScale = new(0.5f, 0.5f, 1f);
+                    tmp.transform.localScale = new(0.6f, 0.6f, 1f);
                 }
 
                 tmp.text = suffix;
             }
             catch (NullReferenceException) { }
-            catch (Exception e)
-            {
-                Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)");
-            }
+            catch (Exception e) { Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)"); }
         }
 
         private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
@@ -451,15 +436,10 @@ public static class GameStartRandomMap
         int tempRand = rand.Next(1, 100);
 
         if (tempRand <= Options.SkeldChance.GetInt()) randomMaps.Add(0);
-
         if (tempRand <= Options.MiraChance.GetInt()) randomMaps.Add(1);
-
         if (tempRand <= Options.PolusChance.GetInt()) randomMaps.Add(2);
-
         if (tempRand <= Options.DleksChance.GetInt()) randomMaps.Add(3);
-
         if (tempRand <= Options.AirshipChance.GetInt()) randomMaps.Add(4);
-
         if (tempRand <= Options.FungleChance.GetInt()) randomMaps.Add(5);
 
         if (randomMaps.Count > 0)
@@ -472,15 +452,10 @@ public static class GameStartRandomMap
         else
         {
             if (Options.SkeldChance.GetInt() > 0) randomMaps.Add(0);
-
             if (Options.MiraChance.GetInt() > 0) randomMaps.Add(1);
-
             if (Options.PolusChance.GetInt() > 0) randomMaps.Add(2);
-
             if (Options.DleksChance.GetInt() > 0) randomMaps.Add(3);
-
             if (Options.AirshipChance.GetInt() > 0) randomMaps.Add(4);
-
             if (Options.FungleChance.GetInt() > 0) randomMaps.Add(5);
 
             byte mapsId = randomMaps.RandomElement();
