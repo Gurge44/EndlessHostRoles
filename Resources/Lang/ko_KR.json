@@ -7,6 +7,7 @@
   "Icon": "♥",
   "NameColor": "#00ffa5",
   "Server": "<#00ffa5>Server:</color> <b>{0}</b>",
+  "HostIconInMeeting": "HOST: {0}",
   "SubText.GM": "Spectate the chaos!",
   "SubText.Crewmate": "임포스터를 찾고, <color=#ff1919>방출, 처치 </color> 하세요.",
   "SubText.Impostor": "방해공작을 펼치고, 모두를 처치하세요!",
