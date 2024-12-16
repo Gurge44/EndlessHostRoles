@@ -134,7 +134,7 @@ internal static class SetEverythingUpPatch
 {
     public static string LastWinsText = string.Empty;
     public static string LastWinsReason = string.Empty;
-    private static SimpleButton showHideButton;
+    private static SimpleButton ResultsToggleButton;
 
     public static void Postfix(EndGameManager __instance)
     {
@@ -517,12 +517,12 @@ internal static class SetEverythingUpPatch
         RoleSummary.fontSizeMin = RoleSummary.fontSizeMax = RoleSummary.fontSize = 1.25f;
 
         var RoleSummaryRectTransform = RoleSummary.GetComponent<RectTransform>();
-        RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.1f);
+        RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.7f);
         RoleSummary.text = sb.ToString();
 
         var showInitially = Main.ShowResult;
 
-        showHideButton = new SimpleButton(
+        ResultsToggleButton = new SimpleButton(
             __instance.transform,
             "ShowHideResultsButton",
             new(-4.5f, 2.6f, -14f),
@@ -533,7 +533,7 @@ internal static class SetEverythingUpPatch
                 var setToActive = !RoleSummary.gameObject.activeSelf;
                 RoleSummary.gameObject.SetActive(setToActive);
                 Main.ShowResult = setToActive;
-                showHideButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
+                ResultsToggleButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
             },
             GetString(showInitially ? "HideResults" : "ShowResults"))
         {
