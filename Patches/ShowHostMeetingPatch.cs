@@ -1,19 +1,15 @@
-using EHR;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+
+namespace EHR.Patches;
 
 // Thanks TOU-R: https://github.com/eDonnes124/Town-Of-Us-R/blob/master/source/Patches/ShowHostMeetingPatch.cs
 
 [HarmonyPatch]
-public class ShowHostMeetingPatch
+public static class ShowHostMeetingPatch
 {
-    private static PlayerControl HostControl = null;
+    private static PlayerControl HostControl;
     private static string HostName = string.Empty;
     private static int HostColor = int.MaxValue;
 
@@ -25,9 +21,12 @@ public class ShowHostMeetingPatch
         {
             if (GameStates.IsInGame && HostControl == null)
             {
-                HostControl = AmongUsClient.Instance.GetHost().Character;
-                HostName = Main.PlayerStates[AmongUsClient.Instance.GetHost().Character.Data.PlayerId].NormalOutfit.PlayerName;
-                HostColor = Main.PlayerStates[AmongUsClient.Instance.GetHost().Character.Data.PlayerId].NormalOutfit.ColorId;
+                PlayerControl host = AmongUsClient.Instance.GetHost().Character;
+                NetworkedPlayerInfo.PlayerOutfit outfit = Main.PlayerStates[host.Data.PlayerId].NormalOutfit;
+
+                HostControl = host;
+                HostName = outfit.PlayerName;
+                HostColor = outfit.ColorId;
             }
         }
         catch { }
@@ -37,16 +36,18 @@ public class ShowHostMeetingPatch
     [HarmonyPostfix]
     public static void ShowRole_Postfix()
     {
-        HostControl = AmongUsClient.Instance.GetHost().Character;
-        HostName = AmongUsClient.Instance.GetHost().Character.CurrentOutfit.PlayerName;
-        HostColor = AmongUsClient.Instance.GetHost().Character.CurrentOutfit.ColorId;
+        PlayerControl host = AmongUsClient.Instance.GetHost().Character;
+
+        HostControl = host;
+        HostName = host.CurrentOutfit.PlayerName;
+        HostColor = host.CurrentOutfit.ColorId;
     }
 
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Update))]
     [HarmonyPostfix]
     public static void Update_Postfix(MeetingHud __instance)
     {
-        // Not display in local game, because it will be impossible to complete the meeting
+        // Don't display it in local games, because it would be impossible to end meetings
         if (!GameStates.IsOnlineGame) return;
 
         PlayerMaterial.SetColors(HostColor, __instance.HostIcon);
@@ -55,7 +56,6 @@ public class ShowHostMeetingPatch
 
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     [HarmonyPostfix]
-
     public static void Setup_Postfix(MeetingHud __instance)
     {
         if (!GameStates.IsOnlineGame) return;
