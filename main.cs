@@ -108,7 +108,7 @@ public class Main : BasePlugin
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;
 
-    public static Dictionary<CustomGameMode, Dictionary<string, int>> NumWinsPerGM = [];
+    public static readonly Dictionary<CustomGameMode, Dictionary<string, int>> NumWinsPerGM = [];
     public static HashSet<byte> DiedThisRound = [];
     public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
@@ -119,6 +119,8 @@ public class Main : BasePlugin
     public static List<byte> BrakarVoteFor = [];
     public static Dictionary<byte, string> SleuthMsgs = [];
     public static int MadmateNum;
+
+    public static bool ShowResult = true;
 
     public static Main Instance;
 
@@ -698,7 +700,6 @@ public class Main : BasePlugin
         BanManager.Init();
         TemplateManager.Init();
         SpamManager.Init();
-        DevManager.Init();
         Cloud.Init();
 
         IRandom.SetInstance(new NetRandomWrapper());
@@ -723,6 +724,9 @@ public class Main : BasePlugin
         HideNSeekGameOptionsV08.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
 
         CustomLogger.ClearLog();
+
+        try { DevManager.StartFetchingTags(); }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         Harmony.PatchAll();
 

@@ -26,7 +26,9 @@ public static class Statistics
         {
             bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || (CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust));
 
-            switch (Options.CurrentGameMode)
+            CustomGameMode gm = Options.CurrentGameMode;
+
+            switch (gm)
             {
                 case CustomGameMode.FFA when won:
                     Achievements.Type.SerialKiller.CompleteAfterGameEnd();
@@ -150,9 +152,11 @@ public static class Statistics
             if (correctGuesses >= 6) Achievements.Type.BestGuesserAward.CompleteAfterGameEnd();
 
 
-            Main.NumWinsPerGM.TryAdd(Options.CurrentGameMode, []);
-            Main.NumWinsPerGM[Options.CurrentGameMode].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.FriendCode, _ => 0), overrideExistingKeys: false);
-            Main.NumWinsPerGM[Options.CurrentGameMode].AdjustAllValues(x => ++x);
+            if (gm == CustomGameMode.Standard) return;
+
+            Main.NumWinsPerGM.TryAdd(gm, []);
+            Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.FriendCode, _ => 0), overrideExistingKeys: false);
+            Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
         }
         catch (Exception e) { Utils.ThrowException(e); }
 

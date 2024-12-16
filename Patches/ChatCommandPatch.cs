@@ -926,7 +926,7 @@ internal static class ChatCommands
 
     private static void ChangeRoleCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (GameStates.IsLobby || !player.FriendCode.GetDevUser().IsUp) return;
+        if (GameStates.IsLobby || !player.FriendCode.GetDevUser().up) return;
 
         string subArgs = text.Remove(0, 8);
         string setRole = FixRoleNameInput(subArgs.Trim());
@@ -983,7 +983,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsHost() && !Options.PlayerCanSetColor.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().IsUp)
+        if (!player.IsHost() && !Options.PlayerCanSetColor.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
         {
             Utils.SendMessage(GetString("DisableUseCommand"), player.PlayerId);
             return;
@@ -1565,7 +1565,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (resultId != 0 && !player.FriendCode.GetDevUser().IsUp)
+        if (resultId != 0 && !player.FriendCode.GetDevUser().up)
         {
             Utils.SendMessage($"{GetString("Message.NoPermissionSetRoleOthers")}", player.PlayerId);
             return;
@@ -1599,7 +1599,7 @@ internal static class ChatCommands
     private static void RCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 2);
-        SendRolesInfo(subArgs, player.PlayerId, player.FriendCode.GetDevUser().DeBug);
+        SendRolesInfo(subArgs, player.PlayerId);
     }
 
     private static void DisconnectCommand(ChatController __instance, PlayerControl player, string text, string[] args)

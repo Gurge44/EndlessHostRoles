@@ -1797,7 +1797,7 @@ public static class Utils
                 };
             }
 
-            DevUser devUser = player.FriendCode.GetDevUser();
+            var devUser = player.FriendCode.GetDevUser();
             bool isMod = ChatCommands.IsPlayerModerator(player.FriendCode);
             bool isVIP = ChatCommands.IsPlayerVIP(player.FriendCode);
             bool hasTag = devUser.HasTag();

@@ -32,8 +32,7 @@ public static class Zoom
                     }
                     case < 0:
                     {
-                        if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby ||
-                            PlayerControl.LocalPlayer.FriendCode.GetDevUser().DeBug)
+                        if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
                             if (Camera.main.orthographicSize < 18.0f)
                                 SetZoomSize(true);
 
@@ -107,10 +106,10 @@ public static class Flag
         if (!OneTimeList.Contains(type)) OneTimeList.Add(type);
     }
 
-/*
-    public static void DeleteFlag(string type)
-    {
-        if (OneTimeList.Contains(type)) OneTimeList.Remove(type);
-    }
-*/
+    /*
+        public static void DeleteFlag(string type)
+        {
+            if (OneTimeList.Contains(type)) OneTimeList.Remove(type);
+        }
+    */
 }
