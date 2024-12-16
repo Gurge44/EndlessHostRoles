@@ -4109,6 +4109,8 @@
   "BackstabberTeam.NK": "a <#ffab1b>Neutral Killer</color>",
   "Backstabber.RevealAfterKilling": "Revealed after killing",
   "GuessBackstabber": "You cannot guess a revealed Backstabber.",
+  "HideResults": "Hide Results",
+  "ShowResults": "Show Results",
   "Curser": "Curser",
   "CurserInfo": "Make Others' Life Worse",
   "CurserInfoLong": "(Neutrals):\\nAs the Curser, when you use your kill button on someone, you can single click on them to reveal their alignment, and double click to give them one of the following effects:<size=80%>\\n- -1 ability use\\n- +1 harmful add-on\\n- permanent low vision\\n- permanent low speed</size>\\nYou win if crewmates lose.",
