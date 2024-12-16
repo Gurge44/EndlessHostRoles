@@ -659,7 +659,7 @@ public static class StringOptionPatch
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
-                if (role == CustomRoles.DoubleAgent) name += Translator.GetString("ExperimentalRoleIndicator");
+                if (role.IsExperimental()) name += Translator.GetString("ExperimentalRoleIndicator");
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
@@ -763,7 +763,7 @@ public static class StringOptionPatch
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
-                if (role == CustomRoles.DoubleAgent) name += Translator.GetString("ExperimentalRoleIndicator");
+                if (role.IsExperimental()) name += Translator.GetString("ExperimentalRoleIndicator");
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
@@ -798,10 +798,9 @@ public static class StringOptionPatch
                 if (__instance.oldValue != __instance.Value)
                 {
                     __instance.oldValue = __instance.Value;
-
-                    __instance.ValueText.text = stringOptionItem.noTranslation
-                        ? stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)]
-                        : Translator.GetString(stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)]);
+                    string selection = stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)];
+                    if (!stringOptionItem.noTranslation) selection = Translator.GetString(selection);
+                    __instance.ValueText.text = selection;
                 }
             }
 

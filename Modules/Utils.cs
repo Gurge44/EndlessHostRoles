@@ -754,16 +754,20 @@ public static class Utils
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.SoloKombat: return false;
-            case CustomGameMode.FFA: return false;
-            case CustomGameMode.MoveAndStop: return !p.IsDead;
-            case CustomGameMode.HotPotato: return false;
-            case CustomGameMode.Speedrun: return !p.IsDead;
-            case CustomGameMode.CaptureTheFlag: return false;
-            case CustomGameMode.NaturalDisasters: return false;
-            case CustomGameMode.RoomRush: return false;
-            case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
-            case CustomGameMode.AllInOne: return true;
+            case CustomGameMode.AllInOne:
+                return true;
+            case CustomGameMode.SoloKombat:
+            case CustomGameMode.FFA:
+            case CustomGameMode.HotPotato:
+            case CustomGameMode.CaptureTheFlag:
+            case CustomGameMode.NaturalDisasters:
+            case CustomGameMode.RoomRush:
+                return false;
+            case CustomGameMode.HideAndSeek:
+                return HnSManager.HasTasks(p);
+            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.Speedrun:
+                return !p.IsDead;
         }
 
         CustomRoles role = state.MainRole;
@@ -780,6 +784,7 @@ public static class Utils
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
             case CustomRoles.Amogus:
+            case CustomRoles.Weatherman:
             case CustomRoles.NoteKiller:
             case CustomRoles.Vortex:
             case CustomRoles.Beehive:
@@ -802,6 +807,7 @@ public static class Utils
             case CustomRoles.Hookshot:
             case CustomRoles.Sprayer:
             case CustomRoles.Doppelganger:
+            case CustomRoles.NecroGuesser:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
             case CustomRoles.SchrodingersCat:

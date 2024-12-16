@@ -78,7 +78,11 @@ internal static class OnGameJoinedPatch
 
                 if (GameStates.IsOnlineGame && GameStates.IsVanillaServer)
                 {
-                    try { LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby); }
+                    try
+                    {
+                        LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby);
+                        if (GameStates.InGame) LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Game);
+                    }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }
             }, 5f, "NotifyLobbyCreated");

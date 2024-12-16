@@ -43,6 +43,10 @@ internal static class CustomRolesHelper
         CustomRoles.Dasher
     ];
 
+    public static bool IsExperimental(this CustomRoles role) => role is
+        CustomRoles.DoubleAgent or
+        CustomRoles.Weatherman;
+
     public static bool IsForOtherGameMode(this CustomRoles role)
     {
         return HnSManager.AllHnSRoles.Contains(role) || role is
