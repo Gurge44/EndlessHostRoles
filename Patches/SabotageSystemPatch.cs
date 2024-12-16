@@ -366,7 +366,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             return false;
         }
 
-        if (Rhapsode.CheckAbilityUse(player) || Stasis.IsTimeFrozen) return false;
+        if (!Rhapsode.CheckAbilityUse(player) || Stasis.IsTimeFrozen) return false;
 
         if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
         if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
