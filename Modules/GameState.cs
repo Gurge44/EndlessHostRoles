@@ -78,6 +78,7 @@ public class PlayerState(byte playerId)
     private readonly byte PlayerId = playerId;
     public readonly List<CustomRoles> SubRoles = [];
     public readonly Dictionary<byte, string> TargetColorData = [];
+    public NetworkedPlayerInfo.PlayerOutfit NormalOutfit;
     public CountTypes countTypes = CountTypes.Crew;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
