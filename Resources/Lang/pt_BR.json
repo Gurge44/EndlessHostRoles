@@ -4109,6 +4109,8 @@
   "BackstabberTeam.NK": "Um <#ffab1b>Neutro Assassino</color>",
   "Backstabber.RevealAfterKilling": "Revelado após matar",
   "GuessBackstabber": "Você não pode adivinhar um Apunhalador revelado.",
+  "HideResults": "Hide Results",
+  "ShowResults": "Show Results",
   "Curser": "Amaldiçoador",
   "CurserInfo": "Torne a vida dos outros pior",
   "CurserInfoLong": "(Neutros):\\nComo o Amaldiçoador, quando você usa seu botão de matar alguém, você pode clicar uma única vez para revelar sua facção, e dar um clique dúplo para dar a ele um dos seguintes efeitos:<size=80%>\\n- -1 uso da habilidade\\n- +1 atributo prejudicial\\n- visão permanentemente baixa\\n- velocidade permanentemente baixa </size>\\nVocê vence se os tripulantes perderem.",
