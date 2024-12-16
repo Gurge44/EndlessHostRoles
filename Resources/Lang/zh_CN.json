@@ -4109,6 +4109,8 @@
   "BackstabberTeam.NK": "<#ffab1b>带刀中立</color>",
   "Backstabber.RevealAfterKilling": "击杀后向所有玩家展现",
   "GuessBackstabber": "你不能赌一个已经展现了的背刺者",
+  "HideResults": "Hide Results",
+  "ShowResults": "Show Results",
   "Curser": "诅咒者",
   "CurserInfo": "使他人的生活更加糟糕",
   "CurserInfoLong": "(中立职业):\\n诅咒者对某人使用你的击杀按钮时，他将获得以下结果之一：<size=80%>\\n-1 技能使用\\n-+1 有害附加职业\\n-永久降低视野\\n-永久降低速度</size>\\n如果船员输了，你就赢了。",
