@@ -4758,6 +4758,7 @@
   "Negotiator.LowVision": "降低後的視野",
   "Negotiator.LowSpeed": "降低後的速度",
   "Negotiator.MinVotingTimeLeftToNegotiate": "可進行談判的最短投票時間",
+  "Negotiator.TargetPickSuccess": "你選擇了<b>{0}</b>",
   "Negotiator.Type.Suicide": "自殺",
   "Negotiator.Type.HarmfulAddon": "獲得有害的附加職業",
   "Negotiator.Type.LowVision": "獲得永久的視野降低",
