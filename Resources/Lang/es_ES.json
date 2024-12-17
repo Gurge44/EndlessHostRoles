@@ -4758,6 +4758,7 @@
   "Negotiator.LowVision": "Visión baja",
   "Negotiator.LowSpeed": "Velocidad baja",
   "Negotiator.MinVotingTimeLeftToNegotiate": "Minimum Voting Time Left to Negotiate",
+  "Negotiator.TargetPickSuccess": "Elegiste <b>{0}</b>",
   "Negotiator.Type.Suicide": "Suicidio",
   "Negotiator.Type.HarmfulAddon": "Recibir un Complemento Dañino",
   "Negotiator.Type.LowVision": "Obtener visión baja Permanente",
