@@ -4758,6 +4758,7 @@
   "Negotiator.LowVision": "低视野大小",
   "Negotiator.LowSpeed": "低速度",
   "Negotiator.MinVotingTimeLeftToNegotiate": "最短投票时间",
+  "Negotiator.TargetPickSuccess": "You've chosen to <b>{0}</b>",
   "Negotiator.Type.Suicide": "自杀了",
   "Negotiator.Type.HarmfulAddon": "有害的附加职业",
   "Negotiator.Type.LowVision": "获得永久性低视野",
