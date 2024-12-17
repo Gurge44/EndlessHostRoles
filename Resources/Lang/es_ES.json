@@ -4340,7 +4340,7 @@
   "TetherNoTarget": "No tienes objetivo",
   "Aid": "Ayuda",
   "AidInfo": "Protege jugadores temporalmente",
-  "AidInfoLong": "(Tripulantes):\\nComo la Ayuda, puedes usar tu botón de matar en alguien para protegerlo de ataques directos temporalmente. Ni tú ni tu objetivo sabrán si alguien trató de matar a tu objetivo.",
+  "AidInfoLong": "(Crewmates):\\nAs the Aid, you may use your kill button on someone to protect them from direct attacks temporarily. Mark your target via your kill button, then vent when you want to activate the shield. Neither you nor your target will know if someone tried to kill your target.",
   "AidDur": "Duración del Escudo",
   "AidCD": "Tiempo de Reutilización Escudar",
   "AidTargetKnowsAboutShield": "El Objetivo Sabe que Está Escudado",
