@@ -2785,7 +2785,7 @@
   "DisabledByProgram": "Salas públicas han sido desactivadas por el programa",
   "EnterVentToWin": "¡Entra a una Ventila para Incendiar!",
   "EatenByPelican": "Estás tragado, esperando a que el Pelícano muera o a una reunión",
-  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color> seconds to revive</color>\\n\\n",
+  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloKombat.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
   "FireworksPutPhase": "{0} Fuegos Artificiales Restantes",
   "FireworksWaitPhase": "Espera...",
