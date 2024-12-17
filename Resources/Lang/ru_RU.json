@@ -2785,7 +2785,7 @@
   "DisabledByProgram": "Публичные лобби были отключены программой.",
   "EnterVentToWin": "Прыгните в люк для зажигания!",
   "EatenByPelican": "Вас проглотил Пеликан. Если его убьют до собрания, вы выживете",
-  "KBBackCountDown": "<#ff0000>МЁРТВ</color>\\n<#ffffff>Возрождение через <#ffff00>{0}</color>с</color>\\n\\n",
+  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloKombat.WinnersKillCount": "Он(-а) убил(-а) <color=#ffffff>{0}</color> игроков!",
   "FireworksPutPhase": "Осталось {0} фейерверков",
   "FireworksWaitPhase": "Подождите...",
