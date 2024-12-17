@@ -4340,7 +4340,7 @@
   "TetherNoTarget": "Цель не выбрана",
   "Aid": "Помощник",
   "AidInfo": "Давайте игрокам временный щит",
-  "AidInfoLong": "(Член Экипажа):\\nКак Помощник, вы можете использовать кнопку убийства на ком-то/погладить питомца рядом с кем-то, чтобы дать ему временный щит от прямых атак. Ни вы, ни цель не будете уведомлены о попытке убийства.",
+  "AidInfoLong": "(Crewmates):\\nAs the Aid, you may use your kill button on someone to protect them from direct attacks temporarily. Mark your target via your kill button, then vent when you want to activate the shield. Neither you nor your target will know if someone tried to kill your target.",
   "AidDur": "Длительность защиты",
   "AidCD": "Откат защиты",
   "AidTargetKnowsAboutShield": "Защищённые знают о защите",
