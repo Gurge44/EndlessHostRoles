@@ -4340,7 +4340,7 @@
   "TetherNoTarget": "You have no target",
   "Aid": "Aid",
   "AidInfo": "Protect players temporarily",
-  "AidInfoLong": "(Crewmates):\\nAs the Aid, you may use your kill button on someone to protect them from direct attacks temporarily. Neither you nor your target will know if someone tried to kill your target.",
+  "AidInfoLong": "(Crewmates):\\nAs the Aid, you may use your kill button on someone to protect them from direct attacks temporarily. Mark your target via your kill button, then vent when you want to activate the shield. Neither you nor your target will know if someone tried to kill your target.",
   "AidDur": "Shield Duration",
   "AidCD": "Shield Cooldown",
   "AidTargetKnowsAboutShield": "Targets Know They're Shielded",
