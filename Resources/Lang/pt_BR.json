@@ -2785,7 +2785,7 @@
   "DisabledByProgram": "Salas Públicas foram desabilitadas",
   "EnterVentToWin": "Entre no duto para vencer!!",
   "EatenByPelican": "Você foi engolido! Aguarde o Glutão morrer ou uma reunião ser chamada",
-  "KBBackCountDown": "<#ff0000>MORTO</color>\\n<#ffffff>Re-aparecendo em <#ffff00>{0}</color> segundos para reviver</color>\\n\\n",
+  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloKombat.WinnersKillCount": "Eles fizeram <color=#ffffff>{0}</color> abates!",
   "FireworksPutPhase": "<b>{0}</b> Fogos de Artifício restantes",
   "FireworksWaitPhase": "Aguarde para isso...",
