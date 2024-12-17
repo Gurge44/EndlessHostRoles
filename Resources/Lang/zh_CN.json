@@ -4340,7 +4340,7 @@
   "TetherNoTarget": "你没有目标",
   "Aid": "援助者",
   "AidInfo": "暂时保护玩家",
-  "AidInfoLong": "(船员们):\\n援助者可以使用击杀按钮来临时保护某人免受攻击.但你和你的目标不会知晓是否有人尝试击杀了他.",
+  "AidInfoLong": "(Crewmates):\\nAs the Aid, you may use your kill button on someone to protect them from direct attacks temporarily. Mark your target via your kill button, then vent when you want to activate the shield. Neither you nor your target will know if someone tried to kill your target.",
   "AidDur": "护盾持续时间",
   "AidCD": "发放护盾冷却时间",
   "AidTargetKnowsAboutShield": "目标会知道他们被保护了",
