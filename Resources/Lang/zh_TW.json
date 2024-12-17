@@ -2785,7 +2785,7 @@
   "DisabledByProgram": "公開房間的操作已被程式禁用",
   "EnterVentToWin": "跳進管道來點火!",
   "EatenByPelican": "您被鵜鶘吞了，請等待鵜鶘死亡或會議...",
-  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color> seconds to revive</color>\\n\\n",
+  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloKombat.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
   "FireworksPutPhase": "還需要安裝 {0} 枚煙火",
   "FireworksWaitPhase": "等待時機...",
