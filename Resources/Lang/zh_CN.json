@@ -2785,7 +2785,7 @@
   "DisabledByProgram": "公开房间的操作已被程序禁用",
   "EnterVentToWin": "选择一个有效目标来点燃他",
   "EatenByPelican": "您被鹈鹕吞了，请等待鹈鹕死亡或会议...",
-  "KBBackCountDown": "你死了，等待<b>{0}</b>秒后复活...",
+  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloKombat.WinnersKillCount": "他们获得了 <color=#ffffff>{0}</color>击杀数!",
   "FireworksPutPhase": "还要安放{0}枚烟花",
   "FireworksWaitPhase": "耐心等待....",
