@@ -16,7 +16,7 @@ public static class Statistics
 
     public static void OnGameEnd()
     {
-        if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || Main.AllPlayerControls.Length <= 3) return;
+        if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || Main.AllPlayerControls.Length <= MinPlayers) return;
 
         var lp = PlayerControl.LocalPlayer;
         var role = lp.GetCustomRole();

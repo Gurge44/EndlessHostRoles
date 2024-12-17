@@ -706,7 +706,16 @@ public static class GuessManager
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
-            if (pc == null || !pc.IsAlive()) continue;
+
+            if (pc == null) continue;
+
+            bool skip = PlayerControl.LocalPlayer.Is(CustomRoles.NecroGuesser) switch
+            {
+                true => pc.IsAlive() || pc.Is(CustomRoles.Gravestone) || (Options.SeeEjectedRolesInMeeting.GetBool() && Main.PlayerStates[pva.TargetPlayerId].deathReason == PlayerState.DeathReason.Vote),
+                false => !pc.IsAlive()
+            };
+
+            if (skip) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = Object.Instantiate(template, pva.transform);
@@ -969,7 +978,7 @@ public static class GuessManager
                             or CustomRoles.SuperStar
                             or CustomRoles.Konan
                             or CustomRoles.GuardianAngelEHR
-                   )
+                    )
                     continue;
 
                 if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) continue;

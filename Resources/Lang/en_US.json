@@ -2785,7 +2785,7 @@
   "DisabledByProgram": "Public rooms have been disabled by the program",
   "EnterVentToWin": "Enter a Vent to Ignite!",
   "EatenByPelican": "You're swallowed, waiting for the Pelican to die or a meeting",
-  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color> seconds to revive</color>\\n\\n",
+  "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloKombat.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
   "FireworksPutPhase": "{0} Fireworks Left",
   "FireworksWaitPhase": "Wait for it...",

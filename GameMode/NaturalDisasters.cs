@@ -81,10 +81,10 @@ public static class NaturalDisasters
         LoadAllDisasters();
 
         AllDisasters.ConvertAll(x => x.Name).ForEach(x => DisasterSpawnChances[x] = new IntegerOptionItem(id++, "ND_Disaster.SpawnChance", new(0, 100, 5), 50, TabGroup.GameSettings)
-            .SetGameMode(gameMode)
-            .SetColor(color)
-            .SetValueFormat(OptionFormat.Percent)
-            .AddReplacement(("{disaster}", Translator.GetString($"ND_{x}"))));
+                                                         .SetGameMode(gameMode)
+                                                         .SetColor(color)
+                                                         .SetValueFormat(OptionFormat.Percent)
+                                                         .AddReplacement(("{disaster}", Translator.GetString($"ND_{x}"))));
 
         AllDisasters.ForEach(x => x.GetMethod("SetupOwnCustomOption")?.Invoke(null, null));
     }
@@ -283,10 +283,14 @@ public static class NaturalDisasters
 
             if (now - LastSync >= 10)
             {
+                if (Options.CurrentGameMode == CustomGameMode.AllInOne)
+                {
+                    BuildingCollapse.CollapsedRooms.Clear();
+                    Sinkhole.RemoveRandomSinkhole();
+                    Utils.NotifyRoles();
+                }
+
                 LastSync = now;
-                BuildingCollapse.CollapsedRooms.Clear();
-                Sinkhole.RemoveRandomSinkhole();
-                Utils.NotifyRoles();
                 Utils.MarkEveryoneDirtySettings();
             }
         }
