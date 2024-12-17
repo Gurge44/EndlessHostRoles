@@ -31,6 +31,8 @@ public static class RoomRush
     private static int TimeLeft;
     private static HashSet<byte> DonePlayers = [];
 
+    private static long RoundStartTS;
+
     public static bool GameGoing;
     private static DateTime GameStartDateTime;
 
@@ -282,6 +284,7 @@ public static class RoomRush
                 _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
             };
 
+        RoundStartTS = Utils.TimeStamp;
         DonePlayers.Clear();
         RoomGoal = AllRooms.Without(previous).RandomElement();
         Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
@@ -321,15 +324,6 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
         Utils.NotifyRoles();
-
-        Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = Main.MinSpeed;
-        PlayerControl.LocalPlayer.SyncSettings();
-
-        LateTask.New(() =>
-        {
-            Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = speed;
-            PlayerControl.LocalPlayer.SyncSettings();
-        }, Utils.CalculatePingDelay());
     }
 
     private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
@@ -340,6 +334,8 @@ public static class RoomRush
     public static string GetSuffix(PlayerControl seer)
     {
         if (!GameGoing || Main.HasJustStarted || seer == null) return string.Empty;
+
+        if (seer.IsHost() && RoundStartTS == Utils.TimeStamp) return "....";
 
         StringBuilder sb = new();
         bool dead = !seer.IsAlive();

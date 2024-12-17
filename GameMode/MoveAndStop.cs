@@ -170,10 +170,11 @@ internal static class MoveAndStop
     {
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 60;
         bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode);
-        
+
         int time = 37;
         if (tutorial) time += 10;
-        if (Main.CurrentMap == MapNames.Airship) time += 10;
+        if (Main.CurrentMap is MapNames.Airship or MapNames.Fungle) time += 5;
+        if (Main.CurrentMap == MapNames.Airship) time += 7;
         return time;
     }
 
@@ -282,7 +283,7 @@ internal static class MoveAndStop
             int startingGreenTime = StartingGreenTime(pc);
             Vector2 pos = pc.Pos();
 
-            Counter[] counters = new[] {'⬅', '⇅', '➡'}.Select(x => new Counter(startingGreenTime, RandomRedTime(x), now, x, false, RandomRedTime, RandomGreenTime)).ToArray();
+            Counter[] counters = new[] { '⬅', '⇅', '➡' }.Select(x => new Counter(startingGreenTime, RandomRedTime(x), now, x, false, RandomRedTime, RandomGreenTime)).ToArray();
             AllPlayerTimers[pc.PlayerId] = new(counters, pos.x, pos.y, PlayerLives.GetInt());
 
             float limit;
@@ -293,10 +294,7 @@ internal static class MoveAndStop
                     ? 2f // If the player has a joystick, the game is a lot harder
                     : 0.5f; // On PC, you have WASD, you can't mess up
             }
-            catch
-            {
-                limit = 2f;
-            }
+            catch { limit = 2f; }
 
             FixedUpdatePatch.Limit[pc.PlayerId] = limit;
         }
@@ -311,10 +309,7 @@ internal static class MoveAndStop
             rank += Main.PlayerStates.Values.Where(x => x.TaskState.CompletedTasksCount == ms).ToList().IndexOf(Main.PlayerStates[playerId]);
             return rank;
         }
-        catch
-        {
-            return Main.AllPlayerControls.Length;
-        }
+        catch { return Main.AllPlayerControls.Length; }
     }
 
     public static string GetSuffixText(PlayerControl pc)
