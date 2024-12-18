@@ -372,7 +372,7 @@ public static class HudSpritePatch
                     break;
             }
 
-            if (player.GetCustomRole().UsesPetInsteadOfKill()) newPetButton = newKillButton;
+            if (player.UsesPetInsteadOfKill()) newPetButton = newKillButton;
 
 
             __instance.KillButton.graphic.sprite = newKillButton;

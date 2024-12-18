@@ -67,6 +67,11 @@ public class Bloodhound : RoleBase
         BloodhoundId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void OnReportDeadBody()
     {
         foreach (byte id in PlayerIdList)

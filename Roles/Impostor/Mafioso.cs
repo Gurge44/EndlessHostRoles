@@ -94,6 +94,11 @@ public class Mafioso : RoleBase
         Pistol2CD = 0;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetInt(Int32OptionNames.KillDistance, Tier > 0 ? 2 : 0);

@@ -59,6 +59,11 @@ public class Psychic : RoleBase
         PsychicId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;

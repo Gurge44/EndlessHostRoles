@@ -77,6 +77,11 @@ public class DonutDelivery : RoleBase
         playerId.SetAbilityUseLimit(UseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte playerId)
     {
         Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;

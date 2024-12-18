@@ -80,6 +80,11 @@ public class Spiritcaller : RoleBase
         ProtectTimeStamp = 0;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

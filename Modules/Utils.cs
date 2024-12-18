@@ -426,21 +426,8 @@ public static class Utils
 
     public static void RemovePlayerFromPreviousRoleData(PlayerControl target)
     {
-        switch (target.GetCustomRole())
-        {
-            case CustomRoles.Enigma:
-                Enigma.PlayerIdList.Remove(target.PlayerId);
-                break;
-            case CustomRoles.Mediumshiper:
-                Mediumshiper.PlayerIdList.Remove(target.PlayerId);
-                break;
-            case CustomRoles.Mortician:
-                Mortician.PlayerIdList.Remove(target.PlayerId);
-                break;
-            case CustomRoles.Spiritualist:
-                Spiritualist.PlayerIdList.Remove(target.PlayerId);
-                break;
-        }
+        if (!Main.PlayerStates.TryGetValue(target.PlayerId, out var state)) return;
+        state.Role.Remove(target.PlayerId);
     }
 
     public static string GetDisplayRoleName(byte playerId, bool pure = false, bool seeTargetBetrayalAddons = false)
@@ -938,7 +925,7 @@ public static class Utils
 
         if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
 
-        hasTasks |= role.UsesPetInsteadOfKill() && role is not (CustomRoles.Refugee or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick);
+        hasTasks |= p.Object.UsesPetInsteadOfKill() && role is not (CustomRoles.Refugee or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick);
 
         return hasTasks;
     }
@@ -2729,10 +2716,10 @@ public static class Utils
                     pc.MarkDirtySettings();
 
                     LateTask.New(() =>
-                                 {
-                                     Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
-                                     pc.MarkDirtySettings();
-                                 }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
+                        {
+                            Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
+                            pc.MarkDirtySettings();
+                        }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
                 }
 
                 if (Options.UsePets.GetBool())

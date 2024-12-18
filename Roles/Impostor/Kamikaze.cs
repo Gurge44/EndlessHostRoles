@@ -54,6 +54,11 @@ internal class Kamikaze : RoleBase
         KamikazeId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null) return false;

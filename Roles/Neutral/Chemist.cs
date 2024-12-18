@@ -215,6 +215,11 @@ internal class Chemist : RoleBase
         ItemCounts = Enum.GetValues<Item>().ToDictionary(x => x, _ => 0);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

@@ -46,7 +46,7 @@ internal static class OnGameJoinedPatch
             GameStartManagerPatch.GameStartManagerUpdatePatch.ExitTimer = -1;
             Main.DoBlockNameChange = false;
             Main.NewLobby = true;
-            EAC.DeNum = new();
+            EAC.DeNum = 0;
             Main.AllPlayerNames = [];
             Main.AllClientRealNames = [];
 

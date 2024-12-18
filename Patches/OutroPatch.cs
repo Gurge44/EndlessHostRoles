@@ -193,7 +193,7 @@ internal static class SetEverythingUpPatch
                 for (var j = 0; j < Main.WinnerList.Count; j++)
                 {
                     byte id = Main.WinnerList[j];
-                    if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags()) continue;
+                    if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags() || data.PlayerName == GetString("Dead")) continue;
 
                     CustomRoles role = Main.PlayerStates[id].MainRole;
 

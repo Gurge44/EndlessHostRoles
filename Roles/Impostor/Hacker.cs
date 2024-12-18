@@ -47,6 +47,11 @@ public class Hacker : RoleBase
         playerId.SetAbilityUseLimit(HackLimitOpt.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

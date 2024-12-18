@@ -66,6 +66,11 @@ public class Librarian : RoleBase
         IsInSilencingMode = (false, TimeStamp);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return !pc.IsShifted() || CanKillWhileShifted.GetBool();

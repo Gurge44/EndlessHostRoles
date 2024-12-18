@@ -50,6 +50,11 @@ public class Curser : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();

@@ -69,6 +69,11 @@ internal class Assassin : RoleBase
         }
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;

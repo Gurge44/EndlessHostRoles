@@ -98,6 +98,11 @@ public class ParityCop : RoleBase
         RoundCheckLimit.Add(playerId, ParityCheckLimitPerMeeting.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void OnReportDeadBody()
     {
         RoundCheckLimit.Clear();

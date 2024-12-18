@@ -126,6 +126,11 @@ public class ToiletMaster : RoleBase
         playerId.SetAbilityUseLimit(AbilityUses.GetFloat());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void OnPet(PlayerControl pc)
     {
         Vector2 pos = pc.Pos();
@@ -232,10 +237,7 @@ public class ToiletMaster : RoleBase
             PlayersUsingToilet.Remove(pc.PlayerId);
             Logger.Info($"{pc.GetNameWithRole()} used a toilet => {poop} poop", "ToiletMaster");
         }
-        catch
-        {
-            PlayersUsingToilet.Remove(pc.PlayerId);
-        }
+        catch { PlayersUsingToilet.Remove(pc.PlayerId); }
     }
 
     public override void AfterMeetingTasks()

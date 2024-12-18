@@ -92,6 +92,11 @@ public class Vulture : RoleBase
         VultureId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetVision(HasImpVision.GetBool());

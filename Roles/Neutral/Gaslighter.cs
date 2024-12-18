@@ -56,6 +56,11 @@ public class Gaslighter : RoleBase
         CycleFinished = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();
@@ -104,10 +109,7 @@ public class Gaslighter : RoleBase
 
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. curseDeathList]);
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public override void AfterMeetingTasks()

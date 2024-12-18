@@ -42,6 +42,11 @@ public class Morphling : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return !Main.PlayerStates[pc.PlayerId].IsDead && pc.IsShifted();

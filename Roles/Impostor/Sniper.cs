@@ -101,6 +101,11 @@ public class Sniper : RoleBase
         MeetingReset = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private static bool IsSniper(byte playerId)
     {
         return PlayerIdList.Contains(playerId);

@@ -70,6 +70,11 @@ public class Druid : RoleBase
         TriggerIds = [];
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = VentCooldown.GetInt();

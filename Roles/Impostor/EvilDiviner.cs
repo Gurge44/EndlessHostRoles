@@ -70,6 +70,11 @@ public class EvilDiviner : RoleBase
         }
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
         return CanVent;

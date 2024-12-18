@@ -77,6 +77,11 @@ public class BountyHunter : RoleBase
         if (AmongUsClient.Instance.AmHost) ResetTarget(Utils.GetPlayerById(playerId));
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPC()
     {
         if (!Utils.DoRPC) return;

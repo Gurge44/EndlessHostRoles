@@ -90,6 +90,11 @@ public class Doomsayer : RoleBase
         CantGuess = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static void SendRPC(PlayerControl player)
     {
         if (!Utils.DoRPC) return;

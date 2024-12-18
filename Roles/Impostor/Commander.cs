@@ -51,6 +51,11 @@ internal class Commander : RoleBase
         PlayerList = [];
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerList.Remove(this);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetValue();

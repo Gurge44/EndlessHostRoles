@@ -69,6 +69,11 @@ public class Ignitor : RoleBase // Candle Lighter from TOHY
         ElapsedTime = OptionTaskEndVisionTime.GetInt() + OptionCountStartTime.GetInt();
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         float Vision;

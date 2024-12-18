@@ -35,20 +35,20 @@ public class Traitor : RoleBase
 
         CanSabotage = new BooleanOptionItem(Id + 15, "CanUseSabotage", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
-            
+
         CanGetImpostorOnlyAddons = new BooleanOptionItem(Id + 16, "CanGetImpostorOnlyAddons", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
 
         LegacyTraitor = new BooleanOptionItem(Id + 17, "LegacyTraitor", false, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
 
         TraitorShapeshiftCD = new FloatOptionItem(Id + 19, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.NeutralRoles)
-                .SetParent(LegacyTraitor)
-                .SetValueFormat(OptionFormat.Seconds);
+            .SetParent(LegacyTraitor)
+            .SetValueFormat(OptionFormat.Seconds);
 
         TraitorShapeshiftDur = new FloatOptionItem(Id + 21, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.NeutralRoles)
-                .SetParent(LegacyTraitor)
-                .SetValueFormat(OptionFormat.Seconds);
+            .SetParent(LegacyTraitor)
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
@@ -59,6 +59,11 @@ public class Traitor : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     public override void SetButtonTexts(HudManager __instance, byte id)
@@ -86,6 +91,5 @@ public class Traitor : RoleBase
     public override bool CanUseSabotage(PlayerControl pc)
     {
         return base.CanUseSabotage(pc) || (CanSabotage.GetBool() && pc.IsAlive());
-
     }
 }

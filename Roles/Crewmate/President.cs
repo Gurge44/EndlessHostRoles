@@ -81,7 +81,7 @@ public class President : RoleBase
                     break;
                 case Decree.GovernmentRecruiting:
                     DecreeSettings[decree].Add(new StringOptionItem(++id, "President.GovernmentRecruiting.RecruitedRole", GovernmentRecruitRoles.Select(x => x.ToColoredString()).ToArray(), 0, tab, noTranslation: true)
-                                                   .SetParent(DecreeSettings[decree][0]));
+                        .SetParent(DecreeSettings[decree][0]));
 
                     break;
             }
@@ -103,6 +103,11 @@ public class President : RoleBase
         IsDeclassification = false;
         IsRecruiting = false;
         Used = false;
+    }
+
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

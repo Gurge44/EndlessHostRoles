@@ -35,6 +35,11 @@ public class Soothsayer : RoleBase
         Target = byte.MaxValue;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null || player.PlayerId == target.PlayerId) return false;

@@ -104,6 +104,11 @@ public class Medic : RoleBase
         playerId.SetAbilityUseLimit(SkillLimit);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private static void SendRPCForProtectList()
     {
         if (!Utils.DoRPC) return;
@@ -245,8 +250,8 @@ public class Medic : RoleBase
         if (notify)
         {
             foreach (byte id in PlayerIdList)
-            foreach (byte id2 in ProtectList)
-                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: Utils.GetPlayerById(id2));
+                foreach (byte id2 in ProtectList)
+                    Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: Utils.GetPlayerById(id2));
         }
     }
 

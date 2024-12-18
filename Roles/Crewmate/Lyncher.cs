@@ -78,6 +78,11 @@ public class Lyncher : RoleBase
         }
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         opt.SetVision(false);

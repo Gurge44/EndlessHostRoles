@@ -46,6 +46,11 @@ public class Stasis : RoleBase
         UsingAbility = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
         return CanVent.GetBool();

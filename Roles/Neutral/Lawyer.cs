@@ -82,10 +82,12 @@ public class Lawyer : RoleBase
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "Lawyer.Add");
-        }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "Lawyer.Add"); }
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")

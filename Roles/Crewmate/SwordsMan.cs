@@ -37,6 +37,11 @@ public class SwordsMan : RoleBase
         PlayerIdList = [];
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = IsKilled(id) ? 300f : KCD.GetFloat();

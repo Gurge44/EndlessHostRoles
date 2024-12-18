@@ -48,6 +48,11 @@ public class Doormaster : RoleBase
         playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (UsePets.GetBool()) return;

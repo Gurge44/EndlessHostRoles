@@ -322,9 +322,6 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out var name))
-            player.RpcSetNameEx(name);
-
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
@@ -335,7 +332,10 @@ internal static class ExtendedPlayerControl
         player.RpcResetAbilityCooldown();
         player.SyncGeneralOptions();
 
-        if (Camouflage.IsCamouflage) Camouflage.RpcSetSkin(player);
+        if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out var name))
+            RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+
+        Camouflage.RpcSetSkin(player);
 
         NotifyRoles(SpecifySeer: player, NoCache: true);
         NotifyRoles(SpecifyTarget: player, NoCache: true);
@@ -1313,7 +1313,8 @@ internal static class ExtendedPlayerControl
         else
             resultKCD = CD;
 
-        if (pc.GetCustomRole().UsesPetInsteadOfKill() && resultKCD > 0f) pc.AddAbilityCD((int)Math.Round(resultKCD));
+        if (pc.GetCustomRole().UsesPetInsteadOfKill() && resultKCD > 0f)
+            pc.AddAbilityCD((int)Math.Round(resultKCD));
 
         if (Main.KillTimers.TryGetValue(pc.PlayerId, out float timer) && timer > resultKCD) return;
 
@@ -1613,6 +1614,8 @@ internal static class ExtendedPlayerControl
         }
     }
 
+    public static bool UsesPetInsteadOfKill(this PlayerControl pc) => !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().UsesPetInsteadOfKill();
+
     public static bool IsLocalPlayer(this PlayerControl pc) => pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
     public static bool IsLocalPlayer(this NetworkedPlayerInfo npi) => npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
 
@@ -1724,7 +1727,7 @@ internal static class ExtendedPlayerControl
 
     public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return default;
+        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
 
         Il2CppReferenceArray<PlainShipRoom> Rooms = ShipStatus.Instance.AllRooms;
         return Rooms.Where(room => room.roomArea).FirstOrDefault(room => pc.Collider.IsTouching(room.roomArea));

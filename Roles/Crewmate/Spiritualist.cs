@@ -54,7 +54,7 @@ internal class Spiritualist : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        SpiritualistTarget = new();
+        SpiritualistTarget = 0;
         LastGhostArrowShowTime = 0;
         ShowGhostArrowUntil = 0;
     }
@@ -66,6 +66,11 @@ internal class Spiritualist : RoleBase
         LastGhostArrowShowTime = 0;
         ShowGhostArrowUntil = 0;
         SpiritualistId = playerId;
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     public static void OnReportDeadBody(NetworkedPlayerInfo target)

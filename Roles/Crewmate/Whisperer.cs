@@ -71,6 +71,11 @@ public class Whisperer : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void OnPet(PlayerControl pc)
     {
         if (Souls.Exists(x => x.IsQuestioning)) return;

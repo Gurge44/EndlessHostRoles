@@ -410,7 +410,7 @@ internal static class ChatCommands
         guess = char.ToUpper(guess[0]) + guess[1..];
         var deadPlayer = NoteKiller.RealNames.GetKeyByValue(guess);
 
-        if (deadPlayer == default && (!NoteKiller.RealNames.TryGetValue(default, out var name) || name != guess))
+        if (deadPlayer == 0 && (!NoteKiller.RealNames.TryGetValue(0, out var name) || name != guess))
         {
             Utils.SendMessage(GetString("DeathNoteCommand.WrongName"), player.PlayerId);
             return;

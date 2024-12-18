@@ -114,6 +114,11 @@ public class Jackal : RoleBase
         SidekickId = byte.MaxValue;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -206,10 +211,7 @@ public class Jackal : RoleBase
             sk.RpcSetCustomRole(CustomRoles.Jackal);
             if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 

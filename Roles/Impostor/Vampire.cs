@@ -70,6 +70,11 @@ public class Vampire : RoleBase
         }
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static bool IsVampire(byte playerId)
     {
         return PlayerIdList.Contains(playerId);

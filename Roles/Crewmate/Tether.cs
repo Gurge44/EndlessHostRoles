@@ -59,6 +59,11 @@ public class Tether : RoleBase
         TetherId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPCSyncTarget()
     {
         if (!IsEnable || !Utils.DoRPC) return;

@@ -59,6 +59,11 @@ public class Amogus : RoleBase
         ExtraVotes = 0;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         float kcd = KillCooldown.GetFloat();

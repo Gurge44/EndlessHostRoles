@@ -293,7 +293,7 @@ public class Rogue : RoleBase
                 1 => reader.ReadByte(),
                 2 => reader.ReadPackedInt32(),
                 3 => null,
-                _ => default
+                _ => null
             };
 
             CurrentTask = (objective, reward, data, isCompleted);

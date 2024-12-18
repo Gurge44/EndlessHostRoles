@@ -90,6 +90,11 @@ public class Glitch : RoleBase
         HasMimiced = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         hud.SabotageButton?.ToggleVisible(!Main.PlayerStates[id].IsDead);
@@ -157,10 +162,7 @@ public class Glitch : RoleBase
             MimicDurTimer = MimicDuration.GetInt();
             SendRPCSyncTimers();
         }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "Glitch.Mimic.RpcShapeshift");
-        }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "Glitch.Mimic.RpcShapeshift"); }
     }
 
     public override void OnPet(PlayerControl pc)
@@ -179,16 +181,16 @@ public class Glitch : RoleBase
         if (killer == null || target == null || (KCDTimer > 0 && HackCDTimer > 0)) return false;
 
         if (killer.CheckDoubleTrigger(target, () =>
+        {
+            if (HackCDTimer <= 0)
             {
-                if (HackCDTimer <= 0)
-                {
-                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                    HackCDTimer = HackCooldown.GetInt();
-                    target.BlockRole(HackDuration.GetFloat());
-                    LastHack = Utils.TimeStamp;
-                    SendRPCSyncTimers();
-                }
-            }))
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                HackCDTimer = HackCooldown.GetInt();
+                target.BlockRole(HackDuration.GetFloat());
+                LastHack = Utils.TimeStamp;
+                SendRPCSyncTimers();
+            }
+        }))
         {
             if (KCDTimer > 0) return false;
 
@@ -225,14 +227,8 @@ public class Glitch : RoleBase
 
         if (MimicDurTimer > 0)
         {
-            try
-            {
-                MimicDurTimer = (int)(MimicDuration.GetInt() - (now - LastMimic));
-            }
-            catch
-            {
-                MimicDurTimer = 0;
-            }
+            try { MimicDurTimer = (int)(MimicDuration.GetInt() - (now - LastMimic)); }
+            catch { MimicDurTimer = 0; }
 
             if (MimicDurTimer > 180) MimicDurTimer = 0;
         }
@@ -244,46 +240,25 @@ public class Glitch : RoleBase
                 player.RpcShapeshift(player, false);
                 IsShifted = false;
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString(), "Glitch.Mimic.RpcRevertShapeshift");
-            }
+            catch (Exception ex) { Logger.Error(ex.ToString(), "Glitch.Mimic.RpcRevertShapeshift"); }
 
             if (!GameStates.IsInTask) MimicDurTimer = 0;
         }
 
         if (HackCDTimer <= 0 && KCDTimer <= 0 && MimicCDTimer <= 0 && MimicDurTimer <= 0) return;
 
-        try
-        {
-            HackCDTimer = (int)(HackCooldown.GetInt() - (now - LastHack));
-        }
-        catch
-        {
-            HackCDTimer = 0;
-        }
+        try { HackCDTimer = (int)(HackCooldown.GetInt() - (now - LastHack)); }
+        catch { HackCDTimer = 0; }
 
         if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
 
-        try
-        {
-            KCDTimer = (int)(KillCooldown.GetInt() - (now - LastKill));
-        }
-        catch
-        {
-            KCDTimer = 0;
-        }
+        try { KCDTimer = (int)(KillCooldown.GetInt() - (now - LastKill)); }
+        catch { KCDTimer = 0; }
 
         if (KCDTimer is > 180 or < 0) KCDTimer = 0;
 
-        try
-        {
-            MimicCDTimer = (int)(MimicCooldown.GetInt() + (HasMimiced ? MimicDuration.GetInt() : 0) - (now - LastMimic));
-        }
-        catch
-        {
-            MimicCDTimer = 0;
-        }
+        try { MimicCDTimer = (int)(MimicCooldown.GetInt() + (HasMimiced ? MimicDuration.GetInt() : 0) - (now - LastMimic)); }
+        catch { MimicCDTimer = 0; }
 
         if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
 

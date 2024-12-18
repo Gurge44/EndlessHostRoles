@@ -59,6 +59,11 @@ public class Witch : RoleBase
         NowSwitchTrigger = IsHM ? (SwitchTrigger)HexMaster.ModeSwitchAction.GetValue() : (SwitchTrigger)ModeSwitchAction.GetValue();
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
         return true;
@@ -217,10 +222,7 @@ public class Witch : RoleBase
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. spelledIdList]);
             RemoveSpelledPlayer();
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static string GetSpelledMark(byte target, bool isMeeting)

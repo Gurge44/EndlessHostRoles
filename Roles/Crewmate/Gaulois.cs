@@ -49,6 +49,11 @@ public class Gaulois : RoleBase
         playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte playerId)
     {
         if (!IsEnable) return;

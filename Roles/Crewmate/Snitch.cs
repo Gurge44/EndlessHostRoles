@@ -69,6 +69,11 @@ public class Snitch : RoleBase
         IsComplete[playerId] = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static bool IsSnitch(byte playerId)
     {
         return PlayerIdList.Contains(playerId);

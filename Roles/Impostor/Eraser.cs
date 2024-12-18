@@ -65,6 +65,11 @@ internal class Eraser : RoleBase
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.GetAbilityUseLimit() < 1) return true;

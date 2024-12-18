@@ -24,6 +24,11 @@ internal class Bodyguard : RoleBase
         BodyguardPC = Utils.GetPlayerById(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(8400, TabGroup.CrewmateRoles, CustomRoles.Bodyguard);

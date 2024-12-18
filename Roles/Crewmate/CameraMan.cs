@@ -70,6 +70,11 @@ public class CameraMan : RoleBase
         IsTeleported = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();

@@ -27,6 +27,11 @@ internal class Markseeker : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void Init()
     {
         On = false;

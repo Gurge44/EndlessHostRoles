@@ -60,6 +60,11 @@ public class Simon : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 1, DoMode);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

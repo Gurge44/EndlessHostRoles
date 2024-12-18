@@ -56,6 +56,11 @@ public class Spy : RoleBase
         playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
     {
         if (!DoRPC) return;

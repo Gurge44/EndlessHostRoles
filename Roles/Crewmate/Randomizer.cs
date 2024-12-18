@@ -230,10 +230,7 @@ internal static class EffectExtenstions
 
                         foreach (Vector2 rift in riftsToRemove) Rifts.Remove(rift);
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.Exception(ex, "Randomizer Rift Manager");
-                    }
+                    catch (Exception ex) { Logger.Exception(ex, "Randomizer Rift Manager"); }
 
                     break;
                 case Effect.TimeBomb:
@@ -321,26 +318,17 @@ internal static class EffectExtenstions
 
                     break;
                 case Effect.AllDoorsOpen:
-                    try
-                    {
-                        DoorsReset.OpenAllDoors();
-                    }
+                    try { DoorsReset.OpenAllDoors(); }
                     catch { }
 
                     break;
                 case Effect.AllDoorsClose:
-                    try
-                    {
-                        DoorsReset.CloseAllDoors();
-                    }
+                    try { DoorsReset.CloseAllDoors(); }
                     catch { }
 
                     break;
                 case Effect.SetDoorsRandomly:
-                    try
-                    {
-                        DoorsReset.OpenOrCloseAllDoorsRandomly();
-                    }
+                    try { DoorsReset.OpenOrCloseAllDoorsRandomly(); }
                     catch { }
 
                     break;
@@ -407,10 +395,7 @@ internal static class EffectExtenstions
                     break;
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "Randomizer");
-        }
+        catch (Exception ex) { Logger.Exception(ex, "Randomizer"); }
     }
 }
 
@@ -560,6 +545,11 @@ internal class Randomizer : RoleBase
         AllPlayerDefaultSpeed = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static PlayerControl PickRandomPlayer()
     {
         PlayerControl[] allPc = Main.AllAlivePlayerControls;
@@ -615,10 +605,7 @@ internal class Randomizer : RoleBase
                 keys.DoIf(x => x.IsSpeedChangingEffect(), x => effects.Remove(x), false);
             }
         }
-        catch (Exception e)
-        {
-            Logger.Exception(e, "Randomizer");
-        }
+        catch (Exception e) { Logger.Exception(e, "Randomizer"); }
     }
 
     public static void RevertVisionChangesForPlayer(PlayerControl pc, bool sync)
@@ -634,10 +621,7 @@ internal class Randomizer : RoleBase
                 if (sync) pc.MarkDirtySettings();
             }
         }
-        catch (Exception e)
-        {
-            Logger.Exception(e, "Randomizer");
-        }
+        catch (Exception e) { Logger.Exception(e, "Randomizer"); }
     }
 
     public static void OnAnyoneDeath(PlayerControl pc)
@@ -652,10 +636,7 @@ internal class Randomizer : RoleBase
             Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
             pc.MarkDirtySettings();
         }
-        catch (Exception e)
-        {
-            Logger.Exception(e, "Randomizer");
-        }
+        catch (Exception e) { Logger.Exception(e, "Randomizer"); }
     }
 
     public override void OnReportDeadBody()
@@ -704,10 +685,7 @@ internal class Randomizer : RoleBase
                 }
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "Randomizer");
-        }
+        catch (Exception ex) { Logger.Exception(ex, "Randomizer"); }
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -755,10 +733,7 @@ internal class Randomizer : RoleBase
             else
                 LastEffectPick.TryAdd(pc.PlayerId, now);
         }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "Randomizer");
-        }
+        catch (Exception ex) { Logger.Exception(ex, "Randomizer"); }
     }
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
@@ -789,10 +764,7 @@ internal class Randomizer : RoleBase
                 }
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "Randomizer");
-        }
+        catch (Exception ex) { Logger.Exception(ex, "Randomizer"); }
     }
 
     public static void OnFixedUpdateForPlayers(PlayerControl pc)
@@ -818,9 +790,6 @@ internal class Randomizer : RoleBase
                 }
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "Randomizer");
-        }
+        catch (Exception ex) { Logger.Exception(ex, "Randomizer"); }
     }
 }

@@ -161,6 +161,11 @@ public class Dad : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 1, Shop.Id);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (UsingAbilities.Contains(Ability.Sleep))

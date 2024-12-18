@@ -177,7 +177,7 @@ internal static class HudManagerPatch
 
                     CustomRoles role = player.GetCustomRole();
 
-                    bool usesPetInsteadOfKill = role.UsesPetInsteadOfKill();
+                    bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
                     if (usesPetInsteadOfKill) __instance.PetButton?.OverrideText(GetString("KillButtonText"));
 
                     ActionButton usedButton = __instance.KillButton;
@@ -296,7 +296,7 @@ internal static class HudManagerPatch
 
                     bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
 
-                    if (player.CanUseKillButton() && (allowedRole || !role.UsesPetInsteadOfKill()))
+                    if (player.CanUseKillButton() && (allowedRole || !usesPetInsteadOfKill))
                     {
                         __instance.KillButton?.ToggleVisible(player.IsAlive() && GameStates.IsInTask);
                         player.Data.Role.CanUseKillButton = true;

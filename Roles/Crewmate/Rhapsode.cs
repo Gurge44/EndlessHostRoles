@@ -70,6 +70,11 @@ public class Rhapsode : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (Options.UsePets.GetBool()) return;

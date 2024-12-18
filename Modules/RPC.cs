@@ -342,10 +342,7 @@ internal static class RPCHandlerPatch
                 // Sync Settings
                 foreach (OptionItem option in listOptions)
                 {
-                    try
-                    {
-                        option.SetValue(reader.ReadPackedInt32());
-                    }
+                    try { option.SetValue(reader.ReadPackedInt32()); }
                     catch { }
                 }
 
@@ -522,7 +519,8 @@ internal static class RPCHandlerPatch
                 PlayerControl player = reader.ReadByte().GetPlayer();
                 string text = reader.ReadString();
 
-                typeof(ChatCommands).GetMethod(methodName, BindingFlags.Static)?.Invoke(null, [null, player, text, text.Split(' ')]);
+                const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
+                typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [null, player, text, text.Split(' ')]);
                 break;
             }
             case CustomRPC.SyncPostman:
@@ -1272,40 +1270,25 @@ internal static class RPC
     {
         if (ShipStatus.Instance == null) return;
 
-        try
-        {
-            CustomWinnerHolder.ResetAndSetWinner(win);
-        }
+        try { CustomWinnerHolder.ResetAndSetWinner(win); }
         catch { }
 
         if (AmongUsClient.Instance.AmHost)
         {
             ShipStatus.Instance.enabled = false;
 
-            try
-            {
-                GameManager.Instance.LogicFlow.CheckEndCriteria();
-            }
+            try { GameManager.Instance.LogicFlow.CheckEndCriteria(); }
             catch { }
 
-            try
-            {
-                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
-            }
+            try { GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false); }
             catch { }
         }
     }
 
     public static void EndGame(MessageReader reader)
     {
-        try
-        {
-            CustomWinnerHolder.ReadFrom(reader);
-        }
-        catch (Exception ex)
-        {
-            Logger.Error($"正常にEndGameを行えませんでした。\n{ex}", "EndGame", false);
-        }
+        try { CustomWinnerHolder.ReadFrom(reader); }
+        catch (Exception ex) { Logger.Error($"正常にEndGameを行えませんでした。\n{ex}", "EndGame", false); }
     }
 
     public static void PlaySound(byte playerID, Sounds sound)

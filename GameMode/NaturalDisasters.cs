@@ -81,10 +81,10 @@ public static class NaturalDisasters
         LoadAllDisasters();
 
         AllDisasters.ConvertAll(x => x.Name).ForEach(x => DisasterSpawnChances[x] = new IntegerOptionItem(id++, "ND_Disaster.SpawnChance", new(0, 100, 5), 50, TabGroup.GameSettings)
-                                                         .SetGameMode(gameMode)
-                                                         .SetColor(color)
-                                                         .SetValueFormat(OptionFormat.Percent)
-                                                         .AddReplacement(("{disaster}", Translator.GetString($"ND_{x}"))));
+            .SetGameMode(gameMode)
+            .SetColor(color)
+            .SetValueFormat(OptionFormat.Percent)
+            .AddReplacement(("{disaster}", Translator.GetString($"ND_{x}"))));
 
         AllDisasters.ForEach(x => x.GetMethod("SetupOwnCustomOption")?.Invoke(null, null));
     }
@@ -655,7 +655,7 @@ public static class NaturalDisasters
                 var hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
                 var cno = new Lightning(hit);
 
-                if (cno.playerControl.GetPlainShipRoom() != default(PlainShipRoom))
+                if (cno.playerControl.GetPlainShipRoom() != null)
                     cno.Despawn();
                 else
                 {
@@ -908,7 +908,7 @@ public static class NaturalDisasters
             Update();
 
             PlainShipRoom room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
-            if (room == default(PlainShipRoom)) return;
+            if (room == null) return;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 if (pc.GetPlainShipRoom() == room)
@@ -939,7 +939,7 @@ public static class NaturalDisasters
             {
                 PlainShipRoom room = pc.GetPlainShipRoom();
 
-                if (room != default(PlainShipRoom) && CollapsedRooms.Exists(x => x == room))
+                if (room != null && CollapsedRooms.Exists(x => x == room))
                 {
                     if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos)) pc.TP(lastPos);
                     else pc.Suicide(PlayerState.DeathReason.Collapsed);
