@@ -4909,7 +4909,6 @@
   "InquirerInfo": "Verificar funções dos jogadores",
   "InquirerInfoLong": "(Tripulantes):\\nComo o Inquisidor, você pode verificar se um jogador tem uma função específica digitando /check {player id} {role}. Existe uma chance de falhar.",
   "Inquirer.FailChance": "Chance de mostrar o resultado Errado",
-  "Inquirer.AbilityUseLimit": "Limite de uso de habilidade inicial",
   "Inquirer.MessageTrue": "<#00ff00><b><u>Correto!</u></b></color> Esse jogador tem a função que você inseriu.",
   "Inquirer.MessageFalse": "<#ff0000><b><u>Incorreto!</u></b></color> Esse jogador não possui a função que você inseriu.",
   "Freezer": "Congelador",
