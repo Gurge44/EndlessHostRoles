@@ -4909,7 +4909,6 @@
   "InquirerInfo": "Check Players' Roles",
   "InquirerInfoLong": "(Crewmates):\\nAs the Inquirer, you can check if a player has a specific role by typing /check {player id} {role}. There's a fail chance.",
   "Inquirer.FailChance": "Chance to Show Incorrect Result",
-  "Inquirer.AbilityUseLimit": "Initial Ability Use Limit",
   "Inquirer.MessageTrue": "<#00ff00><b><u>Correct!</u></b></color> That player has the role you entered.",
   "Inquirer.MessageFalse": "<#ff0000><b><u>Incorrect!</u></b></color> That player does not have the role you entered.",
   "Freezer": "Freezer",
