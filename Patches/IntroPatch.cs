@@ -499,6 +499,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Scientist or
                     CustomRoles.ScientistEHR or
+                    CustomRoles.Aid or
                     CustomRoles.Doctor or
                     CustomRoles.Medic
                     => GetIntroSound(RoleTypes.Scientist),
@@ -532,6 +533,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Tracker
                     or CustomRoles.TrackerEHR
+                    or CustomRoles.Bloodhound
                     or CustomRoles.Scout
                     or CustomRoles.EvilTracker
                     => GetIntroSound(RoleTypes.Tracker),
