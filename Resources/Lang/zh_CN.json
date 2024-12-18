@@ -4909,7 +4909,6 @@
   "InquirerInfo": "捕捉玩家的职业",
   "InquirerInfoLong": "(Crewmates):\\n询问者可以通过输入/check {player id} {role} 来检查玩家是否具有该职业.但请注意,这种方法有可能会显示错误答案.",
   "Inquirer.FailChance": "显示错误结果的概率",
-  "Inquirer.AbilityUseLimit": "Initial Ability Use Limit",
   "Inquirer.MessageTrue": "<#00ff00><b><u>正确!</u></b></color>那个玩家有该特定职业.",
   "Inquirer.MessageFalse": "<#ff0000><b><u>错误!</u></b></color>那个玩家没有该特定职业.",
   "Freezer": "冰箱",
