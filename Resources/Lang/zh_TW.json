@@ -4909,7 +4909,6 @@
   "InquirerInfo": "檢查玩家的職業",
   "InquirerInfoLong": "(船員陣營):\\n詢問者可以輸入/check {player id} {role} 來詢問玩家是否具有特定職業。詢問有機率失敗。",
   "Inquirer.FailChance": "顯示錯誤結果的機率",
-  "Inquirer.AbilityUseLimit": "Initial Ability Use Limit",
   "Inquirer.MessageTrue": "<#00ff00><b><u>正確!</u></b></color> 那位玩家擁有你詢問的職業",
   "Inquirer.MessageFalse": "<#ff0000><b><u>不正確!</u></b></color> 那位玩家沒有擁有你詢問的職業",
   "Freezer": "凍結者",
