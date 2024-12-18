@@ -4909,7 +4909,6 @@
   "InquirerInfo": "Revisa los Roles de los Jugadores",
   "InquirerInfoLong": "(Tripulantes):\\nComo el Inquiridor, puedes revisar si un jugador tiene un rol específico escribiendo /check {id del jugador} {rol}. Hay posibilidad de falla.",
   "Inquirer.FailChance": "Probabilidad de Mostrar Resultado Incorrecto",
-  "Inquirer.AbilityUseLimit": "Initial Ability Use Limit",
   "Inquirer.MessageTrue": "<#00ff00><b><u>¡Correcto!</u></b></color> Ese jugador tiene el rol que escribiste.",
   "Inquirer.MessageFalse": "<#ff0000><b><u>¡Incorrecto!</u></b></color> Ese jugador no tiene el rol que escribiste.",
   "Freezer": "Congelador",
