@@ -17,7 +17,7 @@ public class Inquirer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
             .SetValueFormat(OptionFormat.Percent);
 
-        AbilityUseLimit = new IntegerOptionItem(649713, "Inquirer.AbilityUseLimit", new(0, 10, 1), 1, TabGroup.CrewmateRoles)
+        AbilityUseLimit = new IntegerOptionItem(649713, "AbilityUseLimit", new(0, 10, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
             .SetValueFormat(OptionFormat.Times);
 
