@@ -1,59 +1,158 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
+using HarmonyLib;
 using InnerNet;
+using UnityEngine;
 using UnityEngine.Networking;
 
-namespace EHR.Modules
+namespace EHR.Modules;
+
+public static class LobbyNotifierForDiscord
 {
-    public static class LobbyNotifierForDiscord
+    private const float BufferTime = 5;
+    public static long LastRequestTimeStamp;
+    public static string LastRoomCode = string.Empty;
+    private static string Token = string.Empty;
+
+    private static string WebhookUrl
     {
-        private static long LastLobbyCreatedNotificationSentTimeStamp;
-
-        private static string WebhookUrl
+        get
         {
-            get
+            const string path = "EHR.Resources.Config.URL.txt";
+            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path)!;
+            stream.Position = 0;
+            using StreamReader reader = new(stream, Encoding.UTF8);
+            return reader.ReadToEnd();
+        }
+    }
+
+    private static void NotifyLobbyCreated()
+    {
+        var gameId = AmongUsClient.Instance.GameId;
+        if (gameId == 32) return;
+
+        var roomCode = GameCode.IntToGameName(gameId);
+        if (roomCode == LastRoomCode) return;
+        LastRoomCode = roomCode;
+
+        var serverName = Utils.GetRegionName();
+        var language = Translator.GetUserTrueLang().ToString();
+        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", gameId));
+    }
+
+    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId)
+    {
+        var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime - timeSinceLastRequest);
+        LastRequestTimeStamp = Utils.TimeStamp;
+
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\"}}";
+        byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
+
+        UnityWebRequest request = new UnityWebRequest(WebhookUrl, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(jsonToSend),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+
+        request.SetRequestHeader("Content-Type", "application/json");
+        yield return request.SendWebRequest();
+
+        bool success = request.result == UnityWebRequest.Result.Success;
+        Logger.Msg(success ? "Lobby created notification sent successfully." : $"Failed to send lobby created notification: {request.error}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
+
+        if (success)
+        {
+            try
             {
-                const string path = "EHR.Resources.Config.URL.txt";
-                Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path)!;
-                stream.Position = 0;
-                using StreamReader reader = new(stream, Encoding.UTF8);
-                return reader.ReadToEnd();
+                string responseText = request.downloadHandler.text;
+                Logger.Msg("Response from server: " + responseText, "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
+
+                using JsonDocument doc = JsonDocument.Parse(responseText);
+                Token = doc.RootElement.GetProperty("token").GetString();
+
+                Logger.Msg($"Token for room {roomCode}: {Token}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
             }
-        }
+            catch (Exception ex) { Logger.Msg($"Failed to parse token from response: {ex.Message}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest"); }
 
-        public static void NotifyLobbyCreated()
+            Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, Translator.GetString("Message.LobbyCodeSent"));
+        }
+    }
+
+    public static void NotifyLobbyStatusChanged(LobbyStatus status)
+    {
+        if (!Options.PostLobbyCodeToEHRDiscordServer.GetBool() || !AmongUsClient.Instance.AmHost) return;
+
+        if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) != LastRoomCode)
         {
-            long currentTimeStamp = Utils.TimeStamp;
-            if (currentTimeStamp - LastLobbyCreatedNotificationSentTimeStamp < 600) return;
-            LastLobbyCreatedNotificationSentTimeStamp = currentTimeStamp;
-
-            var roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
-            var serverName = Utils.GetRegionName();
-            var language = Translator.GetUserTrueLang().ToString();
-            var hostName = PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp ? Main.AllPlayerNames.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, "Unknown") : "Unknown (Not Trusted)";
-            Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", hostName));
+            status = LobbyStatus.Closed;
+            StartMessageEdit();
+            NotifyLobbyCreated();
+            return;
         }
 
-        private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, string hostName)
+        StartMessageEdit();
+        return;
+
+        void StartMessageEdit()
         {
-            var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"hostName\":\"{hostName}\"}}";
-            byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
-
-            UnityWebRequest request = new UnityWebRequest(WebhookUrl, "POST")
-            {
-                uploadHandler = new UploadHandlerRaw(jsonToSend),
-                downloadHandler = new DownloadHandlerBuffer()
-            };
-
-            request.SetRequestHeader("Content-Type", "application/json");
-            yield return request.SendWebRequest();
-
-            bool success = request.result == UnityWebRequest.Result.Success;
-            Logger.Msg(success ? "Lobby created notification sent successfully." : $"Failed to send lobby created notification: {request.error}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
-            if (success) Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, Translator.GetString("Message.LobbyCodeSent"));
+            Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' ')));
         }
+    }
+
+    private static IEnumerator SendLobbyStatusChangedRequest(string roomCode, string newStatus)
+    {
+        if (string.IsNullOrEmpty(Token)) yield break;
+
+        var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime - timeSinceLastRequest);
+        LastRequestTimeStamp = Utils.TimeStamp;
+
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\"}}";
+        byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
+
+        UnityWebRequest request = new UnityWebRequest(WebhookUrl.Replace("lobby_created", "update_status"), "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(jsonToSend),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+
+        request.SetRequestHeader("Content-Type", "application/json");
+        yield return request.SendWebRequest();
+
+        bool success = request.result == UnityWebRequest.Result.Success;
+        Logger.Msg(success ? "Lobby status changed notification sent successfully." : $"Failed to send lobby status changed notification: {request.error}", "LobbyNotifierForDiscord.SendLobbyStatusChangedRequest");
+    }
+}
+
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+public enum LobbyStatus
+{
+    In_Lobby,
+    In_Game,
+    Ended,
+    Closed
+}
+
+[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.ExitGame))]
+static class ExitGamePatch
+{
+    public static void Prefix()
+    {
+        if (SetUpRoleTextPatch.IsInIntro)
+        {
+            SetUpRoleTextPatch.IsInIntro = false;
+            Utils.NotifyRoles(NoCache: true);
+        }
+    }
+
+    public static void Postfix()
+    {
+        LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.Closed);
     }
 }

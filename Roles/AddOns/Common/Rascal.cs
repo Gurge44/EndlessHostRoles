@@ -1,17 +1,16 @@
 ﻿using static EHR.Options;
 
-namespace EHR.AddOns.Common
+namespace EHR.AddOns.Common;
+
+internal class Rascal : IAddon
 {
-    internal class Rascal : IAddon
+    public AddonTypes Type => AddonTypes.Harmful;
+
+    public void SetupCustomOption()
     {
-        public AddonTypes Type => AddonTypes.Harmful;
+        SetupAdtRoleOptions(15600, CustomRoles.Rascal, canSetNum: true, tab: TabGroup.Addons, teamSpawnOptions: true);
 
-        public void SetupCustomOption()
-        {
-            SetupAdtRoleOptions(15600, CustomRoles.Rascal, canSetNum: true, tab: TabGroup.Addons, teamSpawnOptions: true);
-
-            RascalAppearAsMadmate = new BooleanOptionItem(15610, "RascalAppearAsMadmate", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Rascal]);
-        }
+        RascalAppearAsMadmate = new BooleanOptionItem(15610, "RascalAppearAsMadmate", true, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Rascal]);
     }
 }

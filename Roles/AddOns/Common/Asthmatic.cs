@@ -3,140 +3,139 @@ using System.Linq;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.AddOns.Common
+namespace EHR.AddOns.Common;
+
+internal class Asthmatic : IAddon
 {
-    internal class Asthmatic : IAddon
+    private static readonly Dictionary<byte, Counter> Timers = [];
+    private static readonly Dictionary<byte, string> LastSuffix = [];
+    private static readonly Dictionary<byte, Vector2> LastPosition = [];
+    private static int MinRedTime;
+    private static int MaxRedTime;
+    private static int MinGreenTime;
+    private static int MaxGreenTime;
+
+    public static bool RunChecks = true;
+    public AddonTypes Type => AddonTypes.Harmful;
+
+    public void SetupCustomOption()
     {
-        private static readonly Dictionary<byte, Counter> Timers = [];
-        private static readonly Dictionary<byte, string> LastSuffix = [];
-        private static readonly Dictionary<byte, Vector2> LastPosition = [];
-        private static int MinRedTime;
-        private static int MaxRedTime;
-        private static int MinGreenTime;
-        private static int MaxGreenTime;
+        SetupAdtRoleOptions(15419, CustomRoles.Asthmatic, canSetNum: true, teamSpawnOptions: true);
 
-        public static bool RunChecks = true;
-        public AddonTypes Type => AddonTypes.Harmful;
+        AsthmaticMinRedTime = new IntegerOptionItem(15426, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        public void SetupCustomOption()
+        AsthmaticMaxRedTime = new IntegerOptionItem(15427, "AsthmaticMaxRedTime", new(1, 90, 1), 15, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        AsthmaticMinGreenTime = new IntegerOptionItem(15428, "AsthmaticMinGreenTime", new(1, 90, 1), 5, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        AsthmaticMaxGreenTime = new IntegerOptionItem(15429, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
+            .SetValueFormat(OptionFormat.Seconds);
+    }
+
+    private static int RandomRedTime(char _) => IRandom.Instance.Next(MinRedTime, MaxRedTime);
+    private static int RandomGreenTime(char _) => IRandom.Instance.Next(MinGreenTime, MaxGreenTime);
+
+    public static void Init()
+    {
+        Timers.Clear();
+        LastSuffix.Clear();
+        LastPosition.Clear();
+
+        MinRedTime = AsthmaticMinRedTime.GetInt();
+        MaxRedTime = AsthmaticMaxRedTime.GetInt();
+        MinGreenTime = AsthmaticMinGreenTime.GetInt();
+        MaxGreenTime = AsthmaticMaxGreenTime.GetInt();
+    }
+
+    public static void Add()
+    {
+        LateTask.New(() =>
         {
-            SetupAdtRoleOptions(15419, CustomRoles.Asthmatic, canSetNum: true, teamSpawnOptions: true);
+            var r = IRandom.Instance;
+            long now = Utils.TimeStamp;
 
-            AsthmaticMinRedTime = new IntegerOptionItem(15426, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
-                .SetValueFormat(OptionFormat.Seconds);
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                if (pc.Is(CustomRoles.Asthmatic))
+                    Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false, RandomRedTime, RandomGreenTime);
+        }, 8f, "Add Asthmatic Timers");
+    }
 
-            AsthmaticMaxRedTime = new IntegerOptionItem(15427, "AsthmaticMaxRedTime", new(1, 90, 1), 15, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            AsthmaticMinGreenTime = new IntegerOptionItem(15428, "AsthmaticMinGreenTime", new(1, 90, 1), 5, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            AsthmaticMaxGreenTime = new IntegerOptionItem(15429, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
-                .SetValueFormat(OptionFormat.Seconds);
-        }
-
-        private static int RandomRedTime(char _) => IRandom.Instance.Next(MinRedTime, MaxRedTime);
-        private static int RandomGreenTime(char _) => IRandom.Instance.Next(MinGreenTime, MaxGreenTime);
-
-        public static void Init()
+    public static void OnFixedUpdate()
+    {
+        foreach (KeyValuePair<byte, Counter> kvp in Timers.ToArray())
         {
-            Timers.Clear();
-            LastSuffix.Clear();
-            LastPosition.Clear();
+            PlayerState state = Main.PlayerStates[kvp.Key];
 
-            MinRedTime = AsthmaticMinRedTime.GetInt();
-            MaxRedTime = AsthmaticMaxRedTime.GetInt();
-            MinGreenTime = AsthmaticMinGreenTime.GetInt();
-            MaxGreenTime = AsthmaticMaxGreenTime.GetInt();
-        }
-
-        public static void Add()
-        {
-            LateTask.New(() =>
+            if (state.IsDead || !state.SubRoles.Contains(CustomRoles.Asthmatic))
             {
-                var r = IRandom.Instance;
-                long now = Utils.TimeStamp;
+                state.RemoveSubRole(CustomRoles.Asthmatic);
+                Timers.Remove(kvp.Key);
+                LastSuffix.Remove(kvp.Key);
+                LastPosition.Remove(kvp.Key);
+                continue;
+            }
 
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                    if (pc.Is(CustomRoles.Asthmatic))
-                        Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false, RandomRedTime, RandomGreenTime);
-            }, 8f, "Add Asthmatic Timers");
+            kvp.Value.Update();
+        }
+    }
+
+    public static void OnCheckPlayerPosition(PlayerControl pc)
+    {
+        if (!pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
+
+        Vector2 currentPosition = pc.transform.position;
+
+        if (!LastPosition.TryGetValue(pc.PlayerId, out Vector2 previousPosition))
+        {
+            LastPosition[pc.PlayerId] = currentPosition;
+            return;
         }
 
-        public static void OnFixedUpdate()
+        currentPosition.x += previousPosition.x * Time.deltaTime;
+        currentPosition.y += previousPosition.y * Time.deltaTime;
+
+        Vector2 direction = currentPosition - previousPosition;
+
+        direction.Normalize();
+
+        float distanceX = currentPosition.x - previousPosition.x;
+        float distanceY = currentPosition.y - previousPosition.y;
+
+        const float limit = 2f;
+
+        if (direction.y is > 0 or < 0 || direction.x is > 0 or < 0)
         {
-            foreach (KeyValuePair<byte, Counter> kvp in Timers.ToArray())
+            switch (counter.IsRed)
             {
-                PlayerState state = Main.PlayerStates[kvp.Key];
-
-                if (state.IsDead || !state.SubRoles.Contains(CustomRoles.Asthmatic))
-                {
-                    state.RemoveSubRole(CustomRoles.Asthmatic);
-                    Timers.Remove(kvp.Key);
-                    LastSuffix.Remove(kvp.Key);
-                    LastPosition.Remove(kvp.Key);
-                    continue;
-                }
-
-                kvp.Value.Update();
+                case true when distanceY > limit || distanceY < -limit || distanceX > limit || distanceX < -limit:
+                    pc.Suicide(PlayerState.DeathReason.Asthma);
+                    Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Asthmatic);
+                    Timers.Remove(pc.PlayerId);
+                    LastSuffix.Remove(pc.PlayerId);
+                    LastPosition.Remove(pc.PlayerId);
+                    return;
+                case false:
+                    LastPosition[pc.PlayerId] = currentPosition;
+                    break;
             }
         }
 
-        public static void OnCheckPlayerPosition(PlayerControl pc)
-        {
-            if (!pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
+        string suffix = GetSuffixText(pc.PlayerId);
 
-            Vector2 currentPosition = pc.transform.position;
+        if (!pc.IsModClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
-            if (!LastPosition.TryGetValue(pc.PlayerId, out Vector2 previousPosition))
-            {
-                LastPosition[pc.PlayerId] = currentPosition;
-                return;
-            }
+        LastSuffix[pc.PlayerId] = suffix;
+    }
 
-            currentPosition.x += previousPosition.x * Time.deltaTime;
-            currentPosition.y += previousPosition.y * Time.deltaTime;
-
-            Vector2 direction = currentPosition - previousPosition;
-
-            direction.Normalize();
-
-            float distanceX = currentPosition.x - previousPosition.x;
-            float distanceY = currentPosition.y - previousPosition.y;
-
-            const float limit = 2f;
-
-            if (direction.y is > 0 or < 0 || direction.x is > 0 or < 0)
-            {
-                switch (counter.IsRed)
-                {
-                    case true when distanceY > limit || distanceY < -limit || distanceX > limit || distanceX < -limit:
-                        pc.Suicide(PlayerState.DeathReason.Asthma);
-                        Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Asthmatic);
-                        Timers.Remove(pc.PlayerId);
-                        LastSuffix.Remove(pc.PlayerId);
-                        LastPosition.Remove(pc.PlayerId);
-                        return;
-                    case false:
-                        LastPosition[pc.PlayerId] = currentPosition;
-                        break;
-                }
-            }
-
-            string suffix = GetSuffixText(pc.PlayerId);
-
-            if (!pc.IsModClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-
-            LastSuffix[pc.PlayerId] = suffix;
-        }
-
-        public static string GetSuffixText(byte id)
-        {
-            return id.GetPlayer().IsAlive() && Timers.TryGetValue(id, out Counter counter) ? $"{counter.ColoredArrow} {counter.ColoredTimerString}" : string.Empty;
-        }
+    public static string GetSuffixText(byte id)
+    {
+        return id.GetPlayer().IsAlive() && Timers.TryGetValue(id, out Counter counter) ? $"{counter.ColoredArrow} {counter.ColoredTimerString}" : string.Empty;
     }
 }

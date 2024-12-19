@@ -1,54 +1,58 @@
 ﻿using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Crewmate
+namespace EHR.Crewmate;
+
+internal class Mole : RoleBase
 {
-    internal class Mole : RoleBase
+    public static bool On;
+
+    public static OptionItem CD;
+    public override bool IsEnable => On;
+
+    private static int Id => 64400;
+
+    public override void Add(byte playerId)
     {
-        public static bool On;
+        On = true;
+    }
 
-        public static OptionItem CD;
-        public override bool IsEnable => On;
+    public override void Init()
+    {
+        On = false;
+    }
 
-        private static int Id => 64400;
+    public override void SetupCustomOption()
+    {
+        SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mole);
 
-        public override void Add(byte playerId)
-        {
-            On = true;
-        }
+        CD = new FloatOptionItem(Id + 2, "AbilityCooldown", new(0f, 120f, 0.5f), 15f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mole])
+            .SetValueFormat(OptionFormat.Seconds);
+    }
 
-        public override void Init()
-        {
-            On = false;
-        }
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (UsePets.GetBool()) return;
 
-        public override void SetupCustomOption()
-        {
-            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mole);
+        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerCooldown = CD.GetFloat();
+    }
 
-            CD = new FloatOptionItem(Id + 2, "AbilityCooldown", new(0f, 120f, 0.5f), 15f, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Mole])
-                .SetValueFormat(OptionFormat.Seconds);
-        }
+    public override void OnExitVent(PlayerControl pc, Vent vent)
+    {
+        if (UsePets.GetBool()) return;
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            if (UsePets.GetBool()) return;
+        LateTask.New(() => { pc.TPToRandomVent(); }, 0.5f, "Mole TP");
+    }
 
-            AURoleOptions.EngineerInVentMaxTime = 1f;
-            AURoleOptions.EngineerCooldown = CD.GetFloat();
-        }
+    public override void OnPet(PlayerControl pc)
+    {
+        pc.TPToRandomVent();
+    }
 
-        public override void OnExitVent(PlayerControl pc, Vent vent)
-        {
-            if (UsePets.GetBool()) return;
-
-            LateTask.New(() => { pc.TPToRandomVent(); }, 0.5f, "Mole TP");
-        }
-
-        public override void OnPet(PlayerControl pc)
-        {
-            pc.TPToRandomVent();
-        }
+    public override bool CanUseVent(PlayerControl pc, int ventId)
+    {
+        return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
 }

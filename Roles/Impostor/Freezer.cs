@@ -1,65 +1,64 @@
 ﻿using AmongUs.GameOptions;
 using EHR.Modules;
 
-namespace EHR.Impostor
+namespace EHR.Impostor;
+
+internal class Freezer : RoleBase
 {
-    internal class Freezer : RoleBase
+    private const int Id = 643530;
+    public static bool On;
+
+    private static OptionItem FreezeCooldown;
+    private static OptionItem FreezeDuration;
+    public override bool IsEnable => On;
+
+    public override void SetupCustomOption()
     {
-        private const int Id = 643530;
-        public static bool On;
+        Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Freezer);
 
-        private static OptionItem FreezeCooldown;
-        private static OptionItem FreezeDuration;
-        public override bool IsEnable => On;
+        FreezeCooldown = new FloatOptionItem(Id + 2, "FreezeCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        public override void SetupCustomOption()
+        FreezeDuration = new FloatOptionItem(Id + 3, "FreezeDuration", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
+            .SetValueFormat(OptionFormat.Seconds);
+    }
+
+    public override void Add(byte playerId)
+    {
+        On = true;
+    }
+
+    public override void Init()
+    {
+        On = false;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        AURoleOptions.ShapeshifterCooldown = FreezeCooldown.GetFloat();
+        AURoleOptions.ShapeshifterDuration = 1f;
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (shapeshifting)
         {
-            Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Freezer);
+            float beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
+            Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
+            target.MarkDirtySettings();
 
-            FreezeCooldown = new FloatOptionItem(Id + 2, "FreezeCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            FreezeDuration = new FloatOptionItem(Id + 3, "FreezeDuration", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
-                .SetValueFormat(OptionFormat.Seconds);
-        }
-
-        public override void Add(byte playerId)
-        {
-            On = true;
-        }
-
-        public override void Init()
-        {
-            On = false;
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            AURoleOptions.ShapeshifterCooldown = FreezeCooldown.GetFloat();
-            AURoleOptions.ShapeshifterDuration = 1f;
-        }
-
-        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
-        {
-            if (shapeshifting)
+            LateTask.New(() =>
             {
-                float beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
-                Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
+                Main.AllPlayerSpeed[target.PlayerId] = beforeSpeed;
                 target.MarkDirtySettings();
+            }, FreezeDuration.GetFloat(), "FreezerFreezeDuration");
 
-                LateTask.New(() =>
-                {
-                    Main.AllPlayerSpeed[target.PlayerId] = beforeSpeed;
-                    target.MarkDirtySettings();
-                }, FreezeDuration.GetFloat(), "FreezerFreezeDuration");
-
-                if (target.IsLocalPlayer())
-                    Achievements.Type.TooCold.CompleteAfterGameEnd();
-            }
-
-            return false;
+            if (target.IsLocalPlayer())
+                Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
+
+        return false;
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace EHR.AddOns
+﻿namespace EHR.AddOns;
+
+internal interface IAddon
 {
-    internal interface IAddon
-    {
-        public AddonTypes Type { get; }
-        public void SetupCustomOption();
-    }
+    public AddonTypes Type { get; }
+    public void SetupCustomOption();
 }

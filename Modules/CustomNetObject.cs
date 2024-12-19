@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace EHR
 {
-    internal class CustomNetObject
+    public class CustomNetObject
     {
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
@@ -101,7 +101,7 @@ namespace EHR
             }
             catch (Exception e)
             {
-                if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                if (CustomGameMode.NaturalDisasters.IsActiveOrIntegrated())
                 {
                     if (HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId)) return;
 
@@ -189,7 +189,9 @@ namespace EHR
                 msg.EndMessage();
                 AmongUsClient.Instance.SendOrDisconnect(msg);
                 msg.Recycle();
-                if (PlayerControl.AllPlayerControls.Contains(playerControl)) PlayerControl.AllPlayerControls.Remove(playerControl);
+                
+                if (PlayerControl.AllPlayerControls.Contains(playerControl))
+                    PlayerControl.AllPlayerControls.Remove(playerControl);
 
                 LateTask.New(() =>
                 {
@@ -289,7 +291,8 @@ namespace EHR
                 LateTask.New(() =>
                 {
                     // Fix for Host
-                    if (!HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId)) playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                    if (!HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId))
+                        playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
                 }, 0.1f);
 
                 LateTask.New(() =>
@@ -324,6 +327,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
+            if (GameStates.IsEnded) return;
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;
@@ -720,7 +724,7 @@ namespace EHR
         }
     }
 
-    internal sealed class NaturalDisaster : CustomNetObject
+    public sealed class NaturalDisaster : CustomNetObject
     {
         public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName, SystemTypes? room)
         {
@@ -774,7 +778,7 @@ internal static class RawSetNamePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
     {
-        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return true;
+        if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return true;
 
         var exception = false;
 
@@ -815,7 +819,7 @@ internal static class RawSetNamePatch
                     EHR.Logger.Msg($"Successfully set name for {__instance.GetRealName()}", "RawSetNamePatch");
                     break;
                 case true:
-                    // Complete error, don't log this or it will spam the console
+                    // Complete error, don't log this, or it will spam the console
                     break;
             }
         }, 0.5f, log: false);

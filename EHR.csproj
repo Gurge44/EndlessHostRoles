@@ -7,7 +7,7 @@
         <Description>EHR</Description>
         <Authors>Gurge44</Authors>
         <langVersion>preview</langVersion>
-        <AmongUs>D:\Epic Games\AmongUs</AmongUs>
+        <AmongUs>E:\Program Files\AmongUs</AmongUs>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Optimize>True</Optimize>
         <AssemblyName>$(MSBuildProjectName)</AssemblyName>
@@ -15,15 +15,12 @@
 
     <ItemGroup>
         <EmbeddedResource Include=".\Resources\**"/>
-        <EmbeddedResource Remove="SUI\**"/>
     </ItemGroup>
 
     <ItemGroup>
         <Compile Remove="CTA\**"/>
         <EmbeddedResource Remove="CTA\**"/>
         <None Remove="CTA\**"/>
-        <Compile Remove="SUI\**"/>
-        <None Remove="SUI\**"/>
     </ItemGroup>
 
     <ItemGroup>

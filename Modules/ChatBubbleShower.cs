@@ -6,98 +6,97 @@ using EHR.Patches;
 using TMPro;
 using UnityEngine;
 
-namespace EHR.Modules
+namespace EHR.Modules;
+
+public static class ChatBubbleShower
 {
-    public static class ChatBubbleShower
+    private static long LastChatBubbleShowTS;
+    private static readonly HashSet<(string Message, string Title)> Queue = [];
+
+    public static void Update()
     {
-        private static long LastChatBubbleShowTS;
-        private static readonly HashSet<(string Message, string Title)> Queue = [];
-
-        public static void Update()
+        try
         {
-            try
+            if (Queue.Count == 0 || ExileController.Instance) return;
+
+            long now = Utils.TimeStamp;
+            int wait = GameStates.IsInTask ? 8 : 4;
+            if (LastChatBubbleShowTS + wait > now) return;
+            LastChatBubbleShowTS = now;
+
+            (string message, string title) = Queue.First();
+            Queue.Remove((message, title));
+
+            ChatController chat = DestroyableSingleton<HudManager>.Instance.Chat;
+
+            if (GameStates.IsMeeting || chat.IsOpenOrOpening) ShowBubbleWithoutPlayer();
+            else if (GameStates.IsLobby) Utils.SendMessage(message, PlayerControl.LocalPlayer.PlayerId, title);
+            else Main.Instance.StartCoroutine(ShowTextOnHud());
+
+            void ShowBubbleWithoutPlayer()
             {
-                if (Queue.Count == 0 || ExileController.Instance) return;
+                NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
+                ChatBubble bubble = chat.GetPooledBubble();
 
-                long now = Utils.TimeStamp;
-                int wait = GameStates.IsInTask ? 8 : 4;
-                if (LastChatBubbleShowTS + wait > now) return;
-                LastChatBubbleShowTS = now;
-
-                (string message, string title) = Queue.First();
-                Queue.Remove((message, title));
-
-                ChatController chat = DestroyableSingleton<HudManager>.Instance.Chat;
-
-                if (GameStates.IsMeeting || chat.IsOpenOrOpening) ShowBubbleWithoutPlayer();
-                else if (GameStates.IsLobby) Utils.SendMessage(message, PlayerControl.LocalPlayer.PlayerId, title);
-                else Main.Instance.StartCoroutine(ShowTextOnHud());
-
-                void ShowBubbleWithoutPlayer()
+                try
                 {
-                    NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
-                    ChatBubble bubble = chat.GetPooledBubble();
-
-                    try
-                    {
-                        bubble.transform.SetParent(chat.scroller.Inner);
-                        bubble.transform.localScale = Vector3.one;
-                        bubble.SetCosmetics(data);
-                        bubble.gameObject.transform.Find("PoolablePlayer").gameObject.SetActive(false);
-                        bubble.ColorBlindName.gameObject.SetActive(false);
-                        bubble.SetLeft();
-                        bubble.gameObject.transform.Find("NameText (TMP)").transform.localPosition += new Vector3(-0.7f, 0f);
-                        bubble.gameObject.transform.Find("ChatText (TMP)").transform.localPosition += new Vector3(-0.7f, 0f);
-                        chat.SetChatBubbleName(bubble, data, data.IsDead, false, PlayerNameColor.Get(data));
-                        bubble.SetText(message);
-                        bubble.AlignChildren();
-                        chat.AlignAllBubbles();
-                        bubble.NameText.text = title;
-                        bubble.transform.Find("ChatText (TMP)").GetComponent<TextMeshPro>().color = new(1f, 1f, 1f, 1f);
-                        bubble.transform.Find("Background").GetComponent<SpriteRenderer>().color = new(0.05f, 0.05f, 0.05f, 1f);
-                        Transform xMark = bubble.transform.Find("PoolablePlayer/xMark");
-                        if (xMark && xMark.GetComponent<SpriteRenderer>().enabled) bubble.transform.Find("Background").GetComponent<SpriteRenderer>().color = new(0.05f, 0.05f, 0.05f, 0.5f);
-                    }
-                    catch (Exception e)
-                    {
-                        chat.chatBubblePool.Reclaim(bubble);
-                        Utils.ThrowException(e);
-                    }
+                    bubble.transform.SetParent(chat.scroller.Inner);
+                    bubble.transform.localScale = Vector3.one;
+                    bubble.SetCosmetics(data);
+                    bubble.gameObject.transform.Find("PoolablePlayer").gameObject.SetActive(false);
+                    bubble.ColorBlindName.gameObject.SetActive(false);
+                    bubble.SetLeft();
+                    bubble.gameObject.transform.Find("NameText (TMP)").transform.localPosition += new Vector3(-0.7f, 0f);
+                    bubble.gameObject.transform.Find("ChatText (TMP)").transform.localPosition += new Vector3(-0.7f, 0f);
+                    chat.SetChatBubbleName(bubble, data, data.IsDead, false, PlayerNameColor.Get(data));
+                    bubble.SetText(message);
+                    bubble.AlignChildren();
+                    chat.AlignAllBubbles();
+                    bubble.NameText.text = title;
+                    bubble.transform.Find("ChatText (TMP)").GetComponent<TextMeshPro>().color = new(1f, 1f, 1f, 1f);
+                    bubble.transform.Find("Background").GetComponent<SpriteRenderer>().color = new(0.05f, 0.05f, 0.05f, 1f);
+                    Transform xMark = bubble.transform.Find("PoolablePlayer/xMark");
+                    if (xMark && xMark.GetComponent<SpriteRenderer>().enabled) bubble.transform.Find("Background").GetComponent<SpriteRenderer>().color = new(0.05f, 0.05f, 0.05f, 0.5f);
                 }
-
-                IEnumerator ShowTextOnHud()
+                catch (Exception e)
                 {
-                    const string color1 = "#00FFA5";
-                    const string color2 = "#00A5FF";
-                    bool isColor1 = true;
-
-                    for (int i = 0; i < 4; i++)
-                    {
-                        var color = isColor1 ? color1 : color2;
-                        isColor1 = !isColor1;
-                        var text = $"<color={color}><b>{title}</b></color>\n<size=80%>{message}</size>";
-                        HudManagerPatch.AchievementUnlockedText = text;
-                        yield return new WaitForSeconds(0.2f);
-                    }
-
-                    yield return new WaitForSeconds(7.25f);
-                    HudManagerPatch.AchievementUnlockedText = string.Empty;
+                    chat.chatBubblePool.Reclaim(bubble);
+                    Utils.ThrowException(e);
                 }
             }
-            catch (Exception e)
+
+            IEnumerator ShowTextOnHud()
             {
-                Utils.ThrowException(e);
+                const string color1 = "#00FFA5";
+                const string color2 = "#00A5FF";
+                bool isColor1 = true;
+
+                for (int i = 0; i < 4; i++)
+                {
+                    var color = isColor1 ? color1 : color2;
+                    isColor1 = !isColor1;
+                    var text = $"<color={color}><b>{title}</b></color>\n<size=80%>{message}</size>";
+                    HudManagerPatch.AchievementUnlockedText = text;
+                    yield return new WaitForSeconds(0.2f);
+                }
+
+                yield return new WaitForSeconds(7.25f);
+                HudManagerPatch.AchievementUnlockedText = string.Empty;
             }
         }
-
-        /// <summary>
-        /// Displays a chat bubble with a message and a title during the round for the local player.
-        /// </summary>
-        /// <param name="message">The message to display in the chat bubble.</param>
-        /// <param name="title">The title of the chat bubble.</param>
-        public static void ShowChatBubbleInRound(string message, string title)
+        catch (Exception e)
         {
-            Queue.Add((message, title));
+            Utils.ThrowException(e);
         }
+    }
+
+    /// <summary>
+    /// Displays a chat bubble with a message and a title during the round for the local player.
+    /// </summary>
+    /// <param name="message">The message to display in the chat bubble.</param>
+    /// <param name="title">The title of the chat bubble.</param>
+    public static void ShowChatBubbleInRound(string message, string title)
+    {
+        Queue.Add((message, title));
     }
 }

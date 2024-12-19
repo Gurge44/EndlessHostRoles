@@ -5,188 +5,187 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.AddOns.Impostor
+namespace EHR.AddOns.Impostor;
+
+public class Damocles : IAddon
 {
-    public class Damocles : IAddon
+    private const int Id = 14670;
+
+    private static OptionItem DamoclesExtraTimeAfterKill;
+    private static OptionItem DamoclesExtraTimeAfterMeeting;
+    private static OptionItem DamoclesStartingTime;
+
+    private static int TimeAfterKill;
+    private static int TimeAfterMeeting;
+    private static int StartingTime;
+
+    public static Dictionary<byte, int> Timer;
+
+    public static Dictionary<byte, long> LastUpdate;
+    public static Dictionary<byte, List<int>> PreviouslyEnteredVents;
+
+    public static bool CountRepairSabotage;
+    public AddonTypes Type => AddonTypes.ImpOnly;
+
+    public void SetupCustomOption()
     {
-        private const int Id = 14670;
+        SetupAdtRoleOptions(Id, CustomRoles.Damocles, canSetNum: true);
 
-        private static OptionItem DamoclesExtraTimeAfterKill;
-        private static OptionItem DamoclesExtraTimeAfterMeeting;
-        private static OptionItem DamoclesStartingTime;
+        DamoclesExtraTimeAfterKill = new IntegerOptionItem(Id + 6, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        private static int TimeAfterKill;
-        private static int TimeAfterMeeting;
-        private static int StartingTime;
+        DamoclesExtraTimeAfterMeeting = new IntegerOptionItem(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        public static Dictionary<byte, int> Timer;
+        DamoclesStartingTime = new IntegerOptionItem(Id + 5, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
+            .SetValueFormat(OptionFormat.Seconds);
+    }
 
-        public static Dictionary<byte, long> LastUpdate;
-        public static Dictionary<byte, List<int>> PreviouslyEnteredVents;
+    public static void Initialize()
+    {
+        TimeAfterKill = DamoclesExtraTimeAfterKill.GetInt();
+        TimeAfterMeeting = DamoclesExtraTimeAfterMeeting.GetInt();
+        StartingTime = DamoclesStartingTime.GetInt();
 
-        public static bool CountRepairSabotage;
-        public AddonTypes Type => AddonTypes.ImpOnly;
+        Timer = [];
+        LastUpdate = [];
+        PreviouslyEnteredVents = [];
+        CountRepairSabotage = true;
+    }
 
-        public void SetupCustomOption()
+    public static void Update(PlayerControl pc)
+    {
+        byte id = pc.PlayerId;
+        long now = Utils.TimeStamp;
+        if ((LastUpdate.TryGetValue(id, out long ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
+
+        if (!pc.IsAlive())
         {
-            SetupAdtRoleOptions(Id, CustomRoles.Damocles, canSetNum: true);
-
-            DamoclesExtraTimeAfterKill = new IntegerOptionItem(Id + 6, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            DamoclesExtraTimeAfterMeeting = new IntegerOptionItem(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            DamoclesStartingTime = new IntegerOptionItem(Id + 5, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
-                .SetValueFormat(OptionFormat.Seconds);
+            Main.PlayerStates[id].RemoveSubRole(CustomRoles.Damocles);
+            return;
         }
 
-        public static void Initialize()
-        {
-            TimeAfterKill = DamoclesExtraTimeAfterKill.GetInt();
-            TimeAfterMeeting = DamoclesExtraTimeAfterMeeting.GetInt();
-            StartingTime = DamoclesStartingTime.GetInt();
+        LastUpdate[id] = now;
+        if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
 
-            Timer = [];
-            LastUpdate = [];
-            PreviouslyEnteredVents = [];
-            CountRepairSabotage = true;
+        Timer[id]--;
+
+        if (Timer[id] < 0)
+        {
+            Timer[id] = 0;
+            pc.Suicide();
+
+            if (pc.IsLocalPlayer())
+                Achievements.Type.OutOfTime.Complete();
         }
 
-        public static void Update(PlayerControl pc)
-        {
-            byte id = pc.PlayerId;
-            long now = Utils.TimeStamp;
-            if ((LastUpdate.TryGetValue(id, out long ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
+        if (pc.IsNonHostModClient()) SendRPC(id);
 
-            if (!pc.IsAlive())
-            {
-                Main.PlayerStates[id].RemoveSubRole(CustomRoles.Damocles);
-                return;
-            }
+        if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+    }
 
-            LastUpdate[id] = now;
-            if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
+    public static void SendRPC(byte playerId)
+    {
+        if (!Utils.DoRPC) return;
 
-            Timer[id]--;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
+        writer.Write(playerId);
+        writer.Write(Timer[playerId]);
+        writer.Write(LastUpdate[playerId].ToString());
+        writer.Write(PreviouslyEnteredVents[playerId].Count);
 
-            if (Timer[id] < 0)
-            {
-                Timer[id] = 0;
-                pc.Suicide();
+        if (PreviouslyEnteredVents[playerId].Count > 0)
+            foreach (int vent in PreviouslyEnteredVents[playerId].ToArray())
+                writer.Write(vent);
 
-                if (pc.IsLocalPlayer())
-                    Achievements.Type.OutOfTime.Complete();
-            }
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
 
-            if (pc.IsNonHostModClient()) SendRPC(id);
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        byte playerId = reader.ReadByte();
+        Timer[playerId] = reader.ReadInt32();
+        LastUpdate[playerId] = long.Parse(reader.ReadString());
+        int elements = reader.ReadInt32();
 
-            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
+        if (elements > 0)
+            for (var i = 0; i < elements; i++)
+                PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
+    }
 
-        public static void SendRPC(byte playerId)
-        {
-            if (!Utils.DoRPC) return;
+    public static void OnMurder(byte id)
+    {
+        Timer[id] += TimeAfterKill;
+    }
 
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
-            writer.Write(playerId);
-            writer.Write(Timer[playerId]);
-            writer.Write(LastUpdate[playerId].ToString());
-            writer.Write(PreviouslyEnteredVents[playerId].Count);
+    public static void OnOtherImpostorMurder()
+    {
+        AdjustTime(10);
+    }
 
-            if (PreviouslyEnteredVents[playerId].Count > 0)
-                foreach (int vent in PreviouslyEnteredVents[playerId].ToArray())
-                    writer.Write(vent);
+    public static void OnEnterVent(byte id, int ventId)
+    {
+        if (!PreviouslyEnteredVents.ContainsKey(id)) PreviouslyEnteredVents[id] = [];
 
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
+        if (PreviouslyEnteredVents[id].Contains(ventId)) return;
 
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            byte playerId = reader.ReadByte();
-            Timer[playerId] = reader.ReadInt32();
-            LastUpdate[playerId] = long.Parse(reader.ReadString());
-            int elements = reader.ReadInt32();
+        PreviouslyEnteredVents[id].Add(ventId);
+        Timer[id] += 10;
+    }
 
-            if (elements > 0)
-                for (var i = 0; i < elements; i++)
-                    PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
-        }
+    public static void AfterMeetingTasks()
+    {
+        PreviouslyEnteredVents.Clear();
 
-        public static void OnMurder(byte id)
-        {
-            Timer[id] += TimeAfterKill;
-        }
+        AdjustTime(TimeAfterMeeting);
+        CountRepairSabotage = true;
+    }
 
-        public static void OnOtherImpostorMurder()
-        {
-            AdjustTime(10);
-        }
+    public static void OnMeetingStart()
+    {
+        AdjustTime(9);
+    }
 
-        public static void OnEnterVent(byte id, int ventId)
-        {
-            if (!PreviouslyEnteredVents.ContainsKey(id)) PreviouslyEnteredVents[id] = [];
+    public static void OnCrewmateEjected()
+    {
+        AdjustTimeByPercent(1.3);
+    }
 
-            if (PreviouslyEnteredVents[id].Contains(ventId)) return;
+    public static void OnRepairSabotage(byte id)
+    {
+        Timer[id] -= 15;
+    }
 
-            PreviouslyEnteredVents[id].Add(ventId);
-            Timer[id] += 10;
-        }
+    public static void OnImpostorDeath()
+    {
+        AdjustTime(-20);
+    }
 
-        public static void AfterMeetingTasks()
-        {
-            PreviouslyEnteredVents.Clear();
+    public static void OnReport(byte id)
+    {
+        Timer[id] = (int)Math.Round(Timer[id] * 0.9);
+    }
 
-            AdjustTime(TimeAfterMeeting);
-            CountRepairSabotage = true;
-        }
+    public static void OnImpostorEjected()
+    {
+        AdjustTimeByPercent(0.8);
+    }
 
-        public static void OnMeetingStart()
-        {
-            AdjustTime(9);
-        }
+    private static void AdjustTime(int change)
+    {
+        Timer.AdjustAllValues(x => x + change);
+    }
 
-        public static void OnCrewmateEjected()
-        {
-            AdjustTimeByPercent(1.3);
-        }
+    private static void AdjustTimeByPercent(double percent)
+    {
+        Timer.AdjustAllValues(x => (int)Math.Round(x * percent));
+    }
 
-        public static void OnRepairSabotage(byte id)
-        {
-            Timer[id] -= 15;
-        }
-
-        public static void OnImpostorDeath()
-        {
-            AdjustTime(-20);
-        }
-
-        public static void OnReport(byte id)
-        {
-            Timer[id] = (int)Math.Round(Timer[id] * 0.9);
-        }
-
-        public static void OnImpostorEjected()
-        {
-            AdjustTimeByPercent(0.8);
-        }
-
-        private static void AdjustTime(int change)
-        {
-            Timer.AdjustAllValues(x => x + change);
-        }
-
-        private static void AdjustTimeByPercent(double percent)
-        {
-            Timer.AdjustAllValues(x => (int)Math.Round(x * percent));
-        }
-
-        public static string GetProgressText(byte id)
-        {
-            return string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
-        }
+    public static string GetProgressText(byte id)
+    {
+        return string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
     }
 }
