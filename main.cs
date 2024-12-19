@@ -36,7 +36,7 @@ public class Main : BasePlugin
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "5.2.0";
     public const string PluginDisplayVersion = "5.2.0";
-    public const bool TestBuild = true;
+    public const bool TestBuild = false;
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -745,9 +745,9 @@ public class Main : BasePlugin
         try
         {
             AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
-                                        .GetTypes()
-                                        .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
-                                        .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
+                .GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
+                .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
 
             AllRoleClasses.Sort();
         }
