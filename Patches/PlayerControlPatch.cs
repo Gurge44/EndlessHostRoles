@@ -2251,45 +2251,6 @@ internal static class PlayerControlLocalSetRolePatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckVanish))]
-internal static class CmdCheckVanishPatch
-{
-    public static bool Prefix(PlayerControl __instance, float maxDuration)
-    {
-        if (AmongUsClient.Instance.AmHost)
-        {
-            __instance.CheckVanish();
-            return false;
-        }
-
-        __instance.SetRoleInvisibility(true);
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckVanish, SendOption.Reliable, AmongUsClient.Instance.HostId);
-        messageWriter.Write(maxDuration);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-
-        return false;
-    }
-}
-
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckAppear))]
-internal static class CmdCheckAppearPatch
-{
-    public static bool Prefix(PlayerControl __instance, bool shouldAnimate)
-    {
-        if (AmongUsClient.Instance.AmHost)
-        {
-            __instance.CheckAppear(shouldAnimate);
-            return false;
-        }
-
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckAppear, SendOption.Reliable, AmongUsClient.Instance.HostId);
-        messageWriter.Write(shouldAnimate);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-
-        return false;
-    }
-}
-
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.AssertWithTimeout))]
 internal static class AssertWithTimeoutPatch
 {
@@ -2302,7 +2263,7 @@ internal static class AssertWithTimeoutPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckName))]
 internal static class CmdCheckNameVersionCheckPatch
 {
-    public static void Postfix(PlayerControl __instance)
+    public static void Postfix()
     {
         RPC.RpcVersionCheck();
     }
@@ -2338,7 +2299,7 @@ internal static class ShouldProcessRpcPatch
 {
     // Since the stupid AU code added a check for RPC processing for outfit players, we need to patch this
     // Always return true because the check is absolutely pointless
-    public static bool Prefix(PlayerControl __instance, RpcCalls rpc, byte sequenceId, ref bool __result)
+    public static bool Prefix(ref bool __result)
     {
         __result = true;
         return false;

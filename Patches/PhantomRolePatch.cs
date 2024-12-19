@@ -84,6 +84,8 @@ public static class PhantomRolePatch
             phantom.RpcResetAbilityCooldown();
 
             LateTask.New(() => phantom.SetKillCooldown(Math.Max(Main.KillTimers[phantom.PlayerId], 0.001f)), 0.2f);
+
+            return false;
         }
 
         foreach (PlayerControl target in Main.AllPlayerControls)
@@ -94,19 +96,19 @@ public static class PhantomRolePatch
             phantom.RpcCheckVanishDesync(target);
 
             LateTask.New(() =>
-                         {
-                             if (GameStates.IsMeeting || phantom == null) return;
+                {
+                    if (GameStates.IsMeeting || phantom == null) return;
 
-                             string petId = phantom.Data.DefaultOutfit.PetId;
+                    string petId = phantom.Data.DefaultOutfit.PetId;
 
-                             if (petId != "")
-                             {
-                                 PetsList[phantom.PlayerId] = petId;
-                                 phantom.RpcSetPetDesync("", target);
-                             }
+                    if (petId != "")
+                    {
+                        PetsList[phantom.PlayerId] = petId;
+                        phantom.RpcSetPetDesync("", target);
+                    }
 
-                             phantom.RpcExileDesync(target);
-                         }, 1.2f, $"Set Phantom invisible {target.PlayerId}");
+                    phantom.RpcExileDesync(target);
+                }, 1.2f, $"Set Phantom invisible {target.PlayerId}");
         }
 
         InvisibilityList.Add(phantom);
@@ -134,19 +136,19 @@ public static class PhantomRolePatch
             phantom.RpcSetRoleDesync(RoleTypes.Phantom, clientId);
 
             LateTask.New(() =>
-                         {
-                             if (target != null) phantom.RpcCheckAppearDesync(shouldAnimate, target);
-                         }, 0.5f, $"Check Appear when vanish is over {target.PlayerId}");
+                {
+                    if (target != null) phantom.RpcCheckAppearDesync(shouldAnimate, target);
+                }, 0.5f, $"Check Appear when vanish is over {target.PlayerId}");
 
             LateTask.New(() =>
-                         {
-                             if (GameStates.IsMeeting || phantom == null) return;
+                {
+                    if (GameStates.IsMeeting || phantom == null) return;
 
-                             InvisibilityList.Remove(phantom);
-                             phantom.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
+                    InvisibilityList.Remove(phantom);
+                    phantom.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
 
-                             if (PetsList.TryGetValue(phantom.PlayerId, out string petId)) phantom.RpcSetPetDesync(petId, target);
-                         }, 1.8f, $"Set Scientist when vanish is over {target.PlayerId}");
+                    if (PetsList.TryGetValue(phantom.PlayerId, out string petId)) phantom.RpcSetPetDesync(petId, target);
+                }, 1.8f, $"Set Scientist when vanish is over {target.PlayerId}");
         }
     }
 
