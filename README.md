@@ -404,6 +404,7 @@ Source language: English
 - Seleneous
 - thewhiskas27
 - HyperAtill
+- Sil
 
 ##### Translators:
 
@@ -412,6 +413,7 @@ Source language: English
 - Tomix (PT-BR)
 - HyperAtill (RU)
 - ABoringCat (ZH-CN)
+- Reborn (ZH-CN)
 
 # License for the Custom Team Assigner application (everything inside the `CTA` folder)
 
