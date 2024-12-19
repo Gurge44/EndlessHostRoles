@@ -491,6 +491,12 @@ internal static class ChatCommands
 
     private static void ReadyCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ReadyCommand), text);
+            return;
+        }
+
         ReadyPlayers.Add(player.PlayerId);
     }
 
@@ -507,16 +513,21 @@ internal static class ChatCommands
             return;
         }
 
-        int maxNeutrals = Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt();
         IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
-        IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(maxNeutrals);
-        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(maxNeutrals);
+        IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt());
+        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Evil][2].GetInt() + Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Benign][2].GetInt());
 
         allRoles.RemoveAll(x => x.IsImpostor());
         allRoles.RemoveAll(x => x.IsNK());
         allRoles.RemoveAll(x => x.IsNonNK());
 
-        DraftRoles = allRoles.CombineWith(impRoles, nkRoles, nnkRoles).Shuffle().Partition(allPlayerIds.Length).Zip(allPlayerIds).ToDictionary(x => x.Second, x => x.First.Take(5).ToList());
+        DraftRoles = allRoles
+            .Take(allPlayerIds.Length * 5)
+            .CombineWith(impRoles, nkRoles, nnkRoles)
+            .Shuffle()
+            .Partition(allPlayerIds.Length)
+            .Zip(allPlayerIds)
+            .ToDictionary(x => x.Second, x => x.First.Take(5).ToList());
 
         foreach ((byte id, List<CustomRoles> roles) in DraftRoles)
         {

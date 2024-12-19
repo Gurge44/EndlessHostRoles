@@ -14,7 +14,7 @@ public class Traitor : RoleBase
     private static OptionItem HasImpostorVision;
     public static OptionItem CanSabotage;
     public static OptionItem CanGetImpostorOnlyAddons;
-    private static OptionItem LegacyTraitor;
+    public static OptionItem LegacyTraitor;
     private static OptionItem TraitorShapeshiftCD;
     private static OptionItem TraitorShapeshiftDur;
     public override bool IsEnable => PlayerIdList.Count > 0;

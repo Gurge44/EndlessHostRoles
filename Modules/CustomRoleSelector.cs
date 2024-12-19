@@ -185,10 +185,10 @@ internal static class CustomRoleSelector
                 .OrderBy(x => x.SpawnChance != 100)
                 .DistinctBy(x => x.Role)
                 .Select(x => (
-                            Info: x,
-                            Limit: subCategoryLimits.TryGetValue(x.OptionType, out var limit)
-                                ? (Exists: true, Value: limit)
-                                : (Exists: false, Value: 0)))
+                    Info: x,
+                    Limit: subCategoryLimits.TryGetValue(x.OptionType, out var limit)
+                        ? (Exists: true, Value: limit)
+                        : (Exists: false, Value: 0)))
                 .GroupBy(x => x.Info.OptionType)
                 .Select(x => (Grouping: x, x.FirstOrDefault().Limit))
                 .SelectMany(x => x.Limit.Exists ? x.Grouping.Take(x.Limit.Value) : x.Grouping)
@@ -224,7 +224,7 @@ internal static class CustomRoleSelector
                 if (types.FindFirst(x => Roles[x].Count == 0, out var nullType)) types.Remove(nullType);
                 if (types.Count == 0) break;
                 RoleAssignType type = types.RandomElement();
-            
+
                 var toRemove = Roles[type].RandomElement();
                 Roles[type].Remove(toRemove);
 
@@ -602,11 +602,8 @@ internal static class CustomRoleSelector
         if (rd.Next(0, 100) < Sans.BardChance.GetInt() && FinalRolesList.Remove(CustomRoles.Sans)) FinalRolesList.Add(CustomRoles.Bard);
         if (rd.Next(0, 100) < Bomber.NukerChance.GetInt() && FinalRolesList.Remove(CustomRoles.Bomber)) FinalRolesList.Add(CustomRoles.Nuker);
 
-        Logger.Info(string.Join(", ", FinalRolesList.Select(x => x.ToString())), "RoleResults");
-
-        Dictionary<byte, CustomRoles> preResult = RoleResult.ToDictionary(x => x.Key, x => x.Value);
-        RoleResult = AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second);
-        RoleResult.AddRange(preResult);
+        RoleResult.AddRange(AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second), overrideExistingKeys: false);
+        Logger.Info(string.Join(", ", RoleResult.Values.Select(x => x.ToString())), "RoleResults");
 
         if (RoleResult.Count < AllPlayers.Count) Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");
 
@@ -644,27 +641,31 @@ internal static class CustomRoleSelector
 
         foreach (CustomRoles role in RoleResult.Values)
         {
-            switch (role.GetVNRole())
+            try
             {
-                case CustomRoles.Scientist:
-                    AddScientistNum++;
-                    break;
-                case CustomRoles.Engineer:
-                    AddEngineerNum++;
-                    break;
-                case CustomRoles.Shapeshifter:
-                    AddShapeshifterNum++;
-                    break;
-                case CustomRoles.Noisemaker:
-                    AddNoisemakerNum++;
-                    break;
-                case CustomRoles.Tracker:
-                    AddTrackerNum++;
-                    break;
-                case CustomRoles.Phantom:
-                    AddPhantomNum++;
-                    break;
+                switch (role.GetVNRole())
+                {
+                    case CustomRoles.Scientist:
+                        AddScientistNum++;
+                        break;
+                    case CustomRoles.Engineer:
+                        AddEngineerNum++;
+                        break;
+                    case CustomRoles.Shapeshifter:
+                        AddShapeshifterNum++;
+                        break;
+                    case CustomRoles.Noisemaker:
+                        AddNoisemakerNum++;
+                        break;
+                    case CustomRoles.Tracker:
+                        AddTrackerNum++;
+                        break;
+                    case CustomRoles.Phantom:
+                        AddPhantomNum++;
+                        break;
+                }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
     }
 

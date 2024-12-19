@@ -270,7 +270,7 @@ public static class CollectionExtensions
     }
 
     /// <summary>
-    /// Converts a list of player IDs to a collection of <see cref="PlayerControl" /> instances
+    /// Converts a list of player IDs to a list of <see cref="PlayerControl" /> instances
     /// </summary>
     /// <param name="playerIds"></param>
     /// <returns></returns>
