@@ -2335,6 +2335,7 @@
   "CommandDescription.Whisper": "Whisper a message to a player.",
   "CommandDescription.Spectate": "Makes you a spectator for the next game. You should just enable Game Master as the host.",
   "CommandDescription.Anagram": "Get a random scrambled word, then try to guess the original word.",
+  "CommandDescription.RoleList": "View the limits of how many of each faction and subcategory of roles will spawn.",
   "CommandArgs.ChangeSetting.Name": "The setting's name to change (leave blank to view all settings)",
   "CommandArgs.ChangeSetting.UnknownValue": "(leave blank to view what to put here)",
   "CommandArgs.Rename.Name": "Your new name",

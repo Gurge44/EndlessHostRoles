@@ -877,6 +877,7 @@ internal static class ExtendedPlayerControl
         if (realKiller != null)
         {
             pc.SetRealKiller(realKiller);
+
             if (realKiller.Is(CustomRoles.Damocles))
                 Damocles.OnMurder(realKiller.PlayerId);
 
@@ -1211,7 +1212,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseKillButton(this PlayerControl pc)
     {
-        if (!pc.IsAlive()) return false;
+        if (AntiBlackout.SkipTasks || !pc.IsAlive()) return false;
 
         switch (Options.CurrentGameMode)
         {
@@ -1225,13 +1226,9 @@ internal static class ExtendedPlayerControl
         }
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
-
         if (Penguin.IsVictim(pc)) return false;
-
         if (Pelican.IsEaten(pc.PlayerId)) return false;
-
         if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
-
         if (pc.Is(CustomRoles.Bloodlust)) return true;
 
         return pc.GetCustomRole() switch

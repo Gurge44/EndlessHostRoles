@@ -142,7 +142,8 @@ internal static class OnPlayerJoinedPatch
                         AmongUsClient.Instance.FinishRpcImmediately(retry);
                     }
 
-                    if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 18) { Disco.ChangeColor(client.Character); }
+                    if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 17)
+                        Disco.ChangeColor(client.Character);
                 }
             }
             catch { }

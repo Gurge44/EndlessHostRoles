@@ -31,10 +31,7 @@ internal static class Crowded
             {
                 if (GameOptionsManager.Instance.GameHostOptions != null)
                 {
-                    if (GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
-                    {
-                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
-                    }
+                    if (GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15) { GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15); }
                 }
             }
         }
@@ -105,10 +102,7 @@ internal static class Crowded
                     }));
                 }
 
-                foreach (var button in __instance.MaxPlayerButtons)
-                {
-                    button.enabled = button.GetComponentInChildren<TextMeshPro>().text == __instance.GetTargetOptions().MaxPlayers.ToString();
-                }
+                foreach (var button in __instance.MaxPlayerButtons) { button.enabled = button.GetComponentInChildren<TextMeshPro>().text == __instance.GetTargetOptions().MaxPlayers.ToString(); }
             }
 
             {
@@ -196,10 +190,7 @@ internal static class Crowded
         {
             if (__instance.mode != SettingsMode.Host) return true;
 
-            if (__instance.CrewArea)
-            {
-                __instance.CrewArea.SetCrewSize(opts.MaxPlayers, opts.NumImpostors);
-            }
+            if (__instance.CrewArea) { __instance.CrewArea.SetCrewSize(opts.MaxPlayers, opts.NumImpostors); }
 
             var selectedAsString = opts.MaxPlayers.ToString();
 
@@ -243,10 +234,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static bool Prefix(CreateOptionsPicker __instance, int maxPlayers)
         {
-            if (DestroyableSingleton<FindAGameManager>.InstanceExists || __instance.mode != SettingsMode.Host)
-            {
-                return true;
-            }
+            if (DestroyableSingleton<FindAGameManager>.InstanceExists || __instance.mode != SettingsMode.Host) { return true; }
 
             IGameOptions targetOptions = __instance.GetTargetOptions();
             targetOptions.SetInt(Int32OptionNames.MaxPlayers, maxPlayers);
@@ -286,10 +274,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix(PlayerTab __instance)
         {
-            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers > 15)
-            {
-                __instance.currentColorIsEquipped = false;
-            }
+            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers > 15) { __instance.currentColorIsEquipped = false; }
         }
     }
 
@@ -299,47 +284,45 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static bool Prefix(PlayerTab __instance)
         {
-            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers <= 15)
-            {
-                return true;
-            }
+            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers <= 15) { return true; }
 
             __instance.AvailableColors.Clear();
 
             for (var i = 0; i < Palette.PlayerColors.Count; i++)
             {
-                if (!PlayerControl.LocalPlayer || PlayerControl.LocalPlayer.CurrentOutfit.ColorId != i)
-                {
-                    __instance.AvailableColors.Add(i);
-                }
+                if (!PlayerControl.LocalPlayer || PlayerControl.LocalPlayer.CurrentOutfit.ColorId != i) { __instance.AvailableColors.Add(i); }
             }
 
             return false;
         }
     }
+
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     public static class MeetingHudStartPatch
     {
         public static void Postfix(MeetingHud __instance)
         {
+            if (Main.NormalOptions.MaxPlayers <= 15) return;
             __instance.gameObject.AddComponent<MeetingHudPagingBehaviour>().meetingHud = __instance;
         }
     }
-    
+
     [HarmonyPatch(typeof(ShapeshifterMinigame), nameof(ShapeshifterMinigame.Begin))]
     public static class ShapeshifterMinigameBeginPatch
     {
         public static void Postfix(ShapeshifterMinigame __instance)
         {
+            if (Main.NormalOptions.MaxPlayers <= 15) return;
             __instance.gameObject.AddComponent<ShapeShifterPagingBehaviour>().shapeshifterMinigame = __instance;
         }
     }
-    
+
     [HarmonyPatch(typeof(VitalsMinigame), nameof(VitalsMinigame.Begin))]
     public static class VitalsMinigameBeginPatch
     {
         public static void Postfix(VitalsMinigame __instance)
         {
+            if (Main.NormalOptions.MaxPlayers <= 15) return;
             __instance.gameObject.AddComponent<VitalsPagingBehaviour>().vitalsMinigame = __instance;
         }
     }

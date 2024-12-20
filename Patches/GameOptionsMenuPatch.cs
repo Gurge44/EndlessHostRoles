@@ -26,6 +26,8 @@ public static class GameOptionsMenuPatch
 {
     private static GameOptionsMenu Instance;
 
+    public static long UIReloadTS;
+
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize))]
     [HarmonyPrefix]
     private static bool InitializePrefix(GameOptionsMenu __instance)
@@ -846,7 +848,7 @@ public class GameSettingMenuPatch
 
     public static NumberOption PresetBehaviour;
     public static StringOption GameModeBehaviour;
-    
+
     public static long LastPresetChange;
 
     public static FreeChatInputField InputField;
@@ -997,7 +999,7 @@ public class GameSettingMenuPatch
         {
             if (PresetBehaviour == null)
                 __instance.ChangeTab(3, false);
-            
+
             LastPresetChange = Utils.TimeStamp;
             PresetBehaviour.Increase();
         }));
@@ -1249,7 +1251,7 @@ public class GameSettingMenuPatch
         ModSettingsButtons = [];
         ModSettingsTabs = [];
 
-        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && !GameStates.IsVanillaServer)
+        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && !GameStates.IsVanillaServer && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
             DestroyableSingleton<HudManager>.Instance.ShowPopUp(Translator.GetString("ModdedServerDoesntSupportCNOMessage"));
     }
 }

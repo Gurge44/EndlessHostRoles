@@ -14,39 +14,39 @@ public static class AntiBlackout
     private static Dictionary<byte, (bool IsDead, bool Disconnected)> IsDeadCache = [];
     private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
 
-/*
-    public static bool CheckBlackOut()
-    {
-        HashSet<byte> Impostors = [];
-        HashSet<byte> Crewmates = [];
-        HashSet<byte> NeutralKillers = [];
-
-        var lastExiled = ExileControllerWrapUpPatch.AntiBlackoutLastExiled;
-        foreach (var pc in Main.AllAlivePlayerControls)
+    /*
+        public static bool CheckBlackOut()
         {
-            // If a player is ejected, do not count them as alive
-            if (lastExiled != null && pc.PlayerId == lastExiled.PlayerId) continue;
+            HashSet<byte> Impostors = [];
+            HashSet<byte> Crewmates = [];
+            HashSet<byte> NeutralKillers = [];
 
-            if (pc.Is(Team.Impostor)) Impostors.Add(pc.PlayerId);
-            else if (pc.IsNeutralKiller()) NeutralKillers.Add(pc.PlayerId);
-            else Crewmates.Add(pc.PlayerId);
+            var lastExiled = ExileControllerWrapUpPatch.AntiBlackoutLastExiled;
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                // If a player is ejected, do not count them as alive
+                if (lastExiled != null && pc.PlayerId == lastExiled.PlayerId) continue;
+
+                if (pc.Is(Team.Impostor)) Impostors.Add(pc.PlayerId);
+                else if (pc.IsNeutralKiller()) NeutralKillers.Add(pc.PlayerId);
+                else Crewmates.Add(pc.PlayerId);
+            }
+            var numAliveImpostors = Impostors.Count;
+            var numAliveCrewmates = Crewmates.Count;
+            var numAliveNeutralKillers = NeutralKillers.Count;
+
+            EHR.Logger.Info($" Impostors: {numAliveImpostors}, Crewmates: {numAliveCrewmates}, Neutral Killers: {numAliveNeutralKillers}", "AntiBlackout Num Alive");
+
+            bool con1 = numAliveImpostors <= 0; // All real impostors are dead
+            bool con2 = (numAliveNeutralKillers + numAliveCrewmates) <= numAliveImpostors; // Alive Impostors >= other teams sum
+            bool con3 = numAliveNeutralKillers == 1 && numAliveImpostors == 1 && numAliveCrewmates <= 2; // One Impostor and one Neutral Killer is alive and living Crewmates are very few
+
+            var blackOutIsActive = con1 || con2 || con3;
+
+            EHR.Logger.Info($" {blackOutIsActive}", "BlackOut Is Active");
+            return blackOutIsActive;
         }
-        var numAliveImpostors = Impostors.Count;
-        var numAliveCrewmates = Crewmates.Count;
-        var numAliveNeutralKillers = NeutralKillers.Count;
-
-        EHR.Logger.Info($" Impostors: {numAliveImpostors}, Crewmates: {numAliveCrewmates}, Neutral Killers: {numAliveNeutralKillers}", "AntiBlackout Num Alive");
-
-        bool con1 = numAliveImpostors <= 0; // All real impostors are dead
-        bool con2 = (numAliveNeutralKillers + numAliveCrewmates) <= numAliveImpostors; // Alive Impostors >= other teams sum
-        bool con3 = numAliveNeutralKillers == 1 && numAliveImpostors == 1 && numAliveCrewmates <= 2; // One Impostor and one Neutral Killer is alive and living Crewmates are very few
-
-        var blackOutIsActive = con1 || con2 || con3;
-
-        EHR.Logger.Info($" {blackOutIsActive}", "BlackOut Is Active");
-        return blackOutIsActive;
-    }
-*/
+    */
 
     private static bool IsCached { get; set; }
 
@@ -225,9 +225,9 @@ public static class AntiBlackout
 
     public static void ResetAfterMeeting()
     {
-        SkipTasks = false;
         ExilePlayerId = -1;
         ResetAllCooldowns();
+        LateTask.New(() => SkipTasks = false, 1f, log: false);
     }
 
     public static void Reset()

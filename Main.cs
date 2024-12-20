@@ -16,6 +16,7 @@ using EHR.Patches;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [assembly: AssemblyFileVersion(Main.PluginVersion)]
 [assembly: AssemblyInformationalVersion(Main.PluginVersion)]
@@ -772,6 +773,30 @@ public class Main : BasePlugin
     public void StopAllCoroutines()
     {
         coroutines.StopAllCoroutines();
+    }
+
+    public static IEnumerator GetRandomWord(Action<string> onComplete)
+    {
+        string api = "https://random-word.ryanrk.com/api/en/word/random";
+        var request = UnityWebRequest.Get(api);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            api = "https://random-word-api.herokuapp.com/word";
+            request = UnityWebRequest.Get(api);
+            yield return request.SendWebRequest();
+        }
+
+        if (request.result != UnityWebRequest.Result.Success)
+            yield break;
+
+        string response = request.downloadHandler.text;
+        int firstQuote = response.IndexOf("\"", StringComparison.Ordinal);
+        int lastQuote = response.LastIndexOf("\"", StringComparison.Ordinal);
+        string word = response.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+
+        onComplete?.Invoke(word);
     }
 }
 
