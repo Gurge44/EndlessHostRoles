@@ -2335,7 +2335,7 @@
   "CommandDescription.Whisper": "Sussurre uma mensagem para um jogador.",
   "CommandDescription.Spectate": "Torna você um espectador para o próximo jogo. Você deveria apenas habilitar o Espectador caso for o Anfitrião.",
   "CommandDescription.Anagram": "Pegue uma palavra embaralhada aleatoriamente e tente adivinhar a palavra original.",
-  "CommandDescription.RoleList": "View the limits of how many of each faction and subcategory of roles will spawn.",
+  "CommandDescription.RoleList": "Veja os limites de quantos de cada facção e subcategoria de funções surgirão.",
   "CommandArgs.ChangeSetting.Name": "A configuração para mudar (deixe em branco para ver todas as configurações)",
   "CommandArgs.ChangeSetting.UnknownValue": "(deixe em branco para ver o que colocar aqui)",
   "CommandArgs.Rename.Name": "Seu novo nome",
