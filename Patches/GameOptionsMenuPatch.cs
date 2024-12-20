@@ -139,44 +139,32 @@ public static class GameOptionsMenuPatch
 
                 OptionBehaviour optionBehaviour;
 
-                switch (baseGameSetting.Type)
+                try
                 {
-                    case OptionTypes.Checkbox:
+                    optionBehaviour = baseGameSetting.Type switch
                     {
-                        optionBehaviour = Object.Instantiate(__instance.checkboxOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer);
-                        optionBehaviour.transform.localPosition = new(posX, num, posZ);
+                        OptionTypes.Checkbox => Object.Instantiate(__instance.checkboxOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
+                        OptionTypes.String => Object.Instantiate(__instance.stringOptionOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
+                        OptionTypes.Float or OptionTypes.Int => Object.Instantiate(__instance.numberOptionOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
+                        _ => throw new Exception("Skipped option type")
+                    };
+                }
+                catch { continue; }
 
-                        OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
+                optionBehaviour.transform.localPosition = new(posX, num, posZ);
+                OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
 
-                        break;
-                    }
-                    case OptionTypes.String:
+                if (!ModGameOptionsMenu.OptionList.ContainsValue(index))
+                {
+                    switch (option.Name)
                     {
-                        optionBehaviour = Object.Instantiate(__instance.stringOptionOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer);
-                        optionBehaviour.transform.localPosition = new(posX, num, posZ);
-
-                        OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
-
-                        if (option.Name == "GameMode" && !ModGameOptionsMenu.OptionList.ContainsValue(index))
+                        case "GameMode":
                             GameSettingMenuPatch.GameModeBehaviour = (StringOption)optionBehaviour;
-
-                        break;
-                    }
-                    case OptionTypes.Float:
-                    case OptionTypes.Int:
-                    {
-                        optionBehaviour = Object.Instantiate(__instance.numberOptionOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer);
-                        optionBehaviour.transform.localPosition = new(posX, num, posZ);
-
-                        OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
-
-                        if (option.Name == "Preset" && !ModGameOptionsMenu.OptionList.ContainsValue(index))
+                            break;
+                        case "Preset":
                             GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
-
-                        break;
+                            break;
                     }
-                    default:
-                        continue;
                 }
 
                 optionBehaviour.SetClickMask(__instance.ButtonClickMask);
@@ -858,6 +846,8 @@ public class GameSettingMenuPatch
 
     public static NumberOption PresetBehaviour;
     public static StringOption GameModeBehaviour;
+    
+    public static long LastPresetChange;
 
     public static FreeChatInputField InputField;
     private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
@@ -972,8 +962,10 @@ public class GameSettingMenuPatch
 
         minus.OnClick.AddListener((Action)(() =>
         {
-            if (PresetBehaviour == null) __instance.ChangeTab(3, false);
+            if (PresetBehaviour == null)
+                __instance.ChangeTab(3, false);
 
+            LastPresetChange = Utils.TimeStamp;
             PresetBehaviour.Decrease();
         }));
 
@@ -1003,7 +995,10 @@ public class GameSettingMenuPatch
 
         plus.OnClick.AddListener((Action)(() =>
         {
-            if (PresetBehaviour == null) __instance.ChangeTab(3, false);
+            if (PresetBehaviour == null)
+                __instance.ChangeTab(3, false);
+            
+            LastPresetChange = Utils.TimeStamp;
             PresetBehaviour.Increase();
         }));
 

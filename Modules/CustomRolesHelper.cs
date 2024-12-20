@@ -599,7 +599,6 @@ internal static class CustomRolesHelper
     public static bool IsImpostor(this CustomRoles role)
     {
         return (role == CustomRoles.DoubleAgent && !Main.IntroDestroyed) || role is
-            CustomRoles.DoubleAgent or
             CustomRoles.Impostor or
             CustomRoles.ImpostorEHR or
             CustomRoles.Phantom or

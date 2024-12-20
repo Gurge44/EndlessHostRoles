@@ -12,7 +12,9 @@ using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
+using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 using static EHR.Translator;
 
 // ReSharper disable InconsistentNaming
@@ -109,6 +111,8 @@ internal static class ChatCommands
 
     private static HashSet<byte> ReadyPlayers = [];
 
+    private static string CurrentAnagram = string.Empty;
+
     public static void LoadCommands()
     {
         AllCommands =
@@ -183,6 +187,7 @@ internal static class ChatCommands
             new(["dn", "deathnote", "заметкамертвого", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, [GetString("CommandArgs.DeathNote.Name")]),
             new(["w", "whisper", "шепот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
             new(["spectate", "спектейт", "观战", "espectar"], "", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false),
+            new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -241,6 +246,8 @@ internal static class ChatCommands
         __instance.timeSinceLastMessage = 3f;
 
         string text = __instance.freeChatField.textArea.text.Trim();
+        
+        CheckAnagramGuess(PlayerControl.LocalPlayer.PlayerId, text);
 
         if (ChatHistory.Count == 0 || ChatHistory[^1] != text)
             ChatHistory.Add(text);
@@ -327,6 +334,15 @@ internal static class ChatCommands
         return !canceled;
     }
 
+    private static void CheckAnagramGuess(byte id, string text)
+    {
+        if (text.Contains(CurrentAnagram))
+        {
+            Utils.SendMessage("\n", title: string.Format(GetString("Anagram.CorrectGuess"), id.ColoredPlayerName(), CurrentAnagram));
+            CurrentAnagram = string.Empty;
+        }
+    }
+
     private static void RequestCommandProcessingFromHost(string methodName, string text)
     {
         PlayerControl pc = PlayerControl.LocalPlayer;
@@ -339,6 +355,32 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void AnagramCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        Main.Instance.StartCoroutine(Fetch());
+        return;
+
+        IEnumerator Fetch()
+        {
+            const string api = "https://random-word.ryanrk.com/api/en/word/random";
+            var request = UnityWebRequest.Get(api);
+            yield return request.SendWebRequest();
+            
+            while (!request.isDone) yield return null;
+            if (request.result != UnityWebRequest.Result.Success) yield break;
+            
+            string response = request.downloadHandler.text;
+            int firstQuote = response.IndexOf("\"", StringComparison.Ordinal);
+            int lastQuote = response.LastIndexOf("\"", StringComparison.Ordinal);
+            string word = response.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+            string scrambled = new(word.ToLower().ToCharArray().Shuffle());
+
+            CurrentAnagram = word;
+            byte sendTo = GameStates.InGame && !player.IsAlive() ? player.PlayerId : byte.MaxValue;
+            Utils.SendMessage(string.Format(GetString("Anagram"), scrambled), sendTo, GetString("AnagramTitle"));
+        }
+    }
+    
     private static void SpectateCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (Options.DisableSpectateCommand.GetBool())
@@ -2406,6 +2448,8 @@ internal static class ChatCommands
         }
 
         if (text.StartsWith("\n")) text = text[1..];
+        
+        CheckAnagramGuess(player.PlayerId, text.ToLower());
 
         string[] args = text.Split(' ');
 

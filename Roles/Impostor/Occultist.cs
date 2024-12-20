@@ -132,8 +132,15 @@ public class Occultist : RoleBase
                 var player = id.GetPlayer();
                 if (player == null) continue;
 
-                if (!player.Is(Team.Impostor))
-                    player.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Refugee : CustomRoles.Madmate);
+                switch (player.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out var convertedAddon))
+                {
+                    case false when !player.Is(Team.Impostor):
+                        player.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Refugee : CustomRoles.Madmate);
+                        break;
+                    case true:
+                        player.RpcSetCustomRole(convertedAddon);
+                        break;
+                }
 
                 player.RpcRevive();
                 player.TP(data.Position);

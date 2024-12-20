@@ -583,6 +583,7 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Anchor, "#6B4CE4" },
                 { CustomRoles.Fragile, "#debe66" },
                 { CustomRoles.Allergic, "#e3bd56" },
                 { CustomRoles.Introvert, "#6293e3" },
