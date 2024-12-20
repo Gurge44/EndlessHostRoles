@@ -2335,6 +2335,7 @@
   "CommandDescription.Whisper": "私信一名玩家",
   "CommandDescription.Spectate": "让你成为下一场游戏的旁观者。你只需要启用管理员作为主机。",
   "CommandDescription.Anagram": "Get a random scrambled word, then try to guess the original word.",
+  "CommandDescription.RoleList": "View the limits of how many of each faction and subcategory of roles will spawn.",
   "CommandArgs.ChangeSetting.Name": "要更改的设置名称(留空可查看所有设置)",
   "CommandArgs.ChangeSetting.UnknownValue": "（留空可查看此处放置的内容）",
   "CommandArgs.Rename.Name": "你的新名字",
