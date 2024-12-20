@@ -2335,6 +2335,7 @@
   "CommandDescription.Whisper": "Прошептать сообщение кому-то",
   "CommandDescription.Spectate": "Стать Спектатором на следующую игру. Вы должны просто включить режим Спектатора в настройках, как Хост.",
   "CommandDescription.Anagram": "Get a random scrambled word, then try to guess the original word.",
+  "CommandDescription.RoleList": "View the limits of how many of each faction and subcategory of roles will spawn.",
   "CommandArgs.ChangeSetting.Name": "Название настройки (оставьте пустым для просмотра всех названий)",
   "CommandArgs.ChangeSetting.UnknownValue": "(оставьте пустым для просмотра, что сюда вставить)",
   "CommandArgs.Rename.Name": "Новый никнейм",
