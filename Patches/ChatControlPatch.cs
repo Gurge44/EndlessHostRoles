@@ -160,7 +160,7 @@ public static class ChatManager
     public static void SendMessage(PlayerControl player, string message)
     {
         string playername = player.GetNameWithRole();
-        message = message.ToLower().TrimStart().TrimEnd();
+        message = message.ToLower().Trim();
 
         if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())) return;
 
@@ -198,7 +198,6 @@ public static class ChatManager
                 var chatEntry = $"{player.PlayerId}: {message}";
                 ChatHistory.Add(chatEntry);
                 if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
-
                 break;
         }
 
@@ -250,10 +249,7 @@ public static class ChatManager
 
             ChatUpdatePatch.SendLastMessages();
         }
-        finally
-        {
-            ChatUpdatePatch.DoBlockChat = false;
-        }
+        finally { ChatUpdatePatch.DoBlockChat = false; }
     }
 
     private static void SendRPC(InnerNetObject senderPlayer, string senderMessage)
