@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.AddOns.Impostor;
+using EHR.Crewmate;
 using static EHR.Options;
 using static EHR.Utils;
 
@@ -91,11 +93,28 @@ internal class Kamikaze : RoleBase
                     PlayerControl victim = GetPlayerById(id);
                     if (victim == null || !victim.IsAlive()) continue;
 
-                    victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
+                    if (GameStates.IsInTask && !ExileController.Instance)
+                        victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
+                    else
+                    {
+                        victim.SetRealKiller(kamikazePc);
+                        var state = Main.PlayerStates[victim.PlayerId];
+                        state.IsDead = true;
+                        state.deathReason = PlayerState.DeathReason.Kamikazed;
+                        Medic.IsDead(victim);
+                        
+                        if (kamikazePc.Is(CustomRoles.Damocles))
+                            Damocles.OnMurder(kamikazePc.PlayerId);
+                        
+                        IncreaseAbilityUseLimitOnKill(kamikazePc);
+                        
+                        victim.RpcExileV2();
+                        FixedUpdatePatch.LoversSuicide(victim.PlayerId, guess: true);
+                    }
                 }
 
-                kk.MarkedPlayers.Clear();
                 Logger.Info($"Murder {kamikazePc.GetRealName()}'s targets: {string.Join(", ", kk.MarkedPlayers.Select(x => GetPlayerById(x).GetNameWithRole()))}", "Kamikaze");
+                kk.MarkedPlayers.Clear();
             }
         }
     }

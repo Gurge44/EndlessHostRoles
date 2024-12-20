@@ -205,12 +205,12 @@ internal static class CustomRoleSelector
                 .ToList();
         }
 
-        Logger.Msg("======================================================", "PreSelectedRoles");
+        Logger.Msg("===================================================", "PreSelectedRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "PreSelectedImpostorRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.NeutralKilling].Select(x => x.Role.ToString())), "PreSelectedNKRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.NonKillingNeutral].Select(x => x.Role.ToString())), "PreSelectedNNKRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Crewmate].Select(x => x.Role.ToString())), "PreSelectedCrewRoles");
-        Logger.Msg("======================================================", "PreSelectedRoles");
+        Logger.Msg("===================================================", "PreSelectedRoles");
 
         try
         {

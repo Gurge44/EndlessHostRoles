@@ -187,7 +187,7 @@ internal static class ExtendedPlayerControl
         {
             MethodBase callerMethod = new StackFrame(1, false).GetMethod();
             string callerMethodName = callerMethod?.Name;
-            Logger.Warn(callerMethod?.DeclaringType?.FullName + "." + callerMethodName + " tried to get a CustomRole, but the target was null.", "GetCustomRole");
+            Logger.Warn($"{callerMethod?.DeclaringType?.FullName}.{callerMethodName} tried to get a CustomRole, but the target was null.", "GetCustomRole");
             return CustomRoles.Crewmate;
         }
 
@@ -877,7 +877,8 @@ internal static class ExtendedPlayerControl
         if (realKiller != null)
         {
             pc.SetRealKiller(realKiller);
-            if (realKiller.Is(CustomRoles.Damocles)) Damocles.OnMurder(realKiller.PlayerId);
+            if (realKiller.Is(CustomRoles.Damocles))
+                Damocles.OnMurder(realKiller.PlayerId);
 
             IncreaseAbilityUseLimitOnKill(realKiller);
         }
@@ -1477,7 +1478,7 @@ internal static class ExtendedPlayerControl
     public static (Vector2 Location, string RoomName) GetPositionInfo(this PlayerControl pc)
     {
         PlainShipRoom room = pc.GetPlainShipRoom();
-        string roomName = room == null ? "Outside" : $"@{GetString($"{room.RoomId}")}";
+        string roomName = GetString(room == null ? "Outside" : $"{room.RoomId}");
         Vector2 pos = pc.Pos();
 
         return (pos, roomName);

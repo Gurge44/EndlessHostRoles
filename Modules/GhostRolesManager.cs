@@ -94,15 +94,16 @@ internal static class GhostRolesManager
         try
         {
             if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
-
             if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
 
-            if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit) || pc.Is(CustomRoles.Curser)) return false;
+            if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit) || pc.Is(CustomRoles.Anchor)) return false;
 
             switch (pc.GetCustomRole())
             {
-                case CustomRoles.Backstabber: return false;
-                case CustomRoles.Workaholic when !Workaholic.WorkaholicCannotWinAtDeath.GetBool(): return false;
+                case CustomRoles.Curser:
+                case CustomRoles.Backstabber:
+                case CustomRoles.Workaholic when !Workaholic.WorkaholicCannotWinAtDeath.GetBool():
+                    return false;
             }
 
             CustomRoles suitableRole = GetSuitableGhostRole(pc);
