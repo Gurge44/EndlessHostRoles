@@ -42,6 +42,11 @@ public class Monarch : RoleBase
         playerId.SetAbilityUseLimit(KnightMax.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KnightCooldown.GetFloat();

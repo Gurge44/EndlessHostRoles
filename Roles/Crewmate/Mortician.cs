@@ -39,6 +39,11 @@ public class Mortician : RoleBase
         MorticianId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static void OnPlayerDead(PlayerControl target)
     {
         Vector2 pos = target.Pos();

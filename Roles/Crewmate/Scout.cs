@@ -71,6 +71,11 @@ public class Scout : RoleBase
         TrackerId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static void SendRPC(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
     {
         if (!Utils.DoRPC) return;

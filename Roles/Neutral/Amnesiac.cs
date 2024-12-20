@@ -80,6 +80,11 @@ public class Amnesiac : RoleBase
         AmnesiacId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = RememberCooldown.GetFloat();
@@ -125,7 +130,7 @@ public class Amnesiac : RoleBase
     public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
         if (target.Object.Is(CustomRoles.Unreportable)) return true;
-            
+
         if (RememberMode.GetValue() == 0)
         {
             RememberRole(reporter, target.Object);

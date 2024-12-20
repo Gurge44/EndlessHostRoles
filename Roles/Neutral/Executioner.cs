@@ -80,11 +80,13 @@ public class Executioner : RoleBase
                 SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString(), "Executioner.Add");
-            }
+            catch (Exception ex) { Logger.Error(ex.ToString(), "Executioner.Add"); }
         }, 3f, log: false);
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")

@@ -76,44 +76,44 @@ internal static class GameEndChecker
             {
                 case CustomWinner.Crewmate:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => (pc.Is(CustomRoleTypes.Crewmate) || (pc.Is(CustomRoles.Haunter) && Haunter.CanWinWithCrew(pc))) && !pc.IsMadmate() && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
-                        .Select(pc => pc.PlayerId));
+                                            .Where(pc => (pc.Is(CustomRoleTypes.Crewmate) || (pc.Is(CustomRoles.Haunter) && Haunter.CanWinWithCrew(pc))) && !pc.IsMadmate() && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
+                                            .Select(pc => pc.PlayerId));
 
                     break;
                 case CustomWinner.Impostor:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.IsMadmate()) && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
-                        .Select(pc => pc.PlayerId));
+                                            .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.IsMadmate()) && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
+                                            .Select(pc => pc.PlayerId));
 
                     break;
                 case CustomWinner.Succubus:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Succubus) || pc.Is(CustomRoles.Charmed))
-                        .Select(pc => pc.PlayerId));
+                                            .Where(pc => pc.Is(CustomRoles.Succubus) || pc.Is(CustomRoles.Charmed))
+                                            .Select(pc => pc.PlayerId));
 
                     break;
                 case CustomWinner.Necromancer:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Necromancer) || pc.Is(CustomRoles.Deathknight) || pc.Is(CustomRoles.Undead))
-                        .Select(pc => pc.PlayerId));
+                                            .Where(pc => pc.Is(CustomRoles.Necromancer) || pc.Is(CustomRoles.Deathknight) || pc.Is(CustomRoles.Undead))
+                                            .Select(pc => pc.PlayerId));
 
                     break;
                 case CustomWinner.Virus:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Virus) || pc.Is(CustomRoles.Contagious))
-                        .Select(pc => pc.PlayerId));
+                                            .Where(pc => pc.Is(CustomRoles.Virus) || pc.Is(CustomRoles.Contagious))
+                                            .Select(pc => pc.PlayerId));
 
                     break;
                 case CustomWinner.Jackal:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick) || pc.Is(CustomRoles.Recruit))
-                        .Select(pc => pc.PlayerId));
+                                            .Where(pc => pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick) || pc.Is(CustomRoles.Recruit))
+                                            .Select(pc => pc.PlayerId));
 
                     break;
                 case CustomWinner.Spiritcaller:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Spiritcaller) || pc.Is(CustomRoles.EvilSpirit))
-                        .Select(pc => pc.PlayerId));
+                                            .Where(pc => pc.Is(CustomRoles.Spiritcaller) || pc.Is(CustomRoles.EvilSpirit))
+                                            .Select(pc => pc.PlayerId));
 
                     WinnerRoles.Add(CustomRoles.Spiritcaller);
                     break;
@@ -229,6 +229,10 @@ internal static class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.NoteKiller);
                             break;
+                        case CustomRoles.NecroGuesser when (Main.PlayerStates[pc.PlayerId].Role as NecroGuesser).GuessedPlayers >= NecroGuesser.NumGuessesToWin.GetInt():
+                            WinnerIds.Add(pc.PlayerId);
+                            AdditionalWinnerTeams.Add(AdditionalWinners.NecroGuesser);
+                            break;
                     }
                 }
 
@@ -244,7 +248,7 @@ internal static class GameEndChecker
                         case > 1 when WinnerIds.Any(x => GetPlayerById(x).Is(CustomRoles.Egoist)):
                             WinnerIds.RemoveWhere(x => GetPlayerById(x).Is(CustomRoles.Egoist));
                             break;
-                        // If there's only 1 impostor alive, and all alive impostors are Egoists, the Egoist wins alone
+                        // If there's only 1 impostor alive, and all living impostors are Egoists, the Egoist wins alone
                         case 1 when imps.All(x => x.Is(CustomRoles.Egoist)):
                             PlayerControl pc = imps[0];
                             reason = GameOverReason.ImpostorByKill;

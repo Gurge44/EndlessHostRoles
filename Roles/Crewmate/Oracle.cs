@@ -57,6 +57,11 @@ public class Oracle : RoleBase
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;

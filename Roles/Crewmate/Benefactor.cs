@@ -52,6 +52,11 @@ internal class Benefactor : RoleBase
         TaskMarkPerRound[playerId] = 0;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private static void SendRPC(byte benefactorId, int taskIndex = -1, bool isShield = false, bool clearAll = false, bool shieldExpire = false, byte shieldedId = byte.MaxValue)
     {
         if (!Utils.DoRPC) return;

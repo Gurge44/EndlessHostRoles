@@ -94,6 +94,11 @@ public class Alchemist : RoleBase
         VisionPotionActive = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPCData()
     {
         if (!IsEnable || !Utils.DoRPC) return;

@@ -49,6 +49,11 @@ public class Jailor : RoleBase
         JailorDidVote = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         opt.SetVision(false);

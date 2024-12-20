@@ -63,6 +63,11 @@ public class Wasp : RoleBase
         EvadedKillThisRound = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = SwarmModeEnd == 0 ? StingCooldown.GetInt() : 0.01f;
@@ -203,10 +208,7 @@ public class Wasp : RoleBase
 
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Stung, [.. waspDeathList]);
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static string GetStungMark(byte target)

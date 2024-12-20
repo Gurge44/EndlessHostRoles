@@ -42,6 +42,11 @@ public class Consort : RoleBase
         playerId.SetAbilityUseLimit(UseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsEnable || killer == null || target == null) return false;

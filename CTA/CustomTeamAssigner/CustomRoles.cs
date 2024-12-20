@@ -91,6 +91,7 @@ public enum CustomRoles
     Silencer,
     Sniper,
     ImperiusCurse, // Soul Catcher
+    Stasis,
     Swapster,
     Swiftclaw,
     Swooper,
@@ -261,6 +262,7 @@ public enum CustomRoles
 
     Agitater,
     Amnesiac,
+    Amogus,
     Arsonist,
     Backstabber,
     Bandit,

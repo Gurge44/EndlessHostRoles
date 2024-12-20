@@ -55,13 +55,13 @@ csharp_style_var_elsewhere = false:none
 
 # ReSharper properties
 resharper_align_linq_query = false
-resharper_align_multiline_argument = true
+resharper_align_multiline_argument = false
 resharper_align_multiline_binary_patterns = true
-resharper_align_multiline_calls_chain = true
+resharper_align_multiline_calls_chain = false
 resharper_align_multiline_extends_list = true
-resharper_align_multiline_parameter = true
-resharper_align_multiline_type_parameter_constraints = true
-resharper_align_multiline_type_parameter_list = true
+resharper_align_multiline_parameter = false
+resharper_align_multiline_type_parameter_constraints = false
+resharper_align_multiline_type_parameter_list = false
 resharper_align_multiple_declaration = true
 resharper_align_tuple_components = true
 resharper_braces_for_dowhile = required_for_multiline

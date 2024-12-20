@@ -39,9 +39,7 @@ public class ErrorText : MonoBehaviour
     public void LateUpdate()
     {
         if (!Text.enabled) return;
-
         if (!Camera) Camera = !HudManager.InstanceExists ? _camera : _camera1;
-
         if (Camera) transform.position = AspectPosition.ComputeWorldPosition(Camera, AspectPosition.EdgeAlignments.Top, TextOffset);
     }
 
@@ -107,10 +105,7 @@ public class ErrorText : MonoBehaviour
             Text.text = text;
         }
         catch (NullReferenceException) { }
-        catch (Exception e)
-        {
-            Logger.Error(e.ToString(), "ErrorText.UpdateText");
-        }
+        catch (Exception e) { Logger.Error(e.ToString(), "ErrorText.UpdateText"); }
     }
 
     public void Clear()

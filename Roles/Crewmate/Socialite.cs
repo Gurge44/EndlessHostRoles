@@ -47,6 +47,11 @@ public class Socialite : RoleBase
         MarkedPlayerId = byte.MaxValue;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = Cooldown.GetFloat();

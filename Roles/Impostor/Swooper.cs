@@ -110,19 +110,18 @@ public class Swooper : RoleBase
         }
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         try
         {
-            if (UsedRole == CustomRoles.Chameleon)
-            {
-                AURoleOptions.EngineerCooldown = Cooldown + 1f;
-            }
+            if (UsedRole == CustomRoles.Chameleon) { AURoleOptions.EngineerCooldown = Cooldown + 1f; }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

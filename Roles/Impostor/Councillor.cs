@@ -81,6 +81,11 @@ public class Councillor : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void AfterMeetingTasks()
     {
         MeetingKillLimit[CouncillorId] = MurderLimitPerMeeting.GetInt();

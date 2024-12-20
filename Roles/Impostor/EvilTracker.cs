@@ -81,6 +81,11 @@ public class EvilTracker : RoleBase
         }, 3f, "Add Evil Tracker Arrows");
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (RoleTypes != RoleTypes.Shapeshifter) return;
@@ -153,10 +158,7 @@ public class EvilTracker : RoleBase
                 target?.MarkDirtySettings();
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "EvilTracker.AfterMeetingTasks");
-        }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "EvilTracker.AfterMeetingTasks"); }
     }
 
     private void SetTarget(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)

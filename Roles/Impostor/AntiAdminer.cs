@@ -76,6 +76,11 @@ internal class AntiAdminer : RoleBase
         AntiAdminerId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting) return true;
@@ -258,10 +263,7 @@ internal class AntiAdminer : RoleBase
                         break;
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString(), "AntiAdminer");
-            }
+            catch (Exception ex) { Logger.Error(ex.ToString(), "AntiAdminer"); }
         }
 
         var change = false;

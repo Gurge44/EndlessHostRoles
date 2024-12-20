@@ -283,10 +283,14 @@ public static class NaturalDisasters
 
             if (now - LastSync >= 10)
             {
+                if (Options.CurrentGameMode == CustomGameMode.AllInOne)
+                {
+                    BuildingCollapse.CollapsedRooms.Clear();
+                    Sinkhole.RemoveRandomSinkhole();
+                    Utils.NotifyRoles();
+                }
+
                 LastSync = now;
-                BuildingCollapse.CollapsedRooms.Clear();
-                Sinkhole.RemoveRandomSinkhole();
-                Utils.NotifyRoles();
                 Utils.MarkEveryoneDirtySettings();
             }
         }
@@ -651,7 +655,7 @@ public static class NaturalDisasters
                 var hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
                 var cno = new Lightning(hit);
 
-                if (cno.playerControl.GetPlainShipRoom() != default(PlainShipRoom))
+                if (cno.playerControl.GetPlainShipRoom() != null)
                     cno.Despawn();
                 else
                 {
@@ -904,7 +908,7 @@ public static class NaturalDisasters
             Update();
 
             PlainShipRoom room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
-            if (room == default(PlainShipRoom)) return;
+            if (room == null) return;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 if (pc.GetPlainShipRoom() == room)
@@ -935,7 +939,7 @@ public static class NaturalDisasters
             {
                 PlainShipRoom room = pc.GetPlainShipRoom();
 
-                if (room != default(PlainShipRoom) && CollapsedRooms.Exists(x => x == room))
+                if (room != null && CollapsedRooms.Exists(x => x == room))
                 {
                     if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos)) pc.TP(lastPos);
                     else pc.Suicide(PlayerState.DeathReason.Collapsed);

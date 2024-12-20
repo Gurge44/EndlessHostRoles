@@ -72,6 +72,11 @@ public class WeaponMaster : RoleBase
         shieldUsed = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPC()
     {
         if (!Utils.DoRPC) return;

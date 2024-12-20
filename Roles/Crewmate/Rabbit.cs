@@ -35,6 +35,11 @@ internal class Rabbit : RoleBase
         RabbitStates[playerId] = new(Utils.GetPlayerById(playerId));
     }
 
+    public override void Remove(byte playerId)
+    {
+        RabbitStates.Remove(playerId);
+    }
+
     public static void ReceiveRPC(MessageReader reader)
     {
         byte id = reader.ReadByte();

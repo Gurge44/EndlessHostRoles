@@ -95,6 +95,11 @@ public class Doppelganger : RoleBase
         StealTimeStamp = 0;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
@@ -261,7 +266,7 @@ public class Doppelganger : RoleBase
         Utils.NotifyRoles();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-            
+
         target.SetRealKiller(killer);
     }
 
@@ -284,10 +289,7 @@ public class Doppelganger : RoleBase
                 }
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

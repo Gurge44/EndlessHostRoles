@@ -54,6 +54,11 @@ public class Ricochet : RoleBase
         RicochetId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPCSyncTarget(byte targetId)
     {
         if (!IsEnable || !Utils.DoRPC) return;

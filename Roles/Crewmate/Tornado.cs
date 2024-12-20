@@ -84,6 +84,11 @@ internal class Tornado : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private static void SendRPCAddTornado(bool add, Vector2 pos, string roomname, long timestamp = 0)
     {
         if (!DoRPC) return;

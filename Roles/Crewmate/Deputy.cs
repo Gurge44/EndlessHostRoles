@@ -48,6 +48,11 @@ public class Deputy : RoleBase
         playerId.SetAbilityUseLimit(HandcuffMax.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = HandcuffCooldown.GetFloat();

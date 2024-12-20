@@ -95,6 +95,11 @@ public class Enigma : RoleBase
         ShownClues.Add(playerId, []);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static void OnReportDeadBody(PlayerControl player, NetworkedPlayerInfo targetInfo)
     {
         if (targetInfo == null) return;

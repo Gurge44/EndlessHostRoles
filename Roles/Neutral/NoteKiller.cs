@@ -49,7 +49,7 @@ public class NoteKiller : RoleBase
             .AutoSetupOption(ref NumLettersRevealed, 2, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
             .AutoSetupOption(ref ClueShowDuration, 5, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref WinCondition, 0, WinConditions)
-            .AutoSetupOption(ref NumPlayersToKill, 2, new IntegerValueRule(0, 14, 1))
+            .AutoSetupOption(ref NumPlayersToKill, 2, new IntegerValueRule(0, 14, 1), overrideParent: WinCondition)
             .AutoSetupOption(ref CanVent, true)
             .AutoSetupOption(ref ImpostorVision, true);
     }

@@ -71,6 +71,11 @@ public class HeadHunter : RoleBase
         KCD = KillCooldown.GetFloat();
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private void SendRPC()
     {
         MessageWriter writer = Utils.CreateRPC(CustomRPC.SyncHeadHunter);

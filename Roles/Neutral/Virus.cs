@@ -84,6 +84,11 @@ public class Virus : RoleBase
         playerId.SetAbilityUseLimit(InfectMax.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -177,10 +182,7 @@ public class Virus : RoleBase
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Infected, [.. infectedIdList]);
             InfectedPlayer.Clear();
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)

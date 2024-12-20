@@ -48,6 +48,11 @@ internal class QuickShooter : RoleBase
         ShotLimit.TryAdd(playerId, 0);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private static void SendRPC(byte playerId)
     {
         if (!Utils.DoRPC) return;

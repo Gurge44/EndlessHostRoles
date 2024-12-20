@@ -55,6 +55,11 @@ public class Negotiator : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public static void OnAnyoneApplyGameOptions(IGameOptions opt, byte id)
     {
         bool lowVision = false, lowSpeed = false;

@@ -123,9 +123,9 @@ internal class Sentry : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         PlainShipRoom room = pc.GetPlainShipRoom();
-        bool hasntChosenRoom = MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom);
+        bool hasntChosenRoom = MonitoredRoom == null || MonitoredRoom == null || MonitoredRoom == null;
 
-        if (room == default(PlainShipRoom) && hasntChosenRoom)
+        if (room == null && hasntChosenRoom)
         {
             pc.AddAbilityCD(3);
             pc.Notify(Translator.GetString("Sentry.Notify.InvalidRoom"));
@@ -248,7 +248,7 @@ internal class Sentry : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom)) return;
+        if (MonitoredRoom == null || MonitoredRoom == null || MonitoredRoom == null) return;
 
         if (LastInfoSend.TryGetValue(pc.PlayerId, out long ts) && ts == Utils.TimeStamp) return;
 

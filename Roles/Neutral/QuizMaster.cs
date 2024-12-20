@@ -81,7 +81,7 @@ internal class QuizMaster : RoleBase
     {
         On = false;
         Target = byte.MaxValue;
-        CurrentQuestion = default;
+        CurrentQuestion = null;
 
         QuizMasters = [];
 
@@ -132,6 +132,11 @@ internal class QuizMaster : RoleBase
         QuizMasterId = playerId;
     }
 
+    public override void Remove(byte playerId)
+    {
+        QuizMasters.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = CanKillWithDoubleClick.GetBool() ? KillCooldown.GetFloat() : MarkCooldown.GetFloat();
@@ -158,7 +163,7 @@ internal class QuizMaster : RoleBase
         }
 
         MessagesToSend = [];
-        CurrentQuestion = default;
+        CurrentQuestion = null;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -318,14 +323,11 @@ internal class QuizMaster : RoleBase
             }
         }
         catch (IndexOutOfRangeException) { }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         if (index == -1) return;
 
-        CurrentQuestion = default;
+        CurrentQuestion = null;
         Target = byte.MaxValue;
     }
 

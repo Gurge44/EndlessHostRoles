@@ -50,6 +50,11 @@ public class Mediumshiper : RoleBase
         playerId.SetAbilityUseLimit(ContactLimitOpt.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static void OnReportDeadBody(NetworkedPlayerInfo target)
     {
         ContactPlayer = [];

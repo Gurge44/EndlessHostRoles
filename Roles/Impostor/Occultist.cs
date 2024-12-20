@@ -61,6 +61,11 @@ public class Occultist : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     void SwitchAction()
     {
         InRevivingMode = Main.AllAlivePlayerControls.Length >= 4 && !InRevivingMode;

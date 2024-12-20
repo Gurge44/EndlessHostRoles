@@ -43,6 +43,10 @@ internal static class CustomRolesHelper
         CustomRoles.Dasher
     ];
 
+    public static bool IsExperimental(this CustomRoles role) => role is
+        CustomRoles.DoubleAgent or
+        CustomRoles.Weatherman;
+
     public static bool IsForOtherGameMode(this CustomRoles role)
     {
         return HnSManager.AllHnSRoles.Contains(role) || role is
@@ -108,7 +112,6 @@ internal static class CustomRolesHelper
             CustomRoles.Marshall => CustomRoles.Crewmate,
             CustomRoles.SabotageMaster => CustomRoles.Engineer,
             CustomRoles.Mafia => Options.LegacyMafia.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
-            CustomRoles.Traitor => Options.LegacyTraitor.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.Terrorist => CustomRoles.Engineer,
             CustomRoles.Executioner => CustomRoles.Crewmate,
             CustomRoles.Lawyer => CustomRoles.Crewmate,
@@ -132,6 +135,7 @@ internal static class CustomRolesHelper
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Occultist => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Wasp => CustomRoles.Impostor,
             CustomRoles.Assumer => CustomRoles.Impostor,
             CustomRoles.Augmenter => CustomRoles.Shapeshifter,
@@ -492,7 +496,7 @@ internal static class CustomRolesHelper
             CustomRoles.Farseer => UsePets && Farseer.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Ritualist => RoleTypes.Impostor,
             CustomRoles.Pickpocket => RoleTypes.Impostor,
-            CustomRoles.Traitor => RoleTypes.Impostor,
+            CustomRoles.Traitor => Traitor.LegacyTraitor.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
             CustomRoles.PlagueBearer => RoleTypes.Impostor,
             CustomRoles.Pestilence => RoleTypes.Impostor,
             CustomRoles.Spiritcaller => RoleTypes.Impostor,
@@ -628,6 +632,7 @@ internal static class CustomRolesHelper
             CustomRoles.Augmenter or
             CustomRoles.Inhibitor or
             CustomRoles.Kidnapper or
+            CustomRoles.Stasis or
             CustomRoles.Occultist or
             CustomRoles.Wasp or
             CustomRoles.Hypnotist or
@@ -917,6 +922,7 @@ internal static class CustomRolesHelper
     {
         return role is
             CustomRoles.Wizard or
+            CustomRoles.Stasis or
             CustomRoles.Occultist or
             CustomRoles.Warlock or
             CustomRoles.Swiftclaw or
@@ -1484,6 +1490,7 @@ internal static class CustomRolesHelper
             CustomRoles.RiftMaker => RoleOptionType.Impostor_Concealing,
             CustomRoles.Scavenger => RoleOptionType.Impostor_Concealing,
             CustomRoles.ImperiusCurse => RoleOptionType.Impostor_Concealing,
+            CustomRoles.Stasis => RoleOptionType.Impostor_Concealing,
             CustomRoles.Swiftclaw => RoleOptionType.Impostor_Concealing,
             CustomRoles.Swooper => RoleOptionType.Impostor_Concealing,
             CustomRoles.Stealth => RoleOptionType.Impostor_Concealing,

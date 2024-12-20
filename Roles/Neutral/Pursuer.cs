@@ -43,6 +43,11 @@ public class Pursuer : RoleBase
         clientList = [];
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return !Main.PlayerStates[pc.PlayerId].IsDead

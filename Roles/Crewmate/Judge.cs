@@ -69,6 +69,11 @@ public class Judge : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void OnReportDeadBody()
     {
         byte[] list = [.. PlayerIdList];

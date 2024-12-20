@@ -58,6 +58,11 @@ internal class Workaholic : RoleBase
         On = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        WorkaholicAlive.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = WorkaholicVentCooldown.GetFloat();

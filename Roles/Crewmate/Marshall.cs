@@ -40,6 +40,11 @@ public class Marshall : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)
     {
         return CanSeeMarshall(seer) && PlayerIdList.Contains(target.PlayerId) && target.IsAlive() && target.GetTaskState().IsTaskFinished ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★") : string.Empty;

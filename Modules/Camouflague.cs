@@ -137,15 +137,15 @@ public static class Camouflage
         return false;
     }
 
-    public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false)
+    public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false, bool Revive = false)
     {
-        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd)) return;
+        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !Revive) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd && !Revive)) return;
 
         Logger.Info($"New outfit for {target.GetNameWithRole()}", "Camouflage.RpcSetSkin");
 
         byte id = target.PlayerId;
 
-        if (IsCamouflage && !target.IsAlive() && target.Data.IsDead)
+        if (IsCamouflage && !target.IsAlive() && target.Data.IsDead && !Revive)
         {
             Logger.Info("Player is dead, returning", "Camouflage.RpcSetSkin");
             return;
@@ -187,41 +187,41 @@ public static class Camouflage
         target.SetColor(newOutfit.ColorId);
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
-              .Write(target.Data.NetId)
-              .Write((byte)newOutfit.ColorId)
-              .EndRpc();
+            .Write(target.Data.NetId)
+            .Write((byte)newOutfit.ColorId)
+            .EndRpc();
 
         target.SetHat(newOutfit.HatId, newOutfit.ColorId);
         target.Data.DefaultOutfit.HatSequenceId += 10;
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
-              .Write(newOutfit.HatId)
-              .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
-              .EndRpc();
+            .Write(newOutfit.HatId)
+            .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
+            .EndRpc();
 
         target.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
         target.Data.DefaultOutfit.SkinSequenceId += 10;
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
-              .Write(newOutfit.SkinId)
-              .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
-              .EndRpc();
+            .Write(newOutfit.SkinId)
+            .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
+            .EndRpc();
 
         target.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
         target.Data.DefaultOutfit.VisorSequenceId += 10;
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
-              .Write(newOutfit.VisorId)
-              .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
-              .EndRpc();
+            .Write(newOutfit.VisorId)
+            .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
+            .EndRpc();
 
         target.SetPet(newOutfit.PetId);
         target.Data.DefaultOutfit.PetSequenceId += 10;
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
-              .Write(newOutfit.PetId)
-              .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-              .EndRpc();
+            .Write(newOutfit.PetId)
+            .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+            .EndRpc();
 
         sender.SendMessage();
     }

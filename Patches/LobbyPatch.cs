@@ -37,17 +37,22 @@ public static class HostInfoPanelSetUpPatch
 
     public static void Postfix(HostInfoPanel __instance)
     {
-        if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
+        try
+        {
+            if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
 
-        string icon = Translator.GetString("Icon");
-        string name = GameData.Instance?.GetHost()?.PlayerName?.RemoveHtmlTags()?.Split('\n').FirstOrDefault(x => x.Contains(icon))?.Split(icon)[^1] ?? string.Empty;
-        if (name == string.Empty) return;
+            var name = AmongUsClient.Instance.GetHost().PlayerName;
+            var split = name.Split('\n');
+            name = Options.GetSuffixMode() == SuffixModes.None ? split[^1] : split[^2];
+            if (name == string.Empty) return;
 
-        string text = AmongUsClient.Instance.AmHost
-            ? Translator.GetString("YouAreHostSuffix")
-            : name;
+            string text = AmongUsClient.Instance.AmHost
+                ? Translator.GetString("YouAreHostSuffix")
+                : name;
 
-        HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
+            HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
+        }
+        catch { }
     }
 }
 
@@ -70,6 +75,7 @@ static class LobbyBehaviourUpdatePatch
         // ReSharper disable once ConvertToLocalFunction
         Func<ISoundPlayer, bool> lobbybgm = x => x.Name.Equals("MapTheme");
         ISoundPlayer MapThemeSound = SoundManager.Instance.soundPlayers.Find(lobbybgm);
+
         if (!Main.LobbyMusic.Value)
         {
             if (MapThemeSound == null) return;

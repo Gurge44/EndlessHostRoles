@@ -10,8 +10,8 @@ namespace EHR.Crewmate;
 public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
 {
     private List<byte> LastNearbyKillers = [];
-    private long LastUpdate;
     private Dictionary<byte, long> LastPostitionCheck = [];
+    private long LastUpdate;
 
     public byte SentinelId => sentinelId;
 
@@ -73,7 +73,7 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
         bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
 
         long timeLeft = PatrolDuration - (TimeStamp - PatrolStartTimeStamp);
-        
+
         if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
         if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft), 1.1f, overrideAll: true);
 
@@ -132,6 +132,11 @@ internal class Sentinel : RoleBase
         var newPatrolState = new PatrollingState(playerId, PatrolDuration.GetInt(), PatrolRadius.GetFloat());
         PatrolStates.Add(newPatrolState);
         LateTask.New(newPatrolState.SetPlayer, 8f, log: false);
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PatrolStates.RemoveAll(x => x.SentinelId == playerId);
     }
 
     private static PatrollingState GetPatrollingState(byte playerId)

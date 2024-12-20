@@ -49,6 +49,11 @@ public class Echo : RoleBase
         Instances.Add(this);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         bool shifted = id.IsPlayerShifted();

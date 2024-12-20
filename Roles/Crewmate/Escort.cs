@@ -46,6 +46,11 @@ public class Escort : RoleBase
         playerId.SetAbilityUseLimit(UseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte playerId)
     {
         Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;

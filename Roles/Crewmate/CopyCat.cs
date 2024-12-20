@@ -58,6 +58,11 @@ public class CopyCat : RoleBase
         TempLimit = limit;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = CurrentKillCooldown;

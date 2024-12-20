@@ -143,14 +143,14 @@ public class Dad : RoleBase
     {
         On = true;
         Instances.Add(this);
-        //Main.AllPlayerSpeed[playerId] *= -1;
+        Main.AllPlayerSpeed[playerId] *= -1;
         DadId = playerId;
         Alcohol = StartingAlcohol.GetInt();
         LastUpdate = Utils.TimeStamp;
         Count = 0;
         Shop = ShipStatus.Instance.AllVents.RandomElement();
         DoneTasks = false;
-        SelectedAbility = default;
+        SelectedAbility = default(Ability);
         MilkTimer = 315569520;
         UsingAbilities = [];
         SuperVisionTS = 0;
@@ -159,6 +159,11 @@ public class Dad : RoleBase
         DrunkPlayers = [];
         playerId.SetAbilityUseLimit(StartingMoney.GetInt());
         Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 1, Shop.Id);
+    }
+
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

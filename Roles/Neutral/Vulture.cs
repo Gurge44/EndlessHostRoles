@@ -67,7 +67,7 @@ public class Vulture : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
 
         ChangeRole = new StringOptionItem(Id + 17, "VultureChangeRole", ChangeRoles.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
+            .SetParent(ChangeRoleWhenCantWin);
     }
 
     public override void Init()
@@ -90,6 +90,11 @@ public class Vulture : RoleBase
         }, VultureReportCD.GetFloat() + 8f, "Vulture CD");
 
         VultureId = playerId;
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)

@@ -44,6 +44,11 @@ public class Pickpocket : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

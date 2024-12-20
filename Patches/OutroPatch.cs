@@ -56,7 +56,9 @@ internal static class EndGamePatch
 
         if (Options.DumpLogAfterGameEnd.GetBool()) Utils.DumpLog(false);
 
-        StringBuilder sb = new(GetString("KillLog") + ":");
+        StringBuilder sb = new(GetString("KillLog"));
+        sb.Append(':');
+        sb.Append("<size=70%>");
 
         foreach ((byte key, PlayerState value) in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TimeStamp.Ticks))
         {
@@ -70,7 +72,7 @@ internal static class EndGamePatch
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
 
-        KillLog = sb.ToString();
+        KillLog = sb.Append("</size>").ToString();
         if (!KillLog.Contains('\n')) KillLog = string.Empty;
 
         Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
@@ -111,7 +113,7 @@ internal static class EndGamePatch
             Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
             GameOptionsSender.AllSenders.Clear();
             GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
-            
+
             ChatCommands.Spectators.Clear();
 
             switch (Options.CurrentGameMode)
@@ -132,6 +134,7 @@ internal static class SetEverythingUpPatch
 {
     public static string LastWinsText = string.Empty;
     public static string LastWinsReason = string.Empty;
+    private static SimpleButton ResultsToggleButton;
 
     public static void Postfix(EndGameManager __instance)
     {
@@ -190,7 +193,7 @@ internal static class SetEverythingUpPatch
                 for (var j = 0; j < Main.WinnerList.Count; j++)
                 {
                     byte id = Main.WinnerList[j];
-                    if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags()) continue;
+                    if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags() || data.PlayerName == GetString("Dead")) continue;
 
                     CustomRoles role = Main.PlayerStates[id].MainRole;
 
@@ -494,6 +497,17 @@ internal static class SetEverythingUpPatch
             }
         }
 
+        if (Options.CurrentGameMode != CustomGameMode.Standard)
+        {
+            var winCounts = Utils.GetWinCountsString();
+
+            if (winCounts != string.Empty)
+            {
+                sb.Append("\n\n\n");
+                sb.Append(winCounts);
+            }
+        }
+
         sb.Append("</font>");
 
         var RoleSummary = RoleSummaryObject.GetComponent<TextMeshPro>();
@@ -503,8 +517,29 @@ internal static class SetEverythingUpPatch
         RoleSummary.fontSizeMin = RoleSummary.fontSizeMax = RoleSummary.fontSize = 1.25f;
 
         var RoleSummaryRectTransform = RoleSummary.GetComponent<RectTransform>();
-        RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.1f);
+        RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.7f);
         RoleSummary.text = sb.ToString();
+
+        var showInitially = Main.ShowResult;
+
+        ResultsToggleButton = new SimpleButton(
+            __instance.transform,
+            "ShowHideResultsButton",
+            new(-4.5f, 2.6f, -14f),
+            new(0, 165, 255, 255),
+            new(0, 255, 255, 255),
+            () =>
+            {
+                var setToActive = !RoleSummary.gameObject.activeSelf;
+                RoleSummary.gameObject.SetActive(setToActive);
+                Main.ShowResult = setToActive;
+                ResultsToggleButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
+            },
+            GetString(showInitially ? "HideResults" : "ShowResults"))
+        {
+            Scale = new(1.5f, 0.5f),
+            FontSize = 2f,
+        };
 
         return;
 

@@ -36,6 +36,8 @@ public abstract class RoleBase : IComparable<RoleBase>
     public abstract void Add(byte playerId);
     public abstract void SetupCustomOption();
 
+    public virtual void Remove(byte playerId) { }
+
     // Some virtual methods that trigger actions, like venting, petting, CheckMurder, etc. These are not abstract because they have a default implementation. These should also have the same name as the methods in the derived classes.
     public virtual void SetKillCooldown(byte id)
     {

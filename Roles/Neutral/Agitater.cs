@@ -61,7 +61,7 @@ public class Agitater : RoleBase
         CurrentBombedPlayer = byte.MaxValue;
         LastBombedPlayer = byte.MaxValue;
         AgitaterHasBombed = false;
-        CurrentBombedPlayerTime = new();
+        CurrentBombedPlayerTime = 0;
         AgitaterId = byte.MaxValue;
     }
 
@@ -73,13 +73,18 @@ public class Agitater : RoleBase
         CurrentBombedPlayer = byte.MaxValue;
         LastBombedPlayer = byte.MaxValue;
         AgitaterHasBombed = false;
-        CurrentBombedPlayerTime = new();
+        CurrentBombedPlayerTime = 0;
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     private void ResetBomb()
     {
         CurrentBombedPlayer = byte.MaxValue;
-        CurrentBombedPlayerTime = new();
+        CurrentBombedPlayerTime = 0;
         LastBombedPlayer = byte.MaxValue;
         AgitaterHasBombed = false;
         SendRPC(CurrentBombedPlayer, LastBombedPlayer);

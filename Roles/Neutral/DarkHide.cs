@@ -60,6 +60,11 @@ public class DarkHide : RoleBase
         DRpcSetKillCount(Utils.GetPlayerById(playerId));
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public static void ReceiveRPC(MessageReader msg)
     {
         byte DarkHiderId = msg.ReadByte();

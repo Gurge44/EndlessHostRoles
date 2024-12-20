@@ -41,6 +41,11 @@ public class Grappler : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void AfterMeetingTasks()
     {
         if (GrapplerId.GetAbilityUseLimit() >= 1f)

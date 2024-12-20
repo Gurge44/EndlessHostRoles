@@ -41,6 +41,11 @@ internal class NiceEraser : RoleBase
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;

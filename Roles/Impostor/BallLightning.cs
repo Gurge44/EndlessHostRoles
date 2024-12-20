@@ -51,6 +51,11 @@ public class BallLightning : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private static void SendRPC(byte playerId)
     {
         if (!Utils.DoRPC) return;

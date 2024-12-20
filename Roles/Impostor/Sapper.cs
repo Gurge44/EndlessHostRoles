@@ -46,6 +46,11 @@ public class Sapper : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         if (UsePhantomBasis.GetBool())

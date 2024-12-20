@@ -46,6 +46,11 @@ public class Crusader : RoleBase
         CurrentKillCooldown = SkillCooldown.GetFloat();
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return !Main.PlayerStates[pc.PlayerId].IsDead

@@ -53,7 +53,7 @@ public class Addict : RoleBase
         PlayerIdList = [];
         SuicideTimer = -10f;
         ImmortalTimer = 420f;
-        DefaultSpeed = new();
+        DefaultSpeed = 0;
     }
 
     public override void Add(byte playerId)
@@ -62,6 +62,11 @@ public class Addict : RoleBase
         SuicideTimer = -10f;
         ImmortalTimer = 420f;
         DefaultSpeed = Main.AllPlayerSpeed[playerId];
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     private bool IsImmortal(PlayerControl player)

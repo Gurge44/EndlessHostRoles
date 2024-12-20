@@ -28,10 +28,10 @@ public class SabotageMaster : RoleBase
 
     private static bool DoorsProgressing;
     private bool fixedSabotage;
+    private int PetLimit;
     private byte SMId;
 
     public float UsedSkillCount;
-    private int PetLimit;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -73,10 +73,10 @@ public class SabotageMaster : RoleBase
         UsesUsedWhenFixingLightsOrComms = new FloatOptionItem(Id + 18, "SMUsesUsedWhenFixingLightsOrComms", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
-        
+
         CanFixSabotageFromAnywhereWithPet = new BooleanOptionItem(Id + 20, "SMCanFixSabotageFromAnywhereWithPet", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
-        
+
         MaxFixedViaPet = new IntegerOptionItem(Id + 21, "SMMaxFixedViaPet", new(1, 30, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CanFixSabotageFromAnywhereWithPet);
     }
@@ -94,6 +94,11 @@ public class SabotageMaster : RoleBase
         PetLimit = MaxFixedViaPet.GetInt();
         UsedSkillCount = 0;
         SMId = playerId;
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

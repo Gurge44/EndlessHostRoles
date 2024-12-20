@@ -52,6 +52,11 @@ public class Drainer : RoleBase
         playerId.SetAbilityUseLimit(UseLimit.GetInt());
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.EngineerCooldown = VentCD.GetFloat();

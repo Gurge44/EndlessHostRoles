@@ -29,7 +29,7 @@ internal static class CheckForEndVotingPatch
 
         if (Medic.PlayerIdList.Count > 0) Medic.OnCheckMark();
 
-        //Meeting Skip with vote counting on keystroke (m + delete)
+        // Meeting Skip with vote counting
         bool shouldSkip = Input.GetKeyDown(KeyCode.F6);
 
         LogHandler voteLog = Logger.Handler("Vote");
@@ -124,7 +124,7 @@ internal static class CheckForEndVotingPatch
                         !(Options.WhenSkipVoteIgnoreFirstMeeting.GetBool() && MeetingStates.FirstMeeting) &&
                         !(Options.WhenSkipVoteIgnoreNoDeadBody.GetBool() && !MeetingStates.IsExistDeadBody) &&
                         !(Options.WhenSkipVoteIgnoreEmergency.GetBool() && MeetingStates.IsEmergencyMeeting)
-                       )
+                        )
                     {
                         switch (Options.GetWhenSkipVote())
                         {
@@ -160,25 +160,33 @@ internal static class CheckForEndVotingPatch
                 }
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Divinator) && Divinator.HideVote.GetBool()) continue;
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Eraser) && Eraser.HideVote.GetBool()) continue;
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.NiceEraser) && NiceEraser.HideVote.GetBool()) continue;
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Scout) && Scout.HideVote.GetBool()) continue;
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Oracle) && Oracle.HideVote.GetBool()) continue;
-
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) continue;
 
-                AddVote();
+                bool canVote = !(CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool());
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
+                if (ps.VotedFor.GetPlayer() != null && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
 
-                if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy)) AddVote();
+                switch (Main.PlayerStates[ps.TargetPlayerId].Role)
+                {
+                    case Adventurer { IsEnable: true } av when av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy):
+                        AddVote();
+                        break;
+                    case Amogus { IsEnable: true, ExtraVotes: > 0 } amogus:
+                        Loop.Times(amogus.ExtraVotes, _ => AddVote());
+                        break;
+                    case Dad { IsEnable: true } dad when dad.UsingAbilities.Contains(Dad.Ability.GoForMilk):
+                        canVote = false;
+                        break;
+                }
+
+                if (canVote) AddVote();
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool()) Loop.Times(Mayor.MayorAdditionalVote.GetInt(), _ => AddVote());
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator) && !Options.VindicatorHideVote.GetBool()) Loop.Times(Options.VindicatorAdditionalVote.GetInt(), _ => AddVote());
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) AddVote();
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.DualPersonality) && Options.DualVotes.GetBool())
@@ -363,9 +371,7 @@ internal static class CheckForEndVotingPatch
         }
 
         if (Options.ConfirmEgoistOnEject.GetBool() && player.Is(CustomRoles.Egoist)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Egoist), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
-
         if (Options.ConfirmLoversOnEject.GetBool() && Main.LoversPlayers.Exists(x => x.PlayerId == player.PlayerId)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
-
         if (Options.RascalAppearAsMadmate.GetBool() && player.Is(CustomRoles.Rascal)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Madmate), GetRoleString("Mad-") + coloredRole.RemoveHtmlTags());
 
         var name = string.Empty;
@@ -574,16 +580,10 @@ internal static class CheckForEndVotingPatch
                     if (Main.PlayerStates.TryGetValue(id, out PlayerState state) && state.SubRoles.Contains(CustomRoles.Avanger))
                         RevengeOnExile(playerId /*, deathReason*/);
                 }
-                catch (Exception e)
-                {
-                    Utils.ThrowException(e);
-                }
+                catch (Exception e) { Utils.ThrowException(e); }
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     private static void RevengeOnExile(byte playerId /*, PlayerState.DeathReason deathReason*/)
@@ -658,6 +658,9 @@ internal static class ExtendedMeetingHud
                         break;
                     case Dad { IsEnable: true } dad when dad.UsingAbilities.Contains(Dad.Ability.GoForMilk):
                         VoteNum = 0;
+                        break;
+                    case Amogus { IsEnable: true, ExtraVotes: > 0 } amogus:
+                        VoteNum += amogus.ExtraVotes;
                         break;
                 }
 
@@ -783,13 +786,9 @@ internal static class MeetingHudStartPatch
             }
 
             if (Mortician.MsgToSend.TryGetValue(pc.PlayerId, out string value2)) AddMsg(value2, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mortician), GetString("MorticianCheckTitle")));
-
             if (Mediumshiper.ContactPlayer.ContainsValue(pc.PlayerId)) AddMsg(string.Format(GetString("MediumshipNotifySelf"), Main.AllPlayerNames[Mediumshiper.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
-
             if (Mediumshiper.ContactPlayer.ContainsKey(pc.PlayerId) && (!Mediumshiper.OnlyReceiveMsgFromCrew.GetBool() || pc.IsCrewmate())) AddMsg(string.Format(GetString("MediumshipNotifyTarget"), Main.AllPlayerNames[Mediumshiper.ContactPlayer[pc.PlayerId]]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
-
             if (Virus.VirusNotify.TryGetValue(pc.PlayerId, out string value3)) AddMsg(value3, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Virus), GetString("VirusNoticeTitle")));
-
             if (Enigma.MsgToSend.TryGetValue(pc.PlayerId, out string value4)) AddMsg(value4, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Enigma), Enigma.MsgToSendTitle[pc.PlayerId]));
 
             if (QuizMaster.On && QuizMaster.MessagesToSend.TryGetValue(pc.PlayerId, out string value5))
@@ -1228,10 +1227,7 @@ internal static class MeetingHudCastVotePatch
         PlayerVoteArea pva_src = info.SourcePVA;
         PlayerControl pc_src = info.SourcePC;
 
-        try
-        {
-            pva_src.UnsetVote();
-        }
+        try { pva_src.UnsetVote(); }
         catch { }
 
         __instance.RpcClearVote(pc_src.GetClientId());

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
+using EHR.Impostor;
 using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -52,12 +54,39 @@ public static class PhantomRolePatch
     // Called when Phantom press vanish button when visible
     [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
     [HarmonyPrefix]
-    private static void CheckVanish_Prefix(PlayerControl __instance)
+    private static bool CheckVanish_Prefix(PlayerControl __instance)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost) return true;
 
         PlayerControl phantom = __instance;
-        Logger.Info($"Player: {phantom.GetRealName()}", "CheckVanish");
+        Logger.Info($"Player: {phantom.GetNameWithRole()}", "CheckVanish");
+
+        if (!Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || !Main.PlayerStates[__instance.PlayerId].Role.OnVanish(__instance))
+        {
+            if (phantom.AmOwner)
+            {
+                DestroyableSingleton<HudManager>.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                phantom.Data.Role.SetCooldown();
+                return false;
+            }
+
+            CustomRpcSender sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}");
+            sender.StartMessage(phantom.GetClientId());
+
+            sender.StartRpc(phantom.NetId, (byte)RpcCalls.SetRole)
+                .Write((ushort)RoleTypes.Phantom)
+                .Write(true)
+                .EndRpc();
+
+            sender.EndMessage();
+            sender.SendMessage();
+
+            phantom.RpcResetAbilityCooldown();
+
+            LateTask.New(() => phantom.SetKillCooldown(Math.Max(Main.KillTimers[phantom.PlayerId], 0.001f)), 0.2f);
+
+            return false;
+        }
 
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
@@ -83,6 +112,8 @@ public static class PhantomRolePatch
         }
 
         InvisibilityList.Add(phantom);
+
+        return true;
     }
 
     [HarmonyPatch(nameof(PlayerControl.CheckAppear))]
@@ -147,10 +178,7 @@ public static class PhantomRolePatch
                 Main.Instance.StartCoroutine(CoRevertInvisible(phantom, seer, force));
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     private static bool InValid(PlayerControl phantom, PlayerControl seer)

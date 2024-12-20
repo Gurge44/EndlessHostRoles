@@ -84,6 +84,11 @@ public class Chef : RoleBase
         RottenFood = [];
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
         if (!pc.IsAlive()) return;

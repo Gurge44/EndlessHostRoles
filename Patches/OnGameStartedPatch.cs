@@ -224,7 +224,7 @@ internal class ChangeRoleSettings
             VentilationSystemDeterioratePatch.LastClosestVent = [];
 
             Options.UsedButtonCount = 0;
-            
+
             ChatCommands.LastSpectators.Clear();
             ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 
@@ -427,15 +427,13 @@ internal static class StartGameHostPatch
         while (true)
         {
             var stopWaiting = true;
-            int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 17 : 12;
+            int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 15 : 10;
 
             lock (AUClient.allClients)
             {
                 // For loop is necessary, or else when a client times out, a foreach loop will throw:
                 // System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
 
-                int readyClientsNum = 0;
-                
                 for (var i = 0; i < AUClient.allClients.Count; i++)
                 {
                     ClientData clientData = AUClient.allClients[i]; // False error
@@ -451,12 +449,7 @@ internal static class StartGameHostPatch
                             AUClient.OnPlayerLeft(clientData, DisconnectReasons.ClientTimeout);
                         }
                     }
-
-                    if (clientData.IsReady) readyClientsNum++;
                 }
-                
-                if (!LoadingScreen.Hint.Contains('/'))
-                    LoadingScreen.Hint += string.Format(GetString("ReadyClientsInfo"), $"{readyClientsNum}/{AUClient.allClients.Count}", (int)Math.Round(timer));
             }
 
             yield return null;
@@ -686,8 +679,8 @@ internal static class StartGameHostPatch
                 .Select(x =>
                 {
                     PlayerControl suitablePlayer = aapc
-                                                   .OrderBy(p => addonNum[p])
-                                                   .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
+                        .OrderBy(p => addonNum[p])
+                        .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
 
                     if (suitablePlayer != null) addonNum[suitablePlayer]++;
 
@@ -839,7 +832,7 @@ internal static class StartGameHostPatch
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
-            Main.ResetCamPlayerList.UnionWith(Main.PlayerStates.Where(p => (p.Value.MainRole.IsDesyncRole() && !p.Value.MainRole.UsesPetInsteadOfKill()) || p.Value.SubRoles.Contains(CustomRoles.Bloodlust)).Select(p => p.Key));
+            Main.ResetCamPlayerList.UnionWith(Main.PlayerStates.Where(p => (p.Value.MainRole.IsDesyncRole() && !p.Key.GetPlayer().UsesPetInsteadOfKill()) || p.Value.SubRoles.Contains(CustomRoles.Bloodlust)).Select(p => p.Key));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
 
@@ -1161,9 +1154,9 @@ internal static class StartGameHostPatch
 
                         // send rpc set role for other clients
                         sender.AutoStartRpc(seer.NetId, (byte)RpcCalls.SetRole, targetClientId)
-                              .Write((ushort)roleType)
-                              .Write(true) // canOverride
-                              .EndRpc();
+                            .Write((ushort)roleType)
+                            .Write(true) // canOverride
+                            .EndRpc();
                     }
                     catch { }
                 }

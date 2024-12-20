@@ -73,6 +73,11 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
         }
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         opt.SetVision(HasImpVision);

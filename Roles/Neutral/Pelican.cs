@@ -48,6 +48,11 @@ public class Pelican : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
         return CanVent.GetBool();

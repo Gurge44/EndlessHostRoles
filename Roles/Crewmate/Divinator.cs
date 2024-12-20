@@ -87,6 +87,11 @@ public class Divinator : RoleBase
         }, 8f, log: false);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;

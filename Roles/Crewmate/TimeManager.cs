@@ -41,6 +41,11 @@ public class TimeManager : RoleBase
         PlayerIdList.Add(playerId);
     }
 
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
     private static int AdditionalTime(byte id)
     {
         PlayerControl pc = Utils.GetPlayerById(id);

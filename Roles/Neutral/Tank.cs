@@ -23,7 +23,7 @@ public class Tank : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(646950)
-            .AutoSetupOption(ref Speed, 0.7f, new FloatValueRule(0.1f, 3f, 0.1f), OptionFormat.Multiplier)
+            .AutoSetupOption(ref Speed, 0.9f, new FloatValueRule(0.1f, 3f, 0.1f), OptionFormat.Multiplier)
             .AutoSetupOption(ref CanBeGuessed, false)
             .AutoSetupOption(ref CanBeKilled, true)
             .AutoSetupOption(ref VentCooldown, 15f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds);
@@ -76,5 +76,10 @@ public class Tank : RoleBase
 
         string randomVentName = ShipStatus.Instance?.AllVents?.FirstOrDefault(x => x.Id == AllVents.Except(EnteredVents).FirstOrDefault())?.name ?? string.Empty;
         return randomVentName == string.Empty ? string.Empty : string.Format(Translator.GetString("Tank.Suffix"), randomVentName);
+    }
+
+    public override bool CanUseVent(PlayerControl pc, int ventId)
+    {
+        return !IsThisRole(pc) || (!EnteredVents.Contains(ventId) && pc.GetClosestVent()?.Id == ventId);
     }
 }

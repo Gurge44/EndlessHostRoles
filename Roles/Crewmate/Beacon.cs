@@ -45,6 +45,11 @@ internal class Beacon : RoleBase
         Beacons.Add(playerId.GetPlayer());
     }
 
+    public override void Remove(byte playerId)
+    {
+        Beacons.RemoveAll(x => x.PlayerId == playerId);
+    }
+
     public static bool IsAffectedPlayer(byte id)
     {
         return Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
