@@ -11,7 +11,7 @@ using UnityEngine;
 namespace EHR;
 
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
-internal class ChatControllerUpdatePatch
+internal static class ChatControllerUpdatePatch
 {
     public static int CurrentHistorySelection = -1;
 
@@ -90,7 +90,7 @@ internal class ChatControllerUpdatePatch
 }
 
 [HarmonyPatch(typeof(UrlFinder), nameof(UrlFinder.TryFindUrl))]
-internal class UrlFinderPatch
+internal static class UrlFinderPatch
 {
     public static bool Prefix(ref bool __result)
     {
