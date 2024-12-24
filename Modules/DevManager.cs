@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace EHR;
@@ -19,12 +20,27 @@ public static class DevManager
         return Tags.GetValueOrDefault(code, DefaultDevUser);
     }
 
+    private static int Attempts;
+
     private static IEnumerator FetchTags()
     {
+        Attempts++;
+
+        if (Attempts > 10)
+        {
+            Logger.Error($"Failed to fetch tags after {Attempts - 1} attempts.", "DevManager.FetchTags");
+            yield break;
+        }
+        
         UnityWebRequest request = UnityWebRequest.Get("https://gurge44.pythonanywhere.com/get_all_tags");
         yield return request.SendWebRequest();
 
-        if (request.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError) { Logger.Error($"Error fetching tags: {request.error}", "DevManager.FetchTags"); }
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Logger.Error($"Error fetching tags: {request.error}", "DevManager.FetchTags");
+            yield return new WaitForSeconds(300f);
+            yield return FetchTags();
+        }
         else
         {
             try

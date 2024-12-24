@@ -812,7 +812,7 @@ internal static class CustomRolesHelper
 
     public static bool OnlySpawnsWithPets(this CustomRoles role)
     {
-        return !(Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist && !role.AlwaysUsesUnshift()) && OnlySpawnsWithPetsRoleList.Contains(role);
+        return !(((Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool())) || (Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool()))) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist && !role.AlwaysUsesUnshift()) && OnlySpawnsWithPetsRoleList.Contains(role);
     }
 
     public static bool NeedUpdateOnLights(this CustomRoles role)

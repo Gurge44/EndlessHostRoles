@@ -26,14 +26,22 @@ public class NoteKiller : RoleBase
 
     private static readonly string[] Names =
     [
-        "John", "Jane", "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank",
-        "Ivy", "Jack", "Kate", "Liam", "Mia", "Nina", "Oliver", "Penny", "Quinn", "Ryan"
+        "John", "Jane", "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Hank",
+        "Ivy", "Jack", "Kate", "Liam", "Nina", "Oliver", "Penny", "Quinn", "Ryan",
+        "Thomas", "Uma", "Victor", "William", "Yang", "Zach", "Zoe", "Xavier", "Zoey",
+        "Abigail", "Alex", "Amelia", "Ava", "Bella", "Charlotte", "Chloe", "Daisy", "Emily",
+        "Ella", "Evelyn", "Faith", "Florence", "Grace", "Hannah", "Isabella", "Isabelle",
+        "Isabel", "Jasmine", "Jocelyn", "Julia", "Katherine", "Lily", "Madeline", "Madison",
+        "Madelyn", "Margaret", "Maria", "Matilda", "Mia", "Mila", "Miranda", "Natalie",
+        "Nora", "Olivia", "Penelope", "Piper", "Poppy", "Riley", "Rose", "Sophia", "Sofia",
+        "Sophie", "Stella", "Sydney", "Taylor", "Victoria", "Violet", "Willow", "Xander"
     ];
 
     public static Dictionary<byte, string> RealNames = [];
     private static Dictionary<byte, string> ShownClues = [];
     private static long ShowClueEndTimeStamp;
     public static int Kills;
+    public static bool CanGuess;
 
     private static byte NoteKillerID;
 
@@ -82,6 +90,7 @@ public class NoteKiller : RoleBase
     {
         On = true;
         NoteKillerID = playerId;
+        CanGuess = true;
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -168,6 +177,11 @@ public class NoteKiller : RoleBase
             OnPet(shapeshifter);
 
         return false;
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        CanGuess = true;
     }
 
     public void ReceiveRPC(MessageReader reader)

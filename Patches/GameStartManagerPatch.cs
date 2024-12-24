@@ -27,7 +27,8 @@ public static class GameStartManagerUpdatePatch
 
 public static class GameStartManagerPatch
 {
-    public static float Timer { get; set; } = 600f;
+    public static float Timer => Math.Max(0, 600f - (Utils.TimeStamp - TimerStartTS));
+    public static long TimerStartTS;
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public static class GameStartManagerStartPatch
@@ -67,7 +68,7 @@ public static class GameStartManagerPatch
 
                 __instance.GameRoomNameCode.text = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
                 // Reset lobby countdown timer
-                Timer = 600f;
+                TimerStartTS = Utils.TimeStamp;
 
                 HideName = Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
 
@@ -145,7 +146,9 @@ public static class GameStartManagerPatch
                     {
                         Main.UpdateTime = 0;
 
-                        if (((GameData.Instance?.PlayerCount >= MinPlayer && Timer <= MinWait) || Timer <= MaxWait) && !GameStates.IsCountDown)
+                        float timer = Timer;
+
+                        if (((GameData.Instance?.PlayerCount >= MinPlayer && timer <= MinWait) || timer <= MaxWait) && !GameStates.IsCountDown)
                         {
                             PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
@@ -331,11 +334,12 @@ public static class GameStartManagerPatch
                 // Lobby timer
                 if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame) return;
 
-                Timer = Mathf.Max(0f, Timer -= Time.deltaTime);
-                int minutes = (int)Timer / 60;
-                int seconds = (int)Timer % 60;
+                float timer = Timer;
+                
+                int minutes = (int)timer / 60;
+                int seconds = (int)timer % 60;
                 var suffix = $"{minutes:00}:{seconds:00}";
-                if (Timer <= 60) suffix = Utils.ColorString((int)Timer % 2 == 0 ? Color.yellow : Color.red, suffix);
+                if (timer <= 60) suffix = Utils.ColorString((int)timer % 2 == 0 ? Color.yellow : Color.red, suffix);
 
                 if (Options.NoGameEnd.GetBool())
                     suffix = suffix.Insert(0, Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}") + Utils.ColorString(Color.gray, " | "));
