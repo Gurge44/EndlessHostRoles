@@ -504,6 +504,12 @@ internal static class ChatCommands
         if (!player.Is(CustomRoles.NoteKiller) || args.Length < 2) return;
 
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+        
+        if (!NoteKiller.CanGuess)
+        {
+            Utils.SendMessage(GetString("DeathNoteCommand.CanNotGuess"), player.PlayerId);
+            return;
+        }
 
         var guess = args[1].ToLower();
         guess = char.ToUpper(guess[0]) + guess[1..];
@@ -511,6 +517,7 @@ internal static class ChatCommands
 
         if (deadPlayer == 0 && (!NoteKiller.RealNames.TryGetValue(0, out var name) || name != guess))
         {
+            NoteKiller.CanGuess = false;
             Utils.SendMessage(GetString("DeathNoteCommand.WrongName"), player.PlayerId);
             return;
         }
@@ -519,6 +526,7 @@ internal static class ChatCommands
 
         if (pc == null || !pc.IsAlive())
         {
+            NoteKiller.CanGuess = false;
             Utils.SendMessage(GetString("DeathNoteCommand.PlayerNotFoundOrDead"), player.PlayerId);
             return;
         }
@@ -1706,9 +1714,13 @@ internal static class ChatCommands
         else
             Main.SetRoles[targetPc.PlayerId] = roleToSet;
 
-        var playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out Color32 textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
-        var rolename = $"<color={Main.RoleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("RoleSelected"), resultId.ColoredPlayerName(), roleToSet.ToColoredString()));
+
+        if (roleToSet.OnlySpawnsWithPets() && !Options.UsePets.GetBool())
+        {
+            Options.UsePets.SetValue(1);
+            Utils.SendMessage(GetString("SetRoleUsePetsMessage"), player.PlayerId);
+        }
     }
 
     private static void UpCommand(ChatController __instance, PlayerControl player, string text, string[] args)

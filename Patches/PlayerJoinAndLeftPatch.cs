@@ -385,7 +385,7 @@ internal static class InnerNetClientSpawnPatch
                         else
                         {
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, SendOption.Reliable, client.Id);
-                            writer.WritePacked((int)GameStartManagerPatch.Timer);
+                            writer.WritePacked((int)GameStartManagerPatch.TimerStartTS);
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
                     }

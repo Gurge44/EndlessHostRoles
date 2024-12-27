@@ -841,7 +841,7 @@ internal static class RPCHandlerPatch
             }
             case CustomRPC.SyncLobbyTimer:
             {
-                GameStartManagerPatch.Timer = reader.ReadPackedInt32();
+                GameStartManagerPatch.TimerStartTS = long.Parse(reader.ReadString());
                 break;
             }
             case CustomRPC.SetGamerHealth:
