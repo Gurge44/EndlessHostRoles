@@ -130,11 +130,7 @@ public static class GuessManager
             {
                 if (!pc.IsAlive())
                 {
-                    if (!isUI)
-                        Utils.SendMessage(GetString("GuessDead"), pc.PlayerId);
-                    else
-                        pc.ShowPopUp(GetString("GuessDead"));
-
+                    ShowMessage("GuessDead");
                     return true;
                 }
 
