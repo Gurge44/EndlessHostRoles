@@ -31,6 +31,8 @@ public static class GuessManager
     public static TextMeshPro TextTemplate;
     private static readonly int Mask = Shader.PropertyToID("_Mask");
 
+    public static HashSet<byte> Guessers = [];
+
     public static string GetFormatString()
     {
         string text = GetString("PlayerIdList");
@@ -142,7 +144,8 @@ public static class GuessManager
                     (!pc.Is(CustomRoles.EvilGuesser) && pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor)) ||
                     (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser)) ||
                     (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && pc.GetCustomRole() is not CustomRoles.Doomsayer and not CustomRoles.NecroGuesser) ||
-                    (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0))
+                    (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0) ||
+                    (Options.GuesserNumRestrictions.GetBool() && !Guessers.Contains(pc.PlayerId)))
                 {
                     if ((pc.Is(CustomRoles.Madmate) || pc.IsConverted()) && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
 
@@ -842,7 +845,7 @@ public static class GuessManager
                 {
                     if (!Guesser.GCanGuessAdt.GetBool() && index == 3) continue;
                 }
-                else if (Options.GuesserMode.GetBool() && !PlayerControl.LocalPlayer.Is(CustomRoles.Guesser) && (!PlayerControl.LocalPlayer.Is(CustomRoles.Lyncher) || Lyncher.GuessMode.GetValue() != 2))
+                else if (Options.GuesserMode.GetBool() && (!PlayerControl.LocalPlayer.Is(CustomRoles.Lyncher) || Lyncher.GuessMode.GetValue() != 2))
                 {
                     if (!Options.CrewCanGuessCrew.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && index == 0) continue;
                     if (!Options.ImpCanGuessImp.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && index == 1) continue;
@@ -866,7 +869,7 @@ public static class GuessManager
                     CustomRoleTypes.Impostor => new(255, 25, 25, byte.MaxValue),
                     CustomRoleTypes.Neutral => new(255, 171, 27, byte.MaxValue),
                     CustomRoleTypes.Addon => new Color32(255, 154, 206, byte.MaxValue),
-                    _ => throw new NotImplementedException()
+                    _ => throw new ArgumentOutOfRangeException("The index is out of range, it's an invalid CustomRoleTypes (GuessManager.cs:GuesserOnClick method)", innerException: null)
                 };
 
                 Logger.Info(Teamlabel.color.ToString(), ((CustomRoleTypes)index).ToString());
@@ -940,10 +943,8 @@ public static class GuessManager
 
                 void ClickEvent()
                 {
-                    if (IsNext)
-                        Page += 1;
-                    else
-                        Page -= 1;
+                    if (IsNext) Page += 1;
+                    else Page -= 1;
 
                     if (Page < 1) Page = 1;
 
@@ -1134,6 +1135,11 @@ public static class GuessManager
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(MeetingHud __instance)
         {
+            bool restrictions = Options.GuesserNumRestrictions.GetBool();
+
+            if (Guessers.Count == 0 && restrictions)
+                InitializeGuesserPlayers();
+
             PlayerControl lp = PlayerControl.LocalPlayer;
             if (!lp.IsAlive()) return;
 
@@ -1151,11 +1157,25 @@ public static class GuessManager
                     Team.Neutral when lp.IsNeutralKiller() => Options.NeutralKillersCanGuess.GetBool(),
                     Team.Neutral => Options.PassiveNeutralsCanGuess.GetBool(),
                     _ => false
-                },
+                } && !(restrictions && !Guessers.Contains(lp.PlayerId)),
                 _ => false
             };
 
             if (canGuess) CreateGuesserButton(__instance);
+        }
+
+        private static void InitializeGuesserPlayers()
+        {
+            var players = Main.AllPlayerControls
+                .GroupBy(x => x.GetTeam())
+                .ToDictionary(x => x.Key, x => x.Select(p => p.PlayerId).Shuffle());
+
+            foreach ((Team team, (OptionItem minSetting, OptionItem maxSetting)) in Options.NumGuessersOnEachTeam)
+            {
+                if (!players.TryGetValue(team, out var teamPlayers)) continue;
+                var num = IRandom.Instance.Next(minSetting.GetInt(), maxSetting.GetInt() + 1);
+                Guessers.UnionWith(teamPlayers.Take(num));
+            }
         }
     }
 

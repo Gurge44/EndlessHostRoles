@@ -222,6 +222,7 @@ internal class ChangeRoleSettings
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];
             VentilationSystemDeterioratePatch.LastClosestVent = [];
+            GuessManager.Guessers = [];
 
             Options.UsedButtonCount = 0;
 

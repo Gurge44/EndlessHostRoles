@@ -298,6 +298,11 @@ public static class Options
 
     public static OptionItem GuesserDoesntDieOnMisguess;
 
+    public static OptionItem GuesserMaxKillsPerMeeting;
+    public static OptionItem GuesserMaxKillsPerGame;
+    public static OptionItem GuesserNumRestrictions;
+    public static Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> NumGuessersOnEachTeam = [];
+
     public static OptionItem RefugeeKillCD;
 
     public static OptionItem SkeldChance;
@@ -2277,6 +2282,36 @@ public static class Options
 
         ImpCanGuessImp = new BooleanOptionItem(19716, "ImpCanGuessImp", true, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
+
+        GuesserMaxKillsPerMeeting = new IntegerOptionItem(19720, "GuesserMaxKillsPerMeeting", new(1, 15, 1), 15, TabGroup.TaskSettings)
+            .SetParent(GuesserMode)
+            .SetValueFormat(OptionFormat.Players);
+
+        GuesserMaxKillsPerGame = new IntegerOptionItem(19721, "GuesserMaxKillsPerGame", new(1, 15, 1), 15, TabGroup.TaskSettings)
+            .SetParent(GuesserMode)
+            .SetValueFormat(OptionFormat.Players);
+
+        GuesserNumRestrictions = new BooleanOptionItem(19722, "GuesserNumRestrictions", false, TabGroup.TaskSettings)
+            .SetParent(GuesserMode);
+
+        int goId = 19723;
+
+        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
+        {
+            Color teamColor = x.GetTeamColor();
+
+            var min = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Min", new(1, 15, 1), 15, TabGroup.TaskSettings)
+                .SetParent(GuesserNumRestrictions)
+                .SetValueFormat(OptionFormat.Players)
+                .SetColor(teamColor);
+
+            var max = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Max", new(1, 15, 1), 15, TabGroup.TaskSettings)
+                .SetParent(GuesserNumRestrictions)
+                .SetValueFormat(OptionFormat.Players)
+                .SetColor(teamColor);
+
+            return (min, max);
+        });
 
         HideGuesserCommands = new BooleanOptionItem(19717, "GuesserTryHideMsg", true, TabGroup.TaskSettings)
             .SetParent(GuesserMode)
