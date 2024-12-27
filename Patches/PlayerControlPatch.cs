@@ -1121,7 +1121,6 @@ internal static class ReportDeadBodyPatch
         Farseer.FarseerTimer.Clear();
         Puppeteer.PuppeteerList.Clear();
         Puppeteer.PuppeteerDelayList.Clear();
-        Main.GuesserGuessed.Clear();
         Veteran.VeteranInProtect.Clear();
         Grenadier.GrenadierBlinding.Clear();
         SecurityGuard.BlockSabo.Clear();

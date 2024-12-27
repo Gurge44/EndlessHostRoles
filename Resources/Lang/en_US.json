@@ -2035,7 +2035,6 @@
   "GuessNull": "Please select an ID of a living player to guess their role",
   "GuessHelp": "Instructions: /bt [Player ID] [Role Name] \\nExample: /bt 3 Bait \\nYou can see the player IDs before everyone's names \\n or use the /id command to list the player IDs",
   "GGGuessMax": "You've reached the limit of maximum guesses, you can't guess anymore!",
-  "EGGuessMax": "You've reached the limit of maximum guesses, you can't guess anymore!",
   "EGGuessSnitchTaskDone": "You thought you could guess the Snitch when all of their tasks are done? Nice try.... You're not getting out of this that easily.",
   "GuessDoubleShot": "You guessed a role incorrectly, but you have Double Shot so you get another chance!",
   "LaughToWhoGuessSelf": "Tried to guess, who tried to self-guess! It's you! Ahah!",

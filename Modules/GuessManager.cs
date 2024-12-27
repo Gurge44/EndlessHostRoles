@@ -174,6 +174,7 @@ public static class GuessManager
                 if (target != null)
                 {
                     Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
+                    Main.GuesserGuessedMeeting.TryAdd(pc.PlayerId, 0);
 
                     var guesserSuicide = false;
 
@@ -236,13 +237,17 @@ public static class GuessManager
                         return true;
                     }
 
+                    if (Main.GuesserGuessed[pc.PlayerId] >= Options.GuesserMaxKillsPerGame.GetInt() || Main.GuesserGuessedMeeting[pc.PlayerId] >= Options.GuesserMaxKillsPerMeeting.GetInt())
+                    {
+                        ShowMessage("GGGuessMax");
+                        return true;
+                    }
+
                     switch (pc.GetCustomRole())
                     {
                         case CustomRoles.NiceGuesser when Main.GuesserGuessed[pc.PlayerId] >= Options.GGCanGuessTime.GetInt():
-                            ShowMessage("GGGuessMax");
-                            return true;
                         case CustomRoles.EvilGuesser when Main.GuesserGuessed[pc.PlayerId] >= Options.EGCanGuessTime.GetInt():
-                            ShowMessage("EGGuessMax");
+                            ShowMessage("GGGuessMax");
                             return true;
                         case CustomRoles.Shifter when !Shifter.CanGuess.GetBool():
                         case CustomRoles.Phantasm when !Options.PhantomCanGuess.GetBool():
@@ -480,6 +485,7 @@ public static class GuessManager
                     Logger.Info($"Player: {target.GetRealName().RemoveHtmlTags()} was guessed by {pc.GetRealName().RemoveHtmlTags()}", "Guesser");
 
                     Main.GuesserGuessed[pc.PlayerId]++;
+                    Main.GuesserGuessedMeeting[pc.PlayerId]++;
 
                     if (Main.PlayerStates[pc.PlayerId].Role is NecroGuesser ng)
                     {
@@ -1135,6 +1141,8 @@ public static class GuessManager
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(MeetingHud __instance)
         {
+            Main.GuesserGuessedMeeting.SetAllValues(0);
+
             bool restrictions = Options.GuesserNumRestrictions.GetBool();
 
             if (Guessers.Count == 0 && restrictions)
