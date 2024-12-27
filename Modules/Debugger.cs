@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using EHR.Modules;
@@ -11,28 +10,6 @@ using UnityEngine;
 using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace EHR;
-
-internal class Webhook
-{
-    public static void Send(string text)
-    {
-        if (Main.WebhookUrl.Value == "none") return;
-
-        HttpClient httpClient = new();
-
-        Dictionary<string, string> strs = new()
-        {
-            { "content", text },
-            { "username", "EHR-Debugger" },
-            { "avatar_url", "https://npm.elemecdn.com/hexo-static@1.0.1/img/avatar.webp" }
-        };
-
-        TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
-            Main.WebhookUrl.Value, new FormUrlEncodedContent(strs)).GetAwaiter();
-
-        awaiter.GetResult();
-    }
-}
 
 internal static class Logger
 {
@@ -210,7 +187,7 @@ public class CustomLogger
     {
         if (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0)
             Utils.DumpLog(false);
-        
+
         File.WriteAllText(LOGFilePath, HtmlHeader);
     }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -160,17 +161,35 @@ internal static class CoBeginPatch
 {
     public static void Prefix()
     {
-        StringBuilder sb = new();
+        Main.Instance.StartCoroutine(LogGameInfo());
+        RPC.RpcVersionCheck();
+        SetupLongRoleDescriptions();
+        Utils.NotifyRoles(NoCache: true);
+        GameStates.InGame = true;
+    }
+
+    private static IEnumerator LogGameInfo()
+    {
+        StringBuilder sb = new("\n");
+
+        yield return null;
+
         sb.Append("------------Display Names------------\n");
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})\n");
             pc.cosmetics.nameText.text = pc.name;
+            yield return null;
         }
 
         sb.Append("------------Roles------------\n");
-        foreach (PlayerControl pc in Main.AllPlayerControls) sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}\n");
+
+        foreach (PlayerControl pc in Main.AllPlayerControls)
+        {
+            sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}\n");
+            yield return null;
+        }
 
         sb.Append("------------Platforms------------\n");
 
@@ -189,11 +208,17 @@ internal static class CoBeginPatch
                 sb.Append(text + "\n");
             }
             catch (Exception ex) { Logger.Exception(ex, "Platform"); }
+
+            yield return null;
         }
 
         sb.Append("------------Vanilla Settings------------\n");
-        System.Collections.Generic.IEnumerable<string> tmp = GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").Skip(1);
-        foreach (string t in tmp) sb.Append(t + "\n");
+
+        foreach (string t in GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n")[1..])
+        {
+            sb.Append(t + "\n");
+            yield return null;
+        }
 
         sb.Append("------------Modded Settings------------\n");
 
@@ -201,6 +226,8 @@ internal static class CoBeginPatch
         {
             if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals("0%")))
                 sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
+
+            yield return null;
         }
 
         sb.Append("-------------Other Information-------------\n");
@@ -209,15 +236,9 @@ internal static class CoBeginPatch
         sb.Append($"Map: {Main.CurrentMap}\n");
         sb.Append($"Server: {Utils.GetRegionName()}");
 
-        Logger.Info("\n" + sb, "GameInfo", multiLine: true);
+        yield return null;
 
-        RPC.RpcVersionCheck();
-
-        SetupLongRoleDescriptions();
-
-        Utils.NotifyRoles(NoCache: true);
-
-        GameStates.InGame = true;
+        Logger.Info(sb.ToString(), "GameInfo", multiLine: true);
     }
 
     private static void SetupLongRoleDescriptions()
@@ -941,10 +962,10 @@ internal static class IntroCutsceneDestroyPatch
             foreach (byte spectator in ChatCommands.Spectators)
             {
                 LateTask.New(() =>
-                             {
-                                 spectator.GetPlayer().RpcExileV2();
-                                 Main.PlayerStates[spectator].SetDead();
-                             }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
+                    {
+                        spectator.GetPlayer().RpcExileV2();
+                        Main.PlayerStates[spectator].SetDead();
+                    }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
             }
 
             if (Options.RandomSpawn.GetBool() && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
