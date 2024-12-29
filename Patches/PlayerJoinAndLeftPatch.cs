@@ -76,7 +76,7 @@ internal static class OnGameJoinedPatch
             {
                 JoiningGame = false;
 
-                if (GameStates.IsOnlineGame && GameStates.IsVanillaServer)
+                if (GameStates.IsOnlineGame && GameStates.CurrentServerType is GameStates.ServerType.Vanilla or GameStates.ServerType.Niko)
                 {
                     try
                     {
@@ -371,7 +371,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (GameStates.IsLobby && client.Character != null && LobbyBehaviour.Instance != null && GameStates.IsVanillaServer)
+                    if (GameStates.IsLobby && client.Character != null && LobbyBehaviour.Instance != null && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                     {
                         // Only for vanilla
                         if (!client.Character.IsModClient())

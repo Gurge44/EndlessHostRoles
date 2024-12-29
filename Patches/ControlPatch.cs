@@ -126,22 +126,40 @@ internal static class ControllerManagerUpdatePatch
                 Utils.ShowActiveSettings();
             }
 
-            if (KeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift) && !IsResetting)
+            if (GameStates.IsLobby && KeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift) && !IsResetting)
             {
-                IsResetting = true;
-                Main.Instance.StartCoroutine(Reset());
+                Prompt.Show(GetString("Promt.ResetAllOptions"), ResetAllOptions, () => { });
 
-                IEnumerator Reset()
+                void ResetAllOptions()
                 {
-                    for (var index = 0; index < OptionItem.AllOptions.Count; index++)
+                    IsResetting = true;
+                    Main.Instance.StartCoroutine(Reset());
+                    return;
+
+                    IEnumerator Reset()
                     {
-                        OptionItem option = OptionItem.AllOptions[index];
-                        if (option.Id > 0) option.SetValue(option.DefaultValue);
+                        yield return new WaitForSeconds(0.1f);
 
-                        if (index % 100 == 0) yield return null;
+                        DestroyableSingleton<HudManager>.Instance.ShowPopUp(string.Format(GetString("ResettingOptions"), 0, OptionItem.AllOptions.Count));
+                        DestroyableSingleton<HudManager>.Instance.Dialogue.BackButton.gameObject.SetActive(false);
+
+                        for (var index = 0; index < OptionItem.AllOptions.Count; index++)
+                        {
+                            OptionItem option = OptionItem.AllOptions[index];
+                            if (option.Id > 0) option.SetValue(option.DefaultValue);
+
+                            if (index % 10 == 0)
+                            {
+                                DestroyableSingleton<HudManager>.Instance.Dialogue.target.text = string.Format(GetString("ResettingOptions"), index, OptionItem.AllOptions.Count);
+                                yield return null;
+                            }
+                        }
+
+                        DestroyableSingleton<HudManager>.Instance.Dialogue.BackButton.gameObject.SetActive(true);
+                        DestroyableSingleton<HudManager>.Instance.Dialogue.Hide();
+
+                        IsResetting = false;
                     }
-
-                    IsResetting = false;
                 }
             }
 

@@ -3306,6 +3306,46 @@ public static class Utils
         return name;
     }
 
+    public static void EnterQuickSetupRoles(bool addons)
+    {
+        int all = Options.CustomRoleSpawnChances.Keys.Count(x => addons ? x.IsAdditionRole() : !x.IsAdditionRole());
+        int count = 0;
+
+        foreach ((CustomRoles role, StringOptionItem option) in Options.CustomRoleSpawnChances)
+        {
+            if (addons ? !role.IsAdditionRole() : role.IsAdditionRole() || role.IsVanilla() || role.IsForOtherGameMode()) continue;
+
+            count++;
+
+            string str = GetString($"{role}InfoLong");
+            string infoLong;
+
+            try { infoLong = HnSManager.AllHnSRoles.Contains(role) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
+            catch { infoLong = str; }
+
+            string rotStr;
+
+            if (!role.IsAdditionRole())
+            {
+                RoleOptionType rot = role.GetRoleOptionType();
+                rotStr = ColorString(rot.GetRoleOptionTypeColor(), GetString($"ROT.{rot}"));
+            }
+            else
+            {
+                AddonTypes at = Options.GroupedAddons.First(x => x.Value.Contains(role)).Key;
+                rotStr = ColorString(at.GetAddonTypeColor(), GetString($"ROT.AddonType.{at}"));
+            }
+
+            Prompt.Show(
+                string.Format(GetString("Promt.EnableRole"), count, all, rotStr, role.ToColoredString(), infoLong),
+                () => option.SetValue(1),
+                () => option.SetValue(0));
+        }
+
+        if (addons) return;
+        Prompt.Show(GetString("Promt.ContinueWithQuickSetupAddons"), () => EnterQuickSetupRoles(true), () => { });
+    }
+
     private static int PlayersCount(CountTypes countTypes)
     {
         var count = 0;

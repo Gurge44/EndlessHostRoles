@@ -173,10 +173,7 @@ public class InnerNetClientPatch
                 {
                     GameManager gameManager = innerNetObject as GameManager;
 
-                    if (gameManager != null)
-                    {
-                        __instance.SendGameManager(clientId, gameManager);
-                    }
+                    if (gameManager != null) { __instance.SendGameManager(clientId, gameManager); }
                     else
                     {
                         if (innerNetObject is not NetworkedPlayerInfo)
@@ -211,10 +208,7 @@ public class InnerNetClientPatch
             {
                 if (messageWriter.Length > 500) break;
 
-                if (player != null && player.ClientId != clientId && !player.Disconnected)
-                {
-                    __instance.WriteSpawnMessage(player, player.OwnerId, player.SpawnFlags, messageWriter);
-                }
+                if (player != null && player.ClientId != clientId && !player.Disconnected) { __instance.WriteSpawnMessage(player, player.OwnerId, player.SpawnFlags, messageWriter); }
 
                 players.Remove(player);
             }
@@ -247,19 +241,10 @@ public class InnerNetClientPatch
 
                     try
                     {
-                        if (innerNetObject.Serialize(messageWriter, false))
-                        {
-                            messageWriter.EndMessage();
-                        }
-                        else
-                        {
-                            messageWriter.CancelMessage();
-                        }
+                        if (innerNetObject.Serialize(messageWriter, false)) { messageWriter.EndMessage(); }
+                        else { messageWriter.CancelMessage(); }
 
-                        if (innerNetObject.Chunked && innerNetObject.IsDirty)
-                        {
-                            __result = true;
-                        }
+                        if (innerNetObject.Chunked && innerNetObject.IsDirty) { __result = true; }
                     }
                     catch (Exception ex)
                     {
@@ -340,10 +325,7 @@ public class InnerNetClientPatch
             }
         }
 
-        if (!__instance.AmHost)
-        {
-            Debug.LogError("Tried to spawn while not host:" + (netObjParent?.ToString()));
-        }
+        if (!__instance.AmHost) { Debug.LogError("Tried to spawn while not host:" + (netObjParent?.ToString())); }
     }
 
     [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
@@ -372,10 +354,7 @@ public class InnerNetClientPatch
 
             try
             {
-                if (player.Serialize(messageWriter, false))
-                {
-                    messageWriter.EndMessage();
-                }
+                if (player.Serialize(messageWriter, false)) { messageWriter.EndMessage(); }
                 else
                 {
                     messageWriter.CancelMessage();
@@ -417,7 +396,7 @@ internal static class AuthTimeoutPatch
     // https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Miscellaneous/CustomServersPatch.cs
     public static bool CoWaitforNoncePrefix(ref bool __result)
     {
-        if (GameStates.IsVanillaServer) return true;
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return true;
 
         __result = false;
         return false;

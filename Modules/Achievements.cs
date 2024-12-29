@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 // ReSharper disable InconsistentNaming
 
@@ -109,6 +111,10 @@ public static class Achievements
 
     const string SaveFilePath = "./EHR_DATA/Achievements.json";
 
+    const string ApiBaseUrl = "https://gurge44.pythonanywhere.com/achievements";
+    const string ApiSaveEndpoint = $"{ApiBaseUrl}/save";
+    const string ApiLoadEndpoint = $"{ApiBaseUrl}/load";
+
     public static readonly HashSet<Type> WaitingAchievements = [];
     public static HashSet<Type> CompletedAchievements = [];
 
@@ -176,13 +182,68 @@ public static class Achievements
     {
         var json = JsonSerializer.Serialize(CompletedAchievements);
         File.WriteAllText(SaveFilePath, json);
+
+        Main.Instance.StartCoroutine(SendAchievementsToApiAsync());
+        return;
+
+        IEnumerator SendAchievementsToApiAsync()
+        {
+            while (PlayerControl.LocalPlayer == null) yield return null;
+
+            var userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
+
+            var data = new
+            {
+                userId,
+                achievements = CompletedAchievements
+            };
+
+            var payload = JsonSerializer.Serialize(data);
+
+            var request = new UnityWebRequest(ApiSaveEndpoint, UnityWebRequest.kHttpVerbPOST)
+            {
+                uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(payload)),
+                downloadHandler = new DownloadHandlerBuffer()
+            };
+
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.SendWebRequest();
+
+            Logger.Msg(request.result != UnityWebRequest.Result.Success ? $"Error saving achievements: {request.error}" : "Achievements saved successfully", "Achievements.SaveAllData");
+        }
     }
 
     public static void LoadAllData()
     {
-        if (!File.Exists(SaveFilePath)) return;
+        if (File.Exists(SaveFilePath))
+        {
+            var json = File.ReadAllText(SaveFilePath);
+            CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
+        }
+        else
+        {
+            Main.Instance.StartCoroutine(FetchAchievementsFromApiAsync());
+            return;
 
-        var json = File.ReadAllText(SaveFilePath);
-        CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
+            IEnumerator FetchAchievementsFromApiAsync()
+            {
+                while (PlayerControl.LocalPlayer == null) yield return null;
+
+                var userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
+                var url = $"{ApiLoadEndpoint}?userId={userId}";
+
+                var request = UnityWebRequest.Get(url);
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success) { Logger.Error($"Error loading achievements: {request.error}", "Achievements.LoadAllData"); }
+                else
+                {
+                    var json = request.downloadHandler.text;
+                    CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
+                    yield return File.WriteAllTextAsync(SaveFilePath, json);
+                    Logger.Info("Achievements loaded successfully.", "Achievements.LoadAllData");
+                }
+            }
+        }
     }
 }

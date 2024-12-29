@@ -1508,6 +1508,7 @@ internal static class CustomRolesHelper
             CustomRoles.Generator => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Visionary => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Wildling => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
             _ => role.IsCrewmate() ? RoleOptionType.Crewmate_Miscellaneous : RoleOptionType.Neutral_Benign
         };
     }

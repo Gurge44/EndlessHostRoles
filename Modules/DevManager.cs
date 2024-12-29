@@ -12,6 +12,8 @@ public static class DevManager
 {
     private static readonly TagInfo DefaultDevUser = new();
 
+    private static int Attempts;
+
     private static Dictionary<string, TagInfo> Tags { get; set; } = [];
 
     public static TagInfo GetDevUser(this string code)
@@ -19,8 +21,6 @@ public static class DevManager
         code = code.Replace(':', '#');
         return Tags.GetValueOrDefault(code, DefaultDevUser);
     }
-
-    private static int Attempts;
 
     private static IEnumerator FetchTags()
     {
@@ -31,7 +31,7 @@ public static class DevManager
             Logger.Error($"Failed to fetch tags after {Attempts - 1} attempts.", "DevManager.FetchTags");
             yield break;
         }
-        
+
         UnityWebRequest request = UnityWebRequest.Get("https://gurge44.pythonanywhere.com/get_all_tags");
         yield return request.SendWebRequest();
 
@@ -72,6 +72,6 @@ public static class DevManager
 
         public bool HasTag() => !string.IsNullOrEmpty(tag_name);
 
-        public string GetTag() => !HasTag() ? "" : $"<size=1.4><color={tag_color}>{tag_name}</color></size>\r\n";
+        public string GetTag() => !HasTag() ? "" : $"<size=1.5><color={tag_color}>{tag_name}</color></size>\r\n";
     }
 }

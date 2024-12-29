@@ -78,10 +78,10 @@ public class PlayerState(byte playerId)
     private readonly byte PlayerId = playerId;
     public readonly List<CustomRoles> SubRoles = [];
     public readonly Dictionary<byte, string> TargetColorData = [];
-    public NetworkedPlayerInfo.PlayerOutfit NormalOutfit;
     public CountTypes countTypes = CountTypes.Crew;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
+    public NetworkedPlayerInfo.PlayerOutfit NormalOutfit;
     public (DateTime TimeStamp, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
     public RoleBase Role = new VanillaRole();
 
@@ -502,6 +502,14 @@ public class PlayerVersion(Version ver, string tagStr, string forkId)
 
 public static class GameStates
 {
+    public enum ServerType
+    {
+        Vanilla,
+        Modded,
+        Niko,
+        Custom
+    }
+
     public static bool InGame;
     public static bool AlreadyDied;
     public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModClient());
@@ -518,18 +526,26 @@ public static class GameStates
 
     public static bool IsCountDown => GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
 
-    public static bool IsVanillaServer
+    public static ServerType CurrentServerType
     {
         get
         {
-            if (IsLocalGame && !IsNotJoined) return true;
+            if (IsLocalGame && !IsNotJoined) return ServerType.Vanilla;
 
             const string domain = "among.us";
 
             // From Reactor.gg
-            return ServerManager.Instance.CurrentRegion?.TryCast<StaticHttpRegionInfo>() is { } regionInfo &&
-                   regionInfo.PingServer.EndsWith(domain, StringComparison.Ordinal) &&
-                   regionInfo.Servers.All(serverInfo => serverInfo.Ip.EndsWith(domain, StringComparison.Ordinal));
+            if (ServerManager.Instance.CurrentRegion?.TryCast<StaticHttpRegionInfo>() is { } regionInfo &&
+                regionInfo.PingServer.EndsWith(domain, StringComparison.Ordinal) &&
+                regionInfo.Servers.All(serverInfo => serverInfo.Ip.EndsWith(domain, StringComparison.Ordinal)))
+                return ServerType.Vanilla;
+
+            string regionName = Utils.GetRegionName();
+
+            if (regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase)) return ServerType.Niko;
+            if (regionName.StartsWith('M') && regionName.Length == 3) return ServerType.Modded;
+
+            return ServerType.Custom;
         }
     }
 

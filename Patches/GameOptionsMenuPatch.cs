@@ -647,9 +647,18 @@ public static class StringOptionPatch
                 if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
 
                 name = name.RemoveHtmlTags();
-                if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
-                if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
-                if (role.IsExperimental()) name += Translator.GetString("ExperimentalRoleIndicator");
+
+                switch (Options.UsePets.GetBool())
+                {
+                    case false when role.OnlySpawnsWithPets():
+                        name += Translator.GetString("RequiresPetIndicator");
+                        break;
+                    case true when role.PetActivatedAbility():
+                        name += Translator.GetString("SupportsPetIndicator");
+                        break;
+                }
+
+                if (role.IsExperimental()) name += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
@@ -751,9 +760,19 @@ public static class StringOptionPatch
                 if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
 
                 name = name.RemoveHtmlTags();
-                if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
-                if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
-                if (role.IsExperimental()) name += Translator.GetString("ExperimentalRoleIndicator");
+
+                switch (Options.UsePets.GetBool())
+                {
+                    case true when role.PetActivatedAbility():
+                        name += Translator.GetString("SupportsPetIndicator");
+                        break;
+                    case false when role.OnlySpawnsWithPets():
+                        name += Translator.GetString("RequiresPetIndicator");
+                        Prompt.Show(Translator.GetString("Promt.RequiresPets"), () => Options.UsePets.SetValue(1), () => { });
+                        break;
+                }
+
+                if (role.IsExperimental()) name += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
@@ -1251,7 +1270,7 @@ public class GameSettingMenuPatch
         ModSettingsButtons = [];
         ModSettingsTabs = [];
 
-        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && !GameStates.IsVanillaServer && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
+        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && GameStates.CurrentServerType == GameStates.ServerType.Modded && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
             DestroyableSingleton<HudManager>.Instance.ShowPopUp(Translator.GetString("ModdedServerDoesntSupportCNOMessage"));
     }
 }

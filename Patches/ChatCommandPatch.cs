@@ -335,7 +335,7 @@ internal static class ChatCommands
 
     private static void CheckAnagramGuess(byte id, string text)
     {
-        if (text.Contains(CurrentAnagram))
+        if (CurrentAnagram != string.Empty && text.Contains(CurrentAnagram))
         {
             Utils.SendMessage("\n", title: string.Format(GetString("Anagram.CorrectGuess"), id.ColoredPlayerName(), CurrentAnagram));
             CurrentAnagram = string.Empty;
@@ -504,7 +504,7 @@ internal static class ChatCommands
         if (!player.Is(CustomRoles.NoteKiller) || args.Length < 2) return;
 
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-        
+
         if (!NoteKiller.CanGuess)
         {
             Utils.SendMessage(GetString("DeathNoteCommand.CanNotGuess"), player.PlayerId);
@@ -560,7 +560,10 @@ internal static class ChatCommands
 
     private static void EnableAllRolesCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        Options.CustomRoleSpawnChances.Values.DoIf(x => x.GetValue() == 0, x => x.SetValue(1));
+        Prompt.Show(
+            GetString("Promt.EnableAllRoles"),
+            () => Options.CustomRoleSpawnChances.Values.DoIf(x => x.GetValue() == 0, x => x.SetValue(1)),
+            () => Utils.EnterQuickSetupRoles(false));
     }
 
     private static void ReadyCheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -1717,10 +1720,7 @@ internal static class ChatCommands
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("RoleSelected"), resultId.ColoredPlayerName(), roleToSet.ToColoredString()));
 
         if (roleToSet.OnlySpawnsWithPets() && !Options.UsePets.GetBool())
-        {
-            Options.UsePets.SetValue(1);
-            Utils.SendMessage(GetString("SetRoleUsePetsMessage"), player.PlayerId);
-        }
+            Prompt.Show(GetString("Promt.SetRoleRequiresPets"), () => Options.UsePets.SetValue(1), () => { });
     }
 
     private static void UpCommand(ChatController __instance, PlayerControl player, string text, string[] args)

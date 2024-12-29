@@ -17,7 +17,7 @@ internal static class Crowded
 {
     private static CreateOptionsPicker Instance;
     public static readonly int MaxImpostors = GameOptionsManager.Instance.currentHostOptions.MaxPlayers / 2;
-    private static int MaxPlayers => GameStates.IsVanillaServer ? 15 : 127;
+    private static int MaxPlayers => GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? 15 : 127;
 
     [HarmonyPatch(typeof(CreateOptionsPicker), nameof(CreateOptionsPicker.Awake))]
     public static class CreateOptionsPickerAwake
@@ -27,7 +27,7 @@ internal static class Crowded
         {
             Instance = __instance;
 
-            if (GameStates.IsVanillaServer)
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             {
                 if (GameOptionsManager.Instance.GameHostOptions != null)
                 {
@@ -158,7 +158,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix()
         {
-            if (GameStates.IsVanillaServer)
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             {
                 if (GameOptionsManager.Instance.GameHostOptions != null && GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
                     GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
