@@ -1,3 +1,4 @@
+using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
@@ -155,7 +156,8 @@ public static class MushroomMixupSabotageSystemPatch
         // When the sabotage ends
         if (!__instance.IsActive || !SetDurationMushroomMixupSabotage)
         {
-            if (!SetDurationMushroomMixupSabotage && !__instance.IsActive) SetDurationMushroomMixupSabotage = true;
+            if (!SetDurationMushroomMixupSabotage && !__instance.IsActive)
+                SetDurationMushroomMixupSabotage = true;
 
             return;
         }
@@ -178,7 +180,8 @@ public static class MushroomMixupSabotageSystemPatch
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     // Reset Ability Cooldown To Default For Living Players
-                    pc.RpcResetAbilityCooldown();
+                    if (pc.GetRoleTypes() != RoleTypes.Engineer)
+                        pc.RpcResetAbilityCooldown();
 
                     // Redo Unshift Trigger due to mushroom mixup breaking it
                     pc.CheckAndSetUnshiftState();
@@ -216,9 +219,7 @@ internal static class SwitchSystemUpdatePatch
         {
             Vector2 pos = player.Pos();
             if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(pos, new(-12.93f, -11.28f)) <= 2f) return false;
-
             if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(pos, new(13.92f, 6.43f)) <= 2f) return false;
-
             if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(pos, new(30.56f, 2.12f)) <= 2f) return false;
         }
 
@@ -387,6 +388,9 @@ public static class SabotageSystemTypeRepairDamagePatch
         }
 
         if (allow && QuizMaster.On) QuizMaster.Data.NumSabotages++;
+
+        if (allow && Main.CurrentMap == MapNames.Skeld)
+            LateTask.New(DoorsReset.OpenAllDoors, 1f, "Opening All Doors On Sabotage (Skeld)");
 
         return allow;
     }

@@ -127,8 +127,7 @@ public class Socialite : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != SocialiteId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
-
+        if (seer.PlayerId != SocialiteId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || MarkedPlayerId == byte.MaxValue) return string.Empty;
         return string.Format(Translator.GetString("Socialite.Suffix"), MarkedPlayerId.ColoredPlayerName());
     }
 }

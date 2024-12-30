@@ -147,7 +147,7 @@ internal static class OnPlayerJoinedPatch
                 }
             }
             catch { }
-        }, 4.5f, "green bean kick late task", false);
+        }, 5.5f, "green bean kick late task", false);
 
         if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
         {
@@ -548,7 +548,7 @@ internal static class RpcSetColorPatch
                         AmongUsClient.Instance.KickPlayer(client.Id, false);
                     }
                 }
-            }, 5f, "fortegreen bean color kick");
+            }, 6f, "fortegreen bean color kick");
         }
 
         if (bodyColor == 255) return;
