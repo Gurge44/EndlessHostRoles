@@ -365,28 +365,31 @@ internal static class ChatCommands
         foreach (Team team in Enum.GetValues<Team>()[1..])
         {
             sb.Append("<u>");
-            sb.Append(Utils.ColorString(team.GetTeamColor(), GetString(team.ToString().ToUpper())));
+            sb.Append(Utils.ColorString(team.GetTeamColor(), GetString(team.ToString()).ToUpper()));
             sb.Append("</u>");
 
-            bool hasFactionLimit = Options.FactionMinMaxSettings.TryGetValue(team, out var factionLimits);
+            int factionMin;
+            int factionMax;
 
-            if (hasFactionLimit)
+            if (Options.FactionMinMaxSettings.TryGetValue(team, out var factionLimits))
             {
-                sb.Append(' ');
-                sb.Append(factionLimits.MinSetting.GetInt());
-                sb.Append(" - ");
-                sb.Append(factionLimits.MaxSetting.GetInt());
-                sb.Append('\n');
+                factionMin = factionLimits.MinSetting.GetInt();
+                factionMax = factionLimits.MaxSetting.GetInt();
             }
-            else { sb.Append(":\n"); }
+            else
+            {
+                factionMin = Math.Max(0, Main.NormalOptions.MaxPlayers - Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt() - Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
+                factionMax = Math.Max(0, Main.NormalOptions.MaxPlayers - Options.FactionMinMaxSettings[Team.Neutral].MinSetting.GetInt() - Options.FactionMinMaxSettings[Team.Impostor].MinSetting.GetInt());
+            }
 
-            sb.Append('\n');
+            sb.Append(' ');
+            sb.Append(factionMin);
+            sb.Append(" - ");
+            sb.Append(factionMax);
+            sb.Append("\n\n");
 
             if (rot.TryGetValue(team, out var subCategories))
             {
-                int minRandom = hasFactionLimit ? factionLimits.MinSetting.GetInt() : 0;
-                int maxRandom = hasFactionLimit ? factionLimits.MaxSetting.GetInt() : 0;
-
                 foreach (var subCategory in subCategories)
                 {
                     if (Options.RoleSubCategoryLimits.TryGetValue(subCategory, out var limits) && (team == Team.Neutral || limits[0].GetBool()))
@@ -394,8 +397,8 @@ internal static class ChatCommands
                         int min = limits[1].GetInt();
                         int max = limits[2].GetInt();
 
-                        minRandom -= min;
-                        maxRandom -= max;
+                        factionMin -= max;
+                        factionMax -= min;
 
                         sb.Append(min);
                         sb.Append('-');
@@ -406,15 +409,16 @@ internal static class ChatCommands
                     }
                 }
 
-                if (hasFactionLimit && maxRandom > 0)
+                if (team != Team.Neutral && factionMax > 0)
                 {
-                    sb.Append(Math.Max(0, minRandom));
+                    sb.Append(Math.Max(0, factionMin));
                     sb.Append('-');
-                    sb.Append(maxRandom);
+                    sb.Append(factionMax);
                     sb.Append(' ');
                     sb.Append(GetString("RoleRateNoColor"));
                     sb.Append(' ');
                     sb.Append(GetString("Roles"));
+                    sb.Append('\n');
                 }
 
                 sb.Append("\n\n");
