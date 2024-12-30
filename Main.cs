@@ -37,7 +37,7 @@ public class Main : BasePlugin
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "5.3.0";
     public const string PluginDisplayVersion = "5.3.0";
-    public const bool TestBuild = false;
+    public const bool TestBuild = true;
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
