@@ -1673,6 +1673,8 @@ public static class Utils
 
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
     {
+        if (sendTo.GetPlayer() == null) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             if (sendTo == PlayerControl.LocalPlayer.PlayerId)

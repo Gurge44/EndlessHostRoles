@@ -1,4 +1,6 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -86,5 +88,11 @@ public class Maverick : RoleBase
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         NumOfKills++;
+        Utils.SendRPC(CustomRPC.SyncRoleData, MaverickId, NumOfKills);
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        NumOfKills = reader.ReadPackedInt32();
     }
 }

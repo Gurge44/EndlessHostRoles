@@ -1938,12 +1938,12 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 44, 44, byte.MaxValue));
 
-        UsePhantomBasis = new BooleanOptionItem(23851, "UsePhantomBasis", false, TabGroup.TaskSettings)
+        UsePhantomBasis = new BooleanOptionItem(23851, "UsePhantomBasis", true, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));
 
-        UsePhantomBasisForNKs = new BooleanOptionItem(23864, "UsePhantomBasisForNKs", false, TabGroup.TaskSettings)
+        UsePhantomBasisForNKs = new BooleanOptionItem(23864, "UsePhantomBasisForNKs", true, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(UsePhantomBasis)
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));
