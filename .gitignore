@@ -398,5 +398,6 @@ FodyWeavers.xml
 # JetBrains Rider
 *.sln.iml
 /.idea/.idea.EHR/.idea
+.idea/
 
 /Resources/Config/URL.txt
