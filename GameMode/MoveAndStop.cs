@@ -98,16 +98,18 @@ internal class MoveAndStopPlayerData(Counter[] counters, float positionX, float 
 
     public void UpdateCounters()
     {
+        if (LostLifeCooldownTimer > 0f) LostLifeCooldownTimer -= Time.deltaTime;
+
+        if (MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.FrozenTimers) return;
+
         LeftCounter.Update();
         MiddleCounter.Update();
         RightCounter.Update();
-
-        if (LostLifeCooldownTimer > 0f) LostLifeCooldownTimer -= Time.deltaTime;
     }
 
     public bool RemoveLife(PlayerControl pc)
     {
-        if (LostLifeCooldownTimer > 0f) return false;
+        if (pc.inVent || LostLifeCooldownTimer > 0f) return false;
 
         Lives--;
         LostLifeCooldownTimer = 1f;
@@ -131,7 +133,10 @@ internal static class MoveAndStop
     {
         HiddenTimers,
         DoubledTimers,
-        HalvedTimers
+        HalvedTimers,
+        FrozenTimers,
+        VentAccess,
+        CommsSabotage
     }
 
     private static Dictionary<byte, MoveAndStopPlayerData> AllPlayerTimers = [];
@@ -154,9 +159,9 @@ internal static class MoveAndStop
     private static OptionItem ExtraGreenTimeOnFungle;
     private static OptionItem EnableTutorial;
     private static OptionItem EventFrequency;
-    private static OptionItem EventDuration;
 
     private static Dictionary<Events, OptionItem> EventChances = [];
+    private static Dictionary<Events, OptionItem> EventDurations = [];
 
     public static readonly HashSet<string> HasPlayed = [];
 
@@ -300,22 +305,36 @@ internal static class MoveAndStop
             .SetHeader(true)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue));
 
-        EventFrequency = new IntegerOptionItem(68_213_017, "MoveAndStop_EventFrequency", new(0, 100, 1), 10, TabGroup.GameSettings)
+        EventFrequency = new IntegerOptionItem(68_213_018, "MoveAndStop_EventFrequency", new(2, 120, 1), 30, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
 
-        EventDuration = new IntegerOptionItem(68_213_018, "MoveAndStop_EventDuration", new(0, 120, 1), 30, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
-            .SetColor(new Color32(0, 255, 255, byte.MaxValue))
-            .SetValueFormat(OptionFormat.Seconds)
-            .SetHeader(true);
+        Events[] events = Enum.GetValues<Events>();
 
-        EventChances = Enum.GetValues<Events>().ToDictionary(x => x, x => new IntegerOptionItem(68_213_019 + (int)x, $"MoveAndStop_EventChance_{x}", new(0, 100, 5), 25, TabGroup.GameSettings)
+        EventChances = events.ToDictionary(x => x, x => new IntegerOptionItem(68_213_019 + (int)x, $"MoveAndStop_EventChance_{x}", new(0, 100, 5), EventDefaults(x).Chance, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Percent));
+
+        EventDurations = events.ToDictionary(x => x, x => new IntegerOptionItem(68_213_019 + events.Length + (int)x, $"MoveAndStop_EventDuration_{x}", new(5, 120, 5), EventDefaults(x).Duration, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.MoveAndStop)
+            .SetColor(new Color32(0, 255, 255, byte.MaxValue))
+            .SetValueFormat(OptionFormat.Seconds));
+
+        return;
+
+        (int Chance, int Duration) EventDefaults(Events e) => e switch
+        {
+            Events.HiddenTimers => (30, 20),
+            Events.DoubledTimers => (50, 25),
+            Events.HalvedTimers => (50, 25),
+            Events.FrozenTimers => (40, 10),
+            Events.VentAccess => (20, 10),
+            Events.CommsSabotage => (60, 30),
+            _ => (50, 25)
+        };
     }
 
     public static void Init()
@@ -404,7 +423,47 @@ internal static class MoveAndStop
             if (!HasJustStarted && pc.IsLocalPlayer() && !IsEventActive && (now - Event.StartTimeStamp - Event.Duration) >= EventFrequency.GetInt())
             {
                 var pool = EventChances.SelectMany(x => Enumerable.Repeat(x.Key, x.Value.GetInt() / 5)).ToArray();
-                if (pool.Length > 0) Event = (pool.RandomElement(), EventDuration.GetInt(), now);
+
+                if (pool.Length > 0)
+                {
+                    Events newEvent = pool.RandomElement();
+                    int duration = EventDurations[newEvent].GetInt();
+
+                    Event = (newEvent, duration, now);
+
+                    switch (newEvent)
+                    {
+                        case Events.VentAccess:
+                            Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+
+                            LateTask.New(() =>
+                            {
+                                Main.AllAlivePlayerControls.Do(x =>
+                                {
+                                    x.RpcChangeRoleBasis(CustomRoles.Tasker);
+
+                                    if (x.inVent || x.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+                                        LateTask.New(() => x.MyPhysics.RpcExitVent(x.GetClosestVent().Id), 1f, log: false);
+                                });
+                            }, duration, log: false);
+
+                            break;
+                        case Events.CommsSabotage:
+                            Main.AllAlivePlayerControls.Do(x => x.RpcDesyncRepairSystem(SystemTypes.Comms, 128));
+
+                            LateTask.New(() =>
+                            {
+                                Main.AllAlivePlayerControls.Do(x =>
+                                {
+                                    x.RpcChangeRoleBasis(CustomRoles.Tasker);
+                                    x.RpcDesyncRepairSystem(SystemTypes.Comms, 16);
+                                    if (Main.NormalOptions.MapId is 1 or 5) x.RpcDesyncRepairSystem(SystemTypes.Comms, 17);
+                                });
+                            }, duration, log: false);
+
+                            break;
+                    }
+                }
             }
 
             if (AllPlayerTimers.TryGetValue(pc.PlayerId, out MoveAndStopPlayerData data))

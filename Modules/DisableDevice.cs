@@ -78,15 +78,11 @@ internal static class DisableDevice
                     {
                         case 0:
                             if (Options.DisableSkeldAdmin.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["SkeldAdmin"]) <= UsableDistance;
-
                             if (Options.DisableSkeldCamera.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["SkeldCamera"]) <= UsableDistance;
-
                             break;
                         case 1:
                             if (Options.DisableMiraHQAdmin.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["MiraHQAdmin"]) <= UsableDistance;
-
                             if (Options.DisableMiraHQDoorLog.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["MiraHQDoorLog"]) <= UsableDistance;
-
                             break;
                         case 2:
                             if (Options.DisablePolusAdmin.GetBool() || rogueForce)
@@ -96,31 +92,21 @@ internal static class DisableDevice
                             }
 
                             if (Options.DisablePolusCamera.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusCamera"]) <= UsableDistance;
-
                             if (Options.DisablePolusVital.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusVital"]) <= UsableDistance;
-
                             break;
                         case 3:
                             if (Options.DisableSkeldAdmin.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["DleksAdmin"]) <= UsableDistance;
-
                             if (Options.DisableSkeldCamera.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["DleksCamera"]) <= UsableDistance;
-
                             break;
                         case 4:
                             if (Options.DisableAirshipCockpitAdmin.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["AirshipCockpitAdmin"]) <= UsableDistance;
-
                             if (Options.DisableAirshipRecordsAdmin.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["AirshipRecordsAdmin"]) <= UsableDistance;
-
                             if (Options.DisableAirshipCamera.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["AirshipCamera"]) <= UsableDistance;
-
                             if (Options.DisableAirshipVital.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["AirshipVital"]) <= UsableDistance;
-
                             break;
                         case 5:
                             if (Options.DisableFungleCamera.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["FungleCamera"]) <= UsableDistance;
-
                             if (Options.DisableFungleVital.GetBool() || rogueForce) doComms |= Vector2.Distance(PlayerPos, DevicePos["FungleVital"]) <= UsableDistance;
-
                             break;
                     }
                 }
@@ -142,10 +128,7 @@ internal static class DisableDevice
                         pc.RpcDesyncRepairSystem(SystemTypes.Comms, 17);
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "DisableDevice");
-            }
+            catch (Exception ex) { Logger.Exception(ex, "DisableDevice"); }
         }
     }
 }

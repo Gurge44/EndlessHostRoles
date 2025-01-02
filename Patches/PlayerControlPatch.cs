@@ -1778,7 +1778,11 @@ internal static class FixedUpdatePatch
 
                     if (isProgressTextLong) offset += 0.3f;
 
-                    if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) offset += 0.2f;
+                    if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
+                    {
+                        offset += 0.2f;
+                        if (MoveAndStop.IsEventActive) offset += 0.2f;
+                    }
 
                     RoleText.transform.SetLocalY(offset);
                 }
