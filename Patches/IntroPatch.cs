@@ -26,6 +26,8 @@ internal static class SetUpRoleTextPatch
 
         LateTask.New(() =>
         {
+            Main.Instance.StartCoroutine(LogGameInfo());
+
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.SoloKombat:
@@ -154,19 +156,6 @@ internal static class SetUpRoleTextPatch
             }, 1f, "Reset Name For Modded Client");
         }
     }
-}
-
-[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
-internal static class CoBeginPatch
-{
-    public static void Prefix()
-    {
-        Main.Instance.StartCoroutine(LogGameInfo());
-        RPC.RpcVersionCheck();
-        SetupLongRoleDescriptions();
-        Utils.NotifyRoles(NoCache: true);
-        GameStates.InGame = true;
-    }
 
     private static IEnumerator LogGameInfo()
     {
@@ -180,16 +169,16 @@ internal static class CoBeginPatch
         {
             sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})\n");
             pc.cosmetics.nameText.text = pc.name;
-            yield return null;
         }
+
+        yield return null;
 
         sb.Append("------------Roles------------\n");
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
-        {
             sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}\n");
-            yield return null;
-        }
+
+        yield return null;
 
         sb.Append("------------Platforms------------\n");
 
@@ -208,26 +197,28 @@ internal static class CoBeginPatch
                 sb.Append(text + "\n");
             }
             catch (Exception ex) { Logger.Exception(ex, "Platform"); }
-
-            yield return null;
         }
+
+        yield return null;
 
         sb.Append("------------Vanilla Settings------------\n");
 
         foreach (string t in GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n")[1..])
-        {
             sb.Append(t + "\n");
-            yield return null;
-        }
+
+        yield return null;
 
         sb.Append("------------Modded Settings------------\n");
 
+        string disabledRoleStr = GetString("Rate0");
+        long i = 0;
+
         foreach (OptionItem o in OptionItem.AllOptions)
         {
-            if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals("0%")))
+            if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals(disabledRoleStr)))
                 sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
-            yield return null;
+            if (++i % 10 == 0) yield return null;
         }
 
         sb.Append("-------------Other Information-------------\n");
@@ -239,6 +230,18 @@ internal static class CoBeginPatch
         yield return null;
 
         Logger.Info(sb.ToString(), "GameInfo", multiLine: true);
+    }
+}
+
+[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
+internal static class CoBeginPatch
+{
+    public static void Prefix()
+    {
+        RPC.RpcVersionCheck();
+        SetupLongRoleDescriptions();
+        Utils.NotifyRoles(NoCache: true);
+        GameStates.InGame = true;
     }
 
     private static void SetupLongRoleDescriptions()

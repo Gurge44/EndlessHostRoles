@@ -95,10 +95,11 @@ public class Damocles : IAddon
         writer.Write(playerId);
         writer.Write(Timer[playerId]);
         writer.Write(LastUpdate[playerId].ToString());
-        writer.Write(PreviouslyEnteredVents[playerId].Count);
+        List<int> pev = PreviouslyEnteredVents.GetValueOrDefault(playerId, []);
+        writer.Write(pev.Count);
 
-        if (PreviouslyEnteredVents[playerId].Count > 0)
-            foreach (int vent in PreviouslyEnteredVents[playerId].ToArray())
+        if (pev.Count > 0)
+            foreach (int vent in pev.ToArray())
                 writer.Write(vent);
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);

@@ -167,10 +167,6 @@ internal static class RepairSystemPatch
                             break;
                         }
                     }
-
-                    if (player.Is(CustomRoles.Damocles) && Damocles.CountRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
-
-                    if (player.Is(CustomRoles.Stressed) && Stressed.CountRepairSabotage) Stressed.OnRepairSabotage(player);
                 }
 
                 break;
@@ -222,12 +218,12 @@ internal static class RepairSystemPatch
         {
             case SystemTypes.Comms:
                 if (!Camouflage.CheckCamouflage()) Utils.NotifyRoles();
-                goto case SystemTypes.Electrical;
+                goto case SystemTypes.Reactor;
             case SystemTypes.Reactor:
             case SystemTypes.LifeSupp:
             case SystemTypes.Laboratory:
             case SystemTypes.HeliSabotage:
-            case SystemTypes.Electrical:
+            case SystemTypes.Electrical when !Utils.IsActive(SystemTypes.Electrical):
             {
                 if (player.Is(CustomRoles.Damocles) && Damocles.CountRepairSabotage)
                     Damocles.OnRepairSabotage(player.PlayerId);
@@ -245,17 +241,13 @@ internal static class RepairSystemPatch
 
     public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)
     {
-        List<int> Ids = new();
-        for (int i = min; i <= max; i++) Ids.Add(i);
-
-        CheckAndOpenDoors(__instance, amount, [.. Ids]);
+        CheckAndOpenDoors(__instance, amount, Enumerable.Range(min, max - min + 1).ToList());
     }
 
-    private static void CheckAndOpenDoors(ShipStatus __instance, int amount, params int[] DoorIds)
+    private static void CheckAndOpenDoors(ShipStatus __instance, int amount, params List<int> doorIds)
     {
-        if (!DoorIds.Contains(amount)) return;
-
-        foreach (int id in DoorIds) __instance.RpcUpdateSystem(SystemTypes.Doors, (byte)id);
+        if (!doorIds.Contains(amount)) return;
+        foreach (int id in doorIds) __instance.RpcUpdateSystem(SystemTypes.Doors, (byte)id);
     }
 }
 

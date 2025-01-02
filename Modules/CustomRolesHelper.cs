@@ -1648,9 +1648,7 @@ internal static class CustomRolesHelper
     #endregion
 }
 
-#pragma warning disable IDE0079
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-#pragma warning restore IDE0079
 public enum RoleOptionType
 {
     Impostor_Killing,

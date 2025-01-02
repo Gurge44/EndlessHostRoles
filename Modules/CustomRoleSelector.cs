@@ -178,32 +178,9 @@ internal static class CustomRoleSelector
         Logger.Info($"Number of Neutral Killing roles to select: {nkLimit}", "NeutralKillingLimit");
         Logger.Info($"Number of Non-Killing Neutral roles to select: {nnkLimit}", "NonKillingNeutralLimit");
 
-        foreach (RoleAssignType type in Roles.Keys.ToArray())
-        {
-            Roles[type] = Roles[type]
-                .Shuffle()
-                .OrderBy(x => x.SpawnChance != 100)
-                .DistinctBy(x => x.Role)
-                .Select(x => (
-                    Info: x,
-                    Limit: subCategoryLimits.TryGetValue(x.OptionType, out var limit)
-                        ? (Exists: true, Value: limit)
-                        : (Exists: false, Value: 0)))
-                .GroupBy(x => x.Info.OptionType)
-                .Select(x => (Grouping: x, x.FirstOrDefault().Limit))
-                .SelectMany(x => x.Limit.Exists ? x.Grouping.Take(x.Limit.Value) : x.Grouping)
-                .OrderByDescending(x => x.Limit is { Exists: true, Value: > 0 })
-                .Take(type switch
-                {
-                    RoleAssignType.Impostor => optImpNum,
-                    RoleAssignType.NeutralKilling => nkLimit,
-                    RoleAssignType.NonKillingNeutral => nnkLimit,
-                    RoleAssignType.Crewmate => playerCount,
-                    _ => 0
-                })
-                .Select(x => x.Info)
-                .ToList();
-        }
+        var allRoles = Roles.ToDictionary(x => x.Key, x => x.Value.ToList());
+
+        Roles.Keys.ToArray().Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
 
         Logger.Msg("===================================================", "PreSelectedRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "PreSelectedImpostorRoles");
@@ -526,6 +503,12 @@ internal static class CustomRoleSelector
 
         // Crewmate Roles
         {
+            int attempts = 0;
+
+            Crew:
+
+            if (attempts++ > 10) goto EndOfAssign;
+
             List<CustomRoles> AlwaysCrewRoles = [];
             List<CustomRoles> ChanceCrewRoles = [];
 
@@ -589,6 +572,20 @@ internal static class CustomRoleSelector
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                 }
             }
+
+            if (readyRoleNum < playerCount && subCategoryLimits.Count > 0)
+            {
+                const RoleAssignType redoType = RoleAssignType.Crewmate;
+                Roles[redoType] = allRoles[redoType];
+
+                subCategoryLimits = Options.RoleSubCategoryLimits
+                    .Where(x => x.Key.GetTabFromOptionType() == TabGroup.CrewmateRoles && x.Value[0].GetBool())
+                    .ToDictionary(x => x.Key, x => x.Value[2].GetInt());
+
+                ApplySubCategoryLimits(redoType, subCategoryLimits);
+                Roles[redoType].DoIf(x => x.AssignedCount >= x.MaxCount, x => Roles[redoType].Remove(x), false);
+                goto Crew;
+            }
         }
 
         EndOfAssign:
@@ -627,6 +624,31 @@ internal static class CustomRoleSelector
         {
             return Roles.Values.FirstOrDefault(x => x.Any(y => y.Role == role))?.FirstOrDefault(x => x.Role == role);
         }
+
+        void ApplySubCategoryLimits(RoleAssignType type, Dictionary<RoleOptionType, int> dictionary) =>
+            Roles[type] = Roles[type]
+                .Shuffle()
+                .OrderBy(x => x.SpawnChance != 100)
+                .DistinctBy(x => x.Role)
+                .Select(x => (
+                    Info: x,
+                    Limit: dictionary.TryGetValue(x.OptionType, out var limit)
+                        ? (Exists: true, Value: limit)
+                        : (Exists: false, Value: 0)))
+                .GroupBy(x => x.Info.OptionType)
+                .Select(x => (Grouping: x, x.FirstOrDefault().Limit))
+                .SelectMany(x => x.Limit.Exists ? x.Grouping.Take(x.Limit.Value) : x.Grouping)
+                .OrderByDescending(x => x.Limit is { Exists: true, Value: > 0 })
+                .Take(type switch
+                {
+                    RoleAssignType.Impostor => optImpNum,
+                    RoleAssignType.NeutralKilling => nkLimit,
+                    RoleAssignType.NonKillingNeutral => nnkLimit,
+                    RoleAssignType.Crewmate => playerCount,
+                    _ => 0
+                })
+                .Select(x => x.Info)
+                .ToList();
     }
 
     public static void CalculateVanillaRoleCount()
