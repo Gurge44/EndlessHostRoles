@@ -1966,7 +1966,6 @@ internal static class CoEnterVentPatch
 
                 return true;
             case CustomGameMode.AllInOne when !CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !CustomGameMode.RoomRush.IsActiveOrIntegrated():
-            case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
             case CustomGameMode.CaptureTheFlag:

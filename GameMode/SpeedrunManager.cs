@@ -32,7 +32,7 @@ public static class SpeedrunManager
             .SetGameMode(CustomGameMode.Speedrun)
             .SetColor(color);
 
-        TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 25, TabGroup.GameSettings)
+        TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 20, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Speedrun)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color);
@@ -50,14 +50,15 @@ public static class SpeedrunManager
     public static void Init()
     {
         CanKill = [];
-        Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 7);
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) Timers.AdjustAllValues(x => x * 2);
+        Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 10);
+        if (Options.CurrentGameMode == CustomGameMode.AllInOne) Timers.AdjustAllValues(x => x * AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt());
     }
 
     public static void ResetTimer(PlayerControl pc)
     {
         int timer = TimeLimit.GetInt();
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt();
+        if (Main.CurrentMap is MapNames.Airship or MapNames.Fungle) timer += 5;
 
         if (TimeStacksUp.GetBool())
             Timers[pc.PlayerId] += timer;
@@ -72,11 +73,12 @@ public static class SpeedrunManager
         if (TaskFinishWins.GetBool()) return;
 
         CanKill.Add(pc.PlayerId);
-        Main.AllPlayerKillCooldown[pc.PlayerId] = KillCooldown.GetInt();
+        int kcd = KillCooldown.GetInt();
+        Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
         pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.Runner);
         pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
         pc.SyncSettings();
-        pc.SetKillCooldown(KillCooldown.GetInt());
+        pc.SetKillCooldown(kcd);
     }
 
     public static string GetTaskBarText()
@@ -134,7 +136,7 @@ public static class SpeedrunManager
         }
 
         reason = GameOverReason.ImpostorByKill;
-        KeyCode[] keys = { KeyCode.LeftShift, KeyCode.L, KeyCode.Return };
+        KeyCode[] keys = [KeyCode.LeftShift, KeyCode.L, KeyCode.Return];
         return keys.Any(Input.GetKeyDown) && keys.All(Input.GetKey);
     }
 

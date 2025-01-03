@@ -178,7 +178,7 @@ internal static class FFAManager
 
     public static string GetHudText()
     {
-        return string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
+        return $"{(RoundTime / 60):00}:{(RoundTime % 60):00}";
     }
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
@@ -414,7 +414,7 @@ internal static class FFAManager
                     if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat) continue;
 
                     PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a =>
-                                                                                     pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+                        pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
 
                     if (filtered.Length == 0) break;
 

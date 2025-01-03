@@ -185,7 +185,7 @@ internal static class SoloPVP
 
     public static string GetHudText()
     {
-        return string.Format(Translator.GetString("KBTimeRemain"), RoundTime.ToString());
+        return $"{(RoundTime / 60):00}:{(RoundTime % 60):00}";
     }
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)

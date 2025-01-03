@@ -1034,7 +1034,7 @@ public static class Utils
     {
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.MoveAndStop: return GetTaskCount(playerId, comms, true);
+            case CustomGameMode.MoveAndStop: return GetTaskCount(playerId, comms, AmongUsClient.Instance.AmHost);
             case CustomGameMode.Speedrun: return string.Empty;
         }
 

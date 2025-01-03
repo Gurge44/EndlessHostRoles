@@ -464,10 +464,8 @@ internal static class SetHudActivePatch
             case CustomGameMode.Speedrun:
             case CustomGameMode.NaturalDisasters:
                 __instance.ReportButton?.ToggleVisible(false);
-                __instance.KillButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.ImpostorVentButton?.ToggleVisible(false);
-                __instance.AbilityButton?.ToggleVisible(false);
                 return;
             case CustomGameMode.FFA:
                 __instance.ReportButton?.ToggleVisible(false);

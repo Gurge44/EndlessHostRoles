@@ -29,10 +29,11 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
             if (MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.HiddenTimers)
                 return "<font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\"><size=130%><#ffffff>--</color></size></font>";
 
-            string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "0") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
+            bool hidden = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed);
+            string result = hidden ? Utils.ColorString(Color.clear, "--") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
 
-            if (Timer is <= 19 and >= 10 && !IsYellow) result = $" {result}";
-            if (Timer % 10 == 1 && !IsYellow) result = result.Insert(result.Length - 9, " ");
+            if (Timer is <= 19 and >= 10 && !hidden) result = $" {result}";
+            if (Timer % 10 == 1 && !hidden) result = result.Insert(result.Length - 9, " ");
 
             return $"<font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\"><size=130%>{result}</size></font>";
         }
@@ -185,7 +186,7 @@ internal static class MoveAndStop
     private static int DefaultMinValue => 5;
     private static int DefaultMaxValue => 30;
 
-    public static string HUDText => string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
+    public static string HUDText => $"{(RoundTime / 60):00}:{(RoundTime % 60):00}";
     public static bool IsEventActive => Event.Duration + Event.StartTimeStamp > Utils.TimeStamp;
 
     private static int StartingGreenTime(PlayerControl pc)
@@ -239,7 +240,7 @@ internal static class MoveAndStop
             _ => time
         };
 
-        if (time < 1) time = 1;
+        if (time < 3) time = 3;
     }
 
     private static string CounterSettingString(string direction, bool red, bool min)
@@ -328,10 +329,10 @@ internal static class MoveAndStop
         (int Chance, int Duration) EventDefaults(Events e) => e switch
         {
             Events.HiddenTimers => (30, 20),
-            Events.DoubledTimers => (50, 25),
+            Events.DoubledTimers => (20, 25),
             Events.HalvedTimers => (50, 25),
             Events.FrozenTimers => (40, 10),
-            Events.VentAccess => (20, 10),
+            Events.VentAccess => (35, 10),
             Events.CommsSabotage => (60, 30),
             _ => (50, 25)
         };
@@ -396,7 +397,10 @@ internal static class MoveAndStop
             text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
 
         if (IsEventActive)
+        {
             text += $"<size=80%>\n\n{string.Format(GetString("MoveAndStop_EventActive"), GetString($"MoveAndStop_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}</size>";
+            text = text.Insert(0, "\n");
+        }
 
         return text;
     }
