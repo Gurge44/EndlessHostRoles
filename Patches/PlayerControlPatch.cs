@@ -1774,15 +1774,17 @@ internal static class FixedUpdatePatch
                         offset += 0.15f;
                     }
 
-                    if (!seer.IsAlive()) offset += 0.1f;
+                    if (!seer.IsAlive())
+                        offset += 0.1f;
 
-                    if (isProgressTextLong) offset += 0.3f;
+                    if (isProgressTextLong)
+                        offset += 0.3f;
 
                     if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
-                    {
-                        offset += 0.2f;
-                        if (MoveAndStop.IsEventActive) offset += 0.2f;
-                    }
+                        offset += 0.3f;
+
+                    if (Suffix.ToString().Contains(GetString("MoveAndStop_Tutorial")))
+                        offset += 0.8f;
 
                     RoleText.transform.SetLocalY(offset);
                 }

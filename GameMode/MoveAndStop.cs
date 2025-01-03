@@ -101,8 +101,6 @@ internal class MoveAndStopPlayerData(Counter[] counters, float positionX, float 
     {
         if (LostLifeCooldownTimer > 0f) LostLifeCooldownTimer -= Time.deltaTime;
 
-        if (MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.FrozenTimers) return;
-
         LeftCounter.Update();
         MiddleCounter.Update();
         RightCounter.Update();
@@ -391,16 +389,11 @@ internal static class MoveAndStop
     {
         if (!pc.IsAlive() || !AllPlayerTimers.TryGetValue(pc.PlayerId, out MoveAndStopPlayerData timers)) return string.Empty;
 
-        var text = timers.ToString();
+        var text = IsEventActive ? $"{string.Format(GetString("MoveAndStop_EventActive"), GetString($"MoveAndStop_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}\n" : "\n";
+        text += IsEventActive && Event.Type == Events.FrozenTimers ? FixedUpdatePatch.LastSuffix[pc.PlayerId].Trim() : timers.ToString();
 
         if (HasJustStarted && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) && Options.CurrentGameMode != CustomGameMode.AllInOne)
             text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
-
-        if (IsEventActive)
-        {
-            text += $"<size=80%>\n\n{string.Format(GetString("MoveAndStop_EventActive"), GetString($"MoveAndStop_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}</size>";
-            text = text.Insert(0, "\n");
-        }
 
         return text;
     }
@@ -438,6 +431,7 @@ internal static class MoveAndStop
                     switch (newEvent)
                     {
                         case Events.VentAccess:
+                        {
                             Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
                             LateTask.New(() =>
@@ -452,7 +446,9 @@ internal static class MoveAndStop
                             }, duration, log: false);
 
                             break;
+                        }
                         case Events.CommsSabotage:
+                        {
                             Main.AllAlivePlayerControls.Do(x => x.RpcDesyncRepairSystem(SystemTypes.Comms, 128));
 
                             LateTask.New(() =>
@@ -466,6 +462,12 @@ internal static class MoveAndStop
                             }, duration, log: false);
 
                             break;
+                        }
+                        case Events.FrozenTimers:
+                        {
+                            AllPlayerTimers.Values.SelectMany(x => new[] { x.LeftCounter, x.MiddleCounter, x.RightCounter }).Do(x => x.StartTimeStamp += duration);
+                            break;
+                        }
                     }
                 }
             }
@@ -550,7 +552,11 @@ internal static class MoveAndStop
 
                 data.UpdateCounters();
 
-                if (!pc.IsAlive()) goto NoSuffix; // If the player is dead, there's no need to get them a suffix and notify them
+                if (IsEventActive && Event.Type == Events.FrozenTimers)
+                {
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    goto NoSuffix;
+                }
 
                 string suffix = GetSuffixText(pc);
 

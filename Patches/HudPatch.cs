@@ -721,7 +721,7 @@ internal static class TaskPanelBehaviourPatch
                     foreach (string eachLine in lines1)
                     {
                         string line = eachLine.Trim();
-                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('(')) continue;
+                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('(') && !line.Contains(DestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
 
                         sb1.Append(line + "\r\n");
                     }
@@ -729,10 +729,14 @@ internal static class TaskPanelBehaviourPatch
                     if (sb1.Length > 1)
                     {
                         string text = sb1.ToString().TrimEnd('\n').TrimEnd('\r');
+
                         if (!Utils.HasTasks(player.Data, false) && sb1.ToString().Count(s => s == '\n') >= 2) text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
+                        else if (player.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) goto Skip1;
 
                         finalText += $"<size=70%>\r\n{text}\r\n</size>";
                     }
+
+                    Skip1:
 
                     List<(int, byte)> list3 = [];
                     foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStop.GetRankFromScore(id), id));
