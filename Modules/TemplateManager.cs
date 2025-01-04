@@ -113,7 +113,8 @@ public static class TemplateManager
             if (tmp.Length > 1 && tmp[1] != "")
             {
                 tags.Add(tmp[0]);
-                if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase)) sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
+                if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase))
+                    sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
             }
         }
 
@@ -131,7 +132,8 @@ public static class TemplateManager
 
     private static string ApplyReplaceDictionary(string text)
     {
-        foreach (KeyValuePair<string, Func<string>> kvp in ReplaceDictionary) text = Regex.Replace(text, "{{" + kvp.Key + "}}", kvp.Value.Invoke() ?? "", RegexOptions.IgnoreCase);
+        foreach (KeyValuePair<string, Func<string>> kvp in ReplaceDictionary)
+            text = Regex.Replace(text, "{{" + kvp.Key + "}}", kvp.Value.Invoke() ?? "", RegexOptions.IgnoreCase);
 
         return text;
     }

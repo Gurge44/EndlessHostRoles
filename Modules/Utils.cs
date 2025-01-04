@@ -1665,7 +1665,7 @@ public static class Utils
 
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
     {
-        if (sendTo.GetPlayer() == null) return;
+        if (sendTo != byte.MaxValue && GetPlayerById(sendTo, false) == null) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
@@ -2081,7 +2081,7 @@ public static class Utils
                             SelfSuffix.Append(FFAManager.GetPlayerArrow(seer));
                             break;
                         case CustomGameMode.SoloKombat:
-                            SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer));
+                            SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true));
                             break;
                         case CustomGameMode.MoveAndStop:
                             SelfSuffix.Append(MoveAndStop.GetSuffixText(seer));
@@ -2106,7 +2106,7 @@ public static class Utils
                             break;
                         case CustomGameMode.AllInOne:
                             bool alive = seer.IsAlive();
-                            if (alive) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer) + "\n");
+                            if (alive) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true) + "\n");
                             if (alive) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
                             SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
                             if (alive && !seer.Is(CustomRoles.Killer)) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
@@ -2401,7 +2401,7 @@ public static class Utils
                                 switch (Options.CurrentGameMode)
                                 {
                                     case CustomGameMode.SoloKombat:
-                                        TargetSuffix.Append(SoloPVP.GetDisplayHealth(target));
+                                        TargetSuffix.Append(SoloPVP.GetDisplayHealth(target, false));
                                         break;
                                     case CustomGameMode.HideAndSeek:
                                         TargetSuffix.Append(HnSManager.GetSuffixText(seer, target));
@@ -3069,7 +3069,6 @@ public static class Utils
                 case CustomGameMode.SoloKombat:
                     summary = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>" : $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
                     if (GetProgressText(id).Trim() == string.Empty) return string.Empty;
-
                     break;
                 case CustomGameMode.FFA:
                     summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, true)}";

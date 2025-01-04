@@ -113,9 +113,9 @@ internal static class SoloPVP
         }
     }
 
-    public static string GetDisplayHealth(PlayerControl pc)
+    public static string GetDisplayHealth(PlayerControl pc, bool self)
     {
-        return (pc.SoloAlive() ? Utils.ColorString(GetHealthColor(pc), $"{(int)PlayerHP[pc.PlayerId]}/{(int)PlayerHPMax[pc.PlayerId]}") : string.Empty) + GetStatsForVanilla(pc);
+        return (pc.SoloAlive() ? Utils.ColorString(GetHealthColor(pc), $"{(int)PlayerHP[pc.PlayerId]}/{(int)PlayerHPMax[pc.PlayerId]}") : string.Empty) + (self ? GetStatsForVanilla(pc) : string.Empty);
     }
 
     private static Color32 GetHealthColor(PlayerControl pc)
@@ -298,7 +298,7 @@ internal static class SoloPVP
                 AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_ATK"), addin.ToString("0.0#####")));
                 break;
             case 3:
-                addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate * 30;
+                addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate * 5;
                 PlayerDF[killer.PlayerId] += addin;
                 AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_DF"), addin.ToString("0.0#####")));
                 break;

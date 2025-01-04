@@ -1713,7 +1713,7 @@ internal static class FixedUpdatePatch
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.SoloKombat:
-                        Suffix.Append(SoloPVP.GetDisplayHealth(target));
+                        Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
                         break;
                     case CustomGameMode.FFA:
                         Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
@@ -1730,11 +1730,11 @@ internal static class FixedUpdatePatch
                     case CustomGameMode.CaptureTheFlag:
                         Suffix.Append(CTFManager.GetSuffixText(seer, target));
                         break;
-                    case CustomGameMode.RoomRush:
+                    case CustomGameMode.RoomRush when self:
                         Suffix.Append(RoomRush.GetSuffix(seer));
                         break;
                     case CustomGameMode.AllInOne:
-                        if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target));
+                        if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
                         if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
                         if (self && alive && !seer.Is(CustomRoles.Killer)) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
                         if (self) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - "));
