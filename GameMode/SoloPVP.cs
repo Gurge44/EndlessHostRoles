@@ -27,6 +27,7 @@ internal static class SoloPVP
     private static Dictionary<byte, int> BackCountdown = [];
     private static Dictionary<byte, long> LastHurt = [];
     private static Dictionary<byte, long> LastRecover = [];
+    private static Dictionary<byte, long> LastCountdownTime = [];
 
     public static bool SoloAlive(this PlayerControl pc)
     {
@@ -93,6 +94,7 @@ internal static class SoloPVP
 
         LastHurt = [];
         LastRecover = [];
+        LastCountdownTime = [];
         OriginalSpeed = [];
         BackCountdown = [];
         KBScore = [];
@@ -110,6 +112,7 @@ internal static class SoloPVP
 
             LastHurt.TryAdd(pc.PlayerId, Utils.TimeStamp);
             LastRecover.TryAdd(pc.PlayerId, Utils.TimeStamp);
+            LastCountdownTime.TryAdd(pc.PlayerId, Utils.TimeStamp);
         }
     }
 
@@ -154,7 +157,7 @@ internal static class SoloPVP
         }
 
         finalText += $"\n{rank}. {pc.PlayerId.ColoredPlayerName()} - {string.Format(Translator.GetString("KillCount").TrimStart(' '), KBScore.GetValueOrDefault(pc.PlayerId, 0))}";
-        return finalText;
+        return $"<#ffffff>{finalText}</color>";
     }
 
     public static void GetNameNotify(PlayerControl player, ref string name)
@@ -351,11 +354,11 @@ internal static class SoloPVP
                 if (dis < 1.1f) PlayerRandomSpwan(__instance);
             }
 
-            if (BackCountdown.ContainsKey(id))
+            if (BackCountdown.ContainsKey(id) && LastCountdownTime[id] != now)
             {
+                LastCountdownTime[id] = now;
                 BackCountdown[id]--;
                 if (BackCountdown[id] <= 0) OnPlayerBack(__instance);
-
                 notifyRoles = true;
             }
 
