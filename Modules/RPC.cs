@@ -230,12 +230,15 @@ internal static class RPCHandlerPatch
             return false;
         }
 
-        if (__instance != null && (!ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out int times) || times <= 4)) return true;
+        if (__instance != null && (ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out int times) && times > 4))
+        {
+            AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
+            Logger.Warn($"{__instance?.Data?.PlayerName} has sent 5 or more ReportDeadBody RPCs in the last 1 second, they were banned for hacking.", "EAC");
+            Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance?.Data?.PlayerName));
+            return false;
+        }
 
-        AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
-        Logger.Warn($"{__instance?.Data?.PlayerName} has sent 5 or more ReportDeadBody RPCs in the last 1 second, they were banned for hacking.", "EAC");
-        Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance?.Data?.PlayerName));
-        return false;
+        return true;
     }
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
@@ -334,7 +337,8 @@ internal static class RPCHandlerPatch
                 int countAllOptions = OptionItem.AllOptions.Count;
 
                 // Add Options
-                for (int option = startAmount; option < countAllOptions && option <= lastAmount; option++) listOptions.Add(OptionItem.AllOptions[option]);
+                for (int option = startAmount; option < countAllOptions && option <= lastAmount; option++)
+                    listOptions.Add(OptionItem.AllOptions[option]);
 
                 int countOptions = listOptions.Count;
                 Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
@@ -521,6 +525,7 @@ internal static class RPCHandlerPatch
 
                 const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
                 typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [null, player, text, text.Split(' ')]);
+                Logger.Info($"Invoke Command: {methodName} ({player?.Data?.PlayerName}, {text})", "RequestCommandProcessing");
                 break;
             }
             case CustomRPC.SyncPostman:

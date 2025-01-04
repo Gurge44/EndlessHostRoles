@@ -59,6 +59,8 @@ public static class GameOptionsMenuPatch
         // By TommyXL
         LateTask.New(() =>
         {
+            if (optionMenu == null) return;
+
             Transform menuDescription = optionMenu.transform.FindChild("What Is This?");
             if (menuDescription == null) return;
 

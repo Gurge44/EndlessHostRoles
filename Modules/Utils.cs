@@ -728,15 +728,12 @@ public static class Utils
     public static bool HasTasks(NetworkedPlayerInfo p, bool ForRecompute = true)
     {
         if (GameStates.IsLobby) return false;
-
         if (p.Tasks == null) return false;
-
         if (p.Role == null) return false;
 
         var hasTasks = true;
         PlayerState state = Main.PlayerStates[p.PlayerId];
         if (p.Disconnected) return false;
-
         if (p.Role.IsImpostor) hasTasks = false;
 
         switch (Options.CurrentGameMode)
@@ -882,23 +879,22 @@ public static class Utils
             case CustomRoles.Lawyer:
             case CustomRoles.Phantasm:
                 if (ForRecompute) hasTasks = false;
-
                 break;
             case CustomRoles.Cherokious:
             case CustomRoles.Crewpostor:
                 if (ForRecompute && !p.IsDead) hasTasks = false;
-
                 if (p.IsDead) hasTasks = false;
-
                 break;
             case CustomRoles.Wizard:
                 hasTasks = true;
                 break;
             default:
                 if (role.IsImpostor()) hasTasks = false;
-
                 break;
         }
+
+        hasTasks &= !(CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool()));
+        hasTasks |= p.Object.UsesPetInsteadOfKill() && role is not (CustomRoles.Refugee or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick);
 
         foreach (CustomRoles subRole in state.SubRoles)
         {
@@ -922,10 +918,6 @@ public static class Utils
                     break;
             }
         }
-
-        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
-
-        hasTasks |= p.Object.UsesPetInsteadOfKill() && role is not (CustomRoles.Refugee or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick);
 
         return hasTasks;
     }

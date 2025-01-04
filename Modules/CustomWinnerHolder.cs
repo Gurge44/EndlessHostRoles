@@ -31,13 +31,6 @@ public static class CustomWinnerHolder
         Logger.Info("Reset", "CustomWinnerHolder");
     }
 
-    public static void ClearWinners()
-    {
-        WinnerRoles.Clear();
-        WinnerIds.Clear();
-        Logger.Info("ClearWinners", "CustomWinnerHolder");
-    }
-
     /// <summary>
     ///     <para>Assign a value to WinnerTeam. </para>
     ///     <para>Add to AdditionalWinnerTeams if already assigned.</para>

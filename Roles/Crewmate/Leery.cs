@@ -46,7 +46,7 @@ public class Leery : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive() || Count++ < 5) return;
+        if (!GameStates.IsInTask || !Main.IntroDestroyed || ExileController.Instance || !pc.IsAlive() || Count++ < 5) return;
 
         Count = 0;
 
@@ -97,7 +97,7 @@ public class Leery : RoleBase
         if (seer.PlayerId != LeeryId || seer.PlayerId != target.PlayerId || meeting || hud || !ShowNearestPlayerName.GetBool() || InvestigationEndTS == 0 || !seer.IsAlive()) return string.Empty;
 
         string text = string.Format(Translator.GetString("LeerySuffix"), CurrentTarget.ColoredPlayerName());
-            
+
         if (ShowProgress.GetBool())
         {
             long now = Utils.TimeStamp;

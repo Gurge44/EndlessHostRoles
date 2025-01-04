@@ -274,21 +274,13 @@ public class Main : BasePlugin
         {
             Logger.Disable("2018k");
             Logger.Disable("Github");
-            //EHR.Logger.Disable("ReceiveRPC");
             Logger.Disable("SendRPC");
             Logger.Disable("SetRole");
             Logger.Disable("Info.Role");
             Logger.Disable("TaskState.Init");
-            //EHR.Logger.Disable("Vote");
             Logger.Disable("RpcSetNamePrivate");
-            //EHR.Logger.Disable("SendChat");
             Logger.Disable("SetName");
-            //EHR.Logger.Disable("AssignRoles");
-            //EHR.Logger.Disable("RepairSystem");
-            //EHR.Logger.Disable("MurderPlayer");
-            //EHR.Logger.Disable("CheckMurder");
             Logger.Disable("PlayerControl.RpcSetRole");
-            Logger.Disable("SyncCustomSettings");
         }
         //EHR.Logger.isDetail = true;
 
