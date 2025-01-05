@@ -8,6 +8,7 @@
   "NameColor": "#00ffa5",
   "Server": "<#00ffa5>伺服器:</color> <b>{0}</b>",
   "HostIconInMeeting": "房主: {0}",
+  "ModdedClient": "Modded Client",
   "SubText.GM": "當吃瓜群眾在一旁看戲吧",
   "SubText.Crewmate": "完成任務並逐出<color=#ff1919>偽裝者</color>",
   "SubText.Impostor": "破壞並殺死所有人",
