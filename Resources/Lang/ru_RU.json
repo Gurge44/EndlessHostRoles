@@ -8,6 +8,7 @@
   "NameColor": "#00ffa5",
   "Server": "<#00ffa5>Регион:</color> <b>{0}</b>",
   "HostIconInMeeting": "Хост: {0}",
+  "ModdedClient": "Modded Client",
   "SubText.GM": "Наслаждайтесь хаосом!",
   "SubText.Crewmate": "Найдите и выкиньте всех <color=#ff1919>убийц</color>",
   "SubText.Impostor": "Убивайте и саботируйте",
