@@ -1051,7 +1051,7 @@ internal static class CustomRolesHelper
             CustomRoles.Swift when pc.Is(CustomRoles.EvilDiviner) => false,
             CustomRoles.Swift when pc.Is(CustomRoles.Witch) => false,
             CustomRoles.Swift when pc.Is(CustomRoles.Mafia) => false,
-            CustomRoles.Reach when pc.Is(CustomRoles.Mafioso) => false,
+            CustomRoles.Reach when pc.GetCustomRole() is CustomRoles.Mafioso or CustomRoles.Evolver => false,
             CustomRoles.Trapper when pc.Is(CustomRoles.GuardianAngelEHR) => false,
             CustomRoles.Reach when !pc.CanUseKillButton() => false,
             CustomRoles.Magnet when !pc.CanUseKillButton() => false,

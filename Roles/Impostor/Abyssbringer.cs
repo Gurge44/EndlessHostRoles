@@ -136,8 +136,6 @@ public class Abyssbringer : RoleBase
             switch (despawnMode)
             {
                 case DespawnMode.AfterTime when Utils.TimeStamp - blackHole.PlaceTimeStamp > BlackHoleDespawnTime.GetInt():
-                    RemoveBlackHole();
-                    continue;
                 case DespawnMode.AfterMeeting when GameStates.IsMeeting:
                     RemoveBlackHole();
                     continue;
@@ -168,6 +166,9 @@ public class Abyssbringer : RoleBase
                     state.deathReason = PlayerState.DeathReason.Consumed;
                     state.RealKiller = (DateTime.Now, AbyssbringerId);
                     state.SetDead();
+
+                    FixedUpdatePatch.LoversSuicide(nearestPlayer.PlayerId);
+                    Utils.AfterPlayerDeathTasks(nearestPlayer);
 
                     if (despawnMode == DespawnMode.After1PlayerEaten) RemoveBlackHole();
                 }

@@ -1164,7 +1164,7 @@ internal static class ExtendedPlayerControl
         return GetPlayerById(id)?.OwnerId == AmongUsClient.Instance.HostId;
     }
 
-    public static void RpcShowScanAnimationDesync(this PlayerControl target, PlayerControl seer, bool IsActive)
+    public static void RpcShowScanAnimationDesync(this PlayerControl target, PlayerControl seer, bool on)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
@@ -1185,12 +1185,12 @@ internal static class ExtendedPlayerControl
 
         if (AmongUsClient.Instance.ClientId == seerClientId)
         {
-            target.SetScanner(IsActive, cnt);
+            target.SetScanner(on, cnt);
             return;
         }
 
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.SetScanner, SendOption.Reliable, seerClientId);
-        messageWriter.Write(IsActive);
+        messageWriter.Write(on);
         messageWriter.Write(cnt);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         target.scannerCount = cnt;

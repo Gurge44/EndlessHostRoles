@@ -27,7 +27,7 @@ internal static class CheckProtectPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (!AmongUsClient.Instance.AmHost || target.Data.IsDead) return false;
+        if (!AmongUsClient.Instance.AmHost || target.Data.IsDead || AntiBlackout.SkipTasks) return false;
 
         Logger.Info($"CheckProtect: {__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckProtect");
 
@@ -69,8 +69,16 @@ internal static class RpcMurderPlayerPatch
     {
         if (!AmongUsClient.Instance.AmHost) Logger.Error("Client is calling RpcMurderPlayer, are you hacking?", "RpcMurderPlayerPatch.Prefix");
 
+        if (GameStates.IsLobby)
+        {
+            Logger.Info("Murder triggered in lobby, so murder canceled", "RpcMurderPlayer.Prefix");
+            return false;
+        }
+
         MurderResultFlags murderResultFlags = didSucceed ? MurderResultFlags.Succeeded : MurderResultFlags.FailedError;
-        if (AmongUsClient.Instance.AmClient) __instance.MurderPlayer(target, murderResultFlags);
+
+        if (AmongUsClient.Instance.AmClient)
+            __instance.MurderPlayer(target, murderResultFlags);
 
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
         messageWriter.WriteNetObject(target);
@@ -249,12 +257,12 @@ internal static class CheckMurderPatch
         Deadlined.SetDone(killer);
 
         if (ToiletMaster.OnAnyoneCheckMurderStart(killer, target)) return false;
-
         if (Dad.OnAnyoneCheckMurderStart(target)) return false;
 
         Simon.RemoveTarget(killer, Simon.Instruction.Kill);
 
-        if (Mastermind.ManipulatedPlayers.ContainsKey(killer.PlayerId)) return Mastermind.ForceKillForManipulatedPlayer(killer, target);
+        if (Mastermind.ManipulatedPlayers.ContainsKey(killer.PlayerId))
+            return Mastermind.ForceKillForManipulatedPlayer(killer, target);
 
         if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(killer, target)) return false;
 
@@ -299,9 +307,7 @@ internal static class CheckMurderPatch
 
         if (killer.Is(CustomRoles.Unlucky))
         {
-            var Ue = IRandom.Instance;
-
-            if (Ue.Next(0, 100) < Options.UnluckyKillSuicideChance.GetInt())
+            if (IRandom.Instance.Next(0, 100) < Options.UnluckyKillSuicideChance.GetInt())
             {
                 killer.Suicide();
                 return false;
@@ -469,13 +475,12 @@ internal static class CheckMurderPatch
             return false;
         }
 
-        if (Jackal.On && Jackal.ResetKillCooldownWhenSbGetKilled.GetBool() && !killer.Is(CustomRoles.Sidekick) && !target.Is(CustomRoles.Sidekick) && !killer.Is(CustomRoles.Jackal) && !target.Is(CustomRoles.Jackal) && !GameStates.IsMeeting) Jackal.AfterPlayerDiedTask(killer);
+        if (Jackal.On && Jackal.ResetKillCooldownWhenSbGetKilled.GetBool() && !killer.Is(CustomRoles.Sidekick) && !target.Is(CustomRoles.Sidekick) && !killer.Is(CustomRoles.Jackal) && !target.Is(CustomRoles.Jackal) && !GameStates.IsMeeting)
+            Jackal.AfterPlayerDiedTask(killer);
 
         if (target.Is(CustomRoles.Lucky))
         {
-            var rd = IRandom.Instance;
-
-            if (rd.Next(0, 100) < Options.LuckyProbability.GetInt())
+            if (IRandom.Instance.Next(0, 100) < Options.LuckyProbability.GetInt())
             {
                 killer.SetKillCooldown(15f);
                 return false;
@@ -486,21 +491,22 @@ internal static class CheckMurderPatch
         {
             foreach (PlayerControl player in Main.AllPlayerControls)
             {
-                if (player.Is(CustomRoles.Crusader) && player.IsAlive() && !killer.Is(CustomRoles.Pestilence) && !killer.Is(CustomRoles.Minimalism))
+                if (player.Is(CustomRoles.Crusader) && player.IsAlive())
                 {
-                    player.Kill(killer);
-                    Crusader.ForCrusade.Remove(target.PlayerId);
-                    killer.RpcGuardAndKill(target);
-                    return false;
-                }
-
-                if (player.Is(CustomRoles.Crusader) && player.IsAlive() && killer.Is(CustomRoles.Pestilence))
-                {
-                    killer.Kill(player);
-                    Crusader.ForCrusade.Remove(target.PlayerId);
-                    target.RpcGuardAndKill(killer);
-                    Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.PissedOff;
-                    return false;
+                    switch (killer.Is(CustomRoles.Pestilence))
+                    {
+                        case false when !killer.Is(CustomRoles.Minimalism):
+                            player.Kill(killer);
+                            Crusader.ForCrusade.Remove(target.PlayerId);
+                            killer.RpcGuardAndKill(target);
+                            return false;
+                        case true:
+                            killer.Kill(player);
+                            Crusader.ForCrusade.Remove(target.PlayerId);
+                            target.RpcGuardAndKill(killer);
+                            Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.PissedOff;
+                            return false;
+                    }
                 }
             }
         }
@@ -565,10 +571,7 @@ internal static class CheckMurderPatch
 
         return true;
 
-        void Notify(string message)
-        {
-            killer.Notify(ColorString(Color.yellow, GetString("CheckMurderFail") + GetString(message)), 15f);
-        }
+        void Notify(string message) => killer.Notify(ColorString(Color.yellow, GetString("CheckMurderFail") + GetString(message)), 12f);
     }
 }
 
@@ -1428,9 +1431,11 @@ internal static class FixedUpdatePatch
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out (long StartTimeStamp, int TotalCooldown) timer))
                     {
-                        if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive) player.RemoveAbilityCD();
+                        if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive)
+                            player.RemoveAbilityCD();
 
-                        if (!player.IsModClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                        if (!player.IsModClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60)
+                            NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
 
                         LastUpdate[playerId] = now;
                     }
@@ -1481,14 +1486,14 @@ internal static class FixedUpdatePatch
                 if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
                 {
                     if (Main.ForkId != ver.forkId)
-                        __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
+                        __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>{ver.forkId}</size>\n{__instance.name}</color>";
                     else if (Main.Version.CompareTo(ver.version) == 0)
-                        __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? $"<color=#87cefa>{__instance.name}</color>" : $"<color=#ffff00><size=1.2>{ver.tag}</size>\n{__instance?.name}</color>";
+                        __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? $"<color=#00a5ff><size=1.4>{GetString("ModdedClient")}</size>\n{__instance.name}</color>" : $"<color=#ffff00><size=1.4>{ver.tag}</size>\n{__instance.name}</color>";
                     else
-                        __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>v{ver.version}</size>\n{__instance?.name}</color>";
+                        __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>v{ver.version}</size>\n{__instance.name}</color>";
                 }
                 else
-                    __instance.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !__instance.AmOwner ? $"<#888888><size=1.2>{__instance.GetClient().PlatformData.Platform} | {__instance.FriendCode} | {__instance.GetClient().GetHashedPuid()}</size></color>\n{__instance?.Data?.PlayerName}" : __instance?.Data?.PlayerName;
+                    __instance.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !__instance.AmOwner ? $"<#888888><size=1.2>{__instance.GetClient().PlatformData.Platform} | {__instance.FriendCode} | {__instance.GetClient().GetHashedPuid()}</size></color>\n{__instance.Data?.PlayerName}" : __instance.Data?.PlayerName;
             }
 
             if (GameStates.IsInGame)

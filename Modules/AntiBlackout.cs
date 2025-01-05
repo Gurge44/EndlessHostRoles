@@ -225,9 +225,9 @@ public static class AntiBlackout
 
     public static void ResetAfterMeeting()
     {
+        SkipTasks = false;
         ExilePlayerId = -1;
         ResetAllCooldowns();
-        LateTask.New(() => SkipTasks = false, 1f, log: false);
     }
 
     public static void Reset()

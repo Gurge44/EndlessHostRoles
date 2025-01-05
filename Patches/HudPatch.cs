@@ -848,6 +848,9 @@ internal static class CoShowIntroPatch
 
         IntroStarted = true;
 
+        Utils.SetupLongRoleDescriptions();
+        Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 10));
+
         LateTask.New(() =>
         {
             if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended))

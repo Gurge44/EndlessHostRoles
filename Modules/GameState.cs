@@ -512,7 +512,7 @@ public static class GameStates
 
     public static bool InGame;
     public static bool AlreadyDied;
-    public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModClient());
+    public static bool IsModHost => PlayerControl.LocalPlayer.IsHost() || PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
     public static bool IsEnded => GameEndChecker.Ended || AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;

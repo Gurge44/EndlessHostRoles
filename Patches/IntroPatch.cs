@@ -239,54 +239,7 @@ internal static class CoBeginPatch
     public static void Prefix()
     {
         RPC.RpcVersionCheck();
-        SetupLongRoleDescriptions();
-        Utils.NotifyRoles(NoCache: true);
         GameStates.InGame = true;
-    }
-
-    private static void SetupLongRoleDescriptions()
-    {
-        try
-        {
-            Utils.LongRoleDescriptions.Clear();
-
-            int charsInOneLine = GetUserTrueLang() is SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Japanese or SupportedLangs.Korean ? 35 : 50;
-
-            foreach (PlayerControl seer in Main.AllPlayerControls)
-            {
-                string longInfo = seer.GetRoleInfo(true).Split("\n\n")[0];
-                if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
-
-                var tooLong = false;
-                bool showLongInfo = Options.ShowLongInfo.GetBool();
-
-                if (showLongInfo)
-                {
-                    if (longInfo.Length > 296)
-                    {
-                        longInfo = longInfo[..296];
-                        longInfo += "...";
-                        tooLong = true;
-                    }
-
-                    for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
-                    {
-                        if (tooLong && (i > 296)) break;
-
-                        int index = longInfo.LastIndexOf(' ', i);
-                        if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
-                    }
-                }
-
-                longInfo = $"<#ffffff>{longInfo}</color>";
-
-                int lines = longInfo.Count(x => x == '\n');
-                int readTime = 20 + (lines * 5);
-
-                Utils.LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
-            }
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 

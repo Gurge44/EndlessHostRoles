@@ -396,9 +396,7 @@ public class Dad : RoleBase
     public static bool OnAnyoneCheckMurderStart(PlayerControl target)
     {
         Dad dad = Instances.FirstOrDefault(d => d.DadId == target.PlayerId);
-        if (dad == null) return false;
-
-        return dad.UsingAbilities.Contains(Ability.Sleep);
+        return dad != null && dad.UsingAbilities.Contains(Ability.Sleep);
     }
 
     private void NotifyIfNecessary(PlayerControl pc, bool force = false)

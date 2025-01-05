@@ -163,7 +163,6 @@ public class Mastermind : RoleBase
     public static bool ForceKillForManipulatedPlayer(PlayerControl killer, PlayerControl target)
     {
         if (killer == null) return false;
-
         if (target == null) return false;
 
         ManipulatedPlayers.Remove(killer.PlayerId);
