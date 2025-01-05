@@ -2770,7 +2770,7 @@
   "JudgeCanTrialSidekick": "可以审判<color=#00b4eb>跟班</color>",
   "JudgeCanTrialInfected": "可以审判<color=#7B8968>感染者</color>",
   "JudgeCanTrialContagious": "可以审判<color=#2E8B57>被感染者</color>",
-  "PostLobbyCodeToEHRDiscordServer": "将大厅代码发送到 EHR Discord 服务器",
+  "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Website",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color><#00a5ff>房间代码已发送到EHR网站。这将帮助其他人找到EHR模组房间。</color></size>\\n<size=70%>您可以在设置(系统设置标签页)中禁用此功能</size>",
   "ActiveRolesList": "有效职业一览",
   "ForExample": "使用例",
