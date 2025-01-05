@@ -2770,7 +2770,7 @@
   "JudgeCanTrialSidekick": "Pode Julgar <color=#00b4eb>Ajudantes</color>",
   "JudgeCanTrialInfected": "Pode Julgar <color=#7B8968>Infectados</color>",
   "JudgeCanTrialContagious": "Pode Julgar <color=#2E8B57>Contagiados</color>",
-  "PostLobbyCodeToEHRDiscordServer": "Publique o código da sala no servidor EHR do Discord",
+  "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Website",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>O código da sala foi enviado para o servidor Discord da EHR.</color></size>\\n<size=70%>Você pode desativar esse recurso nas configurações (aba Configurações do Sistema).</size>",
   "ActiveRolesList": "Lista de função ativa",
   "ForExample": "Exemplo",
