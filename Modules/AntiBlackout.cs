@@ -221,6 +221,8 @@ public static class AntiBlackout
             }
             else if (seer.HasGhostRole()) seer.RpcResetAbilityCooldown();
         }
+
+        CheckMurderPatch.TimeSinceLastKill.SetAllValues(0f);
     }
 
     public static void ResetAfterMeeting()

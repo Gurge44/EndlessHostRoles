@@ -419,7 +419,7 @@ Source language: English
 # License for the Custom Team Assigner application (everything inside the `CTA` folder)
 
 ```
-Copyright (c) 2024, Gurge44
+Copyright (c) 2025, Gurge44
 
 All rights reserved.
 
@@ -452,15 +452,16 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Privacy Policy
 
+### Privacy Policy for EHR Lobby Sharing
 
-### Privacy Policy for EHR Discord Integration
-
-**Effective Date:** 2024-11-09
+**Effective Date:** 2025-01-05
 
 ------------------------------------------------------------------------------------------------------------
 
 #### 1. **Introduction**
-This Privacy Policy explains how we collect, use, and handle information related to the EHR Discord integration for your Among Us mod. We are committed to ensuring that your data privacy and security are respected.
+
+This Privacy Policy explains how we collect, use, and handle information related to lobby sharing via the EHR Website
+for your Among Us mod. We are committed to ensuring that your data privacy and security are respected.
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -473,6 +474,13 @@ When using this integration, we collect the following non-personal information:
 - **Mod Version:** The version of the Endless Host Roles (EHR) mod being used.
 - **Lobby Status:** The current status of the lobby (e.g., In Lobby, In Game, Ended).
 
+Furthermore, the following information is collected to enhance the user experience:
+
+- **Completed Achievements:** A list of custom achievements (added by the mod) completed by the user, in the form of
+  numbers. (Please note that the users are identified using their encrypted product user ID, not their username or any
+  other personal information. This ID is unique to each user and is not shared with any third parties. This ID cannot be
+  used to identify the user outside the game.)
+
 ------------------------------------------------------------------------------------------------------------
 
 #### 3. **How Information is Used**
@@ -480,30 +488,35 @@ The collected information is used solely for the following purposes:
 
 - To notify players about available lobbies via the designated Discord server.
 - To update the status of the lobby in real time, enhancing coordination among players.
+- To ensure, that progress in custom achievements isn't lost when updating or reinstalling the mod.
 
 **No personal data** or any other information beyond what is listed above is collected or processed.
 
 ------------------------------------------------------------------------------------------------------------
 
 #### 4. **Data Sharing**
-- The collected information is only sent to the EHR Discord server through a webhook.
+
+- The collected information is only sent to the EHR Website through an API.
 - No data is shared with third parties or used for any other purposes.
 
 ------------------------------------------------------------------------------------------------------------
 
 #### 5. **User Control and Opt-Out**
-You have full control over whether to enable or disable data sharing. You can disable this feature by:
+
+You have full control over whether to enable or disable data sharing. You can disable lobby sharing by:
 
 1. Opening the **Room Settings** UI.
 2. Navigating to the **System Settings** tab.
-3. Turning off the setting labeled **Post the lobby code to the EHR Discord server.**
+3. Turning off the setting labeled **Post the lobby code to the EHR Website**.
 
 When disabled, no lobby information will be collected or transmitted.
 
 ------------------------------------------------------------------------------------------------------------
 
 #### 6. **Data Retention**
-- Lobby data is retained only as long as the lobby is active. Once a lobby is closed, the data is removed from our system and the message is deleted from the Discord server after 30 minutes.
+
+- Lobby data is retained only as long as the lobby is active. Once a lobby is closed, the data is removed from our
+  system within 3 minutes.
 - We do not store historical records of lobbies after they are removed.
 
 ------------------------------------------------------------------------------------------------------------

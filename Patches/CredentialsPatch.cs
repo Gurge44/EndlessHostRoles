@@ -105,7 +105,7 @@ public static class UpdateFriendCodeUIPatch
 
     public static void Prefix()
     {
-        string credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2024";
+        string credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2025";
         credentialsText += "\t\t\t";
         credentialsText += $"<color={Main.ModColor}>{Main.ModName}</color> - {Main.PluginVersion}";
 

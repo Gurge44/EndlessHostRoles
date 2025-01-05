@@ -230,11 +230,11 @@ internal static class RPCHandlerPatch
             return false;
         }
 
-        if (__instance != null && (ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out int times) && times > 4))
+        if (__instance != null && ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out int times) && times > 4)
         {
             AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
-            Logger.Warn($"{__instance?.Data?.PlayerName} has sent 5 or more ReportDeadBody RPCs in the last 1 second, they were banned for hacking.", "EAC");
-            Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance?.Data?.PlayerName));
+            Logger.Warn($"{__instance.Data?.PlayerName} has sent 5 or more ReportDeadBody RPCs in the last 1 second, they were banned for hacking.", "EAC");
+            Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance.Data?.PlayerName));
             return false;
         }
 
