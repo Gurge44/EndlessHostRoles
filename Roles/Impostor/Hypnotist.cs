@@ -15,7 +15,7 @@ public class Hypnotist : RoleBase
     public static OptionItem AbilityDuration;
     public static OptionItem AbilityUseLimit;
     public static OptionItem AbilityUseGainWithEachKill;
-    private static OptionItem DoReportAfterHypnosisEnds;
+    public static OptionItem DoReportAfterHypnosisEnds;
 
     private long ActivateTS;
     private int Count;
@@ -96,7 +96,6 @@ public class Hypnotist : RoleBase
                 pc.RpcResetAbilityCooldown();
                 Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
                 if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
-
                 break;
             case <= 6 when Count++ >= 30:
                 Count = 0;

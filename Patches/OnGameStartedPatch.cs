@@ -229,10 +229,14 @@ internal class ChangeRoleSettings
             ChatCommands.LastSpectators.Clear();
             ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 
-            var impLimits = Options.FactionMinMaxSettings[Team.Impostor];
-            int optImpNum = IRandom.Instance.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt() + 1);
-            GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = optImpNum;
-            GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, optImpNum);
+            try
+            {
+                var impLimits = Options.FactionMinMaxSettings[Team.Impostor];
+                int optImpNum = IRandom.Instance.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt() + 1);
+                GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = optImpNum;
+                GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, optImpNum);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             GameOptionsManager.Instance.currentNormalGameOptions.ConfirmImpostor = false;
             Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);

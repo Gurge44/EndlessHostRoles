@@ -170,6 +170,18 @@ internal static class CustomRoleSelector
             .Where(x => x.Key.GetTabFromOptionType() == TabGroup.NeutralRoles || x.Value[0].GetBool())
             .ToDictionary(x => x.Key, x => IRandom.Instance.Next(x.Value[1].GetInt(), x.Value[2].GetInt() + 1));
 
+        try
+        {
+            var impLimits = subCategoryLimits.Where(x => x.Key.GetTabFromOptionType() == TabGroup.ImpostorRoles).ToDictionary(x => x.Key, x => x.Value);
+
+            if (impLimits.Count > 0 && impLimits.Sum(x => x.Value) < optImpNum)
+            {
+                // ReSharper disable once AccessToModifiedClosure
+                impLimits.Keys.Do(x => subCategoryLimits[x] = Options.RoleSubCategoryLimits[x][2].GetInt());
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         if (subCategoryLimits.Count > 0) Logger.Info($"Sub-Category Limits: {string.Join(", ", subCategoryLimits.Select(x => $"{x.Key}: {x.Value}"))}", "SubCategoryLimits");
 
         int nkLimit = subCategoryLimits[RoleOptionType.Neutral_Killing];

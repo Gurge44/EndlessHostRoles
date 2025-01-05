@@ -26,7 +26,6 @@ internal static class SoloPVP
 
     private static Dictionary<byte, int> BackCountdown = [];
     private static Dictionary<byte, long> LastHurt = [];
-    private static Dictionary<byte, long> LastRecover = [];
     private static Dictionary<byte, long> LastCountdownTime = [];
 
     public static bool SoloAlive(this PlayerControl pc)
@@ -93,7 +92,6 @@ internal static class SoloPVP
         PlayerDF = [];
 
         LastHurt = [];
-        LastRecover = [];
         LastCountdownTime = [];
         OriginalSpeed = [];
         BackCountdown = [];
@@ -111,7 +109,6 @@ internal static class SoloPVP
             KBScore.TryAdd(pc.PlayerId, 0);
 
             LastHurt.TryAdd(pc.PlayerId, Utils.TimeStamp);
-            LastRecover.TryAdd(pc.PlayerId, Utils.TimeStamp);
             LastCountdownTime.TryAdd(pc.PlayerId, Utils.TimeStamp);
         }
     }
@@ -140,6 +137,10 @@ internal static class SoloPVP
     {
         string finalText = string.Empty;
         if (pc.IsHost()) return finalText;
+
+        finalText += "<size=90%>";
+        finalText += GetHudText();
+        finalText += "</size>\n";
 
         finalText += "<size=70%>";
         finalText += $"\n{Translator.GetString("PVP.ATK")}: {PlayerATK[pc.PlayerId]:N1}";
@@ -210,11 +211,11 @@ internal static class SoloPVP
 
         float kcd = KB_ATKCooldown.GetFloat();
         if (killer.IsHost()) kcd += Math.Max(0.5f, Utils.CalculatePingDelay());
-
         killer.SetKillCooldown(kcd, target);
+
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-        if (!target.IsModClient() && !target.AmOwner) target.RpcGuardAndKill();
+        if (!target.IsModClient() && !target.AmOwner) target.SetKillCooldown(0.01f);
 
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
@@ -326,49 +327,50 @@ internal static class SoloPVP
             byte id = __instance.PlayerId;
             if (!GameStates.IsInTask || !CustomGameMode.SoloKombat.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || id == 255) return;
 
-            if (!__instance.SoloAlive())
-            {
-                if (__instance.inVent && KB_BootVentWhenDead.GetBool())
-                    __instance.MyPhysics.RpcExitVent(2);
+            bool soloAlive = __instance.SoloAlive();
+            bool inVent = __instance.inVent;
 
-                Vector2 pos = Pelican.GetBlackRoomPS();
-                float dis = Vector2.Distance(pos, __instance.Pos());
-                if (dis > 1f) __instance.TP(pos);
+            switch (soloAlive)
+            {
+                case false:
+                {
+                    if (inVent && KB_BootVentWhenDead.GetBool())
+                        __instance.MyPhysics.RpcExitVent(2);
+
+                    Vector2 pos = Pelican.GetBlackRoomPS();
+                    float dis = Vector2.Distance(pos, __instance.Pos());
+                    if (dis > 1f) __instance.TP(pos);
+                    break;
+                }
+                case true when !inVent:
+                {
+                    Vector2 pos = Pelican.GetBlackRoomPS();
+                    float dis = Vector2.Distance(pos, __instance.Pos());
+                    if (dis < 1.1f) PlayerRandomSpwan(__instance);
+                    break;
+                }
             }
 
-            var notifyRoles = false;
             long now = Utils.TimeStamp;
+            if (LastCountdownTime[id] == now) return;
+            LastCountdownTime[id] = now;
 
-            if (LastHurt[id] + KB_RecoverAfterSecond.GetInt() < now && LastRecover[id] != now && PlayerHP[id] < PlayerHPMax[id] && __instance.SoloAlive() && !__instance.inVent)
+            if (LastHurt[id] + KB_RecoverAfterSecond.GetInt() < now && PlayerHP[id] < PlayerHPMax[id] && soloAlive && !inVent)
             {
-                LastRecover[id] = now;
                 PlayerHP[id] += PlayerHPReco[id];
                 PlayerHP[id] = Math.Min(PlayerHPMax[id], PlayerHP[id]);
-                notifyRoles = true;
             }
 
-            if (__instance.SoloAlive() && !__instance.inVent)
+            if (BackCountdown.ContainsKey(id))
             {
-                Vector2 pos = Pelican.GetBlackRoomPS();
-                float dis = Vector2.Distance(pos, __instance.Pos());
-                if (dis < 1.1f) PlayerRandomSpwan(__instance);
-            }
-
-            if (BackCountdown.ContainsKey(id) && LastCountdownTime[id] != now)
-            {
-                LastCountdownTime[id] = now;
                 BackCountdown[id]--;
                 if (BackCountdown[id] <= 0) OnPlayerBack(__instance);
-                notifyRoles = true;
             }
 
-            if (NameNotify.ContainsKey(id) && NameNotify[id].TimeStamp < now)
-            {
+            if (NameNotify.TryGetValue(id, out var nameNotify) && nameNotify.TimeStamp < now)
                 NameNotify.Remove(id);
-                notifyRoles = true;
-            }
 
-            if (notifyRoles) Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance);
+            Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance);
 
 
             if (LastFixedUpdate == now) return;

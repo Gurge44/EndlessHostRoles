@@ -2841,6 +2841,9 @@ public static class Utils
 
             switch (target.GetCustomRole())
             {
+                case CustomRoles.Hypnotist when disconnect && Hypnotist.DoReportAfterHypnosisEnds.GetBool():
+                    ReportDeadBodyPatch.CanReport.SetAllValues(true);
+                    break;
                 case CustomRoles.Curser:
                     ((Curser)Main.PlayerStates[target.PlayerId].Role).OnDeath();
                     break;
