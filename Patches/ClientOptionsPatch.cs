@@ -22,6 +22,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem ShowPlayerInfoInLobby;
     private static ClientOptionItem LobbyMusic;
     private static ClientOptionItem EnableCommandHelper;
+    private static ClientOptionItem ShowModdedClientText;
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -58,12 +59,9 @@ public static class OptionsMenuBehaviourStartPatch
                 Logger.SendInGame(string.Format(Translator.GetString("FPSSetTo"), Application.targetFrameRate));
             }
         }
-    
-        if (ShowFPS == null || ShowFPS.ToggleButton == null)
-        {
-            ShowFPS = ClientOptionItem.Create("ShowFPS", Main.ShowFps, __instance);
-        }
-    
+
+        if (ShowFPS == null || ShowFPS.ToggleButton == null) { ShowFPS = ClientOptionItem.Create("ShowFPS", Main.ShowFps, __instance); }
+
         if (AutoStart == null || AutoStart.ToggleButton == null)
         {
             AutoStart = ClientOptionItem.Create("AutoStart", Main.AutoStart, __instance, AutoStartButtonToggle);
@@ -161,12 +159,11 @@ public static class OptionsMenuBehaviourStartPatch
         if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null)
             ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
 
-        if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
-        {
-            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance);
-        }
+        if (LobbyMusic == null || LobbyMusic.ToggleButton == null) { LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance); }
 
         if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null) EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
+
+        if (ShowModdedClientText == null || ShowModdedClientText.ToggleButton == null) ShowModdedClientText = ClientOptionItem.Create("ShowModdedClientText", Main.ShowModdedClientText, __instance);
 
 #if DEBUG
         if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)
@@ -176,7 +173,7 @@ public static class OptionsMenuBehaviourStartPatch
 #endif
     }
 }
-    
+
 [HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Close))]
 public static class OptionsMenuBehaviourClosePatch
 {

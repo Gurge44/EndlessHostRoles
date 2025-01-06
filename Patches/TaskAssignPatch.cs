@@ -121,6 +121,7 @@ internal static class AddTasksFromListPatch
         {
             TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun or CustomGameMode.AllInOne,
             TaskTypes.VentCleaning => CustomGameMode.RoomRush.IsActiveOrIntegrated(),
+            TaskTypes.RunDiagnostics => CustomGameMode.Speedrun.IsActiveOrIntegrated(),
             _ => false
         };
     }

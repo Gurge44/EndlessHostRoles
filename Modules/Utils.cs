@@ -2765,14 +2765,11 @@ public static class Utils
                 {
                     pc.AddAbilityCD(false);
 
-                    if (pc.CurrentOutfit.PetId == "")
+                    LateTask.New(() =>
                     {
-                        LateTask.New(() =>
-                        {
-                            string petId = PetsPatch.GetPetId();
-                            pc.RpcSetPetDesync(petId, pc);
-                        }, 3f, "No Pet Reassign");
-                    }
+                        string petId = PetsPatch.GetPetId();
+                        pc.RpcSetPetDesync(petId, pc);
+                    }, 3f, "No Pet Reassign");
                 }
 
                 pc.CheckAndSetUnshiftState(false);

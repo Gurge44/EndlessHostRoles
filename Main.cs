@@ -165,6 +165,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> ShowPlayerInfoInLobby { get; private set; }
     public static ConfigEntry<bool> LobbyMusic { get; private set; }
     public static ConfigEntry<bool> EnableCommandHelper { get; private set; }
+    public static ConfigEntry<bool> ShowModdedClientText { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -261,6 +262,7 @@ public class Main : BasePlugin
         ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
         LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
         EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
+        ShowModdedClientText = Config.Bind("Client Options", "ShowModdedClientText", true);
 
         //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();

@@ -197,6 +197,7 @@ public static class Options
 
     public static OptionItem SeeEjectedRolesInMeeting;
     public static OptionItem EveryoneSeesDeathReasons;
+    public static OptionItem HostSeesCommandsEnteredByOthers;
 
     public static OptionItem DisableShieldAnimations;
     public static OptionItem DisableShapeshiftAnimations;
@@ -1139,9 +1140,11 @@ public static class Options
 
         Type IAddonType = typeof(IAddon);
 
-        Dictionary<AddonTypes, IAddon[]> addonTypes = Assembly
+        Type[] assemblyTypes = Assembly
             .GetExecutingAssembly()
-            .GetTypes()
+            .GetTypes();
+
+        Dictionary<AddonTypes, IAddon[]> addonTypes = assemblyTypes
             .Where(t => IAddonType.IsAssignableFrom(t) && !t.IsInterface)
             .OrderBy(t => Translator.GetString(t.Name))
             .Select(type => (IAddon)Activator.CreateInstance(type))
@@ -1178,9 +1181,7 @@ public static class Options
 
         Type IVanillaType = typeof(IVanillaSettingHolder);
 
-        Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
+        assemblyTypes
             .Where(t => IVanillaType.IsAssignableFrom(t) && !t.IsInterface)
             .OrderBy(t => Translator.GetString(t.Name))
             .Select(type => (IVanillaSettingHolder)Activator.CreateInstance(type))
@@ -1201,9 +1202,7 @@ public static class Options
 
         Type IType = typeof(IGhostRole);
 
-        Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
+        assemblyTypes
             .Where(t => IType.IsAssignableFrom(t) && !t.IsInterface)
             .OrderBy(t => Translator.GetString(t.Name))
             .Select(type => (IGhostRole)Activator.CreateInstance(type))
@@ -2373,6 +2372,9 @@ public static class Options
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         EveryoneSeesDeathReasons = new BooleanOptionItem(44440, "EveryoneSeesDeathReasons", false, TabGroup.GameSettings)
+            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+
+        HostSeesCommandsEnteredByOthers = new BooleanOptionItem(44441, "HostSeesCommandsEnteredByOthers", true, TabGroup.GameSettings)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         LoadingPercentage = 94;

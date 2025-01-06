@@ -74,7 +74,7 @@ public static class Camouflage
 
     public static void SetPetForOutfitIfNecessary(NetworkedPlayerInfo.PlayerOutfit outfit)
     {
-        if (Options.UsePets.GetBool() && outfit.PetId == "") { outfit.PetId = PetsPatch.GetPetId(); }
+        if (Options.UsePets.GetBool()) { outfit.PetId = PetsPatch.GetPetId(); }
     }
 
     private static bool ShouldCamouflage(bool alreadyCamouflaged)

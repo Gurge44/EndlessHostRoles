@@ -524,7 +524,7 @@ internal static class RPCHandlerPatch
                 string text = reader.ReadString();
 
                 const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
-                typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [null, player, text, text.Split(' ')]);
+                typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [player, text, text.Split(' ')]);
                 Logger.Info($"Invoke Command: {methodName} ({player?.Data?.PlayerName}, {text})", "RequestCommandProcessing");
                 break;
             }

@@ -61,7 +61,7 @@ public class Introvert : IAddon
             return;
         }
 
-        if (endTS <= Utils.TimeStamp)
+        if (endTS <= Utils.TimeStamp && !pc.inVent)
         {
             pc.TPToRandomVent();
             TeleportAwayDelays.Remove(pc.PlayerId);

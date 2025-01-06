@@ -598,7 +598,7 @@ internal static class CustomRolesHelper
 
     public static bool IsImpostor(this CustomRoles role)
     {
-        return (role == CustomRoles.DoubleAgent && !Main.IntroDestroyed) || role is
+        return (role == CustomRoles.DoubleAgent && (!Options.IsLoaded || !Main.IntroDestroyed)) || role is
             CustomRoles.Impostor or
             CustomRoles.ImpostorEHR or
             CustomRoles.Phantom or
@@ -778,9 +778,6 @@ internal static class CustomRolesHelper
             CustomRoles.Deputy when Deputy.UsePet.GetBool() => true,
             CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
             CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
-
-            // Speedrun
-            CustomRoles.Runner => true,
 
             _ => false
         };
