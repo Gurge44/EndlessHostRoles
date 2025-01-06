@@ -89,7 +89,7 @@ internal static class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] attempted to report a body that may have been illegally killed, but was rejected", "EAC");
                         return true;
                     }
-                    
+
                     if (GameManager.Instance.TryCast<HideAndSeekManager>())
                     {
                         WarnHost();
@@ -98,10 +98,11 @@ internal static class EAC
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] attempted to report a body in Hide and Seek, rejected", "EAC");
                         return true;
                     }
-                    
+
                     if (targetId != byte.MaxValue)
                     {
                         bool bodyExists = Object.FindObjectsOfType<DeadBody>().Any(deadBody => deadBody.ParentId == targetId);
+
                         if (!bodyExists && targetId != pc.PlayerId && (!MeetingHud.Instance || MeetingHud.Instance.state != MeetingHud.VoteStates.Animating))
                         {
                             WarnHost();
@@ -307,10 +308,7 @@ internal static class EAC
                     break;
             }
         }
-        catch (Exception e)
-        {
-            Logger.Exception(e, "EAC");
-        }
+        catch (Exception e) { Logger.Exception(e, "EAC"); }
 
         WarnHost(-1);
         return false;
@@ -495,7 +493,7 @@ internal static class EAC
 
     internal static bool CheckInvalidSabotage(SystemTypes systemType, PlayerControl player, byte amount)
     {
-        if (player.IsHost()) return false;
+        if (player.IsHost() || !AmongUsClient.Instance.AmHost) return false;
 
         if ((GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
         {

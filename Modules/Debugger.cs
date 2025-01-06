@@ -194,7 +194,9 @@ public class CustomLogger
     public void Log(string level, string message, bool multiLine = false)
     {
         if (multiLine) message = message.Replace("\\n", "<br>");
+
         if (message.Contains("<b>")) message += "</b>";
+        if (message.Contains("<u>")) message += "</u>";
 
         string logEntry = $"""
                            <div class='log-entry {level.ToLower()}'>

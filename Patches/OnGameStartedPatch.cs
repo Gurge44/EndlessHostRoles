@@ -27,7 +27,7 @@ using Exception = System.Exception;
 namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGame))]
-internal class ChangeRoleSettings
+internal static class ChangeRoleSettings
 {
     public static bool Prefix(AmongUsClient __instance)
     {
@@ -301,7 +301,6 @@ internal class ChangeRoleSettings
                 if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1) pc.RpcSetName(Palette.GetColorName(colorId));
 
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
-                Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
