@@ -64,7 +64,7 @@ internal static class OnGameJoinedPatch
                 }
 
                 ClientData client = PlayerControl.LocalPlayer.GetClient();
-                Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room", "Session");
+                Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
             }, 1f, "OnGameJoinedPatch");
 
             Main.SetRoles = [];
@@ -80,11 +80,12 @@ internal static class OnGameJoinedPatch
                 {
                     try
                     {
-                        LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby);
-                        if (GameStates.InGame) LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Game);
+                        LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby);
+                        if (GameStates.InGame) LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.In_Game);
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }
+                else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType} (IsOnlineGame: {GameStates.IsOnlineGame})", "OnGameJoinedPatch");
             }, 5f, "NotifyLobbyCreated");
         }
     }
@@ -109,9 +110,7 @@ internal static class OnPlayerJoinedPatch
 {
     public static bool IsDisconnected(this ClientData client)
     {
-        var __instance = AmongUsClient.Instance;
-
-        foreach (ClientData clientData in __instance.allClients)
+        foreach (ClientData clientData in AmongUsClient.Instance.allClients)
             if (clientData.Id == client.Id)
                 return false;
 

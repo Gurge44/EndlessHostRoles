@@ -661,7 +661,7 @@ public static class Options
     public static OptionItem TerroristCanGuess;
     public static OptionItem PhantomCanGuess;
 
-    public static OptionItem PostLobbyCodeToEHRDiscordServer;
+    public static OptionItem PostLobbyCodeToEHRWebsite;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
@@ -1384,7 +1384,7 @@ public static class Options
 
         ShowAntiBlackoutWarning = new BooleanOptionItem(19421, "ShowAntiBlackoutWarning", true, TabGroup.SystemSettings);
 
-        PostLobbyCodeToEHRDiscordServer = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings);
+        PostLobbyCodeToEHRWebsite = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings);
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));

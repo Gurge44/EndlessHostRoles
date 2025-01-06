@@ -126,7 +126,7 @@ internal static class ChangeRoleSettings
 
     public static void Postfix(AmongUsClient __instance)
     {
-        try { LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.In_Game); }
+        try { LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.In_Game); }
         catch (Exception e) { Utils.ThrowException(e); }
 
         SetUpRoleTextPatch.IsInIntro = true;

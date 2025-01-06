@@ -12,7 +12,7 @@ using UnityEngine.Networking;
 
 namespace EHR.Modules;
 
-public static class LobbyNotifierForDiscord
+public static class LobbySharingAPI
 {
     private const float BufferTime = 5;
     public static long LastRequestTimeStamp;
@@ -86,7 +86,7 @@ public static class LobbyNotifierForDiscord
 
     public static void NotifyLobbyStatusChanged(LobbyStatus status)
     {
-        if (!Options.PostLobbyCodeToEHRDiscordServer.GetBool() || !AmongUsClient.Instance.AmHost) return;
+        if (!Options.PostLobbyCodeToEHRWebsite.GetBool() || !AmongUsClient.Instance.AmHost) return;
 
         if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) != LastRoomCode)
         {
@@ -153,6 +153,6 @@ static class ExitGamePatch
 
     public static void Postfix()
     {
-        LobbyNotifierForDiscord.NotifyLobbyStatusChanged(LobbyStatus.Closed);
+        LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.Closed);
     }
 }

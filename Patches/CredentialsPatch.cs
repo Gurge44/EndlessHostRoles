@@ -395,8 +395,8 @@ internal static class ModManagerLateUpdatePatch
                 new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
         }
 
-        if (Options.IsLoaded && LobbyNotifierForDiscord.LastRoomCode != string.Empty && Utils.TimeStamp - LobbyNotifierForDiscord.LastRequestTimeStamp > 150)
-            LobbyNotifierForDiscord.NotifyLobbyStatusChanged(PlayerControl.LocalPlayer == null ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
+        if (Options.IsLoaded && LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > 150)
+            LobbySharingAPI.NotifyLobbyStatusChanged(PlayerControl.LocalPlayer == null ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
     }
 }
 

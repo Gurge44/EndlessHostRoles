@@ -186,7 +186,8 @@ internal static class ChatCommands
             new(["w", "whisper", "шепот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
             new(["spectate", "спектейт", "观战", "espectar"], "", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false),
             new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true),
-            new(["rolelist", "rl", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true),
+            new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true),
+            new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, [GetString("CommandArgs.JailTalk.Message")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -356,6 +357,8 @@ internal static class ChatCommands
 
     private static void JailTalkCommand(PlayerControl player, string text, string[] args)
     {
+        if (args.Length < 2) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(JailTalkCommand), text);
@@ -373,8 +376,10 @@ internal static class ChatCommands
 
         string title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailTalkTitle"));
 
-        if (amJailor) Utils.SendMessage(text, jailor.JailorTarget, title);
-        else Jailor.PlayerIdList.ForEach(x => Utils.SendMessage(text, x, title));
+        string message = string.Join(' ', args[1..]);
+
+        if (amJailor) Utils.SendMessage(message, jailor.JailorTarget, title);
+        else Jailor.PlayerIdList.ForEach(x => Utils.SendMessage(message, x, title));
     }
 
     private static void RoleListCommand(PlayerControl player, string text, string[] args)
@@ -598,6 +603,7 @@ internal static class ChatCommands
         Utils.SendMessage(GetString("ReadyCheckMessage"), title: GetString("ReadyCheckTitle"));
         ReadyPlayers = [player.PlayerId];
         ReadyPlayers.UnionWith(Spectators);
+        Main.Instance.StopCoroutine(Countdown());
         Main.Instance.StartCoroutine(Countdown());
         return;
 
