@@ -27,7 +27,7 @@ internal static class CheckProtectPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (!AmongUsClient.Instance.AmHost || target.Data.IsDead || AntiBlackout.SkipTasks) return false;
+        if (!AmongUsClient.Instance.AmHost || target.Data.IsDead) return false;
 
         Logger.Info($"CheckProtect: {__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckProtect");
 
@@ -2125,7 +2125,7 @@ public static class PlayerControlDiePatch
 {
     public static void Postfix(PlayerControl __instance)
     {
-        if (AmongUsClient.Instance.AmHost) PetsPatch.RpcRemovePet(__instance);
+        if (AmongUsClient.Instance.AmHost) PetsHelper.RpcRemovePet(__instance);
     }
 }
 

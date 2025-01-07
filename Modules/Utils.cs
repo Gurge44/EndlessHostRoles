@@ -2767,8 +2767,8 @@ public static class Utils
 
                     LateTask.New(() =>
                     {
-                        string petId = PetsPatch.GetPetId();
-                        pc.RpcSetPetDesync(petId, pc);
+                        string petId = PetsHelper.GetPetId();
+                        PetsHelper.SetPet(pc, petId);
                     }, 3f, "No Pet Reassign");
                 }
 

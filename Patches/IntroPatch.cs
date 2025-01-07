@@ -866,8 +866,8 @@ internal static class IntroCutsceneDestroyPatch
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
 
-                        string petId = PetsPatch.GetPetId();
-                        pc.RpcSetPetDesync(petId, pc);
+                        string petId = PetsHelper.GetPetId();
+                        PetsHelper.SetPet(pc, petId);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
 

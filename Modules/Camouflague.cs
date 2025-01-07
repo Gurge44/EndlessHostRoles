@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AmongUs.Data;
 using EHR.Impostor;
+using EHR.Modules;
 using EHR.Neutral;
 
 namespace EHR;
@@ -74,7 +75,7 @@ public static class Camouflage
 
     public static void SetPetForOutfitIfNecessary(NetworkedPlayerInfo.PlayerOutfit outfit)
     {
-        if (Options.UsePets.GetBool()) { outfit.PetId = PetsPatch.GetPetId(); }
+        if (Options.UsePets.GetBool()) { outfit.PetId = PetsHelper.GetPetId(); }
     }
 
     private static bool ShouldCamouflage(bool alreadyCamouflaged)
@@ -127,7 +128,7 @@ public static class Camouflage
 
                 RpcSetSkin(pc);
 
-                if (!IsCamouflage && !pc.IsAlive()) PetsPatch.RpcRemovePet(pc);
+                if (!IsCamouflage && !pc.IsAlive()) PetsHelper.RpcRemovePet(pc);
             }
 
             Utils.NotifyRoles(NoCache: true);
@@ -235,7 +236,7 @@ public static class Camouflage
         RpcSetSkin(pc);
         WaitingForSkinChange.Remove(pc.PlayerId);
 
-        if (!IsCamouflage && !pc.IsAlive()) PetsPatch.RpcRemovePet(pc);
+        if (!IsCamouflage && !pc.IsAlive()) PetsHelper.RpcRemovePet(pc);
 
         Utils.NotifyRoles(SpecifySeer: pc, NoCache: true);
         Utils.NotifyRoles(SpecifyTarget: pc, NoCache: true);
