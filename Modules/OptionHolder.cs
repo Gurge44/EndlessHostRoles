@@ -235,6 +235,9 @@ public static class Options
     public static OptionItem MadmateKnowWhosImp;
     public static OptionItem MadmateKnowWhosMadmate;
 
+    public static OptionItem MinMadmateRoles;
+    public static OptionItem MaxMadmateRoles;
+
     public static OptionItem MadmateHasImpostorVision;
 
     public static OptionItem ImpCanKillMadmate;
@@ -980,12 +983,13 @@ public static class Options
 
         int id = 19820;
 
-        foreach (Team team in Enum.GetValues<Team>()[1..3])
+        foreach (Team team in new[] { Team.Impostor, Team.Neutral, Team.Coven })
         {
             (int Min, int Max) defaultNum = team switch
             {
                 Team.Impostor => (1, 3),
                 Team.Neutral => (0, 5),
+                Team.Coven => (0, 3),
                 _ => (0, 15)
             };
 
@@ -993,17 +997,18 @@ public static class Options
             {
                 Team.Impostor => TabGroup.ImpostorRoles,
                 Team.Neutral => TabGroup.NeutralRoles,
+                Team.Coven => TabGroup.CovenRoles,
                 _ => TabGroup.OtherRoles
             };
 
             var minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), defaultNum.Min, tab)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
-                .SetColor(team.GetTeamColor());
+                .SetColor(team.GetColor());
 
             var maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), defaultNum.Max, tab)
                 .SetGameMode(CustomGameMode.Standard)
-                .SetColor(team.GetTeamColor());
+                .SetColor(team.GetColor());
 
             FactionMinMaxSettings[team] = (minSetting, maxSetting);
         }
@@ -1078,6 +1083,13 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds);
 
         DeadImpCantSabotage = new BooleanOptionItem(201, "DeadImpCantSabotage", false, TabGroup.ImpostorRoles)
+            .SetGameMode(CustomGameMode.Standard);
+
+        MinMadmateRoles = new IntegerOptionItem(202, "MinMadmateRoles", new(0, 15, 1), 0, TabGroup.ImpostorRoles)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true);
+
+        MaxMadmateRoles = new IntegerOptionItem(203, "MaxMadmateRoles", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.Standard);
 
         NeutralRoleWinTogether = new BooleanOptionItem(208, "NeutralRoleWinTogether", false, TabGroup.NeutralRoles)
@@ -2297,7 +2309,7 @@ public static class Options
 
         NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
         {
-            Color teamColor = x.GetTeamColor();
+            Color teamColor = x.GetColor();
 
             var min = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Min", new(1, 15, 1), 15, TabGroup.TaskSettings)
                 .SetParent(GuesserNumRestrictions)

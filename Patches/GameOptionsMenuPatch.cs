@@ -733,6 +733,13 @@ public static class StringOptionPatch
             5 => [Team.Impostor, Team.Crewmate],
             6 => [Team.Neutral, Team.Crewmate],
             7 => [Team.Impostor, Team.Neutral, Team.Crewmate],
+            9 => [Team.Impostor, Team.Coven],
+            10 => [Team.Neutral, Team.Coven],
+            11 => [Team.Impostor, Team.Neutral, Team.Coven],
+            12 => [Team.Crewmate, Team.Coven],
+            13 => [Team.Impostor, Team.Crewmate, Team.Coven],
+            14 => [Team.Neutral, Team.Crewmate, Team.Coven],
+            15 => [Team.Impostor, Team.Neutral, Team.Crewmate, Team.Coven],
             _ => []
         };
 
@@ -740,7 +747,7 @@ public static class StringOptionPatch
 
         string GetColoredShortTeamName(Team t)
         {
-            return Utils.ColorString(t.GetTeamColor(), Translator.GetString($"ShortTeamName.{t}").ToUpper());
+            return Utils.ColorString(t.GetColor(), Translator.GetString($"ShortTeamName.{t}").ToUpper());
         }
     }
 
@@ -882,8 +889,9 @@ public class GameSettingMenuPatch
     public static void StartPostfix(GameSettingMenu __instance)
     {
         ModSettingsButtons = [];
+        TabGroup[] tabGroups = Enum.GetValues<TabGroup>();
 
-        foreach (TabGroup tab in Enum.GetValues<TabGroup>())
+        foreach (TabGroup tab in tabGroups)
         {
             PassiveButton button = Object.Instantiate(TemplateGameSettingsButton, __instance.GameSettingsButton.transform.parent);
             button.gameObject.SetActive(true);
@@ -903,7 +911,8 @@ public class GameSettingMenuPatch
                 TabGroup.ImpostorRoles => new(0.5f, 0.2f, 0.2f),
                 TabGroup.CrewmateRoles => new(0.2f, 0.4f, 0.5f),
                 TabGroup.NeutralRoles => new(0.5f, 0.4f, 0.2f),
-                TabGroup.Addons => new(0.5f, 0.2f, 0.4f),
+                TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
+                TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
                 TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
                 _ => new(0.3f, 0.3f, 0.3f)
             };
@@ -913,7 +922,7 @@ public class GameSettingMenuPatch
             button.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
             // ReSharper disable once PossibleLossOfFraction
-            Vector3 offset = new(0f, 0.4f * (((int)tab + 1) / 2), 0f);
+            Vector3 offset = new(0f, 0.35f * (((int)tab + 1) / 2), 0f);
             button.transform.localPosition = (((int)tab + 1) % 2 == 0 ? ButtonPositionLeft : ButtonPositionRight) - offset;
             button.transform.localScale = ButtonSize;
 
@@ -926,7 +935,7 @@ public class GameSettingMenuPatch
 
         ModSettingsTabs = [];
 
-        foreach (TabGroup tab in Enum.GetValues<TabGroup>())
+        foreach (TabGroup tab in tabGroups)
         {
             GameOptionsMenu setTab = Object.Instantiate(TemplateGameOptionsMenu, __instance.GameSettingsTab.transform.parent);
             setTab.name = "tab_" + tab;
@@ -935,7 +944,7 @@ public class GameSettingMenuPatch
             ModSettingsTabs.Add(tab, setTab);
         }
 
-        foreach (TabGroup tab in Enum.GetValues<TabGroup>())
+        foreach (TabGroup tab in tabGroups)
             if (ModSettingsButtons.TryGetValue(tab, out PassiveButton button))
                 __instance.ControllerSelectable.Add(button);
 
@@ -1186,11 +1195,13 @@ public class GameSettingMenuPatch
 
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
         {
-            foreach (TabGroup tab in Enum.GetValues<TabGroup>())
+            TabGroup[] tabGroups = Enum.GetValues<TabGroup>();
+
+            foreach (TabGroup tab in tabGroups)
                 if (ModSettingsTabs.TryGetValue(tab, out settingsTab) && settingsTab != null)
                     settingsTab.gameObject.SetActive(false);
 
-            foreach (TabGroup tab in Enum.GetValues<TabGroup>())
+            foreach (TabGroup tab in tabGroups)
                 if (ModSettingsButtons.TryGetValue(tab, out button) && button != null)
                     button.SelectButton(false);
         }

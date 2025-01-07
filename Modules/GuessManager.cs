@@ -1152,6 +1152,7 @@ public static class GuessManager
                 CustomRoles.EvilGuesser => true,
                 CustomRoles.NiceGuesser => true,
                 CustomRoles.NecroGuesser => true,
+                CustomRoles.Augur => true,
                 CustomRoles.Doomsayer when !Doomsayer.CantGuess => true,
                 CustomRoles.Lyncher when Lyncher.GuessMode.GetValue() == 2 => true,
                 _ when Options.GuesserMode.GetBool() => lp.GetTeam() switch

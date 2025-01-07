@@ -62,6 +62,7 @@ public class Marshall : RoleBase
             Team.Neutral => SeeingTeamOptions[SeeingTeam.NNK].GetBool(),
             Team.Impostor when madmate => SeeingTeamOptions[SeeingTeam.Madmate].GetBool(),
             Team.Impostor => SeeingTeamOptions[SeeingTeam.Imp].GetBool(),
+            Team.Coven => SeeingTeamOptions[SeeingTeam.Coven].GetBool(),
             _ => false
         };
     }
@@ -71,6 +72,7 @@ public class Marshall : RoleBase
         NNK,
         NK,
         Imp,
-        Madmate
+        Madmate,
+        Coven
     }
 }

@@ -1084,8 +1084,8 @@ internal static class CustomRolesHelper
 
     public static Team GetTeam(this CustomRoles role)
     {
+        if (role.IsCoven()) return Team.Coven;
         if (role.IsImpostorTeamV2()) return Team.Impostor;
-
         if (role.IsNeutralTeamV2()) return Team.Neutral;
 
         return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;
@@ -1095,12 +1095,31 @@ internal static class CustomRolesHelper
     {
         return team switch
         {
+            Team.Coven => role.IsCoven(),
             Team.Impostor => role.IsImpostorTeamV2(),
             Team.Neutral => role.IsNeutralTeamV2(),
             Team.Crewmate => role.IsCrewmateTeamV2(),
             Team.None => role.GetCountTypes() is CountTypes.OutOfGame or CountTypes.None || role == CustomRoles.GM,
             _ => false
         };
+    }
+
+    public static bool IsCoven(this CustomRoles role)
+    {
+        return role is
+            CustomRoles.CovenLeader or
+            CustomRoles.SpellCaster or
+            CustomRoles.PotionMaster or
+            CustomRoles.Poache or
+            CustomRoles.Reaper or
+            CustomRoles.VoodooMaster or
+            CustomRoles.Goddess or
+            CustomRoles.Augur or
+            CustomRoles.Dreamweaver or
+            CustomRoles.Banshee or
+            CustomRoles.Illusionist or
+            CustomRoles.Timelord or
+            CustomRoles.Enchanter;
     }
 
     public static RoleTypes GetRoleTypes(this CustomRoles role)
@@ -1281,10 +1300,11 @@ internal static class CustomRolesHelper
         };
     }
 
-    public static Color GetTeamColor(this Team team)
+    public static Color GetColor(this Team team)
     {
         return ColorUtility.TryParseHtmlString(team switch
         {
+            Team.Coven => Main.CovenColor,
             Team.Crewmate => Main.CrewmateColor,
             Team.Neutral => Main.NeutralColor,
             Team.Impostor => Main.ImpostorColor,
@@ -1292,6 +1312,18 @@ internal static class CustomRolesHelper
         }, out Color color)
             ? color
             : Color.clear;
+    }
+
+    public static string GetTextColor(this Team team)
+    {
+        return team switch
+        {
+            Team.Coven => Main.CovenColor,
+            Team.Crewmate => Main.CrewmateColor,
+            Team.Neutral => Main.NeutralColor,
+            Team.Impostor => Main.ImpostorColor,
+            _ => string.Empty
+        };
     }
 
     public static string ToColoredString(this CustomRoles role)

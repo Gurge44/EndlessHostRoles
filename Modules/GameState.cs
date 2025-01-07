@@ -134,7 +134,6 @@ public class PlayerState(byte playerId)
         if (!Main.HasJustStarted)
         {
             Player.ResetKillCooldown();
-            Player.SyncSettings();
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
 

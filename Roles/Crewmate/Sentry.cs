@@ -62,6 +62,7 @@ internal class Sentry : RoleBase
 
         Enum.GetValues<SimpleTeam>().Do(x =>
         {
+            // ReSharper disable once AccessToModifiedClosure
             TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
                 .SetParent(UsableDevicesForInfoView);
         });
@@ -278,6 +279,7 @@ internal class Sentry : RoleBase
     {
         SimpleTeam team = pc.GetTeam() switch
         {
+            Team.Coven => SimpleTeam.Coven,
             Team.Crewmate => SimpleTeam.Crewmate,
             Team.Impostor => SimpleTeam.Impostor,
             Team.Neutral => pc.IsNeutralKiller() ? SimpleTeam.NK : SimpleTeam.NNK,
@@ -318,6 +320,7 @@ internal class Sentry : RoleBase
         Crewmate,
         Impostor,
         NK,
-        NNK
+        NNK,
+        Coven
     }
 }

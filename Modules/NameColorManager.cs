@@ -100,19 +100,7 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Undead) && target.Is(CustomRoles.Undead)) color = Main.RoleColors[CustomRoles.Undead];
 
         // Ghost roles
-        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(target.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
-        {
-            if (seer.GetTeam() == ghostRole.Instance.Team)
-            {
-                color = ghostRole.Instance.Team switch
-                {
-                    Team.Impostor => Main.ImpostorColor,
-                    Team.Crewmate => Main.CrewmateColor,
-                    Team.Neutral => Main.NeutralColor,
-                    _ => color
-                };
-            }
-        }
+        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(target.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole) && seer.GetTeam() == ghostRole.Instance.Team) { color = ghostRole.Instance.Team.GetTextColor(); }
 
         if (isMeeting && Haunter.AllHauntedPlayers.Contains(target.PlayerId)) color = Main.ImpostorColor;
 
@@ -167,20 +155,8 @@ public static class NameColorManager
             CustomRoles.Beehive when ((Beehive)seerRoleClass).StungPlayers.ContainsKey(target.PlayerId) => "000000",
             CustomRoles.Dad when ((Dad)seerRoleClass).DrunkPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Wasp when seerRoleClass is Wasp wasp && (wasp.DelayedKills.ContainsKey(target.PlayerId) || wasp.MeetingKills.Contains(target.PlayerId)) => "000000",
-            CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam() switch
-            {
-                Team.Impostor => Main.ImpostorColor,
-                Team.Crewmate => Main.CrewmateColor,
-                Team.Neutral => Main.NeutralColor,
-                _ => color
-            },
-            CustomRoles.Curser when ((Curser)seerRoleClass).KnownFactionPlayers.Contains(target.PlayerId) => target.GetTeam() switch
-            {
-                Team.Impostor => Main.ImpostorColor,
-                Team.Crewmate => Main.CrewmateColor,
-                Team.Neutral => Main.NeutralColor,
-                _ => color
-            },
+            CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam().GetTextColor(),
+            CustomRoles.Curser when ((Curser)seerRoleClass).KnownFactionPlayers.Contains(target.PlayerId) => target.GetTeam().GetTextColor(),
             _ => color
         };
 

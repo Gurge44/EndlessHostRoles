@@ -359,6 +359,22 @@ public enum CustomRoles
     Weatherman,
     Workaholic,
 
+    // Coven
+
+    CovenLeader,
+    SpellCaster,
+    PotionMaster,
+    Poache,
+    Reaper,
+    VoodooMaster,
+    Goddess,
+    Augur,
+    Dreamweaver,
+    Banshee,
+    Illusionist,
+    Timelord,
+    Enchanter,
+
     // Solo Kombat
     KB_Normal,
 

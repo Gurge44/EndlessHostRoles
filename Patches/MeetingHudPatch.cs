@@ -424,13 +424,9 @@ internal static class CheckForEndVotingPatch
                         name += Utils.ColorString(team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color color) ? Color.yellow : color, team.RoleRevealScreenTitle == "*" ? team.TeamName : team.RoleRevealScreenTitle);
                     else
                     {
-                        name += player.GetTeam() switch
-                        {
-                            Team.Impostor => Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor")),
-                            Team.Neutral => Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")),
-                            Team.Crewmate => Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate")),
-                            _ => "----"
-                        };
+                        var color = player.GetTeam().GetColor();
+                        var str = GetString($"Team{player.GetTeam()}");
+                        name += Utils.ColorString(color, str);
                     }
 
                     name += ")";

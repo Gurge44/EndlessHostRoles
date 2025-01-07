@@ -42,6 +42,7 @@ public class Main : BasePlugin
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
+    public const string CovenColor = "#7b3fbb";
 
     public const float MinSpeed = 0.0001f;
 
@@ -687,7 +688,7 @@ public class Main : BasePlugin
         }
         catch (ArgumentException ex)
         {
-            Logger.Error("错误：字典出现重复项", "LoadDictionary");
+            Logger.Error("Error: Duplicate keys", "LoadDictionary");
             Logger.Exception(ex, "LoadDictionary");
             HasArgumentException = true;
         }
@@ -802,13 +803,21 @@ public enum Team
     None = 0,
     Impostor = 1,
     Neutral = 2,
-    Crewmate = 4
+    Crewmate = 4,
+    Coven = 8
 
     /*
      * Impostor | Neutral = 3
      * Impostor | Crewmate = 5
      * Neutral | Crewmate = 6
      * Impostor | Neutral | Crewmate = 7
+     * Impostor | Coven = 9
+     * Neutral | Coven = 10
+     * Impostor | Neutral | Coven = 11
+     * Crewmate | Coven = 12
+     * Impostor | Crewmate | Coven = 13
+     * Neutral | Crewmate | Coven = 14
+     * Impostor | Neutral | Crewmate | Coven = 15
      */
 }
 

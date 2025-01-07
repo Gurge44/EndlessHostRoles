@@ -10,6 +10,7 @@ internal class Haunter : IGhostRole
     public static HashSet<byte> AllHauntedPlayers = [];
 
     public static OptionItem TasksBeforeBeingKnown;
+    private static OptionItem RevealCovenMembers;
     private static OptionItem RevealNeutralKillers;
     private static OptionItem RevealMadmates;
     private static OptionItem NumberOfReveals;
@@ -58,19 +59,22 @@ internal class Haunter : IGhostRole
         TasksBeforeBeingKnown = new IntegerOptionItem(649302, "Haunter.TasksBeforeBeingKnown", new(1, 10, 1), 1, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
 
-        RevealNeutralKillers = new BooleanOptionItem(649303, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
+        RevealCovenMembers = new BooleanOptionItem(649303, "Haunter.RevealCovenMembers", true, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
 
-        RevealMadmates = new BooleanOptionItem(649304, "Haunter.RevealMadmates", true, TabGroup.OtherRoles)
+        RevealNeutralKillers = new BooleanOptionItem(649304, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
 
-        NumberOfReveals = new IntegerOptionItem(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
+        RevealMadmates = new BooleanOptionItem(649305, "Haunter.RevealMadmates", true, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
 
-        CanWinWithCrewmates = new StringOptionItem(649306, "Haunter.CanWinWithCrewmates", WinWithCrewOpts, 1, TabGroup.OtherRoles)
+        NumberOfReveals = new IntegerOptionItem(649306, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
 
-        Options.OverrideTasksData.Create(649307, TabGroup.OtherRoles, CustomRoles.Haunter);
+        CanWinWithCrewmates = new StringOptionItem(649307, "Haunter.CanWinWithCrewmates", WinWithCrewOpts, 1, TabGroup.OtherRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+
+        Options.OverrideTasksData.Create(649308, TabGroup.OtherRoles, CustomRoles.Haunter);
     }
 
     public void OnOneTaskLeft(PlayerControl pc)

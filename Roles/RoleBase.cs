@@ -187,7 +187,8 @@ public abstract class RoleBase : IComparable<RoleBase>
         var role = Enum.Parse<CustomRoles>(GetType().Name, true);
         var tab = TabGroup.OtherRoles;
 
-        if (role.IsImpostor()) tab = TabGroup.ImpostorRoles;
+        if (role.IsCoven()) tab = TabGroup.CovenRoles;
+        else if (role.IsImpostor()) tab = TabGroup.ImpostorRoles;
         else if (role.IsNeutral(true)) tab = TabGroup.NeutralRoles;
         else if (role.IsCrewmate()) tab = TabGroup.CrewmateRoles;
 

@@ -2019,7 +2019,7 @@ public static class Utils
                     const string iconTextRight = "<color=#ffffff>\u21e6</color>";
                     const string roleNameUp = "</size><size=1450%>\n \n</size>";
 
-                    var selfTeamName = $"<size=450%>{iconTextLeft} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetTeamColor(), $"{seerTeam}")}</font> {iconTextRight}</size><size=500%>\n \n</size>";
+                    var selfTeamName = $"<size=450%>{iconTextLeft} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetColor(), $"{seerTeam}")}</font> {iconTextRight}</size><size=500%>\n \n</size>";
                     SelfName = $"{selfTeamName}\r\n<size=150%>{seerRole.ToColoredString()}</size>{roleNameUp}";
 
                     seer.RpcSetNamePrivate(SelfName, seer);
@@ -2196,15 +2196,10 @@ public static class Utils
                         {
                             bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && GameStartTimeStamp + description.Duration > now;
                             string mHelp = (!showLongInfo || description.Long) && CustomGameMode.Standard.IsActiveOrIntegrated() ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
-
-                            SeerRealName = seerTeam switch
-                            {
-                                Team.Impostor when seer.IsMadmate() => $"<size=150%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
-                                Team.Impostor => $"\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
-                                Team.Crewmate => $"<size=150%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
-                                Team.Neutral => $"<size=150%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
-                                _ => SeerRealName
-                            };
+                            string color = seerTeam.GetTextColor();
+                            string teamStr = seerTeam == Team.Impostor && seer.IsMadmate() ? "Madmate" : seerTeam.ToString();
+                            string info = (showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp;
+                            SeerRealName = $"<color={color}>{GetString($"YouAre{teamStr}")}</color>\n<size=90%>{info}</size>";
                         }
                     }
                 }

@@ -209,7 +209,7 @@ internal static class CheckMurderPatch
             if (!Main.KilledAntidote.TryAdd(killer.PlayerId, 1))
                 Main.KilledAntidote[killer.PlayerId] += 1;
 
-        killer.ResetKillCooldown();
+        killer.ResetKillCooldown(false);
 
         if (killer.PlayerId != target.PlayerId && !killer.CanUseKillButton())
         {

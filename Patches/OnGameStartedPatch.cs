@@ -246,6 +246,7 @@ internal static class ChangeRoleSettings
             GameEndChecker.Ended = false;
 
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned = [];
+            Coven.Coven.CovenMeetingStartPatch.MeetingNum = 0;
 
             AFKDetector.ShieldedPlayers.Clear();
 
@@ -787,7 +788,7 @@ internal static class StartGameHostPatch
             HudManager.Instance.SetHudActive(true);
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
-                pc.ResetKillCooldown();
+                pc.ResetKillCooldown(false);
 
 
             foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using HarmonyLib;
 
 namespace EHR.Coven;
 
@@ -25,5 +26,16 @@ public abstract class Coven : RoleBase
         var receiver = covenPlayers.Find(x => x.NecronomiconReceivePriority == NecronomiconReceivePriorities.First) ?? covenPlayers.RandomElement();
         receiver.HasNecronomicon = true;
         receiver.OnReceiveNecronomicon();
+    }
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class CovenMeetingStartPatch
+    {
+        public static int MeetingNum;
+
+        public static void Postfix()
+        {
+            if (++MeetingNum >= 3) GiveNecronomicon();
+        }
     }
 }
