@@ -159,7 +159,7 @@ public class PlayerState(byte playerId)
             if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                 Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 
-            if (Options.UsePets.GetBool()) Player.RpcSetPetDesync(PetsPatch.GetPetId(), Player);
+            if (Options.UsePets.GetBool()) PetsHelper.SetPet(Player, PetsHelper.GetPetId());
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);

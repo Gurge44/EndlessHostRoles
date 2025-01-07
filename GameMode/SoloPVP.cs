@@ -259,7 +259,7 @@ internal static class SoloPVP
         OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
         target.MyPhysics.RpcCancelPet();
-        PetsPatch.RpcRemovePet(target);
+        PetsHelper.RpcRemovePet(target);
 
         target.TP(Pelican.GetBlackRoomPS());
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;

@@ -6,6 +6,7 @@ using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
 using EHR.Crewmate;
 using EHR.Impostor;
+using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 
@@ -102,7 +103,7 @@ internal static class ExileControllerWrapUpPatch
 
             pc.ResetKillCooldown(false);
             pc.RpcResetAbilityCooldown();
-            PetsPatch.RpcRemovePet(pc);
+            PetsHelper.RpcRemovePet(pc);
         }
 
         if (Options.RandomSpawn.GetBool())
