@@ -327,6 +327,7 @@ internal static class CustomRolesHelper
             CustomRoles.Godfather => CustomRoles.Impostor,
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.NoteKiller => CustomRoles.Crewmate,
+            CustomRoles.Augur => CustomRoles.Crewmate,
 
             // Vanilla roles (just in case)
             CustomRoles.ImpostorEHR => CustomRoles.Impostor,
@@ -502,6 +503,21 @@ internal static class CustomRolesHelper
             CustomRoles.Spiritcaller => RoleTypes.Impostor,
             CustomRoles.Doppelganger => RoleTypes.Impostor,
             CustomRoles.Wizard => RoleTypes.Shapeshifter,
+
+            CustomRoles.CovenLeader => RoleTypes.Impostor,
+            CustomRoles.SpellCaster => RoleTypes.Impostor,
+            CustomRoles.PotionMaster => RoleTypes.Impostor,
+            CustomRoles.Poache => RoleTypes.Impostor,
+            CustomRoles.Reaper => RoleTypes.Impostor,
+            CustomRoles.Death => RoleTypes.Impostor,
+            CustomRoles.VoodooMaster => RoleTypes.Impostor,
+            CustomRoles.Goddess => RoleTypes.Phantom,
+            CustomRoles.Dreamweaver => RoleTypes.Impostor,
+            CustomRoles.Banshee => RoleTypes.Phantom,
+            CustomRoles.Illusionist => RoleTypes.Shapeshifter,
+            CustomRoles.Timelord => RoleTypes.Impostor,
+            CustomRoles.Enchanter => RoleTypes.Impostor,
+
             _ => RoleTypes.GuardianAngel
         };
     }
@@ -588,7 +604,7 @@ internal static class CustomRolesHelper
 
     public static bool IsSnitchTarget(this CustomRoles role)
     {
-        return role.IsNK() || role.Is(Team.Impostor);
+        return role.IsNK() || role.Is(Team.Impostor) || role.IsCoven();
     }
 
     public static bool IsGhostRole(this CustomRoles role)
@@ -896,6 +912,7 @@ internal static class CustomRolesHelper
     public static bool ForceCancelShapeshift(this CustomRoles role)
     {
         return role is
+            CustomRoles.Illusionist or
             CustomRoles.Swapster or
             CustomRoles.Echo or
             CustomRoles.Hangman or
@@ -1296,7 +1313,9 @@ internal static class CustomRolesHelper
                 ? type
                 : role.Is(Team.Impostor) || role == CustomRoles.Trickster
                     ? CountTypes.Impostor
-                    : CountTypes.Crew
+                    : role.IsCoven()
+                        ? CountTypes.Coven
+                        : CountTypes.Crew
         };
     }
 
@@ -1781,5 +1800,7 @@ public enum CountTypes
     Glitch,
     Arsonist,
     Cherokious,
-    Sheriff
+    Sheriff,
+
+    Coven
 }

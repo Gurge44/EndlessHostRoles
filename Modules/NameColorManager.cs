@@ -1,6 +1,7 @@
 using System.Linq;
 using EHR.AddOns.Common;
 using EHR.AddOns.GhostRoles;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
@@ -157,6 +158,11 @@ public static class NameColorManager
             CustomRoles.Wasp when seerRoleClass is Wasp wasp && (wasp.DelayedKills.ContainsKey(target.PlayerId) || wasp.MeetingKills.Contains(target.PlayerId)) => "000000",
             CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam().GetTextColor(),
             CustomRoles.Curser when ((Curser)seerRoleClass).KnownFactionPlayers.Contains(target.PlayerId) => target.GetTeam().GetTextColor(),
+            CustomRoles.Poache when Poache.PoachedPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Reaper when ((Reaper)seerRoleClass).CursedPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Dreamweaver when ((Dreamweaver)seerRoleClass).InsanePlayers.Contains(target.PlayerId) || target.Is(CustomRoles.Insane) => "000000",
+            CustomRoles.Banshee when ((Banshee)seerRoleClass).ScreechedPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Illusionist when ((Illusionist)seerRoleClass).SampledPlayerId == target.PlayerId => "000000",
             _ => color
         };
 

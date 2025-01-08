@@ -366,6 +366,7 @@ public enum CustomRoles
     PotionMaster,
     Poache,
     Reaper,
+    Death, // Reaper changes to Death
     VoodooMaster,
     Goddess,
     Augur,
@@ -462,6 +463,7 @@ public enum CustomRoles
     Guesser,
     Haste,
     Haunter, // Ghost role
+    Insane,
     Introvert,
     Knighted,
     LastImpostor,

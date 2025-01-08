@@ -14,6 +14,7 @@ using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.AddOns.Impostor;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
@@ -2116,6 +2117,7 @@ public static class Utils
                     {
                         SelfMark.Append(Witch.GetSpelledMark(seer.PlayerId, isForMeeting));
                         if (isForMeeting) SelfMark.Append(Wasp.GetStungMark(seer.PlayerId));
+                        if (isForMeeting) SelfMark.Append(SpellCaster.IsSpelled(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
                     }
 
                     GameMode:
@@ -2276,6 +2278,7 @@ public static class Utils
 
                             TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
                             if (isForMeeting) TargetMark.Append(Wasp.GetStungMark(target.PlayerId));
+                            if (isForMeeting) TargetMark.Append(SpellCaster.IsSpelled(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
 
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
@@ -2895,6 +2898,10 @@ public static class Utils
                 case CustomRoles.Medic:
                     Medic.IsDead(target);
                     break;
+                case CustomRoles.Dreamweaver:
+                    ((Dreamweaver)Main.PlayerStates[target.PlayerId].Role).InsanePlayers.Clear();
+                    Main.PlayerStates.Values.Do(x => x.RemoveSubRole(CustomRoles.Insane));
+                    break;
             }
 
             if (target == null) return;
@@ -2930,6 +2937,7 @@ public static class Utils
 
             Adventurer.OnAnyoneDead(target);
             Whisperer.OnAnyoneDied(target);
+            Reaper.OnAnyoneDead(target);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 

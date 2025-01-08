@@ -493,7 +493,7 @@ internal static class EAC
 
     internal static bool CheckInvalidSabotage(SystemTypes systemType, PlayerControl player, byte amount)
     {
-        if (player.IsHost() || !AmongUsClient.Instance.AmHost) return false;
+        if (player.IsModClient() || !AmongUsClient.Instance.AmHost) return false;
 
         if ((GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
         {
@@ -504,22 +504,19 @@ internal static class EAC
             return true;
         }
 
-        byte Mapid = Main.NormalOptions.MapId;
+        byte mapid = Main.NormalOptions.MapId;
 
         switch (systemType)
         {
             case SystemTypes.LifeSupp:
-                if (Mapid != 0 && Mapid != 1 && Mapid != 3) goto Cheat;
-
+                if (mapid != 0 && mapid != 1 && mapid != 3) goto Cheat;
                 if (amount != 64 && amount != 65) goto Cheat;
-
                 break;
             case SystemTypes.Comms:
                 switch (amount)
                 {
                     case 0:
-                        if (Mapid is 1 or 5) goto Cheat;
-
+                        if (mapid is 1 or 5) goto Cheat;
                         break;
                     case 64:
                     case 65:
@@ -527,8 +524,7 @@ internal static class EAC
                     case 33:
                     case 16:
                     case 17:
-                        if (Mapid is not (1 or 5)) goto Cheat;
-
+                        if (mapid is not (1 or 5)) goto Cheat;
                         break;
                     default:
                         goto Cheat;
@@ -536,28 +532,20 @@ internal static class EAC
 
                 break;
             case SystemTypes.Electrical:
-                if (Mapid == 5) goto Cheat;
-
+                if (mapid == 5) goto Cheat;
                 if (amount >= 5) goto Cheat;
-
                 break;
             case SystemTypes.Laboratory:
-                if (Mapid != 2) goto Cheat;
-
+                if (mapid != 2) goto Cheat;
                 if (amount is not (64 or 65 or 32 or 33)) goto Cheat;
-
                 break;
             case SystemTypes.Reactor:
-                if (Mapid is 2 or 4) goto Cheat;
-
+                if (mapid is 2 or 4) goto Cheat;
                 if (amount is not (64 or 65 or 32 or 33)) goto Cheat;
-
                 break;
             case SystemTypes.HeliSabotage:
-                if (Mapid != 4) goto Cheat;
-
+                if (mapid != 4) goto Cheat;
                 if (amount is not (64 or 65 or 16 or 17 or 32 or 33)) goto Cheat;
-
                 break;
             case SystemTypes.MushroomMixupSabotage:
                 goto Cheat;

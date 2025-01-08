@@ -5,6 +5,7 @@ using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
@@ -331,6 +332,9 @@ public class PlayerState(byte playerId)
 
         if (AmongUsClient.Instance.AmHost)
         {
+            if (Enchanter.EnchantedPlayers.Contains(PlayerId))
+                deathReason = Enum.GetValues<DeathReason>().RandomElement();
+
             RPC.SendDeathReason(PlayerId, deathReason);
             Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));
 
@@ -354,9 +358,9 @@ public class PlayerState(byte playerId)
         return IsDead && RealKiller.TimeStamp != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
     }
 
-    public int GetKillCount(bool ExcludeSelfKill = false)
+    public int GetKillCount(bool excludeSelfKill = false)
     {
-        return Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).ToArray().Length;
+        return Main.PlayerStates.Values.Count(state => !(excludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId);
     }
 }
 

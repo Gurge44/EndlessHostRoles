@@ -923,6 +923,8 @@ public enum CustomWinner
     Cherokious = CustomRoles.Cherokious,
     Specter = CustomRoles.Specter,
 
+    Coven = CustomRoles.CovenLeader,
+
     Bloodlust = CustomRoles.Bloodlust
 }
 

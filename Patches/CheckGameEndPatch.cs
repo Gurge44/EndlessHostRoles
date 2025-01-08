@@ -505,15 +505,16 @@ internal static class GameEndChecker
 
             int Imp = AlivePlayersCount(CountTypes.Impostor);
             int Crew = AlivePlayersCount(CountTypes.Crew) + sheriffCount;
+            int Coven = AlivePlayersCount(CountTypes.Coven);
 
-            Dictionary<(CustomRoles? ROLE, CustomWinner WINNER), int> roleCounts = [];
+            Dictionary<(CustomRoles? Role, CustomWinner Winner), int> roleCounts = [];
 
             foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
             {
                 if ((!role.IsNK() && role is not CustomRoles.Bloodlust and not CustomRoles.Gaslighter) || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
 
                 CountTypes countTypes = role.GetCountTypes();
-                if (countTypes is CountTypes.Crew or CountTypes.Impostor or CountTypes.None or CountTypes.OutOfGame or CountTypes.CustomTeam) continue;
+                if (countTypes is CountTypes.Crew or CountTypes.Impostor or CountTypes.None or CountTypes.OutOfGame or CountTypes.CustomTeam or CountTypes.Coven) continue;
 
                 CustomRoles? keyRole = role.IsRecruitingRole() ? null : role;
                 var keyWinner = (CustomWinner)role;
@@ -528,18 +529,14 @@ internal static class GameEndChecker
                 {
                     if (!x.Is(CustomRoles.DualPersonality)) continue;
 
-                    if (x.Is(Team.Impostor))
-                        Imp++;
+                    if (x.Is(Team.Impostor)) Imp++;
                     else if (x.Is(Team.Crewmate)) Crew++;
+                    else if (x.Is(Team.Coven)) Coven++;
 
                     if (x.Is(CustomRoles.Charmed)) roleCounts[(null, CustomWinner.Succubus)]++;
-
                     if (x.Is(CustomRoles.Undead)) roleCounts[(null, CustomWinner.Necromancer)]++;
-
                     if (x.Is(CustomRoles.Sidekick)) roleCounts[(null, CustomWinner.Jackal)]++;
-
                     if (x.Is(CustomRoles.Recruit)) roleCounts[(null, CustomWinner.Jackal)]++;
-
                     if (x.Is(CustomRoles.Contagious)) roleCounts[(null, CustomWinner.Virus)]++;
                 }
             }
@@ -551,26 +548,39 @@ internal static class GameEndChecker
 
             if (totalNKAlive == 0)
             {
-                if (Crew == 0 && Imp == 0)
+                if (Coven == 0)
                 {
-                    reason = GameOverReason.ImpostorByKill;
-                    winner = CustomWinner.None;
-                }
-                else if (Crew <= Imp)
-                {
-                    reason = GameOverReason.ImpostorByKill;
-                    winner = CustomWinner.Impostor;
-                }
-                else if (Imp == 0)
-                {
-                    reason = GameOverReason.HumansByVote;
-                    winner = CustomWinner.Crewmate;
+                    if (Crew == 0 && Imp == 0)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.None;
+                    }
+                    else if (Crew <= Imp)
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        winner = CustomWinner.Impostor;
+                    }
+                    else if (Imp == 0)
+                    {
+                        reason = GameOverReason.HumansByVote;
+                        winner = CustomWinner.Crewmate;
+                    }
+                    else
+                        return false;
+
+                    Logger.Info($"Crew: {Crew}, Imp: {Imp}, Coven: {Coven}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
+                    ResetAndSetWinner((CustomWinner)winner);
                 }
                 else
-                    return false;
+                {
+                    if (Imp >= 1) return false;
+                    if (Crew > Coven) return false;
 
-                Logger.Info($"Crew: {Crew}, Imp: {Imp}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
-                ResetAndSetWinner((CustomWinner)winner);
+                    Logger.Info($"Crew: {Crew}, Imp: {Imp}, Coven: {Coven}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
+                    reason = GameOverReason.ImpostorByKill;
+                    ResetAndSetWinner(CustomWinner.Coven);
+                }
+
                 return true;
             }
 
@@ -583,10 +593,9 @@ internal static class GameEndChecker
 
             switch (aliveCounts.Count)
             {
-                // There are multiple types of NKs alive, game must continue
-                case > 1:
-                    return false;
+                // There are multiple types of NKs alive, the game must continue
                 // If the Sheriff keeps the game going, the game must continue
+                case > 1:
                 case 1 when Sheriff.KeepsGameGoing.GetBool() && sheriffCount > 0:
                     return false;
                 // There is only one type of NK alive, they've won
@@ -594,11 +603,11 @@ internal static class GameEndChecker
                 {
                     if (aliveCounts[0] != roleCounts.Values.Max()) Logger.Warn("There is something wrong here.", "CheckGameEndPatch");
 
-                    foreach (KeyValuePair<(CustomRoles? ROLE, CustomWinner WINNER), int> keyValuePair in roleCounts.Where(keyValuePair => keyValuePair.Value == aliveCounts[0]))
+                    foreach (KeyValuePair<(CustomRoles? Role, CustomWinner Winner), int> keyValuePair in roleCounts.Where(keyValuePair => keyValuePair.Value == aliveCounts[0]))
                     {
                         reason = GameOverReason.ImpostorByKill;
-                        winner = keyValuePair.Key.WINNER;
-                        rl = keyValuePair.Key.ROLE;
+                        winner = keyValuePair.Key.Winner;
+                        rl = keyValuePair.Key.Role;
                         break;
                     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
+using EHR.Coven;
 using EHR.Impostor;
 using EHR.Patches;
 using HarmonyLib;
@@ -203,6 +204,9 @@ public static class ChatManager
 
         if (CustomGameMode.FFA.IsActiveOrIntegrated() && GameStates.InGame && !message.StartsWith('/'))
             FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
+
+        if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.InGame && operate != 1 && Banshee.On)
+            Banshee.OnReceiveChat();
     }
 
     public static void SendPreviousMessagesToAll(bool clear = false)
@@ -252,10 +256,10 @@ public static class ChatManager
         finally { ChatUpdatePatch.DoBlockChat = false; }
     }
 
-    private static void SendRPC(InnerNetObject senderPlayer, string senderMessage)
+    private static void SendRPC(InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
     {
         var writer = CustomRpcSender.Create("MessagesToSend");
-        writer.StartMessage();
+        writer.StartMessage(targetClientId);
 
         writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
             .Write(senderMessage)
@@ -263,5 +267,22 @@ public static class ChatManager
 
         writer.EndMessage();
         writer.SendMessage();
+    }
+
+    public static void ClearChatForSpecificPlayer(PlayerControl target)
+    {
+        var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        if (sender == null) return;
+
+        if (!target.IsLocalPlayer())
+        {
+            var clientId = target.GetClientId();
+            if (clientId == -1) return;
+
+            Loop.Times(20, _ => SendRPC(sender, Utils.EmptyMessage, clientId));
+            return;
+        }
+
+        Loop.Times(20, _ => DestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, Utils.EmptyMessage));
     }
 }

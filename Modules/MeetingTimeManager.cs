@@ -1,5 +1,6 @@
 ﻿using System;
 using AmongUs.GameOptions;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
 using HarmonyLib;
@@ -57,6 +58,8 @@ public static class MeetingTimeManager
             BonusMeetingTime += TimeThief.TotalDecreasedMeetingTime();
         }
 
+        if (Timelord.On) { BonusMeetingTime += -Timelord.GetTotalStolenTime(); }
+
         if (TimeManager.PlayerIdList.Count > 0)
         {
             MeetingTimeMinTimeManager = TimeManager.MadMinMeetingTimeLimit.GetInt();
@@ -67,9 +70,7 @@ public static class MeetingTimeManager
         int TotalMeetingTime = DiscussionTime + VotingTime;
 
         if (TimeManager.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
-
         if (TimeThief.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
-
         if (TimeManager.PlayerIdList.Count == 0 && TimeThief.PlayerIdList.Count == 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
 
         if (BonusMeetingTime >= 0)

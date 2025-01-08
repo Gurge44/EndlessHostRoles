@@ -6,6 +6,7 @@ using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.AddOns.Impostor;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.GameMode.HideAndSeekRoles;
 using EHR.Impostor;
@@ -396,6 +397,7 @@ internal static class CheckMurderPatch
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
             Gaslighter.IsShielded(target) ||
+            !PotionMaster.OnAnyoneCheckMurder(target) ||
             !Grappler.OnAnyoneCheckMurder(target) ||
             !Adventurer.OnAnyoneCheckMurder(target) ||
             !Sentinel.OnAnyoneCheckMurder(killer) ||
@@ -968,6 +970,9 @@ internal static class ReportDeadBodyPatch
                     return false;
 
                 if (!Librarian.OnAnyoneReport(__instance)) return false;
+                if (!Occultist.OnAnyoneReportDeadBody(target)) return false;
+                if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
+                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
 
                 if (!Hypnotist.OnAnyoneReport())
                 {
@@ -977,11 +982,7 @@ internal static class ReportDeadBodyPatch
                     return false;
                 }
 
-                if (!Occultist.OnAnyoneReportDeadBody(target)) return false;
-
-                if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
-
-                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
+                if (killer != null && killer.Is(CustomRoles.Goddess)) return false;
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 

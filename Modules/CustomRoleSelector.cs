@@ -8,17 +8,16 @@ using EHR.Neutral;
 
 namespace EHR.Modules;
 
+// ReSharper disable AccessToModifiedClosure
 internal static class CustomRoleSelector
 {
     public static Dictionary<byte, CustomRoles> RoleResult;
-
     public static int AddScientistNum;
     public static int AddEngineerNum;
     public static int AddShapeshifterNum;
     public static int AddNoisemakerNum;
     public static int AddTrackerNum;
     public static int AddPhantomNum;
-
     public static List<CustomRoles> AddonRolesList = [];
 
     public static void SelectCustomRoles()
@@ -113,6 +112,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.Convict:
                 case CustomRoles.Refugee:
                 case CustomRoles.CovenLeader:
+                case CustomRoles.Death:
                 case CustomRoles.GM:
                 case CustomRoles.NotAssigned:
                     continue;
@@ -194,10 +194,7 @@ internal static class CustomRoleSelector
             var impLimits = subCategoryLimits.Where(x => x.Key.GetTabFromOptionType() == TabGroup.ImpostorRoles).ToDictionary(x => x.Key, x => x.Value);
 
             if (impLimits.Count > 0 && impLimits.Sum(x => x.Value) < optImpNum)
-            {
-                // ReSharper disable once AccessToModifiedClosure
                 impLimits.Keys.Do(x => subCategoryLimits[x] = Options.RoleSubCategoryLimits[x][2].GetInt());
-            }
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
@@ -895,7 +892,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.Autopsy when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.Mare or CustomRoles.Glow or CustomRoles.Sleep when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
-                case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead:
+                case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead or CustomRoles.Insane:
                 case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy: // Assigned at a different function due to role base change
                     continue;
             }
@@ -917,13 +914,9 @@ internal static class CustomRoleSelector
     private class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount)
     {
         public CustomRoles Role => role;
-
         public int SpawnChance => spawnChance;
-
         public int MaxCount => maxCount;
-
         public int AssignedCount { get; set; }
-
         public RoleOptionType OptionType { get; } = role.GetRoleOptionType();
     }
 }
