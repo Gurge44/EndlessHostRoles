@@ -684,7 +684,9 @@ public class Main : BasePlugin
                 { CustomRoles.Taskinator, "#561dd1" }
             };
 
-            Enum.GetValues<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, "#ff1919"));
+            CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
+            allRoles.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
+            allRoles.Where(x => x.IsCoven()).Do(x => RoleColors.TryAdd(x, CovenColor));
         }
         catch (ArgumentException ex)
         {
