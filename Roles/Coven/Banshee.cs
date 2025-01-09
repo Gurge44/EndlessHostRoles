@@ -18,7 +18,7 @@ public class Banshee : Coven
 
     public HashSet<byte> ScreechedPlayers = [];
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
 

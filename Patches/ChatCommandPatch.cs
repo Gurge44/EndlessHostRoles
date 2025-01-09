@@ -387,6 +387,7 @@ internal static class ChatCommands
         StringBuilder sb = new("<size=70%>");
 
         var rot = Enum.GetValues<RoleOptionType>()
+            .Without(RoleOptionType.Coven_Miscellaneous)
             .GroupBy(x => x.ToString().Split('_')[0])
             .ToDictionary(x => Enum.Parse<Team>(x.Key), x => x.ToArray());
 

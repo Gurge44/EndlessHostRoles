@@ -4,7 +4,7 @@ public class Augur : Coven
 {
     public static bool On;
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Never;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Never;
 
     public override bool IsEnable => On;
 

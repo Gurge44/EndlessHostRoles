@@ -1017,6 +1017,8 @@ public static class Options
 
         foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
         {
+            if (roleOptionType == RoleOptionType.Coven_Miscellaneous) continue;
+
             TabGroup tab = roleOptionType.GetTabFromOptionType();
             Color roleOptionTypeColor = roleOptionType.GetRoleOptionTypeColor();
             var options = new OptionItem[3];

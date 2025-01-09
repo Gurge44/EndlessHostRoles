@@ -10,7 +10,7 @@ public class CovenLeader : Coven
 
     private byte CovenLeaderId;
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.First;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.First;
 
     public override bool IsEnable => On;
 
@@ -46,7 +46,7 @@ public class CovenLeader : Coven
         Main.AllPlayerKillCooldown[id] = HasNecronomicon ? Options.DefaultKillCooldown / 2f : Options.DefaultKillCooldown;
     }
 
-    public override void OnReceiveNecronomicon()
+    protected override void OnReceiveNecronomicon()
     {
         CovenLeaderId.GetPlayer().ResetKillCooldown();
     }

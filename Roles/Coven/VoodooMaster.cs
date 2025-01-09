@@ -6,7 +6,7 @@ public class VoodooMaster : Coven
 
     private static OptionItem AbilityCooldown;
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
 

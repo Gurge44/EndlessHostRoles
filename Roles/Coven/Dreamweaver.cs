@@ -15,7 +15,7 @@ public class Dreamweaver : Coven
 
     public HashSet<byte> InsanePlayers = [];
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
 

@@ -9,7 +9,7 @@ public class Timelord : Coven
     private static OptionItem KillCooldown;
     private static OptionItem TimeStolenWithEachKill;
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
 
@@ -46,5 +46,11 @@ public class Timelord : Coven
     public static int GetTotalStolenTime()
     {
         return Main.PlayerStates.Values.Where(x => x.MainRole == CustomRoles.Timelord).Sum(x => x.GetKillCount()) * TimeStolenWithEachKill.GetInt();
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        string stolen = Utils.ColorString(Team.Coven.GetColor().ShadeColor(0.25f), $" -{GetTotalStolenTime()}s");
+        return base.GetProgressText(playerId, comms) + stolen;
     }
 }

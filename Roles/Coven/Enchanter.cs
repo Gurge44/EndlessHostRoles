@@ -11,7 +11,7 @@ public class Enchanter : Coven
 
     public static HashSet<byte> EnchantedPlayers = [];
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
 

@@ -13,7 +13,7 @@ public class SpellCaster : Coven
     private static Dictionary<byte, bool> HexedPlayers = [];
     private static HashSet<byte> PlayerIdList = [];
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
 
@@ -48,7 +48,7 @@ public class SpellCaster : Coven
         return false;
     }
 
-    public override void OnReceiveNecronomicon()
+    protected override void OnReceiveNecronomicon()
     {
         HexedPlayers.SetAllValues(true);
     }

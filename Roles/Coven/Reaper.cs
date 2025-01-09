@@ -18,7 +18,7 @@ public class Reaper : Coven
     private byte ReaperId;
     private int Souls;
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Never;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Never;
 
     public override bool IsEnable => On;
 
@@ -92,7 +92,7 @@ public class Death : Coven
 {
     public static bool On;
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Never;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Never;
 
     public override bool IsEnable => On;
 

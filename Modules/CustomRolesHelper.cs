@@ -1354,6 +1354,7 @@ internal static class CustomRolesHelper
 
     public static RoleOptionType GetRoleOptionType(this CustomRoles role)
     {
+        if (role.IsCoven()) return RoleOptionType.Coven_Miscellaneous;
         if (role.IsImpostor()) return role.GetImpostorRoleCategory();
         if (role.IsCrewmate()) return role.GetCrewmateRoleCategory();
         if (role.IsNeutral(true)) return role.GetNeutralRoleCategory();
@@ -1378,6 +1379,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Neutral_Benign => Utils.GetRoleColor(CustomRoles.Chameleon),
             RoleOptionType.Neutral_Evil => Utils.GetRoleColor(CustomRoles.Mario),
             RoleOptionType.Neutral_Killing => Palette.ImpostorRed,
+            RoleOptionType.Coven_Miscellaneous => Utils.GetRoleColor(CustomRoles.CovenLeader),
             _ => Utils.GetRoleColor(CustomRoles.SwordsMan)
         };
     }
@@ -1399,6 +1401,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Neutral_Benign => TabGroup.NeutralRoles,
             RoleOptionType.Neutral_Evil => TabGroup.NeutralRoles,
             RoleOptionType.Neutral_Killing => TabGroup.NeutralRoles,
+            RoleOptionType.Coven_Miscellaneous => TabGroup.CovenRoles,
             _ => TabGroup.OtherRoles
         };
     }
@@ -1711,7 +1714,8 @@ public enum RoleOptionType
     Crewmate_Chaos,
     Neutral_Benign,
     Neutral_Evil,
-    Neutral_Killing
+    Neutral_Killing,
+    Coven_Miscellaneous
 }
 
 public enum AddonTypes

@@ -19,7 +19,7 @@ public class PotionMaster : Coven
 
     private Dictionary<byte, long> ShieldedPlayers = [];
 
-    public override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
+    protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
 
@@ -72,7 +72,7 @@ public class PotionMaster : Coven
         return false;
     }
 
-    public override void OnReceiveNecronomicon()
+    protected override void OnReceiveNecronomicon()
     {
         PotionMasterId.GetPlayer().ResetKillCooldown();
     }
@@ -133,6 +133,6 @@ public class PotionMaster : Coven
         if (seer.PlayerId != target.PlayerId && seer.PlayerId != PotionMasterId) return string.Empty;
         if (!ShieldedPlayers.TryGetValue(target.PlayerId, out var shieldExpireTS)) return string.Empty;
 
-        return string.Format(Translator.GetString("PotionMaster.Suffix"), shieldExpireTS - Utils.TimeStamp);
+        return string.Format(Translator.GetString("PotionMaster.Suffix"), shieldExpireTS - Utils.TimeStamp, Main.CovenColor);
     }
 }
