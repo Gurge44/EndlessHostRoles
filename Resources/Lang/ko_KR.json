@@ -2763,6 +2763,7 @@
   "TabGroup.Addons": "Add-Ons",
   "TabGroup.OtherRoles": "Ghost Roles",
   "TabGroup.TaskSettings": "Game Modifiers",
+  "TabGroup.CovenRoles": "Coven Roles",
   "TabInfo.VanillaSettings": "Base game settings",
   "TabInfo.PresetSettings": "Pre-set game settings, made by you",
   "TabInfo.SystemSettings": "Base settings for the mod itself",
