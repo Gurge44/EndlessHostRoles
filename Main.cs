@@ -144,7 +144,7 @@ public class Main : BasePlugin
 
     private Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
+    public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }

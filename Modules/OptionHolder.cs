@@ -170,9 +170,9 @@ public static class Options
         "pet_RANDOM_FOR_EVERYONE"
     ];
 
-    public static float DefaultKillCooldown = Main.NormalOptions?.KillCooldown ?? 25;
+    public static float DefaultKillCooldown = Main.NormalOptions == null ? 25 : Main.NormalOptions.KillCooldown;
 
-    public static Dictionary<GameStateInfo, OptionItem> GameStateSettings = [];
+    public static readonly Dictionary<GameStateInfo, OptionItem> GameStateSettings = [];
     public static OptionItem MinPlayersForGameStateCommand;
 
     public static OptionItem DisableMeeting;
