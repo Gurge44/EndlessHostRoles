@@ -151,7 +151,7 @@ internal static class CustomRoleSelector
         var covenLimits = Options.FactionMinMaxSettings[Team.Coven];
         var numCovens = IRandom.Instance.Next(covenLimits.MinSetting.GetInt(), covenLimits.MaxSetting.GetInt() + 1);
 
-        if (numCovens > 0)
+        if (numCovens > 0 && !Main.SetRoles.ContainsValue(CustomRoles.CovenLeader) && !ChatCommands.DraftResult.ContainsValue(CustomRoles.CovenLeader))
         {
             FinalRolesList.Add(CustomRoles.CovenLeader);
             readyCovenNum++;
