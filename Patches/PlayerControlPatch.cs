@@ -2077,9 +2077,15 @@ internal static class CoEnterVentPatch
 [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
 internal static class GameDataCompleteTaskPatch
 {
-    public static void Postfix(PlayerControl pc /*, uint taskId*/)
+    public static void Postfix(PlayerControl pc, uint taskId)
     {
         if (GameStates.IsMeeting) return;
+
+        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
+        {
+            var task = pc.myTasks[(Index)Convert.ToInt32(taskId)] as PlayerTask;
+            Hider.OnSpecificTaskComplete(pc, task);
+        }
 
         Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
@@ -2116,8 +2122,6 @@ internal static class PlayerControlCompleteTaskPatch
 
             NotifyRoles(SpecifySeer: __instance, ForceLoop: true);
         }
-
-        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && HnSManager.PlayerRoles[__instance.PlayerId].Interface.Team == Team.Crewmate && __instance.IsAlive()) Hider.OnSpecificTaskComplete(__instance, task);
     }
 }
 
