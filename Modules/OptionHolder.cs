@@ -216,13 +216,12 @@ public static class Options
     public static OptionItem DeepLowLoad;
     public static OptionItem DisableVoteBan;
 
+    public static OptionItem CovenLeaderKillCooldown;
 
-    // Detailed Ejections //
     public static OptionItem ConfirmEgoistOnEject;
     public static OptionItem ConfirmLoversOnEject;
 
     public static OptionItem UniqueNeutralRevealScreen;
-
 
     public static OptionItem NeutralRoleWinTogether;
     public static OptionItem NeutralWinTogether;
@@ -1051,6 +1050,11 @@ public static class Options
 
         MainLoadingText = "Building general settings";
 
+
+        CovenLeaderKillCooldown = new FloatOptionItem(650000, "CovenLeaderKillCooldown", new(0f, 120f, 0.5f), 30f, TabGroup.CovenRoles)
+            .SetHeader(true)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetValueFormat(OptionFormat.Seconds);
 
         ImpKnowAlliesRole = new BooleanOptionItem(150, "ImpKnowAlliesRole", true, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.Standard)

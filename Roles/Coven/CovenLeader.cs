@@ -6,19 +6,13 @@ public class CovenLeader : Coven
 {
     public static bool On;
 
-    private static OptionItem KillCooldown;
-
     private byte CovenLeaderId;
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.First;
 
     public override bool IsEnable => On;
 
-    public override void SetupCustomOption()
-    {
-        StartSetup(650000)
-            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds);
-    }
+    public override void SetupCustomOption() { }
 
     public override void Init()
     {
@@ -43,7 +37,8 @@ public class CovenLeader : Coven
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = HasNecronomicon ? Options.DefaultKillCooldown / 2f : Options.DefaultKillCooldown;
+        var kcd = Options.CovenLeaderKillCooldown.GetFloat();
+        Main.AllPlayerKillCooldown[id] = HasNecronomicon ? kcd / 2f : kcd;
     }
 
     protected override void OnReceiveNecronomicon()

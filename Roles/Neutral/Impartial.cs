@@ -43,7 +43,7 @@ internal class Impartial : RoleBase
 
     public override void SetupCustomOption()
     {
-        const int id = 10490;
+        const int id = 651100;
         Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Impartial);
         ImpMinOpt = CreateSetting(id + 2, true, "Imp");
         ImpMaxOpt = CreateSetting(id + 3, false, "Imp");
