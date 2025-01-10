@@ -4563,7 +4563,7 @@
   "RunnerInfoLong": "СДЕЛАЙТЕ ТАСКИ И УБЕЙТЕ ВСЕХ, ЧТОБЫ ПОБЕДИТЬ",
   "CaptureTheFlag": "Захват Флага",
   "ModeCaptureTheFlag": "Режим: Захват Флага",
-  "ModeDescribe.CaptureTheFlag": "В режиме ''Захват Флага'' игроки делятся на две противоположные команды: жёлтую и синюю. На базе каждой команды есть её флаг. Цель каждой команды - украсть флаг оппонента и принести на свою базу. Первая команда, сделавшая это, побеждает.\\n\\nЧтобы украсть флаг, нужно нажать кнопку морфа рядом с ним.\\n\\nИгроки также могут атаковать друг друга. Атакованные игроки умрут/телепортируются назад на базу (зависит от настрое). Игрок с флагом не может атаковать.",
+  "ModeDescribe.CaptureTheFlag": "In the Capture The Flag gamemode, there are two teams: Yellow and Blue. Each team has a flag in their base. The goal is to capture the enemy's flag and bring it back to your base. The first team to capture the enemy's flag wins!\\n\\nYou can grab the flag by clicking your <b>Vanish</b> button near it.\\n\\nPlayers can be tagged by the enemy team, which will send them back to their base or kill them, depending on the settings. Players who are carrying a flag cannot tag other players.",
   "CTF_AlertTeamMembersOfFlagTaken": "Уведомлять игроков, флаг чьей команды был украден",
   "CTF_ArrowToEnemyFlagCarrier": "Игроки видят стрелку на игрока противоположной команды, который уносит их флаг",
   "CTF_AlertTeamMembersOfEnemyFlagTaken": "Уведомлять игроков при взятии флага их оппонента",
