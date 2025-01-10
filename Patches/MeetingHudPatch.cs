@@ -807,10 +807,11 @@ internal static class MeetingHudStartPatch
                 if (ipc.GetCustomRole().IsImpostorTeam())
                     AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
         }
-        
+
         if (SpellCaster.IsWinConditionMet())
         {
             var spellCasterStr = CustomRoles.SpellCaster.ToColoredString();
+
             AddMsg(
                 string.Format(GetString("SpellCaster.WinConditionMet"), spellCasterStr),
                 byte.MaxValue,
@@ -992,11 +993,13 @@ internal static class MeetingHudStartPatch
             switch (seer.GetCustomRoleTypes())
             {
                 case CustomRoleTypes.Impostor:
-                    if (target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), "★"));
+                    if (target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
+                        sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), "★"));
 
                     break;
                 case CustomRoleTypes.Crewmate:
-                    if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★"));
+                    if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
+                        sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★"));
 
                     sb.Append(Marshall.GetWarningMark(seer, target));
                     break;

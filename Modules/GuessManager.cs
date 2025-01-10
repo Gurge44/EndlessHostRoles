@@ -770,7 +770,6 @@ public static class GuessManager
         foreach (KeyValuePair<CustomRoleTypes, SpriteRenderer> RoleButton in RoleSelectButtons)
         {
             if (RoleButton.Value == null) continue;
-
             RoleButton.Value.color = new(0, 0, 0, RoleButton.Key == Role ? 1 : 0.25f);
         }
     }
@@ -868,6 +867,7 @@ public static class GuessManager
 
                 Teamlabel.color = (CustomRoleTypes)index switch
                 {
+                    CustomRoleTypes.Coven => Team.Coven.GetColor(),
                     CustomRoleTypes.Crewmate => new(140, 255, 255, byte.MaxValue),
                     CustomRoleTypes.Impostor => new(255, 25, 25, byte.MaxValue),
                     CustomRoleTypes.Neutral => new(255, 171, 27, byte.MaxValue),

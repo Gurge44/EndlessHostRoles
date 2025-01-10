@@ -1202,14 +1202,10 @@ internal static class ExtendedPlayerControl
     {
         CustomRoles role = pc.GetCustomRole();
         if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
-
         if (role.GetVNRole(true) is CustomRoles.Impostor or CustomRoles.Shapeshifter or CustomRoles.Phantom) return true;
-
         if (pc.GetRoleTypes() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) return true;
-
         if (pc.Is(CustomRoles.Bloodlust)) return true;
-
-        return pc.Is(CustomRoleTypes.Impostor) || pc.IsNeutralKiller() || role.IsTasklessCrewmate();
+        return !HasTasks(pc.Data, false);
     }
 
     public static bool CanUseKillButton(this PlayerControl pc)

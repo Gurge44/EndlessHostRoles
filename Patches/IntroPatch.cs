@@ -384,17 +384,12 @@ internal static class BeginCrewmatePatch
                     }
 
                     break;
-                default:
-
-                    if (role.IsCoven())
-                    {
-                        __instance.TeamTitle.text = GetString("TeamCoven");
-                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
-                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
-                        __instance.ImpostorText.gameObject.SetActive(true);
-                        __instance.ImpostorText.text = GetString("SubText.Coven");
-                    }
-
+                case CustomRoleTypes.Coven:
+                    __instance.TeamTitle.text = GetString("TeamCoven");
+                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
+                    __instance.ImpostorText.gameObject.SetActive(true);
+                    __instance.ImpostorText.text = GetString("SubText.Coven");
                     break;
             }
 
@@ -727,6 +722,7 @@ internal static class BeginCrewmatePatch
                 CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                 CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                 CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
+                CustomRoleTypes.Coven => GetIntroSound(RoleTypes.Shapeshifter),
                 _ => GetIntroSound(RoleTypes.Crewmate)
             };
     }

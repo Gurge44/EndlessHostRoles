@@ -812,7 +812,7 @@ internal static class ShapeshiftPatch
 
         bool forceCancel = role.ForceCancelShapeshift();
         bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
-        
+
         unshiftTrigger |= role.AlwaysUsesUnshift();
         forceCancel |= unshiftTrigger;
 
@@ -2111,7 +2111,9 @@ internal static class PlayerControlCompleteTaskPatch
 
         if (isTaskFinish && __instance.Is(CustomRoles.Snitch) && __instance.Is(CustomRoles.Madmate))
         {
-            foreach (PlayerControl impostor in Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray()) NameColorManager.Add(impostor.PlayerId, __instance.PlayerId, "#ff1919");
+            foreach (PlayerControl impostor in Main.AllAlivePlayerControls)
+                if (impostor.Is(CustomRoleTypes.Impostor))
+                    NameColorManager.Add(impostor.PlayerId, __instance.PlayerId, "#ff1919");
 
             NotifyRoles(SpecifySeer: __instance, ForceLoop: true);
         }

@@ -1215,9 +1215,8 @@ internal static class CustomRolesHelper
     {
         var type = CustomRoleTypes.Crewmate;
         if (role.IsImpostor() || role.IsMadmate()) type = CustomRoleTypes.Impostor;
-
         if (role.IsNeutral()) type = CustomRoleTypes.Neutral;
-
+        if (role.IsCoven()) type = CustomRoleTypes.Coven;
         if (role.IsAdditionRole()) type = CustomRoleTypes.Addon;
 
         return type;
@@ -1732,6 +1731,7 @@ public enum CustomRoleTypes
     Crewmate,
     Impostor,
     Neutral,
+    Coven,
     Addon
 }
 

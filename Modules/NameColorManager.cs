@@ -76,6 +76,9 @@ public static class NameColorManager
         // Global (low priority)
         if (Stained.VioletNameList.Contains(target.PlayerId)) color = "#ff00ff";
 
+        // Coven
+        if (seer.Is(Team.Coven) && target.Is(Team.Coven)) color = Main.CovenColor;
+
         // Impostors and Madmates
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)) color = target.Is(CustomRoles.Egoist) && Options.ImpEgoistVisibalToAllies.GetBool() && seer != target ? Main.RoleColors[CustomRoles.Egoist] : Main.ImpostorColor;
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.DoubleAgent)) color = Main.ImpostorColor;
@@ -191,6 +194,7 @@ public static class NameColorManager
                 CustomRoleTypes.Impostor => Main.ImpostorColor,
                 CustomRoleTypes.Crewmate => Main.CrewmateColor,
                 CustomRoleTypes.Neutral => Main.NeutralColor,
+                CustomRoleTypes.Coven => Main.CovenColor,
                 _ => color
             };
 
