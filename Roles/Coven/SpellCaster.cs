@@ -89,12 +89,17 @@ public class SpellCaster : Coven
         return HexedPlayers.TryGetValue(playerId, out bool spell) && spell;
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    public override void AfterMeetingTasks()
     {
-        if (pc.IsAlive() && Main.AllAlivePlayerControls.All(x => x.Is(Team.Coven) || HexedPlayers.ContainsKey(x.PlayerId)))
+        if (IsWinConditionMet())
         {
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Coven);
             CustomWinnerHolder.WinnerIds.UnionWith(Main.AllAlivePlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId));
         }
+    }
+
+    public static bool IsWinConditionMet()
+    {
+        return PlayerIdList.ToValidPlayers().Any(x => x.IsAlive()) && Main.AllAlivePlayerControls.All(x => x.Is(Team.Coven) || HexedPlayers.ContainsKey(x.PlayerId));
     }
 }

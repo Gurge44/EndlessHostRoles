@@ -10,13 +10,14 @@ namespace EHR.Crewmate;
 public class Divinator : RoleBase
 {
     private const int Id = 6700;
-    private const int RolesPerCategory = 5;
+    private static int RolesPerCategory;
     private static List<byte> PlayerIdList = [];
 
     public static OptionItem CheckLimitOpt;
     public static OptionItem AccurateCheckMode;
     public static OptionItem HideVote;
     public static OptionItem ShowSpecificRole;
+    public static OptionItem NumRolesListedForEachPlayer;
     public static OptionItem AbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem CancelVote;
@@ -51,6 +52,9 @@ public class Divinator : RoleBase
         AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 16, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
+        
+        NumRolesListedForEachPlayer = new IntegerOptionItem(Id + 17, "NumRolesListedForEachPlayer", new(1, 10, 1), 5, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
 
         CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Divinator, TabGroup.CrewmateRoles);
         OverrideTasksData.Create(Id + 21, TabGroup.CrewmateRoles, CustomRoles.Divinator);
@@ -60,6 +64,7 @@ public class Divinator : RoleBase
     {
         PlayerIdList = [];
         AllPlayerRoleList = [];
+        RolesPerCategory = NumRolesListedForEachPlayer.GetInt();
     }
 
     public override void Add(byte playerId)
@@ -77,7 +82,7 @@ public class Divinator : RoleBase
                 .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
                 .Take(rolesNeeded)
                 .Chunk(RolesPerCategory - 1)
-                .Zip(players, (Array, Player) => (RoleList: Array.ToList(), Player))
+                .Zip(players, (array, player) => (RoleList: array.ToList(), Player: player))
                 .ToArray();
 
             roleList.Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()));

@@ -272,7 +272,6 @@ public static class CTFManager
                     }
                 }
 
-                pc.CheckAndSetUnshiftState(force: true);
                 pc.RpcResetAbilityCooldown();
             }
 
@@ -324,7 +323,7 @@ public static class CTFManager
 
     public static void ApplyGameOptions()
     {
-        AURoleOptions.ShapeshifterCooldown = 1f;
+        AURoleOptions.PhantomCooldown = 1f;
     }
 
     private static Color GetTeamColor(this CTFTeam team)
@@ -490,5 +489,30 @@ public static class CTFManager
             if (__instance.Data.DefaultOutfit.ColorId != colorId)
                 Utils.RpcChangeSkin(__instance, blue ? BlueOutfit : YellowOutfit);
         }
+    }
+}
+
+public class CTFPlayer : RoleBase
+{
+    public static bool On;
+
+    public override bool IsEnable => On;
+
+    public override void SetupCustomOption() { }
+
+    public override void Init()
+    {
+        On = false;
+    }
+
+    public override void Add(byte playerId)
+    {
+        On = true;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        CTFManager.TryPickUpFlag(pc);
+        return false;
     }
 }

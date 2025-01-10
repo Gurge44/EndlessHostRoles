@@ -275,6 +275,16 @@ internal static class BeginCrewmatePatch
             __instance.overlayHandle.color = Palette.ImpostorRed;
             return false;
         }
+        else if (role.IsCoven())
+        {
+            teamToDisplay = new();
+
+            foreach (PlayerControl pc in Main.AllPlayerControls)
+            {
+                if (pc.Is(Team.Coven))
+                    teamToDisplay.Add(pc);
+            }
+        }
 
         if ((role == CustomRoles.LovingCrewmate) || PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
         {
@@ -373,6 +383,18 @@ internal static class BeginCrewmatePatch
                         __instance.ImpostorText.text = GetString("SubText.Neutral");
                     }
 
+                    break;
+                default:
+                    
+                    if (role.IsCoven())
+                    {
+                        __instance.TeamTitle.text = GetString("TeamCoven");
+                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
+                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
+                        __instance.ImpostorText.gameObject.SetActive(true);
+                        __instance.ImpostorText.text = GetString("SubText.Coven");
+                    }
+                    
                     break;
             }
 
@@ -898,7 +920,8 @@ internal static class IntroCutsceneDestroyPatch
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
-            if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift())) LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
+            if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
+                LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
 
             float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
 

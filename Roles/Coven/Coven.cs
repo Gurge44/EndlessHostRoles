@@ -35,7 +35,8 @@ public abstract class Coven : RoleBase
 
         public static void Postfix()
         {
-            if (++MeetingNum >= 3) GiveNecronomicon();
+            if (++MeetingNum >= Options.CovenReceiveNecronomiconAfterNumMeetings.GetInt())
+                GiveNecronomicon();
         }
     }
 }

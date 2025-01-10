@@ -961,7 +961,7 @@ public class GameSettingMenuPatch
         Transform parentLeftPanel = __instance.GamePresetsButton.transform.parent;
         GameObject preset = Object.Instantiate(GameObject.Find("ModeValue"), parentLeftPanel);
 
-        preset.transform.localPosition = new(-1.83f, 0.1f, -2f);
+        preset.transform.localPosition = new(-2.55f, 0f, -2f);
         preset.transform.localScale = new(0.65f, 0.63f, 1f);
         var renderer = preset.GetComponentInChildren<SpriteRenderer>();
         renderer.color = Color.white;

@@ -216,6 +216,7 @@ public static class Options
     public static OptionItem DeepLowLoad;
     public static OptionItem DisableVoteBan;
 
+    public static OptionItem CovenReceiveNecronomiconAfterNumMeetings;
     public static OptionItem CovenLeaderKillCooldown;
 
     public static OptionItem ConfirmEgoistOnEject;
@@ -1050,9 +1051,12 @@ public static class Options
 
         MainLoadingText = "Building general settings";
 
-
+        
+        CovenReceiveNecronomiconAfterNumMeetings = new IntegerOptionItem(650001, "CovenReceiveNecronomiconAfterNumMeetings", new(1, 10, 1), 3, TabGroup.CovenRoles)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true);
+        
         CovenLeaderKillCooldown = new FloatOptionItem(650000, "CovenLeaderKillCooldown", new(0f, 120f, 0.5f), 30f, TabGroup.CovenRoles)
-            .SetHeader(true)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Seconds);
 

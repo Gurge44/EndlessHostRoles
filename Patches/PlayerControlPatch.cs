@@ -808,18 +808,13 @@ internal static class ShapeshiftPatch
             isSSneeded = false;
         }
 
-        bool ctf = CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated();
-        if (ctf) CTFManager.TryPickUpFlag(shapeshifter);
-
         CustomRoles role = shapeshifter.GetCustomRole();
 
         bool forceCancel = role.ForceCancelShapeshift();
         bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
+        
         unshiftTrigger |= role.AlwaysUsesUnshift();
-
-        unshiftTrigger |= ctf;
         forceCancel |= unshiftTrigger;
-        isSSneeded &= !ctf;
 
         if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out bool changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
         {
@@ -864,9 +859,7 @@ internal static class ShapeshiftPatch
 
 
         bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
-
         Statistics.OnShapeshift(shapeshifter, shapeshifting, animated);
-
         return animated;
     }
 

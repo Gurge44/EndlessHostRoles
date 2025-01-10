@@ -2602,8 +2602,7 @@ internal static class ChatCommands
                 }
 
                 command.Action(player, text, args);
-                if (command.IsCanceled) canceled = !Options.HostSeesCommandsEnteredByOthers.GetBool();
-
+                if (command.IsCanceled) canceled = command.CommandForms.Contains("w") || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;
             }
         }
