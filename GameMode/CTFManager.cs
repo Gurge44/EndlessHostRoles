@@ -69,7 +69,7 @@ public static class CTFManager
     public static void SetupCustomOption()
     {
         const int id = 69_215_001;
-        Color color = Utils.GetRoleColor(CustomRoles.CTFPlayer);
+        Color color = new Color32(0, 165, 255, 255);
 
         AlertTeamMembersOfFlagTaken = new BooleanOptionItem(id, "CTF_AlertTeamMembersOfFlagTaken", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.CaptureTheFlag)
@@ -102,7 +102,7 @@ public static class CTFManager
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color);
 
-        TagCooldown = new FloatOptionItem(id + 7, "CTF_TagCooldown", new(0f, 30f, 0.5f), 6.5f, TabGroup.GameSettings)
+        TagCooldown = new FloatOptionItem(id + 7, "CTF_TagCooldown", new(0f, 30f, 0.5f), 4.5f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color);
@@ -272,6 +272,7 @@ public static class CTFManager
                     }
                 }
 
+                pc.RpcChangeRoleBasis(CustomRoles.CTFPlayer);
                 pc.RpcResetAbilityCooldown();
             }
 

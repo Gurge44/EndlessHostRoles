@@ -935,6 +935,7 @@ internal static class CustomRolesHelper
     public static bool SimpleAbilityTrigger(this CustomRoles role)
     {
         return role is
+            CustomRoles.CTFPlayer or
             CustomRoles.Wizard or
             CustomRoles.Stasis or
             CustomRoles.Occultist or

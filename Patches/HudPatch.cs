@@ -468,14 +468,16 @@ internal static class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 return;
             case CustomGameMode.FFA:
-                __instance.ReportButton?.ToggleVisible(false);
-                __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
-                return;
+                goto case CustomGameMode.HideAndSeek;
             case CustomGameMode.RoomRush:
                 __instance.ImpostorVentButton?.ToggleVisible(false);
-                goto case CustomGameMode.CaptureTheFlag;
+                goto case CustomGameMode.HideAndSeek;
             case CustomGameMode.CaptureTheFlag:
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.SabotageButton?.ToggleVisible(false);
+                __instance.AbilityButton?.ToggleVisible(true);
+                return;
             case CustomGameMode.HideAndSeek:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -515,7 +517,8 @@ internal static class SetHudActivePatch
                 break;
         }
 
-        if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState ps) && ps.SubRoles.Contains(CustomRoles.Oblivious)) __instance.ReportButton?.ToggleVisible(false);
+        if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState ps) && ps.SubRoles.Contains(CustomRoles.Oblivious))
+            __instance.ReportButton?.ToggleVisible(false);
 
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());

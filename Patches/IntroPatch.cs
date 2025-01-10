@@ -385,7 +385,7 @@ internal static class BeginCrewmatePatch
 
                     break;
                 default:
-                    
+
                     if (role.IsCoven())
                     {
                         __instance.TeamTitle.text = GetString("TeamCoven");
@@ -394,7 +394,7 @@ internal static class BeginCrewmatePatch
                         __instance.ImpostorText.gameObject.SetActive(true);
                         __instance.ImpostorText.text = GetString("SubText.Coven");
                     }
-                    
+
                     break;
             }
 
@@ -870,9 +870,7 @@ internal static class IntroCutsceneDestroyPatch
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             PlayerControl lp = PlayerControl.LocalPlayer;
-
-            if (lp.GetRoleTypes() == RoleTypes.Shapeshifter)
-                lp.RpcChangeRoleBasis(lp.GetCustomRole());
+            lp.RpcChangeRoleBasis(lp.GetCustomRole());
 
             if (Options.UsePets.GetBool())
             {
