@@ -4563,7 +4563,7 @@
   "RunnerInfoLong": "完成任務後殺死所有人",
   "CaptureTheFlag": "奪旗模式",
   "ModeCaptureTheFlag": "遊戲模式: 奪旗",
-  "ModeDescribe.CaptureTheFlag": "在奪旗遊戲模式中，有兩支隊伍: 黃隊和藍隊。每個隊的基地都有一面旗幟。目標是奪取敵人的旗幟並將其帶回你的基地。最先奪取敵方旗幟的隊伍獲勝!\\n\\n你可以透過觸摸旗幟來抓住它。\\n\\n玩家可以被敵方隊伍標記，根據設置，敵方隊伍會將他們送回基地或殺死他們。攜帶旗幟的玩家不能標記其他玩家。",
+  "ModeDescribe.CaptureTheFlag": "In the Capture The Flag gamemode, there are two teams: Yellow and Blue. Each team has a flag in their base. The goal is to capture the enemy's flag and bring it back to your base. The first team to capture the enemy's flag wins!\\n\\nYou can grab the flag by clicking your <b>Vanish</b> button near it.\\n\\nPlayers can be tagged by the enemy team, which will send them back to their base or kill them, depending on the settings. Players who are carrying a flag cannot tag other players.",
   "CTF_AlertTeamMembersOfFlagTaken": "旗幟被奪取時提醒團隊中的成員",
   "CTF_ArrowToEnemyFlagCarrier": "有指向拿著自己團隊的旗幟的玩家的箭頭",
   "CTF_AlertTeamMembersOfEnemyFlagTaken": "當敵人的旗幟被奪取時提醒團隊中的成員",
