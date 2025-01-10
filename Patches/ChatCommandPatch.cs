@@ -20,7 +20,7 @@ using static EHR.Translator;
 
 namespace EHR;
 
-internal class Command(string[] commandForms, string arguments, string description, Command.UsageLevels usageLevel, Command.UsageTimes usageTime, Action<PlayerControl, string, string[]> action, bool isCanceled, string[] argsDescriptions = null)
+internal class Command(string[] commandForms, string arguments, string description, Command.UsageLevels usageLevel, Command.UsageTimes usageTime, Action<PlayerControl, string, string[]> action, bool isCanceled, bool alwaysHidden, string[] argsDescriptions = null)
 {
     public enum UsageLevels
     {
@@ -48,6 +48,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
     private UsageTimes UsageTime => usageTime;
     public Action<PlayerControl, string, string[]> Action => action;
     public bool IsCanceled => isCanceled;
+    public bool AlwaysHidden => alwaysHidden;
 
     public bool IsThisCommand(string text)
     {
@@ -115,87 +116,87 @@ internal static class ChatCommands
     {
         AllCommands =
         [
-            new(["lt", "лт", "大厅关闭时间"], "", GetString("CommandDescription.LT"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LTCommand, false),
-            new(["dump", "дамп", "лог", "导出日志"], "", GetString("CommandDescription.Dump"), Command.UsageLevels.Modded, Command.UsageTimes.Always, DumpCommand, false),
-            new(["v", "version", "в", "версия", "检查版本", "versão"], "", GetString("CommandDescription.Version"), Command.UsageLevels.Modded, Command.UsageTimes.Always, VersionCommand, false),
-            new(["cs", "changesetting", "измнастр", "修改设置", "mudarconfig", "mudarconfiguração"], "{name} {?} [?]", GetString("CommandDescription.ChangeSetting"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ChangeSettingCommand, true, [GetString("CommandArgs.ChangeSetting.Name"), GetString("CommandArgs.ChangeSetting.UnknownValue"), GetString("CommandArgs.ChangeSetting.UnknownValue")]),
-            new(["win", "winner", "победители", "获胜者", "vencedor"], "", GetString("CommandDescription.Winner"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, WinnerCommand, true),
-            new(["l", "lastresult", "л", "对局职业信息", "resultados", "ultimoresultado"], "", GetString("CommandDescription.LastResult"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LastResultCommand, true),
-            new(["rn", "rename", "рн", "ренейм", "переименовать", "修改名称", "renomear"], "{name}", GetString("CommandDescription.Rename"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, RenameCommand, true, [GetString("CommandArgs.Rename.Name")]),
-            new(["hn", "hidename", "хн", "спрник", "隐藏姓名", "semnome", "escondernome"], "", GetString("CommandDescription.HideName"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, HideNameCommand, true),
-            new(["level", "лвл", "уровень", "修改等级", "nível"], "{level}", GetString("CommandDescription.Level"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, LevelCommand, true, [GetString("CommandArgs.Level.Level")]),
-            new(["n", "now", "н", "当前设置", "atual"], "", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true),
-            new(["dis", "disconnect", "дис", "断连"], "{team}", GetString("CommandDescription.Disconnect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, DisconnectCommand, true, [GetString("CommandArgs.Disconnect.Team")]),
-            new(["r", "р", "função"], "[role]", GetString("CommandDescription.R"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RCommand, true, [GetString("CommandArgs.R.Role")]),
-            new(["up", "指定"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, [GetString("CommandArgs.Up.Role")]),
-            new(["setrole", "сетроль", "预设职业", "definir-função"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
-            new(["h", "help", "хэлп", "хелп", "помощь", "帮助", "ajuda"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true),
-            new(["gamestate", "gstate", "gs", "kcount", "kc", "кубийц", "гс", "статигры", "对局状态", "estadojogo", "status"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true),
-            new(["addmod", "добмодера", "指定协管", "moderador-add"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, [GetString("CommandArgs.AddMod.Id")]),
-            new(["deletemod", "убрмодера", "удмодера", "убратьмодера", "удалитьмодера", "移除协管", "moderador-remover"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, [GetString("CommandArgs.DeleteMod.Id")]),
-            new(["combo", "комбо", "设置不会同时出现的职业", "combinação", "combinar"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
-            new(["eff", "effect", "эффект", "效果", "efeito"], "{effect}", GetString("CommandDescription.Effect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EffectCommand, true, [GetString("CommandArgs.Effect.Effect")]),
-            new(["afkexempt", "освафк", "афкосв", "挂机检测器不会检测", "afk-isentar"], "{id}", GetString("CommandDescription.AFKExempt"), Command.UsageLevels.Host, Command.UsageTimes.Always, AFKExemptCommand, true, [GetString("CommandArgs.AFKExempt.Id")]),
-            new(["m", "myrole", "м", "мояроль", "我的职业", "minhafunção"], "", GetString("CommandDescription.MyRole"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, MyRoleCommand, true),
-            new(["tpout", "тпаут", "传送出"], "", GetString("CommandDescription.TPOut"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPOutCommand, true),
-            new(["tpin", "тпин", "传送进"], "", GetString("CommandDescription.TPIn"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPInCommand, true),
-            new(["t", "template", "т", "темплейт", "模板"], "{tag}", GetString("CommandDescription.Template"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, TemplateCommand, true, [GetString("CommandArgs.Template.Tag")]),
-            new(["mw", "messagewait", "мв", "медленныйрежим", "消息冷却", "espera-mensagens"], "{duration}", GetString("CommandDescription.MessageWait"), Command.UsageLevels.Host, Command.UsageTimes.Always, MessageWaitCommand, true, [GetString("CommandArgs.MessageWait.Duration")]),
-            new(["death", "d", "д", "смерть", "死亡原因", "abate"], "", GetString("CommandDescription.Death"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, DeathCommand, true),
-            new(["say", "s", "сказать", "с", "说", "falar", "dizer"], "{message}", GetString("CommandDescription.Say"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, SayCommand, true, [GetString("CommandArgs.Say.Message")]),
-            new(["vote", "голос", "投票给", "votar"], "{id}", GetString("CommandDescription.Vote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, VoteCommand, true, [GetString("CommandArgs.Vote.Id")]),
-            new(["ask", "спр", "спросить", "数学家提问", "perguntar"], "{number1} {number2}", GetString("CommandDescription.Ask"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AskCommand, true, [GetString("CommandArgs.Ask.Number1"), GetString("CommandArgs.Ask.Number2")]),
-            new(["ans", "answer", "отв", "ответить", "回答数学家问题", "responder"], "{number}", GetString("CommandDescription.Answer"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AnswerCommand, true, [GetString("CommandArgs.Answer.Number")]),
-            new(["qa", "вопротв", "回答测验大师问题", "questão-responder"], "{letter}", GetString("CommandDescription.QA"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QACommand, true, [GetString("CommandArgs.QA.Letter")]),
-            new(["qs", "вопрпоказать", "检查测验大师问题", "questão-ver"], "", GetString("CommandDescription.QS"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QSCommand, true),
-            new(["target", "цель", "腹语者标记", "alvo"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, [GetString("CommandArgs.Target.Id")]),
-            new(["chat", "сообщение", "腹语者发送消息"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, [GetString("CommandArgs.Chat.Message")]),
-            new(["check", "проверить", "检查", "veificar"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
-            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, [GetString("CommandArgs.Ban.Id")]),
-            new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, [GetString("CommandArgs.Exe.Id")]),
-            new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, [GetString("CommandArgs.Kill.Id")]),
-            new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, [GetString("CommandArgs.Colour.Color")]),
-            new(["xf", "испр", "修复"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, XFCommand, true),
-            new(["id", "guesslist", "айди", "ID列表"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true),
-            new(["changerole", "измроль", "修改职业", "mudar-função"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true, [GetString("CommandArgs.ChangeRole.Role")]),
-            new(["end", "завершить", "结束游戏", "encerrar", "finalizar", "fim"], "", GetString("CommandDescription.End"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EndCommand, true),
-            new(["cosid", "костюм", "одежда", "服装ID"], "", GetString("CommandDescription.CosID"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CosIDCommand, true),
-            new(["mt", "hy", "собрание", "开会/结束会议"], "", GetString("CommandDescription.MTHY"), Command.UsageLevels.Host, Command.UsageTimes.InGame, MTHYCommand, true),
-            new(["csd", "кзвук", "自定义播放声音"], "{sound}", GetString("CommandDescription.CSD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CSDCommand, true, [GetString("CommandArgs.CSD.Sound")]),
-            new(["sd", "взвук", "游戏中播放声音"], "{sound}", GetString("CommandDescription.SD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, SDCommand, true, [GetString("CommandArgs.SD.Sound")]),
-            new(["gno", "гно", "猜数字"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, [GetString("CommandArgs.GNO.Number")]),
-            new(["poll", "опрос", "发起调查", "enquete"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
-            new(["pv", "проголосовать", "选择调查选项"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, false, [GetString("CommandArgs.PV.Vote")]),
-            new(["hm", "мс", "мессенджер", "送信"], "{id}", GetString("CommandDescription.HM"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, HMCommand, true, [GetString("CommandArgs.HM.Id")]),
-            new(["decree", "указ", "总统命令", "decretar"], "{number}", GetString("CommandDescription.Decree"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DecreeCommand, true, [GetString("CommandArgs.Decree.Number")]),
-            new(["addvip", "добавитьвип", "добвип", "指定会员", "vip-add"], "{id}", GetString("CommandDescription.AddVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddVIPCommand, true, [GetString("CommandArgs.AddVIP.Id")]),
-            new(["deletevip", "удвип", "убрвип", "удалитьвип", "убратьвип", "删除会员", "vip-remover"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, [GetString("CommandArgs.DeleteVIP.Id")]),
-            new(["assume", "предположить", "传销头目预测投票", "assumir"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
-            new(["note", "заметка", "记者管理笔记", "nota", "anotar"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
-            new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
-            new(["negotiation", "neg", "наказание", "谈判方式", "negociar", "negociação"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, [GetString("CommandArgs.Negotiation.Number")]),
-            new(["mute", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
-            new(["unmute", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, [GetString("CommandArgs.Unmute.Id")]),
-            new(["draftstart", "ds", "драфтстарт", "启用草稿", "todosescolhem-iniciar"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DraftStartCommand, true),
-            new(["draft", "драфт", "选择草稿", "todosescolhem-escolher"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, false, [GetString("CommandArgs.Draft.Number")]),
-            new(["readycheck", "rc", "проверитьготовность", "准备检测", "verificação-de-prontidão"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
-            new(["ready", "готов", "准备", "pronto"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
-            new(["enableallroles", "всероли", "启用所有职业", "habilitar-todas-as-funções"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true),
-            new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true),
-            new(["dn", "deathnote", "заметкамертвого", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, [GetString("CommandArgs.DeathNote.Name")]),
-            new(["w", "whisper", "шепот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
-            new(["spectate", "спектейт", "观战", "espectar"], "", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false),
-            new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true),
-            new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true),
-            new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, [GetString("CommandArgs.JailTalk.Message")]),
+            new(["lt", "лт", "大厅关闭时间"], "", GetString("CommandDescription.LT"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LTCommand, false, false),
+            new(["dump", "дамп", "лог", "导出日志"], "", GetString("CommandDescription.Dump"), Command.UsageLevels.Modded, Command.UsageTimes.Always, DumpCommand, false, false),
+            new(["v", "version", "в", "версия", "检查版本", "versão"], "", GetString("CommandDescription.Version"), Command.UsageLevels.Modded, Command.UsageTimes.Always, VersionCommand, false, false),
+            new(["cs", "changesetting", "измнастр", "修改设置", "mudarconfig", "mudarconfiguração"], "{name} {?} [?]", GetString("CommandDescription.ChangeSetting"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ChangeSettingCommand, true, false, [GetString("CommandArgs.ChangeSetting.Name"), GetString("CommandArgs.ChangeSetting.UnknownValue"), GetString("CommandArgs.ChangeSetting.UnknownValue")]),
+            new(["win", "winner", "победители", "获胜者", "vencedor"], "", GetString("CommandDescription.Winner"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, WinnerCommand, true, false),
+            new(["l", "lastresult", "л", "对局职业信息", "resultados", "ultimoresultado"], "", GetString("CommandDescription.LastResult"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LastResultCommand, true, false),
+            new(["rn", "rename", "рн", "ренейм", "переименовать", "修改名称", "renomear"], "{name}", GetString("CommandDescription.Rename"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, RenameCommand, true, false, [GetString("CommandArgs.Rename.Name")]),
+            new(["hn", "hidename", "хн", "спрник", "隐藏姓名", "semnome", "escondernome"], "", GetString("CommandDescription.HideName"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, HideNameCommand, true, false),
+            new(["level", "лвл", "уровень", "修改等级", "nível"], "{level}", GetString("CommandDescription.Level"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, LevelCommand, true, false, [GetString("CommandArgs.Level.Level")]),
+            new(["n", "now", "н", "当前设置", "atual"], "", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true, false),
+            new(["dis", "disconnect", "дис", "断连"], "{team}", GetString("CommandDescription.Disconnect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, DisconnectCommand, true, false, [GetString("CommandArgs.Disconnect.Team")]),
+            new(["r", "р", "função"], "[role]", GetString("CommandDescription.R"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RCommand, true, false, [GetString("CommandArgs.R.Role")]),
+            new(["up", "指定"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, false, [GetString("CommandArgs.Up.Role")]),
+            new(["setrole", "сетроль", "预设职业", "definir-função"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, false, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
+            new(["h", "help", "хэлп", "хелп", "помощь", "帮助", "ajuda"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true, false),
+            new(["gamestate", "gstate", "gs", "kcount", "kc", "кубийц", "гс", "статигры", "对局状态", "estadojogo", "status"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true, false),
+            new(["addmod", "добмодера", "指定协管", "moderador-add"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, false, [GetString("CommandArgs.AddMod.Id")]),
+            new(["deletemod", "убрмодера", "удмодера", "убратьмодера", "удалитьмодера", "移除协管", "moderador-remover"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, false, [GetString("CommandArgs.DeleteMod.Id")]),
+            new(["combo", "комбо", "设置不会同时出现的职业", "combinação", "combinar"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, false, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
+            new(["eff", "effect", "эффект", "效果", "efeito"], "{effect}", GetString("CommandDescription.Effect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EffectCommand, true, false, [GetString("CommandArgs.Effect.Effect")]),
+            new(["afkexempt", "освафк", "афкосв", "挂机检测器不会检测", "afk-isentar"], "{id}", GetString("CommandDescription.AFKExempt"), Command.UsageLevels.Host, Command.UsageTimes.Always, AFKExemptCommand, true, false, [GetString("CommandArgs.AFKExempt.Id")]),
+            new(["m", "myrole", "м", "мояроль", "我的职业", "minhafunção"], "", GetString("CommandDescription.MyRole"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, MyRoleCommand, true, false),
+            new(["tpout", "тпаут", "传送出"], "", GetString("CommandDescription.TPOut"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPOutCommand, true, false),
+            new(["tpin", "тпин", "传送进"], "", GetString("CommandDescription.TPIn"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPInCommand, true, false),
+            new(["t", "template", "т", "темплейт", "模板"], "{tag}", GetString("CommandDescription.Template"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, TemplateCommand, true, false, [GetString("CommandArgs.Template.Tag")]),
+            new(["mw", "messagewait", "мв", "медленныйрежим", "消息冷却", "espera-mensagens"], "{duration}", GetString("CommandDescription.MessageWait"), Command.UsageLevels.Host, Command.UsageTimes.Always, MessageWaitCommand, true, false, [GetString("CommandArgs.MessageWait.Duration")]),
+            new(["death", "d", "д", "смерть", "死亡原因", "abate"], "", GetString("CommandDescription.Death"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, DeathCommand, true, false),
+            new(["say", "s", "сказать", "с", "说", "falar", "dizer"], "{message}", GetString("CommandDescription.Say"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, SayCommand, true, true, [GetString("CommandArgs.Say.Message")]),
+            new(["vote", "голос", "投票给", "votar"], "{id}", GetString("CommandDescription.Vote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, VoteCommand, true, true, [GetString("CommandArgs.Vote.Id")]),
+            new(["ask", "спр", "спросить", "数学家提问", "perguntar"], "{number1} {number2}", GetString("CommandDescription.Ask"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AskCommand, true, true, [GetString("CommandArgs.Ask.Number1"), GetString("CommandArgs.Ask.Number2")]),
+            new(["ans", "answer", "отв", "ответить", "回答数学家问题", "responder"], "{number}", GetString("CommandDescription.Answer"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AnswerCommand, true, false, [GetString("CommandArgs.Answer.Number")]),
+            new(["qa", "вопротв", "回答测验大师问题", "questão-responder"], "{letter}", GetString("CommandDescription.QA"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QACommand, true, false, [GetString("CommandArgs.QA.Letter")]),
+            new(["qs", "вопрпоказать", "检查测验大师问题", "questão-ver"], "", GetString("CommandDescription.QS"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QSCommand, true, false),
+            new(["target", "цель", "腹语者标记", "alvo"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, true, [GetString("CommandArgs.Target.Id")]),
+            new(["chat", "сообщение", "腹语者发送消息"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, true, [GetString("CommandArgs.Chat.Message")]),
+            new(["check", "проверить", "检查", "veificar"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
+            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id")]),
+            new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
+            new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
+            new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
+            new(["xf", "испр", "修复"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, XFCommand, true, false),
+            new(["id", "guesslist", "айди", "ID列表"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true, false),
+            new(["changerole", "измроль", "修改职业", "mudar-função"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true, false, [GetString("CommandArgs.ChangeRole.Role")]),
+            new(["end", "завершить", "结束游戏", "encerrar", "finalizar", "fim"], "", GetString("CommandDescription.End"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EndCommand, true, false),
+            new(["cosid", "костюм", "одежда", "服装ID"], "", GetString("CommandDescription.CosID"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CosIDCommand, true, false),
+            new(["mt", "hy", "собрание", "开会/结束会议"], "", GetString("CommandDescription.MTHY"), Command.UsageLevels.Host, Command.UsageTimes.InGame, MTHYCommand, true, false),
+            new(["csd", "кзвук", "自定义播放声音"], "{sound}", GetString("CommandDescription.CSD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CSDCommand, true, false, [GetString("CommandArgs.CSD.Sound")]),
+            new(["sd", "взвук", "游戏中播放声音"], "{sound}", GetString("CommandDescription.SD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, SDCommand, true, false, [GetString("CommandArgs.SD.Sound")]),
+            new(["gno", "гно", "猜数字"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, false, [GetString("CommandArgs.GNO.Number")]),
+            new(["poll", "опрос", "发起调查", "enquete"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, false, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
+            new(["pv", "проголосовать", "选择调查选项"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, false, false, [GetString("CommandArgs.PV.Vote")]),
+            new(["hm", "мс", "мессенджер", "送信"], "{id}", GetString("CommandDescription.HM"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, HMCommand, true, false, [GetString("CommandArgs.HM.Id")]),
+            new(["decree", "указ", "总统命令", "decretar"], "{number}", GetString("CommandDescription.Decree"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DecreeCommand, true, true, [GetString("CommandArgs.Decree.Number")]),
+            new(["addvip", "добавитьвип", "добвип", "指定会员", "vip-add"], "{id}", GetString("CommandDescription.AddVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddVIPCommand, true, false, [GetString("CommandArgs.AddVIP.Id")]),
+            new(["deletevip", "удвип", "убрвип", "удалитьвип", "убратьвип", "删除会员", "vip-remover"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, false, [GetString("CommandArgs.DeleteVIP.Id")]),
+            new(["assume", "предположить", "传销头目预测投票", "assumir"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
+            new(["note", "заметка", "记者管理笔记", "nota", "anotar"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
+            new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, false, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
+            new(["negotiation", "neg", "наказание", "谈判方式", "negociar", "negociação"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, false, [GetString("CommandArgs.Negotiation.Number")]),
+            new(["mute", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, false, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
+            new(["unmute", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, false, [GetString("CommandArgs.Unmute.Id")]),
+            new(["draftstart", "ds", "драфтстарт", "启用草稿", "todosescolhem-iniciar"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DraftStartCommand, true, false),
+            new(["draft", "драфт", "选择草稿", "todosescolhem-escolher"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, false, false, [GetString("CommandArgs.Draft.Number")]),
+            new(["readycheck", "rc", "проверитьготовность", "准备检测", "verificação-de-prontidão"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true, false),
+            new(["ready", "готов", "准备", "pronto"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true, false),
+            new(["enableallroles", "всероли", "启用所有职业", "habilitar-todas-as-funções"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true, false),
+            new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true, false),
+            new(["dn", "deathnote", "заметкамертвого", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, true, [GetString("CommandArgs.DeathNote.Name")]),
+            new(["w", "whisper", "шепот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
+            new(["spectate", "спектейт", "观战", "espectar"], "", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false),
+            new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true, false),
+            new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
+            new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
 
             // Commands with action handled elsewhere
-            new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
-            new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, [GetString("CommandArgs.Trial.Id")]),
-            new(["sw", "swap", "st", "свап", "свапнуть", "换票", "trocar"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, [GetString("CommandArgs.Swap.Id")]),
-            new(["compare", "cp", "cmp", "сравнить", "ср", "检查", "comparar"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
-            new(["ms", "mediumship", "medium", "медиум", "回答"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, [GetString("CommandArgs.Medium.Answer")]),
-            new(["rv", "месть", "отомстить", "复仇"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, (_, _, _) => { }, true, [GetString("CommandArgs.Revenge.Id")])
+            new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
+            new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
+            new(["sw", "swap", "st", "свап", "свапнуть", "换票", "trocar"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Swap.Id")]),
+            new(["compare", "cp", "cmp", "сравнить", "ср", "检查", "comparar"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
+            new(["ms", "mediumship", "medium", "медиум", "回答"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Medium.Answer")]),
+            new(["rv", "месть", "отомстить", "复仇"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, (_, _, _) => { }, true, false, [GetString("CommandArgs.Revenge.Id")])
         ];
     }
 
@@ -502,7 +503,7 @@ internal static class ChatCommands
 
     private static void WhisperCommand(PlayerControl player, string text, string[] args)
     {
-        if (!player.IsAlive()) return;
+        if (!player.IsAlive() || Silencer.ForSilencer.Contains(player.PlayerId)) return;
 
         if (Options.DisableWhisperCommand.GetBool())
         {
@@ -2602,7 +2603,7 @@ internal static class ChatCommands
                 }
 
                 command.Action(player, text, args);
-                if (command.IsCanceled) canceled = command.CommandForms.Contains("w") || !Options.HostSeesCommandsEnteredByOthers.GetBool();
+                if (command.IsCanceled) canceled = command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;
             }
         }
