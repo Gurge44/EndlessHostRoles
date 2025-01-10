@@ -4563,7 +4563,7 @@
   "RunnerInfoLong": "COMPLETE AS TAREFAS E MATE TODOS PRIMEIRO PARA GANHAR",
   "CaptureTheFlag": "CAPTURE A BANDEIRA",
   "ModeCaptureTheFlag": "Modo de Jogo: Capture a Bandeira",
-  "ModeDescribe.CaptureTheFlag": "No modo de jogo Capture a Bandeira, há duas equipes: Amarela e Azul. Cada equipe tem uma bandeira em sua base. O objetivo é capturar a bandeira inimiga e trazê-la de volta para sua base. A primeira equipe a capturar a bandeira inimiga vence!\n\nVocê pode pegar a bandeira acariciando seu pet perto dela.\n\nOs jogadores podem ser marcados pela equipe inimiga, o que os enviará de volta para sua base ou os matará, dependendo das configurações. Jogadores que estão carregando uma bandeira não podem marcar outros jogadores.",
+  "ModeDescribe.CaptureTheFlag": "In the Capture The Flag gamemode, there are two teams: Yellow and Blue. Each team has a flag in their base. The goal is to capture the enemy's flag and bring it back to your base. The first team to capture the enemy's flag wins!\\n\\nYou can grab the flag by clicking your <b>Vanish</b> button near it.\\n\\nPlayers can be tagged by the enemy team, which will send them back to their base or kill them, depending on the settings. Players who are carrying a flag cannot tag other players.",
   "CTF_AlertTeamMembersOfFlagTaken": "Alertar Membros da Equipe Quando a Bandeira é Levada",
   "CTF_ArrowToEnemyFlagCarrier": "Seta Para Quem está Carregando a Bandeira Inimiga",
   "CTF_AlertTeamMembersOfEnemyFlagTaken": "Alertar Membros da Equipe Quando a Bandeira é Levada",
