@@ -401,7 +401,7 @@ internal static class CustomRolesHelper
             // Speedrun
             CustomRoles.Runner => RoleTypes.Crewmate,
             // Capture The Flag
-            CustomRoles.CTFPlayer => RoleTypes.Shapeshifter,
+            CustomRoles.CTFPlayer => RoleTypes.Phantom,
             // Natural Disasters
             CustomRoles.NDPlayer => RoleTypes.Crewmate,
             // Standard

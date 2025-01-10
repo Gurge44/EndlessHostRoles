@@ -127,6 +127,13 @@ public static class LobbySharingAPI
 
         bool success = request.result == UnityWebRequest.Result.Success;
         Logger.Msg(success ? "Lobby status changed notification sent successfully." : $"Failed to send lobby status changed notification: {request.error}", "LobbyNotifierForDiscord.SendLobbyStatusChangedRequest");
+
+        if (!success && request.responseCode == 404)
+        {
+            LastRoomCode = string.Empty;
+            NotifyLobbyCreated();
+            Logger.Msg("Room code not found, re-sending lobby created notification.", "LobbyNotifierForDiscord.SendLobbyStatusChangedRequest");
+        }
     }
 }
 

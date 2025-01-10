@@ -920,7 +920,8 @@ internal static class IntroCutsceneDestroyPatch
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
-            if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift())) LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
+            if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
+                LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
 
             float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
 
