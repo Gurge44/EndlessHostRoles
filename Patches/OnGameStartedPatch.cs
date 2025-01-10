@@ -313,6 +313,12 @@ internal static class ChangeRoleSettings
                 NetworkedPlayerInfo.PlayerOutfit outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.ClientIdList.Add(pc.GetClientId());
+
+                try
+                {
+                    Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
             }
 
             Main.VisibleTasksCount = true;

@@ -78,43 +78,41 @@ internal static class GameEndChecker
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => (pc.Is(CustomRoleTypes.Crewmate) || (pc.Is(CustomRoles.Haunter) && Haunter.CanWinWithCrew(pc))) && !pc.IsMadmate() && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
-
                     break;
                 case CustomWinner.Impostor:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.IsMadmate()) && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
-
+                    break;
+                case CustomWinner.Coven:
+                    WinnerIds.UnionWith(Main.AllPlayerControls
+                        .Where(pc => pc.Is(Team.Coven) && !pc.IsMadmate() && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
+                        .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Succubus:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Succubus) || pc.Is(CustomRoles.Charmed))
                         .Select(pc => pc.PlayerId));
-
                     break;
                 case CustomWinner.Necromancer:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Necromancer) || pc.Is(CustomRoles.Deathknight) || pc.Is(CustomRoles.Undead))
                         .Select(pc => pc.PlayerId));
-
                     break;
                 case CustomWinner.Virus:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Virus) || pc.Is(CustomRoles.Contagious))
                         .Select(pc => pc.PlayerId));
-
                     break;
                 case CustomWinner.Jackal:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick) || pc.Is(CustomRoles.Recruit))
                         .Select(pc => pc.PlayerId));
-
                     break;
                 case CustomWinner.Spiritcaller:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Spiritcaller) || pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
-
                     WinnerRoles.Add(CustomRoles.Spiritcaller);
                     break;
                 case CustomWinner.RuthlessRomantic:

@@ -223,6 +223,7 @@ public static class NameColorManager
                || target.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.GM)
                || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)
+               || (seer.Is(Team.Coven) && target.Is(Team.Coven))
                || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor))
                || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))
                || (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))

@@ -777,13 +777,13 @@ internal static class MeetingHudStartPatch
             }
 
             if (Detective.DetectiveNotify.TryGetValue(pc.PlayerId, out string value1)) AddMsg(value1, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Detective), GetString("DetectiveNoticeTitle")));
-
             if (Main.SleuthMsgs.TryGetValue(pc.PlayerId, out string msg)) AddMsg(msg, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Sleuth), GetString("Sleuth")));
 
             if (pc.Is(CustomRoles.Mimic) && !pc.IsAlive())
             {
-                PlayerControl pc1 = pc;
-                Main.AllAlivePlayerControls.Where(x => x.GetRealKiller()?.PlayerId == pc1.PlayerId).Do(x => MimicMsg += $"\n{x.GetNameWithRole(true)}");
+                Main.AllAlivePlayerControls
+                    .Where(x => x.GetRealKiller()?.PlayerId == pc.PlayerId)
+                    .Do(x => MimicMsg += $"\n{x.GetNameWithRole(true)}");
             }
 
             if (Mortician.MsgToSend.TryGetValue(pc.PlayerId, out string value2)) AddMsg(value2, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mortician), GetString("MorticianCheckTitle")));
@@ -802,7 +802,19 @@ internal static class MeetingHudStartPatch
         if (MimicMsg != string.Empty)
         {
             MimicMsg = GetString("MimicDeadMsg") + "\n" + MimicMsg;
-            foreach (PlayerControl ipc in Main.AllPlayerControls.Where(x => x.GetCustomRole().IsImpostorTeam()).ToArray()) AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
+
+            foreach (PlayerControl ipc in Main.AllPlayerControls)
+                if (ipc.GetCustomRole().IsImpostorTeam())
+                    AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
+        }
+        
+        if (SpellCaster.IsWinConditionMet())
+        {
+            var spellCasterStr = CustomRoles.SpellCaster.ToColoredString();
+            AddMsg(
+                string.Format(GetString("SpellCaster.WinConditionMet"), spellCasterStr),
+                byte.MaxValue,
+                $"<{Main.CovenColor}>{string.Format(GetString("SpellCaster.WinConditionMetTitle"), spellCasterStr)}</color>");
         }
 
         if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)), 6f, "Meeting Start Notify");
@@ -865,6 +877,7 @@ internal static class MeetingHudStartPatch
                 (seer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                 (target.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && target.Data.IsDead) ||
                 (Main.LoversPlayers.TrueForAll(x => x.PlayerId == target.PlayerId || x.PlayerId == seer.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
+                (seer.Is(Team.Coven) && target.Is(Team.Coven)) ||
                 (target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                 (target.Is(CustomRoleTypes.Impostor) && seer.IsMadmate() && Options.MadmateKnowWhosImp.GetBool()) ||
                 (target.IsMadmate() && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||

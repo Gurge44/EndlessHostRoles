@@ -1742,7 +1742,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsCrewmate(this PlayerControl pc)
     {
-        return !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsCrewmate();
+        return !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsCrewmate() && !pc.Is(Team.Coven);
     }
 
     public static CustomRoleTypes GetCustomRoleTypes(this PlayerControl pc)
