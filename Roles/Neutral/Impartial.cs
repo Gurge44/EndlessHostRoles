@@ -17,30 +17,33 @@ internal class Impartial : RoleBase
     private static OptionItem NeutralMaxOpt;
     private static OptionItem CrewMinOpt;
     private static OptionItem CrewMaxOpt;
+    private static OptionItem CovenMinOpt;
+    private static OptionItem CovenMaxOpt;
     private static OptionItem CanVent;
     private static OptionItem CanVentAfterWinning;
     private static OptionItem HasImpVision;
     private static OptionItem HasImpVisionAfterWinning;
     private static OptionItem CanWinWhenKillingMore;
-    private (int Killed, int Limit) CrewKillCount = (0, 0);
+    private (int Killed, int Limit) CovenKillCount = (0, 0);
 
+    private (int Killed, int Limit) CrewKillCount = (0, 0);
     private (int Killed, int Limit) ImpKillCount = (0, 0);
     private (int Killed, int Limit) NeutralKillCount = (0, 0);
+
     public override bool IsEnable => On;
 
     public bool IsWon
     {
         get
         {
-            if (CanWinWhenKillingMore.GetBool()) return ImpKillCount.Killed >= ImpKillCount.Limit && NeutralKillCount.Killed >= NeutralKillCount.Limit && CrewKillCount.Killed >= CrewKillCount.Limit;
-
-            return ImpKillCount.Killed == ImpKillCount.Limit && NeutralKillCount.Killed == NeutralKillCount.Limit && CrewKillCount.Killed == CrewKillCount.Limit;
+            if (CanWinWhenKillingMore.GetBool()) return ImpKillCount.Killed >= ImpKillCount.Limit && NeutralKillCount.Killed >= NeutralKillCount.Limit && CrewKillCount.Killed >= CrewKillCount.Limit && CovenKillCount.Killed >= CovenKillCount.Limit;
+            return ImpKillCount.Killed == ImpKillCount.Limit && NeutralKillCount.Killed == NeutralKillCount.Limit && CrewKillCount.Killed == CrewKillCount.Limit && CovenKillCount.Killed == CovenKillCount.Limit;
         }
     }
 
     public override void SetupCustomOption()
     {
-        const int id = 10490;
+        const int id = 651100;
         Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Impartial);
         ImpMinOpt = CreateSetting(id + 2, true, "Imp");
         ImpMaxOpt = CreateSetting(id + 3, false, "Imp");
@@ -48,6 +51,8 @@ internal class Impartial : RoleBase
         NeutralMaxOpt = CreateSetting(id + 5, false, "Neutral");
         CrewMinOpt = CreateSetting(id + 6, true, "Crew");
         CrewMaxOpt = CreateSetting(id + 7, false, "Crew");
+        CovenMinOpt = CreateSetting(id + 8, true, "Coven");
+        CovenMaxOpt = CreateSetting(id + 9, false, "Coven");
 
         CanVent = new BooleanOptionItem(id + 8, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
@@ -81,8 +86,7 @@ internal class Impartial : RoleBase
         ImpKillCount = (0, r.Next(ImpMinOpt.GetInt(), ImpMaxOpt.GetInt() + 1));
         NeutralKillCount = (0, r.Next(NeutralMinOpt.GetInt(), NeutralMaxOpt.GetInt() + 1));
         CrewKillCount = (0, r.Next(CrewMinOpt.GetInt(), CrewMaxOpt.GetInt() + 1));
-
-        LateTask.New(() => { Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 1, ImpKillCount.Killed, ImpKillCount.Limit, NeutralKillCount.Killed, NeutralKillCount.Limit, CrewKillCount.Killed, CrewKillCount.Limit); }, 5f, log: false);
+        CovenKillCount = (0, r.Next(CovenMinOpt.GetInt(), CovenMaxOpt.GetInt() + 1));
     }
 
     public override void Init()
@@ -109,11 +113,6 @@ internal class Impartial : RoleBase
     {
         switch (reader.ReadPackedInt32())
         {
-            case 1:
-                ImpKillCount = (reader.ReadInt32(), reader.ReadInt32());
-                NeutralKillCount = (reader.ReadInt32(), reader.ReadInt32());
-                CrewKillCount = (reader.ReadInt32(), reader.ReadInt32());
-                break;
             case 2:
                 ImpKillCount.Killed++;
                 break;
@@ -122,6 +121,9 @@ internal class Impartial : RoleBase
                 break;
             case 4:
                 CrewKillCount.Killed++;
+                break;
+            case 5:
+                CovenKillCount.Killed++;
                 break;
         }
     }
@@ -142,6 +144,10 @@ internal class Impartial : RoleBase
                 CrewKillCount.Killed++;
                 Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 4);
                 break;
+            case Team.Coven:
+                CovenKillCount.Killed++;
+                Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 5);
+                break;
         }
     }
 
@@ -153,6 +159,7 @@ internal class Impartial : RoleBase
         sb.Append($" <{Main.ImpostorColor}>{ImpKillCount.Killed}/{ImpKillCount.Limit}</color>");
         sb.Append($" <{Main.NeutralColor}>{NeutralKillCount.Killed}/{NeutralKillCount.Limit}</color>");
         sb.Append($" <{Main.CrewmateColor}>{CrewKillCount.Killed}/{CrewKillCount.Limit}</color>");
+        sb.Append($" <{Main.CovenColor}>{CovenKillCount.Killed}/{CovenKillCount.Limit}</color>");
         return sb.ToString();
     }
 }

@@ -387,13 +387,14 @@ internal static class ChatCommands
         StringBuilder sb = new("<size=70%>");
 
         var rot = Enum.GetValues<RoleOptionType>()
+            .Without(RoleOptionType.Coven_Miscellaneous)
             .GroupBy(x => x.ToString().Split('_')[0])
             .ToDictionary(x => Enum.Parse<Team>(x.Key), x => x.ToArray());
 
         foreach (Team team in Enum.GetValues<Team>()[1..])
         {
             sb.Append("<u>");
-            sb.Append(Utils.ColorString(team.GetTeamColor(), GetString(team.ToString()).ToUpper()));
+            sb.Append(Utils.ColorString(team.GetColor(), GetString(team.ToString()).ToUpper()));
             sb.Append("</u>");
 
             int factionMin;
@@ -852,7 +853,7 @@ internal static class ChatCommands
             {
                 1 => string.Format(GetString("MessengerMessage.1"), GetString(Main.PlayerStates[killer.PlayerId].LastRoom.RoomId.ToString())),
                 2 => string.Format(GetString("MessengerMessage.2"), killer.GetCustomRole().ToColoredString()),
-                _ => string.Format(GetString("MessengerMessage.3"), Utils.ColorString(team.GetTeamColor(), GetString($"{team}")))
+                _ => string.Format(GetString("MessengerMessage.3"), Utils.ColorString(team.GetColor(), GetString($"{team}")))
             };
 
             Utils.SendMessage(message, title: string.Format(GetString("MessengerTitle"), player.PlayerId.ColoredPlayerName()));

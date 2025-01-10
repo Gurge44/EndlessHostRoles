@@ -7,6 +7,7 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
@@ -327,7 +328,6 @@ internal static class ExtendedPlayerControl
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
         player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole, true);
         player.ResetKillCooldown();
-        player.SyncSettings();
         player.SetKillCooldown();
         player.RpcResetAbilityCooldown();
         player.SyncGeneralOptions();
@@ -339,6 +339,8 @@ internal static class ExtendedPlayerControl
 
         NotifyRoles(SpecifySeer: player, NoCache: true);
         NotifyRoles(SpecifyTarget: player, NoCache: true);
+
+        player.SyncSettings();
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
@@ -1390,7 +1392,7 @@ internal static class ExtendedPlayerControl
         return Main.PlayerStates[pc.PlayerId].SubRoles.Any(x => x.IsEvilAddon());
     }
 
-    public static void ResetKillCooldown(this PlayerControl player)
+    public static void ResetKillCooldown(this PlayerControl player, bool sync = true)
     {
         Main.PlayerStates[player.PlayerId].Role.SetKillCooldown(player.PlayerId);
 
@@ -1427,6 +1429,8 @@ internal static class ExtendedPlayerControl
             Main.AllPlayerKillCooldown[player.PlayerId] = kcd;
             Logger.Info($"KCD of player set to {Main.AllPlayerKillCooldown[player.PlayerId]}", "Antidote");
         }
+
+        if (sync) player.SyncSettings();
     }
 
     public static void TrapperKilled(this PlayerControl killer, PlayerControl target)
@@ -1657,7 +1661,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsSnitchTarget(this PlayerControl player)
     {
-        return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || player.GetCustomRole().IsSnitchTarget();
+        return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || Enchanter.EnchantedPlayers.Contains(player.PlayerId) || player.GetCustomRole().IsSnitchTarget();
     }
 
     public static bool IsMadmate(this PlayerControl player)
@@ -1791,6 +1795,7 @@ internal static class ExtendedPlayerControl
     {
         return team switch
         {
+            Team.Coven => target.GetCustomRole().IsCoven(),
             Team.Impostor => (target.IsMadmate() || target.GetCustomRole().IsImpostorTeamV2() || Framer.FramedPlayers.Contains(target.PlayerId)) && !target.Is(CustomRoles.Bloodlust),
             Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust) || target.IsConverted(),
             Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),
@@ -1808,6 +1813,7 @@ internal static class ExtendedPlayerControl
         if (subRoles.Contains(CustomRoles.Madmate)) return Team.Impostor;
 
         CustomRoles role = target.GetCustomRole();
+        if (role.IsCoven()) return Team.Coven;
         if (role.IsImpostorTeamV2()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;
         return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;

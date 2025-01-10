@@ -101,7 +101,7 @@ internal static class ExileControllerWrapUpPatch
                 Warlock.IsCurseAndKill[pc.PlayerId] = false;
             }
 
-            pc.ResetKillCooldown();
+            pc.ResetKillCooldown(false);
             pc.RpcResetAbilityCooldown();
             PetsHelper.RpcRemovePet(pc);
         }
@@ -203,14 +203,8 @@ internal static class ExileControllerWrapUpPatch
     {
         public static void Postfix(ExileController __instance)
         {
-            try
-            {
-                WrapUpPostfix(__instance.initData.networkedPlayer);
-            }
-            finally
-            {
-                WrapUpFinalizer();
-            }
+            try { WrapUpPostfix(__instance.initData.networkedPlayer); }
+            finally { WrapUpFinalizer(); }
         }
     }
 
@@ -219,14 +213,8 @@ internal static class ExileControllerWrapUpPatch
     {
         public static void Postfix(AirshipExileController __instance)
         {
-            try
-            {
-                WrapUpPostfix(__instance.initData.networkedPlayer);
-            }
-            finally
-            {
-                WrapUpFinalizer();
-            }
+            try { WrapUpPostfix(__instance.initData.networkedPlayer); }
+            finally { WrapUpFinalizer(); }
         }
     }
 }

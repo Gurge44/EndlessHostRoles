@@ -42,6 +42,7 @@ public class Main : BasePlugin
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
+    public const string CovenColor = "#7b3fbb";
 
     public const float MinSpeed = 0.0001f;
 
@@ -143,7 +144,7 @@ public class Main : BasePlugin
 
     private Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
+    public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }
@@ -683,11 +684,13 @@ public class Main : BasePlugin
                 { CustomRoles.Taskinator, "#561dd1" }
             };
 
-            Enum.GetValues<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, "#ff1919"));
+            CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
+            allRoles.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
+            allRoles.Where(x => x.IsCoven()).Do(x => RoleColors.TryAdd(x, CovenColor));
         }
         catch (ArgumentException ex)
         {
-            Logger.Error("错误：字典出现重复项", "LoadDictionary");
+            Logger.Error("Error: Duplicate keys", "LoadDictionary");
             Logger.Exception(ex, "LoadDictionary");
             HasArgumentException = true;
         }
@@ -802,13 +805,21 @@ public enum Team
     None = 0,
     Impostor = 1,
     Neutral = 2,
-    Crewmate = 4
+    Crewmate = 4,
+    Coven = 8
 
     /*
      * Impostor | Neutral = 3
      * Impostor | Crewmate = 5
      * Neutral | Crewmate = 6
      * Impostor | Neutral | Crewmate = 7
+     * Impostor | Coven = 9
+     * Neutral | Coven = 10
+     * Impostor | Neutral | Coven = 11
+     * Crewmate | Coven = 12
+     * Impostor | Crewmate | Coven = 13
+     * Neutral | Crewmate | Coven = 14
+     * Impostor | Neutral | Crewmate | Coven = 15
      */
 }
 
@@ -913,6 +924,8 @@ public enum CustomWinner
     Imitator = CustomRoles.Imitator,
     Cherokious = CustomRoles.Cherokious,
     Specter = CustomRoles.Specter,
+
+    Coven = CustomRoles.CovenLeader,
 
     Bloodlust = CustomRoles.Bloodlust
 }

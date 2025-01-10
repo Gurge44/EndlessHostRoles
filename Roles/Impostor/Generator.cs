@@ -48,7 +48,7 @@ internal static class GeneratorStatic
 
         public override void SetupCustomOption()
         {
-            const int id = 11385;
+            const int id = 651000;
             Options.SetupRoleOptions(id, TabGroup.ImpostorRoles, CustomRoles.Generator);
 
             ChargesGainedPerSecond = new IntegerOptionItem(id + 2, "Generator.ChargesGainedEverySecond", new(1, 30, 1), 1, TabGroup.ImpostorRoles)

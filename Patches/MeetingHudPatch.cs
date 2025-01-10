@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
@@ -169,6 +170,7 @@ internal static class CheckForEndVotingPatch
                 bool canVote = !(CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
                 if (ps.VotedFor.GetPlayer() != null && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
+                if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
 
                 switch (Main.PlayerStates[ps.TargetPlayerId].Role)
                 {
@@ -424,13 +426,9 @@ internal static class CheckForEndVotingPatch
                         name += Utils.ColorString(team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color color) ? Color.yellow : color, team.RoleRevealScreenTitle == "*" ? team.TeamName : team.RoleRevealScreenTitle);
                     else
                     {
-                        name += player.GetTeam() switch
-                        {
-                            Team.Impostor => Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor")),
-                            Team.Neutral => Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")),
-                            Team.Crewmate => Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate")),
-                            _ => "----"
-                        };
+                        var color = player.GetTeam().GetColor();
+                        var str = GetString($"Team{player.GetTeam()}");
+                        name += Utils.ColorString(color, str);
                     }
 
                     name += ")";
@@ -567,6 +565,7 @@ internal static class CheckForEndVotingPatch
             if (Virus.PlayerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
             if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
             if (Wasp.On && deathReason == PlayerState.DeathReason.Vote) Wasp.OnExile(playerIds);
+            if (CustomRoles.SpellCaster.RoleExist()) SpellCaster.OnExile(playerIds);
 
             foreach (byte playerId in playerIds)
             {
@@ -641,6 +640,8 @@ internal static class ExtendedMeetingHud
 
                     Collector.CollectorVotes(target, ps);
                 }
+
+                if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) VoteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Mayor)) VoteNum += Mayor.MayorAdditionalVote.GetInt();
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) VoteNum += 1;
@@ -1028,6 +1029,7 @@ internal static class MeetingHudStartPatch
 
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));
             sb.Append(Wasp.GetStungMark(target.PlayerId));
+            sb.Append(SpellCaster.IsSpelled(seer.PlayerId) ? Utils.ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
 
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool()) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
 

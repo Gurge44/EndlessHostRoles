@@ -141,7 +141,8 @@ public static class GuessManager
                     (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser)) ||
                     (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && pc.GetCustomRole() is not CustomRoles.Doomsayer and not CustomRoles.NecroGuesser) ||
                     (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0) ||
-                    (Options.GuesserNumRestrictions.GetBool() && !Guessers.Contains(pc.PlayerId)))
+                    (Options.GuesserNumRestrictions.GetBool() && !Guessers.Contains(pc.PlayerId)) ||
+                    (pc.Is(Team.Coven) && !pc.Is(CustomRoles.Augur)))
                 {
                     if ((pc.Is(CustomRoles.Madmate) || pc.IsConverted()) && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
 
@@ -1152,6 +1153,7 @@ public static class GuessManager
                 CustomRoles.EvilGuesser => true,
                 CustomRoles.NiceGuesser => true,
                 CustomRoles.NecroGuesser => true,
+                CustomRoles.Augur => true,
                 CustomRoles.Doomsayer when !Doomsayer.CantGuess => true,
                 CustomRoles.Lyncher when Lyncher.GuessMode.GetValue() == 2 => true,
                 _ when Options.GuesserMode.GetBool() => lp.GetTeam() switch

@@ -824,18 +824,14 @@ internal static class IntroCutsceneDestroyPatch
                     {
                         LateTask.New(() =>
                         {
-                            foreach (PlayerControl pc in aapc)
-                            {
-                                pc.ResetKillCooldown();
-                                pc.SetKillCooldown(kcd - 2);
-                            }
+                            foreach (PlayerControl pc in aapc) { pc.SetKillCooldown(kcd - 2); }
                         }, 2f, "FixKillCooldownTask");
                     }
                     else if (Options.FixFirstKillCooldown.GetBool())
                     {
                         LateTask.New(() =>
                         {
-                            aapc.Do(x => x.ResetKillCooldown());
+                            aapc.Do(x => x.ResetKillCooldown(false));
                             aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
                         }, 2f, "FixKillCooldownTask");
                     }

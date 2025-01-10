@@ -327,6 +327,7 @@ internal static class CustomRolesHelper
             CustomRoles.Godfather => CustomRoles.Impostor,
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.NoteKiller => CustomRoles.Crewmate,
+            CustomRoles.Augur => CustomRoles.Crewmate,
 
             // Vanilla roles (just in case)
             CustomRoles.ImpostorEHR => CustomRoles.Impostor,
@@ -502,6 +503,21 @@ internal static class CustomRolesHelper
             CustomRoles.Spiritcaller => RoleTypes.Impostor,
             CustomRoles.Doppelganger => RoleTypes.Impostor,
             CustomRoles.Wizard => RoleTypes.Shapeshifter,
+
+            CustomRoles.CovenLeader => RoleTypes.Impostor,
+            CustomRoles.SpellCaster => RoleTypes.Impostor,
+            CustomRoles.PotionMaster => RoleTypes.Impostor,
+            CustomRoles.Poache => RoleTypes.Impostor,
+            CustomRoles.Reaper => RoleTypes.Impostor,
+            CustomRoles.Death => RoleTypes.Impostor,
+            CustomRoles.VoodooMaster => RoleTypes.Impostor,
+            CustomRoles.Goddess => RoleTypes.Phantom,
+            CustomRoles.Dreamweaver => RoleTypes.Impostor,
+            CustomRoles.Banshee => RoleTypes.Phantom,
+            CustomRoles.Illusionist => RoleTypes.Shapeshifter,
+            CustomRoles.Timelord => RoleTypes.Impostor,
+            CustomRoles.Enchanter => RoleTypes.Impostor,
+
             _ => RoleTypes.GuardianAngel
         };
     }
@@ -588,7 +604,7 @@ internal static class CustomRolesHelper
 
     public static bool IsSnitchTarget(this CustomRoles role)
     {
-        return role.IsNK() || role.Is(Team.Impostor);
+        return role.IsNK() || role.Is(Team.Impostor) || role.IsCoven();
     }
 
     public static bool IsGhostRole(this CustomRoles role)
@@ -896,6 +912,7 @@ internal static class CustomRolesHelper
     public static bool ForceCancelShapeshift(this CustomRoles role)
     {
         return role is
+            CustomRoles.Illusionist or
             CustomRoles.Swapster or
             CustomRoles.Echo or
             CustomRoles.Hangman or
@@ -1084,8 +1101,8 @@ internal static class CustomRolesHelper
 
     public static Team GetTeam(this CustomRoles role)
     {
+        if (role.IsCoven()) return Team.Coven;
         if (role.IsImpostorTeamV2()) return Team.Impostor;
-
         if (role.IsNeutralTeamV2()) return Team.Neutral;
 
         return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;
@@ -1095,12 +1112,31 @@ internal static class CustomRolesHelper
     {
         return team switch
         {
+            Team.Coven => role.IsCoven(),
             Team.Impostor => role.IsImpostorTeamV2(),
             Team.Neutral => role.IsNeutralTeamV2(),
             Team.Crewmate => role.IsCrewmateTeamV2(),
             Team.None => role.GetCountTypes() is CountTypes.OutOfGame or CountTypes.None || role == CustomRoles.GM,
             _ => false
         };
+    }
+
+    public static bool IsCoven(this CustomRoles role)
+    {
+        return role is
+            CustomRoles.CovenLeader or
+            CustomRoles.SpellCaster or
+            CustomRoles.PotionMaster or
+            CustomRoles.Poache or
+            CustomRoles.Reaper or
+            CustomRoles.VoodooMaster or
+            CustomRoles.Goddess or
+            CustomRoles.Augur or
+            CustomRoles.Dreamweaver or
+            CustomRoles.Banshee or
+            CustomRoles.Illusionist or
+            CustomRoles.Timelord or
+            CustomRoles.Enchanter;
     }
 
     public static RoleTypes GetRoleTypes(this CustomRoles role)
@@ -1277,14 +1313,17 @@ internal static class CustomRolesHelper
                 ? type
                 : role.Is(Team.Impostor) || role == CustomRoles.Trickster
                     ? CountTypes.Impostor
-                    : CountTypes.Crew
+                    : role.IsCoven()
+                        ? CountTypes.Coven
+                        : CountTypes.Crew
         };
     }
 
-    public static Color GetTeamColor(this Team team)
+    public static Color GetColor(this Team team)
     {
         return ColorUtility.TryParseHtmlString(team switch
         {
+            Team.Coven => Main.CovenColor,
             Team.Crewmate => Main.CrewmateColor,
             Team.Neutral => Main.NeutralColor,
             Team.Impostor => Main.ImpostorColor,
@@ -1292,6 +1331,18 @@ internal static class CustomRolesHelper
         }, out Color color)
             ? color
             : Color.clear;
+    }
+
+    public static string GetTextColor(this Team team)
+    {
+        return team switch
+        {
+            Team.Coven => Main.CovenColor,
+            Team.Crewmate => Main.CrewmateColor,
+            Team.Neutral => Main.NeutralColor,
+            Team.Impostor => Main.ImpostorColor,
+            _ => string.Empty
+        };
     }
 
     public static string ToColoredString(this CustomRoles role)
@@ -1303,6 +1354,7 @@ internal static class CustomRolesHelper
 
     public static RoleOptionType GetRoleOptionType(this CustomRoles role)
     {
+        if (role.IsCoven()) return RoleOptionType.Coven_Miscellaneous;
         if (role.IsImpostor()) return role.GetImpostorRoleCategory();
         if (role.IsCrewmate()) return role.GetCrewmateRoleCategory();
         if (role.IsNeutral(true)) return role.GetNeutralRoleCategory();
@@ -1327,6 +1379,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Neutral_Benign => Utils.GetRoleColor(CustomRoles.Chameleon),
             RoleOptionType.Neutral_Evil => Utils.GetRoleColor(CustomRoles.Mario),
             RoleOptionType.Neutral_Killing => Palette.ImpostorRed,
+            RoleOptionType.Coven_Miscellaneous => Utils.GetRoleColor(CustomRoles.CovenLeader),
             _ => Utils.GetRoleColor(CustomRoles.SwordsMan)
         };
     }
@@ -1348,6 +1401,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Neutral_Benign => TabGroup.NeutralRoles,
             RoleOptionType.Neutral_Evil => TabGroup.NeutralRoles,
             RoleOptionType.Neutral_Killing => TabGroup.NeutralRoles,
+            RoleOptionType.Coven_Miscellaneous => TabGroup.CovenRoles,
             _ => TabGroup.OtherRoles
         };
     }
@@ -1660,7 +1714,8 @@ public enum RoleOptionType
     Crewmate_Chaos,
     Neutral_Benign,
     Neutral_Evil,
-    Neutral_Killing
+    Neutral_Killing,
+    Coven_Miscellaneous
 }
 
 public enum AddonTypes
@@ -1749,5 +1804,7 @@ public enum CountTypes
     Glitch,
     Arsonist,
     Cherokious,
-    Sheriff
+    Sheriff,
+
+    Coven
 }

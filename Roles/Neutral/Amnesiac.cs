@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -203,6 +204,10 @@ public class Amnesiac : RoleBase
                             amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{RememberedRole}"));
                         }
 
+                        break;
+                    case Team.Coven:
+                        RememberedRole = targetRole == CustomRoles.CovenLeader ? Enum.GetValues<CustomRoles>().FindFirst(x => x.IsCoven() && !x.RoleExist(true), out var unusedCovenRole) ? unusedCovenRole : null : targetRole;
+                        if (RememberedRole.HasValue) amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCoven"));
                         break;
                 }
 

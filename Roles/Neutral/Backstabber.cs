@@ -70,7 +70,7 @@ public class Backstabber : RoleBase
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.PlayerId == target.PlayerId) return;
-            
+
         Team targetTeam = target.GetTeam();
 
         Team = targetTeam switch
@@ -78,12 +78,12 @@ public class Backstabber : RoleBase
             EHR.Team.Impostor => WinningTeam.NK,
             _ => WinningTeam.Imp
         };
-            
+
         if (targetTeam == EHR.Team.Crewmate && killer.IsLocalPlayer())
             Achievements.Type.StabbingTheBack.Complete();
 
         killer.RpcRemoveAbilityUse();
-        killer.Notify(string.Format(Translator.GetString("Backstabber.MurderNotify"), Utils.ColorString(targetTeam.GetTeamColor(), Translator.GetString(targetTeam.ToString())), Translator.GetString($"BackstabberTeam.{Team}")), 10f);
+        killer.Notify(string.Format(Translator.GetString("Backstabber.MurderNotify"), Utils.ColorString(targetTeam.GetColor(), Translator.GetString(targetTeam.ToString())), Translator.GetString($"BackstabberTeam.{Team}")), 10f);
     }
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)

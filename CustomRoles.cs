@@ -359,6 +359,23 @@ public enum CustomRoles
     Weatherman,
     Workaholic,
 
+    // Coven
+
+    CovenLeader,
+    SpellCaster,
+    PotionMaster,
+    Poache,
+    Reaper,
+    Death, // Reaper changes to Death
+    VoodooMaster,
+    Goddess,
+    Augur,
+    Dreamweaver,
+    Banshee,
+    Illusionist,
+    Timelord,
+    Enchanter,
+
     // Solo Kombat
     KB_Normal,
 
@@ -446,6 +463,7 @@ public enum CustomRoles
     Guesser,
     Haste,
     Haunter, // Ghost role
+    Insane,
     Introvert,
     Knighted,
     LastImpostor,

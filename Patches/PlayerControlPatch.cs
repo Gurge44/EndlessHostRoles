@@ -6,6 +6,7 @@ using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.AddOns.Impostor;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.GameMode.HideAndSeekRoles;
 using EHR.Impostor;
@@ -209,7 +210,7 @@ internal static class CheckMurderPatch
             if (!Main.KilledAntidote.TryAdd(killer.PlayerId, 1))
                 Main.KilledAntidote[killer.PlayerId] += 1;
 
-        killer.ResetKillCooldown();
+        killer.ResetKillCooldown(false);
 
         if (killer.PlayerId != target.PlayerId && !killer.CanUseKillButton())
         {
@@ -396,6 +397,7 @@ internal static class CheckMurderPatch
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
             Gaslighter.IsShielded(target) ||
+            !PotionMaster.OnAnyoneCheckMurder(target) ||
             !Grappler.OnAnyoneCheckMurder(target) ||
             !Adventurer.OnAnyoneCheckMurder(target) ||
             !Sentinel.OnAnyoneCheckMurder(killer) ||
@@ -968,6 +970,9 @@ internal static class ReportDeadBodyPatch
                     return false;
 
                 if (!Librarian.OnAnyoneReport(__instance)) return false;
+                if (!Occultist.OnAnyoneReportDeadBody(target)) return false;
+                if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
+                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
 
                 if (!Hypnotist.OnAnyoneReport())
                 {
@@ -977,11 +982,7 @@ internal static class ReportDeadBodyPatch
                     return false;
                 }
 
-                if (!Occultist.OnAnyoneReportDeadBody(target)) return false;
-
-                if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
-
-                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
+                if (killer != null && killer.Is(CustomRoles.Goddess)) return false;
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 
@@ -2076,9 +2077,15 @@ internal static class CoEnterVentPatch
 [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
 internal static class GameDataCompleteTaskPatch
 {
-    public static void Postfix(PlayerControl pc /*, uint taskId*/)
+    public static void Postfix(PlayerControl pc, uint taskId)
     {
         if (GameStates.IsMeeting) return;
+
+        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
+        {
+            var task = pc.myTasks[(Index)Convert.ToInt32(taskId)] as PlayerTask;
+            Hider.OnSpecificTaskComplete(pc, task);
+        }
 
         Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
@@ -2115,8 +2122,6 @@ internal static class PlayerControlCompleteTaskPatch
 
             NotifyRoles(SpecifySeer: __instance, ForceLoop: true);
         }
-
-        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && HnSManager.PlayerRoles[__instance.PlayerId].Interface.Team == Team.Crewmate && __instance.IsAlive()) Hider.OnSpecificTaskComplete(__instance, task);
     }
 }
 
