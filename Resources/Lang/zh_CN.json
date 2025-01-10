@@ -4563,7 +4563,7 @@
   "RunnerInfoLong": "完成任务，先发制人，悉数消灭以取胜",
   "CaptureTheFlag": "夺旗",
   "ModeCaptureTheFlag": "游戏模式:夺旗",
-  "ModeDescribe.CaptureTheFlag": "于夺旗玩法之内,分黄蓝两队,在两队的出生点内就有双方的旗子,你的目标是偷家敌人,偷走旗子,带回自己队伍即可,哪队率先做到即为胜利.\\n\\n你只需要在旗子附近摸宠物/变形即可夺走敌对旗子.\\n\\n若对敌队的人使用击杀可以把他们送回出生点/彻底杀死他们(取决于设置)\\n\\n你还可以让拿旗子的人不能杀人(同样取决于设置).",
+  "ModeDescribe.CaptureTheFlag": "In the Capture The Flag gamemode, there are two teams: Yellow and Blue. Each team has a flag in their base. The goal is to capture the enemy's flag and bring it back to your base. The first team to capture the enemy's flag wins!\\n\\nYou can grab the flag by clicking your <b>Vanish</b> button near it.\\n\\nPlayers can be tagged by the enemy team, which will send them back to their base or kill them, depending on the settings. Players who are carrying a flag cannot tag other players.",
   "CTF_AlertTeamMembersOfFlagTaken": "旗帜被夺时提醒团队成员",
   "CTF_ArrowToEnemyFlagCarrier": "会有一个箭头指向拿着本队旗子的人的位置",
   "CTF_AlertTeamMembersOfEnemyFlagTaken": "当敌人的旗帜被夺走时提醒船员",
