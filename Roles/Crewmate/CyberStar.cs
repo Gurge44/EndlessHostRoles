@@ -15,6 +15,9 @@ internal class CyberStar : RoleBase
 
         NeutralKnowCyberStarDead = new BooleanOptionItem(5500, "NeutralKnowCyberStarDead", false, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
+            
+        CovenKnowCyberStarDead = new BooleanOptionItem(5600, "NeutralKnowCyberStarDead", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
     }
 
     public override void Init() { }
