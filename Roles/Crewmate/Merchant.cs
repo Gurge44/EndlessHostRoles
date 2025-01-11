@@ -120,8 +120,9 @@ internal class Merchant : RoleBase
                 && CustomRolesHelper.CheckAddonConflict(addon, x)
                 && (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
                 && ((OptionCanTargetCrew.GetBool() && x.IsCrewmate()) ||
-                     (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller()) ||
-                     (OptionCanTargetCoven.GetBool() && x.GetCustomRole().IsCoven())))
+                    (OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor()) ||
+                    (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller()) ||
+                    (OptionCanTargetCoven.GetBool() && x.GetCustomRole().IsCoven())))
             ).ToList();
 
         if (availableTargets.Count <= 0) return;
