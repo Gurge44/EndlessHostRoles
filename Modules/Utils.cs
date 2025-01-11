@@ -1283,6 +1283,7 @@ public static class Utils
         StringBuilder impsb = new();
         StringBuilder neutralsb = new();
         StringBuilder crewsb = new();
+        StringBuilder covensb = new();
         StringBuilder addonsb = new();
         StringBuilder ghostsb = new();
 
@@ -1309,6 +1310,7 @@ public static class Utils
                 else if (role.IsCrewmate()) crewsb.Append(roleDisplay);
                 else if (role.IsImpostor() || role.IsMadmate()) impsb.Append(roleDisplay);
                 else if (role.IsNeutral()) neutralsb.Append(roleDisplay);
+                else if (role.IsCoven()) covensb.Append(roleDisplay);
             }
         }
 
@@ -1316,6 +1318,7 @@ public static class Utils
         SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")));
         SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")));
         SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, GetString("NeutralRoles"));
+        SendMessage(covensb.Append("\n.").ToString(), PlayerId, GetString("CovenRoles"));
         SendMessage(ghostsb.Append("\n.").ToString(), PlayerId, GetString("GhostRoles"));
         SendMessage(addonsb.Append("\n.").ToString(), PlayerId, GetString("AddonRoles"));
     }
@@ -2776,18 +2779,19 @@ public static class Utils
                 pc.CheckAndSetUnshiftState(false);
 
                 AFKDetector.RecordPosition(pc);
-
-                Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
             }
             else
             {
                 TaskState taskState = pc.GetTaskState();
-                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks) pc.Notify(GetString("DoYourTasksPlease"), 10f);
+                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks) pc.Notify(GetString("DoYourTasksPlease"), 8f);
 
                 GhostRolesManager.NotifyAboutGhostRole(pc);
             }
 
-            if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter)) pc.RpcResetAbilityCooldown();
+            Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
+
+            if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter))
+                pc.RpcResetAbilityCooldown();
 
             Main.CheckShapeshift[pc.PlayerId] = false;
         }

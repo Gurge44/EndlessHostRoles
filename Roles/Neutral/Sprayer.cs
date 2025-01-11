@@ -199,6 +199,7 @@ internal class Sprayer : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        if (Main.PlayerStates[SprayerId].IsDead) return;
         if (SprayerId.GetAbilityUseLimit() > 0) SprayerPC.AddAbilityCD(Math.Max(15, CD.GetInt()));
     }
 }

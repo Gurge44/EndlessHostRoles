@@ -198,7 +198,7 @@ public class BountyHunter : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        foreach (byte id in PlayerIdList.ToArray())
+        foreach (byte id in PlayerIdList)
         {
             if (!Main.PlayerStates[id].IsDead)
             {

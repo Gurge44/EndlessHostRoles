@@ -48,6 +48,8 @@ public class Grappler : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        if (Main.PlayerStates[GrapplerId].IsDead) return;
+
         if (GrapplerId.GetAbilityUseLimit() >= 1f)
         {
             InUse = true;

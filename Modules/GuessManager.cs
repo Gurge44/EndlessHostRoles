@@ -342,6 +342,9 @@ public static class GuessManager
                         case CustomRoles.Tank when !Tank.CanBeGuessed.GetBool():
                             ShowMessage("GuessTank");
                             return true;
+                        case CustomRoles.Ankylosaurus:
+                            ShowMessage("GuessAnkylosaurus");
+                            return true;
                         case CustomRoles.DonutDelivery when DonutDelivery.IsUnguessable(pc, target):
                         case CustomRoles.Shifter:
                         case CustomRoles.Car:
