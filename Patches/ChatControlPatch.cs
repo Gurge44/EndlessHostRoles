@@ -203,7 +203,7 @@ public static class ChatManager
         }
 
         if (CustomGameMode.FFA.IsActiveOrIntegrated() && GameStates.InGame && !message.StartsWith('/'))
-            FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
+            FreeForAll.UpdateLastChatMessage(player.GetRealName(), message);
 
         if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.InGame && operate != 1 && Banshee.On)
             Banshee.OnReceiveChat();

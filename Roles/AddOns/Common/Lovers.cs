@@ -145,13 +145,7 @@ internal class Lovers : IAddon
 
     public static void Init()
     {
-        try
-        {
-            LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
-        }
-        catch
-        {
-            LovingImpostorRole = CustomRoles.LovingImpostor;
-        }
+        try { LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(true) && !CustomHnS.AllHnSRoles.Contains(x)).Shuffle()[0]; }
+        catch { LovingImpostorRole = CustomRoles.LovingImpostor; }
     }
 }

@@ -192,7 +192,7 @@ public class Dad : RoleBase
         if (DrunkPlayers.Count > 0)
         {
             int chance = DrunkRoleIncorrectChance.GetInt();
-            List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).ToList();
+            List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).ToList();
 
             foreach (byte id in DrunkPlayers)
             {

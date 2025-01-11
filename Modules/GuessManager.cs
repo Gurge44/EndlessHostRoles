@@ -987,7 +987,7 @@ public static class GuessManager
 
                 if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) continue;
 
-                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || HnSManager.AllHnSRoles.Contains(role)) continue;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || CustomHnS.AllHnSRoles.Contains(role)) continue;
 
                 CreateRole(role);
             }

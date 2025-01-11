@@ -144,18 +144,18 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             {
                 case CustomGameMode.AllInOne:
                 case CustomGameMode.FFA:
-                    if (FFAManager.FFALowerVisionList.ContainsKey(player.PlayerId))
+                    if (FreeForAll.FFALowerVisionList.ContainsKey(player.PlayerId))
                     {
                         opt.SetVision(true);
-                        opt.SetFloat(FloatOptionNames.CrewLightMod, FFAManager.FFALowerVision.GetFloat());
-                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, FFAManager.FFALowerVision.GetFloat());
+                        opt.SetFloat(FloatOptionNames.CrewLightMod, FreeForAll.FFALowerVision.GetFloat());
+                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, FreeForAll.FFALowerVision.GetFloat());
                     }
                     else SetMaxVision();
 
                     if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                     break;
                 case CustomGameMode.CaptureTheFlag:
-                    CTFManager.ApplyGameOptions();
+                    CaptureTheFlag.ApplyGameOptions();
                     SetMaxVision();
                     break;
                 case CustomGameMode.NaturalDisasters:
@@ -174,7 +174,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     SetMaxVision();
                     break;
                 case CustomGameMode.HideAndSeek:
-                    HnSManager.ApplyGameOptions(opt, player);
+                    CustomHnS.ApplyGameOptions(opt, player);
                     break;
             }
 

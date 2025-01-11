@@ -49,7 +49,7 @@ internal static class CustomRolesHelper
 
     public static bool IsForOtherGameMode(this CustomRoles role)
     {
-        return HnSManager.AllHnSRoles.Contains(role) || role is
+        return CustomHnS.AllHnSRoles.Contains(role) || role is
             CustomRoles.KB_Normal or
             CustomRoles.Killer or
             CustomRoles.Tasker or
@@ -353,6 +353,14 @@ internal static class CustomRolesHelper
             CustomRoles.Agent => CustomRoles.Impostor,
             CustomRoles.Taskinator => CustomRoles.Crewmate,
 
+            // Move And Stop
+            CustomRoles.Tasker => CustomRoles.Crewmate,
+            // Hot Potato
+            CustomRoles.Potato => CustomRoles.Crewmate,
+            // Speedrun
+            CustomRoles.Runner => CustomRoles.Crewmate,
+            // Natural Disasters
+            CustomRoles.NDPlayer => CustomRoles.Crewmate,
             // Room Rush
             CustomRoles.RRPlayer => CustomRoles.Crewmate,
 
@@ -394,16 +402,8 @@ internal static class CustomRolesHelper
             CustomRoles.KB_Normal => RoleTypes.Impostor,
             // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
-            // Move And Stop
-            CustomRoles.Tasker => RoleTypes.Crewmate,
-            // Hot Potato
-            CustomRoles.Potato => RoleTypes.Crewmate,
-            // Speedrun
-            CustomRoles.Runner => RoleTypes.Crewmate,
             // Capture The Flag
             CustomRoles.CTFPlayer => RoleTypes.Phantom,
-            // Natural Disasters
-            CustomRoles.NDPlayer => RoleTypes.Crewmate,
             // Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

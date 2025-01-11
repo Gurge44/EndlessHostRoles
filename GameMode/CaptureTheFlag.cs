@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace EHR;
 
-public static class CTFManager
+public static class CaptureTheFlag
 {
     private static OptionItem AlertTeamMembersOfFlagTaken;
     private static OptionItem ArrowToEnemyFlagCarrier;
@@ -513,7 +513,7 @@ public class CTFPlayer : RoleBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        CTFManager.TryPickUpFlag(pc);
+        CaptureTheFlag.TryPickUpFlag(pc);
         return false;
     }
 }

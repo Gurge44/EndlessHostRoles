@@ -39,8 +39,8 @@ public static class NameColorManager
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.FFA when FFAManager.FFATeamMode.GetBool():
-                color = FFAManager.TeamColors[FFAManager.PlayerTeams[target.PlayerId]];
+            case CustomGameMode.FFA when FreeForAll.FFATeamMode.GetBool():
+                color = FreeForAll.TeamColors[FreeForAll.PlayerTeams[target.PlayerId]];
                 return true;
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
@@ -55,19 +55,19 @@ public static class NameColorManager
                     color = "#000000";
                 else if (target.PlayerId == LastHolderID)
                     color = "#00ffff";
-                else if (Options.CurrentGameMode == CustomGameMode.AllInOne && SpeedrunManager.CanKill.Contains(target.PlayerId))
+                else if (Options.CurrentGameMode == CustomGameMode.AllInOne && Speedrun.CanKill.Contains(target.PlayerId))
                     color = Main.ImpostorColor;
                 else
                     color = "#ffffff";
 
                 return true;
             case CustomGameMode.HideAndSeek:
-                return HnSManager.KnowTargetRoleColor(seer, target, ref color);
-            case CustomGameMode.Speedrun when SpeedrunManager.CanKill.Contains(target.PlayerId):
+                return CustomHnS.KnowTargetRoleColor(seer, target, ref color);
+            case CustomGameMode.Speedrun when Speedrun.CanKill.Contains(target.PlayerId):
                 color = Main.ImpostorColor;
                 return true;
             case CustomGameMode.CaptureTheFlag:
-                return CTFManager.KnowTargetRoleColor(target, ref color);
+                return CaptureTheFlag.KnowTargetRoleColor(target, ref color);
         }
 
         RoleBase seerRoleClass = Main.PlayerStates[seer.PlayerId].Role;

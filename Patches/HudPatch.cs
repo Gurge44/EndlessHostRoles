@@ -245,10 +245,10 @@ internal static class HudManagerPatch
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloKombat => SoloPVP.GetHudText(),
-                        CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
+                        CustomGameMode.FFA when player.IsHost() => FreeForAll.GetHudText(),
                         CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
-                        CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, true),
+                        CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotato.GetSuffixText(player.PlayerId)}",
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
@@ -700,7 +700,7 @@ internal static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.FFA:
 
-                    finalText += Main.PlayerStates.Keys.OrderBy(FFAManager.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FFAManager.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FFAManager.KillCount.GetValueOrDefault(x, 0))}");
+                    finalText += Main.PlayerStates.Keys.OrderBy(FreeForAll.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FreeForAll.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FreeForAll.KillCount.GetValueOrDefault(x, 0))}");
 
                     finalText += "</size>";
                     break;
@@ -766,7 +766,7 @@ internal static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.HideAndSeek:
 
-                    finalText += $"\r\n\r\n{HnSManager.GetTaskBarText()}";
+                    finalText += $"\r\n\r\n{CustomHnS.GetTaskBarText()}";
 
                     break;
 
@@ -791,7 +791,7 @@ internal static class TaskPanelBehaviourPatch
                         finalText += $"<size=70%>\r\n{text}\r\n</size>";
                     }
 
-                    finalText += $"\r\n<size=90%>{SpeedrunManager.GetTaskBarText()}</size>";
+                    finalText += $"\r\n<size=90%>{Speedrun.GetTaskBarText()}</size>";
 
                     break;
 

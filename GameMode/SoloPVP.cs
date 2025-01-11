@@ -276,7 +276,7 @@ internal static class SoloPVP
         KBScore[killer.PlayerId]++;
 
         if (Options.CurrentGameMode == CustomGameMode.AllInOne)
-            SpeedrunManager.ResetTimer(killer);
+            Speedrun.ResetTimer(killer);
 
         float addRate = IRandom.Instance.Next(3, 5 + GetRankFromScore(killer.PlayerId)) / 100f;
         addRate *= KB_KillBonusMultiplier.GetFloat();
@@ -302,7 +302,7 @@ internal static class SoloPVP
                 AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_ATK"), addin.ToString("0.0#####")));
                 break;
             case 3:
-                addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate * 5;
+                addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate * 8;
                 PlayerDF[killer.PlayerId] += addin;
                 AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_DF"), addin.ToString("0.0#####")));
                 break;

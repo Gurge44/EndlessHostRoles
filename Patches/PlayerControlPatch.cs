@@ -226,32 +226,32 @@ internal static class CheckMurderPatch
                 return false;
             case CustomGameMode.AllInOne when CustomGameMode.FFA.IsActiveOrIntegrated() && killer.Is(CustomRoles.Killer):
             case CustomGameMode.FFA:
-                FFAManager.OnPlayerAttack(killer, target);
+                FreeForAll.OnPlayerAttack(killer, target);
                 return false;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
-            case CustomGameMode.Speedrun when !SpeedrunManager.OnCheckMurder(killer, target):
+            case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
                 return false;
             case CustomGameMode.AllInOne:
                 if (killer.Is(CustomRoles.Killer)) killer.Kill(target);
 
                 if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
-                    CTFManager.OnCheckMurder(killer, target);
+                    CaptureTheFlag.OnCheckMurder(killer, target);
 
                 if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
-                    HnSManager.OnCheckMurder(killer, target);
+                    CustomHnS.OnCheckMurder(killer, target);
 
                 return false;
             case CustomGameMode.Speedrun:
                 killer.Kill(target);
                 return false;
             case CustomGameMode.HideAndSeek:
-                HnSManager.OnCheckMurder(killer, target);
+                CustomHnS.OnCheckMurder(killer, target);
                 return false;
             case CustomGameMode.CaptureTheFlag:
-                CTFManager.OnCheckMurder(killer, target);
+                CaptureTheFlag.OnCheckMurder(killer, target);
                 return false;
         }
 
@@ -675,7 +675,7 @@ internal static class MurderPlayerPatch
 
         Chef.SpitOutFood(killer);
 
-        if (CustomGameMode.Speedrun.IsActiveOrIntegrated()) SpeedrunManager.ResetTimer(killer);
+        if (CustomGameMode.Speedrun.IsActiveOrIntegrated()) Speedrun.ResetTimer(killer);
 
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId) killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
 
@@ -1718,19 +1718,19 @@ internal static class FixedUpdatePatch
                         Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
                         break;
                     case CustomGameMode.FFA:
-                        Suffix.Append(FFAManager.GetPlayerArrow(seer, target));
+                        Suffix.Append(FreeForAll.GetPlayerArrow(seer, target));
                         break;
                     case CustomGameMode.MoveAndStop when self:
                         Suffix.Append(MoveAndStop.GetSuffixText(seer));
                         break;
                     case CustomGameMode.Speedrun when self:
-                        Suffix.Append(SpeedrunManager.GetSuffixText(seer));
+                        Suffix.Append(Speedrun.GetSuffixText(seer));
                         break;
                     case CustomGameMode.HideAndSeek:
-                        Suffix.Append(HnSManager.GetSuffixText(seer, target));
+                        Suffix.Append(CustomHnS.GetSuffixText(seer, target));
                         break;
                     case CustomGameMode.CaptureTheFlag:
-                        Suffix.Append(CTFManager.GetSuffixText(seer, target));
+                        Suffix.Append(CaptureTheFlag.GetSuffixText(seer, target));
                         break;
                     case CustomGameMode.RoomRush when self:
                         Suffix.Append(RoomRush.GetSuffix(seer));
@@ -1738,7 +1738,7 @@ internal static class FixedUpdatePatch
                     case CustomGameMode.AllInOne:
                         if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
                         if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
-                        if (self && alive && !seer.Is(CustomRoles.Killer)) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
+                        if (self && alive && !seer.Is(CustomRoles.Killer)) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
                         if (self) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - "));
                         break;
                 }
@@ -1953,7 +1953,7 @@ internal static class CoEnterVentPatch
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
+            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
                 LateTask.New(() =>
                 {
                     __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
@@ -1961,7 +1961,7 @@ internal static class CoEnterVentPatch
                 }, 0.5f, "FFA-NoVentingWhenTwoPlayersAlive");
 
                 return true;
-            case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
+            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
                 LateTask.New(() =>
                 {
                     __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
@@ -1977,7 +1977,7 @@ internal static class CoEnterVentPatch
                 LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:
-                HnSManager.OnCoEnterVent(__instance, id);
+                CustomHnS.OnCoEnterVent(__instance, id);
                 break;
             case CustomGameMode.RoomRush:
                 return true;
@@ -2074,7 +2074,7 @@ internal static class GameDataCompleteTaskPatch
     {
         if (GameStates.IsMeeting) return;
 
-        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
+        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
         {
             var task = pc.myTasks[(Index)Convert.ToInt32(taskId)] as PlayerTask;
             Hider.OnSpecificTaskComplete(pc, task);

@@ -889,7 +889,7 @@ public static class Options
             .OrderBy(x => (int)x.Key)
             .ToDictionary(x => x.Key, x => x.ToArray());
 
-        HnSManager.AllHnSRoles = HnSManager.GetAllHnsRoles(HnSManager.GetAllHnsRoleTypes());
+        CustomHnS.AllHnSRoles = CustomHnS.GetAllHnsRoles(CustomHnS.GetAllHnsRoleTypes());
     }
 
     private static void GroupAddons()
@@ -1051,11 +1051,11 @@ public static class Options
 
         MainLoadingText = "Building general settings";
 
-        
+
         CovenReceiveNecronomiconAfterNumMeetings = new IntegerOptionItem(650001, "CovenReceiveNecronomiconAfterNumMeetings", new(1, 10, 1), 3, TabGroup.CovenRoles)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
-        
+
         CovenLeaderKillCooldown = new FloatOptionItem(650000, "CovenLeaderKillCooldown", new(0f, 120f, 0.5f), 30f, TabGroup.CovenRoles)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Seconds);
@@ -1430,17 +1430,17 @@ public static class Options
         // SoloKombat
         SoloPVP.SetupCustomOption();
         // FFA
-        FFAManager.SetupCustomOption();
+        FreeForAll.SetupCustomOption();
         // Move And Stop
         MoveAndStop.SetupCustomOption();
         // Hot Potato
         HotPotato.SetupCustomOption();
         // Speedrun
-        SpeedrunManager.SetupCustomOption();
+        Speedrun.SetupCustomOption();
         // Hide And Seek
-        HnSManager.SetupCustomOption();
+        CustomHnS.SetupCustomOption();
         // Capture The Flag
-        CTFManager.SetupCustomOption();
+        CaptureTheFlag.SetupCustomOption();
         // Natural Disasters
         NaturalDisasters.SetupCustomOption();
         // Room Rush

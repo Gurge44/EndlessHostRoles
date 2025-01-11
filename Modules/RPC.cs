@@ -1111,7 +1111,7 @@ internal static class RPCHandlerPatch
 
                 if (!killer.IsAlive() || !target.IsAlive() || AntiBlackout.SkipTasks || target.inMovingPlat || target.onLadder || target.inVent || MeetingHud.Instance) break;
 
-                FFAManager.OnPlayerAttack(killer, target);
+                FreeForAll.OnPlayerAttack(killer, target);
                 break;
             }
         }

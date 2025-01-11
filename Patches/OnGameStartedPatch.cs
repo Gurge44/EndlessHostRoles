@@ -314,10 +314,7 @@ internal static class ChangeRoleSettings
                 Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.ClientIdList.Add(pc.GetClientId());
 
-                try
-                {
-                    Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
-                }
+                try { Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId]; }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
 
@@ -351,11 +348,11 @@ internal static class ChangeRoleSettings
             try
             {
                 SoloPVP.Init();
-                FFAManager.Init();
+                FreeForAll.Init();
                 MoveAndStop.Init();
                 HotPotato.Init();
-                HnSManager.Init();
-                SpeedrunManager.Init();
+                CustomHnS.Init();
+                Speedrun.Init();
                 AllInOneGameMode.Init();
             }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -777,10 +774,10 @@ internal static class StartGameHostPatch
                     if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                     break;
                 case CustomGameMode.HideAndSeek:
-                    HnSManager.StartSeekerBlindTime();
+                    CustomHnS.StartSeekerBlindTime();
                     break;
                 case CustomGameMode.CaptureTheFlag:
-                    CTFManager.OnGameStart();
+                    CaptureTheFlag.OnGameStart();
                     break;
                 case CustomGameMode.NaturalDisasters:
                     NaturalDisasters.OnGameStart();
@@ -1089,7 +1086,7 @@ internal static class StartGameHostPatch
 
             bool ForceImp(byte id)
             {
-                return IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (CustomGameMode.Speedrun.IsActiveOrIntegrated() && SpeedrunManager.CanKill.Contains(id));
+                return IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (CustomGameMode.Speedrun.IsActiveOrIntegrated() && Speedrun.CanKill.Contains(id));
             }
         }
 
@@ -1105,7 +1102,7 @@ internal static class StartGameHostPatch
                 PlayerControl player = Utils.GetPlayerById(playerId);
                 if (player == null || role.IsDesyncRole()) continue;
 
-                if (CustomGameMode.Speedrun.IsActiveOrIntegrated() && SpeedrunManager.CanKill.Contains(playerId)) continue;
+                if (CustomGameMode.Speedrun.IsActiveOrIntegrated() && Speedrun.CanKill.Contains(playerId)) continue;
 
                 RoleTypes roleType = role.GetRoleTypes();
 

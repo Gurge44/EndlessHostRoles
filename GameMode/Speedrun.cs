@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace EHR;
 
-public static class SpeedrunManager
+public static class Speedrun
 {
     private static OptionItem TaskFinishWins;
     private static OptionItem TimeStacksUp;

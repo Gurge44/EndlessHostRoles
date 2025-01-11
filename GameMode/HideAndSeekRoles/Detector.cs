@@ -61,7 +61,7 @@ public class Detector : RoleBase, IHideAndSeekRole
 
         if (LastInfoTime + InfoFrequency.GetInt() <= now)
         {
-            PlayerControl[] imps = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.GetPlainShipRoom() != null).ToArray();
+            PlayerControl[] imps = CustomHnS.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.GetPlainShipRoom() != null).ToArray();
 
             if (imps.Length > 0)
             {

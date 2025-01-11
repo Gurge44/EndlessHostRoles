@@ -54,10 +54,10 @@ public static class Statistics
                 case CustomGameMode.CaptureTheFlag:
                     if (won) Achievements.Type.YourFlagIsMine.CompleteAfterGameEnd();
 
-                    if (Main.AllPlayerControls.Select(x => (pc: x, time: CTFManager.GetFlagTime(x.PlayerId))).MaxBy(x => x.time).pc.PlayerId == lp.PlayerId)
+                    if (Main.AllPlayerControls.Select(x => (pc: x, time: CaptureTheFlag.GetFlagTime(x.PlayerId))).MaxBy(x => x.time).pc.PlayerId == lp.PlayerId)
                         Achievements.Type.FlagMaster.CompleteAfterGameEnd();
 
-                    if (Main.AllPlayerControls.Select(x => (pc: x, time: CTFManager.GetTagCount(x.PlayerId))).MaxBy(x => x.time).pc.PlayerId == lp.PlayerId)
+                    if (Main.AllPlayerControls.Select(x => (pc: x, time: CaptureTheFlag.GetTagCount(x.PlayerId))).MaxBy(x => x.time).pc.PlayerId == lp.PlayerId)
                         Achievements.Type.Tag.CompleteAfterGameEnd();
 
                     return;

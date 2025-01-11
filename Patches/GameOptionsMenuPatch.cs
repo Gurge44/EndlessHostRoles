@@ -705,7 +705,7 @@ public static class StringOptionPatch
                     string str = Translator.GetString($"{roleName}InfoLong");
                     string infoLong;
 
-                    try { infoLong = HnSManager.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
+                    try { infoLong = CustomHnS.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
                     catch { infoLong = str; }
 
                     var info = $"{value.ToColoredString()}: {infoLong}";

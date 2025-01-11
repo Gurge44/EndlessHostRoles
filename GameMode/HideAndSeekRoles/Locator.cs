@@ -76,7 +76,7 @@ public class Locator : RoleBase, IHideAndSeekRole
         {
             if (Status.LastArrowEndTime + ArrowFrequency.GetInt() < Utils.TimeStamp)
             {
-                PlayerControl target = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
+                PlayerControl target = CustomHnS.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
 
                 if (target != null)
                 {
