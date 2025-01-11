@@ -865,6 +865,12 @@ internal static class ChatCommands
     // Credit: Drakos for the base code
     private static void PollCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(PollCommand), text);
+            return;
+        }
+
         PollVotes.Clear();
         PollAnswers.Clear();
         PollVoted.Clear();
@@ -1209,6 +1215,12 @@ internal static class ChatCommands
 
     private static void BanKickCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(BanKickCommand), text);
+            return;
+        }
+
         // Check if the kick command is enabled in the settings
         if (!Options.ApplyModeratorList.GetBool() && !player.IsHost())
         {

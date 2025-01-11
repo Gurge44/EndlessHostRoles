@@ -408,7 +408,8 @@ public class TaskState
 
             if (alive && CustomGameMode.Speedrun.IsActiveOrIntegrated())
             {
-                if (CompletedTasksCount + 1 >= AllTasksCount) Speedrun.OnTaskFinish(player);
+                if (CompletedTasksCount + 1 >= AllTasksCount)
+                    Speedrun.OnTaskFinish(player);
 
                 Speedrun.ResetTimer(player);
             }
