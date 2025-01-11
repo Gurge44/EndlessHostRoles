@@ -198,6 +198,6 @@ public class Virus : RoleBase
 
     private static bool CanBeInfected(PlayerControl pc)
     {
-        return !pc.Is(CustomRoles.Virus) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser);
+        return !pc.Is(CustomRoles.Virus) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser) && !pc.Is(Team.Coven);
     }
 }

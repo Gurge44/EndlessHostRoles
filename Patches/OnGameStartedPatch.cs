@@ -178,6 +178,8 @@ internal static class ChangeRoleSettings
             Main.ShapeshiftTarget = [];
             Main.LoversPlayers = [];
             Main.DiedThisRound = [];
+            Main.GuesserGuessed = [];
+            Main.GuesserGuessedMeeting = [];
             Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : string.Empty;
             Main.FirstDied = string.Empty;
             Main.MadmateNum = 0;

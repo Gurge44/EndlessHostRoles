@@ -6,6 +6,6 @@ public class AntiTP : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(16893, CustomRoles.AntiTP, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(16892, CustomRoles.AntiTP, canSetNum: true, teamSpawnOptions: true);
     }
 }

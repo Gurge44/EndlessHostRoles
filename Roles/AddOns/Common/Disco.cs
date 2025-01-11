@@ -10,9 +10,9 @@ internal class Disco : IAddon
 
     public void SetupCustomOption()
     {
-        SetupAdtRoleOptions(15430, CustomRoles.Disco, canSetNum: true, teamSpawnOptions: true);
+        SetupAdtRoleOptions(652000, CustomRoles.Disco, canSetNum: true, teamSpawnOptions: true);
 
-        DiscoChangeInterval = new IntegerOptionItem(15437, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons)
+        DiscoChangeInterval = new IntegerOptionItem(652010, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disco])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -23,10 +23,7 @@ internal class Disco : IAddon
 
         pc.SetColor(colorId);
 
-        try
-        {
-            pc.RpcSetColor((byte)colorId);
-        }
+        try { pc.RpcSetColor((byte)colorId); }
         catch
         {
             var sender = CustomRpcSender.Create($"Disco.ChangeColor({pc.Data.PlayerName})");

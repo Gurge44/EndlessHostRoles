@@ -189,27 +189,15 @@ public static class NameColorManager
              (seerRoleClass is Visionary { IsEnable: true } vn && vn.RevealedPlayerIds.Contains(target.PlayerId) && target.IsAlive() && !target.Data.IsDead))
             && seer.IsAlive())
         {
-            color = target.GetCustomRoleTypes() switch
-            {
-                CustomRoleTypes.Impostor => Main.ImpostorColor,
-                CustomRoleTypes.Crewmate => Main.CrewmateColor,
-                CustomRoleTypes.Neutral => Main.NeutralColor,
-                CustomRoleTypes.Coven => Main.CovenColor,
-                _ => color
-            };
+            color = target.GetTeam().GetTextColor();
 
             if (target.GetCustomRole() is CustomRoles.Parasite or CustomRoles.Crewpostor or CustomRoles.Convict or CustomRoles.Refugee) color = Main.ImpostorColor;
 
             if (target.Is(CustomRoles.Madmate)) color = Main.ImpostorColor;
-
             if (target.Is(CustomRoles.Rascal)) color = Main.ImpostorColor;
-
             if (target.Is(CustomRoles.Charmed)) color = Main.NeutralColor;
-
             if (target.Is(CustomRoles.Contagious)) color = Main.NeutralColor;
-
             if (target.Is(CustomRoles.Egoist)) color = Main.NeutralColor;
-
             if (target.Is(CustomRoles.Recruit)) color = Main.NeutralColor;
         }
 

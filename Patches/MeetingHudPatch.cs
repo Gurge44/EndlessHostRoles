@@ -379,6 +379,7 @@ internal static class CheckForEndVotingPatch
         var name = string.Empty;
         var impnum = 0;
         var neutralnum = 0;
+        var covennum = 0;
 
         var DecidedWinner = false;
 
@@ -396,7 +397,10 @@ internal static class CheckForEndVotingPatch
                 impnum++;
             else if (Options.MadmateCountMode.GetValue() == 1 && pc.IsMadmate())
                 impnum++;
-            else if (pc.IsNeutralKiller()) neutralnum++;
+            else if (pc.IsNeutralKiller())
+                neutralnum++;
+            else if (pc.Is(Team.Coven))
+                covennum++;
         }
 
         string coloredRealName = Utils.ColorString(Main.PlayerColors[player.PlayerId], realName);
@@ -470,49 +474,16 @@ internal static class CheckForEndVotingPatch
         {
             name += "\n";
             int actualNeutralnum = neutralnum;
+            int actualCovennum = covennum;
             if (!Options.ShowNKRemainOnEject.GetBool()) neutralnum = 0;
+            if (!Options.ShowCovenRemainOnEject.GetBool()) covennum = 0;
 
-            switch (impnum, neutralnum)
+            name += (impnum, neutralnum, covennum) switch
             {
-                case (0, 0) when actualNeutralnum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()): // Crewmates win
-                    name += GetString("GG");
-                    break;
-                case (0, 0) when actualNeutralnum > 0:
-                    name += GetString("IWonderWhatsLeft");
-                    break;
-                case (> 0, > 0): // Both imps and neutrals remain
-                    name += impnum switch
-                    {
-                        1 => $"1 <color=#ff1919>{GetString("RemainingText.ImpSingle")}</color> <color=#777777>&</color> ",
-                        2 => $"2 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
-                        3 => $"3 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
-                        _ => string.Empty
-                    };
-
-                    if (neutralnum == 1)
-                        name += $"1 <color=#ffab1b>{GetString("RemainingText.NKSingle")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKSingle")}</color>";
-                    else
-                        name += $"{neutralnum} <color=#ffab1b>{GetString("RemainingText.NKPlural")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKPlural")}</color>";
-
-                    break;
-                case (> 0, 0): // Only imps remain
-                    name += impnum switch
-                    {
-                        1 => GetString("OneImpRemain"),
-                        2 => GetString("TwoImpRemain"),
-                        3 => GetString("ThreeImpRemain"),
-                        _ => string.Empty
-                    };
-
-                    break;
-                case (0, > 0): // Only neutrals remain
-                    if (neutralnum == 1)
-                        name += GetString("OneNeutralRemain");
-                    else
-                        name += string.Format(GetString("NeutralRemain"), neutralnum);
-
-                    break;
-            }
+                (0, 0, 0) when actualNeutralnum == 0 && actualCovennum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()) => GetString("GG"),
+                (0, 0, 0) when actualNeutralnum > 0 || actualCovennum > 0 => GetString("IWonderWhatsLeft"),
+                _ => Utils.GetRemainingKillers(true)
+            };
         }
 
         EndOfSession:

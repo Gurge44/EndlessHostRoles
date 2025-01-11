@@ -15,6 +15,7 @@ internal class Lovers : IAddon
     public static OptionItem ImpCanBeInLove;
     public static OptionItem CrewCanBeInLove;
     public static OptionItem NeutralCanBeInLove;
+    public static OptionItem CovenCanBeInLove;
     public static OptionItem CrewLoversWinWithCrew;
     public static OptionItem LegacyLovers;
     public static OptionItem LovingImpostorSpawnChance;
@@ -127,6 +128,11 @@ internal class Lovers : IAddon
             .SetGameMode(customGameMode);
 
         NeutralCanBeInLove = new BooleanOptionItem(id + 15, "NeutralCanBeInLove", true, TabGroup.Addons)
+            .SetParent(spawnOption)
+            .SetHidden(LegacyLovers.GetBool())
+            .SetGameMode(customGameMode);
+
+        CovenCanBeInLove = new BooleanOptionItem(id + 16, "CovenCanBeInLove", true, TabGroup.Addons)
             .SetParent(spawnOption)
             .SetHidden(LegacyLovers.GetBool())
             .SetGameMode(customGameMode);

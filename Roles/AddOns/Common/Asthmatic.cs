@@ -22,7 +22,7 @@ internal class Asthmatic : IAddon
     {
         SetupAdtRoleOptions(15419, CustomRoles.Asthmatic, canSetNum: true, teamSpawnOptions: true);
 
-        AsthmaticMinRedTime = new IntegerOptionItem(15426, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons)
+        AsthmaticMinRedTime = new IntegerOptionItem(15430, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
             .SetValueFormat(OptionFormat.Seconds);
 

@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
@@ -10,6 +11,8 @@ public class Illusionist : Coven
 
     private static OptionItem AbilityCooldown;
     private static OptionItem ShapeshiftAnimation;
+    private static OptionItem UnmorphPrevious;
+    private HashSet<byte> ForceMorhpedPlayers = [];
 
     public byte SampledPlayerId;
 
@@ -21,7 +24,8 @@ public class Illusionist : Coven
     {
         StartSetup(650100)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref ShapeshiftAnimation, false);
+            .AutoSetupOption(ref ShapeshiftAnimation, false)
+            .AutoSetupOption(ref UnmorphPrevious, false);
     }
 
     public override void Init()
@@ -33,6 +37,7 @@ public class Illusionist : Coven
     {
         On = true;
         SampledPlayerId = byte.MaxValue;
+        ForceMorhpedPlayers = [];
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -68,8 +73,12 @@ public class Illusionist : Coven
         var sampledPlayer = SampledPlayerId.GetPlayer();
         if (sampledPlayer == null) return false;
 
-        target.RpcShapeshift(sampledPlayer, ShapeshiftAnimation.GetBool());
+        bool shouldAnimate = ShapeshiftAnimation.GetBool();
+        ForceMorhpedPlayers.ToValidPlayers().Do(x => x.RpcShapeshift(x, shouldAnimate));
+
+        target.RpcShapeshift(sampledPlayer, shouldAnimate);
         if (HasNecronomicon) shapeshifter.SetKillCooldown(AbilityCooldown.GetFloat());
+        if (UnmorphPrevious.GetBool()) ForceMorhpedPlayers.Add(sampledPlayer.PlayerId);
 
         SampledPlayerId = byte.MaxValue;
         Utils.SendRPC(CustomRPC.SyncRoleData, shapeshifter.PlayerId, 2);
@@ -78,6 +87,7 @@ public class Illusionist : Coven
 
     public override void AfterMeetingTasks()
     {
+        ForceMorhpedPlayers = [];
         SampledPlayerId = byte.MaxValue;
         Utils.SendRPC(CustomRPC.SyncRoleData, byte.MaxValue, 2);
     }

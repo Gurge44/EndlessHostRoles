@@ -13,7 +13,7 @@ public class Dynamo : IAddon
     private static readonly Dictionary<byte, Vector2> LastPos = [];
     private static readonly Dictionary<byte, int> LastNum = [];
     private static readonly Dictionary<byte, long> LastUpdate = [];
-    
+
     public AddonTypes Type => AddonTypes.Helpful;
 
     public void SetupCustomOption()
@@ -25,7 +25,7 @@ public class Dynamo : IAddon
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        MaxSpeed = new FloatOptionItem(id + 7, "SpurtMaxSpeed", new(1.5f, 3f, 0.25f), 3f, TabGroup.Addons)
+        MaxSpeed = new FloatOptionItem(id + 11, "SpurtMaxSpeed", new(1.5f, 3f, 0.25f), 3f, TabGroup.Addons)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
             .SetValueFormat(OptionFormat.Multiplier);
 
@@ -82,7 +82,7 @@ public class Dynamo : IAddon
 
         if (!moving) Main.AllPlayerSpeed[player.PlayerId] -= Mathf.Clamp(decreaseby, 0f, Main.AllPlayerSpeed[player.PlayerId] - minSpeed);
         else Main.AllPlayerSpeed[player.PlayerId] += Mathf.Clamp(increaseBy, 0f, maxSpeed - Main.AllPlayerSpeed[player.PlayerId]);
-        
+
         player.MarkDirtySettings();
     }
 

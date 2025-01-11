@@ -18,11 +18,12 @@ public class Abyssbringer : RoleBase
     private static OptionItem BlackHoleMovesTowardsNearestPlayer;
     private static OptionItem BlackHoleMoveSpeed;
     private static OptionItem BlackHoleRadius;
+    private static OptionItem KillCooldown;
+
     private byte AbyssbringerId;
-
     private List<BlackHoleData> BlackHoles = [];
-
     private int Count;
+
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -52,6 +53,10 @@ public class Abyssbringer : RoleBase
         BlackHoleRadius = new FloatOptionItem(++id, "BlackHoleRadius", new(0.1f, 5f, 0.1f), 1.2f, tab)
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Multiplier);
+
+        KillCooldown = new IntegerOptionItem(++id, "KillCooldown", new(0, 120, 1), 30, tab)
+            .SetParent(Options.CustomRoleSpawnChances[role])
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Add(byte playerId)
@@ -75,6 +80,11 @@ public class Abyssbringer : RoleBase
             AURoleOptions.ShapeshifterCooldown = BlackHolePlaceCooldown.GetInt();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
+    }
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetInt();
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

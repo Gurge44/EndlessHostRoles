@@ -29,7 +29,7 @@ internal class Spurt : IAddon
             .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        MaxSpeed = new FloatOptionItem(id + 7, "SpurtMaxSpeed", new(1.5f, 3f, 0.25f), 3f, TabGroup.Addons)
+        MaxSpeed = new FloatOptionItem(id + 11, "SpurtMaxSpeed", new(1.5f, 3f, 0.25f), 3f, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
             .SetValueFormat(OptionFormat.Multiplier);
 

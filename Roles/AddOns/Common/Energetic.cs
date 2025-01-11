@@ -6,6 +6,6 @@ public class Energetic : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(644593, CustomRoles.Energetic, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(644592, CustomRoles.Energetic, canSetNum: true, teamSpawnOptions: true);
     }
 }

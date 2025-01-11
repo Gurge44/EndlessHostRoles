@@ -16,6 +16,7 @@ public class Sheriff : RoleBase
     private static OptionItem CanKillAllAlive;
     private static OptionItem CanKillNeutrals;
     private static OptionItem CanKillNeutralsMode;
+    private static OptionItem CanKillCoven;
     private static OptionItem CanKillMadmate;
     private static OptionItem CanKillCharmed;
     private static OptionItem CanKillLovers;
@@ -46,6 +47,7 @@ public class Sheriff : RoleBase
         ShotLimitOpt = new IntegerOptionItem(Id + 12, "SheriffShotLimit", new(1, 15, 1), 5, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]).SetValueFormat(OptionFormat.Times);
         ShowShotLimit = new BooleanOptionItem(Id + 13, "SheriffShowShotLimit", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillAllAlive = new BooleanOptionItem(Id + 15, "SheriffCanKillAllAlive", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
+        CanKillCoven = new BooleanOptionItem(Id + 25, "SheriffCanKillCoven", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillMadmate = new BooleanOptionItem(Id + 17, "SheriffCanKillMadmate", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillCharmed = new BooleanOptionItem(Id + 22, "SheriffCanKillCharmed", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillLovers = new BooleanOptionItem(Id + 24, "SheriffCanKillLovers", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
@@ -170,6 +172,7 @@ public class Sheriff : RoleBase
             _ => player.GetCustomRoleTypes() switch
             {
                 CustomRoleTypes.Impostor => true,
+                CustomRoleTypes.Coven => CanKillCoven.GetBool(),
                 CustomRoleTypes.Neutral => CanKillNeutrals.GetBool() && (CanKillNeutralsMode.GetValue() == 0 || !KillTargetOptions.TryGetValue(cRole, out OptionItem option) || option.GetBool()),
                 _ => CanKill
             }

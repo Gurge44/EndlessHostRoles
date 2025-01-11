@@ -8,6 +8,7 @@ public class Enchanter : Coven
     public static bool On;
 
     private static OptionItem AbilityCooldown;
+    private static OptionItem AbilityUseLimit;
 
     public static HashSet<byte> EnchantedPlayers = [];
 
@@ -18,7 +19,8 @@ public class Enchanter : Coven
     public override void SetupCustomOption()
     {
         StartSetup(650120)
-            .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds);
+            .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref AbilityUseLimit, 2, new IntegerValueRule(1, 10, 1), OptionFormat.Times);
     }
 
     public override void Init()
@@ -30,6 +32,7 @@ public class Enchanter : Coven
     {
         On = true;
         EnchantedPlayers = [];
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -46,10 +49,12 @@ public class Enchanter : Coven
 
         void EnchantTarget()
         {
+            if (killer.GetAbilityUseLimit() < 1) return;
             EnchantedPlayers.Add(target.PlayerId);
             Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 1, target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             killer.SetKillCooldown(AbilityCooldown.GetFloat());
+            killer.RpcRemoveAbilityUse();
         }
     }
 }

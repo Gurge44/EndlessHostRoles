@@ -41,6 +41,7 @@ public static class Options
         ConvertedCount,
         NNKCount,
         NKCount,
+        CovenCount,
         CrewCount,
         RomanticState,
         LoversState,
@@ -209,6 +210,7 @@ public static class Options
     public static OptionItem CEMode;
     public static OptionItem ShowImpRemainOnEject;
     public static OptionItem ShowNKRemainOnEject;
+    public static OptionItem ShowCovenRemainOnEject;
     public static OptionItem ShowTeamNextToRoleNameOnEject;
     public static OptionItem CheatResponses;
     public static OptionItem EnableMovementChecking;
@@ -537,6 +539,7 @@ public static class Options
     public static OptionItem DisableZiplineForImps;
     public static OptionItem DisableZiplineForNeutrals;
     public static OptionItem DisableZiplineForCrew;
+    public static OptionItem DisableZiplineForCoven;
     public static OptionItem ZiplineTravelTimeFromBottom;
     public static OptionItem ZiplineTravelTimeFromTop;
 
@@ -566,7 +569,8 @@ public static class Options
     public static OptionItem DisableAirshipViewingDeckLightsPanel;
     public static OptionItem DisableAirshipGapRoomLightsPanel;
     public static OptionItem DisableAirshipCargoLightsPanel;
-    public static OptionItem NKWinsBySabotageIfNoImpAlive;
+    public static OptionItem WhoWinsBySabotageIfNoImpAlive;
+    public static OptionItem IfSelectedTeamIsDead;
 
     // Guesser Mode
     public static OptionItem GuesserMode;
@@ -785,7 +789,7 @@ public static class Options
     public static string MainLoadingText = string.Empty;
     public static string RoleLoadingText = string.Empty;
 
-    public static readonly Dictionary<CustomRoles, (OptionItem Imp, OptionItem Neutral, OptionItem Crew)> AddonCanBeSettings = [];
+    public static readonly Dictionary<CustomRoles, (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven)> AddonCanBeSettings = [];
     public static readonly Dictionary<CustomRoles, OptionItem> AddonGuessSettings = [];
 
     public static readonly HashSet<CustomRoles> SingleRoles = [];
@@ -1470,6 +1474,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
 
+        ShowCovenRemainOnEject = new BooleanOptionItem(19816, "ShowCovenRemainOnEject", true, TabGroup.GameSettings)
+            .SetParent(ShowImpRemainOnEject)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 238, 232, byte.MaxValue));
+
         LoadingPercentage = 66;
 
         ShowTeamNextToRoleNameOnEject = new BooleanOptionItem(19812, "ShowTeamNextToRoleNameOnEject", true, TabGroup.GameSettings)
@@ -1570,6 +1579,10 @@ public static class Options
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         DisableZiplineForNeutrals = new BooleanOptionItem(22320, "DisableZiplineForNeutrals", false, TabGroup.GameSettings)
+            .SetParent(DisableZiplineOnFungle)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        DisableZiplineForCoven = new BooleanOptionItem(22322, "DisableZiplineForCoven", false, TabGroup.GameSettings)
             .SetParent(DisableZiplineOnFungle)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
@@ -1758,7 +1771,13 @@ public static class Options
             .SetParent(LightsOutSpecialSettings)
             .SetGameMode(CustomGameMode.Standard);
 
-        NKWinsBySabotageIfNoImpAlive = new BooleanOptionItem(22520, "NKWinsBySabotageIfNoImpAlive", false, TabGroup.GameSettings)
+        IList<string> selections = ["SabotageTimeLimitWinners.Imps", "SabotageTimeLimitWinners.NKs", "SabotageTimeLimitWinners.Coven"];
+
+        WhoWinsBySabotageIfNoImpAlive = new StringOptionItem(22520, "NKWinsBySabotageIfNoImpAlive", selections, 0, TabGroup.GameSettings)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue))
+            .SetGameMode(CustomGameMode.Standard);
+
+        IfSelectedTeamIsDead = new StringOptionItem(22521, "IfSelectedTeamIsDead", selections, 0, TabGroup.GameSettings)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
 
@@ -2317,7 +2336,7 @@ public static class Options
 
         int goId = 19723;
 
-        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
+        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..4].ToDictionary(x => x, x =>
         {
             Color teamColor = x.GetColor();
 
@@ -2384,7 +2403,7 @@ public static class Options
             i++;
         }
 
-        MinPlayersForGameStateCommand = new IntegerOptionItem(44438, "MinPlayersForGameStateCommand", new(1, 15, 1), 1, TabGroup.GameSettings)
+        MinPlayersForGameStateCommand = new IntegerOptionItem(44442, "MinPlayersForGameStateCommand", new(1, 15, 1), 1, TabGroup.GameSettings)
             .SetParent(EnableKillerLeftCommand)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Players)
@@ -2590,7 +2609,12 @@ public static class Options
                 .SetGameMode(customGameMode)
                 .AddReplacement(("{role}", role.ToColoredString()));
 
-            AddonCanBeSettings.Add(role, (impOption, neutralOption, crewOption));
+            OptionItem covenOption = new BooleanOptionItem(id + 7, "CovenCanBeRole", true, tab)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode)
+                .AddReplacement(("{role}", role.ToColoredString()));
+
+            AddonCanBeSettings.Add(role, (impOption, neutralOption, crewOption, covenOption));
         }
 
         AddonGuessSettings.Add(role, guessSetting);

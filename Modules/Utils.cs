@@ -2605,7 +2605,6 @@ public static class Utils
         Dictionary<Options.GameStateInfo, int> nums = Enum.GetValues<Options.GameStateInfo>().ToDictionary(x => x, _ => 0);
 
         if (CustomRoles.Romantic.RoleExist(true)) nums[Options.GameStateInfo.RomanticState] = 1;
-
         if (Romantic.HasPickedPartner) nums[Options.GameStateInfo.RomanticState] = 2;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -2618,14 +2617,14 @@ public static class Utils
                 nums[Options.GameStateInfo.CrewCount]++;
             else if (pc.Is(Team.Impostor))
                 nums[Options.GameStateInfo.ImpCount]++;
-            else if (pc.Is(Team.Neutral)) nums[Options.GameStateInfo.NNKCount]++;
+            else if (pc.Is(Team.Neutral))
+                nums[Options.GameStateInfo.NNKCount]++;
+            else if (pc.Is(Team.Coven))
+                nums[Options.GameStateInfo.CovenCount]++;
 
-            if (pc.GetCustomSubRoles().Any(x => x.IsConverted())) nums[Options.GameStateInfo.ConvertedCount]++;
-
+            if (pc.IsConverted()) nums[Options.GameStateInfo.ConvertedCount]++;
             if (Main.LoversPlayers.Exists(x => x.PlayerId == pc.PlayerId)) nums[Options.GameStateInfo.LoversState]++;
-
             if (pc.Is(CustomRoles.Romantic)) nums[Options.GameStateInfo.RomanticState] *= 3;
-
             if (Romantic.PartnerId == pc.PlayerId) nums[Options.GameStateInfo.RomanticState] *= 4;
         }
 
@@ -3167,35 +3166,64 @@ public static class Utils
         }
     }
 
-    public static string GetRemainingKillers(bool notify = false, bool president = false)
+    public static string GetRemainingKillers(bool notify = false, bool showAll = false)
     {
         var impnum = 0;
         var neutralnum = 0;
-        bool impShow = president || Options.ShowImpRemainOnEject.GetBool();
-        bool nkShow = president || Options.ShowNKRemainOnEject.GetBool();
+        var covenNum = 0;
+
+        bool impShow = showAll || Options.ShowImpRemainOnEject.GetBool();
+        bool nkShow = showAll || Options.ShowNKRemainOnEject.GetBool();
+        bool covenShow = showAll || Options.ShowCovenRemainOnEject.GetBool();
+
+        if (!impShow && !nkShow && !covenShow) return string.Empty;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (impShow && pc.Is(Team.Impostor)) impnum++;
             else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
+            else if (covenShow && pc.Is(Team.Coven)) covenNum++;
         }
 
         StringBuilder sb = new();
 
         sb.Append(notify ? "<#777777>" : string.Empty);
-        sb.Append(impnum == 1 ? GetString("RemainingText.Prefix.SingleImp") : GetString("RemainingText.Prefix.PluralImp"));
+
+        var numberToUse = impShow ? impnum : nkShow ? neutralnum : covenNum;
+        sb.Append(numberToUse == 1 ? GetString("RemainingText.Prefix.Single") : GetString("RemainingText.Prefix.Plural"));
         sb.Append(notify ? " " : "\n");
-        sb.Append(notify ? "<#ffffff>" : "<b>");
-        sb.Append(impnum);
-        sb.Append(notify ? "</color>" : "</b>");
-        sb.Append(' ');
-        sb.Append($"<#ff1919>{(impnum == 1 ? GetString("RemainingText.ImpSingle") : GetString("RemainingText.ImpPlural"))}</color>");
-        sb.Append(" & ");
-        sb.Append(notify ? "<#ffffff>" : "<b>");
-        sb.Append(neutralnum);
-        sb.Append(notify ? "</color>" : "</b>");
-        sb.Append(' ');
-        sb.Append($"<#ffab1b>{(neutralnum == 1 ? GetString("RemainingText.NKSingle") : GetString("RemainingText.NKPlural"))}</color>");
+
+        if (impShow)
+        {
+            sb.Append(notify ? "<#ffffff>" : "<b>");
+            sb.Append(impnum);
+            sb.Append(notify ? "</color>" : "</b>");
+            sb.Append(' ');
+            sb.Append($"<#ff1919>{(impnum == 1 ? GetString("RemainingText.ImpSingle") : GetString("RemainingText.ImpPlural"))}</color>");
+
+            if (nkShow ^ covenShow) sb.Append(" & ");
+            else if (nkShow) sb.Append(", ");
+        }
+
+        if (nkShow)
+        {
+            sb.Append(notify ? "<#ffffff>" : "<b>");
+            sb.Append(neutralnum);
+            sb.Append(notify ? "</color>" : "</b>");
+            sb.Append(' ');
+            sb.Append($"<#ffab1b>{(neutralnum == 1 ? GetString("RemainingText.NKSingle") : GetString("RemainingText.NKPlural"))}</color>");
+            if (covenShow) sb.Append(" & ");
+        }
+
+        if (covenShow)
+        {
+            sb.Append(notify ? "<#ffffff>" : "<b>");
+            sb.Append(covenNum);
+            sb.Append(notify ? "</color>" : "</b>");
+            sb.Append(' ');
+            sb.Append($"<#ffab1b>{(covenNum == 1 ? GetString("RemainingText.CovenSingle") : GetString("RemainingText.CovenPlural"))}</color>");
+        }
+
         sb.Append(GetString("RemainingText.Suffix"));
         sb.Append('.');
         sb.Append(notify ? "</color>" : string.Empty);

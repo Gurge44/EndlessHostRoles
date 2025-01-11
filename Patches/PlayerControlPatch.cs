@@ -2152,13 +2152,11 @@ public static class PlayerControlCheckUseZiplinePatch
         if (AmongUsClient.Instance.AmHost)
         {
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;
-
             if (Options.DisableZiplineFromUnder.GetBool() && !fromTop) return false;
 
+            if (__instance.Is(Team.Coven) && Options.DisableZiplineForCoven.GetBool()) return false;
             if (__instance.IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
-
             if (__instance.GetCustomRole().IsNeutral() && Options.DisableZiplineForNeutrals.GetBool()) return false;
-
             if (__instance.IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;
         }
 

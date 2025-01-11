@@ -33,7 +33,6 @@ internal static class GameEndChecker
         if (!AmongUsClient.Instance.AmHost) return true;
 
         if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return false;
-
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
         Ended = false;
@@ -62,15 +61,51 @@ internal static class GameEndChecker
 
             Ended = true;
 
-            if (reason == GameOverReason.ImpostorBySabotage && Options.NKWinsBySabotageIfNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()) && Main.AllAlivePlayerControls.Count(x => x.IsNeutralKiller()) == 1)
-            {
-                PlayerControl winner = Main.AllAlivePlayerControls.First(x => x.IsNeutralKiller());
-                CustomRoles winnerRole = winner.GetCustomRole();
+            int saboWinner = Options.WhoWinsBySabotageIfNoImpAlive.GetValue();
 
-                ResetAndSetWinner((CustomWinner)winnerRole);
-                WinnerRoles.Add(winnerRole);
-                WinnerIds.Add(winner.PlayerId);
+            if (reason == GameOverReason.ImpostorBySabotage && saboWinner != 0 && !Main.AllAlivePlayerControls.Any(x => x.Is(Team.Impostor)))
+            {
+                bool anyNKAlive = Main.AllAlivePlayerControls.Any(x => x.IsNeutralKiller());
+                bool anyCovenAlive = Main.AllPlayerControls.Any(x => x.Is(Team.Coven));
+
+                switch (saboWinner)
+                {
+                    case 1 when anyNKAlive:
+                        NKWins();
+                        break;
+                    case 2 when anyCovenAlive:
+                        CovenWins();
+                        break;
+                    default:
+                        switch (Options.IfSelectedTeamIsDead.GetValue())
+                        {
+                            case 0:
+                                goto Continue;
+                            case 1:
+                                NKWins();
+                                break;
+                            case 2:
+                                CovenWins();
+                                break;
+                        }
+
+                        break;
+                }
+
+                void NKWins()
+                {
+                    ResetAndSetWinner(CustomWinner.Neutrals);
+                    WinnerIds.UnionWith(Main.AllAlivePlayerControls.Where(x => x.IsNeutralKiller()).Select(x => x.PlayerId));
+                }
+
+                void CovenWins()
+                {
+                    ResetAndSetWinner(CustomWinner.Coven);
+                    WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId));
+                }
             }
+
+            Continue:
 
             switch (WinnerTeam)
             {

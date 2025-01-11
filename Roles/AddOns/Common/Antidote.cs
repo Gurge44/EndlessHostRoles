@@ -15,7 +15,7 @@ internal class Antidote : IAddon
             .SetParent(CustomRoleSpawnChances[CustomRoles.Antidote])
             .SetValueFormat(OptionFormat.Seconds);
 
-        AntidoteCDReset = new BooleanOptionItem(id + 7, "AntidoteCDReset", true, TabGroup.Addons)
+        AntidoteCDReset = new BooleanOptionItem(id + 9, "AntidoteCDReset", true, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Antidote]);
     }
 }

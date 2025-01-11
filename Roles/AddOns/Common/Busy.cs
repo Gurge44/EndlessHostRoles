@@ -13,7 +13,7 @@ internal class Busy : IAddon
         BusyLongTasks = new IntegerOptionItem(15298, "BusyLongTasks", new(0, 90, 1), 1, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Busy]);
 
-        BusyShortTasks = new IntegerOptionItem(15297, "BusyShortTasks", new(0, 90, 1), 1, TabGroup.Addons)
+        BusyShortTasks = new IntegerOptionItem(15299, "BusyShortTasks", new(0, 90, 1), 1, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Busy]);
     }
 }
