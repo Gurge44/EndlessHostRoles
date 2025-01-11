@@ -2094,7 +2094,7 @@
   "KB_Buff_ATK": "Gain: Attack +{0}",
   "KB_Buff_DF": "Gain: Defense +{0}",
   "NKWinsBySabotageIfNoImpAlive": "The team that wins by critical sabotage time limit if there are no <#ff1919>Impostors</color> alive",
-  "IfSelectedTeamIsDead": "If the selected team is dead (and isn't <#ff1919>Impostors</color>), then the winning team is",
+  "IfSelectedTeamIsDead": "If the selected team is dead, then the winning team is",
   "SabotageTimeLimitWinners.Imps": "<#ff1919>Impostors</color>",
   "SabotageTimeLimitWinners.NKs": "<#ffab1b>Neutral</color> <#ff1919>Killers</color>",
   "SabotageTimeLimitWinners.Coven": "<#7b3fbb>Coven</color>",

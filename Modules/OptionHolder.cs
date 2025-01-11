@@ -1778,6 +1778,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard);
 
         IfSelectedTeamIsDead = new StringOptionItem(22521, "IfSelectedTeamIsDead", selections, 0, TabGroup.GameSettings)
+            .SetParent(WhoWinsBySabotageIfNoImpAlive)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
 
