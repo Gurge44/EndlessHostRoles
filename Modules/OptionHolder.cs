@@ -294,6 +294,7 @@ public static class Options
     public static OptionItem ParanoiaVentCooldown;
     public static OptionItem ImpKnowCyberStarDead;
     public static OptionItem NeutralKnowCyberStarDead;
+    public static OptionItem CovenKnowCyberStarDead;
     public static OptionItem DemolitionistVentTime;
     public static OptionItem DemolitionistKillerDiesOnMeetingCall;
     public static OptionItem ExpressSpeed;
@@ -853,7 +854,7 @@ public static class Options
 
             var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
             {
-                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || HnSManager.AllHnSRoles.Contains(x)) return 4;
+                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || CustomHnS.AllHnSRoles.Contains(x)) return 4;
                 if (x.IsAdditionRole()) return 3;
                 if (x.IsImpostor() || x.IsMadmate()) return 0;
                 if (x.IsNeutral()) return 1;
@@ -1611,13 +1612,13 @@ public static class Options
         // Decontamination time on MiraHQ
         DecontaminationTimeOnMiraHQ = new FloatOptionItem(60504, "DecontaminationTimeOnMiraHQ", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
             .SetParent(ChangeDecontaminationTime)
-            .SetValueFormat(OptionFormat.Multiplier)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Decontamination time on Polus
         DecontaminationTimeOnPolus = new FloatOptionItem(60505, "DecontaminationTimeOnPolus", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
             .SetParent(ChangeDecontaminationTime)
-            .SetValueFormat(OptionFormat.Multiplier)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
 

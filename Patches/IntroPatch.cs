@@ -722,7 +722,7 @@ internal static class BeginCrewmatePatch
                 CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                 CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                 CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                CustomRoleTypes.Coven => GetIntroSound(RoleTypes.Shapeshifter),
+                CustomRoleTypes.Coven => GetIntroSound(RoleTypes.Phantom),
                 _ => GetIntroSound(RoleTypes.Crewmate)
             };
     }
