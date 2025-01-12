@@ -50,7 +50,7 @@ internal class Merchant : RoleBase
         OptionCanTargetCrew = new BooleanOptionItem(Id + 6, "MerchantTargetCrew", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
         OptionCanTargetImpostor = new BooleanOptionItem(Id + 7, "MerchantTargetImpostor", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
         OptionCanTargetNeutral = new BooleanOptionItem(Id + 8, "MerchantTargetNeutral", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
-        OptionCanTargetCoven = new BooleanOptionItem(Id + 9, "MerchantTargetNeutral", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionCanTargetCoven = new BooleanOptionItem(Id + 9, "MerchantTargetCoven", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
         OptionCanSellMixed = new BooleanOptionItem(Id + 10, "MerchantSellMixed", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
         OptionCanSellHelpful = new BooleanOptionItem(Id + 11, "MerchantSellHelpful", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
         OptionCanSellHarmful = new BooleanOptionItem(Id + 12, "MerchantSellHarmful", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
