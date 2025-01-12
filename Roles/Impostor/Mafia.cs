@@ -229,7 +229,8 @@ internal class Mafia : RoleBase
     {
         public static void Postfix(MeetingHud __instance)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.Mafia) && !PlayerControl.LocalPlayer.IsAlive()) CreateJudgeButton(__instance);
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Mafia) && !PlayerControl.LocalPlayer.IsAlive())
+                CreateJudgeButton(__instance);
         }
     }
 }

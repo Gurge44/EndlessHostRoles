@@ -3166,7 +3166,7 @@ public static class Utils
         }
     }
 
-    public static string GetRemainingKillers(bool notify = false, bool showAll = false)
+    public static string GetRemainingKillers(bool notify = false, bool showAll = false, byte excludeId = byte.MaxValue)
     {
         var impnum = 0;
         var neutralnum = 0;
@@ -3180,6 +3180,8 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
+            if (excludeId != byte.MaxValue && pc.PlayerId == excludeId) continue;
+
             if (impShow && pc.Is(Team.Impostor)) impnum++;
             else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
             else if (covenShow && pc.Is(Team.Coven)) covenNum++;
@@ -3221,7 +3223,7 @@ public static class Utils
             sb.Append(covenNum);
             sb.Append(notify ? "</color>" : "</b>");
             sb.Append(' ');
-            sb.Append($"<#ffab1b>{(covenNum == 1 ? GetString("RemainingText.CovenSingle") : GetString("RemainingText.CovenPlural"))}</color>");
+            sb.Append($"<#7b3fbb>{(covenNum == 1 ? GetString("RemainingText.CovenSingle") : GetString("RemainingText.CovenPlural"))}</color>");
         }
 
         sb.Append(GetString("RemainingText.Suffix"));
@@ -3448,14 +3450,9 @@ public static class Utils
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
         float divice = Options.CurrentGameMode switch
         {
-            CustomGameMode.SoloKombat => 1500f,
-            CustomGameMode.FFA => 1000f,
-            CustomGameMode.HideAndSeek => 2500f,
-            CustomGameMode.Speedrun => 2500f,
-            CustomGameMode.RoomRush => 1700f,
-            CustomGameMode.CaptureTheFlag => 1800f,
-            CustomGameMode.AllInOne => 1500f,
-            _ => 2000f
+            CustomGameMode.SoloKombat => 3000f,
+            CustomGameMode.CaptureTheFlag => 1500f,
+            _ => 1000f
         };
 
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f);

@@ -346,7 +346,8 @@ public class Councillor : RoleBase
     {
         public static void Postfix(MeetingHud __instance)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.Councillor) && PlayerControl.LocalPlayer.IsAlive()) CreateCouncillorButton(__instance);
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Councillor) && PlayerControl.LocalPlayer.IsAlive())
+                CreateCouncillorButton(__instance);
         }
     }
 }

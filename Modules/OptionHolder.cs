@@ -578,6 +578,7 @@ public static class Options
     public static OptionItem ImpostorsCanGuess;
     public static OptionItem NeutralKillersCanGuess;
     public static OptionItem PassiveNeutralsCanGuess;
+    public static OptionItem CovenCanGuess;
     public static OptionItem BetrayalAddonsCanGuess;
     public static OptionItem HideGuesserCommands;
     public static OptionItem CanGuessAddons;
@@ -1389,7 +1390,7 @@ public static class Options
             .SetHeader(true);
 
         HideGameSettings = new BooleanOptionItem(19450, "HideGameSettings", false, TabGroup.SystemSettings);
-        DIYGameSettings = new BooleanOptionItem(19401, "DIYGameSettings", false, TabGroup.SystemSettings);
+        DIYGameSettings = new BooleanOptionItem(19471, "DIYGameSettings", false, TabGroup.SystemSettings);
         PlayerCanSetColor = new BooleanOptionItem(19402, "PlayerCanSetColor", false, TabGroup.SystemSettings);
         PlayerCanSetName = new BooleanOptionItem(19410, "PlayerCanSetName", false, TabGroup.SystemSettings);
         PlayerCanTPInAndOut = new BooleanOptionItem(19411, "PlayerCanTPInAndOut", false, TabGroup.SystemSettings);
@@ -2310,6 +2311,9 @@ public static class Options
             .SetParent(GuesserMode);
 
         PassiveNeutralsCanGuess = new BooleanOptionItem(19713, "PassiveNeutralsCanGuess", false, TabGroup.TaskSettings)
+            .SetParent(GuesserMode);
+
+        CovenCanGuess = new BooleanOptionItem(19730, "CovenCanGuess", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
         BetrayalAddonsCanGuess = new BooleanOptionItem(19719, "BetrayalAddonsCanGuess", false, TabGroup.TaskSettings)

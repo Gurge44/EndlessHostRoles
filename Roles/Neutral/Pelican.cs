@@ -68,10 +68,12 @@ public class Pelican : RoleBase
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
-    private static void SyncEatenList( /*byte playerId*/)
+    private static void SyncEatenList()
     {
         SendRPC(byte.MaxValue);
-        foreach (KeyValuePair<byte, List<byte>> el in EatenList) SendRPC(el.Key);
+
+        foreach (KeyValuePair<byte, List<byte>> el in EatenList)
+            SendRPC(el.Key);
     }
 
     private static void SendRPC(byte playerId)
@@ -109,7 +111,7 @@ public class Pelican : RoleBase
 
     public static bool IsEaten(PlayerControl pc, byte id)
     {
-        return EatenList.ContainsKey(pc.PlayerId) && EatenList[pc.PlayerId].Contains(id);
+        return EatenList.TryGetValue(pc.PlayerId, out var list) && list.Contains(id);
     }
 
     public static bool IsEaten(byte id)

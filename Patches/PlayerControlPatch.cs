@@ -800,7 +800,8 @@ internal static class ShapeshiftPatch
 
         var isSSneeded = true;
 
-        if (!Pelican.IsEaten(shapeshifter.PlayerId) && !GameStates.IsVoting) isSSneeded = Main.PlayerStates[shapeshifter.PlayerId].Role.OnShapeshift(shapeshifter, target, shapeshifting);
+        if (!Pelican.IsEaten(shapeshifter.PlayerId) && !GameStates.IsVoting)
+            isSSneeded = Main.PlayerStates[shapeshifter.PlayerId].Role.OnShapeshift(shapeshifter, target, shapeshifting);
 
         if (shapeshifter.Is(CustomRoles.Hangman) && shapeshifter.GetAbilityUseLimit() < 1 && shapeshifting)
         {
@@ -1039,6 +1040,8 @@ internal static class ReportDeadBodyPatch
         Stressed.CountRepairSabotage = false;
 
         Main.DiedThisRound = [];
+
+        Main.AllAlivePlayerControls.DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos());
 
         if (target == null)
         {

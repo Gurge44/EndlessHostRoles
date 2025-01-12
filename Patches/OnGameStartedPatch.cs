@@ -220,6 +220,7 @@ internal static class ChangeRoleSettings
             Express.SpeedNormal = [];
             Express.SpeedUp = [];
             Messenger.Sent = [];
+            Lazy.BeforeMeetingPositions = [];
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];

@@ -828,6 +828,8 @@ internal static class CustomRoleSelector
                     RoleAssignType.Impostor => optImpNum,
                     RoleAssignType.NeutralKilling => nkLimit,
                     RoleAssignType.NonKillingNeutral => nnkLimit,
+                    RoleAssignType.Coven => numCovens,
+                    RoleAssignType.Madmate => madmateNum,
                     RoleAssignType.Crewmate => playerCount,
                     _ => 0
                 })
