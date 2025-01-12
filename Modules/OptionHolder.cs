@@ -294,6 +294,7 @@ public static class Options
     public static OptionItem ParanoiaVentCooldown;
     public static OptionItem ImpKnowCyberStarDead;
     public static OptionItem NeutralKnowCyberStarDead;
+    public static OptionItem CovenKnowCyberStarDead;
     public static OptionItem DemolitionistVentTime;
     public static OptionItem DemolitionistKillerDiesOnMeetingCall;
     public static OptionItem ExpressSpeed;
