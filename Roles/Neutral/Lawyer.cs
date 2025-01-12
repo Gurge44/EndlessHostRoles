@@ -15,6 +15,7 @@ public class Lawyer : RoleBase
     private static OptionItem CanTargetImpostor;
     private static OptionItem CanTargetNeutralKiller;
     private static OptionItem CanTargetCrewmate;
+    private static OptionItem CanTargetCoven;
     private static OptionItem CanTargetJester;
     private static OptionItem ChangeRolesAfterTargetKilled;
     private static OptionItem KnowTargetRole;
@@ -46,10 +47,11 @@ public class Lawyer : RoleBase
         CanTargetImpostor = new BooleanOptionItem(Id + 10, "LawyerCanTargetImpostor", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         CanTargetNeutralKiller = new BooleanOptionItem(Id + 11, "LawyerCanTargetNeutralKiller", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         CanTargetCrewmate = new BooleanOptionItem(Id + 12, "LawyerCanTargetCrewmate", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        CanTargetJester = new BooleanOptionItem(Id + 13, "LawyerCanTargetJester", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        KnowTargetRole = new BooleanOptionItem(Id + 14, "KnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        TargetKnowsLawyer = new BooleanOptionItem(Id + 15, "TargetKnowsLawyer", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        ChangeRolesAfterTargetKilled = new StringOptionItem(Id + 16, "LawyerChangeRolesAfterTargetKilled", CRoleChangeRoles.Select(x => x.ToColoredString()).ToArray(), 2, TabGroup.NeutralRoles, noTranslation: true).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        CanTargetCoven = new BooleanOptionItem(Id + 13, "LawyerCanTargetCrewmate", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        CanTargetJester = new BooleanOptionItem(Id + 14, "LawyerCanTargetJester", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        KnowTargetRole = new BooleanOptionItem(Id + 15, "KnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        TargetKnowsLawyer = new BooleanOptionItem(Id + 16, "TargetKnowsLawyer", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        ChangeRolesAfterTargetKilled = new StringOptionItem(Id + 17, "LawyerChangeRolesAfterTargetKilled", CRoleChangeRoles.Select(x => x.ToColoredString()).ToArray(), 2, TabGroup.NeutralRoles, noTranslation: true).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
     }
 
     public override void Init()
@@ -68,7 +70,7 @@ public class Lawyer : RoleBase
             if (AmongUsClient.Instance.AmHost)
             {
                 List<PlayerControl> targetList = [];
-                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar or CustomRoles.Curser) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
+                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetCoven.GetBool() || !target.Is(CustomRoleTypes.Coven) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar or CustomRoles.Curser) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
 
                 if (targetList.Count == 0)
                 {
