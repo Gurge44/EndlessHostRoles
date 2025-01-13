@@ -7,118 +7,117 @@ using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Impostor
+namespace EHR.Impostor;
+
+public class Twister : RoleBase
 {
-    public class Twister : RoleBase
+    private const int Id = 4400;
+
+    public static OptionItem ShapeshiftCooldown;
+    private static OptionItem TwisterLimitOpt;
+    public static OptionItem TwisterAbilityUseGainWithEachKill;
+
+    public static bool On;
+    public override bool IsEnable => On;
+
+    public override void SetupCustomOption()
     {
-        private const int Id = 4400;
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Twister);
 
-        public static OptionItem ShapeshiftCooldown;
-        private static OptionItem TwisterLimitOpt;
-        public static OptionItem TwisterAbilityUseGainWithEachKill;
+        ShapeshiftCooldown = new FloatOptionItem(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        public static bool On;
-        public override bool IsEnable => On;
+        TwisterLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
+            .SetValueFormat(OptionFormat.Times);
 
-        public override void SetupCustomOption()
+        TwisterAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
+            .SetValueFormat(OptionFormat.Times);
+    }
+
+    public override void Init()
+    {
+        On = false;
+    }
+
+    public override void Add(byte playerId)
+    {
+        playerId.SetAbilityUseLimit(TwisterLimitOpt.GetInt());
+        On = true;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        if (UsePhantomBasis.GetBool())
+            AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+        else
         {
-            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Twister);
-
-            ShapeshiftCooldown = new FloatOptionItem(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
-                .SetValueFormat(OptionFormat.Seconds);
-
-            TwisterLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
-                .SetValueFormat(OptionFormat.Times);
-
-            TwisterAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
-                .SetValueFormat(OptionFormat.Times);
+            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
         }
+    }
 
-        public override void Init()
+    public override void OnPet(PlayerControl pc)
+    {
+        TwistPlayers(pc, true);
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        TwistPlayers(shapeshifter, shapeshifting);
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        TwistPlayers(pc, true);
+        return false;
+    }
+
+    private static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
+    {
+        if (shapeshifter == null) return;
+
+        if (shapeshifter.GetAbilityUseLimit() < 1) return;
+
+        if (!shapeshifting) return;
+
+        List<byte> changePositionPlayers = [shapeshifter.PlayerId];
+        shapeshifter.RpcRemoveAbilityUse();
+
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            On = false;
+            if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inMovingPlat || pc.inVent || GameStates.IsMeeting) continue;
+
+            PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+            if (filtered.Length == 0) break;
+
+            PlayerControl target = filtered.RandomElement();
+
+            changePositionPlayers.Add(target.PlayerId);
+            changePositionPlayers.Add(pc.PlayerId);
+
+            pc.RPCPlayCustomSound("Teleport");
+
+            Vector2 originPs = target.Pos();
+            target.TP(pc.Pos());
+            pc.TP(originPs);
+
+            target.Notify(ColorString(GetRoleColor(CustomRoles.Twister), string.Format(GetString("TeleportedByTwister"), pc.GetRealName())));
+            pc.Notify(ColorString(GetRoleColor(CustomRoles.Twister), string.Format(GetString("TeleportedByTwister"), target.GetRealName())));
         }
+    }
 
-        public override void Add(byte playerId)
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (UsePets.GetBool())
+            hud.PetButton?.OverrideText(GetString("TwisterButtonText"));
+        else
         {
-            playerId.SetAbilityUseLimit(TwisterLimitOpt.GetInt());
-            On = true;
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte id)
-        {
-            if (UsePhantomBasis.GetBool())
-                AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
-            else
-            {
-                AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
-                AURoleOptions.ShapeshifterDuration = 1f;
-            }
-        }
-
-        public override void OnPet(PlayerControl pc)
-        {
-            TwistPlayers(pc, true);
-        }
-
-        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
-        {
-            TwistPlayers(shapeshifter, shapeshifting);
-            return false;
-        }
-
-        public override bool OnVanish(PlayerControl pc)
-        {
-            TwistPlayers(pc, true);
-            return false;
-        }
-
-        private static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
-        {
-            if (shapeshifter == null) return;
-
-            if (shapeshifter.GetAbilityUseLimit() < 1) return;
-
-            if (!shapeshifting) return;
-
-            List<byte> changePositionPlayers = [shapeshifter.PlayerId];
-            shapeshifter.RpcRemoveAbilityUse();
-
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inMovingPlat || pc.inVent || GameStates.IsMeeting) continue;
-
-                PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
-                if (filtered.Length == 0) break;
-
-                PlayerControl target = filtered.RandomElement();
-
-                changePositionPlayers.Add(target.PlayerId);
-                changePositionPlayers.Add(pc.PlayerId);
-
-                pc.RPCPlayCustomSound("Teleport");
-
-                Vector2 originPs = target.Pos();
-                target.TP(pc.Pos());
-                pc.TP(originPs);
-
-                target.Notify(ColorString(GetRoleColor(CustomRoles.Twister), string.Format(GetString("TeleportedByTwister"), pc.GetRealName())));
-                pc.Notify(ColorString(GetRoleColor(CustomRoles.Twister), string.Format(GetString("TeleportedByTwister"), target.GetRealName())));
-            }
-        }
-
-        public override void SetButtonTexts(HudManager hud, byte id)
-        {
-            if (UsePets.GetBool())
-                hud.PetButton?.OverrideText(GetString("TwisterButtonText"));
-            else
-            {
-                hud.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
-                hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
-            }
+            hud.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
+            hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
         }
     }
 }

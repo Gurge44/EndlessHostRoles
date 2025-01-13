@@ -3,91 +3,95 @@ using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Crewmate
+namespace EHR.Crewmate;
+
+public class Monarch : RoleBase
 {
-    public class Monarch : RoleBase
+    private const int Id = 9600;
+    private static List<byte> PlayerIdList = [];
+
+    public static OptionItem KnightCooldown;
+    public static OptionItem KnightMax;
+    public static OptionItem UsePet;
+
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
+    public override void SetupCustomOption()
     {
-        private const int Id = 9600;
-        private static List<byte> PlayerIdList = [];
+        SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Monarch);
 
-        public static OptionItem KnightCooldown;
-        public static OptionItem KnightMax;
-        public static OptionItem UsePet;
+        KnightCooldown = new FloatOptionItem(Id + 10, "MonarchKnightCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
+            .SetValueFormat(OptionFormat.Seconds);
 
-        public override bool IsEnable => PlayerIdList.Count > 0;
+        KnightMax = new IntegerOptionItem(Id + 12, "MonarchKnightMax", new(1, 15, 1), 2, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
+            .SetValueFormat(OptionFormat.Times);
 
-        public override void SetupCustomOption()
+        UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Monarch);
+    }
+
+    public override void Init()
+    {
+        PlayerIdList = [];
+    }
+
+    public override void Add(byte playerId)
+    {
+        PlayerIdList.Add(playerId);
+        playerId.SetAbilityUseLimit(KnightMax.GetInt());
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KnightCooldown.GetFloat();
+    }
+
+    public override bool CanUseKillButton(PlayerControl player)
+    {
+        return !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return false;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(false);
+    }
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (killer.GetAbilityUseLimit() < 1) return false;
+
+        if (target != null && !target.GetCustomRole().IsNotKnightable() && !target.Is(CustomRoles.Knighted) && !target.Is(CustomRoles.TicketsStealer))
         {
-            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Monarch);
+            killer.RpcRemoveAbilityUse();
+            target.RpcSetCustomRole(CustomRoles.Knighted);
 
-            KnightCooldown = new FloatOptionItem(Id + 10, "MonarchKnightCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
-                .SetValueFormat(OptionFormat.Seconds);
+            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")));
+            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("KnightedByMonarch")));
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-            KnightMax = new IntegerOptionItem(Id + 12, "MonarchKnightMax", new(1, 15, 1), 2, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
-                .SetValueFormat(OptionFormat.Times);
+            killer.ResetKillCooldown();
+            killer.SetKillCooldown();
 
-            UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Monarch);
-        }
+            target.RpcGuardAndKill(killer);
+            target.RpcGuardAndKill(target);
 
-        public override void Init()
-        {
-            PlayerIdList = [];
-        }
-
-        public override void Add(byte playerId)
-        {
-            PlayerIdList.Add(playerId);
-            playerId.SetAbilityUseLimit(KnightMax.GetInt());
-        }
-
-        public override void SetKillCooldown(byte id)
-        {
-            Main.AllPlayerKillCooldown[id] = KnightCooldown.GetFloat();
-        }
-
-        public override bool CanUseKillButton(PlayerControl player)
-        {
-            return !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
-        }
-
-        public override bool CanUseImpostorVentButton(PlayerControl pc)
-        {
+            Logger.Info("SetRole:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Knighted, "Assign " + CustomRoles.Knighted);
             return false;
         }
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            opt.SetVision(false);
-        }
-
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-        {
-            if (killer.GetAbilityUseLimit() < 1) return false;
-
-            if (target != null && !target.GetCustomRole().IsNotKnightable() && !target.Is(CustomRoles.Knighted) && !target.Is(CustomRoles.TicketsStealer))
-            {
-                killer.RpcRemoveAbilityUse();
-                target.RpcSetCustomRole(CustomRoles.Knighted);
-
-                killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")));
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("KnightedByMonarch")));
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-
-                killer.ResetKillCooldown();
-                killer.SetKillCooldown();
-
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
-
-                Logger.Info("SetRole:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Knighted, "Assign " + CustomRoles.Knighted);
-                return false;
-            }
-
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchInvalidTarget")));
-            return false;
-        }
+        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchInvalidTarget")));
+        return false;
     }
 }

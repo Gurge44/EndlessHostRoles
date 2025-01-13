@@ -1,17 +1,16 @@
 ﻿using static EHR.Options;
 
-namespace EHR.AddOns.Common
+namespace EHR.AddOns.Common;
+
+internal class DualPersonality : IAddon
 {
-    internal class DualPersonality : IAddon
+    public AddonTypes Type => AddonTypes.Mixed;
+
+    public void SetupCustomOption()
     {
-        public AddonTypes Type => AddonTypes.Mixed;
+        SetupAdtRoleOptions(14700, CustomRoles.DualPersonality, canSetNum: true, teamSpawnOptions: true);
 
-        public void SetupCustomOption()
-        {
-            SetupAdtRoleOptions(14700, CustomRoles.DualPersonality, canSetNum: true, teamSpawnOptions: true);
-
-            DualVotes = new BooleanOptionItem(14712, "DualVotes", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.DualPersonality]);
-        }
+        DualVotes = new BooleanOptionItem(14712, "DualVotes", true, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.DualPersonality]);
     }
 }

@@ -6,94 +6,104 @@ using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Impostor
+namespace EHR.Impostor;
+
+public class Duellist : RoleBase
 {
-    public class Duellist : RoleBase
+    private const int Id = 642850;
+    private static List<byte> PlayerIdList = [];
+    private static Dictionary<byte, byte> DuelPair = [];
+    private static OptionItem SSCD;
+
+    private int Count;
+
+    public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
+
+    public override void SetupCustomOption()
     {
-        private const int Id = 642850;
-        private static List<byte> PlayerIdList = [];
-        private static Dictionary<byte, byte> DuelPair = [];
-        private static OptionItem SSCD;
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Duellist);
 
-        private int Count;
+        SSCD = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Duellist])
+            .SetValueFormat(OptionFormat.Seconds);
+    }
 
-        public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
+    public override void Init()
+    {
+        PlayerIdList = [];
+        DuelPair = [];
+    }
 
-        public override void SetupCustomOption()
+    public override void Add(byte playerId)
+    {
+        PlayerIdList.Add(playerId);
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
+    }
+
+    public override bool OnShapeshift(PlayerControl duellist, PlayerControl target, bool shapeshifting)
+    {
+        if (!IsEnable) return false;
+
+        if (duellist == null || target == null) return false;
+
+        Vector2 pos = Pelican.GetBlackRoomPS();
+
+        if (target.TP(pos))
         {
-            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Duellist);
+            if (Main.KillTimers[duellist.PlayerId] < 1f) duellist.SetKillCooldown(1f); // Give the other player a chance to kill
 
-            SSCD = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Duellist])
-                .SetValueFormat(OptionFormat.Seconds);
-        }
-
-        public override void Init()
-        {
-            PlayerIdList = [];
-            DuelPair = [];
-        }
-
-        public override void Add(byte playerId)
-        {
-            PlayerIdList.Add(playerId);
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte id)
-        {
-            AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
-        }
-
-        public override bool OnShapeshift(PlayerControl duellist, PlayerControl target, bool shapeshifting)
-        {
-            if (!IsEnable) return false;
-
-            if (duellist == null || target == null) return false;
-
-            Vector2 pos = Pelican.GetBlackRoomPS();
-
-            if (target.TP(pos))
+            if (DuelPair.TryGetValue(duellist.PlayerId, out var previousTargetId))
             {
-                if (Main.KillTimers[duellist.PlayerId] < 1f) duellist.SetKillCooldown(1f); // Give the other player a chance to kill
-
-                duellist.TP(pos);
-                DuelPair[duellist.PlayerId] = target.PlayerId;
+                var previousTarget = GetPlayerById(previousTargetId);
+                if (previousTarget != null) previousTarget.TPToRandomVent();
             }
-            else
-                duellist.Notify(GetString("TargetCannotBeTeleported"));
 
-            return false;
+            duellist.TP(pos);
+            DuelPair[duellist.PlayerId] = target.PlayerId;
         }
+        else
+            duellist.Notify(GetString("TargetCannotBeTeleported"));
 
-        public override void OnFixedUpdate(PlayerControl pc)
+        return false;
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (DuelPair.Count == 0) return;
+
+        if (pc.IsAlive() && Count++ < 40) return;
+
+        Count = 0;
+
+        foreach (KeyValuePair<byte, byte> pair in DuelPair)
         {
-            if (DuelPair.Count == 0) return;
+            PlayerControl duellist = GetPlayerById(pair.Key);
+            PlayerControl target = GetPlayerById(pair.Value);
+            bool DAlive = duellist.IsAlive();
+            bool TAlive = target.IsAlive();
 
-            if (pc.IsAlive() && Count++ < 40) return;
-
-            Count = 0;
-
-            foreach (KeyValuePair<byte, byte> pair in DuelPair)
+            switch (DAlive)
             {
-                PlayerControl duellist = GetPlayerById(pair.Key);
-                PlayerControl target = GetPlayerById(pair.Value);
-                bool DAlive = duellist.IsAlive();
-                bool TAlive = target.IsAlive();
-
-                switch (DAlive)
-                {
-                    case false when !TAlive:
-                        DuelPair.Remove(pair.Key);
-                        break;
-                    case true when !TAlive:
-                        DuelPair.Remove(pair.Key);
-                        LateTask.New(() => duellist.TPToRandomVent(), 0.5f, log: false);
-                        break;
-                    case false:
-                        DuelPair.Remove(pair.Key);
-                        LateTask.New(() => target.TPToRandomVent(), 0.5f, log: false);
-                        break;
-                }
+                case false when !TAlive:
+                    DuelPair.Remove(pair.Key);
+                    break;
+                case true when !TAlive:
+                    DuelPair.Remove(pair.Key);
+                    LateTask.New(() => duellist.TPToRandomVent(), 0.5f, log: false);
+                    break;
+                case false:
+                    DuelPair.Remove(pair.Key);
+                    LateTask.New(() => target.TPToRandomVent(), 0.5f, log: false);
+                    break;
             }
         }
     }

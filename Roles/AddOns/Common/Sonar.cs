@@ -1,47 +1,46 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EHR.AddOns.Common
+namespace EHR.AddOns.Common;
+
+public class Sonar : IAddon
 {
-    public class Sonar : IAddon
+    private static readonly Dictionary<byte, byte> Target = [];
+    public AddonTypes Type => AddonTypes.Helpful;
+
+    public void SetupCustomOption()
     {
-        private static readonly Dictionary<byte, byte> Target = [];
-        public AddonTypes Type => AddonTypes.Helpful;
+        Options.SetupAdtRoleOptions(13642, CustomRoles.Sonar, canSetNum: true, teamSpawnOptions: true);
+    }
 
-        public void SetupCustomOption()
+    public static string GetSuffix(PlayerControl seer, bool meeting)
+    {
+        if (meeting || !seer.Is(CustomRoles.Sonar) || !Target.TryGetValue(seer.PlayerId, out byte targetId)) return string.Empty;
+
+        return TargetArrow.GetArrows(seer, targetId);
+    }
+
+    public static void OnFixedUpdate(PlayerControl seer)
+    {
+        if (!seer.Is(CustomRoles.Sonar) || !GameStates.IsInTask || seer.inVent || Main.AllAlivePlayerControls.Length == 1) return;
+
+        PlayerControl closest = Main.AllAlivePlayerControls.Where(x => x.PlayerId != seer.PlayerId).MinBy(x => Vector2.Distance(seer.Pos(), x.Pos()));
+
+        if (Target.TryGetValue(seer.PlayerId, out byte targetId))
         {
-            Options.SetupAdtRoleOptions(13643, CustomRoles.Sonar, canSetNum: true, teamSpawnOptions: true);
-        }
-
-        public static string GetSuffix(PlayerControl seer, bool meeting)
-        {
-            if (meeting || !seer.Is(CustomRoles.Sonar) || !Target.TryGetValue(seer.PlayerId, out byte targetId)) return string.Empty;
-
-            return TargetArrow.GetArrows(seer, targetId);
-        }
-
-        public static void OnFixedUpdate(PlayerControl seer)
-        {
-            if (!seer.Is(CustomRoles.Sonar) || !GameStates.IsInTask || seer.inVent || Main.AllAlivePlayerControls.Length == 1) return;
-
-            PlayerControl closest = Main.AllAlivePlayerControls.Where(x => x.PlayerId != seer.PlayerId).MinBy(x => Vector2.Distance(seer.Pos(), x.Pos()));
-
-            if (Target.TryGetValue(seer.PlayerId, out byte targetId))
-            {
-                if (targetId != closest.PlayerId)
-                {
-                    Target[seer.PlayerId] = closest.PlayerId;
-                    TargetArrow.Remove(seer.PlayerId, targetId);
-                    TargetArrow.Add(seer.PlayerId, closest.PlayerId);
-                    Utils.NotifyRoles(SpecifySeer: seer, SpecifyTarget: closest);
-                }
-            }
-            else
+            if (targetId != closest.PlayerId)
             {
                 Target[seer.PlayerId] = closest.PlayerId;
+                TargetArrow.Remove(seer.PlayerId, targetId);
                 TargetArrow.Add(seer.PlayerId, closest.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: seer, SpecifyTarget: closest);
             }
+        }
+        else
+        {
+            Target[seer.PlayerId] = closest.PlayerId;
+            TargetArrow.Add(seer.PlayerId, closest.PlayerId);
+            Utils.NotifyRoles(SpecifySeer: seer, SpecifyTarget: closest);
         }
     }
 }

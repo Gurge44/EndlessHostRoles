@@ -4,181 +4,185 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
-namespace EHR.Crewmate
+namespace EHR.Crewmate;
+
+public class Catcher : RoleBase
 {
-    public class Catcher : RoleBase
+    public static bool On;
+
+    public static OptionItem AbilityCooldown;
+    public static OptionItem TrapPlaceDelay;
+    public static OptionItem CatchRange;
+    public static OptionItem MinPlayersTrappedToShowInfo;
+    public static OptionItem AbilityUseLimit;
+    public static OptionItem AbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
+    private byte CatcherId;
+    private Dictionary<byte, CustomRoles> CaughtRoles;
+    private long DelayStartTS;
+    private long LastUpdate;
+    private Dictionary<Vector2, CatcherTrap> Traps;
+
+    public override bool IsEnable => On;
+
+    public override void SetupCustomOption()
     {
-        public static bool On;
+        var id = 648650;
+        const TabGroup tab = TabGroup.CrewmateRoles;
+        const CustomRoles role = CustomRoles.Catcher;
 
-        public static OptionItem AbilityCooldown;
-        public static OptionItem TrapPlaceDelay;
-        public static OptionItem CatchRange;
-        public static OptionItem MinPlayersTrappedToShowInfo;
-        public static OptionItem AbilityUseLimit;
-        public static OptionItem AbilityUseGainWithEachTaskCompleted;
-        public static OptionItem AbilityChargesWhenFinishedTasks;
-        private byte CatcherId;
-        private Dictionary<byte, CustomRoles> CaughtRoles;
-        private long DelayStartTS;
-        private long LastUpdate;
-        private Dictionary<Vector2, CatcherTrap> Traps;
+        Options.SetupRoleOptions(id++, tab, role);
 
-        public override bool IsEnable => On;
+        StringOptionItem parent = Options.CustomRoleSpawnChances[role];
 
-        public override void SetupCustomOption()
-        {
-            var id = 648650;
-            const TabGroup tab = TabGroup.CrewmateRoles;
-            const CustomRoles role = CustomRoles.Catcher;
+        AbilityCooldown = new FloatOptionItem(++id, "AbilityCooldown", new(0f, 180f, 0.5f), 10f, tab)
+            .SetParent(parent)
+            .SetValueFormat(OptionFormat.Seconds);
 
-            Options.SetupRoleOptions(id++, tab, role);
+        TrapPlaceDelay = new FloatOptionItem(++id, "Catcher.TrapPlaceDelay", new(0f, 180f, 1f), 5f, tab)
+            .SetParent(parent)
+            .SetValueFormat(OptionFormat.Seconds);
 
-            StringOptionItem parent = Options.CustomRoleSpawnChances[role];
+        CatchRange = new FloatOptionItem(++id, "Catcher.CatchRange", new(0f, 10f, 0.25f), 1.5f, tab)
+            .SetParent(parent)
+            .SetValueFormat(OptionFormat.Multiplier);
 
-            AbilityCooldown = new FloatOptionItem(++id, "AbilityCooldown", new(0f, 180f, 0.5f), 10f, tab)
-                .SetParent(parent)
-                .SetValueFormat(OptionFormat.Seconds);
+        MinPlayersTrappedToShowInfo = new IntegerOptionItem(++id, "Catcher.MinPlayersTrappedToShowInfo", new(1, 10, 1), 2, tab)
+            .SetParent(parent)
+            .SetValueFormat(OptionFormat.Players);
 
-            TrapPlaceDelay = new FloatOptionItem(++id, "Catcher.TrapPlaceDelay", new(0f, 180f, 1f), 5f, tab)
-                .SetParent(parent)
-                .SetValueFormat(OptionFormat.Seconds);
+        AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 3, tab)
+            .SetParent(parent)
+            .SetValueFormat(OptionFormat.Times);
 
-            CatchRange = new FloatOptionItem(++id, "Catcher.CatchRange", new(0f, 10f, 0.25f), 1.5f, tab)
-                .SetParent(parent)
-                .SetValueFormat(OptionFormat.Multiplier);
+        AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, tab)
+            .SetParent(parent)
+            .SetValueFormat(OptionFormat.Times);
 
-            MinPlayersTrappedToShowInfo = new IntegerOptionItem(++id, "Catcher.MinPlayersTrappedToShowInfo", new(1, 10, 1), 2, tab)
-                .SetParent(parent)
-                .SetValueFormat(OptionFormat.Players);
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, tab)
+            .SetParent(parent)
+            .SetValueFormat(OptionFormat.Times);
+    }
 
-            AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 3, tab)
-                .SetParent(parent)
-                .SetValueFormat(OptionFormat.Times);
+    public override void Init()
+    {
+        On = false;
+    }
 
-            AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, tab)
-                .SetParent(parent)
-                .SetValueFormat(OptionFormat.Times);
+    public override void Add(byte playerId)
+    {
+        On = true;
+        CatcherId = playerId;
+        Traps = [];
+        DelayStartTS = 0;
+        LastUpdate = Utils.TimeStamp;
+        CaughtRoles = [];
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+    }
 
-            AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, tab)
-                .SetParent(parent)
-                .SetValueFormat(OptionFormat.Times);
-        }
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (Options.UsePets.GetBool()) return;
 
-        public override void Init()
-        {
-            On = false;
-        }
+        AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
+        AURoleOptions.EngineerInVentMaxTime = 1f;
+    }
 
-        public override void Add(byte playerId)
-        {
-            On = true;
-            CatcherId = playerId;
-            Traps = [];
-            DelayStartTS = 0;
-            LastUpdate = Utils.TimeStamp;
-            CaughtRoles = [];
-            playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
-        }
+    private void PlaceTrap(PlayerControl pc)
+    {
+        if (pc.GetAbilityUseLimit() < 1) return;
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            if (Options.UsePets.GetBool()) return;
+        pc.RpcRemoveAbilityUse();
 
-            AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
-            AURoleOptions.EngineerInVentMaxTime = 1f;
-        }
+        Vector2 pos = pc.Pos();
+        Traps[pos] = new(pos, pc);
 
-        private void PlaceTrap(PlayerControl pc)
-        {
-            if (pc.GetAbilityUseLimit() < 1) return;
+        pc.Notify(Translator.GetString("Catcher.TrapPlaced"));
+    }
 
-            pc.RpcRemoveAbilityUse();
+    public override void OnPet(PlayerControl pc)
+    {
+        PlaceTrap(pc);
+    }
 
-            Vector2 pos = pc.Pos();
-            Traps[pos] = new(pos, pc);
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
+    {
+        DelayStartTS = Utils.TimeStamp + 1;
+        SendRPC();
+    }
 
-            pc.Notify(Translator.GetString("Catcher.TrapPlaced"));
-        }
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || Options.UsePets.GetBool() || DelayStartTS == 0) return;
 
-        public override void OnPet(PlayerControl pc)
+        long now = Utils.TimeStamp;
+        if (now == LastUpdate) return;
+
+        LastUpdate = now;
+
+        if (DelayStartTS + TrapPlaceDelay.GetInt() <= now)
         {
             PlaceTrap(pc);
-        }
-
-        public override void OnEnterVent(PlayerControl pc, Vent vent)
-        {
-            DelayStartTS = Utils.TimeStamp + 1;
+            DelayStartTS = 0;
             SendRPC();
         }
 
-        public override void OnFixedUpdate(PlayerControl pc)
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        pc.RpcResetAbilityCooldown();
+    }
+
+    public override void OnCheckPlayerPosition(PlayerControl pc)
+    {
+        if (CaughtRoles.ContainsKey(pc.PlayerId) || pc.PlayerId == CatcherId) return;
+
+        Vector2 pos = pc.Pos();
+        float range = CatchRange.GetFloat();
+        if (Traps.Keys.Any(x => Vector2.Distance(x, pos) <= range)) CaughtRoles[pc.PlayerId] = pc.GetCustomRole();
+    }
+
+    public override void OnReportDeadBody()
+    {
+        if (Traps.Count == 0) return;
+
+        Traps.Values.Do(x => x.Despawn());
+        Traps = [];
+
+        PlayerControl catcher = CatcherId.GetPlayer();
+        if (catcher == null || !catcher.IsAlive()) return;
+
+        LateTask.New(() =>
         {
-            if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || Options.UsePets.GetBool() || DelayStartTS == 0) return;
-
-            long now = Utils.TimeStamp;
-            if (now == LastUpdate) return;
-
-            LastUpdate = now;
-
-            if (DelayStartTS + TrapPlaceDelay.GetInt() <= now)
+            if (CaughtRoles.Count >= MinPlayersTrappedToShowInfo.GetInt())
             {
-                PlaceTrap(pc);
-                DelayStartTS = 0;
-                SendRPC();
+                string roles = string.Join(", ", CaughtRoles.Values.Select(x => x.ToColoredString()));
+                Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.CaughtRoles") + roles);
             }
+            else
+                Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.NotEnoughCaughtRoles"));
 
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            pc.RpcResetAbilityCooldown();
-        }
+            CaughtRoles = [];
+        }, 10f, "Send Catcher Caught Roles");
+    }
 
-        public override void OnCheckPlayerPosition(PlayerControl pc)
-        {
-            if (CaughtRoles.ContainsKey(pc.PlayerId) || pc.PlayerId == CatcherId) return;
+    private void SendRPC()
+    {
+        Utils.SendRPC(CustomRPC.SyncRoleData, CatcherId, DelayStartTS);
+    }
 
-            Vector2 pos = pc.Pos();
-            float range = CatchRange.GetFloat();
-            if (Traps.Keys.Any(x => Vector2.Distance(x, pos) <= range)) CaughtRoles[pc.PlayerId] = pc.GetCustomRole();
-        }
+    public void ReceiveRPC(MessageReader reader)
+    {
+        DelayStartTS = long.Parse(reader.ReadString());
+    }
 
-        public override void OnReportDeadBody()
-        {
-            if (Traps.Count == 0) return;
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+    {
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != CatcherId || meeting || (seer.IsModClient() && !hud) || DelayStartTS == 0 || Options.UsePets.GetBool()) return string.Empty;
 
-            Traps.Values.Do(x => x.Despawn());
-            Traps = [];
+        return string.Format(Translator.GetString("Catcher.Suffix"), TrapPlaceDelay.GetInt() - (Utils.TimeStamp - DelayStartTS));
+    }
 
-            PlayerControl catcher = CatcherId.GetPlayer();
-            if (catcher == null || !catcher.IsAlive()) return;
-
-            LateTask.New(() =>
-            {
-                if (CaughtRoles.Count >= MinPlayersTrappedToShowInfo.GetInt())
-                {
-                    string roles = string.Join(", ", CaughtRoles.Values.Select(x => x.ToColoredString()));
-                    Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.CaughtRoles") + roles);
-                }
-                else
-                    Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.NotEnoughCaughtRoles"));
-
-                CaughtRoles = [];
-            }, 10f, "Send Catcher Caught Roles");
-        }
-
-        private void SendRPC()
-        {
-            Utils.SendRPC(CustomRPC.SyncRoleData, CatcherId, DelayStartTS);
-        }
-
-        public void ReceiveRPC(MessageReader reader)
-        {
-            DelayStartTS = long.Parse(reader.ReadString());
-        }
-
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
-        {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != CatcherId || meeting || (seer.IsModClient() && !hud) || DelayStartTS == 0 || Options.UsePets.GetBool()) return string.Empty;
-
-            return string.Format(Translator.GetString("Catcher.Suffix"), TrapPlaceDelay.GetInt() - (Utils.TimeStamp - DelayStartTS));
-        }
+    public override bool CanUseVent(PlayerControl pc, int ventId)
+    {
+        return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
 }
