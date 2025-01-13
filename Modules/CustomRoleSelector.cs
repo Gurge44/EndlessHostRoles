@@ -161,6 +161,8 @@ internal static class CustomRoleSelector
         var neutralLimits = Options.FactionMinMaxSettings[Team.Neutral];
         var numNeutrals = IRandom.Instance.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1);
 
+        int madmateNum = IRandom.Instance.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1);
+
         if (Roles[RoleAssignType.Impostor].Count == 0 && numNeutrals == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
         {
             Roles[RoleAssignType.Impostor].Add(new(CustomRoles.ImpostorEHR, 100, optImpNum));
@@ -242,8 +244,6 @@ internal static class CustomRoleSelector
 
         int nnkNum = Roles[RoleAssignType.NonKillingNeutral].Count;
         int nkNum = Roles[RoleAssignType.NeutralKilling].Count;
-
-        int madmateNum = IRandom.Instance.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1);
 
         Logger.Msg("======================================================", "SelectedRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "SelectedImpostorRoles");
