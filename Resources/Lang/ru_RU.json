@@ -51,7 +51,7 @@
   "ImpostorsCanGuess": "<color=#ff1919>Предатели</color> могут гадать",
   "NeutralKillersCanGuess": "<color=#ffab1b>Нейтральные Убийцы</color> могут гадать",
   "PassiveNeutralsCanGuess": "Пассивные <color=#ffab1b>Нейтралы</color> могут гадать",
-  "CovenCanGuess": "<color=#7b3fbb>Coven members</color> can guess",
+  "CovenCanGuess": "<color=#7b3fbb>Ковены</color> могут гадать",
   "CanGuessAddons": "Можно угадывать атрибуты",
   "CrewCanGuessCrew": "<color=#8cffff>Члены Экипажа </color>могут угадывать других <color=#8cffff>Членов Экипажа</color>",
   "ImpCanGuessImp": "<color=#ff1919>Предатели</color> могут угадывать других <color=#ff1919>Предателей</color>",
