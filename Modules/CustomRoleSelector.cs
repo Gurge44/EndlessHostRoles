@@ -28,7 +28,6 @@ internal static class CustomRoleSelector
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            Logger.Warn("pos0", "debug");
             Dictionary<CustomGameMode, CustomRoles> gameModeRoles = new()
             {
                 { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
@@ -41,7 +40,6 @@ internal static class CustomRoleSelector
                 { CustomGameMode.RoomRush, CustomRoles.RRPlayer }
             };
 
-            Logger.Warn("pos1", "debug");
             if (gameModeRoles.TryGetValue(Options.CurrentGameMode, out var role))
             {
                 AssignRoleToEveryone(role);
@@ -50,29 +48,23 @@ internal static class CustomRoleSelector
 
             bool hns = Options.CurrentGameMode == CustomGameMode.HideAndSeek;
 
-            Logger.Warn("pos2", "debug");
             if (Options.CurrentGameMode == CustomGameMode.AllInOne)
             {
                 var prioritizedGameMode = AllInOneGameMode.GetPrioritizedGameModeForRoles();
 
                 if (gameModeRoles.TryGetValue(prioritizedGameMode, out var allInOneRole))
                 {
-                    Logger.Warn("pos2.5", "debug");
                     AssignRoleToEveryone(allInOneRole);
                     return;
                 }
 
                 hns = prioritizedGameMode == CustomGameMode.HideAndSeek;
-                Logger.Warn("pos3", "debug");
             }
 
-            Logger.Warn("pos4", "debug");
             if (hns)
             {
-                Logger.Warn("pos5", "debug");
                 CustomHnS.AssignRoles();
                 RoleResult = CustomHnS.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);
-                Logger.Warn("we got here", "debug");
                 return;
             }
         }

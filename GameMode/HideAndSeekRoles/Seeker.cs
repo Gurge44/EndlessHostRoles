@@ -24,12 +24,12 @@ internal class Seeker : RoleBase, IHideAndSeekRole
             .SetHeader(true)
             .SetColor(new(255, 25, 25, byte.MaxValue));
 
-        Vision = new FloatOptionItem(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.5f, TabGroup.ImpostorRoles)
+        Vision = new FloatOptionItem(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.35f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(255, 25, 25, byte.MaxValue));
 
-        Speed = new FloatOptionItem(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
+        Speed = new FloatOptionItem(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.2f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(255, 25, 25, byte.MaxValue));

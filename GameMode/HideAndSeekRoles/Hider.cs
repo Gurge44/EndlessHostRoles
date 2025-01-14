@@ -31,7 +31,7 @@ internal class Hider : RoleBase, IHideAndSeekRole
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(52, 94, 235, byte.MaxValue));
 
-        Speed = new FloatOptionItem(69_211_102, "HiderSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+        Speed = new FloatOptionItem(69_211_102, "HiderSpeed", new(0.05f, 5f, 0.05f), 1.4f, TabGroup.CrewmateRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(52, 94, 235, byte.MaxValue));
