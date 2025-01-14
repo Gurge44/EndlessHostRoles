@@ -303,6 +303,8 @@ internal class Bargainer : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        if (Main.PlayerStates[BargainerId].IsDead) return;
+
         if (Gains.TryGetValue(MoneyGainingAction.SurviveMeeting, out int gain))
         {
             Money += gain;

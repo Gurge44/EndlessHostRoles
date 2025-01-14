@@ -15,6 +15,7 @@ internal class Lovers : IAddon
     public static OptionItem ImpCanBeInLove;
     public static OptionItem CrewCanBeInLove;
     public static OptionItem NeutralCanBeInLove;
+    public static OptionItem CovenCanBeInLove;
     public static OptionItem CrewLoversWinWithCrew;
     public static OptionItem LegacyLovers;
     public static OptionItem LovingImpostorSpawnChance;
@@ -131,6 +132,11 @@ internal class Lovers : IAddon
             .SetHidden(LegacyLovers.GetBool())
             .SetGameMode(customGameMode);
 
+        CovenCanBeInLove = new BooleanOptionItem(id + 16, "CovenCanBeInLove", true, TabGroup.Addons)
+            .SetParent(spawnOption)
+            .SetHidden(LegacyLovers.GetBool())
+            .SetGameMode(customGameMode);
+
 
         OptionItem countOption = new IntegerOptionItem(id + 1, "NumberOfLovers", new(2, 2, 1), 2, TabGroup.Addons)
             .SetParent(spawnOption)
@@ -145,13 +151,7 @@ internal class Lovers : IAddon
 
     public static void Init()
     {
-        try
-        {
-            LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
-        }
-        catch
-        {
-            LovingImpostorRole = CustomRoles.LovingImpostor;
-        }
+        try { LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(true) && !CustomHnS.AllHnSRoles.Contains(x)).Shuffle()[0]; }
+        catch { LovingImpostorRole = CustomRoles.LovingImpostor; }
     }
 }

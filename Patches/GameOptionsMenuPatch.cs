@@ -24,15 +24,12 @@ public static class ModGameOptionsMenu
 [HarmonyPatch(typeof(GameOptionsMenu))]
 public static class GameOptionsMenuPatch
 {
-    private static GameOptionsMenu Instance;
-
     public static long UIReloadTS;
 
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize))]
     [HarmonyPrefix]
     private static bool InitializePrefix(GameOptionsMenu __instance)
     {
-        Instance ??= __instance;
         if (ModGameOptionsMenu.TabIndex < 3) return true;
 
         if (__instance.Children == null || __instance.Children.Count == 0)
@@ -188,13 +185,15 @@ public static class GameOptionsMenuPatch
 
                 if (enabled) num -= 0.45f;
 
-                if (index % 50 == 0) yield return null;
+                if (index % 100 == 0) yield return null;
             }
 
             yield return null;
 
             __instance.ControllerSelectable.Clear();
-            foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>()) __instance.ControllerSelectable.Add(x);
+
+            foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>())
+                __instance.ControllerSelectable.Add(x);
         }
 
         float CalculateScrollBarYBoundsMax()
@@ -411,6 +410,8 @@ public static class GameOptionsMenuPatch
 
     public static void ReloadUI(int index)
     {
+        UIReloadTS = Utils.TimeStamp;
+
         GameSettingMenu.Instance?.Close();
 
         LateTask.New(() =>
@@ -704,7 +705,7 @@ public static class StringOptionPatch
                     string str = Translator.GetString($"{roleName}InfoLong");
                     string infoLong;
 
-                    try { infoLong = HnSManager.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
+                    try { infoLong = CustomHnS.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
                     catch { infoLong = str; }
 
                     var info = $"{value.ToColoredString()}: {infoLong}";

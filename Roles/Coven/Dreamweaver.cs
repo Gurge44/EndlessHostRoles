@@ -10,6 +10,7 @@ public class Dreamweaver : Coven
     public static bool On;
 
     private static OptionItem AbilityCooldown;
+    private static OptionItem AbilityUseLimit;
 
     private byte DreamweaverId;
 
@@ -22,7 +23,8 @@ public class Dreamweaver : Coven
     public override void SetupCustomOption()
     {
         StartSetup(650080)
-            .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds);
+            .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 10, 1), OptionFormat.Times);
     }
 
     public override void Init()
@@ -35,11 +37,12 @@ public class Dreamweaver : Coven
         On = true;
         InsanePlayers = [];
         DreamweaverId = playerId;
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return pc.IsAlive() && pc.GetAbilityUseLimit() > 0;
     }
 
     public override void SetKillCooldown(byte id)
@@ -53,6 +56,7 @@ public class Dreamweaver : Coven
         Utils.SendRPC(CustomRPC.SyncRoleData, DreamweaverId, 1, target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
+        killer.RpcRemoveAbilityUse();
         return false;
     }
 

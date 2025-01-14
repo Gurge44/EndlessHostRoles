@@ -8,7 +8,7 @@ public class Sleep : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(644293, CustomRoles.Sleep, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(644292, CustomRoles.Sleep, canSetNum: true, teamSpawnOptions: true);
     }
 
     public static void CheckGlowNearby(PlayerControl pc)

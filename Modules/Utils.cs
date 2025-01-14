@@ -488,7 +488,7 @@ public static class Utils
 
         if (!self && Main.DiedThisRound.Contains(seerId)) return (string.Empty, Color.white);
 
-        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor)
+        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && targetMainRole == CustomRoles.Agent && CustomHnS.PlayerRoles[seerId].Interface.Team != Team.Impostor)
             targetMainRole = CustomRoles.Hider;
 
         if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles.TryGetValue(targetId, out var shownRole))
@@ -749,7 +749,7 @@ public static class Utils
             case CustomGameMode.RoomRush:
                 return false;
             case CustomGameMode.HideAndSeek:
-                return HnSManager.HasTasks(p);
+                return CustomHnS.HasTasks(p);
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.Speedrun:
                 return !p.IsDead;
@@ -892,6 +892,7 @@ public static class Utils
             default:
                 if (role.IsImpostor() || role.IsCoven())
                     hasTasks = false;
+
                 break;
         }
 
@@ -955,7 +956,7 @@ public static class Utils
             case CustomGameMode.Standard when CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
             case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.AllInOne:
-            case CustomGameMode.HideAndSeek when HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance):
+            case CustomGameMode.HideAndSeek when CustomHnS.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance):
                 return true;
         }
 
@@ -1282,10 +1283,11 @@ public static class Utils
         StringBuilder impsb = new();
         StringBuilder neutralsb = new();
         StringBuilder crewsb = new();
+        StringBuilder covensb = new();
         StringBuilder addonsb = new();
         StringBuilder ghostsb = new();
 
-        foreach (CustomRoles role in CustomGameMode.HideAndSeek.IsActiveOrIntegrated() ? HnSManager.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(HnSManager.AllHnSRoles))
+        foreach (CustomRoles role in CustomGameMode.HideAndSeek.IsActiveOrIntegrated() ? CustomHnS.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(CustomHnS.AllHnSRoles))
         {
             string mode;
 
@@ -1308,6 +1310,7 @@ public static class Utils
                 else if (role.IsCrewmate()) crewsb.Append(roleDisplay);
                 else if (role.IsImpostor() || role.IsMadmate()) impsb.Append(roleDisplay);
                 else if (role.IsNeutral()) neutralsb.Append(roleDisplay);
+                else if (role.IsCoven()) covensb.Append(roleDisplay);
             }
         }
 
@@ -1315,6 +1318,7 @@ public static class Utils
         SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")));
         SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")));
         SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, GetString("NeutralRoles"));
+        SendMessage(covensb.Append("\n.").ToString(), PlayerId, GetString("CovenRoles"));
         SendMessage(ghostsb.Append("\n.").ToString(), PlayerId, GetString("GhostRoles"));
         SendMessage(addonsb.Append("\n.").ToString(), PlayerId, GetString("AddonRoles"));
     }
@@ -1391,7 +1395,7 @@ public static class Utils
                 break;
             case CustomGameMode.FFA:
                 List<(int, byte)> list2 = [];
-                list2.AddRange(cloneRoles.Select(id => (FFAManager.GetRankFromScore(id), id)));
+                list2.AddRange(cloneRoles.Select(id => (FreeForAll.GetRankFromScore(id), id)));
 
                 list2.Sort();
 
@@ -2127,7 +2131,7 @@ public static class Utils
                     switch (Options.CurrentGameMode)
                     {
                         case CustomGameMode.FFA:
-                            SelfSuffix.Append(FFAManager.GetPlayerArrow(seer));
+                            SelfSuffix.Append(FreeForAll.GetPlayerArrow(seer));
                             break;
                         case CustomGameMode.SoloKombat:
                             SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true));
@@ -2139,13 +2143,13 @@ public static class Utils
                             SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId));
                             break;
                         case CustomGameMode.Speedrun:
-                            SelfSuffix.Append(SpeedrunManager.GetSuffixText(seer));
+                            SelfSuffix.Append(Speedrun.GetSuffixText(seer));
                             break;
                         case CustomGameMode.HideAndSeek:
-                            SelfSuffix.Append(HnSManager.GetSuffixText(seer, seer));
+                            SelfSuffix.Append(CustomHnS.GetSuffixText(seer, seer));
                             break;
                         case CustomGameMode.CaptureTheFlag:
-                            SelfSuffix.Append(CTFManager.GetSuffixText(seer, seer));
+                            SelfSuffix.Append(CaptureTheFlag.GetSuffixText(seer, seer));
                             break;
                         case CustomGameMode.NaturalDisasters:
                             SelfSuffix.Append(NaturalDisasters.SuffixText());
@@ -2158,7 +2162,7 @@ public static class Utils
                             if (alive) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true) + "\n");
                             if (alive) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
                             SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
-                            if (alive && !seer.Is(CustomRoles.Killer)) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), SpeedrunManager.Timers[seer.PlayerId]) + "\n");
+                            if (alive && !seer.Is(CustomRoles.Killer)) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
                             SelfSuffix.Append(NaturalDisasters.SuffixText() + "\n");
                             const StringSplitOptions splitFlags = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
                             SelfSuffix.Append(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - "));
@@ -2170,7 +2174,7 @@ public static class Utils
 
                 if (!GameStates.IsLobby)
                 {
-                    if ((CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFATeamMode.GetBool()) || CustomGameMode.HotPotato.IsActiveOrIntegrated())
+                    if ((CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFATeamMode.GetBool()) || CustomGameMode.HotPotato.IsActiveOrIntegrated())
                         SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
 
                     if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne)
@@ -2194,7 +2198,7 @@ public static class Utils
                         }
                         else if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
                         {
-                            if (GameStartTimeStamp + 40 > now) SeerRealName = HnSManager.GetRoleInfoText(seer);
+                            if (GameStartTimeStamp + 40 > now) SeerRealName = CustomHnS.GetRoleInfoText(seer);
                         }
                         else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModClient())
                         {
@@ -2360,7 +2364,7 @@ public static class Utils
                                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
                                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                                 Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun ||
-                                (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && HnSManager.IsRoleTextEnabled(seer, target)) ||
+                                (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && CustomHnS.IsRoleTextEnabled(seer, target)) ||
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                                 (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) ||
                                 target.Is(CustomRoles.GM)
@@ -2450,10 +2454,10 @@ public static class Utils
                                         TargetSuffix.Append(SoloPVP.GetDisplayHealth(target, false));
                                         break;
                                     case CustomGameMode.HideAndSeek:
-                                        TargetSuffix.Append(HnSManager.GetSuffixText(seer, target));
+                                        TargetSuffix.Append(CustomHnS.GetSuffixText(seer, target));
                                         break;
                                     case CustomGameMode.CaptureTheFlag:
-                                        TargetSuffix.Append(CTFManager.GetSuffixText(seer, target));
+                                        TargetSuffix.Append(CaptureTheFlag.GetSuffixText(seer, target));
                                         break;
                                 }
 
@@ -2601,7 +2605,6 @@ public static class Utils
         Dictionary<Options.GameStateInfo, int> nums = Enum.GetValues<Options.GameStateInfo>().ToDictionary(x => x, _ => 0);
 
         if (CustomRoles.Romantic.RoleExist(true)) nums[Options.GameStateInfo.RomanticState] = 1;
-
         if (Romantic.HasPickedPartner) nums[Options.GameStateInfo.RomanticState] = 2;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -2614,14 +2617,14 @@ public static class Utils
                 nums[Options.GameStateInfo.CrewCount]++;
             else if (pc.Is(Team.Impostor))
                 nums[Options.GameStateInfo.ImpCount]++;
-            else if (pc.Is(Team.Neutral)) nums[Options.GameStateInfo.NNKCount]++;
+            else if (pc.Is(Team.Neutral))
+                nums[Options.GameStateInfo.NNKCount]++;
+            else if (pc.Is(Team.Coven))
+                nums[Options.GameStateInfo.CovenCount]++;
 
-            if (pc.GetCustomSubRoles().Any(x => x.IsConverted())) nums[Options.GameStateInfo.ConvertedCount]++;
-
+            if (pc.IsConverted()) nums[Options.GameStateInfo.ConvertedCount]++;
             if (Main.LoversPlayers.Exists(x => x.PlayerId == pc.PlayerId)) nums[Options.GameStateInfo.LoversState]++;
-
             if (pc.Is(CustomRoles.Romantic)) nums[Options.GameStateInfo.RomanticState] *= 3;
-
             if (Romantic.PartnerId == pc.PlayerId) nums[Options.GameStateInfo.RomanticState] *= 4;
         }
 
@@ -2775,18 +2778,19 @@ public static class Utils
                 pc.CheckAndSetUnshiftState(false);
 
                 AFKDetector.RecordPosition(pc);
-
-                Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
             }
             else
             {
                 TaskState taskState = pc.GetTaskState();
-                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks) pc.Notify(GetString("DoYourTasksPlease"), 10f);
+                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks) pc.Notify(GetString("DoYourTasksPlease"), 8f);
 
                 GhostRolesManager.NotifyAboutGhostRole(pc);
             }
 
-            if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter)) pc.RpcResetAbilityCooldown();
+            Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
+
+            if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter))
+                pc.RpcResetAbilityCooldown();
 
             Main.CheckShapeshift[pc.PlayerId] = false;
         }
@@ -3140,8 +3144,8 @@ public static class Utils
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.CaptureTheFlag:
-                    summary = $"{ColorString(Main.PlayerColors[id], name)}: {CTFManager.GetStatistics(id)}";
-                    if (CTFManager.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
+                    summary = $"{ColorString(Main.PlayerColors[id], name)}: {CaptureTheFlag.GetStatistics(id)}";
+                    if (CaptureTheFlag.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.AllInOne:
                     string survivalTimeText = !Main.PlayerStates[id].IsDead ? string.Empty : $" ({GetString("SurvivedTimePrefix")}: <#f542ad>{RoomRush.GetSurvivalTime(id)}s</color>)";
@@ -3162,35 +3166,66 @@ public static class Utils
         }
     }
 
-    public static string GetRemainingKillers(bool notify = false, bool president = false)
+    public static string GetRemainingKillers(bool notify = false, bool showAll = false, byte excludeId = byte.MaxValue)
     {
         var impnum = 0;
         var neutralnum = 0;
-        bool impShow = president || Options.ShowImpRemainOnEject.GetBool();
-        bool nkShow = president || Options.ShowNKRemainOnEject.GetBool();
+        var covenNum = 0;
+
+        bool impShow = showAll || Options.ShowImpRemainOnEject.GetBool();
+        bool nkShow = showAll || Options.ShowNKRemainOnEject.GetBool();
+        bool covenShow = showAll || Options.ShowCovenRemainOnEject.GetBool();
+
+        if (!impShow && !nkShow && !covenShow) return string.Empty;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
+            if (excludeId != byte.MaxValue && pc.PlayerId == excludeId) continue;
+
             if (impShow && pc.Is(Team.Impostor)) impnum++;
             else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
+            else if (covenShow && pc.Is(Team.Coven)) covenNum++;
         }
 
         StringBuilder sb = new();
 
         sb.Append(notify ? "<#777777>" : string.Empty);
-        sb.Append(impnum == 1 ? GetString("RemainingText.Prefix.SingleImp") : GetString("RemainingText.Prefix.PluralImp"));
+
+        var numberToUse = impShow ? impnum : nkShow ? neutralnum : covenNum;
+        sb.Append(numberToUse == 1 ? GetString("RemainingText.Prefix.Single") : GetString("RemainingText.Prefix.Plural"));
         sb.Append(notify ? " " : "\n");
-        sb.Append(notify ? "<#ffffff>" : "<b>");
-        sb.Append(impnum);
-        sb.Append(notify ? "</color>" : "</b>");
-        sb.Append(' ');
-        sb.Append($"<#ff1919>{(impnum == 1 ? GetString("RemainingText.ImpSingle") : GetString("RemainingText.ImpPlural"))}</color>");
-        sb.Append(" & ");
-        sb.Append(notify ? "<#ffffff>" : "<b>");
-        sb.Append(neutralnum);
-        sb.Append(notify ? "</color>" : "</b>");
-        sb.Append(' ');
-        sb.Append($"<#ffab1b>{(neutralnum == 1 ? GetString("RemainingText.NKSingle") : GetString("RemainingText.NKPlural"))}</color>");
+
+        if (impShow)
+        {
+            sb.Append(notify ? "<#ffffff>" : "<b>");
+            sb.Append(impnum);
+            sb.Append(notify ? "</color>" : "</b>");
+            sb.Append(' ');
+            sb.Append($"<#ff1919>{(impnum == 1 ? GetString("RemainingText.ImpSingle") : GetString("RemainingText.ImpPlural"))}</color>");
+
+            if (nkShow ^ covenShow) sb.Append(" & ");
+            else if (nkShow) sb.Append(", ");
+        }
+
+        if (nkShow)
+        {
+            sb.Append(notify ? "<#ffffff>" : "<b>");
+            sb.Append(neutralnum);
+            sb.Append(notify ? "</color>" : "</b>");
+            sb.Append(' ');
+            sb.Append($"<#ffab1b>{(neutralnum == 1 ? GetString("RemainingText.NKSingle") : GetString("RemainingText.NKPlural"))}</color>");
+            if (covenShow) sb.Append(" & ");
+        }
+
+        if (covenShow)
+        {
+            sb.Append(notify ? "<#ffffff>" : "<b>");
+            sb.Append(covenNum);
+            sb.Append(notify ? "</color>" : "</b>");
+            sb.Append(' ');
+            sb.Append($"<#7b3fbb>{(covenNum == 1 ? GetString("RemainingText.CovenSingle") : GetString("RemainingText.CovenPlural"))}</color>");
+        }
+
         sb.Append(GetString("RemainingText.Suffix"));
         sb.Append('.');
         sb.Append(notify ? "</color>" : string.Empty);
@@ -3362,7 +3397,7 @@ public static class Utils
             string str = GetString($"{role}InfoLong");
             string infoLong;
 
-            try { infoLong = HnSManager.AllHnSRoles.Contains(role) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
+            try { infoLong = CustomHnS.AllHnSRoles.Contains(role) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
             catch { infoLong = str; }
 
             string rotStr;
@@ -3415,14 +3450,9 @@ public static class Utils
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
         float divice = Options.CurrentGameMode switch
         {
-            CustomGameMode.SoloKombat => 1500f,
-            CustomGameMode.FFA => 1000f,
-            CustomGameMode.HideAndSeek => 2500f,
-            CustomGameMode.Speedrun => 2500f,
-            CustomGameMode.RoomRush => 1700f,
-            CustomGameMode.CaptureTheFlag => 1800f,
-            CustomGameMode.AllInOne => 1500f,
-            _ => 2000f
+            CustomGameMode.SoloKombat => 3000f,
+            CustomGameMode.CaptureTheFlag => 1500f,
+            _ => 1000f
         };
 
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f);

@@ -195,7 +195,7 @@ public class President : RoleBase
                 Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                 break;
             case Decree.Investigation:
-                Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers(president: true));
+                Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers(showAll: true));
                 break;
             case Decree.GovernmentRecruiting:
                 if (MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == pc.PlayerId)?.DidVote == true) return;

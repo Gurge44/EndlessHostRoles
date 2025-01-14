@@ -18,11 +18,12 @@ public class Abyssbringer : RoleBase
     private static OptionItem BlackHoleMovesTowardsNearestPlayer;
     private static OptionItem BlackHoleMoveSpeed;
     private static OptionItem BlackHoleRadius;
+    private static OptionItem KillCooldown;
+
     private byte AbyssbringerId;
-
     private List<BlackHoleData> BlackHoles = [];
-
     private int Count;
+
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -52,6 +53,10 @@ public class Abyssbringer : RoleBase
         BlackHoleRadius = new FloatOptionItem(++id, "BlackHoleRadius", new(0.1f, 5f, 0.1f), 1.2f, tab)
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Multiplier);
+
+        KillCooldown = new IntegerOptionItem(++id, "KillCooldown", new(0, 120, 1), 30, tab)
+            .SetParent(Options.CustomRoleSpawnChances[role])
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Add(byte playerId)
@@ -75,6 +80,11 @@ public class Abyssbringer : RoleBase
             AURoleOptions.ShapeshifterCooldown = BlackHolePlaceCooldown.GetInt();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
+    }
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetInt();
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -109,12 +119,10 @@ public class Abyssbringer : RoleBase
     {
         if ((DespawnMode)BlackHoleDespawnMode.GetValue() == DespawnMode.AfterMeeting)
         {
-            for (var i = 0; i < BlackHoles.Count; i++)
-            {
-                BlackHoles[i].NetObject.Despawn();
-                BlackHoles.RemoveAt(i);
-                Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 3, i);
-            }
+            Loop.Times(BlackHoles.Count, i => Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 3, i));
+
+            BlackHoles.ForEach(x => x.NetObject.Despawn());
+            BlackHoles.Clear();
         }
     }
 
@@ -178,7 +186,7 @@ public class Abyssbringer : RoleBase
 
             void RemoveBlackHole()
             {
-                BlackHoles.RemoveAt(i);
+                LateTask.New(() => BlackHoles.RemoveAt(i), 0f, log: false);
                 blackHole.NetObject.Despawn();
                 Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 3, i);
                 Notify();
@@ -231,12 +239,12 @@ public class Abyssbringer : RoleBase
         AfterMeeting
     }
 
-    private class BlackHoleData(BlackHole NetObject, long PlaceTimeStamp, Vector2 Position, string RoomName, int PlayersConsumed)
+    private class BlackHoleData(BlackHole netObject, long placeTimeStamp, Vector2 position, string roomName, int playersConsumed)
     {
-        public BlackHole NetObject { get; } = NetObject;
-        public long PlaceTimeStamp { get; } = PlaceTimeStamp;
-        public Vector2 Position { get; set; } = Position;
-        public string RoomName { get; } = RoomName;
-        public int PlayersConsumed { get; set; } = PlayersConsumed;
+        public BlackHole NetObject { get; } = netObject;
+        public long PlaceTimeStamp { get; } = placeTimeStamp;
+        public Vector2 Position { get; set; } = position;
+        public string RoomName { get; } = roomName;
+        public int PlayersConsumed { get; set; } = playersConsumed;
     }
 }

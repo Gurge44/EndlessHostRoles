@@ -419,9 +419,10 @@ internal static class MoveAndStop
 
             if (!HasJustStarted && pc.IsLocalPlayer() && !IsEventActive && (now - Event.StartTimeStamp - Event.Duration) >= EventFrequency.GetInt())
             {
-                var pool = EventChances.SelectMany(x => Enumerable.Repeat(x.Key, x.Value.GetInt() / 5)).ToArray();
+                var pool = EventChances.SelectMany(x => Enumerable.Repeat(x.Key, x.Value.GetInt() / 5)).ToList();
+                if (Event.Duration == 0) pool.RemoveAll(x => x == Events.VentAccess);
 
-                if (pool.Length > 0)
+                if (pool.Count > 0)
                 {
                     Events newEvent = pool.RandomElement();
                     int duration = EventDurations[newEvent].GetInt();
@@ -455,7 +456,6 @@ internal static class MoveAndStop
                             {
                                 Main.AllAlivePlayerControls.Do(x =>
                                 {
-                                    x.RpcChangeRoleBasis(CustomRoles.Tasker);
                                     x.RpcDesyncRepairSystem(SystemTypes.Comms, 16);
                                     if (Main.NormalOptions.MapId is 1 or 5) x.RpcDesyncRepairSystem(SystemTypes.Comms, 17);
                                 });

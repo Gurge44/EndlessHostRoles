@@ -107,12 +107,12 @@ internal static class ExternalRpcPetPatch
             Penguin.IsVictim(pc) ||
             !AmongUsClient.Instance.AmHost ||
             GameStates.IsLobby
-           )
+            )
             return;
 
         if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
         {
-            CTFManager.TryPickUpFlag(pc);
+            CaptureTheFlag.TryPickUpFlag(pc);
             return;
         }
 

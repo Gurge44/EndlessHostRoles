@@ -168,6 +168,7 @@ internal class Mycologist : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        if (Main.PlayerStates[MycologistId].IsDead) return;
         MycologistPC.AddAbilityCD(CD.GetInt());
     }
 

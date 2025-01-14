@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using HarmonyLib;
@@ -18,18 +16,6 @@ public static class LobbySharingAPI
     public static long LastRequestTimeStamp;
     public static string LastRoomCode = string.Empty;
     private static string Token = string.Empty;
-
-    private static string WebhookUrl
-    {
-        get
-        {
-            const string path = "EHR.Resources.Config.URL.txt";
-            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path)!;
-            stream.Position = 0;
-            using StreamReader reader = new(stream, Encoding.UTF8);
-            return reader.ReadToEnd();
-        }
-    }
 
     private static void NotifyLobbyCreated()
     {
@@ -54,7 +40,7 @@ public static class LobbySharingAPI
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
-        UnityWebRequest request = new UnityWebRequest(WebhookUrl, "POST")
+        UnityWebRequest request = new UnityWebRequest("https://gurge44.pythonanywhere.com/lobby_created", "POST")
         {
             uploadHandler = new UploadHandlerRaw(jsonToSend),
             downloadHandler = new DownloadHandlerBuffer()
@@ -116,7 +102,7 @@ public static class LobbySharingAPI
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
-        UnityWebRequest request = new UnityWebRequest(WebhookUrl.Replace("lobby_created", "update_status"), "POST")
+        UnityWebRequest request = new UnityWebRequest("https://gurge44.pythonanywhere.com/update_status", "POST")
         {
             uploadHandler = new UploadHandlerRaw(jsonToSend),
             downloadHandler = new DownloadHandlerBuffer()

@@ -10,7 +10,7 @@ public class Sonar : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(13643, CustomRoles.Sonar, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(13642, CustomRoles.Sonar, canSetNum: true, teamSpawnOptions: true);
     }
 
     public static string GetSuffix(PlayerControl seer, bool meeting)

@@ -15,7 +15,7 @@ public class Introvert : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(645741, CustomRoles.Introvert, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(645740, CustomRoles.Introvert, canSetNum: true, teamSpawnOptions: true);
 
         Radius = new FloatOptionItem(645748, "Introvert.Radius", new(0.1f, 10f, 0.1f), 2f, TabGroup.Addons)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Introvert])

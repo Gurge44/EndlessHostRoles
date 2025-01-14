@@ -51,8 +51,8 @@ internal class Impartial : RoleBase
         NeutralMaxOpt = CreateSetting(id + 5, false, "Neutral");
         CrewMinOpt = CreateSetting(id + 6, true, "Crew");
         CrewMaxOpt = CreateSetting(id + 7, false, "Crew");
-        CovenMinOpt = CreateSetting(id + 8, true, "Coven");
-        CovenMaxOpt = CreateSetting(id + 9, false, "Coven");
+        CovenMinOpt = CreateSetting(id + 13, true, "Coven");
+        CovenMaxOpt = CreateSetting(id + 14, false, "Coven");
 
         CanVent = new BooleanOptionItem(id + 8, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);

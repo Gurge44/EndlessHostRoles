@@ -375,7 +375,7 @@ internal static class ExtendedPlayerControl
 
         newRoleType = Options.CurrentGameMode switch
         {
-            CustomGameMode.Speedrun when newCustomRole == CustomRoles.Runner => SpeedrunManager.CanKill.Contains(playerId) ? RoleTypes.Impostor : RoleTypes.Crewmate,
+            CustomGameMode.Speedrun when newCustomRole == CustomRoles.Runner => Speedrun.CanKill.Contains(playerId) ? RoleTypes.Impostor : RoleTypes.Crewmate,
             CustomGameMode.Standard when StartGameHostPatch.BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out KeyValuePair<CustomRoles, List<byte>> kvp) => kvp.Key switch
             {
                 CustomRoles.Bloodlust when newRoleType is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist => RoleTypes.Impostor,
@@ -461,7 +461,8 @@ internal static class ExtendedPlayerControl
                         remeberRoleType = player.IsHost() ? RoleTypes.Crewmate : RoleTypes.Impostor;
 
                         // For Desync Shapeshifter
-                        if (newRoleDY is RoleTypes.Shapeshifter) remeberRoleType = RoleTypes.Shapeshifter;
+                        if (newRoleDY is RoleTypes.Shapeshifter or RoleTypes.Phantom)
+                            remeberRoleType = newRoleDY;
                     }
                     else
                         remeberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
@@ -1202,14 +1203,10 @@ internal static class ExtendedPlayerControl
     {
         CustomRoles role = pc.GetCustomRole();
         if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
-
         if (role.GetVNRole(true) is CustomRoles.Impostor or CustomRoles.Shapeshifter or CustomRoles.Phantom) return true;
-
         if (pc.GetRoleTypes() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) return true;
-
         if (pc.Is(CustomRoles.Bloodlust)) return true;
-
-        return pc.Is(CustomRoleTypes.Impostor) || pc.IsNeutralKiller() || role.IsTasklessCrewmate();
+        return !HasTasks(pc.Data, false);
     }
 
     public static bool CanUseKillButton(this PlayerControl pc)
@@ -1219,7 +1216,7 @@ internal static class ExtendedPlayerControl
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
-            case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(pc.PlayerId):
+            case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.CaptureTheFlag:
                 return true;
@@ -1244,7 +1241,7 @@ internal static class ExtendedPlayerControl
             // Hot Potato
             CustomRoles.Potato => false,
             // Speedrun
-            CustomRoles.Runner => SpeedrunManager.CanKill.Contains(pc.PlayerId),
+            CustomRoles.Runner => Speedrun.CanKill.Contains(pc.PlayerId),
             // Hide And Seek
             CustomRoles.Seeker => true,
             CustomRoles.Hider => false,
@@ -1399,7 +1396,7 @@ internal static class ExtendedPlayerControl
         Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
             CustomRoles.KB_Normal => SoloPVP.KB_ATKCooldown.GetFloat(),
-            CustomRoles.Killer => FFAManager.FFAKcd.GetFloat(),
+            CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
 

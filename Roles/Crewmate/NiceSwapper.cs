@@ -225,10 +225,7 @@ public class NiceSwapper : RoleBase
 
             Utils.SendMessage(string.Format(GetString("SwapVote"), Target1.GetRealName(), Target2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
         }
-        finally
-        {
-            CheckForEndVotingPatch.RunRoleCode = true;
-        }
+        finally { CheckForEndVotingPatch.RunRoleCode = true; }
     }
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)
@@ -323,7 +320,8 @@ public class NiceSwapper : RoleBase
         // ReSharper disable once UnusedMember.Local
         public static void Postfix(MeetingHud __instance)
         {
-            if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive()) CreateSwapperButton(__instance);
+            if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
+                CreateSwapperButton(__instance);
         }
     }
 }

@@ -86,7 +86,7 @@ public class Dasher : RoleBase, IHideAndSeekRole
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        Main.AllPlayerSpeed[playerId] = DashStatus.IsDashing ? DashSpeed.GetFloat() : HnSManager.IsBlindTime ? Main.MinSpeed : RoleSpeed;
+        Main.AllPlayerSpeed[playerId] = DashStatus.IsDashing ? DashSpeed.GetFloat() : CustomHnS.IsBlindTime ? Main.MinSpeed : RoleSpeed;
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

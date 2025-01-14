@@ -368,9 +368,6 @@ internal static class ShipStatusSpawnPlayerPatch
     {
         if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
 
-        // Lazy doesn't teleport to the meeting table
-        if (player.Is(CustomRoles.Lazy)) return false;
-
         Vector2 direction = Vector2.up.Rotate((player.PlayerId - 1) * (360f / numPlayers));
         Vector2 position = __instance.MeetingSpawnCenter + (direction * __instance.SpawnRadius) + new Vector2(0.0f, 0.3636f);
 
@@ -389,9 +386,6 @@ internal static class PolusShipStatusSpawnPlayerPatch
         [HarmonyArgument(2)] bool initialSpawn)
     {
         if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
-
-        // Lazy doesn't teleport to the meeting table
-        if (player.Is(CustomRoles.Lazy)) return false;
 
         int num1 = Mathf.FloorToInt(numPlayers / 2f);
         int num2 = player.PlayerId % 15;

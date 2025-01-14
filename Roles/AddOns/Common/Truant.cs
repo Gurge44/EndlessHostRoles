@@ -10,7 +10,7 @@ internal class Truant : IAddon
     {
         SetupAdtRoleOptions(15438, CustomRoles.Truant, canSetNum: true, teamSpawnOptions: true);
 
-        TruantWaitingTime = new IntegerOptionItem(15445, "TruantWaitingTime", new(1, 90, 1), 3, TabGroup.Addons)
+        TruantWaitingTime = new IntegerOptionItem(15446, "TruantWaitingTime", new(1, 90, 1), 3, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Truant])
             .SetValueFormat(OptionFormat.Seconds);
     }

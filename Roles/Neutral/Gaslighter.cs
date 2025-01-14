@@ -117,6 +117,8 @@ public class Gaslighter : RoleBase
         ShieldedPlayers.Clear();
         CursedPlayers.Clear();
 
+        if (Main.PlayerStates[GaslighterId].IsDead) return;
+
         if (CurrentRound == Round.Shield)
         {
             CycleFinished = true;

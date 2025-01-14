@@ -235,7 +235,7 @@ internal static class SetEverythingUpPatch
             {
                 byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                 __instance.BackgroundBar.material.color = new Color32(0, 255, 255, 255);
-                WinnerText.text = FFAManager.FFATeamMode.GetBool() ? string.Empty : Main.AllPlayerNames[winnerId] + GetString("Win");
+                WinnerText.text = FreeForAll.FFATeamMode.GetBool() ? string.Empty : Main.AllPlayerNames[winnerId] + GetString("Win");
                 WinnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
             }
@@ -265,7 +265,7 @@ internal static class SetEverythingUpPatch
             }
             case CustomGameMode.CaptureTheFlag:
             {
-                (Color Color, string Team) winnerData = CTFManager.WinnerData;
+                (Color Color, string Team) winnerData = CaptureTheFlag.WinnerData;
                 __instance.BackgroundBar.material.color = winnerData.Color;
                 WinnerText.text = winnerData.Team;
                 WinnerText.color = winnerData.Color;
@@ -432,7 +432,7 @@ internal static class SetEverythingUpPatch
             case CustomGameMode.FFA:
             {
                 List<(int, byte)> list = [];
-                list.AddRange(cloneRoles.Select(id => (FFAManager.GetRankFromScore(id), id)));
+                list.AddRange(cloneRoles.Select(id => (FreeForAll.GetRankFromScore(id), id)));
 
                 list.Sort();
                 foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2))) sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
@@ -465,7 +465,7 @@ internal static class SetEverythingUpPatch
             }
             case CustomGameMode.CaptureTheFlag:
             {
-                IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(CTFManager.GetFlagTime);
+                IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(CaptureTheFlag.GetFlagTime);
                 foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                 break;

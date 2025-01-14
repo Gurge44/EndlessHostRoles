@@ -159,7 +159,7 @@ internal class Necromancer : RoleBase
 
     public static bool CanBeUndead(PlayerControl pc)
     {
-        return pc != null && !pc.Is(CustomRoles.Deathknight) && !pc.Is(CustomRoles.Necromancer) && !pc.Is(CustomRoles.Undead) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser) && !pc.IsConverted();
+        return pc != null && !pc.Is(CustomRoles.Deathknight) && !pc.Is(CustomRoles.Necromancer) && !pc.Is(CustomRoles.Undead) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser) && !pc.IsConverted() && !pc.Is(Team.Coven);
     }
 }
 

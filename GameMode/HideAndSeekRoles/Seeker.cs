@@ -13,7 +13,7 @@ internal class Seeker : RoleBase, IHideAndSeekRole
     public override bool IsEnable => On;
     public Team Team => Team.Impostor;
     public int Chance => 100;
-    public int Count => HnSManager.SeekerNum;
+    public int Count => CustomHnS.SeekerNum;
     public float RoleSpeed => Speed.GetFloat();
     public float RoleVision => Vision.GetFloat();
 

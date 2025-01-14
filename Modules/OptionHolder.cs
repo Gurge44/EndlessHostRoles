@@ -41,6 +41,7 @@ public static class Options
         ConvertedCount,
         NNKCount,
         NKCount,
+        CovenCount,
         CrewCount,
         RomanticState,
         LoversState,
@@ -209,6 +210,7 @@ public static class Options
     public static OptionItem CEMode;
     public static OptionItem ShowImpRemainOnEject;
     public static OptionItem ShowNKRemainOnEject;
+    public static OptionItem ShowCovenRemainOnEject;
     public static OptionItem ShowTeamNextToRoleNameOnEject;
     public static OptionItem CheatResponses;
     public static OptionItem EnableMovementChecking;
@@ -292,6 +294,7 @@ public static class Options
     public static OptionItem ParanoiaVentCooldown;
     public static OptionItem ImpKnowCyberStarDead;
     public static OptionItem NeutralKnowCyberStarDead;
+    public static OptionItem CovenKnowCyberStarDead;
     public static OptionItem DemolitionistVentTime;
     public static OptionItem DemolitionistKillerDiesOnMeetingCall;
     public static OptionItem ExpressSpeed;
@@ -537,6 +540,7 @@ public static class Options
     public static OptionItem DisableZiplineForImps;
     public static OptionItem DisableZiplineForNeutrals;
     public static OptionItem DisableZiplineForCrew;
+    public static OptionItem DisableZiplineForCoven;
     public static OptionItem ZiplineTravelTimeFromBottom;
     public static OptionItem ZiplineTravelTimeFromTop;
 
@@ -566,7 +570,8 @@ public static class Options
     public static OptionItem DisableAirshipViewingDeckLightsPanel;
     public static OptionItem DisableAirshipGapRoomLightsPanel;
     public static OptionItem DisableAirshipCargoLightsPanel;
-    public static OptionItem NKWinsBySabotageIfNoImpAlive;
+    public static OptionItem WhoWinsBySabotageIfNoImpAlive;
+    public static OptionItem IfSelectedTeamIsDead;
 
     // Guesser Mode
     public static OptionItem GuesserMode;
@@ -574,6 +579,7 @@ public static class Options
     public static OptionItem ImpostorsCanGuess;
     public static OptionItem NeutralKillersCanGuess;
     public static OptionItem PassiveNeutralsCanGuess;
+    public static OptionItem CovenCanGuess;
     public static OptionItem BetrayalAddonsCanGuess;
     public static OptionItem HideGuesserCommands;
     public static OptionItem CanGuessAddons;
@@ -785,7 +791,7 @@ public static class Options
     public static string MainLoadingText = string.Empty;
     public static string RoleLoadingText = string.Empty;
 
-    public static readonly Dictionary<CustomRoles, (OptionItem Imp, OptionItem Neutral, OptionItem Crew)> AddonCanBeSettings = [];
+    public static readonly Dictionary<CustomRoles, (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven)> AddonCanBeSettings = [];
     public static readonly Dictionary<CustomRoles, OptionItem> AddonGuessSettings = [];
 
     public static readonly HashSet<CustomRoles> SingleRoles = [];
@@ -848,7 +854,7 @@ public static class Options
 
             var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
             {
-                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || HnSManager.AllHnSRoles.Contains(x)) return 4;
+                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || CustomHnS.AllHnSRoles.Contains(x)) return 4;
                 if (x.IsAdditionRole()) return 3;
                 if (x.IsImpostor() || x.IsMadmate()) return 0;
                 if (x.IsNeutral()) return 1;
@@ -889,7 +895,7 @@ public static class Options
             .OrderBy(x => (int)x.Key)
             .ToDictionary(x => x.Key, x => x.ToArray());
 
-        HnSManager.AllHnSRoles = HnSManager.GetAllHnsRoles(HnSManager.GetAllHnsRoleTypes());
+        CustomHnS.AllHnSRoles = CustomHnS.GetAllHnsRoles(CustomHnS.GetAllHnsRoleTypes());
     }
 
     private static void GroupAddons()
@@ -1051,11 +1057,11 @@ public static class Options
 
         MainLoadingText = "Building general settings";
 
-        
+
         CovenReceiveNecronomiconAfterNumMeetings = new IntegerOptionItem(650001, "CovenReceiveNecronomiconAfterNumMeetings", new(1, 10, 1), 3, TabGroup.CovenRoles)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
-        
+
         CovenLeaderKillCooldown = new FloatOptionItem(650000, "CovenLeaderKillCooldown", new(0f, 120f, 0.5f), 30f, TabGroup.CovenRoles)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Seconds);
@@ -1385,7 +1391,7 @@ public static class Options
             .SetHeader(true);
 
         HideGameSettings = new BooleanOptionItem(19450, "HideGameSettings", false, TabGroup.SystemSettings);
-        DIYGameSettings = new BooleanOptionItem(19401, "DIYGameSettings", false, TabGroup.SystemSettings);
+        DIYGameSettings = new BooleanOptionItem(19471, "DIYGameSettings", false, TabGroup.SystemSettings);
         PlayerCanSetColor = new BooleanOptionItem(19402, "PlayerCanSetColor", false, TabGroup.SystemSettings);
         PlayerCanSetName = new BooleanOptionItem(19410, "PlayerCanSetName", false, TabGroup.SystemSettings);
         PlayerCanTPInAndOut = new BooleanOptionItem(19411, "PlayerCanTPInAndOut", false, TabGroup.SystemSettings);
@@ -1430,17 +1436,17 @@ public static class Options
         // SoloKombat
         SoloPVP.SetupCustomOption();
         // FFA
-        FFAManager.SetupCustomOption();
+        FreeForAll.SetupCustomOption();
         // Move And Stop
         MoveAndStop.SetupCustomOption();
         // Hot Potato
         HotPotato.SetupCustomOption();
         // Speedrun
-        SpeedrunManager.SetupCustomOption();
+        Speedrun.SetupCustomOption();
         // Hide And Seek
-        HnSManager.SetupCustomOption();
+        CustomHnS.SetupCustomOption();
         // Capture The Flag
-        CTFManager.SetupCustomOption();
+        CaptureTheFlag.SetupCustomOption();
         // Natural Disasters
         NaturalDisasters.SetupCustomOption();
         // Room Rush
@@ -1466,6 +1472,11 @@ public static class Options
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
 
         ShowNKRemainOnEject = new BooleanOptionItem(19811, "ShowNKRemainOnEject", true, TabGroup.GameSettings)
+            .SetParent(ShowImpRemainOnEject)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 238, 232, byte.MaxValue));
+
+        ShowCovenRemainOnEject = new BooleanOptionItem(19816, "ShowCovenRemainOnEject", true, TabGroup.GameSettings)
             .SetParent(ShowImpRemainOnEject)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
@@ -1573,6 +1584,10 @@ public static class Options
             .SetParent(DisableZiplineOnFungle)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
+        DisableZiplineForCoven = new BooleanOptionItem(22322, "DisableZiplineForCoven", false, TabGroup.GameSettings)
+            .SetParent(DisableZiplineOnFungle)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
         ZiplineTravelTimeFromBottom = new FloatOptionItem(22312, "ZiplineTravelTimeFromBottom", new(0.5f, 10f, 0.5f), 4f, TabGroup.GameSettings)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
@@ -1597,13 +1612,13 @@ public static class Options
         // Decontamination time on MiraHQ
         DecontaminationTimeOnMiraHQ = new FloatOptionItem(60504, "DecontaminationTimeOnMiraHQ", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
             .SetParent(ChangeDecontaminationTime)
-            .SetValueFormat(OptionFormat.Multiplier)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Decontamination time on Polus
         DecontaminationTimeOnPolus = new FloatOptionItem(60505, "DecontaminationTimeOnPolus", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
             .SetParent(ChangeDecontaminationTime)
-            .SetValueFormat(OptionFormat.Multiplier)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
 
@@ -1758,7 +1773,14 @@ public static class Options
             .SetParent(LightsOutSpecialSettings)
             .SetGameMode(CustomGameMode.Standard);
 
-        NKWinsBySabotageIfNoImpAlive = new BooleanOptionItem(22520, "NKWinsBySabotageIfNoImpAlive", false, TabGroup.GameSettings)
+        IList<string> selections = ["SabotageTimeLimitWinners.Imps", "SabotageTimeLimitWinners.NKs", "SabotageTimeLimitWinners.Coven"];
+
+        WhoWinsBySabotageIfNoImpAlive = new StringOptionItem(22520, "NKWinsBySabotageIfNoImpAlive", selections, 0, TabGroup.GameSettings)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue))
+            .SetGameMode(CustomGameMode.Standard);
+
+        IfSelectedTeamIsDead = new StringOptionItem(22521, "IfSelectedTeamIsDead", selections, 0, TabGroup.GameSettings)
+            .SetParent(WhoWinsBySabotageIfNoImpAlive)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
 
@@ -2292,6 +2314,9 @@ public static class Options
         PassiveNeutralsCanGuess = new BooleanOptionItem(19713, "PassiveNeutralsCanGuess", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
+        CovenCanGuess = new BooleanOptionItem(19730, "CovenCanGuess", false, TabGroup.TaskSettings)
+            .SetParent(GuesserMode);
+
         BetrayalAddonsCanGuess = new BooleanOptionItem(19719, "BetrayalAddonsCanGuess", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
@@ -2317,7 +2342,7 @@ public static class Options
 
         int goId = 19723;
 
-        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
+        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..4].ToDictionary(x => x, x =>
         {
             Color teamColor = x.GetColor();
 
@@ -2384,7 +2409,7 @@ public static class Options
             i++;
         }
 
-        MinPlayersForGameStateCommand = new IntegerOptionItem(44438, "MinPlayersForGameStateCommand", new(1, 15, 1), 1, TabGroup.GameSettings)
+        MinPlayersForGameStateCommand = new IntegerOptionItem(44442, "MinPlayersForGameStateCommand", new(1, 15, 1), 1, TabGroup.GameSettings)
             .SetParent(EnableKillerLeftCommand)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Players)
@@ -2590,7 +2615,12 @@ public static class Options
                 .SetGameMode(customGameMode)
                 .AddReplacement(("{role}", role.ToColoredString()));
 
-            AddonCanBeSettings.Add(role, (impOption, neutralOption, crewOption));
+            OptionItem covenOption = new BooleanOptionItem(id + 7, "CovenCanBeRole", true, tab)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode)
+                .AddReplacement(("{role}", role.ToColoredString()));
+
+            AddonCanBeSettings.Add(role, (impOption, neutralOption, crewOption, covenOption));
         }
 
         AddonGuessSettings.Add(role, guessSetting);

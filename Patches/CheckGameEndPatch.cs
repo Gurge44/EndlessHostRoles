@@ -33,7 +33,6 @@ internal static class GameEndChecker
         if (!AmongUsClient.Instance.AmHost) return true;
 
         if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return false;
-
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
         Ended = false;
@@ -62,15 +61,51 @@ internal static class GameEndChecker
 
             Ended = true;
 
-            if (reason == GameOverReason.ImpostorBySabotage && Options.NKWinsBySabotageIfNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()) && Main.AllAlivePlayerControls.Count(x => x.IsNeutralKiller()) == 1)
-            {
-                PlayerControl winner = Main.AllAlivePlayerControls.First(x => x.IsNeutralKiller());
-                CustomRoles winnerRole = winner.GetCustomRole();
+            int saboWinner = Options.WhoWinsBySabotageIfNoImpAlive.GetValue();
 
-                ResetAndSetWinner((CustomWinner)winnerRole);
-                WinnerRoles.Add(winnerRole);
-                WinnerIds.Add(winner.PlayerId);
+            if (reason == GameOverReason.ImpostorBySabotage && saboWinner != 0 && !Main.AllAlivePlayerControls.Any(x => x.Is(Team.Impostor)))
+            {
+                bool anyNKAlive = Main.AllAlivePlayerControls.Any(x => x.IsNeutralKiller());
+                bool anyCovenAlive = Main.AllPlayerControls.Any(x => x.Is(Team.Coven));
+
+                switch (saboWinner)
+                {
+                    case 1 when anyNKAlive:
+                        NKWins();
+                        break;
+                    case 2 when anyCovenAlive:
+                        CovenWins();
+                        break;
+                    default:
+                        switch (Options.IfSelectedTeamIsDead.GetValue())
+                        {
+                            case 0:
+                                goto Continue;
+                            case 1:
+                                NKWins();
+                                break;
+                            case 2:
+                                CovenWins();
+                                break;
+                        }
+
+                        break;
+                }
+
+                void NKWins()
+                {
+                    ResetAndSetWinner(CustomWinner.Neutrals);
+                    WinnerIds.UnionWith(Main.AllAlivePlayerControls.Where(x => x.IsNeutralKiller()).Select(x => x.PlayerId));
+                }
+
+                void CovenWins()
+                {
+                    ResetAndSetWinner(CustomWinner.Coven);
+                    WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId));
+                }
             }
+
+            Continue:
 
             switch (WinnerTeam)
             {
@@ -78,41 +113,49 @@ internal static class GameEndChecker
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => (pc.Is(CustomRoleTypes.Crewmate) || (pc.Is(CustomRoles.Haunter) && Haunter.CanWinWithCrew(pc))) && !pc.IsMadmate() && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
+
                     break;
                 case CustomWinner.Impostor:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.IsMadmate()) && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
+
                     break;
                 case CustomWinner.Coven:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(Team.Coven) && !pc.IsMadmate() && !pc.IsConverted() && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
+
                     break;
                 case CustomWinner.Succubus:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Succubus) || pc.Is(CustomRoles.Charmed))
                         .Select(pc => pc.PlayerId));
+
                     break;
                 case CustomWinner.Necromancer:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Necromancer) || pc.Is(CustomRoles.Deathknight) || pc.Is(CustomRoles.Undead))
                         .Select(pc => pc.PlayerId));
+
                     break;
                 case CustomWinner.Virus:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Virus) || pc.Is(CustomRoles.Contagious))
                         .Select(pc => pc.PlayerId));
+
                     break;
                 case CustomWinner.Jackal:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick) || pc.Is(CustomRoles.Recruit))
                         .Select(pc => pc.PlayerId));
+
                     break;
                 case CustomWinner.Spiritcaller:
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Spiritcaller) || pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
+
                     WinnerRoles.Add(CustomRoles.Spiritcaller);
                     break;
                 case CustomWinner.RuthlessRomantic:
@@ -664,9 +707,9 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
 
-            if (FFAManager.RoundTime <= 0)
+            if (FreeForAll.RoundTime <= 0)
             {
-                PlayerControl winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankFromScore(x.PlayerId)).First();
+                PlayerControl winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FreeForAll.GetRankFromScore(x.PlayerId)).First();
 
                 byte winnerId = winner.PlayerId;
 
@@ -679,9 +722,9 @@ internal static class GameEndChecker
                 return true;
             }
 
-            if (FFAManager.FFATeamMode.GetBool())
+            if (FreeForAll.FFATeamMode.GetBool())
             {
-                IEnumerable<HashSet<byte>> teams = FFAManager.PlayerTeams.GroupBy(x => x.Value, x => x.Key).Select(x => x.Where(p =>
+                IEnumerable<HashSet<byte>> teams = FreeForAll.PlayerTeams.GroupBy(x => x.Value, x => x.Key).Select(x => x.Where(p =>
                 {
                     PlayerControl pc = GetPlayerById(p);
                     return pc != null && !pc.Data.Disconnected;
@@ -717,7 +760,7 @@ internal static class GameEndChecker
                     return true;
                 }
                 case 0:
-                    FFAManager.RoundTime = 0;
+                    FreeForAll.RoundTime = 0;
                     Logger.Warn("No players alive. Force ending the game", "FFA");
                     return false;
                 default:
@@ -815,7 +858,7 @@ internal static class GameEndChecker
 
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
-            return HnSManager.CheckForGameEnd(out reason);
+            return CustomHnS.CheckForGameEnd(out reason);
         }
     }
 
@@ -829,7 +872,7 @@ internal static class GameEndChecker
 
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
-            return SpeedrunManager.CheckForGameEnd(out reason);
+            return Speedrun.CheckForGameEnd(out reason);
         }
     }
 
@@ -843,7 +886,7 @@ internal static class GameEndChecker
 
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
-            return CTFManager.CheckForGameEnd(out reason);
+            return CaptureTheFlag.CheckForGameEnd(out reason);
         }
     }
 

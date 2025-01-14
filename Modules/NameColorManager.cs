@@ -39,8 +39,8 @@ public static class NameColorManager
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.FFA when FFAManager.FFATeamMode.GetBool():
-                color = FFAManager.TeamColors[FFAManager.PlayerTeams[target.PlayerId]];
+            case CustomGameMode.FFA when FreeForAll.FFATeamMode.GetBool():
+                color = FreeForAll.TeamColors[FreeForAll.PlayerTeams[target.PlayerId]];
                 return true;
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
@@ -55,19 +55,19 @@ public static class NameColorManager
                     color = "#000000";
                 else if (target.PlayerId == LastHolderID)
                     color = "#00ffff";
-                else if (Options.CurrentGameMode == CustomGameMode.AllInOne && SpeedrunManager.CanKill.Contains(target.PlayerId))
+                else if (Options.CurrentGameMode == CustomGameMode.AllInOne && Speedrun.CanKill.Contains(target.PlayerId))
                     color = Main.ImpostorColor;
                 else
                     color = "#ffffff";
 
                 return true;
             case CustomGameMode.HideAndSeek:
-                return HnSManager.KnowTargetRoleColor(seer, target, ref color);
-            case CustomGameMode.Speedrun when SpeedrunManager.CanKill.Contains(target.PlayerId):
+                return CustomHnS.KnowTargetRoleColor(seer, target, ref color);
+            case CustomGameMode.Speedrun when Speedrun.CanKill.Contains(target.PlayerId):
                 color = Main.ImpostorColor;
                 return true;
             case CustomGameMode.CaptureTheFlag:
-                return CTFManager.KnowTargetRoleColor(target, ref color);
+                return CaptureTheFlag.KnowTargetRoleColor(target, ref color);
         }
 
         RoleBase seerRoleClass = Main.PlayerStates[seer.PlayerId].Role;
@@ -75,6 +75,9 @@ public static class NameColorManager
 
         // Global (low priority)
         if (Stained.VioletNameList.Contains(target.PlayerId)) color = "#ff00ff";
+
+        // Coven
+        if (seer.Is(Team.Coven) && target.Is(Team.Coven)) color = Main.CovenColor;
 
         // Impostors and Madmates
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)) color = target.Is(CustomRoles.Egoist) && Options.ImpEgoistVisibalToAllies.GetBool() && seer != target ? Main.RoleColors[CustomRoles.Egoist] : Main.ImpostorColor;
@@ -186,26 +189,15 @@ public static class NameColorManager
              (seerRoleClass is Visionary { IsEnable: true } vn && vn.RevealedPlayerIds.Contains(target.PlayerId) && target.IsAlive() && !target.Data.IsDead))
             && seer.IsAlive())
         {
-            color = target.GetCustomRoleTypes() switch
-            {
-                CustomRoleTypes.Impostor => Main.ImpostorColor,
-                CustomRoleTypes.Crewmate => Main.CrewmateColor,
-                CustomRoleTypes.Neutral => Main.NeutralColor,
-                _ => color
-            };
+            color = target.GetTeam().GetTextColor();
 
             if (target.GetCustomRole() is CustomRoles.Parasite or CustomRoles.Crewpostor or CustomRoles.Convict or CustomRoles.Refugee) color = Main.ImpostorColor;
 
             if (target.Is(CustomRoles.Madmate)) color = Main.ImpostorColor;
-
             if (target.Is(CustomRoles.Rascal)) color = Main.ImpostorColor;
-
             if (target.Is(CustomRoles.Charmed)) color = Main.NeutralColor;
-
             if (target.Is(CustomRoles.Contagious)) color = Main.NeutralColor;
-
             if (target.Is(CustomRoles.Egoist)) color = Main.NeutralColor;
-
             if (target.Is(CustomRoles.Recruit)) color = Main.NeutralColor;
         }
 

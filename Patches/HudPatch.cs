@@ -245,10 +245,10 @@ internal static class HudManagerPatch
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloKombat => SoloPVP.GetHudText(),
-                        CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
+                        CustomGameMode.FFA when player.IsHost() => FreeForAll.GetHudText(),
                         CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
-                        CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, true),
+                        CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotato.GetSuffixText(player.PlayerId)}",
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
@@ -468,14 +468,16 @@ internal static class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 return;
             case CustomGameMode.FFA:
-                __instance.ReportButton?.ToggleVisible(false);
-                __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
-                return;
+                goto case CustomGameMode.HideAndSeek;
             case CustomGameMode.RoomRush:
                 __instance.ImpostorVentButton?.ToggleVisible(false);
-                goto case CustomGameMode.CaptureTheFlag;
+                goto case CustomGameMode.HideAndSeek;
             case CustomGameMode.CaptureTheFlag:
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.SabotageButton?.ToggleVisible(false);
+                __instance.AbilityButton?.ToggleVisible(true);
+                return;
             case CustomGameMode.HideAndSeek:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -515,7 +517,8 @@ internal static class SetHudActivePatch
                 break;
         }
 
-        if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState ps) && ps.SubRoles.Contains(CustomRoles.Oblivious)) __instance.ReportButton?.ToggleVisible(false);
+        if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState ps) && ps.SubRoles.Contains(CustomRoles.Oblivious))
+            __instance.ReportButton?.ToggleVisible(false);
 
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
@@ -697,7 +700,7 @@ internal static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.FFA:
 
-                    finalText += Main.PlayerStates.Keys.OrderBy(FFAManager.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FFAManager.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FFAManager.KillCount.GetValueOrDefault(x, 0))}");
+                    finalText += Main.PlayerStates.Keys.OrderBy(FreeForAll.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FreeForAll.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FreeForAll.KillCount.GetValueOrDefault(x, 0))}");
 
                     finalText += "</size>";
                     break;
@@ -763,7 +766,7 @@ internal static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.HideAndSeek:
 
-                    finalText += $"\r\n\r\n{HnSManager.GetTaskBarText()}";
+                    finalText += $"\r\n\r\n{CustomHnS.GetTaskBarText()}";
 
                     break;
 
@@ -788,7 +791,7 @@ internal static class TaskPanelBehaviourPatch
                         finalText += $"<size=70%>\r\n{text}\r\n</size>";
                     }
 
-                    finalText += $"\r\n<size=90%>{SpeedrunManager.GetTaskBarText()}</size>";
+                    finalText += $"\r\n<size=90%>{Speedrun.GetTaskBarText()}</size>";
 
                     break;
 

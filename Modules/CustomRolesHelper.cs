@@ -49,7 +49,7 @@ internal static class CustomRolesHelper
 
     public static bool IsForOtherGameMode(this CustomRoles role)
     {
-        return HnSManager.AllHnSRoles.Contains(role) || role is
+        return CustomHnS.AllHnSRoles.Contains(role) || role is
             CustomRoles.KB_Normal or
             CustomRoles.Killer or
             CustomRoles.Tasker or
@@ -353,6 +353,14 @@ internal static class CustomRolesHelper
             CustomRoles.Agent => CustomRoles.Impostor,
             CustomRoles.Taskinator => CustomRoles.Crewmate,
 
+            // Move And Stop
+            CustomRoles.Tasker => CustomRoles.Crewmate,
+            // Hot Potato
+            CustomRoles.Potato => CustomRoles.Crewmate,
+            // Speedrun
+            CustomRoles.Runner => CustomRoles.Crewmate,
+            // Natural Disasters
+            CustomRoles.NDPlayer => CustomRoles.Crewmate,
             // Room Rush
             CustomRoles.RRPlayer => CustomRoles.Crewmate,
 
@@ -394,16 +402,8 @@ internal static class CustomRolesHelper
             CustomRoles.KB_Normal => RoleTypes.Impostor,
             // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
-            // Move And Stop
-            CustomRoles.Tasker => RoleTypes.Crewmate,
-            // Hot Potato
-            CustomRoles.Potato => RoleTypes.Crewmate,
-            // Speedrun
-            CustomRoles.Runner => RoleTypes.Crewmate,
             // Capture The Flag
             CustomRoles.CTFPlayer => RoleTypes.Phantom,
-            // Natural Disasters
-            CustomRoles.NDPlayer => RoleTypes.Crewmate,
             // Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -935,6 +935,7 @@ internal static class CustomRolesHelper
     public static bool SimpleAbilityTrigger(this CustomRoles role)
     {
         return role is
+            CustomRoles.CTFPlayer or
             CustomRoles.Wizard or
             CustomRoles.Stasis or
             CustomRoles.Occultist or
@@ -977,7 +978,7 @@ internal static class CustomRolesHelper
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
     {
-        return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
+        return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
         {
             CustomRoles.Sleuth when pc.Is(CustomRoles.NecroGuesser) => false,
             CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
@@ -1091,10 +1092,11 @@ internal static class CustomRolesHelper
             CustomRoles.Lucky when pc.Is(CustomRoles.Unlucky) => false,
             CustomRoles.Fool when pc.Is(CustomRoles.SabotageMaster) || pc.Is(CustomRoles.GuardianAngelEHR) => false,
             CustomRoles.Bloodhound when pc.Is(CustomRoles.Oblivious) => false,
-            CustomRoles.DoubleShot when !pc.Is(CustomRoles.EvilGuesser) && !pc.Is(CustomRoles.NiceGuesser) && !Options.GuesserMode.GetBool() => false,
+            CustomRoles.DoubleShot when pc.GetCustomRole() is not CustomRoles.EvilGuesser and not CustomRoles.NiceGuesser and not CustomRoles.Augur && !Options.GuesserMode.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.EvilGuesser) && pc.Is(CustomRoleTypes.Impostor) && !Options.ImpostorsCanGuess.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.NiceGuesser) && pc.Is(CustomRoleTypes.Crewmate) && !Options.CrewmatesCanGuess.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && ((pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool()) || (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool())) => false,
+            CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Augur) && pc.Is(CustomRoleTypes.Coven) && !Options.CovenCanGuess.GetBool() => false,
             _ => true
         };
     }
@@ -1214,9 +1216,8 @@ internal static class CustomRolesHelper
     {
         var type = CustomRoleTypes.Crewmate;
         if (role.IsImpostor() || role.IsMadmate()) type = CustomRoleTypes.Impostor;
-
         if (role.IsNeutral()) type = CustomRoleTypes.Neutral;
-
+        if (role.IsCoven()) type = CustomRoleTypes.Coven;
         if (role.IsAdditionRole()) type = CustomRoleTypes.Addon;
 
         return type;
@@ -1731,6 +1732,7 @@ public enum CustomRoleTypes
     Crewmate,
     Impostor,
     Neutral,
+    Coven,
     Addon
 }
 

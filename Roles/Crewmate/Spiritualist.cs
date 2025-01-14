@@ -86,7 +86,7 @@ internal class Spiritualist : RoleBase
     {
         foreach (byte spiritualist in PlayerIdList)
         {
-            PlayerControl player = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == spiritualist);
+            PlayerControl player = spiritualist.GetPlayer();
             if (!player.IsAlive()) continue;
 
             LastGhostArrowShowTime = 0;

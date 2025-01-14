@@ -24,6 +24,7 @@ internal class Merchant : RoleBase
     private static OptionItem OptionCanTargetCrew;
     private static OptionItem OptionCanTargetImpostor;
     private static OptionItem OptionCanTargetNeutral;
+    private static OptionItem OptionCanTargetCoven;
     private static OptionItem OptionCanSellMixed;
     private static OptionItem OptionCanSellHelpful;
     private static OptionItem OptionCanSellHarmful;
@@ -49,13 +50,14 @@ internal class Merchant : RoleBase
         OptionCanTargetCrew = new BooleanOptionItem(Id + 6, "MerchantTargetCrew", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
         OptionCanTargetImpostor = new BooleanOptionItem(Id + 7, "MerchantTargetImpostor", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
         OptionCanTargetNeutral = new BooleanOptionItem(Id + 8, "MerchantTargetNeutral", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
-        OptionCanSellMixed = new BooleanOptionItem(Id + 9, "MerchantSellMixed", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
-        OptionCanSellHelpful = new BooleanOptionItem(Id + 10, "MerchantSellHelpful", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
-        OptionCanSellHarmful = new BooleanOptionItem(Id + 11, "MerchantSellHarmful", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
-        OptionSellOnlyEnabledAddons = new BooleanOptionItem(Id + 12, "MerchantSellOnlyEnabledAddons", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
-        OptionSellOnlyHarmfulToEvil = new BooleanOptionItem(Id + 13, "MerchantSellHarmfulToEvil", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
-        OptionSellOnlyHelpfulToCrew = new BooleanOptionItem(Id + 14, "MerchantSellHelpfulToCrew", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
-        OptionGivesAllMoneyOnBribe = new BooleanOptionItem(Id + 15, "MerchantGivesAllMoneyOnBribe", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionCanTargetCoven = new BooleanOptionItem(Id + 9, "MerchantTargetCoven", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionCanSellMixed = new BooleanOptionItem(Id + 10, "MerchantSellMixed", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionCanSellHelpful = new BooleanOptionItem(Id + 11, "MerchantSellHelpful", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionCanSellHarmful = new BooleanOptionItem(Id + 12, "MerchantSellHarmful", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionSellOnlyEnabledAddons = new BooleanOptionItem(Id + 13, "MerchantSellOnlyEnabledAddons", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionSellOnlyHarmfulToEvil = new BooleanOptionItem(Id + 14, "MerchantSellHarmfulToEvil", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionSellOnlyHelpfulToCrew = new BooleanOptionItem(Id + 15, "MerchantSellHelpfulToCrew", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
+        OptionGivesAllMoneyOnBribe = new BooleanOptionItem(Id + 16, "MerchantGivesAllMoneyOnBribe", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Merchant]);
 
         OverrideTasksData.Create(Id + 18, TabGroup.CrewmateRoles, CustomRoles.Merchant);
     }
@@ -119,7 +121,8 @@ internal class Merchant : RoleBase
                 && (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
                 && ((OptionCanTargetCrew.GetBool() && x.IsCrewmate()) ||
                     (OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor()) ||
-                    (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller())))
+                    (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller()) ||
+                    (OptionCanTargetCoven.GetBool() && x.GetCustomRole().IsCoven())))
             ).ToList();
 
         if (availableTargets.Count <= 0) return;

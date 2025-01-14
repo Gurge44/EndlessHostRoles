@@ -6,6 +6,6 @@ public class Fragile : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(645333, CustomRoles.Fragile, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(645332, CustomRoles.Fragile, canSetNum: true, teamSpawnOptions: true);
     }
 }

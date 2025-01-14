@@ -395,6 +395,9 @@ public class TaskState
         GameData.Instance.RecomputeTaskCounts();
         Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
+        if (Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush)
+            player.Notify(Translator.GetString("DoingTasksIsPointlessInThisGameMode"), 10f);
+
         if (AllTasksCount == -1) Init(player);
 
         if (!HasTasks) return;
@@ -405,9 +408,10 @@ public class TaskState
 
             if (alive && CustomGameMode.Speedrun.IsActiveOrIntegrated())
             {
-                if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
+                if (CompletedTasksCount + 1 >= AllTasksCount)
+                    Speedrun.OnTaskFinish(player);
 
-                SpeedrunManager.ResetTimer(player);
+                Speedrun.ResetTimer(player);
             }
 
             // Ability Use Gain with this task completed

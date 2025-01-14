@@ -161,7 +161,7 @@ internal class SoulHunter : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        if (!IsEnable || CurrentTarget.ID == byte.MaxValue) return;
+        if (!IsEnable || CurrentTarget.ID == byte.MaxValue || Main.PlayerStates[SoulHunterId].IsDead) return;
 
         long now = TimeStamp;
 

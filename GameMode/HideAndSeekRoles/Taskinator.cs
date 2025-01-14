@@ -55,7 +55,7 @@ public class Taskinator : RoleBase, IHideAndSeekRole
         {
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Taskinator);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-            HnSManager.AddFoxesToWinners();
+            CustomHnS.AddFoxesToWinners();
         }
     }
 }

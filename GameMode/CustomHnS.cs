@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace EHR;
 
-internal static class HnSManager
+internal static class CustomHnS
 {
     public static int TimeLeft;
     private static long LastUpdate;

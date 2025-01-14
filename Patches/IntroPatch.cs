@@ -310,13 +310,13 @@ internal static class BeginCrewmatePatch
             }
         }
 
-        if (CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFATeamMode.GetBool() && FFAManager.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
+        if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFATeamMode.GetBool() && FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
         {
             teamToDisplay = new();
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                if (FFAManager.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && (team == ffaTeam))
+                if (FreeForAll.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && (team == ffaTeam))
                     teamToDisplay.Add(pc);
             }
         }
@@ -384,17 +384,12 @@ internal static class BeginCrewmatePatch
                     }
 
                     break;
-                default:
-                    
-                    if (role.IsCoven())
-                    {
-                        __instance.TeamTitle.text = GetString("TeamCoven");
-                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
-                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
-                        __instance.ImpostorText.gameObject.SetActive(true);
-                        __instance.ImpostorText.text = GetString("SubText.Coven");
-                    }
-                    
+                case CustomRoleTypes.Coven:
+                    __instance.TeamTitle.text = GetString("TeamCoven");
+                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
+                    __instance.ImpostorText.gameObject.SetActive(true);
+                    __instance.ImpostorText.text = GetString("SubText.Coven");
                     break;
             }
 
@@ -620,7 +615,7 @@ internal static class BeginCrewmatePatch
             case CustomGameMode.FFA:
             {
                 __instance.TeamTitle.text = GetString("Killer");
-                Color color = FFAManager.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int team) && ColorUtility.TryParseHtmlString(FFAManager.TeamColors[team], out Color teamColor) ? teamColor : new(0, 255, 255, byte.MaxValue);
+                Color color = FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int team) && ColorUtility.TryParseHtmlString(FreeForAll.TeamColors[team], out Color teamColor) ? teamColor : new(0, 255, 255, byte.MaxValue);
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = color;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
@@ -727,6 +722,7 @@ internal static class BeginCrewmatePatch
                 CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                 CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                 CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
+                CustomRoleTypes.Coven => GetIntroSound(RoleTypes.Phantom),
                 _ => GetIntroSound(RoleTypes.Crewmate)
             };
     }
@@ -862,7 +858,7 @@ internal static class IntroCutsceneDestroyPatch
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.FFA when FFAManager.FFAChatDuringGame.GetBool():
+                case CustomGameMode.FFA when FreeForAll.FFAChatDuringGame.GetBool():
                     Utils.SetChatVisibleForAll();
                     break;
             }
@@ -870,9 +866,7 @@ internal static class IntroCutsceneDestroyPatch
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             PlayerControl lp = PlayerControl.LocalPlayer;
-
-            if (lp.GetRoleTypes() == RoleTypes.Shapeshifter)
-                lp.RpcChangeRoleBasis(lp.GetCustomRole());
+            lp.RpcChangeRoleBasis(lp.GetCustomRole());
 
             if (Options.UsePets.GetBool())
             {
@@ -923,7 +917,7 @@ internal static class IntroCutsceneDestroyPatch
             if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
                 LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
 
-            float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FFAManager.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
+            float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
 
             if (Main.GM.Value && lp.Is(CustomRoles.GM))
             {

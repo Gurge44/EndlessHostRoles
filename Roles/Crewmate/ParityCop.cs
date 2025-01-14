@@ -426,7 +426,8 @@ public class ParityCop : RoleBase
     {
         public static void Postfix(MeetingHud __instance)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive() && AmongUsClient.Instance.AmHost) CreateParityCopButton(__instance);
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive() && AmongUsClient.Instance.AmHost)
+                CreateParityCopButton(__instance);
         }
     }
 }

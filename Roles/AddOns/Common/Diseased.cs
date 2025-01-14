@@ -15,7 +15,7 @@ internal class Diseased : IAddon
             .SetParent(CustomRoleSpawnChances[CustomRoles.Diseased])
             .SetValueFormat(OptionFormat.Seconds);
 
-        DiseasedCDReset = new BooleanOptionItem(id + 7, "DiseasedCDReset", true, TabGroup.Addons)
+        DiseasedCDReset = new BooleanOptionItem(id + 9, "DiseasedCDReset", true, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Diseased]);
     }
 }

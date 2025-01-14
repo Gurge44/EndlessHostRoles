@@ -63,8 +63,8 @@ internal static class CustomRoleSelector
 
             if (hns)
             {
-                HnSManager.AssignRoles();
-                RoleResult = HnSManager.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);
+                CustomHnS.AssignRoles();
+                RoleResult = CustomHnS.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);
                 return;
             }
         }
@@ -94,7 +94,7 @@ internal static class CustomRoleSelector
         foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || HnSManager.AllHnSRoles.Contains(role)) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || CustomHnS.AllHnSRoles.Contains(role)) continue;
 
             switch (role)
             {
@@ -828,6 +828,8 @@ internal static class CustomRoleSelector
                     RoleAssignType.Impostor => optImpNum,
                     RoleAssignType.NeutralKilling => nkLimit,
                     RoleAssignType.NonKillingNeutral => nnkLimit,
+                    RoleAssignType.Coven => numCovens,
+                    RoleAssignType.Madmate => madmateNum,
                     RoleAssignType.Crewmate => playerCount,
                     _ => 0
                 })

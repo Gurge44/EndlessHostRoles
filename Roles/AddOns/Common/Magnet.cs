@@ -6,6 +6,6 @@ internal class Magnet : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(19693, CustomRoles.Magnet, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(19692, CustomRoles.Magnet, canSetNum: true, teamSpawnOptions: true);
     }
 }

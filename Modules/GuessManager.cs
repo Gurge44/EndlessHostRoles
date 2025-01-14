@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.AddOns.Common;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
@@ -138,11 +139,11 @@ public static class GuessManager
 
                 if ((!pc.Is(CustomRoles.NiceGuesser) && pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper)) ||
                     (!pc.Is(CustomRoles.EvilGuesser) && pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor)) ||
+                    (!pc.Is(CustomRoles.Augur) && pc.Is(Team.Coven) && !Options.CovenCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser)) ||
                     (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser)) ||
                     (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && pc.GetCustomRole() is not CustomRoles.Doomsayer and not CustomRoles.NecroGuesser) ||
                     (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0) ||
-                    (Options.GuesserNumRestrictions.GetBool() && !Guessers.Contains(pc.PlayerId)) ||
-                    (pc.Is(Team.Coven) && !pc.Is(CustomRoles.Augur)))
+                    (Options.GuesserNumRestrictions.GetBool() && !Guessers.Contains(pc.PlayerId)))
                 {
                     if ((pc.Is(CustomRoles.Madmate) || pc.IsConverted()) && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
 
@@ -242,6 +243,8 @@ public static class GuessManager
 
                     switch (pc.GetCustomRole())
                     {
+                        case CustomRoles.Augur when Main.GuesserGuessed[pc.PlayerId] >= Augur.MaxGuessesPerGame.GetInt():
+                        case CustomRoles.Augur when Main.GuesserGuessedMeeting[pc.PlayerId] >= Augur.MaxGuessesPerMeeting.GetInt():
                         case CustomRoles.NiceGuesser when Main.GuesserGuessed[pc.PlayerId] >= Options.GGCanGuessTime.GetInt():
                         case CustomRoles.EvilGuesser when Main.GuesserGuessed[pc.PlayerId] >= Options.EGCanGuessTime.GetInt():
                             ShowMessage("GGGuessMax");
@@ -342,6 +345,9 @@ public static class GuessManager
                         case CustomRoles.Tank when !Tank.CanBeGuessed.GetBool():
                             ShowMessage("GuessTank");
                             return true;
+                        case CustomRoles.Ankylosaurus:
+                            ShowMessage("GuessAnkylosaurus");
+                            return true;
                         case CustomRoles.DonutDelivery when DonutDelivery.IsUnguessable(pc, target):
                         case CustomRoles.Shifter:
                         case CustomRoles.Car:
@@ -424,6 +430,7 @@ public static class GuessManager
                             {
                                 if ((Options.ImpostorsCanGuess.GetBool() && pc.Is(CustomRoleTypes.Impostor) && !(pc.GetCustomRole() == CustomRoles.EvilGuesser || pc.Is(CustomRoles.Guesser))) ||
                                     (Options.CrewmatesCanGuess.GetBool() && pc.Is(CustomRoleTypes.Crewmate) && !(pc.GetCustomRole() == CustomRoles.NiceGuesser || pc.Is(CustomRoles.Guesser))) ||
+                                    (Options.CovenCanGuess.GetBool() && pc.Is(CustomRoleTypes.Coven) && !(pc.GetCustomRole() == CustomRoles.Augur || pc.Is(CustomRoles.Guesser))) ||
                                     ((Options.NeutralKillersCanGuess.GetBool() || Options.PassiveNeutralsCanGuess.GetBool()) && pc.Is(CustomRoleTypes.Neutral) && !(pc.GetCustomRole() is CustomRoles.Ritualist or CustomRoles.Doomsayer || pc.Is(CustomRoles.Guesser))))
                                 {
                                     ShowMessage("GuessAdtRole");
@@ -770,7 +777,6 @@ public static class GuessManager
         foreach (KeyValuePair<CustomRoleTypes, SpriteRenderer> RoleButton in RoleSelectButtons)
         {
             if (RoleButton.Value == null) continue;
-
             RoleButton.Value.color = new(0, 0, 0, RoleButton.Key == Role ? 1 : 0.25f);
         }
     }
@@ -868,6 +874,7 @@ public static class GuessManager
 
                 Teamlabel.color = (CustomRoleTypes)index switch
                 {
+                    CustomRoleTypes.Coven => Team.Coven.GetColor(),
                     CustomRoleTypes.Crewmate => new(140, 255, 255, byte.MaxValue),
                     CustomRoleTypes.Impostor => new(255, 25, 25, byte.MaxValue),
                     CustomRoleTypes.Neutral => new(255, 171, 27, byte.MaxValue),
@@ -987,7 +994,7 @@ public static class GuessManager
 
                 if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) continue;
 
-                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || HnSManager.AllHnSRoles.Contains(role)) continue;
+                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || CustomHnS.AllHnSRoles.Contains(role)) continue;
 
                 CreateRole(role);
             }
@@ -1138,12 +1145,15 @@ public static class GuessManager
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(MeetingHud __instance)
         {
-            Main.GuesserGuessedMeeting.SetAllValues(0);
-
             bool restrictions = Options.GuesserNumRestrictions.GetBool();
 
-            if (Guessers.Count == 0 && restrictions)
-                InitializeGuesserPlayers();
+            if (AmongUsClient.Instance.AmHost)
+            {
+                Main.GuesserGuessedMeeting.SetAllValues(0);
+
+                if (Guessers.Count == 0 && restrictions)
+                    InitializeGuesserPlayers();
+            }
 
             PlayerControl lp = PlayerControl.LocalPlayer;
             if (!lp.IsAlive()) return;
@@ -1162,6 +1172,7 @@ public static class GuessManager
                     Team.Crewmate => Options.CrewmatesCanGuess.GetBool(),
                     Team.Neutral when lp.IsNeutralKiller() => Options.NeutralKillersCanGuess.GetBool(),
                     Team.Neutral => Options.PassiveNeutralsCanGuess.GetBool(),
+                    Team.Coven => Options.CovenCanGuess.GetBool(),
                     _ => false
                 } && !(restrictions && !Guessers.Contains(lp.PlayerId)),
                 _ => false

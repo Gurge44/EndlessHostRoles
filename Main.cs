@@ -96,8 +96,8 @@ public class Main : BasePlugin
     public static readonly Dictionary<int, int> SayStartTimes = [];
     public static readonly Dictionary<int, int> SayBanwordsTimes = [];
     public static Dictionary<byte, float> AllPlayerSpeed = [];
-    public static readonly Dictionary<byte, int> GuesserGuessed = [];
-    public static readonly Dictionary<byte, int> GuesserGuessedMeeting = [];
+    public static Dictionary<byte, int> GuesserGuessed = [];
+    public static Dictionary<byte, int> GuesserGuessedMeeting = [];
     public static bool HasJustStarted;
     public static int AliveImpostorCount;
     public static Dictionary<byte, bool> CheckShapeshift = [];

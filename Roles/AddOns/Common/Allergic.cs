@@ -16,7 +16,7 @@ public class Allergic : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(645941, CustomRoles.Allergic, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(645940, CustomRoles.Allergic, canSetNum: true, teamSpawnOptions: true);
 
         Time = new IntegerOptionItem(645948, "Allergic.Time", new(0, 60, 1), 15, TabGroup.Addons)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Allergic])

@@ -6,6 +6,6 @@ public class Anchor : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(649093, CustomRoles.Anchor, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(649092, CustomRoles.Anchor, canSetNum: true, teamSpawnOptions: true);
     }
 }

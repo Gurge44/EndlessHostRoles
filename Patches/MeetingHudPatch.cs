@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
+using EHR.AddOns.Crewmate;
 using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
@@ -379,6 +380,7 @@ internal static class CheckForEndVotingPatch
         var name = string.Empty;
         var impnum = 0;
         var neutralnum = 0;
+        var covennum = 0;
 
         var DecidedWinner = false;
 
@@ -396,7 +398,10 @@ internal static class CheckForEndVotingPatch
                 impnum++;
             else if (Options.MadmateCountMode.GetValue() == 1 && pc.IsMadmate())
                 impnum++;
-            else if (pc.IsNeutralKiller()) neutralnum++;
+            else if (pc.IsNeutralKiller())
+                neutralnum++;
+            else if (pc.Is(Team.Coven))
+                covennum++;
         }
 
         string coloredRealName = Utils.ColorString(Main.PlayerColors[player.PlayerId], realName);
@@ -470,49 +475,16 @@ internal static class CheckForEndVotingPatch
         {
             name += "\n";
             int actualNeutralnum = neutralnum;
+            int actualCovennum = covennum;
             if (!Options.ShowNKRemainOnEject.GetBool()) neutralnum = 0;
+            if (!Options.ShowCovenRemainOnEject.GetBool()) covennum = 0;
 
-            switch (impnum, neutralnum)
+            name += (impnum, neutralnum, covennum) switch
             {
-                case (0, 0) when actualNeutralnum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()): // Crewmates win
-                    name += GetString("GG");
-                    break;
-                case (0, 0) when actualNeutralnum > 0:
-                    name += GetString("IWonderWhatsLeft");
-                    break;
-                case (> 0, > 0): // Both imps and neutrals remain
-                    name += impnum switch
-                    {
-                        1 => $"1 <color=#ff1919>{GetString("RemainingText.ImpSingle")}</color> <color=#777777>&</color> ",
-                        2 => $"2 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
-                        3 => $"3 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
-                        _ => string.Empty
-                    };
-
-                    if (neutralnum == 1)
-                        name += $"1 <color=#ffab1b>{GetString("RemainingText.NKSingle")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKSingle")}</color>";
-                    else
-                        name += $"{neutralnum} <color=#ffab1b>{GetString("RemainingText.NKPlural")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKPlural")}</color>";
-
-                    break;
-                case (> 0, 0): // Only imps remain
-                    name += impnum switch
-                    {
-                        1 => GetString("OneImpRemain"),
-                        2 => GetString("TwoImpRemain"),
-                        3 => GetString("ThreeImpRemain"),
-                        _ => string.Empty
-                    };
-
-                    break;
-                case (0, > 0): // Only neutrals remain
-                    if (neutralnum == 1)
-                        name += GetString("OneNeutralRemain");
-                    else
-                        name += string.Format(GetString("NeutralRemain"), neutralnum);
-
-                    break;
-            }
+                (0, 0, 0) when actualNeutralnum == 0 && actualCovennum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()) => GetString("GG"),
+                (0, 0, 0) when actualNeutralnum > 0 || actualCovennum > 0 => GetString("IWonderWhatsLeft"),
+                _ => Utils.GetRemainingKillers(true, excludeId: exileId)
+            };
         }
 
         EndOfSession:
@@ -541,6 +513,17 @@ internal static class CheckForEndVotingPatch
                 Main.DoBlockNameChange = false;
             }
         }, 11.5f, "Change Exiled Player Name Back");
+
+        LateTask.New(() =>
+        {
+            foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
+            {
+                var pc = id.GetPlayer();
+                if (pc == null || !pc.IsAlive()) continue;
+
+                pc.TP(pos);
+            }
+        }, 10f, "Teleport Lazy Players");
     }
 
     public static bool CheckRole(byte id, CustomRoles role)
@@ -807,10 +790,11 @@ internal static class MeetingHudStartPatch
                 if (ipc.GetCustomRole().IsImpostorTeam())
                     AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
         }
-        
+
         if (SpellCaster.IsWinConditionMet())
         {
             var spellCasterStr = CustomRoles.SpellCaster.ToColoredString();
+
             AddMsg(
                 string.Format(GetString("SpellCaster.WinConditionMet"), spellCasterStr),
                 byte.MaxValue,
@@ -946,22 +930,23 @@ internal static class MeetingHudStartPatch
             idNumber.name = "IdNumber";
         }
 
-        if (Options.SyncButtonMode.GetBool())
-        {
-            Utils.SendMessage(string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount));
-            Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
-        }
-
-        TemplateManager.SendTemplate("OnMeeting", noErr: true);
-        if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
-
-        if (AmongUsClient.Instance.AmHost) NotifyRoleSkillOnMeetingStart();
-
         if (AmongUsClient.Instance.AmHost)
         {
+            if (Options.SyncButtonMode.GetBool())
+            {
+                Utils.SendMessage(string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount));
+                Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
+            }
+
+            TemplateManager.SendTemplate("OnMeeting", noErr: true);
+            if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
+
+            NotifyRoleSkillOnMeetingStart();
+
             LateTask.New(() =>
             {
-                foreach (PlayerControl pc in Main.AllPlayerControls) pc.RpcSetNameEx(pc.GetRealName(true));
+                foreach (PlayerControl pc in Main.AllPlayerControls)
+                    pc.RpcSetNameEx(pc.GetRealName(true));
 
                 ChatUpdatePatch.DoBlockChat = false;
             }, 3f, "SetName To Chat");
@@ -992,11 +977,13 @@ internal static class MeetingHudStartPatch
             switch (seer.GetCustomRoleTypes())
             {
                 case CustomRoleTypes.Impostor:
-                    if (target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), "★"));
+                    if (target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
+                        sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), "★"));
 
                     break;
                 case CustomRoleTypes.Crewmate:
-                    if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★"));
+                    if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
+                        sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★"));
 
                     sb.Append(Marshall.GetWarningMark(seer, target));
                     break;
@@ -1009,9 +996,8 @@ internal static class MeetingHudStartPatch
                 case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId):
                     sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
                     break;
-                case CustomRoles.Arsonist:
-                    if (seer.IsDousedPlayer(target)) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist), "▲"));
-
+                case CustomRoles.Arsonist when seer.IsDousedPlayer(target):
+                    sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist), "▲"));
                     break;
                 case CustomRoles.Executioner:
                     sb.Append(Executioner.TargetMark(seer, target));
@@ -1019,13 +1005,11 @@ internal static class MeetingHudStartPatch
                 case CustomRoles.EvilTracker:
                     sb.Append(EvilTracker.GetTargetMark(seer, target));
                     break;
-                case CustomRoles.Revolutionist:
-                    if (seer.IsDrawPlayer(target)) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist), "●"));
-
+                case CustomRoles.Revolutionist when seer.IsDrawPlayer(target):
+                    sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist), "●"));
                     break;
-                case CustomRoles.Psychic:
-                    if (Psychic.IsRedForPsy(target, seer) && !seer.Data.IsDead) pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), pva.NameText.text);
-
+                case CustomRoles.Psychic when Psychic.IsRedForPsy(target, seer) && !seer.Data.IsDead:
+                    pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), pva.NameText.text);
                     break;
                 case CustomRoles.Gamer:
                     sb.Append(Gamer.TargetMark(seer, target));
@@ -1036,23 +1020,30 @@ internal static class MeetingHudStartPatch
                     break;
             }
 
-            if (Silencer.ForSilencer.Contains(target.PlayerId)) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Silencer), "╳"));
+            if (Silencer.ForSilencer.Contains(target.PlayerId))
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Silencer), "╳"));
 
-            if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId) || seer.Data.IsDead)) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
+            if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId) || seer.Data.IsDead))
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
 
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));
             sb.Append(Wasp.GetStungMark(target.PlayerId));
             sb.Append(SpellCaster.IsSpelled(seer.PlayerId) ? Utils.ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
 
-            if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool()) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
+            if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
 
-            if (BallLightning.IsGhost(target)) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.BallLightning), "■"));
+            if (BallLightning.IsGhost(target))
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.BallLightning), "■"));
 
-            if (seer.PlayerId == target.PlayerId && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId)) && Medic.WhoCanSeeProtect.GetInt() is 0 or 2) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
+            if (seer.PlayerId == target.PlayerId && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId)) && Medic.WhoCanSeeProtect.GetInt() is 0 or 2)
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
 
-            if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtectedList.Contains(target.PlayerId)) && Medic.WhoCanSeeProtect.GetInt() is 0 or 1) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
+            if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtectedList.Contains(target.PlayerId)) && Medic.WhoCanSeeProtect.GetInt() is 0 or 1)
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
 
-            if (seer.Data.IsDead && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic)) sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
+            if (seer.Data.IsDead && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic))
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
 
             sb.Append(Totocalcio.TargetMark(seer, target));
             sb.Append(Romantic.TargetMark(seer, target));

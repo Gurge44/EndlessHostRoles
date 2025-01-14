@@ -288,6 +288,8 @@ public class Glitch : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        if (Main.PlayerStates[GlitchId].IsDead) return;
+
         long timestamp = Utils.TimeStamp;
         LastKill = timestamp;
         LastHack = timestamp;
