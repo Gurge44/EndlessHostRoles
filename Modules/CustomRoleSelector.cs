@@ -203,8 +203,11 @@ internal static class CustomRoleSelector
         int nkLimit = subCategoryLimits[RoleOptionType.Neutral_Killing];
         int nnkLimit = subCategoryLimits[RoleOptionType.Neutral_Evil] + subCategoryLimits[RoleOptionType.Neutral_Benign];
 
+        int madmateNum = IRandom.Instance.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1);
+
         Logger.Info($"Number of Neutral Killing roles to select: {nkLimit}", "NeutralKillingLimit");
         Logger.Info($"Number of Non-Killing Neutral roles to select: {nnkLimit}", "NonKillingNeutralLimit");
+        Logger.Info($"Number of Madmate roles to select: {madmateNum}", "MadmateLimit");
 
         var allRoles = Roles.ToDictionary(x => x.Key, x => x.Value.ToList());
 
@@ -242,8 +245,6 @@ internal static class CustomRoleSelector
 
         int nnkNum = Roles[RoleAssignType.NonKillingNeutral].Count;
         int nkNum = Roles[RoleAssignType.NeutralKilling].Count;
-
-        int madmateNum = IRandom.Instance.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1);
 
         Logger.Msg("======================================================", "SelectedRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "SelectedImpostorRoles");

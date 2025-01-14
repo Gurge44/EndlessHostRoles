@@ -21,15 +21,15 @@ namespace EHR;
 
 public static class GuessManager
 {
-    private const int MaxOneScreenRole = 40;
-    private static int Page;
-    private static GameObject GuesserUI;
-    private static Dictionary<CustomRoleTypes, List<Transform>> RoleButtons;
-    private static Dictionary<CustomRoleTypes, SpriteRenderer> RoleSelectButtons;
-    private static List<SpriteRenderer> PageButtons;
-    private static CustomRoleTypes CurrentTeamType;
-
-    public static TextMeshPro TextTemplate;
+    // private const int MaxOneScreenRole = 40;
+    // private static int Page;
+    // private static GameObject GuesserUI;
+    // private static Dictionary<CustomRoleTypes, List<Transform>> RoleButtons;
+    // private static Dictionary<CustomRoleTypes, SpriteRenderer> RoleSelectButtons;
+    // private static List<SpriteRenderer> PageButtons;
+    // private static CustomRoleTypes CurrentTeamType;
+    //
+    // public static TextMeshPro TextTemplate;
     private static readonly int Mask = Shader.PropertyToID("_Mask");
 
     public static HashSet<byte> Guessers = [];
@@ -743,234 +743,193 @@ public static class GuessManager
         }
     }
 
-    private static void GuesserSelectRole(CustomRoleTypes Role, bool SetPage = true)
+    private const int MaxOneScreenRole = 40;
+    private static int Page;
+    private static GameObject guesserUI;
+    private static Dictionary<CustomRoleTypes, List<Transform>> RoleButtons;
+    private static Dictionary<CustomRoleTypes, SpriteRenderer> RoleSelectButtons;
+    private static List<SpriteRenderer> PageButtons;
+    private static CustomRoleTypes currentTeamType;
+    static void GuesserSelectRole(CustomRoleTypes role, bool setPage = true)
     {
-        CurrentTeamType = Role;
-        if (SetPage) Page = 1;
-
-        foreach (KeyValuePair<CustomRoleTypes, List<Transform>> RoleButton in RoleButtons)
+        currentTeamType = role;
+        if (setPage) Page = 1;
+        foreach (var RoleButton in RoleButtons)
         {
-            var index = 0;
-
-            foreach (Transform RoleBtn in RoleButton.Value)
+            int index = 0;
+            foreach (var RoleBtn in RoleButton.Value)
             {
                 if (RoleBtn == null) continue;
-
                 index++;
-
-                if (index <= (Page - 1) * MaxOneScreenRole)
-                {
-                    RoleBtn.gameObject.SetActive(false);
-                    continue;
-                }
-
-                if (Page * MaxOneScreenRole < index)
-                {
-                    RoleBtn.gameObject.SetActive(false);
-                    continue;
-                }
-
-                RoleBtn.gameObject.SetActive(RoleButton.Key == Role);
+                if (index <= (Page - 1) * 40) { RoleBtn.gameObject.SetActive(false); continue; }
+                if ((Page * 40) < index) { RoleBtn.gameObject.SetActive(false); continue; }
+                RoleBtn.gameObject.SetActive(RoleButton.Key == role);
             }
         }
-
-        foreach (KeyValuePair<CustomRoleTypes, SpriteRenderer> RoleButton in RoleSelectButtons)
+        foreach (var RoleButton in RoleSelectButtons)
         {
             if (RoleButton.Value == null) continue;
-            RoleButton.Value.color = new(0, 0, 0, RoleButton.Key == Role ? 1 : 0.25f);
+            RoleButton.Value.color = new(0, 0, 0, RoleButton.Key == role ? 1 : 0.25f);
         }
     }
 
-    private static void GuesserOnClick(byte playerId, MeetingHud __instance)
+    public static TextMeshPro textTemplate;
+    static void GuesserOnClick(byte playerId, MeetingHud __instance)
     {
-        PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || GuesserUI != null || !GameStates.IsVoting) return;
+        var pc = Utils.GetPlayerById(playerId);
+        if (pc == null || !pc.IsAlive() || guesserUI != null || !GameStates.IsVoting) return;
 
         try
         {
             Page = 1;
-            RoleButtons = [];
-            RoleSelectButtons = [];
-            PageButtons = [];
+            RoleButtons = new();
+            RoleSelectButtons = new();
+            PageButtons = new();
             __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(false));
 
             Transform container = Object.Instantiate(GameObject.Find("PhoneUI").transform, __instance.transform);
-            container.transform.localPosition = new(0, 0, -200f);
-            GuesserUI = container.gameObject;
+            container.transform.localPosition = new Vector3(0, 0, -200f);
+            guesserUI = container.gameObject;
 
-            List<int> i = [0, 0, 0, 0];
-            Transform buttonTemplate = __instance.playerStates[0].transform.FindChild("votePlayerBase");
-            Transform maskTemplate = __instance.playerStates[0].transform.FindChild("MaskArea");
-            Transform smallButtonTemplate = __instance.playerStates[0].Buttons.transform.Find("CancelButton");
-            TextTemplate.enabled = true;
-            if (TextTemplate.transform.FindChild("RoleTextMeeting") != null) Object.Destroy(TextTemplate.transform.FindChild("RoleTextMeeting").gameObject);
+            List<int> i = [0, 0, 0, 0, 0];
+            var buttonTemplate = __instance.playerStates[0].transform.FindChild("votePlayerBase");
+            var maskTemplate = __instance.playerStates[0].transform.FindChild("MaskArea");
+            var smallButtonTemplate = __instance.playerStates[0].Buttons.transform.Find("CancelButton");
+            textTemplate.enabled = true;
+            if (textTemplate.transform.FindChild("RoleTextMeeting") != null) Object.Destroy(textTemplate.transform.FindChild("RoleTextMeeting").gameObject);
 
             Transform exitButtonParent = new GameObject().transform;
             exitButtonParent.SetParent(container);
             Transform exitButton = Object.Instantiate(buttonTemplate, exitButtonParent);
             exitButton.FindChild("ControllerHighlight").gameObject.SetActive(false);
             Transform exitButtonMask = Object.Instantiate(maskTemplate, exitButtonParent);
-            exitButtonMask.transform.localScale = new(2.88f, 0.8f, 1f);
-            exitButtonMask.transform.localPosition = new(0f, 0f, 1f);
+            exitButtonMask.transform.localScale = new Vector3(2.88f, 0.8f, 1f);
+            exitButtonMask.transform.localPosition = new Vector3(0f, 0f, 1f);
             exitButton.gameObject.GetComponent<SpriteRenderer>().sprite = smallButtonTemplate.GetComponent<SpriteRenderer>().sprite;
-            exitButtonParent.transform.localPosition = new(3.88f, 2.12f, -200f);
-            exitButtonParent.transform.localScale = new(0.22f, 0.9f, 1f);
+            exitButtonParent.transform.localPosition = new Vector3(3.88f, 2.12f, -200f);
+            exitButtonParent.transform.localScale = new Vector3(0.22f, 0.9f, 1f);
             exitButtonParent.transform.SetAsFirstSibling();
             exitButton.GetComponent<PassiveButton>().OnClick.RemoveAllListeners();
-
             exitButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() =>
             {
                 __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(true));
                 Object.Destroy(container.gameObject);
             }));
-
             exitButton.GetComponent<PassiveButton>();
 
-            List<Transform> buttons = [];
+            List<Transform> buttons = new();
             Transform selectedButton = null;
 
-            var tabCount = 0;
-
-            for (var index = 0; index < 4; index++)
+            int tabCount = 0;
+            for (int index = 0; index < 5; index++)
             {
                 if (PlayerControl.LocalPlayer.Is(CustomRoles.EvilGuesser))
                 {
                     if (!Options.EGCanGuessImp.GetBool() && index == 1) continue;
                     if (!Options.EGCanGuessAdt.GetBool() && index == 3) continue;
                 }
-                else if (PlayerControl.LocalPlayer.Is(CustomRoles.NiceGuesser))
+                else
                 {
-                    if (!Options.GGCanGuessCrew.GetBool() && index == 0) continue;
+                    if (!Options.GGCanGuessCrew.GetBool() && !PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && index == 0) continue;
                     if (!Options.GGCanGuessAdt.GetBool() && index == 3) continue;
                 }
-                else if (PlayerControl.LocalPlayer.Is(CustomRoles.Doomsayer))
-                {
-                    if (!Doomsayer.DCanGuessCrewmates.GetBool() && index == 0) continue;
-                    if (!Doomsayer.DCanGuessImpostors.GetBool() && index == 1) continue;
-                    if (!Doomsayer.DCanGuessNeutrals.GetBool() && index == 2) continue;
-                    if (!Doomsayer.DCanGuessAdt.GetBool() && index == 3) continue;
-                }
-                else if (PlayerControl.LocalPlayer.Is(CustomRoles.Guesser))
-                {
-                    if (!Guesser.GCanGuessAdt.GetBool() && index == 3) continue;
-                }
-                else if (Options.GuesserMode.GetBool() && (!PlayerControl.LocalPlayer.Is(CustomRoles.Lyncher) || Lyncher.GuessMode.GetValue() != 2))
-                {
-                    if (!Options.CrewCanGuessCrew.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && index == 0) continue;
-                    if (!Options.ImpCanGuessImp.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && index == 1) continue;
-                    if (!Options.CanGuessAddons.GetBool() && index == 3) continue;
-                }
-
                 Transform TeambuttonParent = new GameObject().transform;
                 TeambuttonParent.SetParent(container);
                 Transform Teambutton = Object.Instantiate(buttonTemplate, TeambuttonParent);
                 Teambutton.FindChild("ControllerHighlight").gameObject.SetActive(false);
                 Object.Instantiate(maskTemplate, TeambuttonParent);
-                TextMeshPro Teamlabel = Object.Instantiate(TextTemplate, Teambutton);
-                Teambutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlateWithKPD");
+                TextMeshPro Teamlabel = Object.Instantiate(textTemplate, Teambutton);
+                Teambutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
                 RoleSelectButtons.Add((CustomRoleTypes)index, Teambutton.GetComponent<SpriteRenderer>());
                 TeambuttonParent.localPosition = new(-2.75f + (tabCount++ * 1.73f), 2.225f, -200);
                 TeambuttonParent.localScale = new(0.53f, 0.53f, 1f);
-
                 Teamlabel.color = (CustomRoleTypes)index switch
                 {
                     CustomRoleTypes.Coven => Team.Coven.GetColor(),
-                    CustomRoleTypes.Crewmate => new(140, 255, 255, byte.MaxValue),
-                    CustomRoleTypes.Impostor => new(255, 25, 25, byte.MaxValue),
-                    CustomRoleTypes.Neutral => new(255, 171, 27, byte.MaxValue),
+                    CustomRoleTypes.Crewmate => new Color32(140, 255, 255, byte.MaxValue),
+                    CustomRoleTypes.Impostor => new Color32(255, 25, 25, byte.MaxValue),
+                    CustomRoleTypes.Neutral => new Color32(255, 171, 27, byte.MaxValue),
                     CustomRoleTypes.Addon => new Color32(255, 154, 206, byte.MaxValue),
                     _ => throw new ArgumentOutOfRangeException("The index is out of range, it's an invalid CustomRoleTypes (GuessManager.cs:GuesserOnClick method)", innerException: null)
                 };
-
                 Logger.Info(Teamlabel.color.ToString(), ((CustomRoleTypes)index).ToString());
-                Teamlabel.text = GetString("Type" + (CustomRoleTypes)index);
+                Teamlabel.text = GetString("Type" + ((CustomRoleTypes)index));
                 Teamlabel.alignment = TextAlignmentOptions.Center;
-                Teamlabel.transform.localPosition = new(0, 0, Teamlabel.transform.localPosition.z);
+                Teamlabel.transform.localPosition = new Vector3(0, 0, Teamlabel.transform.localPosition.z);
                 Teamlabel.transform.localScale *= 1.6f;
                 Teamlabel.autoSizeTextContainer = true;
 
                 if (PlayerControl.LocalPlayer.IsAlive()) CreateTeamButton(Teambutton, (CustomRoleTypes)index);
-
                 continue;
 
-                static void CreateTeamButton(Component Teambutton, CustomRoleTypes type)
+                static void CreateTeamButton(Transform teambutton, CustomRoleTypes type)
                 {
-                    Teambutton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() =>
+                    teambutton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() =>
                     {
                         GuesserSelectRole(type);
                         ReloadPage();
                     }));
                 }
             }
-
             static void ReloadPage()
             {
                 PageButtons[0].color = new(1, 1, 1, 1f);
                 PageButtons[1].color = new(1, 1, 1, 1f);
-
-                if ((RoleButtons[CurrentTeamType].Count / MaxOneScreenRole) + (RoleButtons[CurrentTeamType].Count % MaxOneScreenRole != 0 ? 1 : 0) < Page)
+                if ((RoleButtons[currentTeamType].Count / MaxOneScreenRole + (RoleButtons[currentTeamType].Count % MaxOneScreenRole != 0 ? 1 : 0)) < Page)
                 {
                     Page -= 1;
                     PageButtons[1].color = new(1, 1, 1, 0.1f);
                 }
-                else if ((RoleButtons[CurrentTeamType].Count / MaxOneScreenRole) + (RoleButtons[CurrentTeamType].Count % MaxOneScreenRole != 0 ? 1 : 0) < Page + 1) PageButtons[1].color = new(1, 1, 1, 0.1f);
-
+                else if ((RoleButtons[currentTeamType].Count / MaxOneScreenRole + (RoleButtons[currentTeamType].Count % MaxOneScreenRole != 0 ? 1 : 0)) < Page + 1)
+                {
+                    PageButtons[1].color = new(1, 1, 1, 0.1f);
+                }
                 if (Page <= 1)
                 {
                     Page = 1;
                     PageButtons[0].color = new(1, 1, 1, 0.1f);
                 }
-
-                GuesserSelectRole(CurrentTeamType, false);
+                GuesserSelectRole(currentTeamType, false);
             }
-
-            static void CreatePage(bool IsNext, MeetingHud __instance, Transform container)
+            static void CreatePage(bool isNext, MeetingHud __instance, Transform container)
             {
-                Transform buttonTemplate = __instance.playerStates[0].transform.FindChild("votePlayerBase");
-                Transform maskTemplate = __instance.playerStates[0].transform.FindChild("MaskArea");
-                __instance.playerStates[0].Buttons.transform.Find("CancelButton");
+                var buttonTemplate = __instance.playerStates[0].transform.FindChild("votePlayerBase");
+                var maskTemplate = __instance.playerStates[0].transform.FindChild("MaskArea");
                 Transform PagebuttonParent = new GameObject().transform;
                 PagebuttonParent.SetParent(container);
                 Transform Pagebutton = Object.Instantiate(buttonTemplate, PagebuttonParent);
                 Pagebutton.FindChild("ControllerHighlight").gameObject.SetActive(false);
                 Object.Instantiate(maskTemplate, PagebuttonParent);
-                TextMeshPro Pagelabel = Object.Instantiate(TextTemplate, Pagebutton);
+                TextMeshPro Pagelabel = Object.Instantiate(textTemplate, Pagebutton);
                 Pagebutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlateWithKPD");
-                PagebuttonParent.localPosition = IsNext ? new(3.535f, -2.2f, -200) : new(-3.475f, -2.2f, -200);
+                PagebuttonParent.localPosition = isNext ? new(3.535f, -2.2f, -200) : new(-3.475f, -2.2f, -200);
                 PagebuttonParent.localScale = new(0.55f, 0.55f, 1f);
                 Pagelabel.color = Color.white;
-                Pagelabel.text = GetString(IsNext ? "NextPage" : "PreviousPage");
+                Pagelabel.text = GetString(isNext ? "NextPage" : "PreviousPage");
                 Pagelabel.alignment = TextAlignmentOptions.Center;
-                Pagelabel.transform.localPosition = new(0, 0, Pagelabel.transform.localPosition.z);
+                Pagelabel.transform.localPosition = new Vector3(0, 0, Pagelabel.transform.localPosition.z);
                 Pagelabel.transform.localScale *= 1.6f;
                 Pagelabel.autoSizeTextContainer = true;
-                if (!IsNext && Page <= 1) Pagebutton.GetComponent<SpriteRenderer>().color = new(1, 1, 1, 0.1f);
-
-                Pagebutton.GetComponent<PassiveButton>().OnClick.AddListener((Action)ClickEvent);
-
+                if (!isNext && Page <= 1) Pagebutton.GetComponent<SpriteRenderer>().color = new(1, 1, 1, 0.1f);
+                Pagebutton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(ClickEvent));
                 PageButtons.Add(Pagebutton.GetComponent<SpriteRenderer>());
                 return;
 
                 void ClickEvent()
                 {
-                    if (IsNext) Page += 1;
+                    if (isNext) Page += 1;
                     else Page -= 1;
-
                     if (Page < 1) Page = 1;
-
                     ReloadPage();
                 }
             }
-
             if (PlayerControl.LocalPlayer.IsAlive())
             {
                 CreatePage(false, __instance, container);
                 CreatePage(true, __instance, container);
             }
 
-            CustomRoles[] sortedRoles = Enum.GetValues<CustomRoles>().OrderBy(x => GetString($"{x}")).ToArray();
-
-            foreach (CustomRoles role in sortedRoles)
+            foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
             {
                 if (role is CustomRoles.GM
                             or CustomRoles.SpeedBooster
@@ -998,70 +957,62 @@ public static class GuessManager
 
                 CreateRole(role);
             }
-
             void CreateRole(CustomRoles role)
             {
-                int customRoleTypes = (int)role.GetCustomRoleTypes();
-                if (MaxOneScreenRole <= i[customRoleTypes]) i[customRoleTypes] = 0;
-
+                if (40 <= i[(int)role.GetCustomRoleTypes()]) i[(int)role.GetCustomRoleTypes()] = 0;
                 Transform buttonParent = new GameObject().transform;
                 buttonParent.SetParent(container);
                 Transform button = Object.Instantiate(buttonTemplate, buttonParent);
                 button.FindChild("ControllerHighlight").gameObject.SetActive(false);
                 Object.Instantiate(maskTemplate, buttonParent);
-                TextMeshPro label = Object.Instantiate(TextTemplate, button);
-                button.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
-                if (!RoleButtons.ContainsKey(role.GetCustomRoleTypes())) RoleButtons.Add(role.GetCustomRoleTypes(), []);
+                TextMeshPro label = Object.Instantiate(textTemplate, button);
 
+                button.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
+                if (!RoleButtons.ContainsKey(role.GetCustomRoleTypes()))
+                {
+                    RoleButtons.Add(role.GetCustomRoleTypes(), new());
+                }
                 RoleButtons[role.GetCustomRoleTypes()].Add(button);
                 buttons.Add(button);
-                int row = i[customRoleTypes] / 5;
-                int col = i[customRoleTypes] % 5;
-                buttonParent.localPosition = new(-3.47f + (1.75f * col), 1.5f - (0.45f * row), -200f);
-                buttonParent.localScale = new(0.55f, 0.55f, 1f);
+                int row = i[(int)role.GetCustomRoleTypes()] / 5;
+                int col = i[(int)role.GetCustomRoleTypes()] % 5;
+                buttonParent.localPosition = new Vector3(-3.47f + 1.75f * col, 1.5f - 0.45f * row, -200f);
+                buttonParent.localScale = new Vector3(0.55f, 0.55f, 1f);
                 label.text = GetString(role.ToString());
                 label.color = Utils.GetRoleColor(role);
                 label.alignment = TextAlignmentOptions.Center;
-                label.transform.localPosition = new(0, 0, label.transform.localPosition.z);
+                label.transform.localPosition = new Vector3(0, 0, label.transform.localPosition.z);
                 label.transform.localScale *= 1.6f;
                 label.autoSizeTextContainer = true;
-                _ = i[customRoleTypes];
 
                 button.GetComponent<PassiveButton>().OnClick.RemoveAllListeners();
-
-                if (PlayerControl.LocalPlayer.IsAlive())
+                if (PlayerControl.LocalPlayer.IsAlive()) button.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() =>
                 {
-                    button.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() =>
+                    if (selectedButton != button)
                     {
-                        if (selectedButton != button)
-                        {
-                            selectedButton = button;
-                            buttons.ForEach(x => x.GetComponent<SpriteRenderer>().color = x == selectedButton ? Utils.GetRoleColor(PlayerControl.LocalPlayer.GetCustomRole()) : Color.white);
-                        }
-                        else
-                        {
-                            if (!(__instance.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted) || !PlayerControl.LocalPlayer.IsAlive()) return;
+                        selectedButton = button;
+                        buttons.ForEach(x => x.GetComponent<SpriteRenderer>().color = x == selectedButton ? Utils.GetRoleColor(PlayerControl.LocalPlayer.GetCustomRole()) : Color.white);
+                    }
+                    else
+                    {
+                        if (!(__instance.state == MeetingHud.VoteStates.Voted || __instance.state == MeetingHud.VoteStates.NotVoted) || !PlayerControl.LocalPlayer.IsAlive()) return;
 
-                            Logger.Msg($"Click: {pc.GetNameWithRole().RemoveHtmlTags()} => {role}", "Guesser UI");
+                        Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
 
-                            if (AmongUsClient.Instance.AmHost)
-                                GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
-                            else
-                                SendRPC(playerId, role);
+                        if (AmongUsClient.Instance.AmHost) GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
+                        else SendRPC(playerId, role);
 
-                            // Reset the GUI
-                            __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(true));
-                            Object.Destroy(container.gameObject);
-                            TextTemplate.enabled = false;
-                        }
-                    }));
-                }
+                        // Reset the GUI
+                        __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(true));
+                        Object.Destroy(container.gameObject);
+                        textTemplate.enabled = false;
 
-                i[customRoleTypes]++;
+                    }
+                }));
+                i[(int)role.GetCustomRoleTypes()]++;
             }
-
             container.transform.localScale *= 0.75f;
-            GuesserSelectRole(CustomRoleTypes.Crewmate);
+            GuesserSelectRole(CustomRoleTypes.Neutral);
             ReloadPage();
         }
         catch (Exception ex)
@@ -1071,6 +1022,7 @@ public static class GuessManager
         }
 
         PlayerControl.LocalPlayer.RPCPlayCustomSound("Gunload");
+
     }
 
     // Modded non-host client guess role/add-on
@@ -1202,7 +1154,7 @@ public static class GuessManager
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            Object.Destroy(TextTemplate.gameObject);
+            Object.Destroy(textTemplate.gameObject);
         }
     }
 }

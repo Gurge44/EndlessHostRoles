@@ -1362,7 +1362,9 @@ public static class Utils
 
         StringBuilder sb = new();
 
-        sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
+        sb.Append("<#ffffff>");
+        sb.Append(GetString("RoleSummaryText"));
+        sb.Append("</color><size=70%>");
 
         List<byte> cloneRoles = [.. Main.PlayerStates.Keys];
 

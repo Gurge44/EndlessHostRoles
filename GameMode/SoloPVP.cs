@@ -30,7 +30,7 @@ internal static class SoloPVP
 
     public static bool SoloAlive(this PlayerControl pc)
     {
-        return PlayerHP[pc.PlayerId] > 0f;
+        return PlayerHP.TryGetValue(pc.PlayerId, out float hp) && hp > 0f;
     }
 
     public static void SetupCustomOption()
@@ -194,7 +194,7 @@ internal static class SoloPVP
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || !CustomGameMode.SoloKombat.IsActiveOrIntegrated()) return;
+        if (killer == null || target == null || !CustomGameMode.SoloKombat.IsActiveOrIntegrated() || !Main.IntroDestroyed) return;
 
         if (!killer.SoloAlive() || !target.SoloAlive() || target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return;
 
@@ -325,7 +325,7 @@ internal static class SoloPVP
         public static void Postfix(PlayerControl __instance)
         {
             byte id = __instance.PlayerId;
-            if (!GameStates.IsInTask || !CustomGameMode.SoloKombat.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || id == 255) return;
+            if (!GameStates.IsInTask || !Main.IntroDestroyed || !CustomGameMode.SoloKombat.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || id == 255) return;
 
             bool soloAlive = __instance.SoloAlive();
             bool inVent = __instance.inVent;

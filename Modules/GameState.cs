@@ -114,11 +114,13 @@ public class PlayerState(byte playerId)
             };
         }
 
-        if (CustomTeamManager.GetCustomTeam(PlayerId) != null && !CustomTeamManager.IsSettingEnabledForPlayerTeam(PlayerId, CTAOption.WinWithOriginalTeam)) countTypes = CountTypes.CustomTeam;
+        if (CustomTeamManager.GetCustomTeam(PlayerId) != null && !CustomTeamManager.IsSettingEnabledForPlayerTeam(PlayerId, CTAOption.WinWithOriginalTeam))
+            countTypes = CountTypes.CustomTeam;
 
         SubRoles.ForEach(SetAddonCountTypes);
 
-        if (!Player.HasKillButton() && role == CustomRoles.Refugee) Player.RpcChangeRoleBasis(CustomRoles.Refugee);
+        if (!Player.HasKillButton() && role == CustomRoles.Refugee)
+            Player.RpcChangeRoleBasis(CustomRoles.Refugee);
 
         Role = role.GetRoleClass();
 
@@ -395,7 +397,7 @@ public class TaskState
         GameData.Instance.RecomputeTaskCounts();
         Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
-        if (Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush)
+        if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush)
             player.Notify(Translator.GetString("DoingTasksIsPointlessInThisGameMode"), 10f);
 
         if (AllTasksCount == -1) Init(player);
