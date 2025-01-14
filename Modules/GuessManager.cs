@@ -21,32 +21,10 @@ namespace EHR;
 
 public static class GuessManager
 {
-    // private const int MaxOneScreenRole = 40;
-    // private static int Page;
-    // private static GameObject GuesserUI;
-    // private static Dictionary<CustomRoleTypes, List<Transform>> RoleButtons;
-    // private static Dictionary<CustomRoleTypes, SpriteRenderer> RoleSelectButtons;
-    // private static List<SpriteRenderer> PageButtons;
-    // private static CustomRoleTypes CurrentTeamType;
-    //
-    // public static TextMeshPro TextTemplate;
     private static readonly int Mask = Shader.PropertyToID("_Mask");
-
     public static HashSet<byte> Guessers = [];
 
-    public static string GetFormatString()
-    {
-        string text = GetString("PlayerIdList");
-
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-        {
-            var id = pc.PlayerId.ToString();
-            string name = pc.GetRealName();
-            text += $"\n{id} → {name}";
-        }
-
-        return text;
-    }
+    public static string GetFormatString() => Main.AllAlivePlayerControls.Aggregate(GetString("PlayerIdList"), (current, pc) => current + $"\n{pc.PlayerId.ToString()} → {pc.GetRealName()}");
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
@@ -107,7 +85,6 @@ public static class GuessManager
         string originMsg = msg;
 
         if (!AmongUsClient.Instance.AmHost) return false;
-
         if (!GameStates.IsMeeting || pc == null) return false;
 
         if (pc.GetCustomRole() is not (CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Councillor or CustomRoles.NecroGuesser) && !pc.Is(CustomRoles.Guesser) && !Options.GuesserMode.GetBool()) return false;
@@ -782,9 +759,9 @@ public static class GuessManager
         try
         {
             Page = 1;
-            RoleButtons = new();
-            RoleSelectButtons = new();
-            PageButtons = new();
+            RoleButtons = [];
+            RoleSelectButtons = [];
+            PageButtons = [];
             __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(false));
 
             Transform container = Object.Instantiate(GameObject.Find("PhoneUI").transform, __instance.transform);
@@ -817,7 +794,7 @@ public static class GuessManager
             }));
             exitButton.GetComponent<PassiveButton>();
 
-            List<Transform> buttons = new();
+            List<Transform> buttons = [];
             Transform selectedButton = null;
 
             int tabCount = 0;
@@ -970,7 +947,7 @@ public static class GuessManager
                 button.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
                 if (!RoleButtons.ContainsKey(role.GetCustomRoleTypes()))
                 {
-                    RoleButtons.Add(role.GetCustomRoleTypes(), new());
+                    RoleButtons.Add(role.GetCustomRoleTypes(), []);
                 }
                 RoleButtons[role.GetCustomRoleTypes()].Add(button);
                 buttons.Add(button);

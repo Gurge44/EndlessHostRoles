@@ -14,7 +14,7 @@ public abstract class Coven : RoleBase
 
     protected abstract NecronomiconReceivePriorities NecronomiconReceivePriority { get; }
 
-    protected bool HasNecronomicon { get; set; }
+    protected bool HasNecronomicon { get; private set; }
 
     protected virtual void OnReceiveNecronomicon() { }
 
@@ -22,6 +22,8 @@ public abstract class Coven : RoleBase
     {
         var covenPlayers = Main.PlayerStates.Values.Select(x => x.Role as Coven).Where(x => x != null).ToList();
         covenPlayers.RemoveAll(x => x.HasNecronomicon || x.NecronomiconReceivePriority == NecronomiconReceivePriorities.Never);
+        
+        if (covenPlayers.Count == 0) return;
 
         var receiver = covenPlayers.Find(x => x.NecronomiconReceivePriority == NecronomiconReceivePriorities.First) ?? covenPlayers.RandomElement();
         receiver.HasNecronomicon = true;

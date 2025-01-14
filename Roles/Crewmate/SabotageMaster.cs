@@ -25,6 +25,7 @@ public class SabotageMaster : RoleBase
     private static OptionItem UsesUsedWhenFixingLightsOrComms;
     private static OptionItem CanFixSabotageFromAnywhereWithPet;
     private static OptionItem MaxFixedViaPet;
+    public static OptionItem CanVent;
 
     private static bool DoorsProgressing;
     private bool fixedSabotage;
@@ -79,6 +80,9 @@ public class SabotageMaster : RoleBase
 
         MaxFixedViaPet = new IntegerOptionItem(Id + 21, "SMMaxFixedViaPet", new(1, 30, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CanFixSabotageFromAnywhereWithPet);
+        
+        CanVent = new BooleanOptionItem(Id + 22, "CanVent", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
     }
 
     public override void Init()
@@ -103,6 +107,7 @@ public class SabotageMaster : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
+        if (!CanVent.GetBool()) return;
         AURoleOptions.EngineerCooldown = 0f;
         AURoleOptions.EngineerInVentMaxTime = 0f;
     }

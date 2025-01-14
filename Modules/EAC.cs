@@ -495,7 +495,7 @@ internal static class EAC
     {
         if (player.IsModClient() || !AmongUsClient.Instance.AmHost) return false;
 
-        if ((GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+        if (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Discussion)
         {
             WarnHost();
             Report(player, "Bad Sabotage D : In Meeting");
