@@ -859,6 +859,7 @@ public static class Options
                 if (x.IsImpostor() || x.IsMadmate()) return 0;
                 if (x.IsNeutral()) return 1;
                 if (x.IsCrewmate()) return 2;
+                if (x.IsCoven()) return 5;
                 return 4;
             }).ToDictionary(x => x.Key, x => x.ToArray());
 
@@ -874,11 +875,16 @@ public static class Options
                 var nr = grouped[1].ElementAtOrDefault(i);
                 var neu = Translator.GetString(nr.ToString());
                 if (nr == default) neu = string.Empty;
+                var cor = grouped[5].ElementAtOrDefault(i);
+                var coven = Translator.GetString(cor.ToString());
+                if (cor == default) coven = string.Empty;
                 var a = grouped[3].ElementAtOrDefault(i);
                 var add = Translator.GetString(a.ToString());
                 if (a == default) add = string.Empty;
-                sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {add,17} |");
+                sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {coven,17} | {add,17} |");
             }
+
+            sb.Append($"| {grouped[2].Length} | {grouped[0].Length} | {grouped[1].Length} | {grouped[5].Length} | {grouped[3].Length} |");
 
             const string path = "./roles.txt";
             if (!File.Exists(path)) File.Create(path).Close();
