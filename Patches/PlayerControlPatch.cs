@@ -906,11 +906,8 @@ internal static class ReportDeadBodyPatch
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
     {
         if (GameStates.IsMeeting) return false;
-
         if (Options.DisableMeeting.GetBool()) return false;
-
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
-
         if (Options.DisableReportWhenCC.GetBool() && Camouflage.IsCamouflage) return false;
 
         if (!CanReport[__instance.PlayerId])
@@ -922,7 +919,8 @@ internal static class ReportDeadBodyPatch
 
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole() ?? "null"}", "ReportDeadBody");
 
-        foreach (KeyValuePair<byte, PlayerState> kvp in Main.PlayerStates) kvp.Value.LastRoom = GetPlayerById(kvp.Key).GetPlainShipRoom();
+        foreach (KeyValuePair<byte, PlayerState> kvp in Main.PlayerStates)
+            kvp.Value.LastRoom = GetPlayerById(kvp.Key).GetPlainShipRoom();
 
         if (!AmongUsClient.Instance.AmHost) return true;
 
@@ -938,16 +936,12 @@ internal static class ReportDeadBodyPatch
             PlayerControl killer = target?.Object?.GetRealKiller();
             CustomRoles? killerRole = killer?.GetCustomRole();
 
-            if (Camouflage.IsCamouflage && Options.DisableReportWhenCC.GetBool()) return false;
-
             if (Main.PlayerStates.Values.Any(x => x.Role is Tremor { IsDoom: true })) return false;
 
             if (target == null)
             {
                 if (__instance.Is(CustomRoles.Jester) && !Jester.JesterCanUseButton.GetBool()) return false;
-
                 if (__instance.Is(CustomRoles.NiceSwapper) && !NiceSwapper.CanStartMeeting.GetBool()) return false;
-
                 if (__instance.Is(CustomRoles.Adrenaline) && !Adrenaline.CanCallMeeting(__instance)) return false;
 
                 if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId))
@@ -985,7 +979,7 @@ internal static class ReportDeadBodyPatch
                     || Cleaner.CleanerBodies.Contains(target.PlayerId))
                     return false;
 
-                PlayerControl tpc = GetPlayerById(target.PlayerId);
+                PlayerControl tpc = target.Object;
 
                 if (__instance.Is(CustomRoles.Oblivious))
                 {
@@ -993,11 +987,9 @@ internal static class ReportDeadBodyPatch
                         return false;
                 }
 
-                if (__instance.Is(CustomRoles.Unlucky) && (target.Object == null || !target.Object.Is(CustomRoles.Bait)))
+                if (__instance.Is(CustomRoles.Unlucky) && (tpc == null || !tpc.Is(CustomRoles.Bait)))
                 {
-                    var Ue = IRandom.Instance;
-
-                    if (Ue.Next(0, 100) < Options.UnluckyReportSuicideChance.GetInt())
+                    if (IRandom.Instance.Next(0, 100) < Options.UnluckyReportSuicideChance.GetInt())
                     {
                         __instance.Suicide();
                         return false;
@@ -1018,7 +1010,8 @@ internal static class ReportDeadBodyPatch
                 }
 
                 Options.UsedButtonCount++;
-                if (Math.Abs(Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) < 0.5f) Logger.Info("This was the last allowed emergency meeting", "ReportDeadBody");
+                if (Math.Abs(Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) < 0.5f)
+                    Logger.Info("This was the last allowed emergency meeting", "ReportDeadBody");
             }
 
             AfterReportTasks(__instance, target);

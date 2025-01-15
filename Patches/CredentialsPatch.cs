@@ -377,6 +377,9 @@ internal static class ModManagerLateUpdatePatch
         CheckMurderPatch.Update();
         ChatBubbleShower.Update();
 
+        if (LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > 150)
+            LobbySharingAPI.NotifyLobbyStatusChanged(PlayerControl.LocalPlayer == null ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
+
         return false;
     }
 
@@ -394,9 +397,6 @@ internal static class ModManagerLateUpdatePatch
                 __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
                 new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
         }
-
-        if (LobbySharingAPI.LastRoomCode != string.Empty && Options.IsLoaded && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > 150)
-            LobbySharingAPI.NotifyLobbyStatusChanged(PlayerControl.LocalPlayer == null ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
     }
 }
 

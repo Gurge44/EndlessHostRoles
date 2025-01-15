@@ -3375,13 +3375,13 @@ public static class Utils
                 name = "MEU";
             else if (Ip.Contains("au-as"))
                 name = "MAS";
-            else if (Ip.Contains("www.")) name = "MNA";
+            else if (Ip.Contains("www."))
+                name = "MNA";
 
             return name;
         }
 
-        if (name.Contains("nikocat233", StringComparison.OrdinalIgnoreCase)) name = name.Replace("nikocat233", "Niko233", StringComparison.OrdinalIgnoreCase);
-
+        name = name.Replace("nikocat233", "Niko", StringComparison.OrdinalIgnoreCase);
         return name;
     }
 

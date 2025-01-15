@@ -26,12 +26,12 @@ public class Enchanter : Coven
     public override void Init()
     {
         On = false;
+        EnchantedPlayers = [];
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        EnchantedPlayers = [];
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 

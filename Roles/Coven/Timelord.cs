@@ -35,11 +35,17 @@ public class Timelord : Coven
         return pc.IsAlive();
     }
 
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (target.Is(Team.Coven)) target.SetKillCooldown(0.01f);
         else target.SetKillCooldown();
 
+        if (!HasNecronomicon) killer.SetKillCooldown(KillCooldown.GetFloat());
         return HasNecronomicon;
     }
 
