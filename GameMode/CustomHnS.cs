@@ -97,7 +97,7 @@ internal static class CustomHnS
                 .Do(x => x.pc.SetKillCooldown());
 
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
-        }, Seeker.BlindTime.GetFloat() + 8f, "Blind Time Expire");
+        }, Seeker.BlindTime.GetFloat() + 14f, "Blind Time Expire");
     }
 
     public static List<CustomRoles> GetAllHnsRoles(IEnumerable<Type> types)
@@ -160,7 +160,7 @@ internal static class CustomHnS
             }
         }
 
-        Dictionary<Team, PlayerControl[]> playerTeams = Enum.GetValues<Team>()[1..]
+        Dictionary<Team, PlayerControl[]> playerTeams = Enum.GetValues<Team>()[1..4]
             .SelectMany(x => Enumerable.Repeat(x, Math.Max(memberNum[x], 0)))
             .Shuffle()
             .Zip(allPlayers)
