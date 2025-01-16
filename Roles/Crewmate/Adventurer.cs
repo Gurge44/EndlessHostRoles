@@ -165,6 +165,7 @@ internal class Adventurer : RoleBase
 
                 if (pc.IsLocalPlayer())
                     Achievements.Type.HowDoICraftThisAgain.Complete();
+
                 break;
             }
         }
@@ -212,12 +213,12 @@ internal class Adventurer : RoleBase
                     case Weapon.Wrench:
                         if (Utils.IsActive(SystemTypes.Electrical))
                         {
-                            var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.TryCast<SwitchSystem>();
+                            var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.TryCast<SwitchSystem>();
 
-                            if (SwitchSystem != null)
+                            if (switchSystem != null)
                             {
-                                SwitchSystem.ActualSwitches = 0;
-                                SwitchSystem.ExpectedSwitches = 0;
+                                switchSystem.ActualSwitches = 0;
+                                switchSystem.ExpectedSwitches = 0;
                             }
                         }
                         else if (Utils.IsActive(SystemTypes.Reactor))
