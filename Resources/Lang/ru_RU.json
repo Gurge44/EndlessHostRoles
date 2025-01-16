@@ -2811,6 +2811,7 @@
   "JudgeCanTrialContagious": "Может судить <color=#2E8B57>Инфицированных</color> игроков",
   "PostLobbyCodeToEHRDiscordServer": "Отправить код комнаты на Веб-сайт EHR",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>Код этого лобби был отправлен в Discord-сервер EHR.</color></size>\\n<size=70%>Вы можете отключить эту функцию в настройках (Вкладка Система).</size>",
+  "Message.LobbyCodeSendError": "<size=90%><#ff0000>X</color> <#ff5555>Failed to send the lobby code to the EHR website.</color></size>\\n<size=70%>{0}</size>",
   "ActiveRolesList": "Список Активных Ролей",
   "ForExample": "Например",
   "HideGameCodes": "Скрыть Игровой Код",
