@@ -2811,6 +2811,7 @@
   "JudgeCanTrialContagious": "Pode Julgar <color=#2E8B57>Contagiados</color>",
   "PostLobbyCodeToEHRDiscordServer": "Publique o código da sala no servidor EHR do Discord",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>O código da sala foi enviado para o servidor Discord da EHR.</color></size>\\n<size=70%>Você pode desativar esse recurso nas configurações (aba Configurações do Sistema).</size>",
+  "Message.LobbyCodeSendError": "<size=90%><#ff0000>X</color> <#ff5555>Failed to send the lobby code to the EHR website.</color></size>\\n<size=70%>{0}</size>",
   "ActiveRolesList": "Lista de função ativa",
   "ForExample": "Exemplo",
   "HideGameCodes": "Esconder código do jogo",
