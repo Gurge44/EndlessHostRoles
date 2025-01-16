@@ -68,6 +68,7 @@ public static class LobbySharingAPI
 
             Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, Translator.GetString("Message.LobbyCodeSent"));
         }
+        else Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, string.Format(Translator.GetString("Message.LobbyCodeSendError"), request.error));
     }
 
     public static void NotifyLobbyStatusChanged(LobbyStatus status)
