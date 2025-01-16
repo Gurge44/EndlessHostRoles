@@ -1,4 +1,5 @@
 ﻿using EHR.Modules;
+using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Crewmate;
@@ -25,7 +26,8 @@ internal class Demolitionist : RoleBase
 
     public static void OnDeath(PlayerControl killer, PlayerControl target)
     {
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Demolitionist), Translator.GetString("OnDemolitionistDead")));
+        var warningMark = Utils.ColorString(Color.yellow, "\u26a0");
+        killer.Notify($"{warningMark} {Utils.ColorString(Utils.GetRoleColor(CustomRoles.Demolitionist), Translator.GetString("OnDemolitionistDead"))} {warningMark}");
         killer.KillFlash();
 
         LateTask.New(() =>
@@ -40,11 +42,7 @@ internal class Demolitionist : RoleBase
             }
             else
             {
-                if (killer.IsModClient())
-                    RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
-                else
-                    killer.RpcGuardAndKill(killer);
-
+                RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
                 killer.SetKillCooldown(Main.AllPlayerKillCooldown[killer.PlayerId] - (DemolitionistVentTime.GetFloat() + 0.5f));
             }
         }, DemolitionistVentTime.GetFloat() + 0.5f, "DemolitionistCheck");

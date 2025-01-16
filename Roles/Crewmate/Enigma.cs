@@ -414,12 +414,17 @@ public class Enigma : RoleBase
         public override string GetMessage(PlayerControl killer, bool showStageClue)
         {
             CustomRoles role = killer.GetCustomRole();
+            
+            string str = "EnigmaClueRole3";
+            if (role.IsImpostor()) str = "EnigmaClueRole1";
+            if (role.IsNeutral()) str = "EnigmaClueRole2";
+            if (role.IsCoven()) str = "EnigmaClueRole4";
 
             return ClueStage switch
             {
-                1 => role.IsImpostor() ? GetString("EnigmaClueRole1") : GetString(role.IsNeutral() ? "EnigmaClueRole2" : "EnigmaClueRole3"),
-                2 when showStageClue => string.Format(GetString("EnigmaClueRole4"), killer.GetDisplayRoleName()),
-                2 => role.IsImpostor() ? GetString("EnigmaClueRole1") : GetString(role.IsNeutral() ? "EnigmaClueRole2" : "EnigmaClueRole3"),
+                1 => GetString(str),
+                2 when showStageClue => string.Format(GetString("EnigmaClueRole5"), killer.GetDisplayRoleName()),
+                2 => GetString(str),
                 _ => null
             };
         }
