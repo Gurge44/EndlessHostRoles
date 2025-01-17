@@ -1,4 +1,5 @@
-﻿using EHR.Patches;
+﻿using EHR.Crewmate;
+using EHR.Patches;
 
 namespace EHR.Neutral;
 
@@ -15,8 +16,8 @@ internal class Cherokious : RoleBase
         Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Cherokious);
 
         KillCooldown = new IntegerOptionItem(id + 2, "KillCooldown", new(0, 60, 1), 15, TabGroup.NeutralRoles)
-                       .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Cherokious])
-                       .SetValueFormat(OptionFormat.Seconds);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Cherokious])
+            .SetValueFormat(OptionFormat.Seconds);
 
         Options.OverrideTasksData.Create(id + 3, TabGroup.NeutralRoles, CustomRoles.Cherokious);
     }
@@ -42,6 +43,7 @@ internal class Cherokious : RoleBase
         if (pc.GetAbilityUseLimit() < 1) return;
 
         PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
+        if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(pc, target)) return;
         if (target != null && pc.RpcCheckAndMurder(target)) pc.RpcRemoveAbilityUse();
     }
 

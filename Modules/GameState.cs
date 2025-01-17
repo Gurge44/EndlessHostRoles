@@ -541,20 +541,15 @@ public static class GameStates
         {
             if (IsLocalGame && !IsNotJoined) return ServerType.Vanilla;
 
-            const string domain = "among.us";
-
-            // From Reactor.gg
-            if (ServerManager.Instance.CurrentRegion?.TryCast<StaticHttpRegionInfo>() is { } regionInfo &&
-                regionInfo.PingServer.EndsWith(domain, StringComparison.Ordinal) &&
-                regionInfo.Servers.All(serverInfo => serverInfo.Ip.EndsWith(domain, StringComparison.Ordinal)))
-                return ServerType.Vanilla;
-
             string regionName = Utils.GetRegionName();
 
-            if (regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase)) return ServerType.Niko;
-            if (regionName.StartsWith('M') && regionName.Length == 3) return ServerType.Modded;
-
-            return ServerType.Custom;
+            return regionName switch
+            {
+                "Local Game" => ServerType.Custom,
+                "EU" or "NA" or "AS" => ServerType.Vanilla,
+                "MEU" or "MNA" or "MAS" => ServerType.Modded,
+                _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
+            };
         }
     }
 

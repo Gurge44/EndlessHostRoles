@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Neutral;
 using HarmonyLib;
@@ -152,12 +153,16 @@ internal static class ExternalRpcPetPatch
             if (!CustomGameMode.Speedrun.IsActiveOrIntegrated())
                 pc.AddKCDAsAbilityCD();
 
+            if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(pc, target)) goto Skip;
+
             if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
                 pc.RpcCheckAndMurder(target);
 
             if (alwaysPetRole) pc.SetKillCooldown();
         }
         else Main.PlayerStates[pc.PlayerId].Role.OnPet(pc);
+
+        Skip:
 
         if (pc.HasAbilityCD() || Main.PlayerStates[pc.PlayerId].Role is Sniper { IsAim: true }) return;
 

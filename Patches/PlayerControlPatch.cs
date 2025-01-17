@@ -392,6 +392,12 @@ internal static class CheckMurderPatch
             return false;
         }
 
+        if (killer.Is(Team.Coven) && target.Is(Team.Coven))
+        {
+            Notify("CovenKillEachOther");
+            return false;
+        }
+
         if ((Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected) ||
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
