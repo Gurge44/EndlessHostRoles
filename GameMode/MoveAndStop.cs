@@ -414,7 +414,6 @@ internal static class MoveAndStop
             if (!GameStates.IsInTask || !CustomGameMode.MoveAndStop.IsActiveOrIntegrated() || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || __instance.PlayerId == 255) return;
 
             PlayerControl pc = __instance;
-
             long now = Utils.TimeStamp;
 
             if (!HasJustStarted && pc.IsLocalPlayer() && !IsEventActive && (now - Event.StartTimeStamp - Event.Duration) >= EventFrequency.GetInt())

@@ -11,6 +11,7 @@ public class SpellCaster : Coven
 
     private static OptionItem AbilityCooldown;
     private static Dictionary<byte, bool> HexedPlayers = [];
+    private static HashSet<byte> VisibleHexes = [];
     private static HashSet<byte> PlayerIdList = [];
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
@@ -27,13 +28,19 @@ public class SpellCaster : Coven
     {
         On = false;
         PlayerIdList = [];
+        HexedPlayers = [];
+        VisibleHexes = [];
     }
 
     public override void Add(byte playerId)
     {
         On = true;
         PlayerIdList.Add(playerId);
-        HexedPlayers = [];
+    }
+
+    public override void Remove(byte playerId)
+    {
+        PlayerIdList.Remove(playerId);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -50,6 +57,7 @@ public class SpellCaster : Coven
 
     protected override void OnReceiveNecronomicon()
     {
+        VisibleHexes = HexedPlayers.Keys.Concat(PlayerIdList).ToHashSet();
         HexedPlayers.SetAllValues(true);
     }
 

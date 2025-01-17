@@ -220,6 +220,11 @@ public class President : RoleBase
         Used = false;
     }
 
+    public override void OnReportDeadBody()
+    {
+        AfterMeetingTasks();
+    }
+
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
         if (base.KnowRole(seer, target)) return true;

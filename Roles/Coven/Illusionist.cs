@@ -12,8 +12,8 @@ public class Illusionist : Coven
     private static OptionItem AbilityCooldown;
     private static OptionItem ShapeshiftAnimation;
     private static OptionItem UnmorphPrevious;
-    private HashSet<byte> ForceMorhpedPlayers = [];
 
+    private HashSet<byte> ForceMorhpedPlayers = [];
     public byte SampledPlayerId;
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
