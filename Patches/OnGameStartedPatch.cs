@@ -769,27 +769,27 @@ internal static class StartGameHostPatch
 
             EndOfSelectRolePatch:
 
-            switch (Options.CurrentGameMode)
+            Enum.GetValues<CustomGameMode>().DoIf(x => x.IsActiveOrIntegrated(), x =>
             {
-                case CustomGameMode.AllInOne:
-                case CustomGameMode.HotPotato:
-                    HotPotato.OnGameStart();
-                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
-                    break;
-                case CustomGameMode.HideAndSeek:
-                    CustomHnS.StartSeekerBlindTime();
-                    break;
-                case CustomGameMode.CaptureTheFlag:
-                    CaptureTheFlag.OnGameStart();
-                    break;
-                case CustomGameMode.NaturalDisasters:
-                    NaturalDisasters.OnGameStart();
-                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.RoomRush;
-                    break;
-                case CustomGameMode.RoomRush:
-                    RoomRush.OnGameStart();
-                    break;
-            }
+                switch (x)
+                {
+                    case CustomGameMode.HotPotato:
+                        HotPotato.OnGameStart();
+                        break;
+                    case CustomGameMode.HideAndSeek:
+                        CustomHnS.StartSeekerBlindTime();
+                        break;
+                    case CustomGameMode.CaptureTheFlag:
+                        CaptureTheFlag.OnGameStart();
+                        break;
+                    case CustomGameMode.NaturalDisasters:
+                        NaturalDisasters.OnGameStart();
+                        break;
+                    case CustomGameMode.RoomRush:
+                        RoomRush.OnGameStart();
+                        break;
+                }
+            });
 
             HudManager.Instance.SetHudActive(true);
 

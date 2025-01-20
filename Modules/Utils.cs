@@ -3189,6 +3189,10 @@ public static class Utils
             else if (covenShow && pc.Is(Team.Coven)) covenNum++;
         }
 
+        impShow &= impnum > 0;
+        nkShow &= neutralnum > 0;
+        covenShow &= covenNum > 0;
+
         StringBuilder sb = new();
 
         sb.Append(notify ? "<#777777>" : string.Empty);

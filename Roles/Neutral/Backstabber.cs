@@ -88,6 +88,7 @@ public class Backstabber : RoleBase
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
+        if (base.KnowRole(seer, target)) return true;
         return target.Is(CustomRoles.Backstabber) && RevealAfterKilling.GetBool() && target.GetAbilityUseLimit() == 0f;
     }
 

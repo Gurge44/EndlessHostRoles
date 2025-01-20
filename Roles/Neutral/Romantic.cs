@@ -234,14 +234,14 @@ public class Romantic : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || hud) return string.Empty;
 
         if (seer.PlayerId == PartnerId && HasPickedPartner) return TargetArrow.GetArrows(seer, RomanticId);
 
         if (seer.PlayerId != RomanticId || !seer.Is(CustomRoles.Romantic)) return string.Empty;
 
         Color color = !HasPickedPartner ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic);
-        string text = !HasPickedPartner ? "PICK PARTNER" : "♥";
+        string text = !HasPickedPartner ? GetString("Romantic.PickPartnerText") : "♥";
         if (Arrows.GetBool()) text += TargetArrow.GetArrows(seer, PartnerId);
 
         return Utils.ColorString(color, text);
@@ -295,11 +295,12 @@ public class Romantic : RoleBase
             Logger.Info($"Impostor Romantic Partner Died => Changing {RomanticPC.GetNameWithRole()} to Refugee", "Romantic");
             RomanticPC.RpcSetCustomRole(CustomRoles.Refugee);
         }
-        else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.GetDYRole() == RoleTypes.Impostor) // If the Partner has a kill button (NK or CK), Romantic becomes the role they were
+        else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.GetDYRole() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) // If the Partner has a kill button (NK or CK), Romantic becomes the role they were
         {
             try
             {
                 RomanticPC.RpcSetCustomRole(partnerRole);
+                RomanticPC.RpcChangeRoleBasis(partnerRole);
                 Main.PlayerStates[RomanticId].RemoveSubRole(CustomRoles.NotAssigned);
                 Logger.Info($"Romantic Partner With Kill Button Died => Changing {RomanticPC.GetNameWithRole()} to {Partner.GetAllRoleName().RemoveHtmlTags()}", "Romantic");
             }

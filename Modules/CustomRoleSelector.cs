@@ -175,6 +175,7 @@ internal static class CustomRoleSelector
 
         Logger.Info($"Number of Impostors: {optImpNum}", "FactionLimits");
         Logger.Info($"Number of Neutrals: {neutralLimits.MinSetting.GetInt()} - {neutralLimits.MaxSetting.GetInt()} => {numNeutrals}", "FactionLimits");
+        Logger.Info($"Number of Coven members: {covenLimits.MinSetting.GetInt()} - {covenLimits.MaxSetting.GetInt()} => {numCovens}", "FactionLimits");
 
         Logger.Msg("=====================================================", "AllActiveRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "ImpRoles");
@@ -893,6 +894,7 @@ internal static class CustomRoleSelector
             switch (role)
             {
                 case CustomRoles.Autopsy when Options.EveryoneSeesDeathReasons.GetBool():
+                case CustomRoles.Gravestone when Options.EveryoneSeesDeadPlayersRoles.GetBool():
                 case CustomRoles.Mare or CustomRoles.Glow or CustomRoles.Sleep when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
                 case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead or CustomRoles.Insane:
