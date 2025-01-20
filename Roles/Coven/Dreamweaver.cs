@@ -82,6 +82,7 @@ public class Dreamweaver : Coven
 
         if (type.GetMethod("OnCheckMurder")?.DeclaringType == type)
         {
+            Logger.Info($"Explicit OnCheckMurder triggered for {pc.GetNameWithRole()}", "Dreamweaver");
             roleBase.OnCheckMurder(pc, nearestPlayer);
             pc.SetKillCooldown();
         }

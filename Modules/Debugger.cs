@@ -197,6 +197,8 @@ public class CustomLogger
 
         if (message.Contains("<b>")) message += "</b>";
         if (message.Contains("<u>")) message += "</u>";
+        if (message.Contains("<i>")) message += "</i>";
+        if (message.Contains("<s>")) message += "</s>";
 
         string logEntry = $"""
                            <div class='log-entry {level.ToLower()}'>

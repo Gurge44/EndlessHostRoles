@@ -46,6 +46,11 @@ public class PotionMaster : Coven
         Instances.Add(this);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();

@@ -1746,10 +1746,12 @@ public static class Utils
 
         text = text.RemoveHtmlTagsTemplate();
 
-        if (sendTo == byte.MaxValue)
-            Main.MessagesToSend.Add((text, sendTo, title));
+        if (sendTo == byte.MaxValue) Main.MessagesToSend.Add((text, sendTo, title));
         else
+        {
             ChatUpdatePatch.SendMessage(Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer, text, sendTo, title);
+            ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+        }
     }
 
     public static void ApplySuffix(PlayerControl player)

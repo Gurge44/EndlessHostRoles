@@ -49,6 +49,7 @@ public class VoodooMaster : Coven
             if (type.GetMethod("OnCheckMurder")?.DeclaringType == type) roleBase.OnCheckMurder(target, target);
             else if (type.GetMethod("OnPet")?.DeclaringType == type) roleBase.OnPet(target);
 
+            Logger.Info($"Explicit OnCheckMurder triggered for {target.GetNameWithRole()}", "VoodooMaster");
             if (!HasNecronomicon) killer.SetKillCooldown(AbilityCooldown.GetFloat());
             killer.RpcRemoveAbilityUse();
         }

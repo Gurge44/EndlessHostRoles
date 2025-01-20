@@ -2748,6 +2748,12 @@ internal static class ChatUpdatePatch
     }
 }
 
+[HarmonyPatch(typeof(FreeChatInputField), nameof(FreeChatInputField.Awake))]
+static class FreeChatFieldAwakePatch
+{
+    public static void Postfix(FreeChatInputField __instance) => UpdateCharCountPatch.Postfix(__instance);
+}
+
 [HarmonyPatch(typeof(FreeChatInputField), nameof(FreeChatInputField.UpdateCharCount))]
 internal static class UpdateCharCountPatch
 {

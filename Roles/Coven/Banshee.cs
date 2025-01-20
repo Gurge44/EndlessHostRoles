@@ -43,6 +43,11 @@ public class Banshee : Coven
         Instances.Add(this);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override bool OnVanish(PlayerControl pc)
     {
         var radius = Radius.GetFloat();
