@@ -5514,7 +5514,7 @@
   "DoYourTasksPlease": "请完成你的任务！",
   "OnlyShowPart": "仅显示部分",
   "YouReceivedTheNecronomicon": "You have received the <{0}>Necronomicon</color>! This grants you the ability to kill normally, and other abilities based on your role.",
-  "PlayerReceivedTheNecronomicon": "<b>{0}</b> has received the <{1}>Necronomicon</color>!\\n<size=70%>Now, {2} Coven members have the Necronomicon.</size>",
+  "PlayerReceivedTheNecronomicon": "<b>{0}</b> has received the <{1}>Necronomicon</color>!\\n<size=70%>Now, {2} Coven members have the Necronomicon: {3}</size>",
   "CovenLeader": "巫师首领",
   "CovenLeaderInfo": "我们似乎需要一个领导人",
   "CovenLeaderInfoLong": "(巫师阵营):\\n如果启用了巫师阵营，你将始终生成。你是唯一可以直接击杀的巫师阵营成员。你优先获得亡灵魔法。当你的力量被亡灵魔法增强时，你的击杀冷却时间减半，并且你获得了很长的击杀距离。",
