@@ -5502,6 +5502,8 @@
   "DoomsayerGuessSameRoleAgainMsg": "你試著猜測與之前一樣的職業/附加職業",
   "DoYourTasksPlease": "請完成你的任務!",
   "OnlyShowPart": "僅顯示部分",
+  "YouReceivedTheNecronomicon": "You have received the <{0}>Necronomicon</color>! This grants you the ability to kill normally, and other abilities based on your role.",
+  "PlayerReceivedTheNecronomicon": "<b>{0}</b> has received the <{1}>Necronomicon</color>!",
   "CovenLeader": "Coven Leader",
   "CovenLeaderInfo": "Lead the Coven & Kill",
   "CovenLeaderInfoLong": "(Coven):\\nYou will always spawn if the Coven is enabled. You are the only Coven member who can directly kill. You gain the Necronomicon first. When your powers are enhanced by the Necronomicon, your kill cooldown is halved, and you gain a long kill distance.",
