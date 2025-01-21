@@ -52,7 +52,7 @@ public class Poache : Coven
             PoachedPlayers.Add(target.PlayerId);
             Utils.SendRPC(CustomRPC.SyncRoleData, PoacheId, 1, target.PlayerId);
         }
-        else KillDelays.Add((killer.PlayerId, Utils.TimeStamp + KillDelay.GetInt()));
+        else KillDelays.Add((target.PlayerId, Utils.TimeStamp + KillDelay.GetInt()));
 
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
         return false;

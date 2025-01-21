@@ -32,7 +32,7 @@ public abstract class Coven : RoleBase
         LateTask.New(() =>
         {
             Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor));
-            Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Do(x => Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor)));
+            Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Without(receiver.Key).Do(x => Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor, Main.PlayerStates.Values.Count(s => s.Role is Coven { HasNecronomicon: true }))));
         }, 12f, log: false);
     }
 
