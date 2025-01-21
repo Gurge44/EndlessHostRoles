@@ -5514,7 +5514,7 @@
   "DoYourTasksPlease": "Faça as suas tarefas!",
   "OnlyShowPart": "Mostrar apenas parte",
   "YouReceivedTheNecronomicon": "You have received the <{0}>Necronomicon</color>! This grants you the ability to kill normally, and other abilities based on your role.",
-  "PlayerReceivedTheNecronomicon": "<b>{0}</b> has received the <{1}>Necronomicon</color>!\\n<size=70%>Now, {2} Coven members have the Necronomicon.</size>",
+  "PlayerReceivedTheNecronomicon": "<b>{0}</b> has received the <{1}>Necronomicon</color>!\\n<size=70%>Now, {2} Coven members have the Necronomicon: {3}</size>",
   "CovenLeader": "Líder do Conventículo",
   "CovenLeaderInfo": "Lidere o Conventículo e Mate",
   "CovenLeaderInfoLong": "(Conventículo):\\nVocê sempre irá aparecer caso o Conventículo estiver habilitado. Você é o único Membro do Conventículo que pode matar diretamente. Você recebe o Necronomicone primeiro. Quando seus poderes são aprimorados pelo Necronomicone, sua recarga de abate é reduzida pela metade, e você ganha uma longa distância de abate.",
