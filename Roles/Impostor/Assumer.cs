@@ -13,8 +13,8 @@ public class Assumer : RoleBase
     private static OptionItem CanKill;
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
-    private byte AssumerId;
 
+    private byte AssumerId;
     private (byte Id, int VoteNum) Assumption;
     private bool HasAssumed => Assumption.Id != byte.MaxValue;
     public override bool IsEnable => On;
@@ -75,6 +75,8 @@ public class Assumer : RoleBase
                     if (pva.VotedFor == instance.Assumption.Id || (VoteReceiverDies.GetBool() && pva.TargetPlayerId == instance.Assumption.Id))
                         CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Assumed, pva.TargetPlayerId);
             }
+
+            instance.Assumption = (byte.MaxValue, 0);
         }
     }
 

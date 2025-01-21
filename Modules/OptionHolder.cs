@@ -694,6 +694,7 @@ public static class Options
     public static OptionItem UsePets;
     public static OptionItem PetToAssignToEveryone;
     public static OptionItem AnonymousBodies;
+    public static OptionItem EveryoneSeesDeadPlayersRoles;
     public static OptionItem UseUnshiftTrigger;
     public static OptionItem UseUnshiftTriggerForNKs;
     public static OptionItem UsePhantomBasis;
@@ -1976,6 +1977,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(0, 165, 255, byte.MaxValue));
+
+        EveryoneSeesDeadPlayersRoles = new BooleanOptionItem(23861, "EveryoneSeesDeadPlayersRoles", false, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(new Color32(0, 255, 165, byte.MaxValue));
 
         UseUnshiftTrigger = new BooleanOptionItem(23871, "UseUnshiftTrigger", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)

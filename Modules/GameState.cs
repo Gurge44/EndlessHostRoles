@@ -393,7 +393,7 @@ public class TaskState
 
     public void Update(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
         GameData.Instance.RecomputeTaskCounts();
         Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
@@ -447,9 +447,7 @@ public class TaskState
             List<CustomRoles> addons = Main.PlayerStates[player.PlayerId].SubRoles;
 
             if (addons.Contains(CustomRoles.Deadlined)) Deadlined.SetDone(player);
-
             if (addons.Contains(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
-
             if (addons.Contains(CustomRoles.Unlucky) && alive && IRandom.Instance.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt()) player.Suicide();
 
             if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
