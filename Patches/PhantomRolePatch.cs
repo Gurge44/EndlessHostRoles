@@ -61,7 +61,7 @@ public static class PhantomRolePatch
         PlayerControl phantom = __instance;
         Logger.Info($"Player: {phantom.GetNameWithRole()}", "CheckVanish");
 
-        if (!Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || !Main.PlayerStates[__instance.PlayerId].Role.OnVanish(__instance))
+        if (!Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !Main.PlayerStates[__instance.PlayerId].Role.OnVanish(__instance))
         {
             if (phantom.AmOwner)
             {

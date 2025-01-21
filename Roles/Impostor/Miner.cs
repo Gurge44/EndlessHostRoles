@@ -6,12 +6,14 @@ internal class Miner : RoleBase
 {
     public static bool On;
     public override bool IsEnable => On;
+    
+    public static OptionItem MinerSSCD;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(3800, TabGroup.ImpostorRoles, CustomRoles.Miner);
 
-        Options.MinerSSCD = new FloatOptionItem(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)
+        MinerSSCD = new FloatOptionItem(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Miner])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -29,12 +31,12 @@ internal class Miner : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (Options.UsePhantomBasis.GetBool())
-            AURoleOptions.PhantomCooldown = Options.MinerSSCD.GetFloat();
+            AURoleOptions.PhantomCooldown = MinerSSCD.GetFloat();
         else
         {
             if (Options.UsePets.GetBool()) return;
 
-            AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
+            AURoleOptions.ShapeshifterCooldown = MinerSSCD.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
     }

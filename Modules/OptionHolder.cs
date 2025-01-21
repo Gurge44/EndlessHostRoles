@@ -280,9 +280,6 @@ public static class Options
     public static OptionItem MarioVentCD;
     public static OptionItem VeteranSkillCooldown;
     public static OptionItem VeteranSkillDuration;
-    public static OptionItem TimeMasterSkillCooldown;
-    public static OptionItem TimeMasterSkillDuration;
-    public static OptionItem TimeMasterMaxUses;
     public static OptionItem VeteranSkillMaxOfUseage;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem BodyguardKillsKiller;
@@ -341,13 +338,6 @@ public static class Options
     public static OptionItem SecurityGuardSkillCooldown;
     public static OptionItem SecurityGuardSkillDuration;
     public static OptionItem SecurityGuardSkillMaxOfUseage;
-    public static OptionItem EscapeeSSCD;
-    public static OptionItem MinerSSCD;
-    public static OptionItem RevolutionistDrawTime;
-    public static OptionItem RevolutionistCooldown;
-    public static OptionItem RevolutionistDrawCount;
-    public static OptionItem RevolutionistKillProbability;
-    public static OptionItem RevolutionistVentCountDown;
     public static OptionItem ShapeImperiusCurseShapeshiftDuration;
     public static OptionItem ImperiusCurseShapeshiftCooldown;
     public static OptionItem CrewpostorCanKillAllies;
@@ -2730,7 +2720,6 @@ public static class Options
     // ReSharper disable NotAccessedField.Global
 
     // Ability Use Gain With Each Task Completed
-    public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
     public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
@@ -2742,7 +2731,6 @@ public static class Options
     public static OptionItem LighterAbilityChargesWhenFinishedTasks;
     public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;
     public static OptionItem DovesOfNeaceAbilityChargesWhenFinishedTasks;
-    public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
     public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
 
     // ReSharper restore NotAccessedField.Global

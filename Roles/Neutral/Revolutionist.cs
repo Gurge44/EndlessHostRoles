@@ -18,6 +18,12 @@ internal class Revolutionist : RoleBase
     public static bool On;
     public override bool IsEnable => On;
 
+    public static OptionItem RevolutionistDrawTime;
+    public static OptionItem RevolutionistCooldown;
+    public static OptionItem RevolutionistDrawCount;
+    public static OptionItem RevolutionistKillProbability;
+    public static OptionItem RevolutionistVentCountDown;
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(18400, TabGroup.NeutralRoles, CustomRoles.Revolutionist);
