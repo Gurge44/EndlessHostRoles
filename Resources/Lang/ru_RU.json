@@ -5502,6 +5502,8 @@
   "DoomsayerGuessSameRoleAgainMsg": "Вы попытались угадать роль или атрибут, который был вами угадан ранее",
   "DoYourTasksPlease": "Пожалуйста, делайте свои таски!",
   "OnlyShowPart": "Показывать только часть",
+  "YouReceivedTheNecronomicon": "You have received the <{0}>Necronomicon</color>! This grants you the ability to kill normally, and other abilities based on your role.",
+  "PlayerReceivedTheNecronomicon": "<b>{0}</b> has received the <{1}>Necronomicon</color>!",
   "CovenLeader": "Лидер Ковенов",
   "CovenLeaderInfo": "Ведите за собой команду и убивайте",
   "CovenLeaderInfoLong": "(Ковен):\\nЕсли Ковены включены, то Лидер Ковенов будет появляться всегда. Вы - единственный Ковен, который может просто убивать напрямую. Сначала вы получаете Некрономикон. Когда ваши способности усилены Некрономиконом, ваш откат убийства снижен вдвое, а также ваша дистанция убийства максимальна.",
