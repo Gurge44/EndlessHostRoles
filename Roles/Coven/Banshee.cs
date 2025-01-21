@@ -64,6 +64,7 @@ public class Banshee : Coven
             w.WritePacked(1);
             w.WritePacked(ScreechedPlayers.Count);
             ScreechedPlayers.Do(x => w.Write(x));
+            Utils.EndRPC(w);
 
             Utils.NotifyRoles(SpecifySeer: pc);
         }

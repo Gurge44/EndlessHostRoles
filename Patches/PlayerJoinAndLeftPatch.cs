@@ -76,7 +76,7 @@ internal static class OnGameJoinedPatch
             {
                 JoiningGame = false;
 
-                if (GameStates.IsOnlineGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                if (GameStates.IsOnlineGame && GameStates.CurrentServerType != GameStates.ServerType.Custom)
                 {
                     try
                     {
