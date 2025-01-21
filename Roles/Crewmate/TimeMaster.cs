@@ -56,6 +56,7 @@ internal class TimeMaster : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        BackTrack = [];
         playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetInt());
     }
 
