@@ -5201,7 +5201,7 @@
   "Lyncher.GuessMode": "Может гадать",
   "Lyncher.Suffix": "<size=70%><#00ffa5>Выполните</color> <b>{0}</b> <#00ffa5>тасков для следующей буквы</color></size>",
   "ParityCopTryHideMsg": "Спрятать команды <color=#0D57AF>Инспектора</color>",
-  "MaxParityCheckLimit": "Макс. сравнений",
+  "MaxParityCheckLimit": "Изначальное кол-во использования способности",
   "ParityCheckLimitPerMeeting": "Макс. сравнений за собрание",
   "ParityCheckEgoistickCountMode": "<color=#5600ff>Эгоист</color> считается как",
   "ParityCheckTargetKnow": "Цели знают о сравнении <color=#0D57AF>Инспектором</color>",
