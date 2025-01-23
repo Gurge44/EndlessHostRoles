@@ -189,6 +189,7 @@ internal static class ChatCommands
             new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true, false),
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
             new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
+            new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -355,6 +356,15 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void GameModeListCommand(PlayerControl player, string text, string[] args)
+    {
+        var info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..].SkipLast(1)
+            .Select(x => (GameMode: x, Color: Main.RoleColors.GetValueOrDefault(CustomRoleSelector.GameModeRoles.TryGetValue(x, out var role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
+            .Select(x => $"<{x.Color}><u><b>{GetString($"{x.GameMode}")}</b><u></color><size=70%>\n{GetString(CustomRoleSelector.GameModeRoles.TryGetValue(x.GameMode, out var role) ? $"{role}Info" : $"ModeDescribe.{x.GameMode}")}</size>"));
+
+        Utils.SendMessage(info, player.PlayerId, GetString("GameModeListTitle"));
+    }
 
     private static void JailTalkCommand(PlayerControl player, string text, string[] args)
     {

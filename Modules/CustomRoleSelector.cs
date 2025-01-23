@@ -12,13 +12,25 @@ namespace EHR.Modules;
 internal static class CustomRoleSelector
 {
     public static Dictionary<byte, CustomRoles> RoleResult;
+    public static List<CustomRoles> AddonRolesList = [];
     public static int AddScientistNum;
     public static int AddEngineerNum;
     public static int AddShapeshifterNum;
     public static int AddNoisemakerNum;
     public static int AddTrackerNum;
     public static int AddPhantomNum;
-    public static List<CustomRoles> AddonRolesList = [];
+
+    public static Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
+    {
+        { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
+        { CustomGameMode.FFA, CustomRoles.Killer },
+        { CustomGameMode.MoveAndStop, CustomRoles.Tasker },
+        { CustomGameMode.HotPotato, CustomRoles.Potato },
+        { CustomGameMode.Speedrun, CustomRoles.Runner },
+        { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },
+        { CustomGameMode.NaturalDisasters, CustomRoles.NDPlayer },
+        { CustomGameMode.RoomRush, CustomRoles.RRPlayer }
+    };
 
     public static void SelectCustomRoles()
     {
@@ -28,19 +40,7 @@ internal static class CustomRoleSelector
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            Dictionary<CustomGameMode, CustomRoles> gameModeRoles = new()
-            {
-                { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
-                { CustomGameMode.FFA, CustomRoles.Killer },
-                { CustomGameMode.MoveAndStop, CustomRoles.Tasker },
-                { CustomGameMode.HotPotato, CustomRoles.Potato },
-                { CustomGameMode.Speedrun, CustomRoles.Runner },
-                { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },
-                { CustomGameMode.NaturalDisasters, CustomRoles.NDPlayer },
-                { CustomGameMode.RoomRush, CustomRoles.RRPlayer }
-            };
-
-            if (gameModeRoles.TryGetValue(Options.CurrentGameMode, out var role))
+            if (GameModeRoles.TryGetValue(Options.CurrentGameMode, out var role))
             {
                 AssignRoleToEveryone(role);
                 return;
@@ -52,7 +52,7 @@ internal static class CustomRoleSelector
             {
                 var prioritizedGameMode = AllInOneGameMode.GetPrioritizedGameModeForRoles();
 
-                if (gameModeRoles.TryGetValue(prioritizedGameMode, out var allInOneRole))
+                if (GameModeRoles.TryGetValue(prioritizedGameMode, out var allInOneRole))
                 {
                     AssignRoleToEveryone(allInOneRole);
                     return;

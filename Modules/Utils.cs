@@ -469,8 +469,7 @@ public static class Utils
 
     public static string GetRoleColorCode(CustomRoles role)
     {
-        string hexColor = Main.RoleColors.GetValueOrDefault(role, "#ffffff");
-        return hexColor;
+        return Main.RoleColors.GetValueOrDefault(role, "#ffffff");
     }
 
     public static (string, Color) GetRoleText(byte seerId, byte targetId, bool pure = false, bool seeTargetBetrayalAddons = false)
