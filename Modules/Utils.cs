@@ -1504,14 +1504,16 @@ public static class Utils
 
         StringBuilder sb = new();
         sb.AppendLine($"<#ffffff><u>{GetString("WinsCountTitle")}:</u></color>");
+        bool any = false;
 
         foreach ((string friendcode, int wins) in dictionary)
         {
-            if (!Main.AllAlivePlayerControls.FindFirst(x => x.FriendCode == friendcode, out var player)) continue;
+            if (!Main.AllPlayerControls.FindFirst(x => x.FriendCode == friendcode, out var player)) continue;
             sb.AppendLine($"{player.PlayerId.ColoredPlayerName()}: {wins}");
+            any = true;
         }
 
-        return sb.ToString().Trim();
+        return any ? sb.ToString().Trim() : string.Empty;
     }
 
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
