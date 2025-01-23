@@ -361,7 +361,7 @@ internal static class ChatCommands
     {
         var info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..].SkipLast(1)
             .Select(x => (GameMode: x, Color: Main.RoleColors.GetValueOrDefault(CustomRoleSelector.GameModeRoles.TryGetValue(x, out var role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
-            .Select(x => $"<{x.Color}><u><b>{GetString($"{x.GameMode}")}</b><u></color><size=70%>\n{GetString(CustomRoleSelector.GameModeRoles.TryGetValue(x.GameMode, out var role) ? $"{role}Info" : $"ModeDescribe.{x.GameMode}")}</size>"));
+            .Select(x => $"<{x.Color}><u><b>{GetString($"{x.GameMode}")}</b></u></color><size=75%>\n{GetString($"ModeDescribe.{x.GameMode}").Split("\n\n")[0]}</size>"));
 
         Utils.SendMessage(info, player.PlayerId, GetString("GameModeListTitle"));
     }
