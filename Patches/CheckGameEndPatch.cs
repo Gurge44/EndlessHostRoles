@@ -596,7 +596,7 @@ internal static class GameEndChecker
                         reason = GameOverReason.ImpostorByKill;
                         winner = CustomWinner.None;
                     }
-                    else if (Crew <= Imp)
+                    else if (Crew <= Imp && sheriffCount == 0)
                     {
                         reason = GameOverReason.ImpostorByKill;
                         winner = CustomWinner.Impostor;
@@ -616,6 +616,7 @@ internal static class GameEndChecker
                 {
                     if (Imp >= 1) return false;
                     if (Crew > Coven) return false;
+                    if (sheriffCount > 0) return false;
 
                     Logger.Info($"Crew: {Crew}, Imp: {Imp}, Coven: {Coven}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
                     reason = GameOverReason.ImpostorByKill;

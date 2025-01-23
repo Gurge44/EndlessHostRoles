@@ -18,11 +18,7 @@ internal class Changeling : RoleBase
     private static readonly string[] AvailableRolesMode =
     [
         "CL.All", // 0
-        "CL.AllImp", // 1
-        "CL.AllSS", // 2
-        "CL.Enabled", // 3
-        "CL.EnabledImp", // 4
-        "CL.EnabledSS" // 5
+        "CL.Enabled", // 1
     ];
 
     private static List<CustomRoles> Roles = [];
@@ -49,11 +45,7 @@ internal class Changeling : RoleBase
             IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
             {
                 0 => allRoles,
-                1 => allRoles.Where(x => x.GetVNRole(true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
-                2 => allRoles.Where(x => x.GetVNRole(true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
-                3 => allRoles.Where(x => x.GetMode() != 0),
-                4 => allRoles.Where(x => x.GetVNRole(true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
-                5 => allRoles.Where(x => x.GetVNRole(true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
+                1 => allRoles.Where(x => x.GetMode() != 0),
                 _ => allRoles
             };
 

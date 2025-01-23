@@ -57,26 +57,13 @@ internal static class ExileControllerWrapUpPatch
                 Damocles.OnCrewmateEjected();
             }
 
-            switch (role)
+            if (role == CustomRoles.Jester)
             {
-                case CustomRoles.Jester:
-                    if (DecidedWinner)
-                        CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
-                    else
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
+                if (DecidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
+                else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
 
-                    CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
-                    DecidedWinner = true;
-                    break;
-                case CustomRoles.Terrorist:
-                    Utils.CheckTerroristWin(exiled);
-                    break;
-                case CustomRoles.Devourer:
-                    Devourer.OnDevourerDied(exiled.PlayerId);
-                    break;
-                case CustomRoles.Medic:
-                    Medic.IsDead(exiled.Object);
-                    break;
+                CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
+                DecidedWinner = true;
             }
 
             if (Executioner.CheckExileTarget(exiled)) DecidedWinner = true;
@@ -123,6 +110,8 @@ internal static class ExileControllerWrapUpPatch
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
+
+        LateTask.New(() => Utils.AfterPlayerDeathTasks(exiled.Object, onMeeting: true), 2.5f, "AfterPlayerDeathTasks For Exiled Player");
     }
 
     private static void WrapUpFinalizer()

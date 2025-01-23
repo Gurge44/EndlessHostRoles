@@ -1175,7 +1175,7 @@ internal static class CustomRolesHelper
 
     public static bool IsCrewmateTeamV2(this CustomRoles role)
     {
-        return (!role.IsImpostorTeamV2() && !role.IsNeutralTeamV2()) || (role == CustomRoles.Trickster && !role.IsConverted());
+        return (!role.IsImpostorTeamV2() && !role.IsNeutralTeamV2() && !role.Is(Team.Coven)) || (role == CustomRoles.Trickster && !role.IsConverted());
     }
 
     public static bool IsConverted(this CustomRoles role)
