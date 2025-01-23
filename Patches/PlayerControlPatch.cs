@@ -786,9 +786,11 @@ internal static class ShapeshiftPatch
 
         bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
-        if (AmongUsClient.Instance.AmHost && shapeshifting)
+        CustomRoles role = shapeshifter.GetCustomRole();
+
+        if (AmongUsClient.Instance.AmHost && (shapeshifting || role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!shapeshifter.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))))
         {
-            if (!Rhapsode.CheckAbilityUse(shapeshifter) || Stasis.IsTimeFrozen) return false;
+            if (!Rhapsode.CheckAbilityUse(shapeshifter) || Stasis.IsTimeFrozen || TimeMaster.Rewinding) return false;
 
             if (shapeshifter.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
             {
@@ -814,8 +816,6 @@ internal static class ShapeshiftPatch
             shapeshifter.SetKillCooldown(Hangman.ShapeshiftDuration.GetFloat() + 1f);
             isSSneeded = false;
         }
-
-        CustomRoles role = shapeshifter.GetCustomRole();
 
         bool forceCancel = role.ForceCancelShapeshift();
         bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
@@ -946,13 +946,27 @@ internal static class ReportDeadBodyPatch
 
             if (target == null)
             {
-                if (__instance.Is(CustomRoles.Jester) && !Jester.JesterCanUseButton.GetBool()) return false;
-                if (__instance.Is(CustomRoles.NiceSwapper) && !NiceSwapper.CanStartMeeting.GetBool()) return false;
-                if (__instance.Is(CustomRoles.Adrenaline) && !Adrenaline.CanCallMeeting(__instance)) return false;
+                if (__instance.Is(CustomRoles.Jester) && !Jester.JesterCanUseButton.GetBool())
+                {
+                    Notify("JesterCannotCallEmergencyMeeting");
+                    return false;
+                }
+
+                if (__instance.Is(CustomRoles.NiceSwapper) && !NiceSwapper.CanStartMeeting.GetBool())
+                {
+                    Notify("NiceSwapperCannotCallEmergencyMeeting");
+                    return false;
+                }
+
+                if (__instance.Is(CustomRoles.Adrenaline) && !Adrenaline.CanCallMeeting(__instance))
+                {
+                    Notify("AdrenalineCannotCallEmergencyMeeting");
+                    return false;
+                }
 
                 if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId))
                 {
-                    __instance.Notify(GetString("SoulHunterTargetNotifyNoMeeting"));
+                    Notify("SoulHunterTargetNotifyNoMeeting");
                     return false;
                 }
             }
@@ -960,38 +974,39 @@ internal static class ReportDeadBodyPatch
             if (target != null)
             {
                 if (Bloodhound.UnreportablePlayers.Contains(target.PlayerId)
-                    || Vulture.UnreportablePlayers.Contains(target.PlayerId))
+                    || Vulture.UnreportablePlayers.Contains(target.PlayerId)
+                    || (killer != null && killer.Is(CustomRoles.Goddess))
+                    || Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Gambled
+                    || killerRole == CustomRoles.Scavenger
+                    || Cleaner.CleanerBodies.Contains(target.PlayerId))
+                {
+                    Notify("UnreportableBody");
                     return false;
+                }
 
-                if (!Librarian.OnAnyoneReport(__instance)) return false;
-                if (!Occultist.OnAnyoneReportDeadBody(target)) return false;
-                if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
-                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
+
+                if ((!Occultist.OnAnyoneReportDeadBody(target)) ||
+                    (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)))
+                {
+                    Notify("PlayerWasRevived");
+                    return false;
+                }
+
+                if (!Librarian.OnAnyoneReport(__instance)) return false; // Player dies, no notify needed
+                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false; // Player dies, no notify needed
 
                 if (!Hypnotist.OnAnyoneReport())
                 {
                     if (__instance.IsLocalPlayer())
                         Achievements.Type.Hypnosis.CompleteAfterGameEnd();
 
+                    Notify("HypnosisNoMeeting");
                     return false;
                 }
-
-                if (killer != null && killer.Is(CustomRoles.Goddess)) return false;
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 
-                if (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Gambled
-                    || killerRole == CustomRoles.Scavenger
-                    || Cleaner.CleanerBodies.Contains(target.PlayerId))
-                    return false;
-
                 PlayerControl tpc = target.Object;
-
-                if (__instance.Is(CustomRoles.Oblivious))
-                {
-                    if (!tpc.Is(CustomRoles.Bait) || Options.ObliviousBaitImmune.GetBool()) /* && (target?.Object != null)*/
-                        return false;
-                }
 
                 if (__instance.Is(CustomRoles.Unlucky) && (tpc == null || !tpc.Is(CustomRoles.Bait)))
                 {
@@ -1002,7 +1017,11 @@ internal static class ReportDeadBodyPatch
                     }
                 }
 
-                if (tpc.Is(CustomRoles.Unreportable)) return false;
+                if (tpc.Is(CustomRoles.Unreportable))
+                {
+                    Notify("TargetDisregarded");
+                    return false;
+                }
             }
 
             if (Options.SyncButtonMode.GetBool() && target == null)
@@ -1012,6 +1031,7 @@ internal static class ReportDeadBodyPatch
                 if (Options.SyncedButtonCount.GetFloat() <= Options.UsedButtonCount)
                 {
                     Logger.Info("The ship has no more emergency meetings left", "ReportDeadBody");
+                    Notify("ShipHasNoMoreMeetingsLeft");
                     return false;
                 }
 
@@ -1025,6 +1045,8 @@ internal static class ReportDeadBodyPatch
         catch (Exception e) { ThrowException(e); }
 
         return true;
+        
+        void Notify(string str) => __instance.Notify(ColorString(Color.yellow, GetString("CheckReportFail") + GetString(str)), 15f);
     }
 
     public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target, bool force = false)
@@ -1996,7 +2018,7 @@ internal static class CoEnterVentPatch
             return true;
         }
 
-        if (!Rhapsode.CheckAbilityUse(__instance.myPlayer) || Stasis.IsTimeFrozen)
+        if (!Rhapsode.CheckAbilityUse(__instance.myPlayer) || Stasis.IsTimeFrozen || TimeMaster.Rewinding)
         {
             LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
             return true;

@@ -61,14 +61,14 @@ public class Werewolf : RoleBase
         WWId = playerId;
 
         RampageTime = -10;
-        lastTime = -10;
-        CD = StartingKillCooldown.GetInt();
+        lastTime = Utils.TimeStamp + 12;
+        CD = 0;
 
         LateTask.New(() =>
         {
             if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
                 Utils.GetPlayerById(playerId).RpcResetAbilityCooldown();
-        }, 9f, log: false);
+        }, 12f, log: false);
     }
 
     public override void Remove(byte playerId)
@@ -146,9 +146,13 @@ public class Werewolf : RoleBase
             {
                 lastTime = -10;
                 bool unshift = UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool();
-                if (!player.IsModClient()) player.Notify(GetString(unshift ? "WWCanRampageUnshift" : "WWCanRampage"));
-
-                if (!player.IsModClient()) player.RpcChangeRoleBasis(unshift ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
+                
+                if (!player.IsModClient())
+                {
+                    player.Notify(GetString(unshift ? "WWCanRampageUnshift" : "WWCanRampage"));
+                    player.RpcChangeRoleBasis(unshift ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
+                }
+                
                 SendRPC();
                 CD = 0;
             }

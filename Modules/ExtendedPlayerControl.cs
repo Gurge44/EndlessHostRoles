@@ -1097,7 +1097,7 @@ internal static class ExtendedPlayerControl
         }, 0.4f + delay, "Fix Desync Reactor");
     }
 
-    public static void ReactorFlash(this PlayerControl pc, float delay = 0f)
+    public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN)
     {
         if (pc == null) return;
 
@@ -1110,8 +1110,6 @@ internal static class ExtendedPlayerControl
             _ => SystemTypes.Reactor
         };
 
-        float FlashDuration = Options.KillFlashDuration.GetFloat();
-
         pc.RpcDesyncRepairSystem(systemtypes, 128);
 
         LateTask.New(() =>
@@ -1120,7 +1118,7 @@ internal static class ExtendedPlayerControl
 
             if (Main.NormalOptions.MapId == 4) // on Airship
                 pc.RpcDesyncRepairSystem(systemtypes, 17);
-        }, FlashDuration + delay, "Fix Desync Reactor");
+        }, (float.IsNaN(flashDuration) ? Options.KillFlashDuration.GetFloat() : flashDuration) + delay, "Fix Desync Reactor");
     }
 
     public static string GetRealName(this PlayerControl player, bool isMeeting = false)
@@ -1211,7 +1209,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseKillButton(this PlayerControl pc)
     {
-        if (AntiBlackout.SkipTasks || !pc.IsAlive()) return false;
+        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !pc.IsAlive()) return false;
 
         switch (Options.CurrentGameMode)
         {

@@ -206,7 +206,6 @@ internal static class ChangeRoleSettings
             Revolutionist.RevolutionistStart = [];
             Revolutionist.RevolutionistLastTime = [];
             Revolutionist.RevolutionistCountdown = [];
-            TimeMaster.TimeMasterBackTrack = [];
             Farseer.FarseerTimer = [];
             Warlock.CursedPlayers = [];
             Mafia.MafiaRevenged = [];
@@ -505,7 +504,7 @@ internal static class StartGameHostPatch
 
             if (CustomGameMode.Standard.IsActiveOrIntegrated())
             {
-                bool bloodlustSpawn = random.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
+                bool bloodlustSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
                 bool physicistSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out IntegerOptionItem option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
                 bool nimbleSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out IntegerOptionItem option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
                 bool finderSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Finder, out IntegerOptionItem option3) ? option3.GetFloat() : 0) && CustomRoles.Finder.IsEnable();
@@ -564,6 +563,7 @@ internal static class StartGameHostPatch
                 {
                     (CustomRoles addon, (bool SpawnFlag, HashSet<byte> RoleList) value) = roleSpawnMapping.ElementAt(i);
                     if (value.RoleList.Count == 0) value.SpawnFlag = false;
+                    if (!value.SpawnFlag) value.RoleList.Clear();
 
                     if (Main.GM.Value) value.RoleList.Remove(0);
                     value.RoleList.ExceptWith(ChatCommands.Spectators);
@@ -639,7 +639,8 @@ internal static class StartGameHostPatch
 
             if (!CustomGameMode.Standard.IsActiveOrIntegrated())
             {
-                foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates) ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
+                foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)
+                    ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
 
                 goto EndOfSelectRolePatch;
             }

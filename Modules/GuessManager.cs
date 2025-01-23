@@ -114,14 +114,15 @@ public static class GuessManager
 
                 if (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 2) goto SkipCheck;
 
-                if ((!pc.Is(CustomRoles.NiceGuesser) && pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper)) ||
-                    (!pc.Is(CustomRoles.EvilGuesser) && pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor)) ||
-                    (!pc.Is(CustomRoles.Augur) && pc.Is(Team.Coven) && !Options.CovenCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser)) ||
-                    (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser)) ||
-                    (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && pc.GetCustomRole() is not CustomRoles.Doomsayer and not CustomRoles.NecroGuesser) ||
+                if ((!pc.Is(CustomRoles.NiceGuesser) && pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper)) ||
+                    (!pc.Is(CustomRoles.EvilGuesser) && pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Councillor)) ||
+                    (!pc.Is(CustomRoles.Augur) && pc.Is(Team.Coven) && !Options.CovenCanGuess.GetBool()) ||
+                    (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool()) ||
+                    (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && pc.GetCustomRole() is not CustomRoles.Doomsayer and not CustomRoles.NecroGuesser) ||
                     (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0) ||
                     (Options.GuesserNumRestrictions.GetBool() && !Guessers.Contains(pc.PlayerId)))
                 {
+                    if (pc.Is(CustomRoles.Guesser)) goto SkipCheck;
                     if ((pc.Is(CustomRoles.Madmate) || pc.IsConverted()) && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
 
                     ShowMessage("GuessNotAllowed");
@@ -800,16 +801,15 @@ public static class GuessManager
             int tabCount = 0;
             for (int index = 0; index < 5; index++)
             {
-                if (PlayerControl.LocalPlayer.Is(CustomRoles.EvilGuesser))
+                switch (PlayerControl.LocalPlayer.GetCustomRole(), index)
                 {
-                    if (!Options.EGCanGuessImp.GetBool() && index == 1) continue;
-                    if (!Options.EGCanGuessAdt.GetBool() && index == 3) continue;
+                    case (CustomRoles.EvilGuesser, 1) when !Options.EGCanGuessImp.GetBool():
+                    case (CustomRoles.EvilGuesser, 3) when !Options.EGCanGuessAdt.GetBool():
+                    case (CustomRoles.NiceGuesser, 0) when !Options.GGCanGuessCrew.GetBool() && !PlayerControl.LocalPlayer.IsMadmate():
+                    case (CustomRoles.NiceGuesser, 3) when !Options.GGCanGuessAdt.GetBool():
+                        continue;
                 }
-                else
-                {
-                    if (!Options.GGCanGuessCrew.GetBool() && !PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && index == 0) continue;
-                    if (!Options.GGCanGuessAdt.GetBool() && index == 3) continue;
-                }
+                
                 Transform TeambuttonParent = new GameObject().transform;
                 TeambuttonParent.SetParent(container);
                 Transform Teambutton = Object.Instantiate(buttonTemplate, TeambuttonParent);
@@ -908,23 +908,24 @@ public static class GuessManager
 
             foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
             {
-                if (role is CustomRoles.GM
-                            or CustomRoles.SpeedBooster
-                            or CustomRoles.Engineer
-                            or CustomRoles.Crewmate
-                            or CustomRoles.Oblivious
-                            or CustomRoles.Scientist
-                            or CustomRoles.Impostor
-                            or CustomRoles.Shapeshifter
-                            or CustomRoles.Flashman
-                            or CustomRoles.Disco
-                            or CustomRoles.Giant
-                            or CustomRoles.NotAssigned
-                            or CustomRoles.KB_Normal
-                            or CustomRoles.Paranoia
-                            or CustomRoles.SuperStar
-                            or CustomRoles.Konan
-                            or CustomRoles.GuardianAngelEHR
+                if (role is
+                        CustomRoles.GM or
+                        CustomRoles.SpeedBooster or
+                        CustomRoles.Engineer or
+                        CustomRoles.Crewmate or
+                        CustomRoles.Oblivious or
+                        CustomRoles.Scientist or
+                        CustomRoles.Impostor or
+                        CustomRoles.Shapeshifter or
+                        CustomRoles.Flashman or
+                        CustomRoles.Disco or
+                        CustomRoles.Giant or
+                        CustomRoles.NotAssigned or
+                        CustomRoles.KB_Normal or
+                        CustomRoles.Paranoia or
+                        CustomRoles.SuperStar or
+                        CustomRoles.Konan or
+                        CustomRoles.GuardianAngelEHR
                     )
                     continue;
 

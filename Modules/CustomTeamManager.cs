@@ -75,6 +75,15 @@ internal static class CustomTeamManager
 
         foreach ((CustomTeam team, HashSet<byte> players) in CustomTeamPlayerIds)
         {
+            if (!IsSettingEnabledForTeam(team, CTAOption.WinWithOriginalTeam))
+            {
+                foreach (byte id in players)
+                {
+                    if (Main.PlayerStates.TryGetValue(id, out var ps))
+                        ps.countTypes = CountTypes.CustomTeam;
+                }
+            }
+            
             if (!IsSettingEnabledForTeam(team, CTAOption.Arrows)) continue;
 
             foreach (byte player in players)

@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Crewmate;
@@ -8,13 +11,26 @@ namespace EHR.Crewmate;
 internal class TimeMaster : RoleBase
 {
     public static bool On;
-    public static Dictionary<byte, Vector2> TimeMasterBackTrack = [];
-    private static readonly Dictionary<byte, long> TimeMasterInProtect = [];
+    
     public override bool IsEnable => On;
 
+    public static OptionItem TimeMasterRewindTimeLength;
+    public static OptionItem TimeMasterSkillCooldown;
+    public static OptionItem TimeMasterSkillDuration;
+    public static OptionItem TimeMasterMaxUses;
+    public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
+    public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
+
+    private static Dictionary<long, Dictionary<byte, Vector2>> BackTrack = [];
+    public static bool Rewinding;
+    
     public override void SetupCustomOption()
     {
         SetupRoleOptions(8950, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
+        
+        TimeMasterRewindTimeLength = new IntegerOptionItem(8959, "TimeMasterRewindTimeLength", new(0, 10, 1), 15, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
+            .SetValueFormat(OptionFormat.Seconds);
 
         TimeMasterSkillCooldown = new FloatOptionItem(8960, "TimeMasterSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
@@ -40,6 +56,7 @@ internal class TimeMaster : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        BackTrack = [];
         playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetInt());
     }
 
@@ -56,16 +73,6 @@ internal class TimeMaster : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
-    {
-        var ProgressText = new StringBuilder();
-
-        ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, TimeMasterInProtect.ContainsKey(playerId)));
-        ProgressText.Append(Utils.GetTaskCount(playerId, comms));
-
-        return ProgressText.ToString();
-    }
-
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         if (UsePets.GetBool())
@@ -76,70 +83,89 @@ internal class TimeMaster : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        Rewind(pc);
+        if (pc.GetAbilityUseLimit() < 1) return;
+        pc.RpcRemoveAbilityUse();
+        
+        Main.Instance.StartCoroutine(Rewind());
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         pc.MyPhysics?.RpcBootFromVent(vent.Id);
-        Rewind(pc);
+        
+        if (pc.GetAbilityUseLimit() < 1) return;
+        pc.RpcRemoveAbilityUse();
+        
+        Main.Instance.StartCoroutine(Rewind());
     }
 
-    private static void Rewind(PlayerControl pc)
+    private static System.Collections.IEnumerator Rewind()
     {
-        if (TimeMasterInProtect.ContainsKey(pc.PlayerId)) return;
-
-        if (pc.GetAbilityUseLimit() >= 1)
+        try
         {
-            pc.RpcRemoveAbilityUse();
-            TimeMasterInProtect.Remove(pc.PlayerId);
-            TimeMasterInProtect.Add(pc.PlayerId, Utils.TimeStamp);
-            pc.Notify(Translator.GetString("TimeMasterOnGuard"), TimeMasterSkillDuration.GetFloat());
+            Rewinding = true;
+            
+            const float delay = 0.3f;
+            long now = Utils.TimeStamp;
+            int length = TimeMasterRewindTimeLength.GetInt();
+        
+            Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
+            ReportDeadBodyPatch.CanReport.SetAllValues(false);
+
+            string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
 
             foreach (PlayerControl player in Main.AllPlayerControls)
             {
-                if (TimeMasterBackTrack.TryGetValue(player.PlayerId, out Vector2 position))
-                {
-                    if (!pc.inVent && !pc.inMovingPlat && pc.IsAlive() && !pc.onLadder && pc.MyPhysics != null && !pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() && player.PlayerId != pc.PlayerId)
-                        player.TP(position);
-                    else if (pc.PlayerId == player.PlayerId) player.MyPhysics?.RpcBootFromVent(Main.LastEnteredVent.TryGetValue(player.PlayerId, out Vent vent) ? vent.Id : player.PlayerId);
-
-                    TimeMasterBackTrack.Remove(player.PlayerId);
-                }
-                else TimeMasterBackTrack.Add(player.PlayerId, player.Pos());
+                player.ReactorFlash(flashDuration: length * delay);
+                player.Notify(notify, length * delay);
+                player.MarkDirtySettings();
             }
 
-            if (pc.IsLocalPlayer())
-                Achievements.Type.APerfectTimeToRewindIt.Complete();
-        }
-        else pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-    }
+            for (long i = now - 1; i >= now - length; i--)
+            {
+                if (!BackTrack.TryGetValue(i, out Dictionary<byte, Vector2> track)) continue;
 
-    public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
-    {
-        if (killer.PlayerId != target.PlayerId && TimeMasterInProtect.TryGetValue(target.PlayerId, out long ts) && ts + TimeMasterSkillDuration.GetInt() >= Utils.TimeStamp)
-        {
-            foreach (PlayerControl player in Main.AllPlayerControls)
-                if (!killer.Is(CustomRoles.Pestilence) && TimeMasterBackTrack.TryGetValue(player.PlayerId, out Vector2 pos))
+                foreach ((byte playerId, Vector2 pos) in track)
+                {
+                    var player = playerId.GetPlayer();
+                    if (player == null || !player.IsAlive()) continue;
+
                     player.TP(pos);
+                }
+            
+                yield return new WaitForSeconds(delay);
+            }
 
-            killer.SetKillCooldown(target: target);
-            return false;
+            foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
+            {
+                if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out var ps)) continue;
+            
+                if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
+                {
+                    ps.Player.RpcRevive();
+                    ps.Player.TP(deadBody.TruePosition);
+                    ps.Player.Notify(Translator.GetString("RevivedByTimeMaster"), 15f);
+                }
+            }
+        
+            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+            ReportDeadBodyPatch.CanReport.SetAllValues(true);
+            Utils.MarkEveryoneDirtySettings();
         }
-
-        return true;
+        finally
+        {
+            Rewinding = false;
+        }
     }
 
     public override void OnFixedUpdate(PlayerControl player)
     {
-        byte playerId = player.PlayerId;
+        if (GameStates.IsMeeting || ExileController.Instance || !player.IsAlive()) return;
 
-        if (TimeMasterInProtect.TryGetValue(playerId, out long ttime) && ttime + TimeMasterSkillDuration.GetInt() < Utils.TimeStamp)
-        {
-            TimeMasterInProtect.Remove(playerId);
-            player.RpcResetAbilityCooldown();
-            player.Notify(Translator.GetString("TimeMasterSkillStop"), (int)player.GetAbilityUseLimit());
-        }
+        long now = Utils.TimeStamp;
+        if (BackTrack.ContainsKey(now)) return;
+
+        BackTrack[now] = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, x => x.Pos());
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

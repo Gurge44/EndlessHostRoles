@@ -104,6 +104,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.Changeling when Changeling.GetAvailableRoles(true).Count == 0:
                 case CustomRoles.Camouflager when Camouflager.DoesntSpawnOnFungle.GetBool() && Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.DarkHide when Main.CurrentMap == MapNames.Fungle:
+                case CustomRoles.Doormaster when Main.CurrentMap == MapNames.Mira:
                 case CustomRoles.Pelican when Roles[RoleAssignType.Impostor].Any(x => x.Role == CustomRoles.Duellist):
                 case CustomRoles.Duellist when Roles[RoleAssignType.NeutralKilling].Any(x => x.Role == CustomRoles.Pelican):
                 case CustomRoles.VengefulRomantic:

@@ -661,14 +661,16 @@ internal static class ChatCommands
         IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
         IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt());
         IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Evil][2].GetInt() + Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Benign][2].GetInt());
+        IEnumerable<CustomRoles> covenRoles = allRoles.Where(x => x.IsCoven()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Coven].MaxSetting.GetInt());
 
         allRoles.RemoveAll(x => x.IsImpostor());
         allRoles.RemoveAll(x => x.IsNK());
         allRoles.RemoveAll(x => x.IsNonNK());
+        allRoles.RemoveAll(x => x.IsCoven());
 
         DraftRoles = allRoles
             .Take(allPlayerIds.Length * 5)
-            .CombineWith(impRoles, nkRoles, nnkRoles)
+            .CombineWith(impRoles, nkRoles, nnkRoles, covenRoles)
             .Shuffle()
             .Partition(allPlayerIds.Length)
             .Zip(allPlayerIds)
@@ -694,10 +696,9 @@ internal static class ChatCommands
     private static void MuteCommand(PlayerControl player, string text, string[] args)
     {
         if (!player.IsHost() && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
+        if (!byte.TryParse(args[1], out byte id) || id.IsHost()) return;
 
-        if (args.Length < 3 || !byte.TryParse(args[1], out byte id) || id.IsHost()) return;
-
-        int duration = !int.TryParse(args[2], out int dur) ? 60 : dur;
+        int duration = args.Length < 3 || !int.TryParse(args[2], out int dur) ? 60 : dur;
         MutedPlayers[id] = (Utils.TimeStamp, duration);
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerMuted"), id.ColoredPlayerName(), duration));
         Utils.SendMessage("\n", id, string.Format(GetString("YouMuted"), player.PlayerId.ColoredPlayerName(), duration));

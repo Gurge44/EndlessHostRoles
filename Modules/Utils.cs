@@ -2669,7 +2669,7 @@ public static class Utils
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),
-            CustomRoles.TimeMaster => Options.TimeMasterSkillCooldown.GetInt() + (includeDuration ? Options.TimeMasterSkillDuration.GetInt() : 0),
+            CustomRoles.TimeMaster => TimeMaster.TimeMasterSkillCooldown.GetInt() + (includeDuration ? TimeMaster.TimeMasterSkillDuration.GetInt() : 0),
             CustomRoles.Veteran => Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0),
             CustomRoles.Rhapsode => Rhapsode.AbilityCooldown.GetInt() + (includeDuration ? Rhapsode.AbilityDuration.GetInt() : 0),
             CustomRoles.Whisperer => Whisperer.Cooldown.GetInt() + (includeDuration ? Whisperer.Duration.GetInt() : 0),
@@ -2691,8 +2691,8 @@ public static class Utils
             CustomRoles.Bomber => Bomber.BombCooldown.GetInt(),
             CustomRoles.Nuker => Bomber.NukeCooldown.GetInt(),
             CustomRoles.Sapper => Sapper.ShapeshiftCooldown.GetInt(),
-            CustomRoles.Miner => Options.MinerSSCD.GetInt(),
-            CustomRoles.Escapee => Options.EscapeeSSCD.GetInt(),
+            CustomRoles.Miner => Miner.MinerSSCD.GetInt(),
+            CustomRoles.Escapee => Escapee.EscapeeSSCD.GetInt(),
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
@@ -3054,7 +3054,7 @@ public static class Utils
     public static (int Drawn, int All) GetDrawPlayerCount(byte playerId, out List<PlayerControl> winnerList)
     {
         var draw = 0;
-        int all = Options.RevolutionistDrawCount.GetInt();
+        int all = Revolutionist.RevolutionistDrawCount.GetInt();
         int max = Main.AllAlivePlayerControls.Length;
         if (!Main.PlayerStates[playerId].IsDead) max--;
 

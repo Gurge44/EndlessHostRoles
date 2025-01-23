@@ -34,7 +34,7 @@ public static class LobbySharingAPI
     private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId)
     {
         var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
-        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime - timeSinceLastRequest);
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\"}}";
@@ -49,6 +49,7 @@ public static class LobbySharingAPI
         request.SetRequestHeader("Content-Type", "application/json");
         yield return request.SendWebRequest();
 
+        LastRequestTimeStamp = Utils.TimeStamp;
         bool success = request.result == UnityWebRequest.Result.Success;
         Logger.Msg(success ? "Lobby created notification sent successfully." : $"Failed to send lobby created notification: {request.error}", "LobbyNotifierForDiscord.SendLobbyCreatedRequest");
 
@@ -79,7 +80,7 @@ public static class LobbySharingAPI
         {
             status = LobbyStatus.Closed;
             StartMessageEdit();
-            NotifyLobbyCreated();
+            LateTask.New(NotifyLobbyCreated, BufferTime);
             return;
         }
 
@@ -97,7 +98,7 @@ public static class LobbySharingAPI
         if (string.IsNullOrEmpty(Token)) yield break;
 
         var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
-        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime - timeSinceLastRequest);
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\"}}";
@@ -112,13 +113,14 @@ public static class LobbySharingAPI
         request.SetRequestHeader("Content-Type", "application/json");
         yield return request.SendWebRequest();
 
+        LastRequestTimeStamp = Utils.TimeStamp;
         bool success = request.result == UnityWebRequest.Result.Success;
         Logger.Msg(success ? "Lobby status changed notification sent successfully." : $"Failed to send lobby status changed notification: {request.error}", "LobbyNotifierForDiscord.SendLobbyStatusChangedRequest");
 
         if (!success && request.responseCode == 404)
         {
             LastRoomCode = string.Empty;
-            NotifyLobbyCreated();
+            LateTask.New(NotifyLobbyCreated, BufferTime);
             Logger.Msg("Room code not found, re-sending lobby created notification.", "LobbyNotifierForDiscord.SendLobbyStatusChangedRequest");
         }
     }
