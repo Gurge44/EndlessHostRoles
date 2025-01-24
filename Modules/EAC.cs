@@ -12,6 +12,7 @@ namespace EHR;
 internal static class EAC
 {
     public static int DeNum;
+    public static HashSet<string> InvalidReports = [];
 
     public static void WarnHost(int denum = 1)
     {
@@ -107,7 +108,7 @@ internal static class EAC
                         {
                             WarnHost();
                             Report(pc, "Try to Report body that doesn't exist");
-                            HandleCheat(pc, "Try to Report body that doesn't exist");
+                            if (!InvalidReports.Add(pc.GetClient().GetHashedPuid())) HandleCheat(pc, "Try to Report body that doesn't exist");
                             Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] attempted to report a body that does't exist", "EAC");
                             return true;
                         }
@@ -631,11 +632,7 @@ internal class GameDataHandlerPatch
             }
 
             case GameDataTag.RpcFlag:
-                break;
-
             case GameDataTag.SpawnFlag:
-                break;
-
             case GameDataTag.DespawnFlag:
                 break;
 

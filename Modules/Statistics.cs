@@ -155,7 +155,7 @@ public static class Statistics
             if (gm == CustomGameMode.Standard) return;
 
             Main.NumWinsPerGM.TryAdd(gm, []);
-            Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.FriendCode, _ => 0), overrideExistingKeys: false);
+            Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), overrideExistingKeys: false);
             Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
         }
         catch (Exception e) { Utils.ThrowException(e); }

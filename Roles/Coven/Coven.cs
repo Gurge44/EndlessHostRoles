@@ -17,14 +17,14 @@ public abstract class Coven : RoleBase
     protected bool HasNecronomicon { get; private set; }
 
     protected virtual void OnReceiveNecronomicon() { }
-    
+
     private static void GiveNecronomicon()
     {
         var psDict = Main.PlayerStates.Where(x => x.Value.Role is Coven { HasNecronomicon: false } coven && coven.NecronomiconReceivePriority != NecronomiconReceivePriorities.Never).ToDictionary(x => x.Key, x => x.Value);
         if (psDict.Count == 0) return;
 
-        var receiver = psDict.Shuffle().OrderBy(x => ((Coven)x.Value.Role).NecronomiconReceivePriority).First();
-        
+        var receiver = psDict.Shuffle().OrderBy(x => ((Coven)x.Value.Role).NecronomiconReceivePriority).ThenByDescending(x => !x.Value.IsDead).First();
+
         var covenRole = (Coven)receiver.Value.Role;
         covenRole.HasNecronomicon = true;
         covenRole.OnReceiveNecronomicon();

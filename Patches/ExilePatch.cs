@@ -111,7 +111,13 @@ internal static class ExileControllerWrapUpPatch
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
 
-        LateTask.New(() => Utils.AfterPlayerDeathTasks(exiled.Object, onMeeting: true), 2.5f, "AfterPlayerDeathTasks For Exiled Player");
+        var id = exiled.PlayerId;
+
+        LateTask.New(() =>
+        {
+            PlayerControl player = id.GetPlayer();
+            if (player != null) Utils.AfterPlayerDeathTasks(player, onMeeting: true);
+        }, 2.5f, "AfterPlayerDeathTasks For Exiled Player");
     }
 
     private static void WrapUpFinalizer()

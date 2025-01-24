@@ -97,7 +97,7 @@ public class Chef : RoleBase
         PlayerControl[] aapc = Main.AllAlivePlayerControls.Without(pc).ToArray();
         PlayerControl target = EventTarget.GetValue() == 0 ? aapc.RandomElement() : aapc.MinBy(x => Vector2.Distance(x.Pos(), pos));
 
-        if (target.Is(Team.Impostor) || target.IsNeutralKiller())
+        if (target.Is(Team.Impostor) || target.IsNeutralKiller() || target.Is(Team.Coven))
         {
             RottenFood[target.PlayerId] = Utils.TimeStamp;
             NotifyAboutRandomFood(target, "ChefRotten");
@@ -232,11 +232,7 @@ public class Chef : RoleBase
                 RottenFood[reader.ReadByte()] = Utils.TimeStamp;
                 break;
             case 5:
-                ActiveEvents[reader.ReadByte()].RemoveAt(reader.ReadPackedInt32());
-                break;
             case 6:
-                ActiveEvents[reader.ReadByte()].RemoveAt(reader.ReadPackedInt32());
-                break;
             case 7:
                 ActiveEvents[reader.ReadByte()].RemoveAt(reader.ReadPackedInt32());
                 break;
