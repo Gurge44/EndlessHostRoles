@@ -73,22 +73,16 @@ public class SpellCaster : Coven
         {
             if (exileIds.Any(PlayerIdList.Contains))
                 HexedPlayers.Clear();
-
-            List<byte> curseDeathList = [];
+            
             PlayerControl spellCaster = Main.AllAlivePlayerControls.First(x => x.Is(CustomRoles.SpellCaster));
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
+            byte[] curseDeathList = Main.PlayerStates.Keys
+                .Except(Main.AfterMeetingDeathPlayers.Keys)
+                .Where(IsSpelled)
+                .ToArray();
 
-                if (IsSpelled(pc.PlayerId))
-                {
-                    pc.SetRealKiller(spellCaster);
-                    curseDeathList.Add(pc.PlayerId);
-                }
-            }
-
-            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. curseDeathList]);
+            curseDeathList.ToValidPlayers().Do(x => x.SetRealKiller(spellCaster));
+            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, curseDeathList);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -98,12 +92,26 @@ public class SpellCaster : Coven
         return HexedPlayers.TryGetValue(playerId, out bool spell) && spell;
     }
 
+    public override void OnReportDeadBody()
+    {
+        if (!IsWinConditionMet()) return;
+        
+        LateTask.New(() =>
+        {
+            var spellCasterStr = CustomRoles.SpellCaster.ToColoredString();
+
+            Utils.SendMessage(string.Format(Translator.GetString("SpellCaster.WinConditionMet"), spellCasterStr),
+                byte.MaxValue,
+                $"<{Main.CovenColor}>{string.Format(Translator.GetString("SpellCaster.WinConditionMetTitle"), spellCasterStr)}</color>");
+        }, 10f, log: false);
+    }
+
     public override void AfterMeetingTasks()
     {
         if (IsWinConditionMet())
         {
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Coven);
-            CustomWinnerHolder.WinnerIds.UnionWith(Main.AllAlivePlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId));
+            CustomWinnerHolder.WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId));
         }
     }
 

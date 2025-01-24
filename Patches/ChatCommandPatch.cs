@@ -241,12 +241,13 @@ internal static class ChatCommands
     public static bool Prefix(ChatController __instance)
     {
         if (__instance.quickChatField.visible) return true;
-
         if (__instance.freeChatField.textArea.text == string.Empty) return false;
-
         __instance.timeSinceLastMessage = 3f;
-
+        
         string text = __instance.freeChatField.textArea.text.Trim();
+        var cancelVal = string.Empty;
+
+        if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
         CheckAnagramGuess(PlayerControl.LocalPlayer.PlayerId, text);
 
@@ -257,7 +258,6 @@ internal static class ChatCommands
 
         string[] args = text.Split(' ');
         var canceled = false;
-        var cancelVal = string.Empty;
         Main.IsChatCommand = true;
 
         Logger.Info(text, "SendChat");
@@ -297,9 +297,7 @@ internal static class ChatCommands
         }
 
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
-
-        if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
-
+        
         if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
         {
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
@@ -2574,6 +2572,14 @@ internal static class ChatCommands
             return;
         }
 
+        if (GameStates.InGame && (Silencer.ForSilencer.Contains(player.PlayerId) || (Main.PlayerStates[player.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && player.IsAlive())
+        {
+            ChatManager.SendPreviousMessagesToAll();
+            canceled = true;
+            LastSentCommand[player.PlayerId] = now;
+            return;
+        }
+
         if (text.StartsWith("\n")) text = text[1..];
 
         CheckAnagramGuess(player.PlayerId, text.ToLower());
@@ -2625,14 +2631,6 @@ internal static class ChatCommands
         {
             canceled = true;
             ChatManager.SendPreviousMessagesToAll();
-            return;
-        }
-
-        if (GameStates.InGame && (Silencer.ForSilencer.Contains(player.PlayerId) || (Main.PlayerStates[player.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && player.IsAlive())
-        {
-            ChatManager.SendPreviousMessagesToAll();
-            canceled = true;
-            LastSentCommand[player.PlayerId] = now;
             return;
         }
 

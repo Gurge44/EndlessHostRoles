@@ -706,9 +706,7 @@ internal static class MeetingHudStartPatch
                 AddMsg(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString());
             }
         }
-
-        if (msgToSend.Count > 0) LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)); }, 3f, "Skill Description First Meeting");
-
+        
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) AddMsg(string.Format(GetString("Message.MadmateSelfVoteModeNotify"), GetString("MadmateSpawnMode.SelfVote")));
 
         if (CustomRoles.God.RoleExist() && God.NotifyGodAlive.GetBool()) AddMsg(GetString("GodNoticeAlive"), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.God), GetString("GodAliveTitle")));
@@ -789,16 +787,6 @@ internal static class MeetingHudStartPatch
             foreach (PlayerControl ipc in Main.AllPlayerControls)
                 if (ipc.GetCustomRole().IsImpostorTeam())
                     AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
-        }
-
-        if (SpellCaster.IsWinConditionMet())
-        {
-            var spellCasterStr = CustomRoles.SpellCaster.ToColoredString();
-
-            AddMsg(
-                string.Format(GetString("SpellCaster.WinConditionMet"), spellCasterStr),
-                byte.MaxValue,
-                $"<{Main.CovenColor}>{string.Format(GetString("SpellCaster.WinConditionMetTitle"), spellCasterStr)}</color>");
         }
 
         if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)), 6f, "Meeting Start Notify");
