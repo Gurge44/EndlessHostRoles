@@ -16,8 +16,9 @@ public static class Speedrun
     private static OptionItem KillersCanKillTaskingPlayers;
 
     public static HashSet<byte> CanKill = [];
-
     public static Dictionary<byte, int> Timers = [];
+
+    public static int KCD => KillCooldown.GetInt();
 
     public static void SetupCustomOption()
     {
@@ -75,7 +76,7 @@ public static class Speedrun
         CanKill.Add(pc.PlayerId);
         int kcd = KillCooldown.GetInt();
         Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
-        pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.Runner);
+        pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.NSerialKiller);
         pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
         pc.SyncSettings();
         pc.SetKillCooldown(kcd);

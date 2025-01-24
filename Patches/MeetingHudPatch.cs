@@ -416,7 +416,10 @@ internal static class CheckForEndVotingPatch
                     name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("TeamImpostor")));
                 else if (player.IsCrewmate())
                     name = string.Format(GetString("IsGood"), coloredRealName);
-                else if (player.GetCustomRole().IsNeutral() && !player.Is(CustomRoles.Parasite) && !player.Is(CustomRoles.Refugee) && !player.Is(CustomRoles.Crewpostor) && !player.Is(CustomRoles.Convict)) name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")));
+                else if (player.GetCustomRole().IsNeutral() || player.IsNeutralKiller())
+                    name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")));
+                else if (player.Is(Team.Coven))
+                    name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(Team.Coven.GetColor(), GetString("TeamCoven")));
 
                 break;
             case 2:

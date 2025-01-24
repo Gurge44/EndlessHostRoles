@@ -81,7 +81,7 @@ internal static class OnGameJoinedPatch
                     try
                     {
                         LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.In_Lobby);
-                        if (GameStates.InGame) LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.In_Game);
+                        if (GameStates.InGame) LateTask.New(() => LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.In_Game), 5f, "NotifyLobbyStatusChanged Immediately");
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }

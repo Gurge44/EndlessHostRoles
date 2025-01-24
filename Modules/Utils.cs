@@ -469,8 +469,7 @@ public static class Utils
 
     public static string GetRoleColorCode(CustomRoles role)
     {
-        string hexColor = Main.RoleColors.GetValueOrDefault(role, "#ffffff");
-        return hexColor;
+        return Main.RoleColors.GetValueOrDefault(role, "#ffffff");
     }
 
     public static (string, Color) GetRoleText(byte seerId, byte targetId, bool pure = false, bool seeTargetBetrayalAddons = false)
@@ -1504,14 +1503,16 @@ public static class Utils
 
         StringBuilder sb = new();
         sb.AppendLine($"<#ffffff><u>{GetString("WinsCountTitle")}:</u></color>");
+        bool any = false;
 
         foreach ((string friendcode, int wins) in dictionary)
         {
-            if (!Main.AllAlivePlayerControls.FindFirst(x => x.FriendCode == friendcode, out var player)) continue;
+            if (!Main.AllPlayerControls.FindFirst(x => x.FriendCode == friendcode, out var player)) continue;
             sb.AppendLine($"{player.PlayerId.ColoredPlayerName()}: {wins}");
+            any = true;
         }
 
-        return sb.ToString().Trim();
+        return any ? sb.ToString().Trim() : string.Empty;
     }
 
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
@@ -2859,27 +2860,17 @@ public static class Utils
                     Logger.Info(target?.Data?.PlayerName + " Terrorist died", "MurderPlayer");
                     CheckTerroristWin(target?.Data);
                     break;
-                case CustomRoles.Executioner:
-                    if (Executioner.Target.ContainsKey(target.PlayerId))
-                    {
-                        Executioner.Target.Remove(target.PlayerId);
-                        Executioner.SendRPC(target.PlayerId);
-                    }
-
+                case CustomRoles.Executioner when Executioner.Target.Remove(target.PlayerId):
+                    Executioner.SendRPC(target.PlayerId);
                     break;
-                case CustomRoles.Lawyer:
-                    if (Lawyer.Target.ContainsKey(target.PlayerId))
-                    {
-                        Lawyer.Target.Remove(target.PlayerId);
-                        Lawyer.SendRPC(target.PlayerId);
-                    }
-
+                case CustomRoles.Lawyer when Lawyer.Target.Remove(target.PlayerId):
+                    Lawyer.SendRPC(target.PlayerId);
                     break;
-                case CustomRoles.PlagueDoctor when !disconnect:
+                case CustomRoles.PlagueDoctor when !disconnect && !onMeeting:
                     PlagueDoctor.OnPDdeath(target.GetRealKiller(), target);
                     break;
                 case CustomRoles.CyberStar when !disconnect:
-                    if (GameStates.IsMeeting)
+                    if (onMeeting)
                     {
                         foreach (PlayerControl pc in Main.AllPlayerControls)
                         {
@@ -2916,14 +2907,15 @@ public static class Utils
 
             if (target == null) return;
 
-            if (!disconnect) Randomizer.OnAnyoneDeath(target);
+            if (!disconnect && !onMeeting) Randomizer.OnAnyoneDeath(target);
             if (Executioner.Target.ContainsValue(target.PlayerId)) Executioner.ChangeRoleByTarget(target);
             if (Lawyer.Target.ContainsValue(target.PlayerId)) Lawyer.ChangeRoleByTarget(target);
-            if (!disconnect && target.Is(CustomRoles.Stained)) Stained.OnDeath(target, target.GetRealKiller());
+            if (!disconnect && !onMeeting && target.Is(CustomRoles.Stained)) Stained.OnDeath(target, target.GetRealKiller());
             if (!disconnect && target.Is(CustomRoles.Spurt)) Spurt.DeathTask(target);
 
-            Postman.CheckAndResetTargets(target, true);
+            Postman.CheckAndResetTargets(target, !onMeeting && !disconnect);
             Hitman.CheckAndResetTargets();
+            Reaper.OnAnyoneDead(target);
 
             if (!onMeeting && !disconnect)
             {
@@ -2943,11 +2935,11 @@ public static class Utils
             }
 
             if (!onMeeting)
+            {
                 Amogus.OnAnyoneDead(target);
-
-            Adventurer.OnAnyoneDead(target);
-            Whisperer.OnAnyoneDied(target);
-            Reaper.OnAnyoneDead(target);
+                Adventurer.OnAnyoneDead(target);
+                Whisperer.OnAnyoneDied(target);
+            }
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 
@@ -2996,7 +2988,7 @@ public static class Utils
             Logger.Info(sb.ToString(), "CountAlivePlayers");
         }
 
-        if (AmongUsClient.Instance.AmHost && !Main.HasJustStarted) GameEndChecker.Prefix();
+        if (AmongUsClient.Instance.AmHost && Main.IntroDestroyed) GameEndChecker.Prefix();
     }
 
     public static string GetVoteName(byte num)
