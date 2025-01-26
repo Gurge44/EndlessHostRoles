@@ -5687,6 +5687,7 @@
   "UpReplacedMessage": "/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.",
   "PingText": "Ping",
   "SettingsForRoleText": "Settings for",
+  "ModLanguage": "Mod Language",
   "UseGameLanguage": "Use Game Language",
   "Hungarian": "Hungarian",
   "Polish": "Polish",
