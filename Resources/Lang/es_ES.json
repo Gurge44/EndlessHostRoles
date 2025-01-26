@@ -5687,5 +5687,9 @@
   "UpReplacedMessage": "/up fue remplazado por /setrole que te permite establecer el rol de cualquiera para cualquier juego escribiendo '/setrole (ID) (ROL)'. Puedes ver ID's con /id.\nPara establecer tu propio rol como con /up, debes hacer '/setrole 0 (ROL)'.",
   "PingText": "Ping",
   "SettingsForRoleText": "Configuraciones",
+  "UseGameLanguage": "Use Game Language",
+  "Hungarian": "Hungarian",
+  "Polish": "Polish",
+  "Indonesian": "Indonesian",
   "NotAssigned": "-"
 }
