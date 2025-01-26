@@ -5687,9 +5687,10 @@
   "UpReplacedMessage": "/up был заменён командой /setrole, которая позволяет установить любому игроку роль на следующую игру. Команда установки роли: ''/setrole [ID игрока] [Роль]''. Вы можете просмотреть все ID с помощью команды /id.\nПривелегия установки роли даётся только людям с /up правом. Для установки роли требуется включить Ютуб-План.",
   "PingText": "Пинг",
   "SettingsForRoleText": "Настройки для",
-  "UseGameLanguage": "Use Game Language",
-  "Hungarian": "Hungarian",
-  "Polish": "Polish",
-  "Indonesian": "Indonesian",
+  "ModLanguage": "Язык мода",
+  "UseGameLanguage": "Использовать язык игры",
+  "Hungarian": "Венгерский",
+  "Polish": "Польский",
+  "Indonesian": "Индонезийский",
   "NotAssigned": "-"
 }
