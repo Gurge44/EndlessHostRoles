@@ -5687,5 +5687,9 @@
   "UpReplacedMessage": "O /up foi substituído por /setrole que permite definir a função de qualquer um em qualquer jogo usando '/setrole (ID) (FUNÇÂO)'. Você pode ver os IDs com /id. \nPara definir sua própria função como /up, você precisa usar '/setrole 0 (FUNÇÃO)'.",
   "PingText": "Latência",
   "SettingsForRoleText": "Configurações para",
+  "UseGameLanguage": "Use Game Language",
+  "Hungarian": "Hungarian",
+  "Polish": "Polish",
+  "Indonesian": "Indonesian",
   "NotAssigned": "-"
 }
