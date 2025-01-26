@@ -416,7 +416,7 @@ internal static class MoveAndStop
             PlayerControl pc = __instance;
             long now = Utils.TimeStamp;
 
-            if (TimeSinceStart > 25 && !IsEventActive && (now - Event.StartTimeStamp - Event.Duration) >= EventFrequency.GetInt())
+            if (TimeSinceStart > 35 && !IsEventActive && (now - Event.StartTimeStamp - Event.Duration) >= EventFrequency.GetInt())
             {
                 var pool = EventChances.SelectMany(x => Enumerable.Repeat(x.Key, x.Value.GetInt() / 5)).ToList();
                 if (Event.Duration == 0) pool.RemoveAll(x => x == Events.VentAccess);

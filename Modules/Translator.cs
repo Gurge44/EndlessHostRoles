@@ -126,8 +126,11 @@ public static class Translator
 
         if (Main.ForceOwnLanguage.Value) langId = GetUserTrueLang();
 
-        int modLanguageId = Options.ModLanguage.GetValue();
-        if (modLanguageId != 0) langId = (SupportedLangs)(modLanguageId + 100 - 1);
+        if (Options.IsLoaded)
+        {
+            int modLanguageId = Options.ModLanguage.GetValue();
+            if (modLanguageId != 0) langId = (SupportedLangs)(modLanguageId + 100 - 1);
+        }
 
         string str = GetString(s, langId);
 
