@@ -5687,6 +5687,7 @@
   "UpReplacedMessage": "/up 被 /setrole 取代，它允許你透過使用\"/setrole (ID) (職業名)\"來設定任何遊戲中任何人的職業。你可以使用 /id 查看 ID。\n要像 /up 一樣設定你自己的職業，你需要執行\"/setrole 0 (職業名)\"\n。",
   "PingText": "延遲",
   "SettingsForRoleText": "設定",
+  "ModLanguage": "Mod Language",
   "UseGameLanguage": "Use Game Language",
   "Hungarian": "Hungarian",
   "Polish": "Polish",
