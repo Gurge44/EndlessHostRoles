@@ -5687,6 +5687,7 @@
   "UpReplacedMessage": "/up 被 /setrole 取代，它允许您输入“/setrole (ID) (职业)”来设置任何人的职业。 您可以使用 /id 查看 ID。\n设置您自己的职业与 /up 相似，您需要执行 '/setrole 0 (职业)'。",
   "PingText": "延迟",
   "SettingsForRoleText": "设置给",
+  "ModLanguage": "Mod Language",
   "UseGameLanguage": "Use Game Language",
   "Hungarian": "Hungarian",
   "Polish": "Polish",
