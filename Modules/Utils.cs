@@ -1506,9 +1506,9 @@ public static class Utils
         sb.AppendLine($"<#ffffff><u>{GetString("WinsCountTitle")}:</u></color>");
         bool any = false;
 
-        foreach ((string friendcode, int wins) in dictionary)
+        foreach ((string hashedpuid, int wins) in dictionary)
         {
-            if (!Main.AllPlayerControls.FindFirst(x => x.FriendCode == friendcode, out var player)) continue;
+            if (!Main.AllPlayerControls.FindFirst(x => x.GetClient().GetHashedPuid() == hashedpuid, out var player)) continue;
             sb.AppendLine($"{player.PlayerId.ColoredPlayerName()}: {wins}");
             any = true;
         }
@@ -2835,6 +2835,7 @@ public static class Utils
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM)) LateTask.New(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
 
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
+        EAC.InvalidReports.Clear();
     }
 
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)

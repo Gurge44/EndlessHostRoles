@@ -170,7 +170,7 @@ internal static class MoveAndStop
 
     public static int RoundTime { get; set; }
 
-    private static bool HasJustStarted => GameTime.GetInt() - RoundTime < 20;
+    private static int TimeSinceStart => GameTime.GetInt() - RoundTime;
 
     private static int ExtraGreenTime => Main.CurrentMap switch
     {
@@ -392,7 +392,7 @@ internal static class MoveAndStop
         var text = IsEventActive ? $"{string.Format(GetString("MoveAndStop_EventActive"), GetString($"MoveAndStop_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}\n" : "\n";
         text += IsEventActive && Event.Type == Events.FrozenTimers ? FixedUpdatePatch.LastSuffix[pc.PlayerId].Trim() : timers.ToString();
 
-        if (HasJustStarted && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) && Options.CurrentGameMode != CustomGameMode.AllInOne)
+        if (TimeSinceStart < 20 && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) && Options.CurrentGameMode != CustomGameMode.AllInOne)
             text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
 
         return text;
@@ -416,7 +416,7 @@ internal static class MoveAndStop
             PlayerControl pc = __instance;
             long now = Utils.TimeStamp;
 
-            if (!HasJustStarted && pc.IsLocalPlayer() && !IsEventActive && (now - Event.StartTimeStamp - Event.Duration) >= EventFrequency.GetInt())
+            if (TimeSinceStart > 35 && !IsEventActive && (now - Event.StartTimeStamp - Event.Duration) >= EventFrequency.GetInt())
             {
                 var pool = EventChances.SelectMany(x => Enumerable.Repeat(x.Key, x.Value.GetInt() / 5)).ToList();
                 if (Event.Duration == 0) pool.RemoveAll(x => x == Events.VentAccess);

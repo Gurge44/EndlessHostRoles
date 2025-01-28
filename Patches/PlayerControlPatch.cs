@@ -1036,6 +1036,7 @@ internal static class ReportDeadBodyPatch
                 }
 
                 Options.UsedButtonCount++;
+
                 if (Math.Abs(Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) < 0.5f)
                     Logger.Info("This was the last allowed emergency meeting", "ReportDeadBody");
             }
@@ -1045,7 +1046,7 @@ internal static class ReportDeadBodyPatch
         catch (Exception e) { ThrowException(e); }
 
         return true;
-        
+
         void Notify(string str) => __instance.Notify(ColorString(Color.yellow, GetString("CheckReportFail") + GetString(str)), 15f);
     }
 
@@ -2222,13 +2223,13 @@ internal static class PlayerControlSetRolePatch
 
         if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
         {
-            bool targetIsKiller = __instance.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(__instance.PlayerId);
+            bool targetIsKiller = __instance.Is(CustomRoleTypes.Impostor) || __instance.HasDesyncRole();
             Dictionary<PlayerControl, RoleTypes> ghostRoles = new();
 
             foreach (PlayerControl seer in Main.AllPlayerControls)
             {
                 bool self = seer.PlayerId == __instance.PlayerId;
-                bool seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(seer.PlayerId);
+                bool seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || seer.HasDesyncRole();
 
                 if (__instance.HasGhostRole())
                     ghostRoles[seer] = RoleTypes.GuardianAngel;

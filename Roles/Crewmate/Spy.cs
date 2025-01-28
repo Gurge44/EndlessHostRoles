@@ -110,6 +110,7 @@ public class Spy : RoleBase
         SpyRedNameList.TryAdd(killer.PlayerId, TimeStamp);
         SendRPC(1, killer.PlayerId);
         NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+        killer.SetKillCooldown();
 
         return false;
     }

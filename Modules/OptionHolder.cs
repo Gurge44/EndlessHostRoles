@@ -48,6 +48,14 @@ public static class Options
         Tasks
     }
 
+    public enum ModLanguages
+    {
+        UseGameLanguage,
+        Hungarian,
+        Polish,
+        Indonesian
+    }
+
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
     public static Dictionary<AddonTypes, List<CustomRoles>> GroupedAddons = [];
 
@@ -171,7 +179,9 @@ public static class Options
         "pet_RANDOM_FOR_EVERYONE"
     ];
 
-    public static float DefaultKillCooldown = Main.NormalOptions == null ? 25 : Main.NormalOptions.KillCooldown;
+    public static float DefaultKillCooldown = Main.NormalOptions == null ? 25f : Main.NormalOptions.KillCooldown;
+
+    public static OptionItem ModLanguage;
 
     public static readonly Dictionary<GameStateInfo, OptionItem> GameStateSettings = [];
     public static OptionItem MinPlayersForGameStateCommand;
@@ -1294,6 +1304,9 @@ public static class Options
         #region EHRSettings
 
         MainLoadingText = "Building EHR settings";
+
+        ModLanguage = new StringOptionItem(19308, "ModLanguage", Enum.GetNames<ModLanguages>(), 0, TabGroup.SystemSettings)
+            .SetHeader(true);
 
         KickLowLevelPlayer = new IntegerOptionItem(19300, "KickLowLevelPlayer", new(0, 100, 1), 0, TabGroup.SystemSettings)
             .SetValueFormat(OptionFormat.Level)

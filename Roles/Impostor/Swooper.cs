@@ -20,8 +20,8 @@ public class Swooper : RoleBase
     private static OptionItem SwooperVentNormallyOnCooldown;
     private static OptionItem SwooperLimitOpt;
     public static OptionItem SwooperAbilityUseGainWithEachKill;
-    private int CD;
 
+    private int CD;
     private float Cooldown;
 
     private int Count;
@@ -193,13 +193,11 @@ public class Swooper : RoleBase
             {
                 case < 0:
                     lastTime = now;
-                    Vector2 pos = player.Pos();
-                    player.MyPhysics?.RpcBootFromVent(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId);
+                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId, x));
                     player.Notify(GetString("SwooperInvisStateOut"));
                     InvisTime = -10;
                     SendRPC();
                     refresh = true;
-                    LateTask.New(() => player.TP(pos), 0.5f, log: false);
                     break;
                 case <= 10 when !player.IsModClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
@@ -223,12 +221,9 @@ public class Swooper : RoleBase
 
             if (CanGoInvis && (wraith || limit >= 1))
             {
+                __instance.RpcExitVentDesync(ventId, pc);
+
                 ventedId = ventId;
-
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
-                writer.WritePacked(ventId);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-
                 InvisTime = Utils.TimeStamp;
                 if (!wraith) pc.RpcRemoveAbilityUse();
 
