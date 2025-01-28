@@ -804,9 +804,9 @@ public static class GuessManager
                 switch (PlayerControl.LocalPlayer.GetCustomRole(), index)
                 {
                     case (CustomRoles.EvilGuesser, 1) when !Options.EGCanGuessImp.GetBool():
-                    case (CustomRoles.EvilGuesser, 3) when !Options.EGCanGuessAdt.GetBool():
+                    case (CustomRoles.EvilGuesser, 4) when !Options.EGCanGuessAdt.GetBool():
                     case (CustomRoles.NiceGuesser, 0) when !Options.GGCanGuessCrew.GetBool() && !PlayerControl.LocalPlayer.IsMadmate():
-                    case (CustomRoles.NiceGuesser, 3) when !Options.GGCanGuessAdt.GetBool():
+                    case (CustomRoles.NiceGuesser, 4) when !Options.GGCanGuessAdt.GetBool():
                         continue;
                 }
                 
@@ -1000,7 +1000,6 @@ public static class GuessManager
         }
 
         PlayerControl.LocalPlayer.RPCPlayCustomSound("Gunload");
-
     }
 
     // Modded non-host client guess role/add-on

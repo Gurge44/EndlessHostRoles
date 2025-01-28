@@ -760,6 +760,7 @@ public static class Utils
         {
             case CustomRoles.GM:
             case CustomRoles.Sheriff when !Options.UsePets.GetBool() || !Sheriff.UsePet.GetBool():
+            case CustomRoles.Curser:
             case CustomRoles.Arsonist:
             case CustomRoles.Jackal:
             case CustomRoles.Sidekick:

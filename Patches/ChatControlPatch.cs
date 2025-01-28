@@ -218,7 +218,6 @@ public static class ChatManager
 
         try
         {
-            string msg = Utils.EmptyMessage;
             int totalAlive = Main.AllAlivePlayerControls.Length;
             if (totalAlive == 0) return;
 
@@ -230,8 +229,8 @@ public static class ChatManager
             for (int i = clear ? 0 : filtered.Length; i < 20; i++)
             {
                 PlayerControl player = x[r.Next(0, totalAlive)];
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                SendRPC(player, msg);
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, Utils.EmptyMessage);
+                SendRPC(player, Utils.EmptyMessage);
             }
 
             if (!clear)
@@ -273,6 +272,8 @@ public static class ChatManager
     {
         var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (sender == null) return;
+        
+        Logger.Info($"Desync Clear Chat for {target.GetNameWithRole()}", "ChatManager");
 
         if (!target.IsLocalPlayer())
         {
