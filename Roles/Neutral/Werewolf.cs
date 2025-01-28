@@ -137,7 +137,7 @@ public class Werewolf : RoleBase
             if (!player.IsModClient())
             {
                 long cooldown = lastTime + (long)RampageCD.GetFloat() - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, overrideAll: true);
 
                 CD = (int)cooldown;
             }

@@ -168,7 +168,7 @@ public class Swooper : RoleBase
             if (!player.IsModClient() && UsedRole != CustomRoles.Chameleon)
             {
                 long cooldown = lastTime + (long)Cooldown - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, overrideAll: true);
 
                 CD = (int)cooldown;
             }

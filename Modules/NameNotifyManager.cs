@@ -18,11 +18,8 @@ public static class NameNotifyManager
     public static void Notify(this PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true)
     {
         if (!AmongUsClient.Instance.AmHost || pc == null) return;
-
         if (!GameStates.IsInTask) return;
-
         if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
-
         if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
 
         long expireTS = Utils.TimeStamp + (long)time;
