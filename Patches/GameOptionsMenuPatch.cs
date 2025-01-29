@@ -971,7 +971,7 @@ public class GameSettingMenuPatch
         presetTmp.DestroyTranslator();
         presetTmp.text = Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
-        bool russian = DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian;
+        bool russian = FastDestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian;
         float size = !russian ? 2.45f : 1.45f;
         presetTmp.fontSizeMax = presetTmp.fontSizeMin = size;
 
@@ -1266,7 +1266,7 @@ public class GameSettingMenuPatch
         ModGameOptionsMenu.CategoryHeaderList = new();
 
         ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
-        DestroyableSingleton<HudManager>.Instance.menuNavigationPrompts.SetActive(false);
+        FastDestroyableSingleton<HudManager>.Instance.menuNavigationPrompts.SetActive(false);
         if (Controller.currentTouchType != Controller.TouchType.Joystick) __instance.ChangeTab(1, false);
 
         __instance.StartCoroutine(__instance.CoSelectDefault());
@@ -1285,7 +1285,7 @@ public class GameSettingMenuPatch
         ModSettingsTabs = [];
 
         if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && GameStates.CurrentServerType == GameStates.ServerType.Modded && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
-            DestroyableSingleton<HudManager>.Instance.ShowPopUp(Translator.GetString("ModdedServerDoesntSupportCNOMessage"));
+            FastDestroyableSingleton<HudManager>.Instance.ShowPopUp(Translator.GetString("ModdedServerDoesntSupportCNOMessage"));
     }
 }
 

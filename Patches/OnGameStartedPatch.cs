@@ -39,9 +39,9 @@ internal static class ChangeRoleSettings
         IEnumerator<object> CoStartGame()
         {
             AmongUsClient amongUsClient = __instance;
-            if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen) DestroyableSingleton<HudManager>.Instance.GameMenu.Close();
+            if (FastDestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen) FastDestroyableSingleton<HudManager>.Instance.GameMenu.Close();
 
-            DestroyableSingleton<UnityTelemetry>.Instance.Init();
+            FastDestroyableSingleton<UnityTelemetry>.Instance.Init();
             amongUsClient.logger.Info($"Received game start: {amongUsClient.AmHost}");
             yield return null;
             while (!DestroyableSingleton<HudManager>.InstanceExists) yield return null;
@@ -56,29 +56,29 @@ internal static class ChangeRoleSettings
             var objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
             if (objectOfType2 != null) objectOfType2.Close();
 
-            if (DestroyableSingleton<GameStartManager>.InstanceExists)
+            if (FastDestroyableSingleton<GameStartManager>.InstanceExists)
             {
-                // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) DestroyableSingleton<GameStartManager>.Instance);
-                Object.Destroy(DestroyableSingleton<GameStartManager>.Instance.gameObject);
+                // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) FastDestroyableSingleton<GameStartManager>.Instance);
+                Object.Destroy(FastDestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
 
-            if (DestroyableSingleton<LobbyInfoPane>.InstanceExists) Object.Destroy(DestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
+            if (FastDestroyableSingleton<LobbyInfoPane>.InstanceExists) Object.Destroy(FastDestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
 
-            if (DestroyableSingleton<DiscordManager>.InstanceExists) DestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
+            if (FastDestroyableSingleton<DiscordManager>.InstanceExists) FastDestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
 
             if (!string.IsNullOrEmpty(DataManager.Player.Store.ActiveCosmicube))
-                AmongUsClient.Instance.SetActivePodType(DestroyableSingleton<CosmicubeManager>.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
+                AmongUsClient.Instance.SetActivePodType(FastDestroyableSingleton<CosmicubeManager>.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
             else
             {
-                PlayerStorageManager.CloudPlayerPrefs playerPrefs = DestroyableSingleton<PlayerStorageManager>.Instance.PlayerPrefs;
+                PlayerStorageManager.CloudPlayerPrefs playerPrefs = FastDestroyableSingleton<PlayerStorageManager>.Instance.PlayerPrefs;
                 AmongUsClient.Instance.SetActivePodType(playerPrefs.ActivePodType);
             }
 
-            DestroyableSingleton<FriendsListManager>.Instance.ConfirmationScreen.Cancel();
-            DestroyableSingleton<FriendsListManager>.Instance.Ui.Close(true);
-            DestroyableSingleton<FriendsListManager>.Instance.ReparentUI();
+            FastDestroyableSingleton<FriendsListManager>.Instance.ConfirmationScreen.Cancel();
+            FastDestroyableSingleton<FriendsListManager>.Instance.Ui.Close(true);
+            FastDestroyableSingleton<FriendsListManager>.Instance.ReparentUI();
             // CosmeticsCache.ClearUnusedCosmetics();
-            yield return DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.clear, Color.black, showLoader: true);
+            yield return FastDestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.clear, Color.black, showLoader: true);
             ++StatsManager.Instance.BanPoints;
             StatsManager.Instance.LastGameStarted = DateTime.UtcNow;
 
@@ -106,17 +106,17 @@ internal static class ChangeRoleSettings
                 }
             }
 
-            DestroyableSingleton<FriendsListManager>.Instance.SetRecentlyPlayed(GameData.Instance.AllPlayers);
+            FastDestroyableSingleton<FriendsListManager>.Instance.SetRecentlyPlayed(GameData.Instance.AllPlayers);
             GameData.TimeGameStarted = Time.realtimeSinceStartup;
             int map = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
             string gameName = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
-            DestroyableSingleton<DebugAnalytics>.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames)map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, DestroyableSingleton<ServerManager>.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
+            FastDestroyableSingleton<DebugAnalytics>.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames)map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, FastDestroyableSingleton<ServerManager>.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
 
             try
             {
-                DestroyableSingleton<UnityTelemetry>.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, StatsManager.Instance.GetStat(StringNames.StatsGamesImpostor), StatsManager.Instance.GetStat(StringNames.StatsGamesStarted), StatsManager.Instance.GetStat(StringNames.StatsCrewmateStreak));
+                FastDestroyableSingleton<UnityTelemetry>.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, StatsManager.Instance.GetStat(StringNames.StatsGamesImpostor), StatsManager.Instance.GetStat(StringNames.StatsGamesStarted), StatsManager.Instance.GetStat(StringNames.StatsCrewmateStreak));
                 NetworkedPlayerInfo.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
-                DestroyableSingleton<UnityTelemetry>.Instance.StartGameCosmetics(defaultOutfit.ColorId, defaultOutfit.HatId, defaultOutfit.SkinId, defaultOutfit.PetId, defaultOutfit.VisorId, defaultOutfit.NamePlateId);
+                FastDestroyableSingleton<UnityTelemetry>.Instance.StartGameCosmetics(defaultOutfit.ColorId, defaultOutfit.HatId, defaultOutfit.SkinId, defaultOutfit.PetId, defaultOutfit.VisorId, defaultOutfit.NamePlateId);
             }
             catch { }
 
@@ -1232,8 +1232,8 @@ internal static class FixIntroPatch
 
             PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)PlayerNameColor.Set);
             PlayerControl.LocalPlayer.StopAllCoroutines();
-            DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
-            DestroyableSingleton<HudManager>.Instance.HideGameLoader();
+            FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(FastDestroyableSingleton<HudManager>.Instance.CoShowIntro());
+            FastDestroyableSingleton<HudManager>.Instance.HideGameLoader();
         }, 1f, log: false);
     }
 }

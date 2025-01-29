@@ -135,6 +135,6 @@ public sealed class Stealth : RoleBase
         seen ??= seer;
         if (isForMeeting || seer != StealthPC || seen != StealthPC || !darkenedRoom.HasValue) return base.GetSuffix(seer, seen, isForMeeting, isForHud);
 
-        return string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value));
+        return string.Format(Translator.GetString("StealthDarkened"), FastDestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value));
     }
 }

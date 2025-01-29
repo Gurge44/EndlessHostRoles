@@ -211,14 +211,18 @@ internal static class SetUpRoleTextPatch
         sb.Append("------------Modded Settings------------\n");
 
         string disabledRoleStr = GetString("Rate0");
-        long i = 0;
+        int i = 0;
 
         foreach (OptionItem o in OptionItem.AllOptions)
         {
             if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals(disabledRoleStr)))
                 sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
-            if (++i % 10 == 0) yield return null;
+            if (i++ > 20)
+            {
+                yield return null;
+                i = 0;
+            }
         }
 
         sb.Append("-------------Other Information-------------\n");
@@ -419,11 +423,11 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Dictator or
                     CustomRoles.Mayor
-                    => DestroyableSingleton<HudManager>.Instance.Chat.messageSound,
+                    => FastDestroyableSingleton<HudManager>.Instance.Chat.messageSound,
 
                 CustomRoles.Monitor or
                     CustomRoles.AntiAdminer
-                    => DestroyableSingleton<HudManager>.Instance.Chat.warningSound,
+                    => FastDestroyableSingleton<HudManager>.Instance.Chat.warningSound,
 
                 CustomRoles.EvilTracker or
                     CustomRoles.Tracefinder or
@@ -443,14 +447,14 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Beacon or
                     CustomRoles.Farseer
                     => GetIntroSound(RoleTypes.GuardianAngel),
-                
+
                 CustomRoles.Workaholic or
                     CustomRoles.Speedrunner or
                     CustomRoles.Snitch
-                    => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
+                    => FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
 
                 CustomRoles.TaskManager
-                    => DestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
+                    => FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
 
                 CustomRoles.Opportunist or
                     CustomRoles.FFF or
@@ -485,7 +489,7 @@ internal static class BeginCrewmatePatch
                     => GetIntroSound(RoleTypes.Scientist),
 
                 CustomRoles.GM
-                    => DestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
+                    => FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
 
                 CustomRoles.SwordsMan or
                     CustomRoles.Minimalism or
@@ -510,9 +514,9 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Miner or
                     CustomRoles.Disperser
                     => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
-                
+
                 CustomRoles.Tremor
-                    => DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
+                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
 
                 CustomRoles.Tracker
                     or CustomRoles.TrackerEHR
@@ -597,7 +601,7 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("ModeSoloKombat");
                 __instance.BackgroundBar.material.color = color;
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 break;
             }
             case CustomGameMode.FFA:
@@ -854,7 +858,7 @@ internal static class IntroCutsceneDestroyPatch
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             PlayerControl lp = PlayerControl.LocalPlayer;
-            lp.RpcChangeRoleBasis(lp.GetCustomRole());
+            LateTask.New(() => lp.RpcChangeRoleBasis(lp.GetCustomRole()), 1f, log: false);
 
             if (Options.UsePets.GetBool())
             {

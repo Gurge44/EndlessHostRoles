@@ -541,7 +541,7 @@ internal static class ChatCommands
 
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-        
+
         if (Main.PlayerStates[targetId].IsDead) return;
 
         string msg = args[2..].Join(delimiter: " ");
@@ -1835,7 +1835,7 @@ internal static class ChatCommands
                 break;
 
             default:
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "crew | imp");
+                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "crew | imp");
                 break;
         }
 
@@ -2715,7 +2715,7 @@ internal static class ChatUpdatePatch
 
     public static void Postfix(ChatController __instance)
     {
-        var chatBubble = __instance.chatBubblePool.Prefab.Cast<ChatBubble>();
+        var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
         chatBubble.TextArea.overrideColorTags = false;
 
         if (Main.DarkTheme.Value)
@@ -2759,7 +2759,7 @@ internal static class ChatUpdatePatch
         if (clientId == -1)
         {
             player.SetName(title);
-            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+            FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
             player.SetName(name);
         }
 
@@ -2822,9 +2822,9 @@ internal static class RpcSendChatPatch
 
         int return_count = PlayerControl.LocalPlayer.name.Count(x => x == '\n');
         chatText = new StringBuilder(chatText).Insert(0, "\n", return_count).ToString();
-        if (AmongUsClient.Instance.AmClient && DestroyableSingleton<HudManager>.Instance) DestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
+        if (AmongUsClient.Instance.AmClient && FastDestroyableSingleton<HudManager>.Instance) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
 
-        if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) DestroyableSingleton<UnityTelemetry>.Instance.SendWho();
+        if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) FastDestroyableSingleton<UnityTelemetry>.Instance.SendWho();
 
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpc(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.None);
         messageWriter.Write(chatText);

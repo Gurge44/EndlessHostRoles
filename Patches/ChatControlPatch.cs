@@ -229,7 +229,7 @@ public static class ChatManager
             for (int i = clear ? 0 : filtered.Length; i < 20; i++)
             {
                 PlayerControl player = x[r.Next(0, totalAlive)];
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, Utils.EmptyMessage);
+                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, Utils.EmptyMessage);
                 SendRPC(player, Utils.EmptyMessage);
             }
 
@@ -245,7 +245,7 @@ public static class ChatManager
                     PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
                     if (senderPlayer == null) continue;
 
-                    DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
+                    FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
                     SendRPC(senderPlayer, senderMessage);
                 }
             }
@@ -272,7 +272,7 @@ public static class ChatManager
     {
         var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (sender == null) return;
-        
+
         Logger.Info($"Desync Clear Chat for {target.GetNameWithRole()}", "ChatManager");
 
         if (!target.IsLocalPlayer())
@@ -284,6 +284,6 @@ public static class ChatManager
             return;
         }
 
-        Loop.Times(20, _ => DestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, Utils.EmptyMessage));
+        Loop.Times(20, _ => FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, Utils.EmptyMessage));
     }
 }

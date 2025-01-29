@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using AmongUs.Data;
 using EHR.Impostor;
@@ -115,27 +116,33 @@ public static class Camouflage
         if (oldIsCamouflage != IsCamouflage)
         {
             Logger.Info($"IsCamouflage: {IsCamouflage}", "CheckCamouflage");
-
             WaitingForSkinChange = [];
-
-            foreach (PlayerControl pc in Main.AllPlayerControls)
-            {
-                if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
-                {
-                    WaitingForSkinChange.Add(pc.PlayerId);
-                    continue;
-                }
-
-                RpcSetSkin(pc);
-
-                if (!IsCamouflage && !pc.IsAlive()) PetsHelper.RpcRemovePet(pc);
-            }
-
-            Utils.NotifyRoles(NoCache: true);
+            Main.Instance.StartCoroutine(UpdateCamouflageStatusAsync());
             return true;
         }
 
         return false;
+    }
+
+    private static IEnumerator UpdateCamouflageStatusAsync()
+    {
+        foreach (PlayerControl pc in Main.AllPlayerControls)
+        {
+            if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
+            {
+                WaitingForSkinChange.Add(pc.PlayerId);
+                continue;
+            }
+
+            RpcSetSkin(pc);
+
+            if (!IsCamouflage && !pc.IsAlive())
+                PetsHelper.RpcRemovePet(pc);
+
+            yield return null;
+        }
+
+        yield return Utils.NotifyEveryoneAsync(speed: 8);
     }
 
     public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false, bool Revive = false)

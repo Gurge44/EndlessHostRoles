@@ -101,7 +101,7 @@ public static class ModUpdater
             {
                 LatestVersion = new(data["tag_name"]?.ToString().TrimStart('v') ?? string.Empty);
                 LatestTitle = $"Ver. {LatestVersion}";
-                var assets = data["assets"].Cast<JArray>();
+                var assets = data["assets"].CastFast<JArray>();
 
                 for (var i = 0; i < assets.Count; i++)
                 {

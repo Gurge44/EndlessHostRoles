@@ -722,7 +722,7 @@ public static class Utils
 
     public static void SetAllVentInteractions()
     {
-        VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>());
+        VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>());
     }
 
     public static bool HasTasks(NetworkedPlayerInfo p, bool ForRecompute = true)
@@ -3254,7 +3254,7 @@ public static class Utils
 
     public static void FlashColor(Color color, float duration = 1f)
     {
-        HudManager hud = DestroyableSingleton<HudManager>.Instance;
+        HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
         if (hud.FullScreen == null) return;
 
         GameObject obj = hud.transform.FindChild("FlashColor_FullScreen")?.gameObject;

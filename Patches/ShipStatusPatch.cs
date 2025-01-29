@@ -126,7 +126,7 @@ internal static class RepairSystemPatch
                 Next:
 
             {
-                var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
+                var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
 
                 if (SwitchSystem is { IsActive: true })
                 {
@@ -436,7 +436,7 @@ internal static class ShipStatusSerializePatch
         if (initialState) return;
 
         bool cancel = Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction);
-        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>();
+        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
 
         if (cancel && ventilationSystem is { IsDirty: true })
         {

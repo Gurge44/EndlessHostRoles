@@ -39,7 +39,7 @@ public abstract class GameOptionsSender
         // Array & Send
         var byteArray = new Il2CppStructArray<byte>(writer.Length - 1);
         // MessageWriter.ToByteArray
-        Buffer.BlockCopy(writer.Buffer.Cast<Array>(), 1, byteArray.Cast<Array>(), 0, writer.Length - 1);
+        Buffer.BlockCopy(writer.Buffer.CastFast<Array>(), 1, byteArray.CastFast<Array>(), 0, writer.Length - 1);
 
         SendOptionsArray(byteArray);
         writer.Recycle();
@@ -87,10 +87,7 @@ public abstract class GameOptionsSender
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
         }
-        catch (Exception ex)
-        {
-            Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray");
-        }
+        catch (Exception ex) { Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray"); }
     }
 
     protected abstract IGameOptions BuildGameOptions();
