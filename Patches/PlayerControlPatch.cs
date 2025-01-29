@@ -1681,10 +1681,10 @@ internal static class FixedUpdatePatch
                         Mark.Append(Scout.GetTargetMark(seer, target));
                         break;
                     case CustomRoles.Monitor when inTask && self:
-                        if (AntiAdminer.IsAdminWatch) Suffix.Append($"{GetString("AntiAdminerAD")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})");
-                        if (AntiAdminer.IsVitalWatch) Suffix.Append($"{GetString("AntiAdminerVI")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})");
-                        if (AntiAdminer.IsDoorLogWatch) Suffix.Append($"{GetString("AntiAdminerDL")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})");
-                        if (AntiAdminer.IsCameraWatch) Suffix.Append($"{GetString("AntiAdminerCA")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                        if (AntiAdminer.IsAdminWatch) Suffix.Append($"{GetString("AntiAdminerAD")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsVitalWatch) Suffix.Append($"{GetString("AntiAdminerVI")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsDoorLogWatch) Suffix.Append($"{GetString("AntiAdminerDL")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsCameraWatch) Suffix.Append($"{GetString("AntiAdminerCA")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
                         break;
                     case CustomRoles.AntiAdminer when inTask && self:
                         if (AntiAdminer.IsAdminWatch) Suffix.Append(GetString("AntiAdminerAD"));
