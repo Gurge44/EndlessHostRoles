@@ -104,6 +104,6 @@ public class Banshee : Coven
         var screechedPlayers = Instances.SelectMany(x => x.ScreechedPlayers).ToValidPlayers().ToHashSet();
         if (screechedPlayers.Count == 0) return;
 
-        screechedPlayers.Do(ChatManager.ClearChatForSpecificPlayer);
+        LateTask.New(() => screechedPlayers.Do(ChatManager.ClearChatForSpecificPlayer), Utils.CalculatePingDelay());
     }
 }

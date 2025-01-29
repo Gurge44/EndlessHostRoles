@@ -119,7 +119,7 @@ public class Vengeance : RoleBase
             return;
         }
 
-        player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f, overrideAll: true);
+        player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 3f, overrideAll: true);
         Timer = seconds;
 
         LateTask.New(() => { Countdown(seconds - 1, player); }, 1.01f, log: false);

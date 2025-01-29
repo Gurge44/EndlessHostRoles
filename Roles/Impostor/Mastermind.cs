@@ -141,7 +141,7 @@ public class Mastermind : RoleBase
 
             long time = TimeLimit.GetInt() - (TimeStamp - x.Value);
 
-            player.Notify(string.Format(GetString("ManipulateNotify"), time), 1.1f);
+            player.Notify(string.Format(GetString("ManipulateNotify"), time), 3f);
         }
     }
 

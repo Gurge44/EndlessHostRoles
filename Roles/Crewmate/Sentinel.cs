@@ -75,7 +75,7 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
         long timeLeft = PatrolDuration - (TimeStamp - PatrolStartTimeStamp);
 
         if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
-        if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft), 1.1f, overrideAll: true);
+        if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft), 3f, overrideAll: true);
 
         LastNearbyKillers = killers.Select(x => x.PlayerId).ToList();
     }

@@ -16,12 +16,11 @@ internal class Assassin : RoleBase
     private static OptionItem MarkCooldownOpt;
     public static OptionItem AssassinateCooldownOpt;
     private static OptionItem CanKillAfterAssassinateOpt;
+    
     private float AssassinateCooldown;
     private bool CanKillAfterAssassinate;
     private bool IsUndertaker;
-
     private float MarkCooldown;
-
     public byte MarkedPlayer;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -114,8 +113,7 @@ internal class Assassin : RoleBase
     public override bool CanUseKillButton(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive()) return false;
-
-        return CanKillAfterAssassinate || !pc.IsShifted();
+        return CanKillAfterAssassinate || (!pc.IsShifted() && ((pc.Data.Role as PhantomRole) is null or { IsInvisible: false }));
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -140,7 +138,8 @@ internal class Assassin : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        OnShapeshift(pc, null, true);
+        if (!IsUndertaker) return;
+        Take(pc);
     }
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl t, bool shapeshifting)
