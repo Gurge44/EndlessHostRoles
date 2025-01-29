@@ -157,25 +157,23 @@ public static class Statistics
             Main.NumWinsPerGM.TryAdd(gm, []);
             Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), overrideExistingKeys: false);
             Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
+
+            void Reset()
+            {
+                if (won && OnlyVotingForKillersAsCrew && lp.IsCrewmate() && !MeetingStates.FirstMeeting) Achievements.Type.MasterDetective.CompleteAfterGameEnd();
+                OnlyVotingForKillersAsCrew = true;
+
+                if (won && !VotedBySomeone && (lp.IsImpostor() || lp.IsNeutralKiller()) && !MeetingStates.FirstMeeting) Achievements.Type.Unsuspected.CompleteAfterGameEnd();
+                VotedBySomeone = false;
+
+                if (VentTimes >= 50) Achievements.Type.Vectory.CompleteAfterGameEnd();
+                VentTimes = 0;
+
+                if (!HasUsedAnyCommand) Achievements.Type.AndForWhatDidICodeTheseCommandsForIfYouDontUseThemAtAll.CompleteAfterGameEnd();
+                HasUsedAnyCommand = false;
+            }
         }
         catch (Exception e) { Utils.ThrowException(e); }
-
-        return;
-
-        void Reset()
-        {
-            if (OnlyVotingForKillersAsCrew && lp.IsCrewmate() && !MeetingStates.FirstMeeting) Achievements.Type.MasterDetective.CompleteAfterGameEnd();
-            OnlyVotingForKillersAsCrew = true;
-
-            if (!VotedBySomeone && (lp.IsImpostor() || lp.IsNeutralKiller()) && !MeetingStates.FirstMeeting) Achievements.Type.Unsuspected.CompleteAfterGameEnd();
-            VotedBySomeone = false;
-
-            if (VentTimes >= 50) Achievements.Type.Vectory.CompleteAfterGameEnd();
-            VentTimes = 0;
-
-            if (!HasUsedAnyCommand) Achievements.Type.AndForWhatDidICodeTheseCommandsForIfYouDontUseThemAtAll.CompleteAfterGameEnd();
-            HasUsedAnyCommand = false;
-        }
     }
 
     public static void OnVotingComplete(MeetingHud.VoterState[] states, NetworkedPlayerInfo exiledPlayer, bool tie, bool dictator)

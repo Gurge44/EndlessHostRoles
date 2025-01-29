@@ -761,7 +761,7 @@ public static class StringOptionPatch
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
             string name = item.GetName();
-            if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
+            if (item.Name == "GameMode" && GameSettingMenu.Instance) GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
 
             string name1 = name;
 
