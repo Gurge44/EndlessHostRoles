@@ -76,7 +76,7 @@ internal static class RpcMurderPlayerPatch
             return false;
         }
 
-        MurderResultFlags murderResultFlags = didSucceed ? MurderResultFlags.Succeeded : MurderResultFlags.FailedError;
+        MurderResultFlags murderResultFlags = didSucceed ? MurderResultFlags.Succeeded : MurderResultFlags.FailedError | MurderResultFlags.DecisionByHost;
 
         if (AmongUsClient.Instance.AmClient)
             __instance.MurderPlayer(target, murderResultFlags);
