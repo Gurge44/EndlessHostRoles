@@ -1131,6 +1131,7 @@ internal static class CustomRolesHelper
             CustomRoles.PotionMaster or
             CustomRoles.Poache or
             CustomRoles.Reaper or
+            CustomRoles.Death or
             CustomRoles.VoodooMaster or
             CustomRoles.Goddess or
             CustomRoles.Augur or

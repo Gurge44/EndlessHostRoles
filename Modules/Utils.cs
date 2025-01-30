@@ -3381,7 +3381,9 @@ public static class Utils
             return name;
         }
 
-        name = name.Replace("nikocat233", "Niko", StringComparison.OrdinalIgnoreCase);
+        if (name.Contains("Niko", StringComparison.OrdinalIgnoreCase))
+            name = name.Replace("233(", "-").TrimEnd(')');
+
         return name;
     }
 
