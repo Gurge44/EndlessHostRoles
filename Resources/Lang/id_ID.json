@@ -1279,7 +1279,7 @@
   "DecreasedKillCooldown": "Decreased Kill Cooldown",
   "KillCooldown": "Durasi Rehat Serangan",
   "VentCooldown": "Durasi rehat akses ventilasi",
-  "MaxInVentTime": "Max In-Vent Time",
+  "MaxInVentTime": "Batas waktu dalam ventilasi",
   "NoisemakerImpostorAlert": "Alert <color=#ff1919>Impostors</color>",
   "NoisemakerAlertDuration": "Alert Duration",
   "TrackerCooldown": "Track Cooldown",
