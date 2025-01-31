@@ -68,7 +68,7 @@ internal static class HudManagerPatch
                     SettingsText = Object.Instantiate(PingTrackerUpdatePatch.Instance.text, __instance.transform, true);
                     SettingsText.alignment = TextAlignmentOptions.TopLeft;
                     SettingsText.verticalAlignment = VerticalAlignmentOptions.Top;
-                    SettingsText.transform.localPosition = new(-4.9f, 2.9f, 0);
+                    SettingsText.transform.position = AspectPosition.ComputeWorldPosition(Camera.main, AspectPosition.EdgeAlignments.LeftTop, new(0.38f, 0f, 0f));
                     SettingsText.fontSize = SettingsText.fontSizeMin = SettingsText.fontSizeMax = 1.5f;
                 }
 

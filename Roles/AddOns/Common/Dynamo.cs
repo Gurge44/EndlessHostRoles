@@ -82,8 +82,8 @@ public class Dynamo : IAddon
 
         if (!moving) Main.AllPlayerSpeed[player.PlayerId] -= Mathf.Clamp(decreaseby, 0f, Main.AllPlayerSpeed[player.PlayerId] - minSpeed);
         else Main.AllPlayerSpeed[player.PlayerId] += Mathf.Clamp(increaseBy, 0f, maxSpeed - Main.AllPlayerSpeed[player.PlayerId]);
-
-        player.MarkDirtySettings();
+        
+        if (moving) player.MarkDirtySettings();
     }
 
     private static int DetermineCharge(PlayerControl player, out float minSpeed, out float maxSpeed)
