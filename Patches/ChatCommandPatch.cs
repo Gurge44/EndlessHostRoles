@@ -1445,6 +1445,7 @@ internal static class ChatCommands
     private static void DeathCommand(PlayerControl player, string text, string[] args)
     {
         if (!GameStates.IsInGame) return;
+        if (Main.DiedThisRound.Contains(player.PlayerId) && Main.AllAlivePlayerControls.Any(x => x.GetCustomRole() is CustomRoles.Altruist or CustomRoles.Occultist or CustomRoles.TimeMaster)) return;
 
         PlayerControl killer = player.GetRealKiller();
 
