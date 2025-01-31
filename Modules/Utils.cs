@@ -725,6 +725,11 @@ public static class Utils
         VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>());
     }
 
+    public static bool IsRevivingRoleAlive()
+    {
+        return Main.AllAlivePlayerControls.Any(x => x.GetCustomRole() is CustomRoles.Altruist or CustomRoles.Occultist or CustomRoles.TimeMaster);
+    }
+
     public static bool HasTasks(NetworkedPlayerInfo p, bool ForRecompute = true)
     {
         if (GameStates.IsLobby) return false;
@@ -953,7 +958,7 @@ public static class Utils
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
-            case CustomGameMode.Standard when CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
+            case CustomGameMode.Standard when IsRevivingRoleAlive() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
             case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.AllInOne:
             case CustomGameMode.HideAndSeek when CustomHnS.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance):
@@ -2377,7 +2382,8 @@ public static class Utils
                                     ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
-                            if (CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(seer.PlayerId)) TargetRoleText = string.Empty;
+                            if (Utils.IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
+                                TargetRoleText = string.Empty;
 
                             if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) TargetRoleText = string.Empty;
 

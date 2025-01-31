@@ -357,6 +357,31 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void AddTagCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 4 || !byte.TryParse(args[1], out var id)) return;
+
+        var pc = id.GetPlayer();
+        if (pc == null) return;
+        
+        var color = ColorUtility.TryParseHtmlString(args[2], out var c) ? c : Color.red;
+        var tag = Utils.ColorString(color, string.Join(' ', args[3..]));
+        PrivateTagManager.AddTag(pc.FriendCode, tag);
+        
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("AddTagSuccess"), tag, id.ColoredPlayerName(), id));
+    }
+
+    private static void DeleteTagCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !byte.TryParse(args[1], out var id)) return;
+
+        var pc = id.GetPlayer();
+        if (pc == null) return;
+
+        PrivateTagManager.DeleteTag(pc.FriendCode);
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeleteTagSuccess"), id.ColoredPlayerName()));
+    }
+    
     private static void EightBallCommand(PlayerControl player, string text, string[] args)
     {
         Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
@@ -1471,7 +1496,7 @@ internal static class ChatCommands
     private static void DeathCommand(PlayerControl player, string text, string[] args)
     {
         if (!GameStates.IsInGame) return;
-        if (Main.DiedThisRound.Contains(player.PlayerId) && Main.AllAlivePlayerControls.Any(x => x.GetCustomRole() is CustomRoles.Altruist or CustomRoles.Occultist or CustomRoles.TimeMaster)) return;
+        if (Main.DiedThisRound.Contains(player.PlayerId)) return;
 
         PlayerControl killer = player.GetRealKiller();
 

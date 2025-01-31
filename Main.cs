@@ -728,6 +728,8 @@ public class Main : BasePlugin
 
         try { DevManager.StartFetchingTags(); }
         catch (Exception e) { Utils.ThrowException(e); }
+        
+        PrivateTagManager.LoadTagsFromFile();
 
         Harmony.PatchAll();
 

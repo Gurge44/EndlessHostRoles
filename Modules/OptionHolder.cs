@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using EHR.AddOns;
@@ -48,7 +49,8 @@ public static class Options
         Tasks
     }
 
-    public enum ModLanguages
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    enum ModLanguages
     {
         UseGameLanguage,
         Hungarian,
