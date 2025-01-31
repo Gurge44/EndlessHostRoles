@@ -2455,6 +2455,8 @@
   "CommandArgs.JailTalk.Message": "发送给监狱长/被监禁的玩家的消息",
   "CommandArgs.EightBall.Question": "The question to ask",
   "Commands.ChangeSettingHelp": "<b><u>参数:</u></b><size=70%>\\n-地图(theskeld/mirahq/polus/dlekseht/airship/thefungle/自定义)\\n-内鬼\n(数量)\\n-玩家(数量)\\n-推荐(开启/关闭)\\n-确认驱逐(开启/关闭)\\n-紧急会议按钮(次数)\\n-匿名投票(开启/关闭)\\n紧急按钮cd(x)\\n-讨论时间(x)\\n-投票时间(x)\\n-玩家速度(x.x)\\n-船员视野(x.x)\\n-内鬼视野(x.x)\\n-击杀冷却(x.x)\\n-击杀距离(短/中/长/自定义)\\n-任务更新频度(会议/实时/永不/自定义)\\n-可视化任务(开启/关闭)\\n-普通任务(x个)\\n-长任务(x个)\\n-短任务(x个)\\n-科学家数量(x个)\\n-科学家机率(x%)\\n-生命仪器冷却(x.x)\\n-生命仪器持续时间(x.x)\\n-工程师数量(x个)\\n-工程师机率(x%)\\n剩下几个职业以此类推\\n<u><b>注意!</b></u>\\n1:大小写问题\\n2.当你选择自定义时需要在后面写明你的参数\\n3.x.x只能为单精度浮点数例如8.9\\n4.如果你设置了“鬼魂做任务”，则会导致问题\\n使用样例:\\n/cs map fungle\\n/cs phantomchance（幻象师机率） 20%\\n/cs trackdelay（侦查员的追踪延时） 1,7",
+  "AddTagSuccess": "<#00ffa5>✓</color> Suceessfully created the tag {0} for {1}. If you want to change it, just use this command again and it will override the current tag. To delete it, simply type <#00a5ff>/deletetag {2}</color>!",
+  "DeleteTagSuccess": "<#00ffa5>✓</color> Successfully deleted {1}'s tag.",
   "8BallResponseTitle": "<#000000>➇ 8-BALL ➇</color>",
   "8BallResponse.0": "It is certain.",
   "8BallResponse.1": "It is decidedly so.",
