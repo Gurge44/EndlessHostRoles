@@ -208,6 +208,7 @@ internal static class TextBoxTMPSetTextPatch
                             "{addon}" => !ChatCommands.GetRoleByName(arg, out CustomRoles role) || !role.IsAdditionRole(),
                             "{letter}" => arg.Length != 1 || !char.IsLetter(arg[0]),
                             "{chance}" => !int.TryParse(arg, out int chance) || chance < 0 || chance > 100 || chance % 5 != 0,
+                            "{color}" => arg.Length != 6 || !arg.All(x => char.IsDigit(x) || x is >= 'a' and <= 'f') || !ColorUtility.TryParseHtmlString($"#{arg}", out _),
                             _ => false
                         };
                     }
@@ -221,6 +222,7 @@ internal static class TextBoxTMPSetTextPatch
                             "{role}" => ChatCommands.GetRoleByName(arg, out _),
                             "{addon}" => ChatCommands.GetRoleByName(arg, out CustomRoles role) && role.IsAdditionRole(),
                             "{chance}" => int.TryParse(arg, out int chance) && chance is >= 0 and <= 100 && chance % 5 == 0,
+                            "{color}" => arg.Length == 6 && arg.All(x => char.IsDigit(x) || x is >= 'a' and <= 'f') && ColorUtility.TryParseHtmlString($"#{arg}", out _),
                             _ => false
                         };
                     }
@@ -233,6 +235,7 @@ internal static class TextBoxTMPSetTextPatch
                             {
                                 "{id}" or "{id1}" or "{id2}" => $" ({byte.Parse(arg).ColoredPlayerName()})",
                                 "{role}" or "{addon}" when ChatCommands.GetRoleByName(arg, out CustomRoles role) => $" ({role.ToColoredString()})",
+                                "{color}" when ColorUtility.TryParseHtmlString($"#{arg}", out var color) => $" ({Utils.ColorString(color, "COLOR")})",
                                 _ => string.Empty
                             };
                     }

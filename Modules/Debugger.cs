@@ -49,7 +49,7 @@ internal static class Logger
     {
         if (!IsEnable) return;
 
-        if (FastDestroyableSingleton<HudManager>._instance)
+        if (DestroyableSingleton<HudManager>._instance)
         {
             FastDestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage(text);
             Warn(text, "SendInGame");

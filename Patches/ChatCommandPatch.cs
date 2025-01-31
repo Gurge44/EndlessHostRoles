@@ -192,7 +192,9 @@ internal static class ChatCommands
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
             new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
             new(["8ball", "шар", "八球"], "{question}", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
-
+            new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
+            new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
+            
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
@@ -364,7 +366,7 @@ internal static class ChatCommands
         var pc = id.GetPlayer();
         if (pc == null) return;
         
-        var color = ColorUtility.TryParseHtmlString(args[2], out var c) ? c : Color.red;
+        var color = ColorUtility.TryParseHtmlString($"#{args[2]}", out var c) ? c : Color.red;
         var tag = Utils.ColorString(color, string.Join(' ', args[3..]));
         PrivateTagManager.AddTag(pc.FriendCode, tag);
         
@@ -389,8 +391,8 @@ internal static class ChatCommands
 
     private static void GameModePollCommand(PlayerControl player, string text, string[] args)
     {
-        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x)));
-        var msg = $"/poll {GetString("GameModePoll.Question")}? {GetString("GameModePoll.KeepCurrent")} {gmNames}";
+        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x).Replace(' ', '_')));
+        var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {GetString("GameModePoll.KeepCurrent").Replace(' ', '_')} {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
 
@@ -987,12 +989,12 @@ internal static class ChatCommands
             int maxVotes = PollVotes.Values.Max();
             KeyValuePair<char, int>[] winners = PollVotes.Where(x => x.Value == maxVotes).ToArray();
 
-            string msg = winners.Length == 1
+            string result = winners.Length == 1
                 ? string.Format(GetString("Poll.Winner"), winners[0].Key, PollAnswers[winners[0].Key], winners[0].Value) +
                   PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} / {t.Value} {PollAnswers[t.Key]}\n")
                 : string.Format(GetString("Poll.Tie"), string.Join(" & ", winners.Select(x => $"{x.Key}{PollAnswers[x.Key]}")), maxVotes);
 
-            Utils.SendMessage(msg, title: Utils.ColorString(new(0, 255, 165, 255), GetString("PollResultTitle")));
+            Utils.SendMessage(result, title: Utils.ColorString(new(0, 255, 165, 255), GetString("PollResultTitle")));
 
             PollVotes.Clear();
             PollAnswers.Clear();

@@ -234,7 +234,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static bool Prefix(CreateOptionsPicker __instance, int maxPlayers)
         {
-            if (FastDestroyableSingleton<FindAGameManager>.InstanceExists || __instance.mode != SettingsMode.Host) { return true; }
+            if (DestroyableSingleton<FindAGameManager>.InstanceExists || __instance.mode != SettingsMode.Host) { return true; }
 
             IGameOptions targetOptions = __instance.GetTargetOptions();
             targetOptions.SetInt(Int32OptionNames.MaxPlayers, maxPlayers);

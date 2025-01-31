@@ -1765,7 +1765,13 @@ public static class Utils
     {
         if (!AmongUsClient.Instance.AmHost || player == null) return;
 
-        if (!player.AmOwner && !player.FriendCode.GetDevUser().HasTag() && !ChatCommands.IsPlayerModerator(player.FriendCode) && !ChatCommands.IsPlayerVIP(player.FriendCode)) return;
+        var devUser = player.FriendCode.GetDevUser();
+        bool isMod = ChatCommands.IsPlayerModerator(player.FriendCode);
+        bool isVIP = ChatCommands.IsPlayerVIP(player.FriendCode);
+        bool hasTag = devUser.HasTag();
+        bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out var privateTag);
+        
+        if (!player.AmOwner && !hasTag && !isMod && !isVIP && !hasPrivateTag) return;
 
         string name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out string n) ? n : string.Empty;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
@@ -1774,7 +1780,8 @@ public static class Utils
 
         if (AmongUsClient.Instance.IsGameStarted)
         {
-            if (Options.FormatNameMode.GetInt() == 1 && Main.NickName == string.Empty) name = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
+            if (Options.FormatNameMode.GetInt() == 1 && Main.NickName == string.Empty)
+                name = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
         }
         else
         {
@@ -1782,7 +1789,8 @@ public static class Utils
 
             if (player.AmOwner)
             {
-                if (GameStates.IsOnlineGame || GameStates.IsLocalGame) name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
+                if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
+                    name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
                 string modeText = GetString($"Mode{Options.CurrentGameMode}");
 
@@ -1802,13 +1810,9 @@ public static class Utils
                 };
             }
 
-            var devUser = player.FriendCode.GetDevUser();
-            bool isMod = ChatCommands.IsPlayerModerator(player.FriendCode);
-            bool isVIP = ChatCommands.IsPlayerVIP(player.FriendCode);
-            bool hasTag = devUser.HasTag();
-
-            if (hasTag || isMod || isVIP)
+            if (hasTag || isMod || isVIP || hasPrivateTag)
             {
+                var pTag = hasPrivateTag ? privateTag : string.Empty;
                 string tag = hasTag ? devUser.GetTag() : string.Empty;
                 if (tag == "null") tag = string.Empty;
 
@@ -1816,13 +1820,13 @@ public static class Utils
                 {
                     var modTagModded = $"<size=1.4>{GetString("ModeratorTag")}\r\n</size>";
                     var vipTagModded = $"<size=1.4>{GetString("VIPTag")}\r\n</size>";
-                    name = $"{(hasTag ? tag : string.Empty)}{(isMod ? modTagModded : string.Empty)}{(isVIP ? vipTagModded : string.Empty)}{name}";
+                    name = $"{(hasTag ? tag : string.Empty)}{(isMod ? modTagModded : string.Empty)}{(isVIP ? vipTagModded : string.Empty)}{pTag}{name}";
                 }
                 else
                 {
                     var modTagVanilla = $"<size=1.4>{GetString("ModeratorTag")} - </size>";
                     var vipTagVanilla = $"<size=1.4>{GetString("VIPTag")} - </size>";
-                    name = $"{(hasTag ? tag.Replace("\r\n", " - ") : string.Empty)}{(isMod ? modTagVanilla : string.Empty)}{(isVIP ? vipTagVanilla : string.Empty)}{name}";
+                    name = $"{(hasTag ? tag.Replace("\r\n", " - ") : string.Empty)}{(isMod ? modTagVanilla : string.Empty)}{(isVIP ? vipTagVanilla : string.Empty)}{pTag}{name}";
                 }
             }
 
@@ -1843,7 +1847,8 @@ public static class Utils
             }
         }
 
-        if (name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default) player.RpcSetName(name);
+        if (name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default)
+            player.RpcSetName(name);
     }
 
     public static Dictionary<string, int> GetAllPlayerLocationsCount()

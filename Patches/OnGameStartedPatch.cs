@@ -56,15 +56,14 @@ internal static class ChangeRoleSettings
             var objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
             if (objectOfType2 != null) objectOfType2.Close();
 
-            if (FastDestroyableSingleton<GameStartManager>.InstanceExists)
+            if (DestroyableSingleton<GameStartManager>.InstanceExists)
             {
                 // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) FastDestroyableSingleton<GameStartManager>.Instance);
                 Object.Destroy(FastDestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
 
-            if (FastDestroyableSingleton<LobbyInfoPane>.InstanceExists) Object.Destroy(FastDestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
-
-            if (FastDestroyableSingleton<DiscordManager>.InstanceExists) FastDestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
+            if (DestroyableSingleton<LobbyInfoPane>.InstanceExists) Object.Destroy(FastDestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
+            if (DestroyableSingleton<DiscordManager>.InstanceExists) FastDestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
 
             if (!string.IsNullOrEmpty(DataManager.Player.Store.ActiveCosmicube))
                 AmongUsClient.Instance.SetActivePodType(FastDestroyableSingleton<CosmicubeManager>.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
