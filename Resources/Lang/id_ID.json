@@ -1960,7 +1960,7 @@
   "RomanticPartnerHasArrows": "Partner has arrows pointing to the <color=#FF1493>Romantic</color>",
   "SpiritualistTargetMessage": "<color=#ffff00>The Spiritualist has an arrow pointing toward you</color>",
   "Gaslighter": "Gaslighter",
-  "GaslighterInfo": "Make others doubt their own memory",
+  "GaslighterInfo": "Setiap ronde, kejutan berbeda",
   "GaslighterInfoLong": "(Neutrals):\\nAs the Gaslighter, you do different actions through your kill button every round.<size=80%>\\n\\nRound 1: Normal kills\\nRound 2: Knight players\\nRound 3: Curse players (like Witch)\\nRound 4: Shield players\\n\\n</size><size=90%>Then the cycle repeats, or you stay on normally killing until the end of the game depending on the settings.\\nSettings determine your win condition.</size>",
   "Gaslighter.WinCondition": "Win Condition",
   "GaslighterWinCondition.CrewLoses": "<#8cffff>Crewmates</color> <#ff0000>lose</color>",
