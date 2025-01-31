@@ -72,9 +72,7 @@ internal class Merchant : RoleBase
         GroupedAddons = Options.GroupedAddons.ToDictionary(x => x.Key, x => x.Value.ToList());
 
         if (!OptionCanSellHarmful.GetBool()) GroupedAddons.Remove(AddonTypes.Harmful);
-
         if (!OptionCanSellHelpful.GetBool()) GroupedAddons.Remove(AddonTypes.Helpful);
-
         if (!OptionCanSellMixed.GetBool()) GroupedAddons.Remove(AddonTypes.Mixed);
 
         GroupedAddons.Remove(AddonTypes.ImpOnly);
@@ -122,7 +120,7 @@ internal class Merchant : RoleBase
                 && ((OptionCanTargetCrew.GetBool() && x.IsCrewmate()) ||
                     (OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor()) ||
                     (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller()) ||
-                    (OptionCanTargetCoven.GetBool() && x.Is(Team.Coven))))
+                     (OptionCanTargetCoven.GetBool() && x.Is(Team.Coven))))
             ).ToList();
 
         if (availableTargets.Count <= 0) return;
@@ -131,7 +129,6 @@ internal class Merchant : RoleBase
         bool harmfulAddon = GroupedAddons.TryGetValue(AddonTypes.Harmful, out List<CustomRoles> harmful) && harmful.Contains(addon);
 
         if (helpfulAddon && OptionSellOnlyHarmfulToEvil.GetBool()) availableTargets.RemoveAll(x => !x.Is(Team.Crewmate));
-
         if (harmfulAddon && OptionSellOnlyHelpfulToCrew.GetBool()) availableTargets.RemoveAll(x => x.Is(Team.Crewmate));
 
         if (availableTargets.Count == 0)

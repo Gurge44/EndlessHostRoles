@@ -190,6 +190,8 @@ internal static class ChatCommands
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
             new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
+            new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
+            new(["8ball", "шар", "八球"], "{question}", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -244,7 +246,7 @@ internal static class ChatCommands
         if (__instance.quickChatField.visible) return true;
         if (__instance.freeChatField.textArea.text == string.Empty) return false;
         __instance.timeSinceLastMessage = 3f;
-        
+
         string text = __instance.freeChatField.textArea.text.Trim();
         var cancelVal = string.Empty;
 
@@ -298,7 +300,7 @@ internal static class ChatCommands
         }
 
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
-        
+
         if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
         {
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
@@ -354,6 +356,18 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void EightBallCommand(PlayerControl player, string text, string[] args)
+    {
+        Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
+    }
+
+    private static void GameModePollCommand(PlayerControl player, string text, string[] args)
+    {
+        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x)));
+        var msg = $"/poll {GetString("GameModePoll.Question")}? {GetString("GameModePoll.KeepCurrent")} {gmNames}";
+        PollCommand(player, msg, msg.Split(' '));
+    }
 
     private static void GameModeListCommand(PlayerControl player, string text, string[] args)
     {
@@ -527,7 +541,7 @@ internal static class ChatCommands
 
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-        
+
         if (Main.PlayerStates[targetId].IsDead) return;
 
         string msg = args[2..].Join(delimiter: " ");
@@ -892,24 +906,27 @@ internal static class ChatCommands
             return;
         }
 
-        PollTimer = 60f;
+        PollTimer = 45f;
 
         int splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
         string[] answers = args.Skip(splitIndex).ToArray();
 
         string msg = string.Join(" ", args.Take(splitIndex).Skip(1)) + "\n";
+        bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
 
-        for (var i = 0; i < Math.Clamp(answers.Length, 2, 5); i++)
+        for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
             var choiceLetter = (char)(i + 65);
             msg += Utils.ColorString(RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
             PollVotes[choiceLetter] = 0;
-            PollAnswers[choiceLetter] = $"<size=45%>〖 {answers[i]} 〗</size>";
+            PollAnswers[choiceLetter] = $"<size=70%>〖 {answers[i]} 〗</size>";
         }
 
-        msg += $"\n{GetString("Poll.Begin")}\n<size=55%><i>{GetString("Poll.TimeInfo")}</i></size>";
+        if (gmPoll) PollVotes['A'] = Main.AllPlayerControls.Length / 4;
+
+        msg += $"\n{GetString("Poll.Begin")}\n<size=60%><i>";
         string title = GetString("Poll.Title");
-        Utils.SendMessage(msg, title: title);
+        Utils.SendMessage(msg + $"{string.Format(GetString("Poll.TimeInfo"), (int)Math.Round(PollTimer))}</i></size>", title: title);
 
         Main.Instance.StartCoroutine(StartPollCountdown());
         return;
@@ -931,7 +948,7 @@ internal static class ChatCommands
                 if (resendTimer >= 15f)
                 {
                     resendTimer = 0f;
-                    Utils.SendMessage(msg, title: title);
+                    Utils.SendMessage(msg + $"{string.Format(GetString("Poll.TimeInfo"), (int)Math.Round(PollTimer))}</i></size>", title: title);
                 }
 
                 yield return null;
@@ -940,7 +957,7 @@ internal static class ChatCommands
             DetermineResults();
         }
 
-        static void DetermineResults()
+        void DetermineResults()
         {
             int maxVotes = PollVotes.Values.Max();
             KeyValuePair<char, int>[] winners = PollVotes.Where(x => x.Value == maxVotes).ToArray();
@@ -955,6 +972,15 @@ internal static class ChatCommands
             PollVotes.Clear();
             PollAnswers.Clear();
             PollVoted.Clear();
+
+            if (winners.Length == 1 && gmPoll)
+            {
+                int modeIndex = winners[0].Key - 65;
+                StringOption gmOption = GameSettingMenuPatch.GameModeBehaviour;
+                gmOption.Value = modeIndex;
+                gmOption.UpdateValue();
+                gmOption.OnValueChanged?.Invoke(gmOption);
+            }
         }
 
         static Color32 RandomColor()
@@ -1810,7 +1836,7 @@ internal static class ChatCommands
                 break;
 
             default:
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "crew | imp");
+                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "crew | imp");
                 break;
         }
 
@@ -2690,7 +2716,7 @@ internal static class ChatUpdatePatch
 
     public static void Postfix(ChatController __instance)
     {
-        var chatBubble = __instance.chatBubblePool.Prefab.Cast<ChatBubble>();
+        var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
         chatBubble.TextArea.overrideColorTags = false;
 
         if (Main.DarkTheme.Value)
@@ -2734,7 +2760,7 @@ internal static class ChatUpdatePatch
         if (clientId == -1)
         {
             player.SetName(title);
-            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+            FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
             player.SetName(name);
         }
 
@@ -2797,9 +2823,9 @@ internal static class RpcSendChatPatch
 
         int return_count = PlayerControl.LocalPlayer.name.Count(x => x == '\n');
         chatText = new StringBuilder(chatText).Insert(0, "\n", return_count).ToString();
-        if (AmongUsClient.Instance.AmClient && DestroyableSingleton<HudManager>.Instance) DestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
+        if (AmongUsClient.Instance.AmClient && FastDestroyableSingleton<HudManager>.Instance) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
 
-        if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) DestroyableSingleton<UnityTelemetry>.Instance.SendWho();
+        if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) FastDestroyableSingleton<UnityTelemetry>.Instance.SendWho();
 
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpc(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.None);
         messageWriter.Write(chatText);

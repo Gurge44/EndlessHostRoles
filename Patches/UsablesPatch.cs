@@ -12,7 +12,7 @@ internal static class CanUsePatch
         canUse = couldUse = false;
         // Even if you return this with false, usable items other than tasks will remain usable (buttons, etc.)
         if (Main.GM.Value && AmongUsClient.Instance.AmHost && GameStates.InGame) return false;
-        
+
         PlayerControl lp = PlayerControl.LocalPlayer;
 
         if (Options.CurrentGameMode == CustomGameMode.AllInOne && !AllInOneGameMode.Taskers.Contains(lp.PlayerId)) return false;
@@ -52,7 +52,7 @@ internal static class CanUseVentPatch
 
         // Determine if vent is available based on custom role
         // always true for engineer-based roles
-        couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(__instance.Cast<IUsable>()));
+        couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(__instance.CastFast<IUsable>()));
 
         canUse = couldUse;
         // Not available if custom roles are not available
@@ -61,7 +61,7 @@ internal static class CanUseVentPatch
         // Mod's own processing up to this point
         // Replace vanilla processing from here
 
-        var usableVent = __instance.Cast<IUsable>();
+        var usableVent = __instance.CastFast<IUsable>();
         // Distance between vent and player
         var actualDistance = float.MaxValue;
 

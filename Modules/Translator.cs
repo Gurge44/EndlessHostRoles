@@ -167,7 +167,7 @@ public static class Translator
 
     public static string GetString(StringNames stringName)
     {
-        return DestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
+        return FastDestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
     }
 
     public static string GetRoleString(string str, bool forUser = true)

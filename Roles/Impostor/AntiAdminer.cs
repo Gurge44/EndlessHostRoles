@@ -91,7 +91,8 @@ internal class AntiAdminer : RoleBase
         shapeshifter.RpcResetAbilityCooldown();
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
 
-        foreach (PlayerControl pc in PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive())) pc.Notify(Translator.GetString("AAWarning"), Delay.GetFloat());
+        foreach (PlayerControl pc in PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive()))
+            pc.Notify(Translator.GetString("AAWarning"), Delay.GetFloat());
 
         return false;
     }
@@ -289,6 +290,8 @@ internal class AntiAdminer : RoleBase
 
         void AddDeviceUse(byte id, Device device)
         {
+            if (Main.PlayerStates[id].MainRole is CustomRoles.Monitor or CustomRoles.AntiAdminer) return;
+
             if (!PlayersNearDevices.TryGetValue(id, out var devices))
                 PlayersNearDevices[id] = [device];
             else devices.Add(device);

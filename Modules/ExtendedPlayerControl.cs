@@ -100,7 +100,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetVentInteraction(this PlayerControl player)
     {
-        VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>(), player);
+        VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>(), player);
     }
 
     public static void SetChatVisible(this PlayerControl player) // Credit: NikoCat233
@@ -1585,7 +1585,7 @@ internal static class ExtendedPlayerControl
 
         ReportDeadBodyPatch.AfterReportTasks(reporter, target, true);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
-        DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
+        FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
     }
 

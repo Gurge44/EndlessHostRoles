@@ -228,7 +228,7 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role != CustomRoles.Changeling && !Options.UseUnshiftTrigger.GetBool() && !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool()))
+                    if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || ((!Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && (!Options.UseUnshiftTrigger.GetBool() || !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool())))))
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)
@@ -310,7 +310,8 @@ internal static class HudManagerPatch
                     __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask);
                     player.Data.Role.CanVent = player.CanUseVent();
 
-                    if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM)) __instance.AbilityButton.SetEnabled();
+                    if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
+                        __instance.AbilityButton.SetEnabled();
                 }
                 else
                 {
@@ -662,7 +663,7 @@ internal static class TaskPanelBehaviourPatch
                     foreach (string eachLine in lines)
                     {
                         string line = eachLine.Trim();
-                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(') && !line.Contains(DestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
+                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(') && !line.Contains(FastDestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
 
                         sb.Append(line + "\r\n");
                     }
@@ -724,7 +725,7 @@ internal static class TaskPanelBehaviourPatch
                     foreach (string eachLine in lines1)
                     {
                         string line = eachLine.Trim();
-                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('(') && !line.Contains(DestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
+                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('(') && !line.Contains(FastDestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
 
                         sb1.Append(line + "\r\n");
                     }
@@ -860,7 +861,7 @@ internal static class CoShowIntroPatch
             {
                 StartGameHostPatch.RpcSetDisconnected(false);
 
-                if (!AmongUsClient.Instance.IsGameOver) DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
+                if (!AmongUsClient.Instance.IsGameOver) FastDestroyableSingleton<HudManager>.Instance.SetHudActive(true);
             }
         }, 0.6f, "Set Disconnected");
 

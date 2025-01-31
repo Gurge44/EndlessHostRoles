@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
 using TMPro;
@@ -16,6 +17,7 @@ internal static class PingTrackerUpdatePatch
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
+    private static List<float> LastFPS = [];
     private static int Delay => GameStates.IsInTask ? 8 : 1;
 
     private static void Postfix(PingTracker __instance)
@@ -25,9 +27,11 @@ internal static class PingTrackerUpdatePatch
         Instance.text.alignment = TextAlignmentOptions.Center;
         Instance.text.text = Sb.ToString();
 
+        LastFPS.Add(1.0f / Time.deltaTime);
+        if (LastFPS.Count > 10) LastFPS.RemoveAt(0);
+
         long now = Utils.TimeStamp;
         if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
-
         LastUpdate = now;
 
         Sb.Clear();
@@ -54,7 +58,7 @@ internal static class PingTrackerUpdatePatch
 
         if (Main.ShowFps.Value)
         {
-            var fps = 1.0f / Time.deltaTime;
+            var fps = LastFPS.Average();
 
             Color fpscolor = fps switch
             {
@@ -163,7 +167,7 @@ static class FriendsListUIOpenPatch
                 __instance.currentSceneName = activeScene.name;
                 __instance.UpdateFriendCodeUI();
 
-                if (DestroyableSingleton<HudManager>.InstanceExists && DestroyableSingleton<HudManager>.Instance != null && DestroyableSingleton<HudManager>.Instance.Chat != null && DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening || ShipStatus.Instance != null)
+                if (DestroyableSingleton<HudManager>.InstanceExists && FastDestroyableSingleton<HudManager>.Instance != null && FastDestroyableSingleton<HudManager>.Instance.Chat != null && FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening || ShipStatus.Instance != null)
                     return false;
 
                 __instance.friendBars = new();
@@ -174,13 +178,13 @@ static class FriendsListUIOpenPatch
                 __instance.gameObject.SetActive(true);
                 __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(t => t.gameObject.SetActive(false)));
                 __instance.ViewRequestsButton.color = __instance.NoRequestsColor;
-                __instance.ViewRequestsText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NoNewRequests);
+                __instance.ViewRequestsText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NoNewRequests);
 
-                __instance.StartCoroutine(DestroyableSingleton<FriendsListManager>.Instance.RefreshFriendsList((Action)(() =>
+                __instance.StartCoroutine(FastDestroyableSingleton<FriendsListManager>.Instance.RefreshFriendsList((Action)(() =>
                 {
                     __instance.ClearNotifs();
 
-                    if (DestroyableSingleton<EOSManager>.Instance.IsFriendsListAllowed())
+                    if (FastDestroyableSingleton<EOSManager>.Instance.IsFriendsListAllowed())
                     {
                         __instance.AddFriendObjects.SetActive(true);
                         __instance.RefreshBlockedPlayers();
@@ -374,7 +378,6 @@ internal static class ModManagerLateUpdatePatch
         __instance.ShowModStamp();
 
         LateTask.Update(Time.deltaTime);
-        CheckMurderPatch.Update();
         ChatBubbleShower.Update();
 
         if (LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > 150)
@@ -387,7 +390,7 @@ internal static class ModManagerLateUpdatePatch
     {
         __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists
             ? Camera.main
-            : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
+            : FastDestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
 
         if (__instance.localCamera != null)
         {
@@ -407,7 +410,7 @@ internal static class OptionsMenuBehaviourOpenPatch
     {
         try
         {
-            if (DestroyableSingleton<HudManager>.InstanceExists && !DestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf) return false;
+            if (DestroyableSingleton<HudManager>.InstanceExists && !FastDestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf) return false;
         }
         catch { }
 

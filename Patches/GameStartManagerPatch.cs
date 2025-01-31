@@ -27,8 +27,8 @@ public static class GameStartManagerUpdatePatch
 
 public static class GameStartManagerPatch
 {
-    public static float Timer => Math.Max(0, 600f - (Utils.TimeStamp - TimerStartTS));
     public static long TimerStartTS;
+    public static float Timer => Math.Max(0, 600f - (Utils.TimeStamp - TimerStartTS));
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public static class GameStartManagerStartPatch
@@ -49,7 +49,7 @@ public static class GameStartManagerPatch
                 if (AmongUsClient.Instance.AmHost)
                 {
                     __instance.GameStartTextParent.GetComponent<SpriteRenderer>().sprite = null;
-                    __instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
+                    __instance.StartButton.ChangeButtonText(FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
                     __instance.GameStartText.transform.localPosition = new(__instance.GameStartText.transform.localPosition.x, 2f, __instance.GameStartText.transform.localPosition.z);
                     __instance.StartButton.activeTextColor = __instance.StartButton.inactiveTextColor = Color.white;
 
@@ -86,7 +86,7 @@ public static class GameStartManagerPatch
 
                 if (Main.NormalOptions.KillCooldown == 0f) Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
 
-                AURoleOptions.SetOpt(Main.NormalOptions.Cast<IGameOptions>());
+                AURoleOptions.SetOpt(Main.NormalOptions.CastFast<IGameOptions>());
                 if (AURoleOptions.ShapeshifterCooldown == 0f) AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
                 AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
@@ -173,7 +173,7 @@ public static class GameStartManagerPatch
 
                             if (Main.CurrentMap == MapNames.Dleks)
                             {
-                                var opt = Main.NormalOptions.Cast<IGameOptions>();
+                                var opt = Main.NormalOptions.CastFast<IGameOptions>();
 
                                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
                                 Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
@@ -214,11 +214,11 @@ public static class GameStartManagerPatch
 
             instance.CheckSettingsDiffs();
             instance.StartButton.gameObject.SetActive(true);
-            instance.RulesPresetText.text = DestroyableSingleton<TranslationController>.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());
+            instance.RulesPresetText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());
 
-            if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) == null) instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LocalButton);
-            else if (AmongUsClient.Instance.IsGamePublic) instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PublicHeader);
-            else instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PrivateHeader);
+            if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) == null) instance.privatePublicPanelText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LocalButton);
+            else if (AmongUsClient.Instance.IsGamePublic) instance.privatePublicPanelText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PublicHeader);
+            else instance.privatePublicPanelText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PrivateHeader);
 
             instance.HostPrivateButton.gameObject.SetActive(!AmongUsClient.Instance.IsGamePublic);
             instance.HostPublicButton.gameObject.SetActive(AmongUsClient.Instance.IsGamePublic);
@@ -238,12 +238,12 @@ public static class GameStartManagerPatch
                 ActionMapGlyphDisplay startButtonGlyph = instance.StartButtonGlyph;
                 startButtonGlyph?.SetColor(instance.LastPlayerCount >= instance.MinPlayers ? Palette.EnabledColor : Palette.DisabledClear);
 
-                if (DestroyableSingleton<DiscordManager>.InstanceExists)
+                if (FastDestroyableSingleton<DiscordManager>.InstanceExists)
                 {
                     if (AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
-                        DestroyableSingleton<DiscordManager>.Instance.SetInLobbyHost(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
+                        FastDestroyableSingleton<DiscordManager>.Instance.SetInLobbyHost(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
                     else
-                        DestroyableSingleton<DiscordManager>.Instance.SetInLobbyClient(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
+                        FastDestroyableSingleton<DiscordManager>.Instance.SetInLobbyClient(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
                 }
             }
 
@@ -263,14 +263,14 @@ public static class GameStartManagerPatch
                     if (!instance.GameStartTextParent.activeSelf) SoundManager.Instance.PlaySound(instance.gameStartSound, false);
 
                     instance.GameStartTextParent.SetActive(true);
-                    instance.GameStartText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.GameStarting, num2);
+                    instance.GameStartText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.GameStarting, num2);
                     if (num != num2) PlayerControl.LocalPlayer.RpcSetStartCounter(num2);
 
                     if (num2 <= 0) instance.FinallyBegin();
                 }
                 else
                 {
-                    instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
+                    instance.StartButton.ChangeButtonText(FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
                     instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f, 1f);
                     instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
                     instance.StartButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0.3f, 0.3f, 0.3f, 0.5f);
@@ -280,9 +280,9 @@ public static class GameStartManagerPatch
                 }
             }
 
-            if (instance.LobbyInfoPane.gameObject.activeSelf && DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) instance.LobbyInfoPane.DeactivatePane();
+            if (instance.LobbyInfoPane.gameObject.activeSelf && FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) instance.LobbyInfoPane.DeactivatePane();
 
-            instance.LobbyInfoPane.gameObject.SetActive(!DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening);
+            instance.LobbyInfoPane.gameObject.SetActive(!FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening);
         }
 
         public static void Postfix(GameStartManager __instance)
@@ -335,7 +335,7 @@ public static class GameStartManagerPatch
                 if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame) return;
 
                 float timer = Timer;
-                
+
                 int minutes = (int)timer / 60;
                 int seconds = (int)timer % 60;
                 var suffix = $"{minutes:00}:{seconds:00}";
@@ -416,7 +416,7 @@ public static class GameStartRandomMap
             Main.NormalOptions.KillCooldown = 0f;
         }
 
-        var opt = Main.NormalOptions.Cast<IGameOptions>();
+        var opt = Main.NormalOptions.CastFast<IGameOptions>();
         AURoleOptions.SetOpt(opt);
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)

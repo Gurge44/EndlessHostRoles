@@ -68,7 +68,7 @@ public static class Zoom
             HudManager.Instance.UICamera.orthographicSize *= size;
         }
 
-        DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive((reset || Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
+        FastDestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive((reset || Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
 
         if (ResetButtons)
         {
@@ -81,7 +81,7 @@ public static class Zoom
     {
         if (Camera.main == null) return;
 
-        DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive(Mathf.Approximately(Camera.main.orthographicSize, 3.0f) && PlayerControl.LocalPlayer.IsAlive());
+        FastDestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive(Mathf.Approximately(Camera.main.orthographicSize, 3.0f) && PlayerControl.LocalPlayer.IsAlive());
     }
 }
 

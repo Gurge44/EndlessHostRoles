@@ -614,7 +614,7 @@ public static class GuessManager
 
     private static void ProcessGuess(PlayerControl pc, MeetingHud meetingHud)
     {
-        HudManager hudManager = DestroyableSingleton<HudManager>.Instance;
+        HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         if (!Options.DisableKillAnimationOnGuess.GetBool()) hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
 
@@ -1083,7 +1083,7 @@ public static class GuessManager
                 //    msg += Utils.GetRoleName(role);
                 //}
                 var player = x[rd.Next(0, totalAlive)];
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
                 var writer = CustomRpcSender.Create("MessagesToSend");
                 writer.StartMessage();
                 writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)

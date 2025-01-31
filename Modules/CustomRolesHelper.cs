@@ -1131,6 +1131,7 @@ internal static class CustomRolesHelper
             CustomRoles.PotionMaster or
             CustomRoles.Poache or
             CustomRoles.Reaper or
+            CustomRoles.Death or
             CustomRoles.VoodooMaster or
             CustomRoles.Goddess or
             CustomRoles.Augur or
@@ -1423,6 +1424,7 @@ internal static class CustomRolesHelper
     {
         return role switch
         {
+            CustomRoles.NecroGuesser => RoleOptionType.Neutral_Benign,
             CustomRoles.Opportunist => RoleOptionType.Neutral_Benign,
             CustomRoles.Lawyer => RoleOptionType.Neutral_Benign,
             CustomRoles.Amnesiac => RoleOptionType.Neutral_Benign,
@@ -1455,7 +1457,6 @@ internal static class CustomRolesHelper
             CustomRoles.Mario => RoleOptionType.Neutral_Evil,
             CustomRoles.Terrorist => RoleOptionType.Neutral_Evil,
             CustomRoles.Collector => RoleOptionType.Neutral_Evil,
-            CustomRoles.NecroGuesser => RoleOptionType.Neutral_Evil,
             CustomRoles.Vulture => RoleOptionType.Neutral_Evil,
             CustomRoles.Workaholic => RoleOptionType.Neutral_Evil,
             CustomRoles.Deathknight => RoleOptionType.Neutral_Evil,

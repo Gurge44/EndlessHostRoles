@@ -117,7 +117,7 @@ internal static class TextBoxTMPSetTextPatch
 
             if (CommandInfoText == null)
             {
-                HudManager hud = DestroyableSingleton<HudManager>.Instance;
+                HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
                 CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
                 CommandInfoText.name = "CommandInfoText";
                 CommandInfoText.alignment = TextAlignmentOptions.Left;
@@ -133,7 +133,7 @@ internal static class TextBoxTMPSetTextPatch
 
             if (AdditionalInfoText == null)
             {
-                HudManager hud = DestroyableSingleton<HudManager>.Instance;
+                HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
                 AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
                 AdditionalInfoText.name = "AdditionalInfoText";
                 AdditionalInfoText.alignment = TextAlignmentOptions.Left;

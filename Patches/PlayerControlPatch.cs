@@ -76,7 +76,7 @@ internal static class RpcMurderPlayerPatch
             return false;
         }
 
-        MurderResultFlags murderResultFlags = didSucceed ? MurderResultFlags.Succeeded : MurderResultFlags.FailedError;
+        MurderResultFlags murderResultFlags = didSucceed ? MurderResultFlags.Succeeded : MurderResultFlags.FailedError | MurderResultFlags.DecisionByHost;
 
         if (AmongUsClient.Instance.AmClient)
             __instance.MurderPlayer(target, murderResultFlags);
@@ -120,17 +120,12 @@ internal static class CheckMurderPatch
 {
     public static readonly Dictionary<byte, float> TimeSinceLastKill = [];
 
-    public static void Update()
+    public static void Update(byte id)
     {
-        int n = HudManager.InstanceExists ? Math.Max(Main.AllPlayerControls.Length, 15) : 15;
-
-        for (byte i = 0; i < n; i++)
+        if (TimeSinceLastKill.ContainsKey(id))
         {
-            if (TimeSinceLastKill.ContainsKey(i))
-            {
-                TimeSinceLastKill[i] += Time.deltaTime;
-                if (15f < TimeSinceLastKill[i]) TimeSinceLastKill.Remove(i);
-            }
+            TimeSinceLastKill[id] += Time.deltaTime;
+            if (15f < TimeSinceLastKill[id]) TimeSinceLastKill.Remove(id);
         }
     }
 
@@ -734,8 +729,7 @@ internal static class MurderPlayerPatch
         {
             __instance.MarkDirtySettings();
             target.MarkDirtySettings();
-            NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
-            NotifyRoles(SpecifySeer: target);
+            Main.Instance.StartCoroutine(NotifyEveryoneAsync(speed: 12));
         }
         else
         {
@@ -1219,6 +1213,8 @@ internal static class FixedUpdatePatch
     {
         if (__instance == null || __instance.PlayerId == 255) return;
 
+        CheckMurderPatch.Update(__instance.PlayerId);
+
         if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
             CustomNetObject.FixedUpdate();
 
@@ -1495,10 +1491,10 @@ internal static class FixedUpdatePatch
             if (!Main.DoBlockNameChange && AmongUsClient.Instance.AmHost) ApplySuffix(__instance);
         }
 
-        Transform RoleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");
-        var RoleText = RoleTextTransform.GetComponent<TextMeshPro>();
+        Transform roleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");
+        var roleText = roleTextTransform.GetComponent<TextMeshPro>();
 
-        if (RoleText != null && __instance != null && !lowLoad)
+        if (roleText != null && __instance != null && !lowLoad)
         {
             if (GameStates.IsLobby)
             {
@@ -1522,31 +1518,31 @@ internal static class FixedUpdatePatch
             {
                 if (!AmongUsClient.Instance.AmHost && !CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
-                    RoleText.text = string.Empty;
-                    RoleText.enabled = false;
+                    roleText.text = string.Empty;
+                    roleText.enabled = false;
                     return;
                 }
 
                 bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
-                (string, Color) RoleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
+                (string, Color) roleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
 
-                RoleText.text = RoleTextData.Item1;
-                RoleText.color = RoleTextData.Item2;
+                roleText.text = roleTextData.Item1;
+                roleText.color = roleTextData.Item2;
 
-                if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek) RoleText.text = string.Empty;
+                if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek) roleText.text = string.Empty;
 
-                RoleText.enabled = IsRoleTextEnabled(__instance);
+                roleText.enabled = IsRoleTextEnabled(__instance);
 
                 if (!PlayerControl.LocalPlayer.Data.IsDead && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
                 {
-                    RoleText.text = Farseer.RandomRole[lpId];
-                    RoleText.text += Farseer.GetTaskState();
+                    roleText.text = Farseer.RandomRole[lpId];
+                    roleText.text += Farseer.GetTaskState();
                 }
 
                 if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
                 {
-                    RoleText.enabled = false;
+                    roleText.enabled = false;
                     if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
                 }
 
@@ -1559,10 +1555,12 @@ internal static class FixedUpdatePatch
                     progressText = $"\n{progressText}";
                 }
 
+                bool moveandstop = CustomGameMode.MoveAndStop.IsActiveOrIntegrated();
+
                 if (Main.VisibleTasksCount)
                 {
-                    if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) RoleText.text = RoleText.text.Insert(0, progressText);
-                    else RoleText.text += progressText;
+                    if (moveandstop) roleText.text = roleText.text.Insert(0, progressText);
+                    else roleText.text += progressText;
                 }
 
                 PlayerControl seer = PlayerControl.LocalPlayer;
@@ -1571,7 +1569,7 @@ internal static class FixedUpdatePatch
                 if (target.Is(CustomRoles.Car))
                 {
                     target.cosmetics.nameText.text = Car.Name;
-                    RoleText.enabled = false;
+                    roleText.enabled = false;
                     return;
                 }
 
@@ -1580,30 +1578,30 @@ internal static class FixedUpdatePatch
                 Mark.Clear();
                 Suffix.Clear();
 
-                string RealName = target.GetRealName();
+                string realName = target.GetRealName();
 
                 if (target.AmOwner && inTask)
                 {
                     if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())
-                        RealName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString("EnterVentToWin"));
-                    else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone()) RealName = ColorString(GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Revolutionist.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)));
+                        realName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString("EnterVentToWin"));
+                    else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone()) realName = ColorString(GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Revolutionist.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)));
 
-                    if (Pelican.IsEaten(seer.PlayerId)) RealName = ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"));
+                    if (Pelican.IsEaten(seer.PlayerId)) realName = ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"));
 
                     switch (Options.CurrentGameMode)
                     {
                         case CustomGameMode.SoloKombat:
-                            SoloPVP.GetNameNotify(target, ref RealName);
+                            SoloPVP.GetNameNotify(target, ref realName);
                             break;
                     }
 
-                    if (Deathpact.IsInActiveDeathpact(seer)) RealName = Deathpact.GetDeathpactString(seer);
+                    if (Deathpact.IsInActiveDeathpact(seer)) realName = Deathpact.GetDeathpactString(seer);
 
-                    if (NameNotifyManager.GetNameNotify(target, out string name) && name.Length > 0) RealName = name;
+                    if (NameNotifyManager.GetNameNotify(target, out string name) && name.Length > 0) realName = name;
                 }
 
                 // Name Color Manager
-                RealName = RealName.ApplyNameColorData(seer, target, false);
+                realName = realName.ApplyNameColorData(seer, target, false);
 
                 Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, meeting: GameStates.IsMeeting)));
 
@@ -1630,7 +1628,8 @@ internal static class FixedUpdatePatch
                 switch (seer.GetCustomRole())
                 {
                     case CustomRoles.Lookout:
-                        if (seer.IsAlive() && target.IsAlive()) Mark.Append(ColorString(GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId) + " ");
+                        if (seer.IsAlive() && target.IsAlive())
+                            Mark.Append(ColorString(GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId) + " ");
 
                         break;
                     case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId):
@@ -1663,15 +1662,18 @@ internal static class FixedUpdatePatch
 
                         break;
                     case CustomRoles.Analyst:
-                        if ((Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
+                        if ((Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId)
+                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
 
                         break;
                     case CustomRoles.Samurai:
-                        if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
+                        if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId)
+                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
 
                         break;
                     case CustomRoles.Puppeteer:
-                        if (Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId)) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
+                        if (Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId))
+                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
 
                         break;
                     case CustomRoles.EvilTracker:
@@ -1681,10 +1683,10 @@ internal static class FixedUpdatePatch
                         Mark.Append(Scout.GetTargetMark(seer, target));
                         break;
                     case CustomRoles.Monitor when inTask && self:
-                        if (AntiAdminer.IsAdminWatch) Suffix.Append($"{GetString("AntiAdminerAD")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})");
-                        if (AntiAdminer.IsVitalWatch) Suffix.Append($"{GetString("AntiAdminerVI")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})");
-                        if (AntiAdminer.IsDoorLogWatch) Suffix.Append($"{GetString("AntiAdminerDL")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})");
-                        if (AntiAdminer.IsCameraWatch) Suffix.Append($"{GetString("AntiAdminerCA")} ({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})");
+                        if (AntiAdminer.IsAdminWatch) Suffix.Append($"{GetString("AntiAdminerAD")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsVitalWatch) Suffix.Append($"{GetString("AntiAdminerVI")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsDoorLogWatch) Suffix.Append($"{GetString("AntiAdminerDL")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsCameraWatch) Suffix.Append($"{GetString("AntiAdminerCA")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
                         break;
                     case CustomRoles.AntiAdminer when inTask && self:
                         if (AntiAdminer.IsAdminWatch) Suffix.Append(GetString("AntiAdminerAD"));
@@ -1771,15 +1773,15 @@ internal static class FixedUpdatePatch
                 if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA) Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer
-                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId))) RealName = GetString("DevouredName");
+                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId))) realName = GetString("DevouredName");
 
                 // Camouflage
-                if (Camouflage.IsCamouflage) RealName = $"<size=0>{RealName}</size> ";
+                if (Camouflage.IsCamouflage) realName = $"<size=0>{realName}</size> ";
 
-                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
+                string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 
                 string currentText = target.cosmetics.nameText.text;
-                var changeTo = $"{RealName}{DeathReason}{Mark}\r\n{Suffix}";
+                var changeTo = $"{realName}{deathReason}{Mark}\r\n{Suffix}";
                 bool needUpdate = currentText != changeTo;
 
                 if (needUpdate)
@@ -1796,9 +1798,8 @@ internal static class FixedUpdatePatch
 
                     if (Suffix.ToString() != string.Empty)
                     {
-                        // If the name is on two lines, the job title text needs to be moved up.
-                        //RoleText.transform.SetLocalY(0.35f);
-                        offset += 0.15f;
+                        offset += moveandstop ? 0.15f : 0.1f;
+                        offset += moveandstop ? 0f : Suffix.ToString().Count(x => x == '\n') * 0.15f;
                     }
 
                     if (!seer.IsAlive())
@@ -1807,19 +1808,19 @@ internal static class FixedUpdatePatch
                     if (isProgressTextLong)
                         offset += 0.3f;
 
-                    if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
+                    if (moveandstop)
                         offset += 0.3f;
 
                     if (Suffix.ToString().Contains(GetString("MoveAndStop_Tutorial")))
                         offset += 0.8f;
 
-                    RoleText.transform.SetLocalY(offset);
+                    roleText.transform.SetLocalY(offset);
                 }
             }
             else
             {
                 // Restoring the position text coordinates to their initial values
-                RoleText.transform.SetLocalY(0.2f);
+                roleText.transform.SetLocalY(0.2f);
             }
         }
     }
@@ -1950,8 +1951,8 @@ internal static class EnterVentPatch
 
         if (pc.Is(CustomRoles.Unlucky))
         {
-            var Ue = IRandom.Instance;
-            if (Ue.Next(0, 100) < Options.UnluckyVentSuicideChance.GetInt()) pc.Suicide();
+            if (IRandom.Instance.Next(0, 100) < Options.UnluckyVentSuicideChance.GetInt())
+                pc.Suicide();
         }
 
         if (pc.Is(CustomRoles.Damocles)) Damocles.OnEnterVent(pc.PlayerId, __instance.Id);
