@@ -191,7 +191,7 @@ internal static class ChatCommands
             new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
             new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
-            new(["8ball", "шар", "八球"], "{question}", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
+            new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
             new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
             
@@ -1499,7 +1499,7 @@ internal static class ChatCommands
     private static void DeathCommand(PlayerControl player, string text, string[] args)
     {
         if (!GameStates.IsInGame) return;
-        if (Main.DiedThisRound.Contains(player.PlayerId)) return;
+        if (Main.DiedThisRound.Contains(player.PlayerId) && Utils.IsRevivingRoleAlive()) return;
 
         PlayerControl killer = player.GetRealKiller();
 
