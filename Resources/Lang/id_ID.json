@@ -1303,7 +1303,7 @@
   "EvenAfterWinning": "Meski telah memenuhi syarat kemenangan",
   "ImpostorVision": "Jarak pandang sama seperti <color=#ff1919>Impostor</color>",
   "CanUseSabotage": "Can Sabotage",
-  "CanKillAllies": "Can Kill <color=#ff1919>Impostors</color>",
+  "CanKillAllies": "Bisa Membunuh <color=#ff1919>Impostor</color>",
   "CanKillSelf": "Can Kill Themself",
   "CrewpostorKnowsAllies": "Knows <color=#ff1919>Impostors</color>",
   "AlliesKnowCrewpostor": "Known to <color=#ff1919>Impostors</color>",
