@@ -166,8 +166,6 @@ public class NiceSwapper : RoleBase
                         pc.ShowPopUp(GetString("CantSwapSelf"));
                 }
 
-                LateTask.New(() => Utils.NotifyRoles(true, NoCache: true), 0.2f, "NiceSwapperNotifyRoles");
-
                 break;
             }
         }

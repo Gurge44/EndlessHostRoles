@@ -18,9 +18,7 @@ internal static class SetUpRoleTextPatch
 
     public static void Postfix(IntroCutscene __instance)
     {
-        // After showing team for non-modded clients, update player names.
         IsInIntro = false;
-        Utils.DoNotifyRoles(NoCache: true);
 
         PlayerControl lp = PlayerControl.LocalPlayer;
 
@@ -822,8 +820,6 @@ internal static class IntroCutsceneDestroyPatch
                         pc.AddAbilityCD(10);
                     else
                         pc.AddAbilityCD(false);
-
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
                 }
 
                 if (CustomGameMode.Standard.IsActiveOrIntegrated())

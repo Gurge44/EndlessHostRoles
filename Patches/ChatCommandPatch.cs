@@ -1194,10 +1194,11 @@ internal static class ChatCommands
             return;
         }
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls) pc.RpcSetNameEx(pc.GetRealName(true));
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            pc.RpcSetNameEx(pc.GetRealName(true));
 
         ChatUpdatePatch.DoBlockChat = false;
-        Utils.NotifyRoles(GameStates.IsMeeting, NoCache: true);
+        Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, ForceLoop: true);
         Utils.SendMessage(GetString("Message.TryFixName"), player.PlayerId);
     }
 

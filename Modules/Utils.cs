@@ -143,7 +143,12 @@ public static class Utils
             if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
             {
                 if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
+                return false;
+            }
 
+            if (Vector2.Distance(pc.Pos(), location) < 0.5f)
+            {
+                if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
                 return false;
             }
         }
@@ -1956,7 +1961,7 @@ public static class Utils
         {
             foreach (PlayerControl target in aapc)
             {
-                NotifyRoles(SpecifySeer: seer, SpecifyTarget: target);
+                NotifyRoles(SpecifySeer: seer, SpecifyTarget: target, NoCache: true);
                 if (count++ % speed == 0) yield return null;
             }
         }
@@ -2063,7 +2068,8 @@ public static class Utils
                 }
 
                 var fontSize = "1.7";
-                if (isForMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch)) fontSize = "70%";
+                if (isForMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch))
+                    fontSize = "70%";
 
                 // Text containing progress, such as tasks
                 string SelfTaskText = GameStates.IsLobby ? string.Empty : GetProgressText(seer);
@@ -2291,7 +2297,8 @@ public static class Utils
                             continue;
                         }
 
-                        if ((IsActive(SystemTypes.MushroomMixupSabotage) || MushroomMixup) && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(seer.PlayerId)) { target.RpcSetNamePrivate("<size=0%>", force: NoCache); }
+                        if ((IsActive(SystemTypes.MushroomMixupSabotage) || MushroomMixup) && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(seer.PlayerId))
+                            target.RpcSetNamePrivate("<size=0%>", force: NoCache);
                         else
                         {
                             TargetMark.Clear();
@@ -2411,18 +2418,21 @@ public static class Utils
 
                             if (!CustomGameMode.Standard.IsActiveOrIntegrated()) goto BeforeEnd;
 
-                            if (GuesserIsForMeeting || isForMeeting || (seerRole == CustomRoles.Mafia && !seer.IsAlive() && Options.MafiaCanKillNum.GetInt() >= 1)) TargetPlayerName = $"{ColorString(GetRoleColor(seerRole), target.PlayerId.ToString())} {TargetPlayerName}";
+                            if (GuesserIsForMeeting || isForMeeting || (seerRole == CustomRoles.Mafia && !seer.IsAlive() && Options.MafiaCanKillNum.GetInt() >= 1))
+                                TargetPlayerName = $"{ColorString(GetRoleColor(seerRole), target.PlayerId.ToString())} {TargetPlayerName}";
 
                             switch (seerRole)
                             {
                                 case CustomRoles.EvilTracker:
                                     TargetMark.Append(EvilTracker.GetTargetMark(seer, target));
-                                    if (isForMeeting && EvilTracker.IsTrackTarget(seer, target) && EvilTracker.CanSeeLastRoomInMeeting) TargetRoleText = $"<size={fontSize}>{EvilTracker.GetArrowAndLastRoom(seer, target)}</size>\r\n";
+                                    if (isForMeeting && EvilTracker.IsTrackTarget(seer, target) && EvilTracker.CanSeeLastRoomInMeeting)
+                                        TargetRoleText = $"<size={fontSize}>{EvilTracker.GetArrowAndLastRoom(seer, target)}</size>\r\n";
 
                                     break;
                                 case CustomRoles.Scout:
                                     TargetMark.Append(Scout.GetTargetMark(seer, target));
-                                    if (isForMeeting && Scout.IsTrackTarget(seer, target) && Scout.CanSeeLastRoomInMeeting) TargetRoleText = $"<size={fontSize}>{Scout.GetArrowAndLastRoom(seer, target)}</size>\r\n";
+                                    if (isForMeeting && Scout.IsTrackTarget(seer, target) && Scout.CanSeeLastRoomInMeeting)
+                                        TargetRoleText = $"<size={fontSize}>{Scout.GetArrowAndLastRoom(seer, target)}</size>\r\n";
 
                                     break;
                                 case CustomRoles.Psychic when seer.IsAlive() && Psychic.IsRedForPsy(target, seer) && isForMeeting:

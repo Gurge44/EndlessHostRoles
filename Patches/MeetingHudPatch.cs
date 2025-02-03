@@ -57,7 +57,6 @@ internal static class CheckForEndVotingPatch
                         Main.MadmateNum++;
                         pc.RpcSetCustomRole(CustomRoles.Madmate);
                         ExtendedPlayerControl.RpcSetCustomRole(pc.PlayerId, CustomRoles.Madmate);
-                        Utils.NotifyRoles(true, pc, NoCache: true);
                         Logger.Info($"Set role: {pc.Data?.PlayerName} => {pc.GetCustomRole()} + {CustomRoles.Madmate}", $"Assign {CustomRoles.Madmate}");
                     }
                 }

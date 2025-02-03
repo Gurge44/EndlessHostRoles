@@ -326,7 +326,7 @@ internal static class OnPlayerLeftPatch
         catch (Exception ex) { Logger.Error(ex.ToString(), "OnPlayerLeftPatch.Postfix"); }
         finally
         {
-            Utils.NotifyRoles(NoCache: true);
+            Utils.NotifyRoles(ForceLoop: true);
             ChatUpdatePatch.DoBlockChat = false;
         }
     }

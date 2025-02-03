@@ -55,7 +55,7 @@ internal static class GameEndChecker
         if (WinnerTeam != CustomWinner.Default)
         {
             NameNotifyManager.Reset();
-            NotifyRoles(NoCache: true);
+            NotifyRoles(ForceLoop: true);
 
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
 

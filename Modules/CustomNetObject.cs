@@ -86,6 +86,10 @@ namespace EHR
 
         public void TP(Vector2 position)
         {
+            if (Vector2.Distance(Position, position) >= 0.5f)
+                Logger.Info($" Teleport Custom Net Object {GetType().Name} (ID {Id}) to {position} (from {Position})", "CNO.TP");
+            else return;
+            
             playerControl.NetTransform.RpcSnapTo(position);
             Position = position;
         }

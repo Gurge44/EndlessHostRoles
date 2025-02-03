@@ -142,7 +142,7 @@ public static class Camouflage
             yield return null;
         }
 
-        yield return Utils.NotifyEveryoneAsync(speed: 8);
+        yield return Utils.NotifyEveryoneAsync(speed: 5);
     }
 
     public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false, bool Revive = false)
@@ -245,7 +245,7 @@ public static class Camouflage
 
         if (!IsCamouflage && !pc.IsAlive()) PetsHelper.RpcRemovePet(pc);
 
-        Utils.NotifyRoles(SpecifySeer: pc, NoCache: true);
-        Utils.NotifyRoles(SpecifyTarget: pc, NoCache: true);
+        Utils.NotifyRoles(SpecifySeer: pc);
+        Utils.NotifyRoles(SpecifyTarget: pc);
     }
 }

@@ -729,7 +729,7 @@ internal static class MurderPlayerPatch
         {
             __instance.MarkDirtySettings();
             target.MarkDirtySettings();
-            Main.Instance.StartCoroutine(NotifyEveryoneAsync(speed: 12));
+            Main.Instance.StartCoroutine(NotifyEveryoneAsync(speed: 4));
         }
         else
         {
@@ -834,7 +834,7 @@ internal static class ShapeshiftPatch
 
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
-            LateTask.New(() => NotifyRoles(NoCache: true), 1.2f, "ShapeShiftNotify");
+            LateTask.New(() => Main.Instance.StartCoroutine(NotifyEveryoneAsync(speed: 3)), 1.2f, "ShapeShiftNotify");
 
         if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
             LateTask.New(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
@@ -1174,7 +1174,7 @@ internal static class ReportDeadBodyPatch
         MeetingTimeManager.OnReportDeadBody();
 
         NameNotifyManager.Reset();
-        NotifyRoles(true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
+        NotifyRoles(isForMeeting: true, ForceLoop: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
         LateTask.New(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
 

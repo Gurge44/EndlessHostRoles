@@ -351,8 +351,6 @@ internal static class ShipStatusBeginPatch
 
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
-
-            Utils.DoNotifyRoles(ForceLoop: true, NoCache: true);
         }
     }
 }

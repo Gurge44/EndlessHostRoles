@@ -159,8 +159,6 @@ internal static class FreeForAll
             for (var i = 0; i < teamMembers.Count; i++)
                 foreach (byte id in teamMembers[i])
                     PlayerTeams.Add(id, i);
-
-            LateTask.New(() => Utils.NotifyRoles(NoCache: true, ForceLoop: true), 10f, log: false);
         }
     }
 
