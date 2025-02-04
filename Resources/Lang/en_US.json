@@ -2534,7 +2534,7 @@
   "LoadingHint.10": "Did you know?\nYou can customize your lobby tag using custom translation files!",
   "LoadingHint.11": "Did you know?\nYou can set your role for the next game using /setrole as the host!",
   "LoadingHint.12": "Confused about your death? Don't know who killed you?\nUse /death or /d after you die!",
-  "LoadingHint.13": "Role text covering up names in meetings?\nUse /xf!",
+  "LoadingHint.13": "Did you know?\nYou can use /poll to ask your players a question and let them vote!",
   "LoadingHint.14": "Bored of waiting in lobby or after dying early?\nUse /gno to play a simple Guess The Number minigame to speed up time!",
   "LoadingHint.15": "Black screened after a meeting?\nTry pressing CTRL + SHIFT + X to fix it!",
   "LoadingHint.16": "Don't know what your role or add-on does?\nPress F1 instead of typing commands!",
