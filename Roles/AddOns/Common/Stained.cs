@@ -4,7 +4,7 @@ namespace EHR.AddOns.Common;
 
 internal class Stained : IAddon
 {
-    public static List<byte> VioletNameList = [];
+    public static readonly List<byte> VioletNameList = [];
     public AddonTypes Type => AddonTypes.Mixed;
 
     public void SetupCustomOption()
