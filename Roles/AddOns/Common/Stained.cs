@@ -22,7 +22,7 @@ internal class Stained : IAddon
         LateTask.New(() =>
         {
             VioletNameList.Remove(killer.PlayerId);
-            Utils.NotifyRoles(SpecifyTarget: killer, ForMeeting: GameStates.IsMeeting);
+            Utils.NotifyRoles(SpecifyTarget: killer);
         }, 3f, "Stained Killer Violet Name");
     }
 }
