@@ -351,7 +351,10 @@ internal static class FreeForAll
 
     private static void OnPlayerKill(PlayerControl killer)
     {
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) PlayerControl.LocalPlayer.KillFlash();
+        foreach (var player in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.GM)))
+        {
+            player.KillFlash();
+        }
 
         KillCount[killer.PlayerId]++;
     }
