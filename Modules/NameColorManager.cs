@@ -74,7 +74,7 @@ public static class NameColorManager
         RoleBase targetRoleClass = Main.PlayerStates[target.PlayerId].Role;
 
         // Global (low priority)
-        if (Stained.VioletNameList.Contains(target.PlayerId)) color = "#ff00ff";
+        if (Stained.VioletNameList.Contains(target.PlayerId) && !isMeeting) color = "#ff00ff";
 
         // Coven
         if (seer.Is(Team.Coven) && target.Is(Team.Coven)) color = Main.CovenColor;
