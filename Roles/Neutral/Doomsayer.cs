@@ -20,6 +20,7 @@ public class Doomsayer : RoleBase
     public static OptionItem DCanGuessImpostors;
     public static OptionItem DCanGuessCrewmates;
     public static OptionItem DCanGuessNeutrals;
+    private static OptionItem DCanGuessCoven;
     public static OptionItem DCanGuessAdt;
     public static OptionItem AdvancedSettings;
     public static OptionItem MaxNumberOfGuessesPerMeeting;
@@ -45,6 +46,9 @@ public class Doomsayer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
         DCanGuessNeutrals = new BooleanOptionItem(Id + 14, "DCanGuessNeutrals", true, TabGroup.NeutralRoles, true)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
+
+        DCanGuessCoven = new BooleanOptionItem(Id + 22, "DCanGuessCoven", true, TabGroup.NeutralRoles, true)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
         DCanGuessAdt = new BooleanOptionItem(Id + 15, "DCanGuessAdt", false, TabGroup.NeutralRoles)
