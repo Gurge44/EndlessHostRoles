@@ -156,7 +156,6 @@ internal static class ChatCommands
             new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
-            new(["xf", "испр", "修复"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, XFCommand, true, false),
             new(["id", "guesslist", "айди", "ID列表"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true, false),
             new(["changerole", "измроль", "修改职业", "mudar-função"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true, false, [GetString("CommandArgs.ChangeRole.Role")]),
             new(["end", "завершить", "结束游戏", "encerrar", "finalizar", "fim"], "", GetString("CommandDescription.End"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EndCommand, true, false),
@@ -1184,22 +1183,6 @@ internal static class ChatCommands
         msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => $"{current}\n{pc.PlayerId} \u2192 {pc.GetRealName()}");
 
         Utils.SendMessage(msgText, player.PlayerId);
-    }
-
-    private static void XFCommand(PlayerControl player, string text, string[] args)
-    {
-        if (!GameStates.IsInGame && !player.IsHost())
-        {
-            Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
-            return;
-        }
-
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            pc.RpcSetNameEx(pc.GetRealName(true));
-
-        ChatUpdatePatch.DoBlockChat = false;
-        Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, ForceLoop: true);
-        Utils.SendMessage(GetString("Message.TryFixName"), player.PlayerId);
     }
 
     private static void ColorCommand(PlayerControl player, string text, string[] args)

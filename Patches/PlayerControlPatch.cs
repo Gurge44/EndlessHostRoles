@@ -725,17 +725,9 @@ internal static class MurderPlayerPatch
         target.SetRealKiller(killer, true);
         CountAlivePlayers(true);
 
-        if (Options.LowLoadMode.GetBool())
-        {
-            __instance.MarkDirtySettings();
-            target.MarkDirtySettings();
-            Main.Instance.StartCoroutine(NotifyEveryoneAsync(speed: 4));
-        }
-        else
-        {
-            SyncAllSettings();
-            NotifyRoles(ForceLoop: true);
-        }
+        __instance.MarkDirtySettings();
+        target.MarkDirtySettings();
+        Main.Instance.StartCoroutine(NotifyEveryoneAsync(speed: 4, noCache: false));
 
         Statistics.OnMurder(killer, target);
     }
@@ -1092,7 +1084,8 @@ internal static class ReportDeadBodyPatch
                 }
             }
 
-            if (Virus.InfectedBodies.Contains(target.PlayerId)) Virus.OnKilledBodyReport(player);
+            if (Virus.InfectedBodies.Contains(target.PlayerId))
+                Virus.OnKilledBodyReport(player);
 
             if (QuizMaster.On)
             {
@@ -1174,7 +1167,7 @@ internal static class ReportDeadBodyPatch
         MeetingTimeManager.OnReportDeadBody();
 
         NameNotifyManager.Reset();
-        NotifyRoles(isForMeeting: true, ForceLoop: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
+        NotifyRoles(ForMeeting: true, ForceLoop: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
         LateTask.New(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
 
@@ -2124,25 +2117,11 @@ internal static class PlayerControlCompleteTaskPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
-        if (GameStates.IsMeeting) return;
-
+        if (GameStates.IsMeeting || __instance == null || !__instance.IsAlive()) return;
+        
         var task = __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask;
-        if (__instance != null && __instance.IsAlive()) Benefactor.OnTaskComplete(__instance, task);
-
-        if (__instance == null) return;
-
+        Benefactor.OnTaskComplete(__instance, task);
         Snitch.OnCompleteTask(__instance);
-
-        bool isTaskFinish = __instance.GetTaskState().IsTaskFinished;
-
-        if (isTaskFinish && __instance.Is(CustomRoles.Snitch) && __instance.Is(CustomRoles.Madmate))
-        {
-            foreach (PlayerControl impostor in Main.AllAlivePlayerControls)
-                if (impostor.Is(CustomRoleTypes.Impostor))
-                    NameColorManager.Add(impostor.PlayerId, __instance.PlayerId, "#ff1919");
-
-            NotifyRoles(SpecifySeer: __instance, ForceLoop: true);
-        }
     }
 }
 

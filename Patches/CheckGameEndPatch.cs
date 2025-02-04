@@ -54,12 +54,11 @@ internal static class GameEndChecker
 
         if (WinnerTeam != CustomWinner.Default)
         {
+            Ended = true;
+            Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
+            
             NameNotifyManager.Reset();
             NotifyRoles(ForceLoop: true);
-
-            Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
-
-            Ended = true;
 
             int saboWinner = Options.WhoWinsBySabotageIfNoImpAlive.GetValue();
 

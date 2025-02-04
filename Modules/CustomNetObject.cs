@@ -86,11 +86,6 @@ namespace EHR
 
         public void TP(Vector2 position)
         {
-            if (Vector2.Distance(Position, position) >= 0.5f)
-                Logger.Info($" Teleport Custom Net Object {GetType().Name} (ID {Id}) to {position} (from {Position})", "CNO.TP");
-            else return;
-            
-            playerControl.NetTransform.RpcSnapTo(position);
             Position = position;
         }
 
@@ -326,6 +321,27 @@ namespace EHR
                     }
                 */
                 PlayerControlTimer = 0f;
+                return;
+            }
+            
+            var nt = playerControl.NetTransform;
+            if (nt == null) return;
+            
+            playerControl.Collider.enabled = false;
+            
+            if (Position != nt.body.position)
+            {
+                Transform transform = nt.transform;
+                nt.body.position = Position;
+                transform.position = Position;
+                nt.body.velocity = Vector2.zero;
+                nt.lastSequenceId++;
+            }
+
+            if (nt.HasMoved())
+            {
+                nt.sendQueue.Enqueue(nt.body.position);
+                nt.SetDirtyBit(2U);
             }
         }
 

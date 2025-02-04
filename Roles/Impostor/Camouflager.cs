@@ -105,7 +105,6 @@ public class Camouflager : RoleBase
     {
         IsActive = false;
         Camouflage.CheckCamouflage();
-        Utils.NotifyRoles(ForceLoop: true);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

@@ -169,8 +169,6 @@ internal class Bomber : RoleBase
             if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                 pc.Suicide(PlayerState.DeathReason.Bombed);
 
-            Utils.NotifyRoles(ForceLoop: true);
-
             if (pc.IsLocalPlayer() && totalAlive <= murderCount)
                 Achievements.Type.ItsJustAPrankBro.Complete();
         }, 1.5f, "Bomber Suiscide");

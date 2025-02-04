@@ -138,7 +138,6 @@ public class Virus : RoleBase
         else
         {
             target.RpcSetCustomRole(CustomRoles.Contagious);
-            Utils.NotifyRoles(ForceLoop: true);
             VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage"));
         }
 

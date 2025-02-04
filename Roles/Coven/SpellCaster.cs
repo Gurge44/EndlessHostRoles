@@ -57,8 +57,11 @@ public class SpellCaster : Coven
 
     protected override void OnReceiveNecronomicon()
     {
-        var appearsAsSpelled = Main.AllAlivePlayerControls.Length / 2 < HexedPlayers.Keys.Count ? PlayerIdList : [];
-        VisibleHexes = HexedPlayers.Keys.Concat(appearsAsSpelled).ToHashSet();
+        VisibleHexes = HexedPlayers.Keys.Concat(PlayerIdList).ToHashSet();
+        
+        if (Main.AllAlivePlayerControls.Length / 2 >= HexedPlayers.Keys.Count)
+            VisibleHexes.ExceptWith(PlayerIdList);
+        
         HexedPlayers.SetAllValues(true);
     }
 

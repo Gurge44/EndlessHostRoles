@@ -192,7 +192,6 @@ public class FireWorks : RoleBase
         }
 
         SendRPC(pc.PlayerId);
-        Utils.NotifyRoles(ForceLoop: true);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

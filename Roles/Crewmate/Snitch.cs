@@ -104,8 +104,8 @@ public class Snitch : RoleBase
             foreach (PlayerControl target in Main.AllAlivePlayerControls)
             {
                 if (!IsSnitchTarget(target)) continue;
-
                 TargetArrow.Add(target.PlayerId, snitchId);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
             }
 
             IsExposed[snitchId] = true;
@@ -127,10 +127,11 @@ public class Snitch : RoleBase
             if (TargetList.Add(targetId))
                 if (CanGetColoredArrow)
                     TargetColorlist.Add(targetId, target.GetRoleColor());
+            
+            Utils.NotifyRoles(SpecifySeer: snitch, SpecifyTarget: target);
         }
 
         snitch.Notify(Translator.GetString("SnitchDoneTasks"));
-
         IsComplete[snitchId] = true;
     }
 

@@ -2342,7 +2342,6 @@
   "CommandDescription.Exe": "Executes a player",
   "CommandDescription.Kill": "Kills a player",
   "CommandDescription.Colour": "Sets your skin color",
-  "CommandDescription.XF": "Resets the names of all players",
   "CommandDescription.ID": "View the IDs of all players",
   "CommandDescription.ChangeRole": "Changes your role",
   "CommandDescription.End": "Ends the game",

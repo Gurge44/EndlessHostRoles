@@ -125,7 +125,7 @@ internal class Haunter : IGhostRole
         targets.ForEach(x => Utils.GetPlayerById(x)?.Notify(Translator.GetString("HaunterRevealedYou"), 7f));
         WarnedImps.ForEach(x => Utils.GetPlayerById(x)?.Notify(Translator.GetString("HaunterFinishedTasks"), 7f));
 
-        Utils.NotifyRoles(ForceLoop: true);
+        targets.ToValidPlayers().ForEach(x => Utils.NotifyRoles(SpecifyTarget: x));
     }
 
     public void Update(PlayerControl pc)
