@@ -316,7 +316,7 @@ internal static class SetEverythingUpPatch
             __instance.BackgroundBar.material.color = Utils.GetRoleColor(winnerRole);
         }
 
-        if (AmongUsClient.Instance.AmHost && Main.PlayerStates[0].MainRole == CustomRoles.GM)
+        if (AmongUsClient.Instance.AmHost && Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].MainRole == CustomRoles.GM)
         {
             __instance.WinText.text = GetString("GameOver");
             __instance.WinText.color = Utils.GetRoleColor(CustomRoles.GM);
