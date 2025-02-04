@@ -845,7 +845,6 @@ internal static class StartGameHostPatch
             // Add players with unclassified roles to the list of players who require ResetCam.
             Main.ResetCamPlayerList.UnionWith(Main.PlayerStates.Where(p => (p.Value.MainRole.IsDesyncRole() && !p.Key.GetPlayer().UsesPetInsteadOfKill()) || p.Value.SubRoles.Contains(CustomRoles.Bloodlust)).Select(p => p.Key));
             Utils.CountAlivePlayers(true);
-            Utils.SyncAllSettings();
 
             LateTask.New(() =>
             {

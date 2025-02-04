@@ -124,17 +124,15 @@ internal class Analyst : RoleBase
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (!VentCount.TryAdd(pc.PlayerId, 1)) VentCount[pc.PlayerId]++;
+        if (!VentCount.TryAdd(pc.PlayerId, 1))
+            VentCount[pc.PlayerId]++;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsEnable) return false;
-
         if (killer == null || target == null) return false;
-
         if (killer.GetAbilityUseLimit() <= 0) return false;
-
         if (CurrentTarget.ID != byte.MaxValue) return false;
 
         CurrentTarget = (target.PlayerId, Utils.TimeStamp);
@@ -147,9 +145,7 @@ internal class Analyst : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!IsEnable) return;
-
         if (pc == null) return;
-
         if (CurrentTarget.ID == byte.MaxValue) return;
 
         PlayerControl target = Utils.GetPlayerById(CurrentTarget.ID);
@@ -174,7 +170,6 @@ internal class Analyst : RoleBase
     public override void OnReportDeadBody()
     {
         if (!IsEnable) return;
-
         CurrentTarget.ID = byte.MaxValue;
     }
 }

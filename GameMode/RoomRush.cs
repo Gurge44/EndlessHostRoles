@@ -154,7 +154,7 @@ public static class RoomRush
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        DontKillLastPlayer = new BooleanOptionItem(id++, "RR_DontKillLastPlayer", true, TabGroup.GameSettings)
+        DontKillLastPlayer = new BooleanOptionItem(id++, "RR_DontKillLastPlayer", false, TabGroup.GameSettings)
             .SetGameMode(gameMode)
             .SetColor(color);
 
@@ -162,7 +162,7 @@ public static class RoomRush
             .SetGameMode(gameMode)
             .SetColor(color);
 
-        DontKillPlayersOutsideRoomWhenTimeRunsOut = new BooleanOptionItem(id, "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut", true, TabGroup.GameSettings)
+        DontKillPlayersOutsideRoomWhenTimeRunsOut = new BooleanOptionItem(id, "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut", false, TabGroup.GameSettings)
             .SetGameMode(gameMode)
             .SetColor(color);
     }
@@ -297,12 +297,23 @@ public static class RoomRush
 
         bool involvesDecontamination = map switch
         {
-            MapNames.Mira => !(previous is SystemTypes.Laboratory or SystemTypes.Reactor && RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor) && (previous is SystemTypes.Laboratory or SystemTypes.Reactor || RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
+            MapNames.Mira => (previous is SystemTypes.Laboratory or SystemTypes.Reactor) ^ (RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
             _ => false
         };
 
-        if (involvesDecontamination) time += map == MapNames.Polus ? 9 : 15;
+        if (involvesDecontamination)
+        {
+            bool polus = map == MapNames.Polus;
+
+            int decontaminationTime = Options.ChangeDecontaminationTime.GetBool()
+                ? polus
+                    ? Options.DecontaminationTimeOnPolus.GetInt()
+                    : Options.DecontaminationTimeOnMiraHQ.GetInt()
+                : 3;
+
+            time += decontaminationTime * (polus ? 2 : 4);
+        }
 
         switch (map)
         {
@@ -317,7 +328,7 @@ public static class RoomRush
                 break;
         }
 
-        TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
+        TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 5);
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= AllInOneGameMode.RoomRushTimeLimitMultiplier.GetInt();
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "RoomRush");
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));

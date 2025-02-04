@@ -148,8 +148,7 @@ internal static class SetUpRoleTextPatch
         {
             LateTask.New(() =>
             {
-                if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || (lp == null)) return;
-
+                if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || lp == null) return;
                 lp.SetName(Main.AllPlayerNames[lp.PlayerId]);
             }, 1f, "Reset Name For Modded Client");
         }
@@ -830,7 +829,8 @@ internal static class IntroCutsceneDestroyPatch
                     {
                         LateTask.New(() =>
                         {
-                            foreach (PlayerControl pc in aapc) { pc.SetKillCooldown(kcd - 2); }
+                            foreach (PlayerControl pc in aapc)
+                                pc.SetKillCooldown(kcd - 2);
                         }, 2f, "FixKillCooldownTask");
                     }
                     else if (Options.FixFirstKillCooldown.GetBool())
@@ -841,7 +841,9 @@ internal static class IntroCutsceneDestroyPatch
                             aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
                         }, 2f, "FixKillCooldownTask");
                     }
+                    else Utils.SyncAllSettings();
                 }
+                else Utils.SyncAllSettings();
             }
 
             switch (Options.CurrentGameMode)

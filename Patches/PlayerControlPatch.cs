@@ -1169,8 +1169,6 @@ internal static class ReportDeadBodyPatch
         NameNotifyManager.Reset();
         NotifyRoles(ForMeeting: true, ForceLoop: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
-        LateTask.New(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
-
         Main.ProcessShapeshifts = false;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)

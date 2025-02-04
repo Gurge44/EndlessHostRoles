@@ -877,8 +877,6 @@ internal static class CoShowIntroPatch
 
                     GameOptionsSender.AllSenders.Clear();
                     foreach (PlayerControl pc in Main.AllPlayerControls) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
-
-                    Utils.SyncAllSettings();
                 }
             }
             catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
