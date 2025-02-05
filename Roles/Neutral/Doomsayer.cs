@@ -71,11 +71,11 @@ public class Doomsayer : RoleBase
         MisguessRolePrevGuessRoleUntilNextMeeting = new BooleanOptionItem(Id + 20, "DoomsayerMisguessRolePrevGuessRoleUntilNextMeeting", true, TabGroup.NeutralRoles, true)
             .SetParent(DoesNotSuicideWhenMisguessing);
 
-        DoomsayerTryHideMsg = new BooleanOptionItem(Id + 21, "DoomsayerTryHideMsg", true, TabGroup.NeutralRoles, true)
-            .SetColor(Color.green)
+        ImpostorVision = new BooleanOptionItem(Id + 23, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
-        ImpostorVision = new BooleanOptionItem(Id + 22, "ImpostorVision", true, TabGroup.NeutralRoles)
+        DoomsayerTryHideMsg = new BooleanOptionItem(Id + 21, "DoomsayerTryHideMsg", true, TabGroup.NeutralRoles, true)
+            .SetColor(Color.green)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
     }
 
