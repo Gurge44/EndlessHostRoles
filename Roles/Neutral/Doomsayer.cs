@@ -28,8 +28,8 @@ public class Doomsayer : RoleBase
     public static OptionItem KillCorrectlyGuessedPlayers;
     public static OptionItem DoesNotSuicideWhenMisguessing;
     public static OptionItem MisguessRolePrevGuessRoleUntilNextMeeting;
-    public static OptionItem DoomsayerTryHideMsg;
     private static OptionItem ImpostorVision;
+    public static OptionItem DoomsayerTryHideMsg;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
