@@ -18,7 +18,7 @@ public class Bandit : RoleBase
     private static OptionItem CanStealBetrayalAddon;
     private static OptionItem CanStealImpOnlyAddon;
     private static OptionItem CanVent;
-    private static OptionItem CanUseSabotage;
+    private static OptionItem CanSabotage;
     private static OptionItem HasImpostorVision;
 
     private static Dictionary<byte, int> TotalSteals = [];
@@ -55,7 +55,7 @@ public class Bandit : RoleBase
         CanVent = new BooleanOptionItem(Id + 16, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
 
-        CanUseSabotage = new BooleanOptionItem(Id + 15, "CanUseSabotage", true, TabGroup.NeutralRoles)
+        CanSabotage = new BooleanOptionItem(Id + 15, "CanUseSabotage", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
 
         HasImpostorVision = new BooleanOptionItem(Id + 17, "ImpostorVision", true, TabGroup.NeutralRoles)
