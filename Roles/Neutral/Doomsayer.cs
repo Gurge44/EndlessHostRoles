@@ -20,7 +20,7 @@ public class Doomsayer : RoleBase
     public static OptionItem DCanGuessImpostors;
     public static OptionItem DCanGuessCrewmates;
     public static OptionItem DCanGuessNeutrals;
-    private static OptionItem DCanGuessCoven;
+    public static OptionItem DCanGuessCoven;
     public static OptionItem DCanGuessAdt;
     public static OptionItem AdvancedSettings;
     public static OptionItem MaxNumberOfGuessesPerMeeting;
@@ -28,6 +28,7 @@ public class Doomsayer : RoleBase
     public static OptionItem DoesNotSuicideWhenMisguessing;
     public static OptionItem MisguessRolePrevGuessRoleUntilNextMeeting;
     public static OptionItem DoomsayerTryHideMsg;
+    private static OptionItem ImpostorVision;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -72,6 +73,9 @@ public class Doomsayer : RoleBase
         DoomsayerTryHideMsg = new BooleanOptionItem(Id + 21, "DoomsayerTryHideMsg", true, TabGroup.NeutralRoles, true)
             .SetColor(Color.green)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
+
+        ImpostorVision = BooleanOptionItem.Create(Id + 22, "ImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
     }
 
     public override void Init()
@@ -98,6 +102,8 @@ public class Doomsayer : RoleBase
     {
         PlayerIdList.Remove(playerId);
     }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(ImpostorVision.GetBool());
 
     public static void SendRPC(PlayerControl player)
     {
