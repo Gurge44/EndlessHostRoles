@@ -18,6 +18,7 @@ public class Bandit : RoleBase
     private static OptionItem CanStealBetrayalAddon;
     private static OptionItem CanStealImpOnlyAddon;
     private static OptionItem CanVent;
+    private static OptionItem CanUseSabotage;
     private static OptionItem HasImpostorVision;
 
     private static Dictionary<byte, int> TotalSteals = [];
@@ -54,6 +55,9 @@ public class Bandit : RoleBase
         CanVent = new BooleanOptionItem(Id + 16, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
 
+        CanUseSabotage = new BooleanOptionItem(Id + 15, "CanUseSabotage", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+
         HasImpostorVision = new BooleanOptionItem(Id + 17, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
     }
@@ -80,6 +84,11 @@ public class Bandit : RoleBase
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
         return CanVent.GetBool();
+    }
+
+    public override bool CanUseSabotage(PlayerControl pc)
+    {
+        return base.CanUseSabotage(pc) || (CanSabotage.GetBool() && pc.IsAlive());
     }
 
     private static void SendRPC(byte playerId /*, bool isTargetList = false*/)
