@@ -1,3 +1,4 @@
+using AmongUs.GameOptions;
 using EHR.Impostor;
 using static EHR.Options;
 
