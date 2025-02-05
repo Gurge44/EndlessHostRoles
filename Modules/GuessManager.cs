@@ -259,7 +259,8 @@ public static class GuessManager
                             if ((
                                     (target.IsImpostor() && !Doomsayer.DCanGuessImpostors.GetBool()) ||
                                     (target.IsCrewmate() && !Doomsayer.DCanGuessCrewmates.GetBool()) ||
-                                    ((role.IsNeutral() || target.IsNeutralKiller()) && !Doomsayer.DCanGuessNeutrals.GetBool()))
+                                    ((role.IsNeutral() || target.IsNeutralKiller()) && !Doomsayer.DCanGuessNeutrals.GetBool()) ||
+                                    (role.IsCoven() && !Doomsayer.DCanGuessCoven.GetBool()))
                                 && !forceAllowGuess)
                             {
                                 ShowMessage("GuessNotAllowed");

@@ -21,6 +21,7 @@ public class Snitch : RoleBase
     private static bool EnableTargetArrow;
     private static bool CanGetColoredArrow;
     private static bool CanFindNeutralKiller;
+    private static bool CanFindCoven;
     private static bool CanFindMadmate;
     public static int RemainingTasksToBeFound;
 
@@ -92,7 +93,7 @@ public class Snitch : RoleBase
 
     private static bool IsSnitchTarget(PlayerControl target)
     {
-        return (target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Trickster)) || (target.IsNeutralKiller() && CanFindNeutralKiller) || (target.IsPlayerCoven() && CanFindCoven) || (target.Is(CustomRoles.Madmate) && CanFindMadmate) || (target.Is(CustomRoles.Rascal) && CanFindMadmate);
+        return (target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Trickster)) || (target.IsNeutralKiller() && CanFindNeutralKiller) || (target.Is(CustomRoleTypes.Coven) && CanFindCoven) || (target.Is(CustomRoles.Madmate) && CanFindMadmate) || (target.Is(CustomRoles.Rascal) && CanFindMadmate);
     }
 
     public static void CheckTask(PlayerControl snitch)
