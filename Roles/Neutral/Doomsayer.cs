@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
@@ -74,7 +75,7 @@ public class Doomsayer : RoleBase
             .SetColor(Color.green)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
-        ImpostorVision = BooleanOptionItem.Create(Id + 22, "ImpostorVision", true, TabGroup.NeutralRoles)
+        ImpostorVision = new BooleanOptionItem(Id + 22, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
     }
 
