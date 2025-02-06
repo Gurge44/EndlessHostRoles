@@ -100,7 +100,7 @@ public class Executioner : RoleBase
         switch (Progress)
         {
             case "SetTarget":
-                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetExecutionerTarget, SendOption.Reliable);
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetExecutionerTarget, HazelExtensions.SendOption);
                 writer.Write(executionerId);
                 writer.Write(targetId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -108,7 +108,7 @@ public class Executioner : RoleBase
             case "":
                 if (!AmongUsClient.Instance.AmHost) return;
 
-                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveExecutionerTarget, SendOption.Reliable);
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveExecutionerTarget, HazelExtensions.SendOption);
                 writer.Write(executionerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 break;

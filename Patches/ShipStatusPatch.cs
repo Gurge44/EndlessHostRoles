@@ -431,12 +431,10 @@ internal static class ShipStatusSerializePatch
 {
     public static void Prefix(ShipStatus __instance, [HarmonyArgument(1)] bool initialState)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
-
-        if (initialState) return;
+        if (!AmongUsClient.Instance.AmHost || initialState) return;
 
         bool cancel = Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction);
-        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
+        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
 
         if (cancel && ventilationSystem is { IsDirty: true })
         {
@@ -447,33 +445,20 @@ internal static class ShipStatusSerializePatch
 }
 
 [HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.Deteriorate))]
-internal static class VentilationSystemDeterioratePatch
+static class VentilationSystemDeterioratePatch
 {
     public static Dictionary<byte, int> LastClosestVent = [];
-    private static readonly Dictionary<byte, bool> LastCanUseVent = [];
-    private static readonly Dictionary<byte, int> LastClosestVentForUpdate = [];
-    private static readonly Dictionary<byte, int> CheckBufferTime = [];
 
     public static void Postfix(VentilationSystem __instance)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
 
-        if (!GameStates.InGame) return;
-
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        foreach (var pc in PlayerControl.AllPlayerControls)
         {
             if (BlockVentInteraction(pc))
             {
-                var players = 0;
-
-                foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
-                    if (playerInfo != null && !playerInfo.Disconnected)
-                        ++players;
-
-                int closestVentId = pc.GetClosestVent().Id;
-                if (closestVentId == LastClosestVent[pc.PlayerId] && players >= 3) continue;
-
-                LastClosestVent[pc.PlayerId] = closestVentId;
+                if (LastClosestVent.TryGetValue(pc.PlayerId, out var ventId) && pc.GetClosestVent().Id == ventId) continue;
+                LastClosestVent[pc.PlayerId] = pc.GetClosestVent().Id;
                 MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -482,26 +467,29 @@ internal static class VentilationSystemDeterioratePatch
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
-                List<NetworkedPlayerInfo> AllPlayers = [];
+                List<NetworkedPlayerInfo> allPlayers = [];
 
-                foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+                foreach (var playerInfo in GameData.Instance.AllPlayers)
+                {
                     if (playerInfo != null && !playerInfo.Disconnected)
-                        AllPlayers.Add(playerInfo);
+                        allPlayers.Add(playerInfo);
+                }
 
-                int maxVents = Math.Min(vents, AllPlayers.Count);
-                var blockedVents = 0;
+                int maxVents = Math.Min(vents, allPlayers.Count);
+                int blockedVents = 0;
                 writer.WritePacked(maxVents);
 
-                foreach (Vent vent in pc.GetVentsFromClosest())
+                foreach (var vent in pc.GetVentsFromClosest())
                 {
                     if (!pc.CanUseVent(vent.Id))
                     {
-                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write(allPlayers[blockedVents].PlayerId);
                         writer.Write((byte)vent.Id);
                         ++blockedVents;
                     }
 
-                    if (blockedVents >= maxVents) break;
+                    if (blockedVents >= maxVents)
+                        break;
                 }
 
                 writer.WritePacked(__instance.PlayersInsideVents.Count);
@@ -523,15 +511,14 @@ internal static class VentilationSystemDeterioratePatch
 
     public static bool BlockVentInteraction(PlayerControl pc)
     {
-        return !pc.AmOwner && (!pc.IsModClient() || (!pc.IsHost() && CustomGameMode.RoomRush.IsActiveOrIntegrated())) && !pc.Data.IsDead && (pc.IsImpostor() || pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
+        return !pc.AmOwner && !pc.IsModClient() && !pc.Data.IsDead && pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
     }
 
     public static void SerializeV2(VentilationSystem __instance, PlayerControl player = null)
     {
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        foreach (var pc in PlayerControl.AllPlayerControls)
         {
             if (pc.AmOwner) continue;
-
             if (player != null && pc != player) continue;
 
             if (BlockVentInteraction(pc))
@@ -544,26 +531,29 @@ internal static class VentilationSystemDeterioratePatch
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
-                List<NetworkedPlayerInfo> AllPlayers = [];
+                List<NetworkedPlayerInfo> allPlayers = [];
 
-                foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+                foreach (var playerInfo in GameData.Instance.AllPlayers)
+                {
                     if (playerInfo != null && !playerInfo.Disconnected)
-                        AllPlayers.Add(playerInfo);
+                        allPlayers.Add(playerInfo);
+                }
 
-                int maxVents = Math.Min(vents, AllPlayers.Count);
-                var blockedVents = 0;
+                int maxVents = Math.Min(vents, allPlayers.Count);
+                int blockedVents = 0;
                 writer.WritePacked(maxVents);
 
-                foreach (Vent vent in pc.GetVentsFromClosest())
+                foreach (var vent in pc.GetVentsFromClosest())
                 {
                     if (!pc.CanUseVent(vent.Id))
                     {
-                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write(allPlayers[blockedVents].PlayerId);
                         writer.Write((byte)vent.Id);
                         ++blockedVents;
                     }
 
-                    if (blockedVents >= maxVents) break;
+                    if (blockedVents >= maxVents)
+                        break;
                 }
 
                 writer.WritePacked(__instance.PlayersInsideVents.Count);
@@ -596,50 +586,6 @@ internal static class VentilationSystemDeterioratePatch
                 AmongUsClient.Instance.SendOrDisconnect(writer);
                 writer.Recycle();
             }
-        }
-    }
-
-    public static void CheckVentInteraction(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask || ExileController.Instance || !ShipStatus.Instance) return;
-
-        const int bufferTimeWait = 10;
-
-        if (!CheckBufferTime.TryGetValue(pc.PlayerId, out int bufferTime))
-        {
-            CheckBufferTime[pc.PlayerId] = bufferTimeWait;
-            return;
-        }
-
-        if (bufferTime > 0)
-        {
-            CheckBufferTime[pc.PlayerId]--;
-            return;
-        }
-
-        CheckBufferTime[pc.PlayerId] = bufferTimeWait;
-
-
-        int closestVent = pc.GetClosestVent().Id;
-
-        if (!LastClosestVentForUpdate.TryGetValue(pc.PlayerId, out int lastClosestVent))
-        {
-            LastClosestVentForUpdate[pc.PlayerId] = closestVent;
-            return;
-        }
-
-        bool canUse = pc.CanUseVent(closestVent);
-
-        if (!LastCanUseVent.TryGetValue(pc.PlayerId, out bool couldUse))
-        {
-            LastCanUseVent[pc.PlayerId] = canUse;
-            return;
-        }
-
-        if (couldUse != canUse || lastClosestVent != closestVent)
-        {
-            LastCanUseVent[pc.PlayerId] = canUse;
-            pc.RpcSetVentInteraction();
         }
     }
 }

@@ -133,7 +133,7 @@ public class Swooper : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, HazelExtensions.SendOption);
         writer.Write(SwooperId);
         writer.Write(InvisTime.ToString());
         writer.Write(lastTime.ToString());

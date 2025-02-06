@@ -58,7 +58,7 @@ public abstract class GameOptionsSender
     {
         try
         {
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            MessageWriter writer = MessageWriter.Get(HazelExtensions.SendOption);
 
             writer.StartMessage(targetClientId == -1 ? Tags.GameData : Tags.GameDataTo);
 

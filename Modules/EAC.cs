@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using AmongUs.QuickChat;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -115,6 +116,49 @@ internal static class EAC
                     }
 
                     break;
+                case RpcCalls.SendQuickChat:
+                    QuickChatPhraseType quickChatPhraseType = (QuickChatPhraseType)sr.ReadByte();
+
+                    switch (quickChatPhraseType)
+                    {
+                        case QuickChatPhraseType.Empty:
+                            HandleCheat(pc, "Empty message in quick chat");
+                            return true;
+                        case QuickChatPhraseType.PlayerId:
+                        {
+                            byte playerID = sr.ReadByte();
+
+                            if (playerID == 255)
+                            {
+                                HandleCheat(pc, "Sending invalid player in quick chat");
+                                return true;
+                            }
+
+                            if (GameStates.InGame && GameData.Instance.GetPlayerById(playerID) == null)
+                            {
+                                HandleCheat(pc, "Sending non existing player in quick chat");
+                                return true;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    if (quickChatPhraseType != QuickChatPhraseType.ComplexPhrase) break;
+                    sr.ReadUInt16();
+                    int num = sr.ReadByte();
+
+                    switch (num)
+                    {
+                        case 0:
+                            HandleCheat(pc, "Complex phrase without arguments");
+                            return true;
+                        case > 3:
+                            HandleCheat(pc, "Trying to crash or lag other players");
+                            return true;
+                    }
+
+                    break;
                 case RpcCalls.CheckColor when !pc.IsHost():
                     if (!GameStates.IsLobby)
                     {
@@ -170,7 +214,7 @@ internal static class EAC
                 case RpcCalls.Shapeshift when !pc.IsHost():
                 {
                     Report(pc, "Directly Shapeshift");
-                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
+                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, HazelExtensions.SendOption);
                     swriter.WriteNetObject(pc);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);
@@ -183,7 +227,7 @@ internal static class EAC
                 {
                     string sreason = "Direct Phantom RPCs " + rpc;
                     Report(pc, sreason);
-                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, SendOption.Reliable);
+                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, HazelExtensions.SendOption);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);
                     HandleCheat(pc, sreason);

@@ -5,6 +5,10 @@ namespace EHR;
 
 public static class HazelExtensions
 {
+    // -------------------------------------------------------------------------------------------------------------------------
+
+    public static SendOption SendOption => GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? SendOption.None : SendOption.Reliable;
+
     public static void Write(this MessageWriter writer, Vector2 vector)
     {
         NetHelpers.WriteVector2(vector, writer);

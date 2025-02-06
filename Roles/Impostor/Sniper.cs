@@ -115,7 +115,7 @@ public class Sniper : RoleBase
     {
         if (!On || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, HazelExtensions.SendOption);
         writer.Write(sniperId);
         writer.Write(shotNotify.Count);
         foreach (byte sn in shotNotify) writer.Write(sn);

@@ -308,7 +308,6 @@ internal static class ChangeRoleSettings
                 Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
-                VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = 0;
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
                 pc.cosmetics.nameText.text = pc.name;
                 RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
@@ -990,7 +989,7 @@ internal static class StartGameHostPatch
                 playerInfo.IsDead = data;
             }
 
-            MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
+            MessageWriter stream = MessageWriter.Get(HazelExtensions.SendOption);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
 
@@ -1075,7 +1074,7 @@ internal static class StartGameHostPatch
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false)
+                Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", HazelExtensions.SendOption, false)
                     .StartMessage(pc.GetClientId());
             }
         }
@@ -1180,34 +1179,16 @@ internal static class StartGameHostPatch
         public static void Release()
         {
             BlockSetRole = false;
-            Senders.Do(kvp => kvp.Value.SendMessage());
+            Senders.Values.Do(s => s.SendMessage());
 
-            if (!CustomRoles.DoubleAgent.IsEnable()) return;
-
-            try
+            System.Collections.IEnumerator ReleaseAsync()
             {
-                RoleResult.DoIf(x => x.Value == CustomRoles.DoubleAgent, k =>
+                foreach (var sender in Senders.Values)
                 {
-                    var da = k.Key.GetPlayer();
-                    if (da == null) return;
-
-                    var ci = da.GetClientId();
-                    if (ci == -1) return;
-
-                    RoleResult.DoIf(x => x.Value.IsImpostor(), x =>
-                    {
-                        var imp = x.Key.GetPlayer();
-                        if (imp == null) return;
-
-                        var previousRoleType = RoleMap[(k.Key, x.Key)].RoleType;
-
-                        imp.RpcSetRoleDesync(RoleTypes.Crewmate, ci);
-
-                        LateTask.New(() => imp.RpcSetRoleDesync(previousRoleType, ci), 7f, log: false);
-                    });
-                });
+                    sender.SendMessage();
+                    yield return new WaitForSeconds(0.3f);
+                }
             }
-            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         public static void EndReplace()

@@ -60,6 +60,8 @@ public static class Utils
     public static long GameStartTimeStamp;
 
     public static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
+
+    private static int NumSnapToRPCsThisRound;
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
@@ -113,18 +115,8 @@ public static class Utils
 
     public static void CheckAndSetVentInteractions()
     {
-        var shouldPerformVentInteractions = false;
-
-        foreach (PlayerControl pc in Main.AllPlayerControls)
-        {
-            if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
-            {
-                VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = pc.GetVentsFromClosest()[0].Id;
-                shouldPerformVentInteractions = true;
-            }
-        }
-
-        if (shouldPerformVentInteractions) SetAllVentInteractions();
+        if (Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction))
+            SetAllVentInteractions();
     }
 
     public static void TPAll(Vector2 location, bool log = true)
@@ -143,7 +135,6 @@ public static class Utils
             if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
             {
                 if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
-
                 return false;
             }
         }
@@ -159,7 +150,8 @@ public static class Utils
         }
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
+        var sendOption = NumSnapToRPCsThisRound < 100 ? SendOption.Reliable : HazelExtensions.SendOption;
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, sendOption);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -169,6 +161,7 @@ public static class Utils
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
 
+        NumSnapToRPCsThisRound++;
         return true;
     }
 
@@ -587,7 +580,7 @@ public static class Utils
 
     public static MessageWriter CreateRPC(CustomRPC rpc)
     {
-        return AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable);
+        return AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, HazelExtensions.SendOption);
     }
 
     public static void EndRPC(MessageWriter writer)
@@ -722,7 +715,8 @@ public static class Utils
 
     public static void SetAllVentInteractions()
     {
-        VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>());
+        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem);
     }
 
     public static bool HasTasks(NetworkedPlayerInfo p, bool ForRecompute = true)

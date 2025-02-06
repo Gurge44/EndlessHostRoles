@@ -81,7 +81,7 @@ internal static class RpcMurderPlayerPatch
         if (AmongUsClient.Instance.AmClient)
             __instance.MurderPlayer(target, murderResultFlags);
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, HazelExtensions.SendOption);
         messageWriter.WriteNetObject(target);
         messageWriter.Write((int)murderResultFlags);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -99,7 +99,7 @@ internal static class CmdCheckMurderPatch
             __instance.CheckMurder(target);
         else if (!CustomGameMode.FFA.IsActiveOrIntegrated())
         {
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, SendOption.Reliable);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, HazelExtensions.SendOption);
             messageWriter.WriteNetObject(target);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
@@ -1217,9 +1217,6 @@ internal static class FixedUpdatePatch
 
         if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
             CustomNetObject.FixedUpdate();
-
-        if (AmongUsClient.Instance.AmHost && __instance.IsAlive())
-            VentilationSystemDeterioratePatch.CheckVentInteraction(__instance);
 
         byte id = __instance.PlayerId;
 
@@ -2348,5 +2345,44 @@ static class BootFromVentPatch
     public static bool Prefix(PlayerPhysics __instance)
     {
         return !GameStates.IsInTask || ExileController.Instance || __instance == null || __instance.myPlayer == null || !__instance.myPlayer.IsAlive() || !__instance.myPlayer.Is(CustomRoles.Nimble);
+    }
+}
+
+// From https://github.com/Rabek009/MoreGamemodes - by Rabek009
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetColor))]
+static class RpcSetColorPatch
+{
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte bodyColor)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        if (AmongUsClient.Instance.AmClient)
+            __instance.SetColor(bodyColor);
+
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.SetColor, SendOption.None);
+        messageWriter.Write(__instance.Data.NetId);
+        messageWriter.Write(bodyColor);
+        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        return false;
+    }
+}
+
+// From https://github.com/Rabek009/MoreGamemodes - by Rabek009
+[HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.RpcSnapTo))]
+static class RpcSnapToPatch
+{
+    public static bool Prefix(CustomNetworkTransform __instance, [HarmonyArgument(0)] Vector2 position)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        if (AmongUsClient.Instance.AmClient)
+            __instance.SnapTo(position, (ushort)(__instance.lastSequenceId + 1));
+
+        ushort num = (ushort)(__instance.lastSequenceId + 2);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+        NetHelpers.WriteVector2(position, messageWriter);
+        messageWriter.Write(num);
+        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        return false;
     }
 }

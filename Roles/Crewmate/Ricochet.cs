@@ -63,7 +63,7 @@ public class Ricochet : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, HazelExtensions.SendOption);
         writer.Write(RicochetId);
         writer.Write(targetId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

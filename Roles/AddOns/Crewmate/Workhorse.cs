@@ -101,7 +101,7 @@ public class Workhorse : IAddon
         if (AmongUsClient.Instance.AmHost)
         {
             Add(pc.PlayerId);
-            pc.Data.RpcSetTasks(new(0)); // Redistribute tasks
+            pc.RpcResetTasks();
             pc.SyncSettings();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }

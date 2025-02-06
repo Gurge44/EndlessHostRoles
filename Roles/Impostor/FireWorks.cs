@@ -89,7 +89,7 @@ public class FireWorks : RoleBase
         if (!On || !Utils.DoRPC) return;
 
         Logger.Info($"Player{playerId}:SendRPC", "FireWorks");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(nowFireWorksCount);
         writer.Write((int)state);
@@ -106,14 +106,8 @@ public class FireWorks : RoleBase
     {
         if (pc == null || pc.Data.IsDead) return false;
 
-        try
-        {
-            return CanKill.GetBool() || (state & FireWorksState.CanUseKill) != 0;
-        }
-        catch
-        {
-            return false;
-        }
+        try { return CanKill.GetBool() || (state & FireWorksState.CanUseKill) != 0; }
+        catch { return false; }
     }
 
     public override void OnPet(PlayerControl pc)

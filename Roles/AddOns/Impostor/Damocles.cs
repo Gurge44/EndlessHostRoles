@@ -91,7 +91,7 @@ public class Damocles : IAddon
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(Timer[playerId]);
         writer.Write(LastUpdate[playerId].ToString());

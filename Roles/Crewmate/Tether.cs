@@ -68,7 +68,7 @@ public class Tether : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, HazelExtensions.SendOption);
         writer.Write(TetherId);
         writer.Write(Target);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

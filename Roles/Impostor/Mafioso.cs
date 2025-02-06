@@ -119,7 +119,7 @@ public class Mafioso : RoleBase
     {
         if (!IsEnable || !DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, HazelExtensions.SendOption);
         writer.Write(MafiosoId);
         writer.Write(Tier);
         writer.Write(XP);
@@ -148,7 +148,7 @@ public class Mafioso : RoleBase
     {
         if (!IsEnable || !DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, HazelExtensions.SendOption);
         writer.Write(MafiosoId);
         writer.Write(Pistol1CD);
         writer.Write(Pistol2CD);

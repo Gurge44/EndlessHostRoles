@@ -73,7 +73,7 @@ public class Cleanser : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCleanserCleanLimit, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCleanserCleanLimit, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(CleanserUses);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

@@ -54,7 +54,7 @@ public class YinYanger : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYinYanger, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYinYanger, HazelExtensions.SendOption);
         writer.Write(YinYangerId);
         writer.Write(isClear);
         if (!isClear) writer.Write(playerId);

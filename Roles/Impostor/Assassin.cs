@@ -16,7 +16,7 @@ internal class Assassin : RoleBase
     private static OptionItem MarkCooldownOpt;
     public static OptionItem AssassinateCooldownOpt;
     private static OptionItem CanKillAfterAssassinateOpt;
-    
+
     private float AssassinateCooldown;
     private bool CanKillAfterAssassinate;
     private bool IsUndertaker;
@@ -77,7 +77,7 @@ internal class Assassin : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(MarkedPlayer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

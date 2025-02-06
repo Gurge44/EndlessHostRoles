@@ -92,7 +92,7 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGreedierOe, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGreedierOe, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(IsOdd);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

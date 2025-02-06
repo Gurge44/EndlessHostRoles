@@ -75,14 +75,14 @@ public class Witch : RoleBase
 
         if (doSpell)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, HazelExtensions.SendOption);
             writer.Write(witchId);
             writer.Write(target);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillOrSpell, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillOrSpell, HazelExtensions.SendOption);
             writer.Write(witchId);
             writer.Write(spellMode);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

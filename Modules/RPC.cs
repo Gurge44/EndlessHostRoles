@@ -314,7 +314,7 @@ internal static class RPCHandlerPatch
 
                     LateTask.New(() =>
                     {
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, HazelExtensions.SendOption, __instance.GetClientId());
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
                     }, 1f, "Retry Version Check Task");
                 }
@@ -1148,7 +1148,7 @@ internal static class RPC
 
         int amountAllOptions = OptionItem.AllOptions.Count;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, HazelExtensions.SendOption, targetId);
         writer.Write(startAmount);
         writer.Write(lastAmount);
 
@@ -1170,7 +1170,7 @@ internal static class RPC
     {
         if (AmongUsClient.Instance.AmHost) PlaySound(PlayerID, sound);
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, HazelExtensions.SendOption);
         writer.Write(PlayerID);
         writer.Write((byte)sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1180,7 +1180,7 @@ internal static class RPC
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAllPlayerNames, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAllPlayerNames, HazelExtensions.SendOption);
         writer.Write(Main.AllPlayerNames.Count);
 
         foreach (KeyValuePair<byte, string> name in Main.AllPlayerNames)
@@ -1203,7 +1203,7 @@ internal static class RPC
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, SendOption.Reliable, pc.GetClientId());
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, HazelExtensions.SendOption, pc.GetClientId());
         writer.Write(msg);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -1212,7 +1212,7 @@ internal static class RPC
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAllClientRealNames, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAllClientRealNames, HazelExtensions.SendOption);
         writer.WritePacked(Main.AllClientRealNames.Count);
 
         foreach (KeyValuePair<int, string> name in Main.AllClientRealNames)
@@ -1226,7 +1226,7 @@ internal static class RPC
 
     public static void ExileAsync(PlayerControl player)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, HazelExtensions.SendOption);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         player.Exiled();
     }
@@ -1257,7 +1257,7 @@ internal static class RPC
 
     public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeathReason, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeathReason, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write((int)deathReason);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1333,14 +1333,14 @@ internal static class RPC
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, HazelExtensions.SendOption);
         writer.Write(Main.LoversPlayers.Count);
         foreach (PlayerControl lp in Main.LoversPlayers) writer.Write(lp.PlayerId);
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void SendRpcLogger(uint targetNetId, byte callId, int targetClientId = -1)
+    public static void SendRpcLogger(uint targetNetId, byte callId, SendOption sendOption, int targetClientId = -1)
     {
         if (!DebugModeManager.AmDebugger) return;
 
@@ -1355,7 +1355,7 @@ internal static class RPC
         }
         catch { }
 
-        Logger.Info($"FromNetID: {targetNetId} ({from}) / TargetClientID: {targetClientId} ({target}) / CallID: {callId} ({rpcName})", "SendRPC");
+        Logger.Info($"FromNetID: {targetNetId} ({from}) / TargetClientID: {targetClientId} ({target}) / CallID: {callId} ({rpcName}) / SendOption: {sendOption}", "SendRPC");
     }
 
     public static string GetRpcName(byte callId)
@@ -1376,7 +1376,7 @@ internal static class RPC
             Arsonist.CurrentDousingTarget = targetId;
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDousingTarget, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDousingTarget, HazelExtensions.SendOption);
             writer.Write(arsonistId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1389,7 +1389,7 @@ internal static class RPC
             Revolutionist.CurrentDrawTarget = targetId;
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDrawTarget, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDrawTarget, HazelExtensions.SendOption);
             writer.Write(arsonistId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1402,7 +1402,7 @@ internal static class RPC
             Revolutionist.CurrentDrawTarget = targetId;
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentRevealTarget, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentRevealTarget, HazelExtensions.SendOption);
             writer.Write(arsonistId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1432,7 +1432,7 @@ internal static class RPC
 
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRealKiller, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRealKiller, HazelExtensions.SendOption);
         writer.Write(targetId);
         writer.Write(killerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1462,17 +1462,17 @@ internal static class PlayerPhysicsRPCHandlerPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpc))]
 internal static class StartRpcPatch
 {
-    public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
+    public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option = SendOption.Reliable)
     {
-        RPC.SendRpcLogger(targetNetId, callId);
+        RPC.SendRpcLogger(targetNetId, callId, option);
     }
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
 internal static class StartRpcImmediatelyPatch
 {
-    public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
+    public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option, [HarmonyArgument(3)] int targetClientId = -1)
     {
-        RPC.SendRpcLogger(targetNetId, callId, targetClientId);
+        RPC.SendRpcLogger(targetNetId, callId, option, targetClientId);
     }
 }

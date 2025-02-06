@@ -78,7 +78,7 @@ public class DarkHide : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC || !AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDarkHiderKillCount, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDarkHiderKillCount, HazelExtensions.SendOption);
         writer.Write(player.PlayerId);
         writer.Write(IsWinKill);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -113,7 +113,7 @@ public class DarkHide : RoleBase
         if (succeeded && SnatchesWin.GetBool()) IsWinKill = true;
 
         DRpcSetKillCount(killer);
-        MessageWriter SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, killer.GetClientId());
+        MessageWriter SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, HazelExtensions.SendOption, killer.GetClientId());
         SabotageFixWriter.Write((byte)SystemTypes.Electrical);
         SabotageFixWriter.WriteNetObject(killer);
         AmongUsClient.Instance.FinishRpcImmediately(SabotageFixWriter);
@@ -122,7 +122,7 @@ public class DarkHide : RoleBase
         {
             if (target.PlayerId == killer.PlayerId || target.Data.Disconnected) continue;
 
-            SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.GetClientId());
+            SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, HazelExtensions.SendOption, target.GetClientId());
             SabotageFixWriter.Write((byte)SystemTypes.Electrical);
             SabotageFixWriter.WriteNetObject(target);
             AmongUsClient.Instance.FinishRpcImmediately(SabotageFixWriter);

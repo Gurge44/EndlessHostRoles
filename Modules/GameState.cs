@@ -339,9 +339,6 @@ public class PlayerState(byte playerId)
 
             RPC.SendDeathReason(PlayerId, deathReason);
             Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));
-
-            if (Utils.DoRPC && !CustomGameMode.Standard.IsActiveOrIntegrated())
-                Main.AllPlayerControls.DoIf(x => x.IsNonHostModClient(), x => Player.RpcSetRoleDesync(RoleTypes.CrewmateGhost, x.GetClientId()));
         }
     }
 
@@ -387,6 +384,7 @@ public class TaskState
         }
 
         HasTasks = true;
+        CompletedTasksCount = 0;
         AllTasksCount = player.Data.Tasks.Count;
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }

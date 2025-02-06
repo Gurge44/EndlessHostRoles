@@ -88,7 +88,7 @@ internal class Bubble : RoleBase
     {
         if (!IsEnable || !DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBubble, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBubble, HazelExtensions.SendOption);
         writer.Write(remove);
         writer.Write(clear);
         writer.Write(id);

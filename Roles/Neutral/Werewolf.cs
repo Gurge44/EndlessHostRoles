@@ -110,7 +110,7 @@ public class Werewolf : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWwTimer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWwTimer, HazelExtensions.SendOption);
         writer.Write(WWId);
         writer.Write(RampageTime.ToString());
         writer.Write(lastTime.ToString());
@@ -150,13 +150,13 @@ public class Werewolf : RoleBase
             {
                 lastTime = -10;
                 bool unshift = UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool();
-                
+
                 if (!player.IsModClient())
                 {
                     player.Notify(GetString(unshift ? "WWCanRampageUnshift" : "WWCanRampage"));
                     player.RpcChangeRoleBasis(unshift ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
                 }
-                
+
                 SendRPC();
                 CD = 0;
             }

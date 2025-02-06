@@ -266,9 +266,10 @@ internal static class RpcSetTasksPatch
             NormalPlayerTask[] allTasks = ShortTasks.ToArray().Concat(LongTasks.ToArray()).ToArray();
             Il2CppSystem.Text.StringBuilder sb = new();
 
-            foreach (TaskTypes taskType in usedTaskTypes) { GetTaskFromTaskType(taskType).AppendTaskText(sb); }
+            foreach (TaskTypes taskType in usedTaskTypes)
+                GetTaskFromTaskType(taskType)?.AppendTaskText(sb);
 
-            Logger.Info($" Assigned tasks:\n{sb.Replace("\r\n", "\n").ToString()}", pc.GetRealName(), multiLine: true);
+            Logger.Info($" Changed Assigned tasks:\n{sb.Replace("\r\n", "\n").ToString()}", pc.GetRealName(), multiLine: true);
 
             PlayerTask GetTaskFromTaskType(TaskTypes type) => allTasks.FirstOrDefault(t => t.TaskType == type);
         }
