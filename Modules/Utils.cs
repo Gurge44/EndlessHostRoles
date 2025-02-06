@@ -1771,7 +1771,7 @@ public static class Utils
         bool isVIP = ChatCommands.IsPlayerVIP(player.FriendCode);
         bool hasTag = devUser.HasTag();
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out var privateTag);
-        
+
         if (!player.AmOwner && !hasTag && !isMod && !isVIP && !hasPrivateTag) return;
 
         string name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out string n) ? n : string.Empty;
@@ -1951,7 +1951,7 @@ public static class Utils
     public static IEnumerator NotifyEveryoneAsync(int speed = 2, bool noCache = true)
     {
         if (GameStates.IsMeeting) yield break;
-        
+
         var count = 0;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
@@ -2067,6 +2067,7 @@ public static class Utils
                 }
 
                 var fontSize = "1.7";
+
                 if (forMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch))
                     fontSize = "70%";
 
@@ -2393,7 +2394,7 @@ public static class Utils
                                     ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
-                            if (Utils.IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
+                            if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 TargetRoleText = string.Empty;
 
                             if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) TargetRoleText = string.Empty;
@@ -2424,12 +2425,14 @@ public static class Utils
                             {
                                 case CustomRoles.EvilTracker:
                                     TargetMark.Append(EvilTracker.GetTargetMark(seer, target));
+
                                     if (forMeeting && EvilTracker.IsTrackTarget(seer, target) && EvilTracker.CanSeeLastRoomInMeeting)
                                         TargetRoleText = $"<size={fontSize}>{EvilTracker.GetArrowAndLastRoom(seer, target)}</size>\r\n";
 
                                     break;
                                 case CustomRoles.Scout:
                                     TargetMark.Append(Scout.GetTargetMark(seer, target));
+
                                     if (forMeeting && Scout.IsTrackTarget(seer, target) && Scout.CanSeeLastRoomInMeeting)
                                         TargetRoleText = $"<size={fontSize}>{Scout.GetArrowAndLastRoom(seer, target)}</size>\r\n";
 
@@ -2755,7 +2758,7 @@ public static class Utils
         bool loversChat = Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive());
 
         if (loversChat && Lovers.PrivateChatForLoversOnly.GetBool())
-            Main.LoversPlayers.ForEach(x => x.SetChatVisible());
+            Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
         else if (!Lovers.IsChatActivated && loversChat && !GameStates.IsEnded && CustomGameMode.Standard.IsActiveOrIntegrated())
         {
             LateTask.New(SetChatVisibleForAll, 0.5f, log: false);

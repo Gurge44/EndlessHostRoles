@@ -614,10 +614,15 @@ internal static class StartGameHostPatch
             // Assign roles and create role maps for normal roles
             RpcSetRoleReplacer.AssignNormalRoles();
             RpcSetRoleReplacer.SendRpcForNormal();
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
-            // Send all RPCs
-            RpcSetRoleReplacer.Release();
+        // Send all RPCs
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) yield return RpcSetRoleReplacer.ReleaseAsync();
+        else RpcSetRoleReplacer.Release();
 
+        try
+        {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
@@ -671,7 +676,7 @@ internal static class StartGameHostPatch
                 }
             }
 
-            if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : random.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
+            if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : IRandom.Instance.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
 
             // Add-on assignment
             PlayerControl[] aapc = Main.AllAlivePlayerControls.Shuffle();
@@ -1178,14 +1183,14 @@ internal static class StartGameHostPatch
         {
             BlockSetRole = false;
             Senders.Values.Do(s => s.SendMessage());
+        }
 
-            System.Collections.IEnumerator ReleaseAsync()
+        public static System.Collections.IEnumerator ReleaseAsync()
+        {
+            foreach (var sender in Senders.Values)
             {
-                foreach (var sender in Senders.Values)
-                {
-                    sender.SendMessage();
-                    yield return new WaitForSeconds(0.3f);
-                }
+                sender.SendMessage();
+                yield return new WaitForSeconds(0.3f);
             }
         }
 

@@ -104,7 +104,7 @@ internal static class ExtendedPlayerControl
         if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, player);
     }
 
-    // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
+    // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs - coded by Rabek009
     public static void SetChatVisible(this PlayerControl player, bool visible)
     {
         if (player.AmOwner)

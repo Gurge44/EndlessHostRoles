@@ -193,7 +193,7 @@ internal static class ChatCommands
             new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
             new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
-            
+
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
@@ -311,6 +311,7 @@ internal static class ChatCommands
                 ChatUpdatePatch.LoversMessage = true;
                 Utils.SendMessage(text, otherLover.PlayerId, title);
                 Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
+                otherLover.Notify($"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
                 LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
             }
 
@@ -364,11 +365,11 @@ internal static class ChatCommands
 
         var pc = id.GetPlayer();
         if (pc == null) return;
-        
+
         var color = ColorUtility.TryParseHtmlString($"#{args[2]}", out var c) ? c : Color.red;
         var tag = Utils.ColorString(color, string.Join(' ', args[3..]));
         PrivateTagManager.AddTag(pc.FriendCode, tag);
-        
+
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("AddTagSuccess"), tag, id.ColoredPlayerName(), id));
     }
 
@@ -382,7 +383,7 @@ internal static class ChatCommands
         PrivateTagManager.DeleteTag(pc.FriendCode);
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeleteTagSuccess"), id.ColoredPlayerName()));
     }
-    
+
     private static void EightBallCommand(PlayerControl player, string text, string[] args)
     {
         Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
@@ -2701,6 +2702,7 @@ internal static class ChatCommands
                         ChatUpdatePatch.LoversMessage = true;
                         Utils.SendMessage(text, otherLover.PlayerId, title);
                         Utils.SendMessage(text, player.PlayerId, title);
+                        otherLover.Notify($"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
                         LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
                     }, 0.2f, log: false);
                 }
