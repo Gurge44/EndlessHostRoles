@@ -92,6 +92,7 @@ internal static class CustomRolesHelper
     {
         if (role.IsGhostRole()) return CustomRoles.GuardianAngel;
         if (role.IsVanilla()) return role;
+        if (role is CustomRoles.GM) return CustomRoles.Crewmate;
         if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
         if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
         if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;
@@ -830,16 +831,7 @@ internal static class CustomRolesHelper
 
     public static bool NeedUpdateOnLights(this CustomRoles role)
     {
-        return !role.UsesPetInsteadOfKill() && (role.IsDesyncRole() || role is
-            CustomRoles.Convict or
-            CustomRoles.Parasite or
-            CustomRoles.Refugee or
-            CustomRoles.Lighter or
-            CustomRoles.SecurityGuard or
-            CustomRoles.Ignitor or
-            CustomRoles.Saboteur or
-            CustomRoles.Inhibitor or
-            CustomRoles.Gambler);
+        return !role.UsesPetInsteadOfKill() && role is CustomRoles.Lighter;
     }
 
     public static bool IsBetrayalAddon(this CustomRoles role)

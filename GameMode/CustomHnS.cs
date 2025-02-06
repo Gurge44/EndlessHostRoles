@@ -96,7 +96,7 @@ internal static class CustomHnS
                 .Where(x => x.Interface.Team == Team.Impostor)
                 .Do(x => x.pc.SetKillCooldown());
 
-            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
+            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(noCache: false)), 3f, log: false);
         }, Seeker.BlindTime.GetFloat() + 14f, "Blind Time Expire");
     }
 

@@ -224,8 +224,6 @@ public class Councillor : RoleBase
 
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        Utils.NotifyRoles(NoCache: true);
-
                         LateTask.New(() => Utils.SendMessage(string.Format(GetString("MurderKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("MurderKillTitle"))), 0.6f, "Guess Msg");
                     }, 0.2f, "Murder Kill");
                 }

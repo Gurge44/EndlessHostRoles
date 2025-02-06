@@ -85,7 +85,7 @@ internal class Spurt : IAddon
     public static void OnFixedUpdate(PlayerControl player)
     {
         Vector2 pos = player.Pos();
-        bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0f || player.MyPhysics.Animations.IsPlayingRunAnimation();
+        bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0.1f || player.MyPhysics.Animations.IsPlayingRunAnimation();
         LastPos[player.PlayerId] = pos;
 
         float modulator = Modulator.GetFloat();
@@ -116,6 +116,6 @@ internal class Spurt : IAddon
         }
 
         Main.AllPlayerSpeed[player.PlayerId] -= Mathf.Clamp(decreaseby, 0f, Main.AllPlayerSpeed[player.PlayerId] - MinSpeed.GetFloat());
-        player.MarkDirtySettings();
+        if (charge >= 1) player.MarkDirtySettings();
     }
 }

@@ -156,7 +156,6 @@ internal static class ChatCommands
             new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
-            new(["xf", "испр", "修复"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, XFCommand, true, false),
             new(["id", "guesslist", "айди", "ID列表"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true, false),
             new(["changerole", "измроль", "修改职业", "mudar-função"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true, false, [GetString("CommandArgs.ChangeRole.Role")]),
             new(["end", "завершить", "结束游戏", "encerrar", "finalizar", "fim"], "", GetString("CommandDescription.End"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EndCommand, true, false),
@@ -191,8 +190,10 @@ internal static class ChatCommands
             new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
             new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
-            new(["8ball", "шар", "八球"], "{question}", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
-
+            new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
+            new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
+            new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
+            
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
@@ -357,6 +358,31 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void AddTagCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 4 || !byte.TryParse(args[1], out var id)) return;
+
+        var pc = id.GetPlayer();
+        if (pc == null) return;
+        
+        var color = ColorUtility.TryParseHtmlString($"#{args[2]}", out var c) ? c : Color.red;
+        var tag = Utils.ColorString(color, string.Join(' ', args[3..]));
+        PrivateTagManager.AddTag(pc.FriendCode, tag);
+        
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("AddTagSuccess"), tag, id.ColoredPlayerName(), id));
+    }
+
+    private static void DeleteTagCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !byte.TryParse(args[1], out var id)) return;
+
+        var pc = id.GetPlayer();
+        if (pc == null) return;
+
+        PrivateTagManager.DeleteTag(pc.FriendCode);
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeleteTagSuccess"), id.ColoredPlayerName()));
+    }
+    
     private static void EightBallCommand(PlayerControl player, string text, string[] args)
     {
         Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
@@ -364,8 +390,8 @@ internal static class ChatCommands
 
     private static void GameModePollCommand(PlayerControl player, string text, string[] args)
     {
-        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x)));
-        var msg = $"/poll {GetString("GameModePoll.Question")}? {GetString("GameModePoll.KeepCurrent")} {gmNames}";
+        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x).Replace(' ', '_')));
+        var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {GetString("GameModePoll.KeepCurrent").Replace(' ', '_')} {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
 
@@ -962,12 +988,12 @@ internal static class ChatCommands
             int maxVotes = PollVotes.Values.Max();
             KeyValuePair<char, int>[] winners = PollVotes.Where(x => x.Value == maxVotes).ToArray();
 
-            string msg = winners.Length == 1
+            string result = winners.Length == 1
                 ? string.Format(GetString("Poll.Winner"), winners[0].Key, PollAnswers[winners[0].Key], winners[0].Value) +
                   PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} / {t.Value} {PollAnswers[t.Key]}\n")
                 : string.Format(GetString("Poll.Tie"), string.Join(" & ", winners.Select(x => $"{x.Key}{PollAnswers[x.Key]}")), maxVotes);
 
-            Utils.SendMessage(msg, title: Utils.ColorString(new(0, 255, 165, 255), GetString("PollResultTitle")));
+            Utils.SendMessage(result, title: Utils.ColorString(new(0, 255, 165, 255), GetString("PollResultTitle")));
 
             PollVotes.Clear();
             PollAnswers.Clear();
@@ -1157,21 +1183,6 @@ internal static class ChatCommands
         msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => $"{current}\n{pc.PlayerId} \u2192 {pc.GetRealName()}");
 
         Utils.SendMessage(msgText, player.PlayerId);
-    }
-
-    private static void XFCommand(PlayerControl player, string text, string[] args)
-    {
-        if (!GameStates.IsInGame && !player.IsHost())
-        {
-            Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
-            return;
-        }
-
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls) pc.RpcSetNameEx(pc.GetRealName(true));
-
-        ChatUpdatePatch.DoBlockChat = false;
-        Utils.NotifyRoles(GameStates.IsMeeting, NoCache: true);
-        Utils.SendMessage(GetString("Message.TryFixName"), player.PlayerId);
     }
 
     private static void ColorCommand(PlayerControl player, string text, string[] args)
@@ -1471,6 +1482,7 @@ internal static class ChatCommands
     private static void DeathCommand(PlayerControl player, string text, string[] args)
     {
         if (!GameStates.IsInGame) return;
+        if (Main.DiedThisRound.Contains(player.PlayerId) && Utils.IsRevivingRoleAlive()) return;
 
         PlayerControl killer = player.GetRealKiller();
 

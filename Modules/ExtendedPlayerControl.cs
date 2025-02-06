@@ -343,8 +343,8 @@ internal static class ExtendedPlayerControl
 
         Camouflage.RpcSetSkin(player);
 
-        NotifyRoles(SpecifySeer: player, NoCache: true);
-        NotifyRoles(SpecifyTarget: player, NoCache: true);
+        NotifyRoles(SpecifySeer: player);
+        NotifyRoles(SpecifyTarget: player);
 
         player.SyncSettings();
     }

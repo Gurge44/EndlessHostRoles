@@ -68,7 +68,7 @@ internal static class HudManagerPatch
                     SettingsText = Object.Instantiate(PingTrackerUpdatePatch.Instance.text, __instance.transform, true);
                     SettingsText.alignment = TextAlignmentOptions.TopLeft;
                     SettingsText.verticalAlignment = VerticalAlignmentOptions.Top;
-                    SettingsText.transform.localPosition = new(-4.9f, 2.9f, 0);
+                    SettingsText.transform.position = AspectPosition.ComputeWorldPosition(Camera.main, AspectPosition.EdgeAlignments.LeftTop, new(0.38f, 0f, 0f));
                     SettingsText.fontSize = SettingsText.fontSizeMin = SettingsText.fontSizeMax = 1.5f;
                 }
 
@@ -853,7 +853,6 @@ internal static class CoShowIntroPatch
         IntroStarted = true;
 
         Utils.SetupLongRoleDescriptions();
-        Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 10));
 
         LateTask.New(() =>
         {
@@ -878,8 +877,6 @@ internal static class CoShowIntroPatch
 
                     GameOptionsSender.AllSenders.Clear();
                     foreach (PlayerControl pc in Main.AllPlayerControls) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
-
-                    Utils.SyncAllSettings();
                 }
             }
             catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }

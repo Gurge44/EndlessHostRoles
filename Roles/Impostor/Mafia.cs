@@ -162,11 +162,7 @@ internal class Mafia : RoleBase
             if (GameStates.IsMeeting)
             {
                 target.RpcGuesserMurderPlayer();
-
-                //死者检查
                 Utils.AfterPlayerDeathTasks(target, true);
-
-                Utils.NotifyRoles(GameStates.IsMeeting, NoCache: true);
             }
             else
             {

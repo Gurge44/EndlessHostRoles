@@ -126,9 +126,6 @@ public static class MushroomMixupSabotageSystemUpdateSystemPatch
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            // Need for hiding player names if player is desync Impostor
-            Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
-
             if (!pc.Is(Team.Impostor) && pc.HasDesyncRole())
             {
                 // Need for hiding player names if player is desync Impostor
@@ -261,7 +258,7 @@ public static class ElectricTaskInitializePatch
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
         }
 
@@ -286,7 +283,7 @@ public static class ElectricTaskCompletePatch
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
         }
 

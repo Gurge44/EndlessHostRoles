@@ -4,7 +4,7 @@ namespace EHR.AddOns.Common;
 
 internal class Stained : IAddon
 {
-    public static List<byte> VioletNameList = [];
+    public static readonly List<byte> VioletNameList = [];
     public AddonTypes Type => AddonTypes.Mixed;
 
     public void SetupCustomOption()
@@ -22,7 +22,7 @@ internal class Stained : IAddon
         LateTask.New(() =>
         {
             VioletNameList.Remove(killer.PlayerId);
-            Utils.NotifyRoles(SpecifyTarget: killer, isForMeeting: GameStates.IsMeeting);
+            if (!GameStates.IsMeeting) Utils.NotifyRoles(SpecifyTarget: killer);
         }, 3f, "Stained Killer Violet Name");
     }
 }

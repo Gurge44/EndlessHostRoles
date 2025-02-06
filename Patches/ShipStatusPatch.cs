@@ -321,7 +321,7 @@ public static class HauntMenuMinigameSetFilterTextPatch
 {
     public static bool Prefix(HauntMenuMinigame __instance)
     {
-        if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || (!CustomRoles.Altruist.RoleExist() && !CustomRoles.Occultist.RoleExist())))
+        if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
         {
             byte id = __instance.HauntTarget.PlayerId;
             __instance.FilterText.text = Utils.GetDisplayRoleName(id) + Utils.GetProgressText(id);
@@ -351,8 +351,6 @@ internal static class ShipStatusBeginPatch
 
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
-
-            Utils.DoNotifyRoles(ForceLoop: true, NoCache: true);
         }
     }
 }

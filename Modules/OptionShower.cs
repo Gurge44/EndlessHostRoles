@@ -8,6 +8,7 @@ namespace EHR;
 
 public static class OptionShower
 {
+    private const int MaxLinesPerPage = 50;
     public static int CurrentPage;
     public static List<string> Pages = [];
 
@@ -54,7 +55,7 @@ public static class OptionShower
                         sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  ×{kvp.Key.GetCount()}\n");
                         count++;
 
-                        if (count > 44)
+                        if (count > MaxLinesPerPage)
                         {
                             count = 0;
                             Pages.Add(sb + "\n\n");
@@ -98,7 +99,7 @@ public static class OptionShower
 
         foreach (string str in tmp)
         {
-            if (Pages[^1].Count(c => c == '\n') + 1 + str.Count(c => c == '\n') + 1 > 44)
+            if (Pages[^1].Count(c => c == '\n') + 1 + str.Count(c => c == '\n') + 1 > MaxLinesPerPage - 3)
                 Pages.Add(str + "\n\n");
             else
                 Pages[^1] += str + "\n\n";

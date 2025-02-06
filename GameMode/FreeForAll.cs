@@ -159,8 +159,6 @@ internal static class FreeForAll
             for (var i = 0; i < teamMembers.Count; i++)
                 foreach (byte id in teamMembers[i])
                     PlayerTeams.Add(id, i);
-
-            LateTask.New(() => Utils.NotifyRoles(NoCache: true, ForceLoop: true), 10f, log: false);
         }
     }
 
@@ -353,7 +351,10 @@ internal static class FreeForAll
 
     private static void OnPlayerKill(PlayerControl killer)
     {
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) PlayerControl.LocalPlayer.KillFlash();
+        foreach (var player in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.GM)))
+        {
+            player.KillFlash();
+        }
 
         KillCount[killer.PlayerId]++;
     }

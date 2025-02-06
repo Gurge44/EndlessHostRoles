@@ -74,7 +74,7 @@ public static class NameColorManager
         RoleBase targetRoleClass = Main.PlayerStates[target.PlayerId].Role;
 
         // Global (low priority)
-        if (Stained.VioletNameList.Contains(target.PlayerId)) color = "#ff00ff";
+        if (Stained.VioletNameList.Contains(target.PlayerId) && !isMeeting) color = "#ff00ff";
 
         // Coven
         if (seer.Is(Team.Coven) && target.Is(Team.Coven)) color = Main.CovenColor;
@@ -210,7 +210,7 @@ public static class NameColorManager
         return seer == target
                || (Main.GodMode.Value && seer.AmOwner)
                || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop
-               || (Main.PlayerStates[seer.Data.PlayerId].IsDead && seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!CustomRoles.Altruist.RoleExist() || !Main.DiedThisRound.Contains(seer.PlayerId)))
+               || (Main.PlayerStates[seer.Data.PlayerId].IsDead && seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!Utils.IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(seer.PlayerId)))
                || (seer.Is(CustomRoles.Mimic) && Main.PlayerStates[target.Data.PlayerId].IsDead && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
                || target.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.GM)

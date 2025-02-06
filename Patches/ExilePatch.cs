@@ -154,8 +154,8 @@ internal static class ExileControllerWrapUpPatch
                     Main.AfterMeetingDeathPlayers.Clear();
                     Utils.AfterMeetingTasks();
                     Utils.SyncAllSettings();
-                    Utils.NotifyRoles(NoCache: true);
                     Utils.CheckAndSetVentInteractions();
+                    Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 5));
                 }
             }, 2f, "AntiBlackout Reset & AfterMeetingTasks");
         }

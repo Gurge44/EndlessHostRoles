@@ -259,7 +259,8 @@ public static class GuessManager
                             if ((
                                     (target.IsImpostor() && !Doomsayer.DCanGuessImpostors.GetBool()) ||
                                     (target.IsCrewmate() && !Doomsayer.DCanGuessCrewmates.GetBool()) ||
-                                    ((role.IsNeutral() || target.IsNeutralKiller()) && !Doomsayer.DCanGuessNeutrals.GetBool()))
+                                    ((role.IsNeutral() || target.IsNeutralKiller()) && !Doomsayer.DCanGuessNeutrals.GetBool()) ||
+                                    (role.IsCoven() && !Doomsayer.DCanGuessCoven.GetBool()))
                                 && !forceAllowGuess)
                             {
                                 ShowMessage("GuessNotAllowed");
@@ -552,9 +553,7 @@ public static class GuessManager
                         }
 
                         GuessManagerRole.OnGuess(dp, pc);
-
                         Utils.AfterPlayerDeathTasks(dp, true);
-                        Utils.NotifyRoles(GameStates.IsMeeting, NoCache: true);
 
                         LateTask.New(() => { Utils.SendMessage(string.Format(GetString("GuessKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))); }, 0.6f, "Guess Msg");
 

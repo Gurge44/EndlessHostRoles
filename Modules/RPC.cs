@@ -459,9 +459,15 @@ internal static class RPCHandlerPatch
             }
             case CustomRPC.FixModdedClientCNO:
             {
-                var CNO = reader.ReadNetObject<PlayerControl>();
+                var cno = reader.ReadNetObject<PlayerControl>();
                 bool active = reader.ReadBoolean();
-                CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(active);
+                
+                if (cno != null)
+                {
+                    cno.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(active);
+                    cno.Collider.enabled = false;
+                }
+                
                 break;
             }
             case CustomRPC.SyncGeneralOptions:

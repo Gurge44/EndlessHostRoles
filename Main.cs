@@ -277,7 +277,7 @@ public class Main : BasePlugin
         {
             Logger.Disable("2018k");
             Logger.Disable("Github");
-            Logger.Disable("SendRPC");
+            // Logger.Disable("SendRPC");
             Logger.Disable("SetRole");
             Logger.Disable("Info.Role");
             Logger.Disable("TaskState.Init");
@@ -728,6 +728,8 @@ public class Main : BasePlugin
 
         try { DevManager.StartFetchingTags(); }
         catch (Exception e) { Utils.ThrowException(e); }
+        
+        PrivateTagManager.LoadTagsFromFile();
 
         Harmony.PatchAll();
 

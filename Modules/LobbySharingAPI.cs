@@ -143,7 +143,7 @@ static class ExitGamePatch
         if (SetUpRoleTextPatch.IsInIntro)
         {
             SetUpRoleTextPatch.IsInIntro = false;
-            Utils.NotifyRoles(NoCache: true);
+            Utils.NotifyRoles(ForceLoop: true);
         }
     }
 
