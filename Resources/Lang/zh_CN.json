@@ -3148,7 +3148,7 @@
   "IsGood": "{0} 是 <color=#8cffff>船员</color>",
   "BelongTo": "{0}的对齐是 {1}",
   "GG": "GG!场上没有剩余的内鬼了.<#8cffff>船员们</color>获胜!",
-  "IWonderWhatsLeft": "所有<#ff19>内鬼</color> 都已死亡，但是游戏还在继续……",
+  "IWonderWhatsLeft": "The game continues....",
   "SubText.Bloodlust": "使用密钥...",
   "GameOverReason.HumansByVote": "<color=#8cffff>所有的<color=#ff1919>内鬼</color>和<color=#ffab1b>带刀中立</color>都被逐出或杀死了</color>",
   "GameOverReason.HumansDisconnect": "<color=#777777>船员断开连接</color>",
