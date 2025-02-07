@@ -3346,7 +3346,7 @@
   "CanNotTrialJailed": "Вы не можете засудить этого игрока.",
   "CanNotTrialProtected": "Вы не можете судить защищённых игроков",
   "notifyJailedOnMeeting": "Уведомлять игроков в тюрьме о заключении во время собрания",
-  "JailedNotifyMsg": "Вы были посажены в тюрьму Тюремщиком. Никто не сможет вас угадать или засудить, однако вы можете угадать только самого Тюремщика.",
+  "JailedNotifyMsg": "You have been locked up in Jail by the Jailor. No one can guess or judge you and you can only guess Jailor.",
   "JailorTitle": "Вас посадили в тюрьму",
   "JailedSuffix": "JAILED",
   "Car": "Машина",
