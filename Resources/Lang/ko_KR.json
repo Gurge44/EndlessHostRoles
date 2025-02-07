@@ -3346,7 +3346,7 @@
   "CanNotTrialJailed": "You can not trial the target.",
   "CanNotTrialProtected": "You can not trial protected players.",
   "notifyJailedOnMeeting": "Notify Jailed player when meeting starts",
-  "JailedNotifyMsg": "You have been locked up in Jail by the Jailor. No one can guess or judge you and you can only guess Jailor.\\n\\nIf Jailor votes you, you will be executed after the meeting ends.",
+  "JailedNotifyMsg": "You have been locked up in Jail by the Jailor. No one can guess or judge you and you can only guess Jailor.",
   "JailorTitle": "Jailor Message",
   "JailedSuffix": "JAILED",
   "Car": "Car",
