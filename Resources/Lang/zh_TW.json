@@ -3148,7 +3148,7 @@
   "IsGood": "{0} 是個<color=#8cffff>船員</color>",
   "BelongTo": "{0}'s alignment was {1}",
   "GG": "GG! 場上沒有剩餘的偽裝者及帶刀中立了 <#8cffff>船員陣營</color> 獲勝!",
-  "IWonderWhatsLeft": "All <#ff1919>Impostors</color> are dead, but the game continues....",
+  "IWonderWhatsLeft": "The game continues....",
   "SubText.Bloodlust": "帶著一個秘密......",
   "GameOverReason.HumansByVote": "<color=#8cffff>全部的<color=#ff1919>偽裝者</color>和<color=#ffab1b>帶刀中立</color>皆被逐出或被擊殺</color>",
   "GameOverReason.HumansDisconnect": "<color=#777777>船員斷線</color>",
