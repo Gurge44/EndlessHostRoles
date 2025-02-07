@@ -16,7 +16,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using static EHR.Translator;
 
-
 namespace EHR;
 
 public static class GuessManager
@@ -57,37 +56,6 @@ public static class GuessManager
 
         return false;
     }
-
-    /*
-        public static byte GetColorFromMsg(string msg)
-        {
-            if (ConfirmIncludeMsg(msg, "红|紅|red")) return 0;
-            if (ConfirmIncludeMsg(msg, "蓝|藍|深蓝|blue")) return 1;
-            if (ConfirmIncludeMsg(msg, "绿|綠|深绿|green")) return 2;
-            if (ConfirmIncludeMsg(msg, "粉红|粉紅|pink")) return 3;
-            if (ConfirmIncludeMsg(msg, "橘|橘|orange")) return 4;
-            if (ConfirmIncludeMsg(msg, "黄|黃|yellow")) return 5;
-            if (ConfirmIncludeMsg(msg, "黑|黑|black")) return 6;
-            if (ConfirmIncludeMsg(msg, "白|白|white")) return 7;
-            if (ConfirmIncludeMsg(msg, "紫|紫|perple")) return 8;
-            if (ConfirmIncludeMsg(msg, "棕|棕|brown")) return 9;
-            if (ConfirmIncludeMsg(msg, "青|青|cyan")) return 10;
-            if (ConfirmIncludeMsg(msg, "黄绿|黃綠|浅绿|lime")) return 11;
-            if (ConfirmIncludeMsg(msg, "红褐|紅褐|深红|maroon")) return 12;
-            if (ConfirmIncludeMsg(msg, "玫红|玫紅|浅粉|rose")) return 13;
-            if (ConfirmIncludeMsg(msg, "焦黄|焦黃|淡黄|banana")) return 14;
-            if (ConfirmIncludeMsg(msg, "灰|灰|gray")) return 15;
-            if (ConfirmIncludeMsg(msg, "茶|茶|tan")) return 16;
-            if (ConfirmIncludeMsg(msg, "珊瑚|珊瑚|coral")) return 17;
-            return byte.MaxValue;
-        }
-
-        private static bool ConfirmIncludeMsg(string msg, string key)
-        {
-            var keys = key.Split('|');
-            return keys.Any(msg.Contains);
-        }
-    */
 
     public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false)
     {
@@ -392,7 +360,7 @@ public static class GuessManager
                         return true;
                     }
 
-                    // Check whether add-on guessing is allowed
+                    // Check whether Add-on guessing is allowed
                     if (!forceAllowGuess)
                     {
                         switch (pc.GetCustomRole())
@@ -402,7 +370,7 @@ public static class GuessManager
                             case CustomRoles.NiceGuesser when role.IsAdditionRole() && !Options.GGCanGuessAdt.GetBool():
                                 ShowMessage("GuessAdtRole");
                                 return true;
-                            // Guesser (add-on) Can't Guess Addons
+                            // Guesser (Add-on) Can't Guess Add-ons
                             default:
                                 if (role.IsAdditionRole() && pc.Is(CustomRoles.Guesser) && !Guesser.GCanGuessAdt.GetBool())
                                 {
@@ -673,9 +641,6 @@ public static class GuessManager
             id = num;
         else
         {
-            // It is not the player number, it determines whether it is the color or not.
-            //byte color = GetColorFromMsg(msg);
-            // Okay, I don’t know how to get the color of a certain player. I’ll fill it in later.
             id = byte.MaxValue;
             error = GetString("GuessHelp");
             role = new();
@@ -901,7 +866,7 @@ public static class GuessManager
                 Pagebutton.FindChild("ControllerHighlight").gameObject.SetActive(false);
                 Object.Instantiate(maskTemplate, PagebuttonParent);
                 TextMeshPro Pagelabel = Object.Instantiate(textTemplate, Pagebutton);
-                Pagebutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlateWithKPD");
+                Pagebutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlateKPD");
                 PagebuttonParent.localPosition = isNext ? new(3.535f, -2.2f, -200) : new(-3.475f, -2.2f, -200);
                 PagebuttonParent.localScale = new(0.55f, 0.55f, 1f);
                 Pagelabel.color = Color.white;
@@ -1030,7 +995,7 @@ public static class GuessManager
         PlayerControl.LocalPlayer.RPCPlayCustomSound("Gunload");
     }
 
-    // Modded non-host client guess role/add-on
+    // Modded non-host client guess Role/Add-on
     private static void SendRPC(int playerId, CustomRoles role)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (int)CustomRPC.Guess, HazelExtensions.SendOption);
@@ -1053,48 +1018,6 @@ public static class GuessManager
 
         GuesserMsg(pc, $"/bt {PlayerId} {GetString(role.ToString())}", true);
     }
-
-    /*
-        public static void TryHideMsg()
-        {
-            ChatUpdatePatch.DoBlockChat = true;
-            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
-            var rd = IRandom.Instance;
-            string msg = Utils.EmptyMessage();
-            string[] command = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审"];
-            var x = Main.AllAlivePlayerControls;
-            var totalAlive = Main.AllAlivePlayerControls.Length;
-            for (int i = 0; i < 20; i++)
-            {
-                //msg = "/";
-                //if (rd.Next(1, 100) < 20)
-                //{
-                //    msg += "id";
-                //}
-                //else
-                //{
-                //    msg += command[rd.Next(0, command.Length - 1)];
-                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                //    msg += rd.Next(0, 15).ToString();
-                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                //    CustomRoles role = roles[rd.Next(0, roles.Count)];
-                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                //    msg += Utils.GetRoleName(role);
-                //}
-                var player = x[rd.Next(0, totalAlive)];
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                var writer = CustomRpcSender.Create("MessagesToSend");
-                writer.StartMessage();
-                writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                    .Write(msg)
-                    .EndRpc();
-                writer.EndMessage();
-                writer.SendMessage();
-            }
-
-            ChatUpdatePatch.DoBlockChat = false;
-        }
-    */
 
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     private static class StartMeetingPatch
