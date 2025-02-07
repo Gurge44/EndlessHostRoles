@@ -139,7 +139,7 @@ internal static class SetEverythingUpPatch
     public static void Postfix(EndGameManager __instance)
     {
         //#######################################
-        //      ==Victory faction display==
+        //      ==Victory Faction Display==
         //#######################################
 
         try
@@ -394,7 +394,7 @@ internal static class SetEverythingUpPatch
         LastWinsText = WinnerText.text /*.RemoveHtmlTags()*/;
 
         //########################################
-        //     ==The final result indicates==
+        //     ==The Final Result Indicates==
         //########################################
 
         Vector3 Pos = Camera.main.ViewportToWorldPoint(new(0f, 1f, Camera.main.nearClipPlane));
