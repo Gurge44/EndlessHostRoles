@@ -15,8 +15,9 @@ public class Jailor : RoleBase
     private static OptionItem JailCooldown;
     private static OptionItem NotifyJailedOnMeeting;
     public static OptionItem UsePet;
-    private bool JailorDidVote;
 
+    private byte JailorId;
+    private bool JailorDidVote;
     public byte JailorTarget;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -47,6 +48,7 @@ public class Jailor : RoleBase
         PlayerIdList.Add(playerId);
         JailorTarget = byte.MaxValue;
         JailorDidVote = false;
+        JailorId = playerId;
     }
 
     public override void Remove(byte playerId)
@@ -120,18 +122,24 @@ public class Jailor : RoleBase
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
         SendRPC(killer.PlayerId, target.PlayerId);
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         return false;
     }
 
     public override void OnReportDeadBody()
     {
         if (!NotifyJailedOnMeeting.GetBool()) return;
-
         if (JailorTarget == byte.MaxValue) return;
 
         PlayerControl tpc = Utils.GetPlayerById(JailorTarget);
         if (tpc == null) return;
 
-        if (tpc.IsAlive()) LateTask.New(() => { Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))); }, 0.3f, "JailorNotifyJailed");
+        if (tpc.IsAlive()) LateTask.New(() => Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))), 0.3f, "JailorNotifyJailed");
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+    {
+        if (hud || seer.PlayerId != JailorId || target.PlayerId != JailorTarget) return string.Empty;
+        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailedSuffix"));
     }
 }

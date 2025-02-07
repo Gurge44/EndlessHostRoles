@@ -89,7 +89,7 @@ public class RouleteGrandeur : RoleBase
     public override bool OnSabotage(PlayerControl pc)
     {
         Roll(pc);
-        return false;
+        return pc.Is(CustomRoles.Mischievous);
     }
 
     public override void OnPet(PlayerControl pc)

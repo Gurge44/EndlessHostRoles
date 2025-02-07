@@ -101,7 +101,7 @@ internal class Hookshot : RoleBase
     public override bool OnSabotage(PlayerControl pc)
     {
         ExecuteAction();
-        return false;
+        return pc.Is(CustomRoles.Mischievous);
     }
 
     public override bool OnVanish(PlayerControl pc)

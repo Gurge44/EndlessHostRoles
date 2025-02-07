@@ -113,7 +113,7 @@ internal class Sprayer : RoleBase
     public override bool OnSabotage(PlayerControl pc)
     {
         PlaceTrap();
-        return false;
+        return pc.Is(CustomRoles.Mischievous);
     }
 
     public override void OnPet(PlayerControl pc)

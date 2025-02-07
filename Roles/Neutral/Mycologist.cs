@@ -120,8 +120,7 @@ internal class Mycologist : RoleBase
     public override bool OnSabotage(PlayerControl pc)
     {
         if (SpreadAction.GetValue() == 1) SpreadSpores();
-
-        return false;
+        return pc.Is(CustomRoles.Mischievous);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

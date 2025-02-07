@@ -89,7 +89,7 @@ internal class Tiger : RoleBase
             CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
         }
 
-        return false;
+        return pc.Is(CustomRoles.Mischievous);
     }
 
     public override void OnPet(PlayerControl pc)

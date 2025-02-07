@@ -79,7 +79,7 @@ internal class Enderman : RoleBase
     public override bool OnSabotage(PlayerControl pc)
     {
         MarkPosition();
-        return false;
+        return pc.Is(CustomRoles.Mischievous);
     }
 
     public override bool OnVanish(PlayerControl pc)

@@ -134,7 +134,7 @@ public class WeaponMaster : RoleBase
     public override bool OnSabotage(PlayerControl pc)
     {
         SwitchMode();
-        return false;
+        return pc.Is(CustomRoles.Mischievous);
     }
 
     public override bool OnVanish(PlayerControl pc)

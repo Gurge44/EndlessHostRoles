@@ -97,7 +97,7 @@ public class Rogue : RoleBase
             return false;
         }
 
-        return GotRewards.Contains(Reward.Sabotage);
+        return GotRewards.Contains(Reward.Sabotage) || pc.Is(CustomRoles.Mischievous);
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
