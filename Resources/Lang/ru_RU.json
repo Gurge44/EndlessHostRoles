@@ -3148,7 +3148,7 @@
   "IsGood": "{0} - <color=#8cffff>Член Экипажа</color>",
   "BelongTo": "{0} - {1}",
   "GG": "GG! Все убийцы мертвы. <color=#8cffff>Члены Экипажа</color> победили!",
-  "IWonderWhatsLeft": "Все <#ff1919>Предатели</color> мертвы, но игра продолжается....",
+  "IWonderWhatsLeft": "The game continues....",
   "SubText.Bloodlust": "Однако есть один нюанс...",
   "GameOverReason.HumansByVote": "<color=#8cffff>Все <color=#ff1919>Предатели </color></color> и <color=#ffab1b>Нейтральные Убийцы</color> выкинуты или убиты</color>",
   "GameOverReason.HumansDisconnect": "<color=#777777>Члены Экипажа отключились</color>",
