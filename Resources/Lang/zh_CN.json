@@ -2855,6 +2855,7 @@
   "JudgeCanTrialSidekick": "可以审判<color=#00b4eb>跟班</color>",
   "JudgeCanTrialInfected": "可以审判<color=#7B8968>感染者</color>",
   "JudgeCanTrialContagious": "可以审判<color=#2E8B57>被感染者</color>",
+  "StoreCompletedAchievementsOnEHRDatabase": "Store completed achievements on the EHR database (to maintain progress in case of a reinstall or an update)",
   "PostLobbyCodeToEHRDiscordServer": "将房间代码发布到EHR网站上",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color><#00a5ff>房间代码已发送到EHR网站。这将帮助其他人找到EHR模组房间。</color></size>\\n<size=70%>您可以在设置(系统设置标签页)中禁用此功能</size>",
   "Message.LobbyCodeSendError": "<size=90%><#ff0000>X</color><#ff5555>向 EHR 网站发送大厅代码失败。</color></size>\\n<size=70%>{0}</size>",
