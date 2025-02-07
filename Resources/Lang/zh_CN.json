@@ -3346,7 +3346,7 @@
   "CanNotTrialJailed": "您不能审判目标.",
   "CanNotTrialProtected": "你不能审判被保护了的玩家.",
   "notifyJailedOnMeeting": "会议开始时通知被监禁的玩家",
-  "JailedNotifyMsg": "你已经被监狱长监禁.没有人可以赌或审判你,而你只能猜测监狱长是谁.\\n\\n如果典狱长投票给你,你将在会议结束后执行.",
+  "JailedNotifyMsg": "You have been locked up in Jail by the Jailor. No one can guess or judge you and you can only guess Jailor.",
   "JailorTitle": "监狱长消息",
   "JailedSuffix": "JAILED",
   "Car": "碰碰车",
