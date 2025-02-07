@@ -29,7 +29,7 @@ public static class PhantomRolePatch
         }
 
         __instance.SetRoleInvisibility(true);
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckVanish, SendOption.Reliable, AmongUsClient.Instance.HostId);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckVanish, HazelExtensions.SendOption, AmongUsClient.Instance.HostId);
         messageWriter.Write(maxDuration);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         return false;
@@ -45,7 +45,7 @@ public static class PhantomRolePatch
             return false;
         }
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckAppear, SendOption.Reliable, AmongUsClient.Instance.HostId);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckAppear, HazelExtensions.SendOption, AmongUsClient.Instance.HostId);
         messageWriter.Write(shouldAnimate);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         return false;

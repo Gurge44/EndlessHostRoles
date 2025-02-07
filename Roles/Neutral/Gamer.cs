@@ -94,7 +94,7 @@ public class Gamer : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGamerHealth, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGamerHealth, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(GamerHealth.TryGetValue(playerId, out int value) ? value : PlayerHealth[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

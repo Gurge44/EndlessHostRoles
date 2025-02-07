@@ -91,7 +91,7 @@ public class Librarian : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLibrarianMode, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLibrarianMode, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(isInSilenceMode);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

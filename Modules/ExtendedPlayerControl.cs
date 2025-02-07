@@ -43,7 +43,7 @@ internal static class ExtendedPlayerControl
 
         if (AmongUsClient.Instance.AmHost)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, HazelExtensions.SendOption);
             writer.Write(player.PlayerId);
             writer.WritePacked((int)role);
             writer.Write(replaceAllAddons);
@@ -55,7 +55,7 @@ internal static class ExtendedPlayerControl
     {
         if (AmongUsClient.Instance.AmHost)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, HazelExtensions.SendOption);
             writer.Write(PlayerId);
             writer.WritePacked((int)role);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -100,59 +100,57 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetVentInteraction(this PlayerControl player)
     {
-        VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>(), player);
+        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, player);
     }
 
-    public static void SetChatVisible(this PlayerControl player) // Credit: NikoCat233
+    // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs - coded by Rabek009
+    public static void SetChatVisible(this PlayerControl player, bool visible)
     {
-        if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost || GameStates.IsMeeting) return;
-
-        if (player.IsHost())
+        if (player.AmOwner)
         {
-            HudManager.Instance.Chat.SetVisible(true);
+            HudManager.Instance.Chat.SetVisible(visible);
+            HudManager.Instance.Chat.HideBanButton();
             return;
         }
 
-        if (player.IsModClient())
-        {
-            MessageWriter modsend = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowChat, SendOption.Reliable, player.OwnerId);
-            modsend.WritePacked(player.OwnerId);
-            modsend.Write(true);
-            AmongUsClient.Instance.FinishRpcImmediately(modsend);
-            return;
-        }
-
-        uint customNetId = AmongUsClient.Instance.NetIdCnt++;
-        MessageWriter vanillasend = MessageWriter.Get(SendOption.Reliable);
-        vanillasend.StartMessage(6);
-        vanillasend.Write(AmongUsClient.Instance.GameId);
-        vanillasend.Write(player.OwnerId);
-
-        vanillasend.StartMessage((byte)GameDataTag.SpawnFlag);
-        vanillasend.WritePacked(1); // 1 Meeting Hud Spawn id
-        vanillasend.WritePacked(-2); // Owned by host
-        vanillasend.Write((byte)SpawnFlags.None);
-        vanillasend.WritePacked(1);
-        vanillasend.WritePacked(customNetId);
-
-        vanillasend.StartMessage(1);
-        vanillasend.WritePacked(0);
-        vanillasend.EndMessage();
-
-        vanillasend.EndMessage();
-        vanillasend.EndMessage();
-
-        vanillasend.StartMessage(6);
-        vanillasend.Write(AmongUsClient.Instance.GameId);
-        vanillasend.Write(player.OwnerId);
-        vanillasend.StartMessage((byte)GameDataTag.RpcFlag);
-        vanillasend.WritePacked(customNetId);
-        vanillasend.Write((byte)RpcCalls.CloseMeeting);
-        vanillasend.EndMessage();
-        vanillasend.EndMessage();
-
-        AmongUsClient.Instance.SendOrDisconnect(vanillasend);
-        vanillasend.Recycle();
+        bool isDead = player.Data.IsDead;
+        MessageWriter writer = MessageWriter.Get();
+        writer.StartMessage(6);
+        writer.Write(AmongUsClient.Instance.GameId);
+        writer.WritePacked(player.GetClientId());
+        writer.StartMessage(4);
+        writer.WritePacked(HudManager.Instance.MeetingPrefab.SpawnId);
+        writer.WritePacked(-2);
+        writer.Write((byte)SpawnFlags.None);
+        writer.WritePacked(1);
+        uint netIdCnt = AmongUsClient.Instance.NetIdCnt;
+        AmongUsClient.Instance.NetIdCnt = netIdCnt + 1U;
+        writer.WritePacked(netIdCnt);
+        writer.StartMessage(1);
+        writer.WritePacked(0);
+        writer.EndMessage();
+        writer.EndMessage();
+        player.Data.IsDead = visible;
+        writer.StartMessage(1);
+        writer.WritePacked(player.Data.NetId);
+        player.Data.Serialize(writer, true);
+        writer.EndMessage();
+        writer.StartMessage(2);
+        writer.WritePacked(netIdCnt);
+        writer.Write((byte)RpcCalls.CloseMeeting);
+        writer.EndMessage();
+        player.Data.IsDead = isDead;
+        writer.StartMessage(1);
+        writer.WritePacked(player.Data.NetId);
+        player.Data.Serialize(writer, true);
+        writer.EndMessage();
+        writer.StartMessage(5);
+        writer.WritePacked(netIdCnt);
+        writer.EndMessage();
+        writer.EndMessage();
+        AmongUsClient.Instance.SendOrDisconnect(writer);
+        writer.Recycle();
     }
 
     public static void RpcExile(this PlayerControl player)
@@ -266,7 +264,7 @@ internal static class ExtendedPlayerControl
         int clientId = seer.GetClientId();
         if (clientId == -1) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, HazelExtensions.SendOption, clientId);
         writer.Write(seer.Data.NetId);
         writer.Write(name);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -285,10 +283,18 @@ internal static class ExtendedPlayerControl
         }
 
         player.Data.DefaultOutfit.PetSequenceId += 10;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, clientId);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, HazelExtensions.SendOption, clientId);
         writer.Write(petId);
         writer.Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public static void RpcResetTasks(this PlayerControl player)
+    {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null) return;
+
+        player.Data.RpcSetTasks(new Il2CppStructArray<byte>(0));
+        Main.PlayerStates[player.PlayerId].InitTask(player);
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
@@ -541,7 +547,7 @@ internal static class ExtendedPlayerControl
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGeneralOptions, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGeneralOptions, HazelExtensions.SendOption);
         writer.Write(player.PlayerId);
         writer.WritePacked((int)player.GetCustomRole());
         writer.Write(Main.PlayerStates[player.PlayerId].IsDead);
@@ -580,7 +586,7 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.EnterVent, SendOption.Reliable, seer.GetClientId());
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.EnterVent, HazelExtensions.SendOption, seer.GetClientId());
         writer.WritePacked(ventId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -598,7 +604,7 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.ExitVent, SendOption.Reliable, seer.GetClientId());
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.ExitVent, HazelExtensions.SendOption, seer.GetClientId());
         writer.WritePacked(ventId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -615,7 +621,7 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, seer.GetClientId());
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.BootFromVent, HazelExtensions.SendOption, seer.GetClientId());
         writer.WritePacked(ventId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -712,7 +718,7 @@ internal static class ExtendedPlayerControl
         }
         else if (player.IsModClient())
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, HazelExtensions.SendOption, player.GetClientId());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         else if (!ReactorCheck) player.ReactorFlash(); // Reactor flash
@@ -749,7 +755,7 @@ internal static class ExtendedPlayerControl
         // Other Clients
         if (!killer.IsHost())
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, HazelExtensions.SendOption, killer.GetClientId());
             writer.WriteNetObject(target);
             writer.Write((int)MurderResultFlags.FailedProtected);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -849,7 +855,7 @@ internal static class ExtendedPlayerControl
 
         if (AmongUsClient.Instance.AmHost && playerId.IsPlayerModClient() && !playerId.IsHost() && rpc)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, HazelExtensions.SendOption);
             writer.Write(playerId);
             writer.Write(limit);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -937,7 +943,7 @@ internal static class ExtendedPlayerControl
                 PlayerControl.LocalPlayer.SetKillTimer(time);
             else
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, SendOption.Reliable, player.GetClientId());
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, HazelExtensions.SendOption, player.GetClientId());
                 writer.Write(time);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
@@ -956,7 +962,7 @@ internal static class ExtendedPlayerControl
             killer.MurderPlayer(target, ResultFlags);
         else
         {
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.GetClientId());
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, HazelExtensions.SendOption, killer.GetClientId());
             messageWriter.WriteNetObject(target);
             messageWriter.Write((byte)ResultFlags);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -999,7 +1005,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcDesyncRepairSystem(this PlayerControl target, SystemTypes systemType, int amount)
     {
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.GetClientId());
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, HazelExtensions.SendOption, target.GetClientId());
         messageWriter.Write((byte)systemType);
         messageWriter.WriteNetObject(target);
         messageWriter.Write((byte)amount);
@@ -1190,7 +1196,7 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.SetScanner, SendOption.Reliable, seerClientId);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.SetScanner, HazelExtensions.SendOption, seerClientId);
         messageWriter.Write(on);
         messageWriter.Write(cnt);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -1342,7 +1348,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetDousedPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDousedPlayer, SendOption.Reliable); //RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDousedPlayer, HazelExtensions.SendOption); //RPCによる同期
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);
@@ -1351,7 +1357,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetDrawPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrawPlayer, SendOption.Reliable); //RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrawPlayer, HazelExtensions.SendOption); //RPCによる同期
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);
@@ -1360,7 +1366,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetRevealtPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRevealedPlayer, SendOption.Reliable); //RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRevealedPlayer, HazelExtensions.SendOption); //RPCによる同期
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);
@@ -1468,7 +1474,7 @@ internal static class ExtendedPlayerControl
     public static void RpcExileV2(this PlayerControl player)
     {
         player.Exiled();
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, HazelExtensions.SendOption);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         FixedUpdatePatch.LoversSuicide(player.PlayerId);
     }

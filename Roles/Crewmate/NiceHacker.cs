@@ -93,7 +93,7 @@ public class NiceHacker : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(secondsLeft);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

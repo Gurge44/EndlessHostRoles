@@ -178,7 +178,7 @@ internal class Mafia : RoleBase
 
     private static void SendRPC(byte playerId)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.MafiaRevenge, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.MafiaRevenge, HazelExtensions.SendOption);
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

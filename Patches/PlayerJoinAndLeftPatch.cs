@@ -362,7 +362,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 if (client.Character == null) return;
 
-                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, client.Character.OwnerId);
+                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, HazelExtensions.SendOption, client.Character.OwnerId);
                 AmongUsClient.Instance.FinishRpcImmediately(sender);
             }, 3f, "RPC Request Retry Version Check");
 
@@ -383,7 +383,7 @@ internal static class InnerNetClientSpawnPatch
                         // Non-host modded client
                         else
                         {
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, SendOption.Reliable, client.Id);
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, HazelExtensions.SendOption, client.Id);
                             writer.WritePacked((int)GameStartManagerPatch.TimerStartTS);
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
@@ -498,7 +498,7 @@ internal static class PlayerControlCheckNamePatch
         {
             if (__instance != null && !__instance.Data.Disconnected && !__instance.IsModClient())
             {
-                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.OwnerId);
+                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, HazelExtensions.SendOption, __instance.OwnerId);
                 AmongUsClient.Instance.FinishRpcImmediately(sender);
             }
         }, 0.6f, "Retry Version Check", false);
@@ -524,7 +524,7 @@ internal static class InnerNetClientFixedUpdatePatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]
-internal static class RpcSetColorPatch
+internal static class SetColorPatch
 {
     public static void Postfix(PlayerControl __instance, byte bodyColor)
     {

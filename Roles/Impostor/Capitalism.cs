@@ -64,7 +64,7 @@ internal class Capitalism : RoleBase
             taskState.AllTasksCount += amount;
             CapitalismAddTask.Remove(player.PlayerId);
             taskState.CompletedTasksCount++;
-            player.Data.RpcSetTasks(new(0)); // Redistribute tasks
+            player.RpcResetTasks();
             player.SyncSettings();
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             return false;

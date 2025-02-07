@@ -307,7 +307,6 @@ internal static class ChangeRoleSettings
                 Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
-                VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = 0;
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
                 pc.cosmetics.nameText.text = pc.name;
                 RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
@@ -615,10 +614,15 @@ internal static class StartGameHostPatch
             // Assign roles and create role maps for normal roles
             RpcSetRoleReplacer.AssignNormalRoles();
             RpcSetRoleReplacer.SendRpcForNormal();
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
-            // Send all RPCs
-            RpcSetRoleReplacer.Release();
+        // Send all RPCs
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) yield return RpcSetRoleReplacer.ReleaseAsync();
+        else RpcSetRoleReplacer.Release();
 
+        try
+        {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
@@ -672,7 +676,7 @@ internal static class StartGameHostPatch
                 }
             }
 
-            if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : random.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
+            if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : IRandom.Instance.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
 
             // Add-on assignment
             PlayerControl[] aapc = Main.AllAlivePlayerControls.Shuffle();
@@ -988,7 +992,7 @@ internal static class StartGameHostPatch
                 playerInfo.IsDead = data;
             }
 
-            MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
+            MessageWriter stream = MessageWriter.Get(HazelExtensions.SendOption);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
 
@@ -1073,7 +1077,7 @@ internal static class StartGameHostPatch
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false)
+                Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", HazelExtensions.SendOption, false)
                     .StartMessage(pc.GetClientId());
             }
         }
@@ -1178,34 +1182,16 @@ internal static class StartGameHostPatch
         public static void Release()
         {
             BlockSetRole = false;
-            Senders.Do(kvp => kvp.Value.SendMessage());
+            Senders.Values.Do(s => s.SendMessage());
+        }
 
-            if (!CustomRoles.DoubleAgent.IsEnable()) return;
-
-            try
+        public static System.Collections.IEnumerator ReleaseAsync()
+        {
+            foreach (var sender in Senders.Values)
             {
-                RoleResult.DoIf(x => x.Value == CustomRoles.DoubleAgent, k =>
-                {
-                    var da = k.Key.GetPlayer();
-                    if (da == null) return;
-
-                    var ci = da.GetClientId();
-                    if (ci == -1) return;
-
-                    RoleResult.DoIf(x => x.Value.IsImpostor(), x =>
-                    {
-                        var imp = x.Key.GetPlayer();
-                        if (imp == null) return;
-
-                        var previousRoleType = RoleMap[(k.Key, x.Key)].RoleType;
-
-                        imp.RpcSetRoleDesync(RoleTypes.Crewmate, ci);
-
-                        LateTask.New(() => imp.RpcSetRoleDesync(previousRoleType, ci), 7f, log: false);
-                    });
-                });
+                sender.SendMessage();
+                yield return new WaitForSeconds(0.3f);
             }
-            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         public static void EndReplace()

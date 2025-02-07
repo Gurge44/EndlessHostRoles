@@ -45,7 +45,7 @@ internal class Haunter : IGhostRole
             taskState.CompletedTasksCount = 0;
             taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
-            pc.Data.RpcSetTasks(new(0));
+            pc.RpcResetTasks();
             pc.SyncSettings();
             pc.RpcResetAbilityCooldown();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

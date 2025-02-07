@@ -253,7 +253,7 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Agitater:
                 {
-                    newKillButton = CustomButton.Get("Pass");
+                    newKillButton = CustomButton.Get("bombshell");
                     break;
                 }
                 case CustomRoles.Arsonist:
@@ -299,8 +299,8 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool():
                 {
-                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Button");
-                    else newAbilityButton = CustomButton.Get("Button");
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("EmergencyButton");
+                    else newAbilityButton = CustomButton.Get("EmergencyButton");
 
                     break;
                 }
@@ -401,8 +401,8 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.TimeMaster:
                 {
-                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Time Master");
-                    else newAbilityButton = CustomButton.Get("Time Master");
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("TimeMaster");
+                    else newAbilityButton = CustomButton.Get("TimeMaster");
 
                     break;
                 }

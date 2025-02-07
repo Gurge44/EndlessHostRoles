@@ -246,7 +246,7 @@ public class Agitater : RoleBase
 
     private void SendRPC(byte newbomb, byte oldbomb)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RpcPassBomb, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RpcPassBomb, HazelExtensions.SendOption);
         writer.Write(AgitaterId);
         writer.Write(newbomb);
         writer.Write(oldbomb);

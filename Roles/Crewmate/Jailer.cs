@@ -77,14 +77,14 @@ public class Jailor : RoleBase
 
         if (!setTarget)
         {
-            writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorExeLimit, SendOption.Reliable);
+            writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorExeLimit, HazelExtensions.SendOption);
             writer.Write(jailerId);
             writer.Write(JailorDidVote);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             return;
         }
 
-        writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorTarget, SendOption.Reliable);
+        writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorTarget, HazelExtensions.SendOption);
         writer.Write(jailerId);
         writer.Write(targetId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

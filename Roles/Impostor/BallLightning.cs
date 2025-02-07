@@ -60,7 +60,7 @@ public class BallLightning : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGhostPlayer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGhostPlayer, HazelExtensions.SendOption);
         writer.Write(playerId);
         writer.Write(IsGhost(playerId));
         AmongUsClient.Instance.FinishRpcImmediately(writer);

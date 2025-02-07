@@ -128,7 +128,7 @@ namespace EHR
 
             LateTask.New(() =>
             {
-                var sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
+                var sender = CustomRpcSender.Create("FixModdedClientCNOText", HazelExtensions.SendOption);
 
                 sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.GetClientId())
                     .WriteNetObject(playerControl)
@@ -299,7 +299,7 @@ namespace EHR
                     // Fix for Non-Host Modded
                     foreach (PlayerControl visiblePC in Main.AllPlayerControls.ExceptBy(HiddenList, x => x.PlayerId))
                     {
-                        var sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
+                        var sender = CustomRpcSender.Create("FixModdedClientCNOText", HazelExtensions.SendOption);
 
                         sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, visiblePC.GetClientId())
                             .WriteNetObject(playerControl)

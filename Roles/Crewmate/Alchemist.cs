@@ -103,7 +103,7 @@ public class Alchemist : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, HazelExtensions.SendOption);
         writer.Write(AlchemistId);
         writer.Write(IsProtected);
         writer.Write(PotionID);
@@ -250,7 +250,7 @@ public class Alchemist : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, HazelExtensions.SendOption);
         writer.Write(AlchemistId);
         writer.Write(InvisTime.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -284,7 +284,7 @@ public class Alchemist : RoleBase
         {
             ventedId = ventId;
 
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(instance.NetId, 34, SendOption.Reliable, pc.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(instance.NetId, 34, HazelExtensions.SendOption, pc.GetClientId());
             writer.WritePacked(ventId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
 

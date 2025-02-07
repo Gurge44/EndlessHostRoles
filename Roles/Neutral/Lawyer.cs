@@ -101,7 +101,7 @@ public class Lawyer : RoleBase
         switch (Progress)
         {
             case "SetTarget":
-                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLawyerTarget, SendOption.Reliable);
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLawyerTarget, HazelExtensions.SendOption);
                 writer.Write(lawyerId);
                 writer.Write(targetId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -109,7 +109,7 @@ public class Lawyer : RoleBase
             case "":
                 if (!AmongUsClient.Instance.AmHost) return;
 
-                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveLawyerTarget, SendOption.Reliable);
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveLawyerTarget, HazelExtensions.SendOption);
                 writer.Write(lawyerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 break;

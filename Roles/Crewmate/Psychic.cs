@@ -69,7 +69,7 @@ public class Psychic : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, HazelExtensions.SendOption);
         writer.Write(PsychicId);
         writer.Write(RedPlayer.Count);
         foreach (byte pc in RedPlayer) writer.Write(pc);

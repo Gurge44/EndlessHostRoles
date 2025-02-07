@@ -61,6 +61,8 @@ public static class Utils
     public static long GameStartTimeStamp;
 
     public static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
+
+    private static int NumSnapToRPCsThisRound;
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
@@ -114,18 +116,8 @@ public static class Utils
 
     public static void CheckAndSetVentInteractions()
     {
-        var shouldPerformVentInteractions = false;
-
-        foreach (PlayerControl pc in Main.AllPlayerControls)
-        {
-            if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
-            {
-                VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = pc.GetVentsFromClosest()[0].Id;
-                shouldPerformVentInteractions = true;
-            }
-        }
-
-        if (shouldPerformVentInteractions) SetAllVentInteractions();
+        if (Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction))
+            SetAllVentInteractions();
     }
 
     public static void TPAll(Vector2 location, bool log = true)
@@ -165,7 +157,8 @@ public static class Utils
         }
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
+        var sendOption = NumSnapToRPCsThisRound < 100 ? SendOption.Reliable : HazelExtensions.SendOption;
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, sendOption);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -175,6 +168,7 @@ public static class Utils
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
 
+        NumSnapToRPCsThisRound++;
         return true;
     }
 
@@ -593,7 +587,7 @@ public static class Utils
 
     public static MessageWriter CreateRPC(CustomRPC rpc)
     {
-        return AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable);
+        return AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, HazelExtensions.SendOption);
     }
 
     public static void EndRPC(MessageWriter writer)
@@ -728,7 +722,8 @@ public static class Utils
 
     public static void SetAllVentInteractions()
     {
-        VentilationSystemDeterioratePatch.SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>());
+        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem);
     }
 
     public static bool IsRevivingRoleAlive()
@@ -1776,7 +1771,7 @@ public static class Utils
         bool isVIP = ChatCommands.IsPlayerVIP(player.FriendCode);
         bool hasTag = devUser.HasTag();
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out var privateTag);
-        
+
         if (!player.AmOwner && !hasTag && !isMod && !isVIP && !hasPrivateTag) return;
 
         string name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out string n) ? n : string.Empty;
@@ -1956,7 +1951,7 @@ public static class Utils
     public static IEnumerator NotifyEveryoneAsync(int speed = 2, bool noCache = true)
     {
         if (GameStates.IsMeeting) yield break;
-        
+
         var count = 0;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
@@ -2072,6 +2067,7 @@ public static class Utils
                 }
 
                 var fontSize = "1.7";
+
                 if (forMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch))
                     fontSize = "70%";
 
@@ -2398,7 +2394,7 @@ public static class Utils
                                     ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
-                            if (Utils.IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
+                            if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 TargetRoleText = string.Empty;
 
                             if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) TargetRoleText = string.Empty;
@@ -2429,12 +2425,14 @@ public static class Utils
                             {
                                 case CustomRoles.EvilTracker:
                                     TargetMark.Append(EvilTracker.GetTargetMark(seer, target));
+
                                     if (forMeeting && EvilTracker.IsTrackTarget(seer, target) && EvilTracker.CanSeeLastRoomInMeeting)
                                         TargetRoleText = $"<size={fontSize}>{EvilTracker.GetArrowAndLastRoom(seer, target)}</size>\r\n";
 
                                     break;
                                 case CustomRoles.Scout:
                                     TargetMark.Append(Scout.GetTargetMark(seer, target));
+
                                     if (forMeeting && Scout.IsTrackTarget(seer, target) && Scout.CanSeeLastRoomInMeeting)
                                         TargetRoleText = $"<size={fontSize}>{Scout.GetArrowAndLastRoom(seer, target)}</size>\r\n";
 
@@ -2760,7 +2758,7 @@ public static class Utils
         bool loversChat = Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive());
 
         if (loversChat && Lovers.PrivateChatForLoversOnly.GetBool())
-            Main.LoversPlayers.ForEach(x => x.SetChatVisible());
+            Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
         else if (!Lovers.IsChatActivated && loversChat && !GameStates.IsEnded && CustomGameMode.Standard.IsActiveOrIntegrated())
         {
             LateTask.New(SetChatVisibleForAll, 0.5f, log: false);

@@ -193,7 +193,7 @@ internal static class ChatCommands
             new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
             new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
-            
+
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
@@ -204,7 +204,7 @@ internal static class ChatCommands
         ];
     }
 
-    // Function to check if a player is a moderator
+    // Function to check if a Player is Moderator
     public static bool IsPlayerModerator(string friendCode)
     {
         friendCode = friendCode.Replace(':', '#');
@@ -311,6 +311,7 @@ internal static class ChatCommands
                 ChatUpdatePatch.LoversMessage = true;
                 Utils.SendMessage(text, otherLover.PlayerId, title);
                 Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
+                otherLover.Notify($"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
                 LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
             }
 
@@ -360,20 +361,32 @@ internal static class ChatCommands
 
     private static void AddTagCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(AddTagCommand), text);
+            return;
+        }
+        
         if (args.Length < 4 || !byte.TryParse(args[1], out var id)) return;
 
         var pc = id.GetPlayer();
         if (pc == null) return;
-        
+
         var color = ColorUtility.TryParseHtmlString($"#{args[2]}", out var c) ? c : Color.red;
         var tag = Utils.ColorString(color, string.Join(' ', args[3..]));
         PrivateTagManager.AddTag(pc.FriendCode, tag);
-        
+
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("AddTagSuccess"), tag, id.ColoredPlayerName(), id));
     }
 
     private static void DeleteTagCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(DeleteTagCommand), text);
+            return;
+        }
+        
         if (args.Length < 2 || !byte.TryParse(args[1], out var id)) return;
 
         var pc = id.GetPlayer();
@@ -382,9 +395,15 @@ internal static class ChatCommands
         PrivateTagManager.DeleteTag(pc.FriendCode);
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeleteTagSuccess"), id.ColoredPlayerName()));
     }
-    
+
     private static void EightBallCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(EightBallCommand), text);
+            return;
+        }
+
         Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
     }
 
@@ -397,6 +416,12 @@ internal static class ChatCommands
 
     private static void GameModeListCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(GameModeListCommand), text);
+            return;
+        }
+        
         var info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..].SkipLast(1)
             .Select(x => (GameMode: x, Color: Main.RoleColors.GetValueOrDefault(CustomRoleSelector.GameModeRoles.TryGetValue(x, out var role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
             .Select(x => $"<{x.Color}><u><b>{GetString($"{x.GameMode}")}</b></u></color><size=75%>\n{GetString($"ModeDescribe.{x.GameMode}").Split("\n\n")[0]}</size>"));
@@ -433,6 +458,12 @@ internal static class ChatCommands
 
     private static void RoleListCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(RoleListCommand), text);
+            return;
+        }
+        
         StringBuilder sb = new("<size=70%>");
 
         var rot = Enum.GetValues<RoleOptionType>()
@@ -508,6 +539,12 @@ internal static class ChatCommands
 
     private static void AnagramCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(AnagramCommand), text);
+            return;
+        }
+        
         Main.Instance.StartCoroutine(Main.GetRandomWord(CreateAnagram));
         return;
 
@@ -522,15 +559,15 @@ internal static class ChatCommands
 
     private static void SpectateCommand(PlayerControl player, string text, string[] args)
     {
-        if (Options.DisableSpectateCommand.GetBool())
-        {
-            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateDisabled"));
-            return;
-        }
-
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(SpectateCommand), text);
+            return;
+        }
+        
+        if (Options.DisableSpectateCommand.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateDisabled"));
             return;
         }
 
@@ -551,17 +588,17 @@ internal static class ChatCommands
 
     private static void WhisperCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(WhisperCommand), text);
+            return;
+        }
+        
         if (!player.IsAlive() || Silencer.ForSilencer.Contains(player.PlayerId)) return;
 
         if (Options.DisableWhisperCommand.GetBool())
         {
             Utils.SendMessage("\n", player.PlayerId, GetString("WhisperDisabled"));
-            return;
-        }
-
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(WhisperCommand), text);
             return;
         }
 
@@ -631,6 +668,12 @@ internal static class ChatCommands
 
     private static void AchievementsCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(AchievementsCommand), text);
+            return;
+        }
+        
         Func<Achievements.Type, string> ToAchievementString = x => $"<b>{GetString($"Achievement.{x}")}</b> - {GetString($"Achievement.{x}.Description")}";
 
         Achievements.Type[] allAchievements = Enum.GetValues<Achievements.Type>();
@@ -644,6 +687,11 @@ internal static class ChatCommands
 
     private static void EnableAllRolesCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(EnableAllRolesCommand), text);
+            return;
+        }
         Prompt.Show(
             GetString("Promt.EnableAllRoles"),
             () => Options.CustomRoleSpawnChances.Values.DoIf(x => x.GetValue() == 0, x => x.SetValue(1)),
@@ -652,6 +700,12 @@ internal static class ChatCommands
 
     private static void ReadyCheckCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ReadyCheckCommand), text);
+            return;
+        }
+        
         Utils.SendMessage(GetString("ReadyCheckMessage"), title: GetString("ReadyCheckTitle"));
         ReadyPlayers = [player.PlayerId];
         ReadyPlayers.UnionWith(Spectators);
@@ -697,6 +751,12 @@ internal static class ChatCommands
 
     private static void DraftStartCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(DraftStartCommand), text);
+            return;
+        }
+        
         DraftResult = [];
 
         byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
@@ -736,6 +796,12 @@ internal static class ChatCommands
 
     private static void DraftCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(DraftCommand), text);
+            return;
+        }
+        
         if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex) || roles.Count < chosenIndex) return;
 
         CustomRoles role = roles[chosenIndex - 1];
@@ -745,6 +811,12 @@ internal static class ChatCommands
 
     private static void MuteCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(MuteCommand), text);
+            return;
+        }
+        
         if (!player.IsHost() && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
         if (!byte.TryParse(args[1], out byte id) || id.IsHost()) return;
 
@@ -757,6 +829,12 @@ internal static class ChatCommands
 
     private static void UnmuteCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(UnmuteCommand), text);
+            return;
+        }
+        
         if (args.Length < 2 || !byte.TryParse(args[1], out byte id)) return;
 
         MutedPlayers.Remove(id);
@@ -1018,6 +1096,12 @@ internal static class ChatCommands
 
     private static void PVCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(PVCommand), text);
+            return;
+        }
+        
         if (PollVotes.Count == 0)
         {
             Utils.SendMessage(GetString("Poll.Inactive"), player.PlayerId);
@@ -1045,16 +1129,34 @@ internal static class ChatCommands
 
     private static void HelpCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(HelpCommand), text);
+            return;
+        }
+        
         Utils.ShowHelp(player.PlayerId);
     }
 
     private static void DumpCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(DumpCommand), text);
+            return;
+        }
+        
         Utils.DumpLog();
     }
 
     private static void GNOCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(GNOCommand), text);
+            return;
+        }
+        
         if (!GameStates.IsLobby && player.IsAlive())
         {
             Utils.SendMessage(GetString("GNoCommandInfo"), player.PlayerId);
@@ -1113,6 +1215,12 @@ internal static class ChatCommands
 
     private static void SDCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(SDCommand), text);
+            return;
+        }
+        
         if (args.Length < 1 || !int.TryParse(args[1], out int sound1)) return;
 
         RPC.PlaySoundRPC(player.PlayerId, (Sounds)sound1);
@@ -1120,12 +1228,24 @@ internal static class ChatCommands
 
     private static void CSDCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(CSDCommand), text);
+            return;
+        }
+        
         string subArgs = text.Remove(0, 3);
         player.RPCPlayCustomSound(subArgs.Trim());
     }
 
     private static void MTHYCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(MTHYCommand), text);
+            return;
+        }
+        
         if (GameStates.IsMeeting)
             MeetingHud.Instance.RpcClose();
         else
@@ -1134,6 +1254,12 @@ internal static class ChatCommands
 
     private static void CosIDCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(CosIDCommand), text);
+            return;
+        }
+        
         NetworkedPlayerInfo.PlayerOutfit of = player.Data.DefaultOutfit;
         Logger.Warn($"ColorId: {of.ColorId}", "Get Cos Id");
         Logger.Warn($"PetId: {of.PetId}", "Get Cos Id");
@@ -1145,12 +1271,24 @@ internal static class ChatCommands
 
     private static void EndCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(EndCommand), text);
+            return;
+        }
+        
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
         GameManager.Instance.LogicFlow.CheckEndCriteria();
     }
 
     private static void ChangeRoleCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ChangeRoleCommand), text);
+            return;
+        }
+        
         if (GameStates.IsLobby || !player.FriendCode.GetDevUser().up) return;
 
         string subArgs = text.Remove(0, 8);
@@ -1179,6 +1317,12 @@ internal static class ChatCommands
 
     private static void IDCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(IDCommand), text);
+            return;
+        }
+        
         string msgText = GetString("PlayerIdList");
         msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => $"{current}\n{pc.PlayerId} \u2192 {pc.GetRealName()}");
 
@@ -1187,6 +1331,12 @@ internal static class ChatCommands
 
     private static void ColorCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ColorCommand), text);
+            return;
+        }
+        
         if (GameStates.IsInGame)
         {
             Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId);
@@ -1214,6 +1364,12 @@ internal static class ChatCommands
 
     private static void KillCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(KillCommand), text);
+            return;
+        }
+        
         if (GameStates.IsLobby)
         {
             Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -1237,6 +1393,12 @@ internal static class ChatCommands
 
     private static void ExeCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ExeCommand), text);
+            return;
+        }
+        
         if (GameStates.IsLobby)
         {
             Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -1269,14 +1431,14 @@ internal static class ChatCommands
             return;
         }
 
-        // Check if the kick command is enabled in the settings
+        // Check if the Kick command is enabled in the settings
         if (!Options.ApplyModeratorList.GetBool() && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandDisabled"), player.PlayerId);
             return;
         }
 
-        // Check if the player has the necessary privileges to use the command
+        // Check if the Player has the necessary privileges to use the command
         if (!IsPlayerModerator(player.FriendCode) && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandNoAccess"), player.PlayerId);
@@ -1305,14 +1467,14 @@ internal static class ChatCommands
             return;
         }
 
-        // Prevent moderators from kicking other moderators
+        // Prevent Moderators from kicking other Moderators
         if (IsPlayerModerator(kickedPlayer.FriendCode))
         {
             Utils.SendMessage(GetString("KickCommandKickMod"), player.PlayerId);
             return;
         }
 
-        // Kick the specified player
+        // Kick the specified Player
         AmongUsClient.Instance.KickPlayer(kickedPlayer.GetClientId(), args[0] == "/ban");
         string kickedPlayerName = kickedPlayer.GetRealName();
         var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
@@ -1465,6 +1627,12 @@ internal static class ChatCommands
 
     private static void SayCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(SayCommand), text);
+            return;
+        }
+        
         switch (AmongUsClient.Instance.AmHost)
         {
             case false when !IsPlayerModerator(player.FriendCode):
@@ -1481,6 +1649,12 @@ internal static class ChatCommands
 
     private static void DeathCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(DeathCommand), text);
+            return;
+        }
+        
         if (!GameStates.IsInGame) return;
         if (Main.DiedThisRound.Contains(player.PlayerId) && Utils.IsRevivingRoleAlive()) return;
 
@@ -1508,6 +1682,12 @@ internal static class ChatCommands
 
     private static void TemplateCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(TemplateCommand), text);
+            return;
+        }
+        
         if (player.IsLocalPlayer())
         {
             if (args.Length > 1)
@@ -1526,6 +1706,12 @@ internal static class ChatCommands
 
     private static void TPInCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(TPInCommand), text);
+            return;
+        }
+        
         if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) return;
 
         player.TP(new Vector2(-0.2f, 1.3f));
@@ -1533,6 +1719,12 @@ internal static class ChatCommands
 
     private static void TPOutCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(TPOutCommand), text);
+            return;
+        }
+        
         if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) return;
 
         player.TP(new Vector2(0.1f, 3.8f));
@@ -1540,6 +1732,12 @@ internal static class ChatCommands
 
     private static void MyRoleCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(MyRoleCommand), text);
+            return;
+        }
+        
         CustomRoles role = player.GetCustomRole();
 
         if (GameStates.IsInGame)
@@ -1580,6 +1778,12 @@ internal static class ChatCommands
 
     private static void AFKExemptCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(AFKExemptCommand), text);
+            return;
+        }
+        
         if (args.Length < 2 || !byte.TryParse(args[1], out byte afkId)) return;
 
         AFKDetector.ExemptedPlayers.Add(afkId);
@@ -1588,6 +1792,12 @@ internal static class ChatCommands
 
     private static void EffectCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(EffectCommand), text);
+            return;
+        }
+        
         if (args.Length < 2 || !GameStates.IsInTask || !Randomizer.Exists) return;
 
         if (Enum.TryParse(args[1], true, out Randomizer.Effect effect)) effect.Apply(player);
@@ -1595,6 +1805,12 @@ internal static class ChatCommands
 
     private static void ComboCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ComboCommand), text);
+            return;
+        }
+        
         if (args.Length < 4)
         {
             if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0) return;
@@ -1743,6 +1959,12 @@ internal static class ChatCommands
 
     private static void DeleteModCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(DeleteModCommand), text);
+            return;
+        }
+        
         if (args.Length < 2 || !byte.TryParse(args[1], out byte remModId)) return;
 
         PlayerControl remModPc = Utils.GetPlayerById(remModId);
@@ -1757,6 +1979,12 @@ internal static class ChatCommands
 
     private static void AddModCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(AddModCommand), text);
+            return;
+        }
+        
         if (args.Length < 2 || !byte.TryParse(args[1], out byte newModId)) return;
 
         PlayerControl newModPc = Utils.GetPlayerById(newModId);
@@ -1771,6 +1999,12 @@ internal static class ChatCommands
 
     private static void KCountCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(KCountCommand), text);
+            return;
+        }
+        
         if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt()) return;
 
         Utils.SendMessage("\n", player.PlayerId, Utils.GetGameStateData());
@@ -1778,6 +2012,12 @@ internal static class ChatCommands
 
     private static void SetRoleCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(SetRoleCommand), text);
+            return;
+        }
+        
         string subArgs = text.Remove(0, 8);
 
         if (!GameStates.IsLobby)
@@ -1821,17 +2061,35 @@ internal static class ChatCommands
 
     private static void UpCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(UpCommand), text);
+            return;
+        }
+        
         Utils.SendMessage($"{GetString("UpReplacedMessage")}", player.PlayerId);
     }
 
     private static void RCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(RCommand), text);
+            return;
+        }
+        
         string subArgs = text.Remove(0, 2);
         SendRolesInfo(subArgs, player.PlayerId);
     }
 
     private static void DisconnectCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(DisconnectCommand), text);
+            return;
+        }
+        
         string subArgs = args.Length < 2 ? string.Empty : args[1];
 
         switch (subArgs)
@@ -1856,6 +2114,12 @@ internal static class ChatCommands
 
     private static void NowCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(NowCommand), text);
+            return;
+        }
+        
         string subArgs = args.Length < 2 ? string.Empty : args[1];
 
         switch (subArgs)
@@ -1876,6 +2140,12 @@ internal static class ChatCommands
 
     private static void LevelCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(LevelCommand), text);
+            return;
+        }
+        
         string subArgs = args.Length < 2 ? string.Empty : args[1];
         Utils.SendMessage(string.Format(GetString("Message.SetLevel"), subArgs), player.PlayerId);
         _ = int.TryParse(subArgs, out int input);
@@ -1892,6 +2162,12 @@ internal static class ChatCommands
 
     private static void HideNameCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(HideNameCommand), text);
+            return;
+        }
+        
         Main.HideName.Value = args.Length > 1 ? args.Skip(1).Join(delimiter: " ") : Main.HideName.DefaultValue.ToString();
 
         GameStartManagerPatch.GameStartManagerStartPatch.HideName.text =
@@ -1902,6 +2178,12 @@ internal static class ChatCommands
 
     private static void RenameCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(RenameCommand), text);
+            return;
+        }
+        
         if (args.Length < 2) return;
 
         if (args[1].Length is > 50 or < 1)
@@ -1936,6 +2218,12 @@ internal static class ChatCommands
 
     private static void LastResultCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(LastResultCommand), text);
+            return;
+        }
+        
         Utils.ShowKillLog(player.PlayerId);
         Utils.ShowLastAddOns(player.PlayerId);
         Utils.ShowLastRoles(player.PlayerId);
@@ -1944,6 +2232,12 @@ internal static class ChatCommands
 
     private static void WinnerCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(WinnerCommand), text);
+            return;
+        }
+        
         if (Main.WinnerNameList.Count == 0)
             Utils.SendMessage(GetString("NoInfoExists"));
         else
@@ -1952,6 +2246,12 @@ internal static class ChatCommands
 
     private static void ChangeSettingCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ChangeSettingCommand), text);
+            return;
+        }
+        
         string subArgs = args.Length < 2 ? "" : args[1];
 
         switch (subArgs)
@@ -2308,12 +2608,24 @@ internal static class ChatCommands
 
     private static void VersionCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(VersionCommand), text);
+            return;
+        }
+        
         string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: ({Main.AllPlayerNames[kvp.Key]}) {kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
         if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
     }
 
     private static void LTCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(LTCommand), text);
+            return;
+        }
+        
         if (!GameStates.IsLobby) return;
 
         float timer = GameStartManagerPatch.Timer;
@@ -2553,13 +2865,6 @@ internal static class ChatCommands
 
                     if (isUp) Utils.SendMessage(devMark == "▲" ? string.Format(GetString("Message.YTPlanSelected"), roleName) : string.Format(GetString("Message.YTPlanSelectFailed"), roleName), playerId);
 
-                    //if (devMark == "▲")
-                    //{
-                    //    byte pid = playerId == 255 ? (byte)0 : playerId;
-                    //    _ = Main.DevRole.Remove(pid);
-                    //    Main.DevRole.Add(pid, rl);
-                    //}
-
                     if (isUp) return;
                 }
 
@@ -2701,6 +3006,7 @@ internal static class ChatCommands
                         ChatUpdatePatch.LoversMessage = true;
                         Utils.SendMessage(text, otherLover.PlayerId, title);
                         Utils.SendMessage(text, player.PlayerId, title);
+                        otherLover.Notify($"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
                         LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
                     }, 0.2f, log: false);
                 }

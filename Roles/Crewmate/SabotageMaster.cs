@@ -80,7 +80,7 @@ public class SabotageMaster : RoleBase
 
         MaxFixedViaPet = new IntegerOptionItem(Id + 21, "SMMaxFixedViaPet", new(1, 30, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CanFixSabotageFromAnywhereWithPet);
-        
+
         CanVent = new BooleanOptionItem(Id + 22, "CanVent", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
     }
@@ -150,7 +150,7 @@ public class SabotageMaster : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSabotageMasterLimit, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSabotageMasterLimit, HazelExtensions.SendOption);
         writer.Write(SMId);
         writer.Write(UsedSkillCount);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

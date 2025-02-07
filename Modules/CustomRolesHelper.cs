@@ -92,6 +92,7 @@ internal static class CustomRolesHelper
     {
         if (role.IsGhostRole()) return CustomRoles.GuardianAngel;
         if (role.IsVanilla()) return role;
+        if (role is CustomRoles.GM) return CustomRoles.Crewmate;
         if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
         if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
         if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;

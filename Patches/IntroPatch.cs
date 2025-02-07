@@ -408,71 +408,91 @@ internal static class BeginCrewmatePatch
         {
             PlayerControl.LocalPlayer.Data.Role.IntroSound = role switch
             {
-                CustomRoles.Terrorist or
+                CustomRoles.Bomber or
+                    CustomRoles.Nuker or
                     CustomRoles.Sapper or
-                    CustomRoles.Bomber or
-                    CustomRoles.Nuker
+                    CustomRoles.Terrorist
                     => ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring)?.MinigamePrefab.OpenSound,
 
-                CustomRoles.Sheriff or
-                    CustomRoles.Veteran
-                    => PlayerControl.LocalPlayer.KillSfx,
-
                 CustomRoles.Dictator or
-                    CustomRoles.Mayor
+                    CustomRoles.Mayor or
+                    CustomRoles.NiceSwapper
                     => FastDestroyableSingleton<HudManager>.Instance.Chat.messageSound,
 
-                CustomRoles.Monitor or
-                    CustomRoles.AntiAdminer
+                CustomRoles.AntiAdminer or
+                    CustomRoles.Monitor
                     => FastDestroyableSingleton<HudManager>.Instance.Chat.warningSound,
-
-                CustomRoles.EvilTracker or
-                    CustomRoles.Tracefinder or
-                    CustomRoles.Scout or
-                    CustomRoles.Bloodhound or
-                    CustomRoles.Mortician or
-                    CustomRoles.Lighter
-                    => GetIntroSound(RoleTypes.Tracker),
-
-                CustomRoles.Oracle or
-                    CustomRoles.Divinator or
-                    CustomRoles.Mediumshiper or
-                    CustomRoles.DovesOfNeace or
-                    CustomRoles.Observer or
-                    CustomRoles.Spiritualist or
-                    CustomRoles.Spiritcaller or
-                    CustomRoles.Beacon or
-                    CustomRoles.Farseer
-                    => GetIntroSound(RoleTypes.GuardianAngel),
-
-                CustomRoles.Workaholic or
+                    
+                CustomRoles.GM or
+                    CustomRoles.Snitch or
                     CustomRoles.Speedrunner or
-                    CustomRoles.Snitch
+                    CustomRoles.Workaholic
                     => FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
 
                 CustomRoles.TaskManager
                     => FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
 
-                CustomRoles.Opportunist or
-                    CustomRoles.FFF or
-                    CustomRoles.Revolutionist
-                    => GetIntroSound(RoleTypes.Crewmate),
-
-                CustomRoles.Nightmare
-                    => GetIntroSound(RoleTypes.Impostor),
-
-                CustomRoles.SabotageMaster or
-                    CustomRoles.Inhibitor or
+                CustomRoles.Inhibitor or
+                    CustomRoles.SabotageMaster or
                     CustomRoles.Saboteur or
                     CustomRoles.SecurityGuard or
                     CustomRoles.Provocateur
                     => ShipStatus.Instance.SabotageSound,
 
-                CustomRoles.Mastermind or
-                    CustomRoles.Shiftguard or
-                    CustomRoles.Randomizer or
-                    CustomRoles.Gambler
-                    => GetIntroSound(RoleTypes.Shapeshifter),
+                CustomRoles.Minimalism or
+                    CustomRoles.NiceGuesser or
+                    CustomRoles.SwordsMan or
+                    CustomRoles.Veteran
+                    => PlayerControl.LocalPlayer.KillSfx,
+
+                CustomRoles.Chameleon or
+                    CustomRoles.Drainer or
+                    CustomRoles.Swooper or
+                    CustomRoles.Wraith                  
+                    => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
+
+                CustomRoles.Addict or
+                    CustomRoles.Ventguard
+                    => ShipStatus.Instance.VentEnterSound,
+
+                CustomRoles.NiceEraser or
+                    CustomRoles.ParityCop or
+                    CustomRoles.TimeManager
+                    => MeetingHud.Instance.VoteLockinSound,
+
+                CustomRoles.Demolitionist or
+                    CustomRoles.Disperser or
+                    CustomRoles.Grenadier or
+                    CustomRoles.Miner or
+                    CustomRoles.TimeMaster
+                    => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
+
+                CustomRoles.Tremor
+                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
+
+                CustomRoles.Deputy or
+                    CustomRoles.Sheriff
+                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
+
+                CustomRoles.FFF or
+                    CustomRoles.Opportunist or
+                    CustomRoles.Revolutionist
+                    => GetIntroSound(RoleTypes.Crewmate),
+
+                CustomRoles.Curser or
+                    CustomRoles.Nightmare
+                    => GetIntroSound(RoleTypes.Impostor),
+
+                CustomRoles.Beacon or
+                    CustomRoles.Divinator or
+                    CustomRoles.DovesOfNeace or
+                    CustomRoles.Farseer or
+                    CustomRoles.Mediumshiper or
+                    CustomRoles.Observer or
+                    CustomRoles.Oracle or
+                    CustomRoles.Spiritcaller or
+                    CustomRoles.Spiritualist
+                    => GetIntroSound(RoleTypes.GuardianAngel),
 
                 CustomRoles.Engineer or
                     CustomRoles.EngineerEHR
@@ -485,41 +505,11 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Medic
                     => GetIntroSound(RoleTypes.Scientist),
 
-                CustomRoles.GM
-                    => FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
-
-                CustomRoles.SwordsMan or
-                    CustomRoles.Minimalism or
-                    CustomRoles.NiceGuesser
-                    => PlayerControl.LocalPlayer.KillSfx,
-
-                CustomRoles.Drainer
-                    => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
-
-                CustomRoles.Addict or
-                    CustomRoles.Ventguard
-                    => ShipStatus.Instance.VentEnterSound,
-
-                CustomRoles.ParityCop or
-                    CustomRoles.NiceEraser or
-                    CustomRoles.TimeManager
-                    => MeetingHud.Instance.VoteLockinSound,
-
-                CustomRoles.Demolitionist or
-                    CustomRoles.TimeMaster or
-                    CustomRoles.Grenadier or
-                    CustomRoles.Miner or
-                    CustomRoles.Disperser
-                    => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
-
-                CustomRoles.Tremor
-                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
-
                 CustomRoles.Tracker
                     or CustomRoles.TrackerEHR
                     or CustomRoles.Bloodhound
-                    or CustomRoles.Scout
                     or CustomRoles.EvilTracker
+                    or CustomRoles.Scout
                     => GetIntroSound(RoleTypes.Tracker),
 
                 CustomRoles.Noisemaker
@@ -531,13 +521,17 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Phantom
                     or CustomRoles.PhantomEHR
-                    or CustomRoles.Swooper
-                    or CustomRoles.Wraith
-                    or CustomRoles.Chameleon
+                    or CustomRoles.DarkHide
+                    or CustomRoles.ImperiusCurse
+                    or CustomRoles.SoulHunter
                     => GetIntroSound(RoleTypes.Phantom),
 
                 CustomRoles.Shapeshifter
                     or CustomRoles.ShapeshifterEHR
+                    or CustomRoles.Gambler
+                    or CustomRoles.Mastermind
+                    or CustomRoles.Randomizer
+                    or CustomRoles.Shiftguard
                     => GetIntroSound(RoleTypes.Shapeshifter),
 
                 _ => GetAudioClipFromCustomRoleType()
@@ -909,13 +903,13 @@ internal static class IntroCutsceneDestroyPatch
 
             float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
 
-            if (Main.GM.Value && lp.Is(CustomRoles.GM))
+            foreach (var player in Main.AllPlayerControls)
             {
-                LateTask.New(() =>
+                if (player.Is(CustomRoles.GM))
                 {
-                    lp.RpcExile();
-                    Main.PlayerStates[lp.PlayerId].SetDead();
-                }, specExileDelay, "Set GM Dead");
+                    player.RpcExile();
+                    Main.PlayerStates[player.PlayerId].SetDead();
+                }
             }
 
             foreach (byte spectator in ChatCommands.Spectators)

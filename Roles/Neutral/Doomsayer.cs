@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
@@ -20,12 +21,14 @@ public class Doomsayer : RoleBase
     public static OptionItem DCanGuessImpostors;
     public static OptionItem DCanGuessCrewmates;
     public static OptionItem DCanGuessNeutrals;
+    public static OptionItem DCanGuessCoven;
     public static OptionItem DCanGuessAdt;
     public static OptionItem AdvancedSettings;
     public static OptionItem MaxNumberOfGuessesPerMeeting;
     public static OptionItem KillCorrectlyGuessedPlayers;
     public static OptionItem DoesNotSuicideWhenMisguessing;
     public static OptionItem MisguessRolePrevGuessRoleUntilNextMeeting;
+    private static OptionItem ImpostorVision;
     public static OptionItem DoomsayerTryHideMsg;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -47,6 +50,9 @@ public class Doomsayer : RoleBase
         DCanGuessNeutrals = new BooleanOptionItem(Id + 14, "DCanGuessNeutrals", true, TabGroup.NeutralRoles, true)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
+        DCanGuessCoven = new BooleanOptionItem(Id + 22, "DCanGuessCoven", true, TabGroup.NeutralRoles, true)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
+
         DCanGuessAdt = new BooleanOptionItem(Id + 15, "DCanGuessAdt", false, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
@@ -64,6 +70,9 @@ public class Doomsayer : RoleBase
 
         MisguessRolePrevGuessRoleUntilNextMeeting = new BooleanOptionItem(Id + 20, "DoomsayerMisguessRolePrevGuessRoleUntilNextMeeting", true, TabGroup.NeutralRoles, true)
             .SetParent(DoesNotSuicideWhenMisguessing);
+
+        ImpostorVision = new BooleanOptionItem(Id + 23, "ImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
         DoomsayerTryHideMsg = new BooleanOptionItem(Id + 21, "DoomsayerTryHideMsg", true, TabGroup.NeutralRoles, true)
             .SetColor(Color.green)
@@ -95,11 +104,13 @@ public class Doomsayer : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
+    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(ImpostorVision.GetBool());
+
     public static void SendRPC(PlayerControl player)
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoomsayerProgress, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoomsayerProgress, HazelExtensions.SendOption);
         writer.Write(player.PlayerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

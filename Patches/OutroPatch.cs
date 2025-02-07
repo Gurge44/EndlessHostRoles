@@ -139,7 +139,7 @@ internal static class SetEverythingUpPatch
     public static void Postfix(EndGameManager __instance)
     {
         //#######################################
-        //      ==Victory faction display==
+        //      ==Victory Faction Display==
         //#######################################
 
         try
@@ -316,7 +316,7 @@ internal static class SetEverythingUpPatch
             __instance.BackgroundBar.material.color = Utils.GetRoleColor(winnerRole);
         }
 
-        if (AmongUsClient.Instance.AmHost && Main.PlayerStates[0].MainRole == CustomRoles.GM)
+        if (AmongUsClient.Instance.AmHost && Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].MainRole == CustomRoles.GM)
         {
             __instance.WinText.text = GetString("GameOver");
             __instance.WinText.color = Utils.GetRoleColor(CustomRoles.GM);
@@ -393,10 +393,8 @@ internal static class SetEverythingUpPatch
 
         LastWinsText = WinnerText.text /*.RemoveHtmlTags()*/;
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         //########################################
-        //     ==The final result indicates==
+        //     ==The Final Result Indicates==
         //########################################
 
         Vector3 Pos = Camera.main.ViewportToWorldPoint(new(0f, 1f, Camera.main.nearClipPlane));

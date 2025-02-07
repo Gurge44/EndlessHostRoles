@@ -86,7 +86,7 @@ public class BountyHunter : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBountyTarget, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBountyTarget, HazelExtensions.SendOption);
         writer.Write(BountyId);
         writer.Write(Target);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

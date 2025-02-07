@@ -297,7 +297,7 @@ public class Councillor : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.MeetingKill, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.MeetingKill, HazelExtensions.SendOption);
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

@@ -113,7 +113,7 @@ public class Medic : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, HazelExtensions.SendOption);
         writer.Write(ProtectList.Count);
         ProtectList.Do(x => writer.Write(x));
         AmongUsClient.Instance.FinishRpcImmediately(writer);

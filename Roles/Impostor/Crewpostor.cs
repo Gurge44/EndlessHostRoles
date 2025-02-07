@@ -114,7 +114,7 @@ internal class Crewpostor : RoleBase
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCpTasksDone, SendOption.Reliable);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCpTasksDone, HazelExtensions.SendOption);
             writer.Write(cpID);
             writer.Write(tasksDone);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

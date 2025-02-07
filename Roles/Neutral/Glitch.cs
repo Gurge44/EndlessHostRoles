@@ -115,7 +115,7 @@ public class Glitch : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, HazelExtensions.SendOption);
         writer.Write(GlitchId);
         writer.Write(MimicCDTimer);
         writer.Write(MimicDurTimer);
