@@ -2855,6 +2855,7 @@
   "JudgeCanTrialSidekick": "Может судить <color=#00b4eb>Сайдкиков</color>",
   "JudgeCanTrialInfected": "Может судить <color=#7B8968>Заражённых</color> игроков",
   "JudgeCanTrialContagious": "Может судить <color=#2E8B57>Инфицированных</color> игроков",
+  "StoreCompletedAchievementsOnEHRDatabase": "Store completed achievements on the EHR database (to maintain progress in case of a reinstall or an update)",
   "PostLobbyCodeToEHRDiscordServer": "Отправить код комнаты на Веб-сайт EHR",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>Код этого лобби был отправлен в Discord-сервер EHR.</color></size>\\n<size=70%>Вы можете отключить эту функцию в настройках (Вкладка Система).</size>",
   "Message.LobbyCodeSendError": "Не удалось отправить код на веб-сайт EHR.</color></size>\\n<size=70%>{0}</size>",
