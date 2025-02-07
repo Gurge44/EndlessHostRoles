@@ -2855,6 +2855,7 @@
   "JudgeCanTrialSidekick": "Can trial <color=#00b4eb>Sidekick</color>",
   "JudgeCanTrialInfected": "Can trial <color=#7B8968>Infected</color>",
   "JudgeCanTrialContagious": "Can trial <color=#2E8B57>Contagious</color>",
+  "StoreCompletedAchievementsOnEHRDatabase": "Store completed achievements on the EHR database (to maintain progress in case of a reinstall or an update)",
   "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Website",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>The lobby code has been sent to the EHR website. This will help others find EHR lobbies.</color></size>\\n<size=70%>You can disable this feature in the settings (System Settings tab).</size>",
   "Message.LobbyCodeSendError": "<size=90%><#ff0000>X</color> <#ff5555>Failed to send the lobby code to the EHR website.</color></size>\\n<size=70%>{0}</size>",
