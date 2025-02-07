@@ -247,45 +247,6 @@ internal static class OnPlayerLeftPatch
                 PlayerGameOptionsSender.RemoveSender(data.Character);
             }
 
-            // if (Main.HostClientId == __instance.ClientId)
-            // {
-            //     const int clientId = -1;
-            //     var player = PlayerControl.LocalPlayer;
-            //     var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
-            //     var name = player?.Data?.PlayerName;
-            //     var msg = string.Empty;
-            //     if (GameStates.IsInGame)
-            //     {
-            //         Utils.ErrorEnd("Host Left the Game");
-            //         msg = GetString("Message.HostLeftGameInGame");
-            //     }
-            //     else if (GameStates.IsLobby)
-            //         msg = GetString("Message.HostLeftGameInLobby");
-            //
-            //     player?.SetName(title);
-            //     FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-            //     player?.SetName(name);
-            //
-            //     if (player != null && player.Data != null)
-            //     {
-            //         var writer = CustomRpcSender.Create("MessagesToSend");
-            //         writer.StartMessage(clientId);
-            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-            //             .Write(player.Data.NetId)
-            //             .Write(title)
-            //             .EndRpc();
-            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-            //             .Write(msg)
-            //             .EndRpc();
-            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-            //             .Write(player.Data.NetId)
-            //             .Write(player.Data.PlayerName)
-            //             .EndRpc();
-            //         writer.EndMessage();
-            //         writer.SendMessage();
-            //     }
-            // }
-
             // Additional description of the reason for disconnection
             switch (reason)
             {
@@ -381,14 +342,14 @@ internal static class InnerNetClientSpawnPatch
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
                         // Non-host modded client
-                        else
+                        else if (client.Character.IsNonHostModClient())
                         {
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, HazelExtensions.SendOption, client.Id);
                             writer.WritePacked((int)GameStartManagerPatch.TimerStartTS);
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
                     }
-                }, 7f, "Sync Lobby Timer RPC");
+                }, 3.1f, "Sync Lobby Timer RPC");
             }
         }
 
@@ -443,18 +404,6 @@ internal static class InnerNetClientSpawnPatch
                     }
                 }, 1.3f, "DisplayLastResult");
             }
-
-            // if (PlayerControl.LocalPlayer.FriendCode.GetDevUser().Up && Options.EnableUpMode.GetBool())
-            // {
-            //     LateTask.New(() =>
-            //     {
-            //         if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
-            //         {
-            //             Main.IsChatCommand = true;
-            //             Utils.SendMessage($"{GetString("Message.YTPlanNotice")} {PlayerControl.LocalPlayer.FriendCode.GetDevUser().UpName}", client.Character.PlayerId);
-            //         }
-            //     }, 1.4f, "DisplayUpWarnning");
-            // }
         }
     }
 }
