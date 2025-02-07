@@ -3148,7 +3148,7 @@
   "IsGood": "{0} era un <color=#8cffff>Tripulante</color>",
   "BelongTo": "{0}'s alignment was {1}",
   "GG": "¡GG! No quedan más asesinos. ¡Los <#8cffff>Tripulantes</color> ganan!",
-  "IWonderWhatsLeft": "All <#ff1919>Impostors</color> are dead, but the game continues....",
+  "IWonderWhatsLeft": "The game continues....",
   "SubText.Bloodlust": "Con un secreto....",
   "GameOverReason.HumansByVote": "<color=#8cffff> Todos los <color=#ff1919>Impostores</color> y <color=#ffab1b>Neutrales Asesinos</color> fueron expulsados o asesinados</color>",
   "GameOverReason.HumansDisconnect": "<color=#777777>Tripulantes desconectados</color>",
