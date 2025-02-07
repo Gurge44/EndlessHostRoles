@@ -526,7 +526,8 @@ public static class Utils
             }
         }
 
-        if (seerMainRole == CustomRoles.LovingImpostor && self) RoleColor = GetRoleColor(CustomRoles.LovingImpostor);
+        if (seerMainRole == CustomRoles.LovingImpostor && self)
+            RoleColor = GetRoleColor(CustomRoles.LovingImpostor);
 
         if (targetSubRoles.Contains(CustomRoles.Madmate))
         {
@@ -556,6 +557,12 @@ public static class Utils
         {
             RoleColor = GetRoleColor(CustomRoles.Bloodlust);
             RoleText = $"{GetString("Prefix.Bloodlust")} {RoleText}";
+        }
+
+        if (targetSubRoles.Contains(CustomRoles.Egoist) && (self || pure || (seeTargetBetrayalAddons && Options.ImpEgoistVisibalToAllies.GetBool())))
+        {
+            RoleColor = GetRoleColor(CustomRoles.Egoist);
+            RoleText = $"{GetString("Prefix.Egoist")} {RoleText}";
         }
 
         return (RoleText, RoleColor);
