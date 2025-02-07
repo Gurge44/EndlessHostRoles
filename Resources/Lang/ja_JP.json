@@ -3148,7 +3148,7 @@
   "IsGood": "{0} was a <color=#8cffff>Crewmate</color>",
   "BelongTo": "{0}'s alignment was {1}",
   "GG": "GG! No more killers remain. <#8cffff>Crewmates</color> win!",
-  "IWonderWhatsLeft": "All <#ff1919>Impostors</color> are dead, but the game continues....",
+  "IWonderWhatsLeft": "The game continues....",
   "SubText.Bloodlust": "With a secret....",
   "GameOverReason.HumansByVote": "<color=#8cffff>All <color=#ff1919>Impostors</color> and <color=#ffab1b>Neutral Killers</color> were ejected or killed</color>",
   "GameOverReason.HumansDisconnect": "<color=#777777>Crewmates disconnected</color>",
