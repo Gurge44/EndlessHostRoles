@@ -183,6 +183,7 @@ public static class Achievements
         var json = JsonSerializer.Serialize(CompletedAchievements);
         File.WriteAllText(SaveFilePath, json);
 
+        if (!Options.StoreCompletedAchievementsOnEHRDatabase.GetBool()) return;
         Main.Instance.StartCoroutine(SendAchievementsToApiAsync());
         return;
 
@@ -220,7 +221,7 @@ public static class Achievements
             var json = File.ReadAllText(SaveFilePath);
             CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
         }
-        else
+        else if (Options.StoreCompletedAchievementsOnEHRDatabase.GetBool())
         {
             Main.Instance.StartCoroutine(FetchAchievementsFromApiAsync());
             return;

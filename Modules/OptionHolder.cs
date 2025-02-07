@@ -673,6 +673,7 @@ public static class Options
     public static OptionItem PhantomCanGuess;
 
     public static OptionItem PostLobbyCodeToEHRWebsite;
+    public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
@@ -858,6 +859,7 @@ public static class Options
             var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
             {
                 if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || CustomHnS.AllHnSRoles.Contains(x)) return 4;
+                if (x == CustomRoles.DoubleAgent) return 2;
                 if (x.IsAdditionRole()) return 3;
                 if (x.IsImpostor() || x.IsMadmate()) return 0;
                 if (x.IsNeutral()) return 1;
@@ -1424,7 +1426,10 @@ public static class Options
 
         ShowAntiBlackoutWarning = new BooleanOptionItem(19421, "ShowAntiBlackoutWarning", true, TabGroup.SystemSettings);
 
-        PostLobbyCodeToEHRWebsite = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings);
+        PostLobbyCodeToEHRWebsite = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings)
+            .SetHeader(true);
+        
+        StoreCompletedAchievementsOnEHRDatabase = new BooleanOptionItem(19423, "StoreCompletedAchievementsOnEHRDatabase", true, TabGroup.SystemSettings);
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));

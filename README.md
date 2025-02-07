@@ -503,11 +503,12 @@ The collected information is used solely for the following purposes:
 
 #### 5. **User Control and Opt-Out**
 
-You have full control over whether to enable or disable data sharing. You can disable lobby sharing by:
+You have full control over whether to enable or disable data sharing. You can disable data sharing by:
 
 1. Opening the **Room Settings** UI.
 2. Navigating to the **System Settings** tab.
 3. Turning off the setting labeled **Post the lobby code to the EHR Website**.
+4. Turning off the setting labeled **Store completed achievements on the EHR database**.
 
 When disabled, no lobby information will be collected or transmitted.
 
@@ -518,6 +519,7 @@ When disabled, no lobby information will be collected or transmitted.
 - Lobby data is retained only as long as the lobby is active. Once a lobby is closed, the data is removed from our
   system within 3 minutes.
 - We do not store historical records of lobbies after they are removed.
+- To delete your achievements from our database, please contact us through the official EHR Discord server.
 
 ------------------------------------------------------------------------------------------------------------
 
