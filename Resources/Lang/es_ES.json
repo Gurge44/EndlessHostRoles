@@ -3346,7 +3346,7 @@
   "CanNotTrialJailed": "No puedes juzgar al objetivo.",
   "CanNotTrialProtected": "No puedes juzgar jugadores protegidos.",
   "notifyJailedOnMeeting": "Notificar jugador Encarcelado cuando reunión empieza",
-  "JailedNotifyMsg": "Has sido encerrado en la Cárcel por el Carcelero. Nadie puede adivinarte o juzgarte y solo puedes adivinar carcelero.\\n\\nSi el Carcelero te vota, serás ejecutado después de que la reunión termine.",
+  "JailedNotifyMsg": "You have been locked up in Jail by the Jailor. No one can guess or judge you and you can only guess Jailor.",
   "JailorTitle": "Mensaje del Carcelero",
   "JailedSuffix": "JAILED",
   "Car": "Auto",
