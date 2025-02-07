@@ -3346,7 +3346,7 @@
   "CanNotTrialJailed": "你不可以審判目標。",
   "CanNotTrialProtected": "你不能審判被保護的玩家",
   "notifyJailedOnMeeting": "在會議開始時提醒被監禁的人",
-  "JailedNotifyMsg": "你被監禁者監禁了，所有人無法猜測或審判你，並且你只能猜測監禁者。\\n\\n如果監禁者投票給你，你將會在會議後被處決。",
+  "JailedNotifyMsg": "You have been locked up in Jail by the Jailor. No one can guess or judge you and you can only guess Jailor.",
   "JailorTitle": "【 ★ 監獄訊息 ★ 】",
   "JailedSuffix": "JAILED",
   "Car": "碰碰車",
