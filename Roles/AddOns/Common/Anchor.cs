@@ -1,4 +1,4 @@
-﻿namespace EHR.AddOns;
+﻿namespace EHR.AddOns.Common;
 
 public class Anchor : IAddon
 {

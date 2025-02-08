@@ -143,7 +143,7 @@ public class Simon : RoleBase
     public override bool OnSabotage(PlayerControl pc)
     {
         OnPet(pc);
-        return false;
+        return pc.Is(CustomRoles.Mischievous);
     }
 
     public override bool OnVanish(PlayerControl pc)

@@ -1245,7 +1245,8 @@ internal static class FixedUpdatePatch
                         break;
                 }
             }
-            else if (!Main.HasJustStarted && GameStates.IsInTask && !ExileController.Instance && GhostRolesManager.ShouldHaveGhostRole(__instance)) GhostRolesManager.AssignGhostRole(__instance);
+            else if (!Main.HasJustStarted && GameStates.IsInTask && !ExileController.Instance && GhostRolesManager.ShouldHaveGhostRole(__instance))
+                GhostRolesManager.AssignGhostRole(__instance);
         }
 
         if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && !CustomGameMode.RoomRush.IsActiveOrIntegrated())

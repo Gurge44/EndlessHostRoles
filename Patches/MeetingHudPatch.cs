@@ -372,7 +372,7 @@ internal static class CheckForEndVotingPatch
             }).ToColoredString();
         }
 
-        if (Options.ConfirmEgoistOnEject.GetBool() && player.Is(CustomRoles.Egoist)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Egoist), $"{CustomRoles.Egoist.ToColoredString()} {coloredRole.RemoveHtmlTags()}");
+        if (Options.ConfirmEgoistOnEject.GetBool() && player.Is(CustomRoles.Egoist) && !Options.ImpEgoistVisibalToAllies.GetBool()) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Egoist), $"{CustomRoles.Egoist.ToColoredString()} {coloredRole.RemoveHtmlTags()}");
         if (Options.ConfirmLoversOnEject.GetBool() && Main.LoversPlayers.Exists(x => x.PlayerId == player.PlayerId)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), $"{CustomRoles.Lovers.ToColoredString()} {coloredRole.RemoveHtmlTags()}");
         if (Options.RascalAppearAsMadmate.GetBool() && player.Is(CustomRoles.Rascal)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Madmate), GetRoleString("Mad-") + coloredRole.RemoveHtmlTags());
 
@@ -473,20 +473,29 @@ internal static class CheckForEndVotingPatch
 
         if (DecidedWinner)
             name += "<size=0>";
-        else if (Options.ShowImpRemainOnEject.GetBool())
+        else
         {
-            name += "\n";
-            int actualNeutralnum = neutralnum;
-            int actualCovennum = covennum;
-            if (!Options.ShowNKRemainOnEject.GetBool()) neutralnum = 0;
-            if (!Options.ShowCovenRemainOnEject.GetBool()) covennum = 0;
+            bool showImpRemain = Options.ShowImpRemainOnEject.GetBool();
+            bool showNKRemain = Options.ShowNKRemainOnEject.GetBool();
+            bool showCovenRemain = Options.ShowCovenRemainOnEject.GetBool();
 
-            name += (impnum, neutralnum, covennum) switch
+            if (showImpRemain || showNKRemain || showCovenRemain)
             {
-                (0, 0, 0) when actualNeutralnum == 0 && actualCovennum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()) => GetString("GG"),
-                (0, 0, 0) when actualNeutralnum > 0 || actualCovennum > 0 => GetString("IWonderWhatsLeft"),
-                _ => Utils.GetRemainingKillers(true, excludeId: exileId)
-            };
+                name += "\n";
+
+                int sum = impnum + neutralnum + covennum;
+                
+                if (!showImpRemain) impnum = 0;
+                if (!showNKRemain) neutralnum = 0;
+                if (!showCovenRemain) covennum = 0;
+
+                name += (impnum, neutralnum, covennum) switch
+                {
+                    (0, 0, 0) when sum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()) => GetString("GG"),
+                    (0, 0, 0) when sum > 0 => GetString("IWonderWhatsLeft"),
+                    _ => Utils.GetRemainingKillers(true, excludeId: exileId)
+                };
+            }
         }
 
         EndOfSession:

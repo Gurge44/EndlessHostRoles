@@ -626,7 +626,7 @@ internal static class GameEndChecker
             }
 
             if (Imp >= 1) return false; // both imps and NKs are alive, game must continue
-
+            if (Coven >= 1) return false; // both covens and NKs are alive, game must continue
             if (Crew > totalNKAlive) return false; // Imps are dead, but crew still outnumbers NKs, game must continue
 
             // Imps dead, Crew <= NK, Checking if all NKs alive are in 1 team
