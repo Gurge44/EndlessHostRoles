@@ -17,7 +17,6 @@ using static EHR.Translator;
 
 // ReSharper disable InconsistentNaming
 
-
 namespace EHR;
 
 internal class Command(string[] commandForms, string arguments, string description, Command.UsageLevels usageLevel, Command.UsageTimes usageTime, Action<PlayerControl, string, string[]> action, bool isCanceled, bool alwaysHidden, string[] argsDescriptions = null)
@@ -1627,17 +1626,11 @@ internal static class ChatCommands
 
     private static void SayCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(SayCommand), text);
-            return;
-        }
-        
         switch (AmongUsClient.Instance.AmHost)
         {
             case false when !IsPlayerModerator(player.FriendCode):
                 return;
-            case false:
+            case false when (!AmongUsClient.Instance.AmHost):
                 RequestCommandProcessingFromHost(nameof(SayCommand), text);
                 return;
         }
