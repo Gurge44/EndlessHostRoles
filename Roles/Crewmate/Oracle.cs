@@ -90,6 +90,8 @@ public class Oracle : RoleBase
             text = "Imp";
         else if (target.GetCustomRole().IsNeutral())
             text = "Neut";
+        else if (target.GetCustomRole().IsCoven())
+            text = "Coven";
         else
             text = "Crew";
 
@@ -103,18 +105,28 @@ public class Oracle : RoleBase
                 {
                     1 => "Neut",
                     2 => "Imp",
+                    3 => "Coven",
                     _ => text
                 },
                 "Neut" => next switch
                 {
                     1 => "Crew",
                     2 => "Imp",
+                    3 => "Coven",
                     _ => text
                 },
                 "Imp" => next switch
                 {
                     1 => "Neut",
                     2 => "Crew",
+                    3 => "Coven",
+                    _ => text
+                },
+                "Coven" => next switch
+                {
+                    1 => "Crew",
+                    2 => "Imp",
+                    3 => "Neut",
                     _ => text
                 },
                 _ => text
