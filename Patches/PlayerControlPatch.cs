@@ -2114,7 +2114,7 @@ internal static class PlayerControlCompleteTaskPatch
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
         if (GameStates.IsMeeting || __instance == null || !__instance.IsAlive()) return;
-        
+
         var task = __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask;
         Benefactor.OnTaskComplete(__instance, task);
         Snitch.OnCompleteTask(__instance);
@@ -2332,6 +2332,7 @@ static class RpcSetColorPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte bodyColor)
     {
+        if (DateTime.UtcNow.Month < 4) return true;
         if (!AmongUsClient.Instance.AmHost) return true;
 
         if (AmongUsClient.Instance.AmClient)
@@ -2351,6 +2352,7 @@ static class RpcSnapToPatch
 {
     public static bool Prefix(CustomNetworkTransform __instance, [HarmonyArgument(0)] Vector2 position)
     {
+        if (DateTime.UtcNow.Month < 4) return true;
         if (!AmongUsClient.Instance.AmHost) return true;
 
         if (AmongUsClient.Instance.AmClient)
