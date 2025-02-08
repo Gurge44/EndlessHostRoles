@@ -14,7 +14,7 @@ public class Ventriloquist : RoleBase
     {
         Options.SetupRoleOptions(649650, TabGroup.ImpostorRoles, CustomRoles.Ventriloquist);
 
-        UseLimit = new IntegerOptionItem(649652, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
+        UseLimit = new IntegerOptionItem(649652, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Ventriloquist])
             .SetValueFormat(OptionFormat.Times);
 

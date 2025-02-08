@@ -30,7 +30,7 @@ internal class Kamikaze : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
             .SetValueFormat(OptionFormat.Seconds);
 
-        KamikazeLimitOpt = new IntegerOptionItem(Id + 3, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+        KamikazeLimitOpt = new IntegerOptionItem(Id + 3, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
             .SetValueFormat(OptionFormat.Times);
 
@@ -107,12 +107,12 @@ internal class Kamikaze : RoleBase
                         state.IsDead = true;
                         state.deathReason = PlayerState.DeathReason.Kamikazed;
                         Medic.IsDead(victim);
-                        
+
                         if (kamikazePc.Is(CustomRoles.Damocles))
                             Damocles.OnMurder(kamikazePc.PlayerId);
-                        
+
                         IncreaseAbilityUseLimitOnKill(kamikazePc);
-                        
+
                         victim.RpcExileV2();
                         FixedUpdatePatch.LoversSuicide(victim.PlayerId, guess: true);
                     }

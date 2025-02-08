@@ -26,7 +26,7 @@ public class Nonplus : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimit = new IntegerOptionItem(id + 4, "AbilityUseLimit", new(0, 5, 1), 0, tab)
+        UseLimit = new IntegerOptionItem(id + 4, "AbilityUseLimit", new(0, 20, 1), 0, tab)
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Times);
 
