@@ -605,7 +605,7 @@ internal static class CustomRolesHelper
 
     public static bool IsSnitchTarget(this CustomRoles role)
     {
-        return role.IsNK() || role.Is(Team.Impostor) || role.IsCoven();
+        return role.IsNK() || role.Is(Team.Impostor) || (role.IsCoven() && Snitch.CanFindCoven);
     }
 
     public static bool IsGhostRole(this CustomRoles role)
