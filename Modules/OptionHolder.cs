@@ -889,7 +889,7 @@ public static class Options
                 sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {coven,17} | {add,17} |");
             }
 
-            sb.Append($"| {grouped[2].Length} | {grouped[0].Length} | {grouped[1].Length} | {grouped[5].Length} | {grouped[3].Length} |");
+            sb.Append($"| {grouped[2].Length,17} | {grouped[0].Length,17} | {grouped[1].Length,17} | {grouped[5].Length,17} | {grouped[3].Length,17} |");
 
             const string path = "./roles.txt";
             if (!File.Exists(path)) File.Create(path).Close();
