@@ -83,7 +83,9 @@ internal static class CheckForEndVotingPatch
                     voteTarget.SetRealKiller(pc);
                     Main.LastVotedPlayerInfo = voteTarget.Data;
                     AntiBlackout.ExilePlayerId = voteTarget.PlayerId;
-                    if (Main.LastVotedPlayerInfo != null) ConfirmEjections(Main.LastVotedPlayerInfo, false);
+
+                    if (Main.LastVotedPlayerInfo != null)
+                        ConfirmEjections(Main.LastVotedPlayerInfo, false);
 
                     return true;
                 }
@@ -393,7 +395,7 @@ internal static class CheckForEndVotingPatch
         {
             if (pc == exiledPlayer.Object) continue;
 
-            if (pc.GetCustomRole().IsImpostor())
+            if (pc.IsImpostor())
                 impnum++;
             else if (Options.MadmateCountMode.GetValue() == 1 && pc.IsMadmate())
                 impnum++;
@@ -481,19 +483,17 @@ internal static class CheckForEndVotingPatch
 
             if (showImpRemain || showNKRemain || showCovenRemain)
             {
-                name += "\n";
-
                 int sum = impnum + neutralnum + covennum;
-                
+
                 if (!showImpRemain) impnum = 0;
                 if (!showNKRemain) neutralnum = 0;
                 if (!showCovenRemain) covennum = 0;
 
                 name += (impnum, neutralnum, covennum) switch
                 {
-                    (0, 0, 0) when sum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()) => GetString("GG"),
-                    (0, 0, 0) when sum > 0 => GetString("IWonderWhatsLeft"),
-                    _ => Utils.GetRemainingKillers(true, excludeId: exileId)
+                    (0, 0, 0) when sum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()) => "\n" + GetString("GG"),
+                    (0, 0, 0) when sum > 0 => string.Empty,
+                    _ => "\n" + Utils.GetRemainingKillers(true, excludeId: exileId)
                 };
             }
         }
@@ -717,7 +717,7 @@ internal static class MeetingHudStartPatch
                 AddMsg(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString());
             }
         }
-        
+
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) AddMsg(string.Format(GetString("Message.MadmateSelfVoteModeNotify"), GetString("MadmateSpawnMode.SelfVote")));
 
         if (CustomRoles.God.RoleExist() && God.NotifyGodAlive.GetBool()) AddMsg(GetString("GodNoticeAlive"), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.God), GetString("GodAliveTitle")));

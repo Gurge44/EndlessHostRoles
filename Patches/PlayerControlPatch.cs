@@ -2207,7 +2207,7 @@ internal static class PlayerControlSetRolePatch
                 bool self = seer.PlayerId == __instance.PlayerId;
                 bool seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || seer.HasDesyncRole();
 
-                if (__instance.HasGhostRole())
+                if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
                     ghostRoles[seer] = RoleTypes.GuardianAngel;
                 else if ((self && targetIsKiller) || (!seerIsKiller && __instance.Is(CustomRoleTypes.Impostor)))
                     ghostRoles[seer] = RoleTypes.ImpostorGhost;
@@ -2215,7 +2215,7 @@ internal static class PlayerControlSetRolePatch
                     ghostRoles[seer] = RoleTypes.CrewmateGhost;
             }
 
-            if (__instance.HasGhostRole())
+            if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
                 roleType = RoleTypes.GuardianAngel;
             else if (ghostRoles.All(kvp => kvp.Value == RoleTypes.CrewmateGhost))
                 roleType = RoleTypes.CrewmateGhost;

@@ -328,6 +328,7 @@ internal static class CustomRolesHelper
             CustomRoles.Godfather => CustomRoles.Impostor,
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.NoteKiller => CustomRoles.Crewmate,
+            CustomRoles.RegularCoven => CustomRoles.Crewmate,
             CustomRoles.Augur => CustomRoles.Crewmate,
 
             // Vanilla roles (just in case)
@@ -1118,6 +1119,7 @@ internal static class CustomRolesHelper
     public static bool IsCoven(this CustomRoles role)
     {
         return role is
+            CustomRoles.RegularCoven or
             CustomRoles.CovenLeader or
             CustomRoles.SpellCaster or
             CustomRoles.PotionMaster or

@@ -361,6 +361,7 @@ public enum CustomRoles
 
     // Coven
 
+    RegularCoven,
     CovenLeader,
     SpellCaster,
     PotionMaster,

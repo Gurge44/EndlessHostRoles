@@ -70,11 +70,13 @@ internal class NiceEraser : RoleBase
 
         player.RpcRemoveAbilityUse();
 
-        if (!PlayerToErase.Contains(target.PlayerId)) PlayerToErase.Add(target.PlayerId);
+        if (!PlayerToErase.Contains(target.PlayerId))
+            PlayerToErase.Add(target.PlayerId);
 
         Utils.SendMessage(string.Format(GetString("EraserEraseNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")));
 
-        if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
+        if (GameStates.IsInTask)
+            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;
@@ -88,16 +90,17 @@ internal class NiceEraser : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        foreach (byte pc in PlayerToErase.ToArray())
+        PlayerToErase.ForEach(pc =>
         {
             PlayerControl player = Utils.GetPlayerById(pc);
-            if (player == null) continue;
+            if (player == null) return;
 
-            player.RpcSetCustomRole(player.GetCustomRole().GetErasedRole());
+            CustomRoles erasedRole = player.IsImpostor() ? CustomRoles.ImpostorEHR : player.IsCrewmate() ? CustomRoles.CrewmateEHR : player.Is(Team.Coven) ? CustomRoles.RegularCoven : CustomRoles.Amnesiac;
+            player.RpcSetCustomRole(erasedRole);
+            player.RpcChangeRoleBasis(erasedRole);
             player.Notify(GetString("LostRoleByNiceEraser"));
-            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "NiceEraser");
-            player.MarkDirtySettings();
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} lost their role", "NiceEraser");
             ErasedPlayers.Add(pc);
-        }
+        });
     }
 }
