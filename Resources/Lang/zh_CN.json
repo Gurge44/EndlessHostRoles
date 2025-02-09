@@ -5269,6 +5269,7 @@
   "ParityCopTargetReveal": "Looks like <b>{0}</b> is aligned with team <b>{1}</b>",
   "CopyCatCopyCooldown": "模仿冷却时间",
   "CopyCatMiscopyLimit": "在自杀前模仿的错误数量",
+  "CopyCatResetToCopyCatEachRound": "Reset role to <#ffb2ab>Copycat</color> after each meeting",
   "CopyCatRoleChange": "你的身份已模仿为<b>{0}</b>",
   "CopyCatAlreadyCopy": "您已经在此回合中模仿了一个职业",
   "CopyCatCanNotCopy": "不能模仿该目标的身份",
