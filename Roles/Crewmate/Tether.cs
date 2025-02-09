@@ -103,7 +103,7 @@ public class Tether : RoleBase
                 if (GameStates.IsInTask) pc.TP(Utils.GetPlayerById(Target).Pos());
             }, isPet ? 0.1f : 2f, "Tether TP");
         }
-        else if (!isPet) LateTask.New(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
+        else if (!isPet) LateTask.New(() => pc.MyPhysics?.RpcExitVent(ventId), 0.5f, "Tether No Target Boot From Vent");
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

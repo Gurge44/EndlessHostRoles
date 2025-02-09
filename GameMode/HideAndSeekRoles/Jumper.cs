@@ -73,7 +73,7 @@ public class Jumper : RoleBase, IHideAndSeekRole
     public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
     {
         if (physics.myPlayer.GetAbilityUseLimit() < 1f)
-            LateTask.New(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Jumper no uses boot from vent");
+            LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, "Jumper no uses boot from vent");
         else
             physics.myPlayer.RpcRemoveAbilityUse();
     }

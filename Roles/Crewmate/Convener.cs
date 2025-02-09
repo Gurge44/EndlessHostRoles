@@ -68,8 +68,8 @@ internal class Convener : RoleBase
             Utils.TPAll(pc.Pos());
         else
         {
-            LateTask.New(() => pc.MyPhysics.RpcBootFromVent(ventId), 0.5f, "Convener RpcBootFromVent");
-            LateTask.New(() => Utils.TPAll(pc.Pos()), 1f, "Convener TP");
+            LateTask.New(() => pc.MyPhysics.RpcExitVent(ventId), 1f, "Convener RpcBootFromVent");
+            LateTask.New(() => Utils.TPAll(pc.Pos()), 1.5f, "Convener TP");
         }
 
         pc.RpcRemoveAbilityUse();

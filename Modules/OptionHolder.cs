@@ -49,6 +49,15 @@ public static class Options
         Tasks
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    public enum ModLanguages
+    {
+        UseGameLanguage,
+        Hungarian,
+        Polish,
+        Indonesian
+    }
+
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
     public static Dictionary<AddonTypes, List<CustomRoles>> GroupedAddons = [];
 
@@ -2677,15 +2686,6 @@ public static class Options
         return new BooleanOptionItem(id, "UseVoteCancellingAfterVote", false, tab)
             .SetParent(CustomRoleSpawnChances[role])
             .SetColor(Color.yellow);
-    }
-
-    [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    enum ModLanguages
-    {
-        UseGameLanguage,
-        Hungarian,
-        Polish,
-        Indonesian
     }
 
     public class OverrideTasksData

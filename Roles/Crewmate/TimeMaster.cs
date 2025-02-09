@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
 
@@ -11,8 +11,6 @@ namespace EHR.Crewmate;
 internal class TimeMaster : RoleBase
 {
     public static bool On;
-    
-    public override bool IsEnable => On;
 
     public static OptionItem TimeMasterRewindTimeLength;
     public static OptionItem TimeMasterSkillCooldown;
@@ -23,11 +21,13 @@ internal class TimeMaster : RoleBase
 
     private static Dictionary<long, Dictionary<byte, Vector2>> BackTrack = [];
     public static bool Rewinding;
-    
+
+    public override bool IsEnable => On;
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(8950, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
-        
+
         TimeMasterRewindTimeLength = new IntegerOptionItem(8959, "TimeMasterRewindTimeLength", new(0, 10, 1), 15, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Seconds);
@@ -85,30 +85,30 @@ internal class TimeMaster : RoleBase
     {
         if (pc.GetAbilityUseLimit() < 1) return;
         pc.RpcRemoveAbilityUse();
-        
+
         Main.Instance.StartCoroutine(Rewind());
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        pc.MyPhysics?.RpcBootFromVent(vent.Id);
-        
+        pc.MyPhysics?.RpcExitVent(vent.Id);
+
         if (pc.GetAbilityUseLimit() < 1) return;
         pc.RpcRemoveAbilityUse();
-        
+
         Main.Instance.StartCoroutine(Rewind());
     }
 
-    private static System.Collections.IEnumerator Rewind()
+    private static IEnumerator Rewind()
     {
         try
         {
             Rewinding = true;
-            
+
             const float delay = 0.3f;
             long now = Utils.TimeStamp;
             int length = TimeMasterRewindTimeLength.GetInt();
-        
+
             Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
             ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
@@ -132,14 +132,14 @@ internal class TimeMaster : RoleBase
 
                     player.TP(pos);
                 }
-            
+
                 yield return new WaitForSeconds(delay);
             }
 
             foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
             {
                 if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out var ps)) continue;
-            
+
                 if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
                 {
                     ps.Player.RpcRevive();
@@ -147,15 +147,12 @@ internal class TimeMaster : RoleBase
                     ps.Player.Notify(Translator.GetString("RevivedByTimeMaster"), 15f);
                 }
             }
-        
+
             Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Utils.MarkEveryoneDirtySettings();
         }
-        finally
-        {
-            Rewinding = false;
-        }
+        finally { Rewinding = false; }
     }
 
     public override void OnFixedUpdate(PlayerControl player)

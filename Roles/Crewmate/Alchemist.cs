@@ -185,8 +185,7 @@ public class Alchemist : RoleBase
 
                 break;
             case 2: // Suicide
-                if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
-
+                if (!isPet) player.MyPhysics.RpcExitVent(ventId);
                 LateTask.New(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 1f : 0.1f, "Alchemist Suicide");
                 break;
             case 3: // TP to random player
@@ -231,8 +230,7 @@ public class Alchemist : RoleBase
 
                 break;
             case 10 when !player.Is(CustomRoles.Nimble):
-                if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
-
+                if (!isPet) player.MyPhysics.RpcExitVent(ventId);
                 player.Notify(GetString("AlchemistNoPotion"));
                 break;
         }

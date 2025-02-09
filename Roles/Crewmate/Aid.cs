@@ -123,7 +123,7 @@ public class Aid : RoleBase
             TargetId = byte.MaxValue;
         }
 
-        LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, log: false);
+        LateTask.New(() => physics.RpcExitVent(ventId), 1f, log: false);
     }
 
     public override void OnReportDeadBody()

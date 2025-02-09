@@ -123,8 +123,7 @@ public class RiftMaker : RoleBase
     {
         Marks.Clear();
         player.Notify(GetString("MarksCleared"));
-
-        player.MyPhysics?.RpcBootFromVent(vent.Id);
+        player.MyPhysics?.RpcExitVent(vent.Id);
     }
 
     public override bool OnShapeshift(PlayerControl player, PlayerControl target, bool shapeshifting)

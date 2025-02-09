@@ -238,8 +238,8 @@ public class Dad : RoleBase
         switch (SelectedAbility)
         {
             case Ability.GoForMilk when Alcohol >= 0:
-                LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, log: false);
-                LateTask.New(() => physics.myPlayer.TP(Pelican.GetBlackRoomPS()), 1f, log: false);
+                LateTask.New(() => physics.RpcExitVent(ventId), 1f, log: false);
+                LateTask.New(() => physics.myPlayer.TP(Pelican.GetBlackRoomPS()), 1.5f, log: false);
                 Main.AllAlivePlayerControls.Do(x => x.Notify(Translator.GetString("Dad.GoForMilkNotify"), 10f));
                 UsingAbilities.Add(SelectedAbility);
                 break;

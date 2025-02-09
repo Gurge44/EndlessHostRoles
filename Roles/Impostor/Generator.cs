@@ -131,9 +131,9 @@ internal static class GeneratorStatic
             {
                 LateTask.New(() =>
                 {
-                    physics.RpcBootFromVent(ventId);
+                    physics.RpcExitVent(ventId);
                     physics.myPlayer.Notify(string.Format(Translator.GetString("Generator.Notify.NotEnoughCharges"), cost));
-                }, 0.5f, "Generator not enough charges to vent");
+                }, 1f, "Generator not enough charges to vent");
 
                 return;
             }

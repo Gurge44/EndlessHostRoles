@@ -1928,7 +1928,6 @@ internal static class EnterVentPatch
         {
             case CustomRoles.Mayor when !Options.UsePets.GetBool() && Mayor.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out int count2) && count2 < Mayor.MayorNumOfUseButton.GetInt():
                 if (AmongUsClient.Instance.AmHost) pc.MyPhysics?.RpcBootFromVent(__instance.Id);
-
                 pc.ReportDeadBody(null);
                 break;
         }
@@ -1980,8 +1979,8 @@ internal static class CoEnterVentPatch
                 LateTask.New(() =>
                 {
                     __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
-                    __instance.RpcBootFromVent(id);
-                }, 0.5f, "FFA-NoVentingWhenKCDIsUP");
+                    __instance.RpcExitVent(id);
+                }, 1f, "FFA-NoVentingWhenKCDIsUP");
 
                 return true;
             case CustomGameMode.AllInOne when !CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !CustomGameMode.RoomRush.IsActiveOrIntegrated():
@@ -2003,15 +2002,15 @@ internal static class CoEnterVentPatch
             LateTask.New(() =>
             {
                 __instance.myPlayer?.Notify(BlockedAction.Vent.GetBlockNotify());
-                __instance.RpcBootFromVent(id);
-            }, 0.5f, "RoleBlockedBootFromVent");
+                __instance.RpcExitVent(id);
+            }, 1f, "RoleBlockedBootFromVent");
 
             return true;
         }
 
         if (!Rhapsode.CheckAbilityUse(__instance.myPlayer) || Stasis.IsTimeFrozen || TimeMaster.Rewinding)
         {
-            LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
+            LateTask.New(() => __instance.RpcExitVent(id), 1f, log: false);
             return true;
         }
 
@@ -2041,8 +2040,8 @@ internal static class CoEnterVentPatch
                 LateTask.New(() =>
                 {
                     pc?.Notify(GetString("EnteredBlockedVent"));
-                    __instance.RpcBootFromVent(id);
-                }, 0.5f, "VentguardBlockedVentBootFromVent");
+                    __instance.RpcExitVent(id);
+                }, 1f, "VentguardBlockedVentBootFromVent");
 
                 if (Ventguard.VentguardNotifyOnBlockedVentUse.GetBool())
                     foreach (PlayerControl ventguard in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Ventguard)).ToArray())
