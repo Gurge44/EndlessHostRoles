@@ -95,6 +95,8 @@ internal class Merchant : RoleBase
     public override void Remove(byte playerId)
     {
         PlayerIdList.Remove(playerId);
+        AddonsSold.Remove(playerId);
+        BribedKiller.Remove(playerId);
     }
 
     public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)

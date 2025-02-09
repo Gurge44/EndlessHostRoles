@@ -127,7 +127,7 @@ public class Alchemist : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        PotionID = (byte)HashRandom.Next(1, 8);
+        PotionID = (byte)IRandom.Instance.Next(1, 8);
 
         switch (PotionID)
         {
@@ -192,12 +192,8 @@ public class Alchemist : RoleBase
             case 3: // TP to random player
                 LateTask.New(() =>
                 {
-                    List<PlayerControl> allAlivePlayer = [.. Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToArray()];
-                    PlayerControl tar1 = allAlivePlayer[player.PlayerId];
-                    allAlivePlayer.Remove(tar1);
-                    PlayerControl tar2 = allAlivePlayer.RandomElement();
-                    tar1.TP(tar2);
-                    tar1.RPCPlayCustomSound("Teleport");
+                    player.TP(Main.AllAlivePlayerControls.Without(player).Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList().RandomElement());
+                    player.RPCPlayCustomSound("Teleport");
                 }, !isPet ? 2f : 0.1f, "AlchemistTPToRandomPlayer");
 
                 break;
@@ -284,9 +280,7 @@ public class Alchemist : RoleBase
         {
             ventedId = ventId;
 
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(instance.NetId, 34, HazelExtensions.SendOption, pc.GetClientId());
-            writer.WritePacked(ventId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
+            instance.RpcExitVentDesync(ventId, pc);
 
             InvisTime = Utils.TimeStamp;
             SendRPC();
@@ -309,7 +303,7 @@ public class Alchemist : RoleBase
             switch (remainTime)
             {
                 case < 0:
-                    player.MyPhysics?.RpcBootFromVent(ventedId == -10 ? Main.LastEnteredVent.TryGetValue(player.PlayerId, out Vent vent) ? vent.Id : player.PlayerId : ventedId);
+                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId, x));
                     player.Notify(GetString("SwooperInvisStateOut"));
                     SendRPC();
                     refresh = true;

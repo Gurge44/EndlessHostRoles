@@ -35,6 +35,11 @@ internal class Paranoia : RoleBase
         On = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        ParaUsedButtonCount.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (UsePets.GetBool()) return;

@@ -76,6 +76,8 @@ public class Snitch : RoleBase
     public override void Remove(byte playerId)
     {
         PlayerIdList.Remove(playerId);
+        IsExposed.Remove(playerId);
+        IsComplete.Remove(playerId);
     }
 
     public static bool IsSnitch(byte playerId)

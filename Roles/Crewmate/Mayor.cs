@@ -29,6 +29,11 @@ internal class Mayor : RoleBase
         On = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        MayorUsedButtonCount.Remove(playerId);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (UsePets.GetBool()) return;
