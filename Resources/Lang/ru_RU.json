@@ -4379,6 +4379,7 @@
   "NKWC.XKills": "Убить X игроков",
   "NoteKiller.NumPlayersToKill": "Кол-во игроков, которых надо убить (X =)",
   "NoteKiller.OthersSelfSuffix": "<size=70%>В игре присутствует {0}. Ваше реальное имя - <#00ffa5>{1}</color></size>",
+  "NoteKiller.OthersSelfSuffixShort": "<size=70%>Real Name: <#00ffa5>{0}</color></size>",
   "DeathNoteCommand.CanNotGuess": "Вы уже попытались отгадать чьё-то реальное имя и ошиблись, так что вы не можете гадать до следующего собрания.",
   "DeathNoteCommand.WrongName": "Вы написали неверное имя",
   "DeathNoteCommand.PlayerNotFoundOrDead": "Игрок с этим именем не обнаружен/уже мёртв",
