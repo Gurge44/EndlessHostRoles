@@ -5269,6 +5269,7 @@
   "ParityCopTargetReveal": "Похоже, что <b>{0}</b> принадлежит к команде <b>{1}</b>",
   "CopyCatCopyCooldown": "Откат копирования",
   "CopyCatMiscopyLimit": "Кол-во неудач перед суицидом",
+  "CopyCatResetToCopyCatEachRound": "Reset role to <#ffb2ab>Copycat</color> after each meeting",
   "CopyCatRoleChange": "Теперь ваша роль - <b>{0}</b>",
   "CopyCatAlreadyCopy": "В этом раунде вы уже копировали роль",
   "CopyCatCanNotCopy": "Вы не можете скопировать роль цели",
