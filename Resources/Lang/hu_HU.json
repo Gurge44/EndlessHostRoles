@@ -5269,6 +5269,7 @@
   "ParityCopTargetReveal": "Looks like <b>{0}</b> is aligned with team <b>{1}</b>",
   "CopyCatCopyCooldown": "Copy cooldown",
   "CopyCatMiscopyLimit": "Number of miscopy until suicide",
+  "CopyCatResetToCopyCatEachRound": "Reset role to <#ffb2ab>Copycat</color> after each meeting",
   "CopyCatRoleChange": "Your role has been changed to <b>{0}</b>",
   "CopyCatAlreadyCopy": "You have already copied a role in this round",
   "CopyCatCanNotCopy": "You can not copy target's role",
