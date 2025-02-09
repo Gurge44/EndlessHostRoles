@@ -190,7 +190,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Witness           |                 |                   |               |                |
 | Wizard            |                 |                   |               |                |
 |                   |                 |                   |               |                |
-| 134               | 95              | 97                | 15            | 88             |
+| 124               | 95              | 97                | 15            | 88             |
 
 ## VIP and Moderator perks
 
