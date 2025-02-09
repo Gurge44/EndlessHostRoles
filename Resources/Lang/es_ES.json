@@ -5269,6 +5269,7 @@
   "ParityCopTargetReveal": "Looks like <b>{0}</b> is aligned with team <b>{1}</b>",
   "CopyCatCopyCooldown": "Tiempo de Reutilización Copiar",
   "CopyCatMiscopyLimit": "Número de copias malas hasta suicidarse",
+  "CopyCatResetToCopyCatEachRound": "Reset role to <#ffb2ab>Copycat</color> after each meeting",
   "CopyCatRoleChange": "Tu rol ha sido cambiado a <b>{0}</b>",
   "CopyCatAlreadyCopy": "Ya copiaste un rol en esta ronda",
   "CopyCatCanNotCopy": "No puedes copiar el rol del objetivo",
