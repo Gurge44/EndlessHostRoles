@@ -5269,6 +5269,7 @@
   "ParityCopTargetReveal": "Looks like <b>{0}</b> is aligned with team <b>{1}</b>",
   "CopyCatCopyCooldown": "Recarga da Cópia",
   "CopyCatMiscopyLimit": "Número de Cópias erradas antes de morrer",
+  "CopyCatResetToCopyCatEachRound": "Reset role to <#ffb2ab>Copycat</color> after each meeting",
   "CopyCatRoleChange": "Sua Função agora é <b>{0}</b>",
   "CopyCatAlreadyCopy": "Você já copiou uma Função nessa rodada",
   "CopyCatCanNotCopy": "Você não pode Copiar a função do Alvo",
