@@ -4379,6 +4379,7 @@
   "NKWC.XKills": "Kill X Players",
   "NoteKiller.NumPlayersToKill": "Number of Players to Kill (X =)",
   "NoteKiller.OthersSelfSuffix": "<size=70%>There's a {0} in the game. Your real name is <#00ffa5>{1}</color></size>",
+  "NoteKiller.OthersSelfSuffixShort": "<size=70%>Real Name: <#00ffa5>{0}</color></size>",
   "DeathNoteCommand.CanNotGuess": "You've already tried to guess someone's real name and failed, so you can't guess again until the next meeting.",
   "DeathNoteCommand.WrongName": "You've entered the wrong name.",
   "DeathNoteCommand.PlayerNotFoundOrDead": "The player with this name was not found or is already dead.",

@@ -49,15 +49,6 @@ public static class Options
         Tasks
     }
 
-    [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    enum ModLanguages
-    {
-        UseGameLanguage,
-        Hungarian,
-        Polish,
-        Indonesian
-    }
-
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
     public static Dictionary<AddonTypes, List<CustomRoles>> GroupedAddons = [];
 
@@ -1428,10 +1419,11 @@ public static class Options
 
         PostLobbyCodeToEHRWebsite = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings)
             .SetHeader(true);
-        
+
         StoreCompletedAchievementsOnEHRDatabase = new BooleanOptionItem(19423, "StoreCompletedAchievementsOnEHRDatabase", true, TabGroup.SystemSettings);
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
+            .SetHeader(true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
 
         KPDCamouflageMode = new StringOptionItem(19500, "KPDCamouflageMode", CamouflageMode, 0, TabGroup.SystemSettings)
@@ -2685,6 +2677,15 @@ public static class Options
         return new BooleanOptionItem(id, "UseVoteCancellingAfterVote", false, tab)
             .SetParent(CustomRoleSpawnChances[role])
             .SetColor(Color.yellow);
+    }
+
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    enum ModLanguages
+    {
+        UseGameLanguage,
+        Hungarian,
+        Polish,
+        Indonesian
     }
 
     public class OverrideTasksData
