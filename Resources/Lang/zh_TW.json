@@ -4379,6 +4379,7 @@
   "NKWC.XKills": "殺死 X名玩家",
   "NoteKiller.NumPlayersToKill": "需要殺死的玩家數",
   "NoteKiller.OthersSelfSuffix": "<size=70%>遊戲中有一個{0}。你的真實名稱是<#00ffa5>{1}</color></size>",
+  "NoteKiller.OthersSelfSuffixShort": "<size=70%>Real Name: <#00ffa5>{0}</color></size>",
   "DeathNoteCommand.CanNotGuess": "You've already tried to guess someone's real name and failed, so you can't guess again until the next meeting.",
   "DeathNoteCommand.WrongName": "你寫下了錯誤的名字",
   "DeathNoteCommand.PlayerNotFoundOrDead": "未找到擁有該名字的玩家或他已死亡",
