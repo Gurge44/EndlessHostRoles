@@ -30,7 +30,7 @@ public static class LobbySharingAPI
         var language = modLanguage == 0 ? Translator.GetUserTrueLang().ToString() : ((Options.ModLanguages)modLanguage).ToString();
 
         var serverName = Utils.GetRegionName();
-        var hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId];
+        var hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
         Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", gameId, hostName));
     }
 
