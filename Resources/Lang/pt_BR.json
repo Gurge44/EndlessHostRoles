@@ -4379,6 +4379,7 @@
   "NKWC.XKills": "Mate X jogadores",
   "NoteKiller.NumPlayersToKill": "Número de jogadores a matar (X =)",
   "NoteKiller.OthersSelfSuffix": "<size=70%>Há um {0} no jogo. Seu nome real é <#00ffa5>{1}</color></size>",
+  "NoteKiller.OthersSelfSuffixShort": "<size=70%>Real Name: <#00ffa5>{0}</color></size>",
   "DeathNoteCommand.CanNotGuess": "Você já tentou adivinhar o nome real de alguém e falhou, então você não poderá adivinhar novamente até a próxima reunião.",
   "DeathNoteCommand.WrongName": "Você digitou o nome errado.",
   "DeathNoteCommand.PlayerNotFoundOrDead": "O jogador com esse nome não foi encontrado ou já está morto.",
