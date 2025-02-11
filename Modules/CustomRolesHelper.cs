@@ -306,6 +306,7 @@ internal static class CustomRolesHelper
             CustomRoles.Bard => CustomRoles.Impostor,
             CustomRoles.Swooper => CustomRoles.Impostor,
             CustomRoles.Crewpostor => CustomRoles.Engineer,
+            CustomRoles.Hypocrite => CustomRoles.Crewmate,
             CustomRoles.Cherokious => CustomRoles.Engineer,
             CustomRoles.Observer => CustomRoles.Crewmate,
             CustomRoles.DovesOfNeace => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -546,6 +547,7 @@ internal static class CustomRolesHelper
             CustomRoles.Succubus or
             CustomRoles.Gamer or
             CustomRoles.Crewpostor or
+            CustomRoles.Hypocrite or
             CustomRoles.Cherokious or
             CustomRoles.Necromancer or
             CustomRoles.Agitater or
@@ -754,6 +756,7 @@ internal static class CustomRolesHelper
     public static bool IsMadmate(this CustomRoles role)
     {
         return role is
+            CustomRoles.Hypocrite or
             CustomRoles.Crewpostor or
             CustomRoles.Convict or
             CustomRoles.Refugee or
@@ -1295,6 +1298,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sidekick when Jackal.SidekickCountMode.GetValue() == 1 => CountTypes.OutOfGame,
             CustomRoles.Deathknight => CountTypes.Necromancer,
             CustomRoles.Parasite => CountTypes.Impostor,
+            CustomRoles.Hypocrite => CountTypes.Impostor,
             CustomRoles.Crewpostor => CountTypes.Impostor,
             CustomRoles.Refugee => CountTypes.Impostor,
             CustomRoles.Gaslighter => Gaslighter.WinCondition.GetValue() == 2 ? CountTypes.Gaslighter : CountTypes.Crew,

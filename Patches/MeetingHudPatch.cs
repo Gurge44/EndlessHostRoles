@@ -413,7 +413,7 @@ internal static class CheckForEndVotingPatch
                 name = string.Format(GetString("PlayerExiled"), coloredRealName);
                 break;
             case 1:
-                if (player.IsImpostor() || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Crewpostor) || player.Is(CustomRoles.Refugee) || player.Is(CustomRoles.Convict))
+                if (player.Is(Team.Impostor))
                     name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("TeamImpostor")));
                 else if (player.IsCrewmate())
                     name = string.Format(GetString("IsGood"), coloredRealName);
@@ -865,7 +865,9 @@ internal static class MeetingHudStartPatch
                 (target.Is(CustomRoleTypes.Impostor) && seer.IsMadmate() && Options.MadmateKnowWhosImp.GetBool()) ||
                 (target.IsMadmate() && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
                 (target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
+                (target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool()) ||
                 (target.Is(CustomRoles.Crewpostor) && seer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) ||
+                (target.Is(CustomRoles.Hypocrite) && seer.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool()) ||
                 (target.IsMadmate() && seer.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool()) ||
                 ((target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Recruit)) && (seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Recruit) || seer.Is(CustomRoles.Jackal))) ||
                 (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||

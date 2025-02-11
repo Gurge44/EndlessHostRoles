@@ -544,6 +544,7 @@ public class Main : BasePlugin
                 { CustomRoles.Cherokious, "#de4b9e" },
                 { CustomRoles.Parasite, "#ff1919" },
                 { CustomRoles.Crewpostor, "#ff1919" },
+                { CustomRoles.Hypocrite, "#ff1919" },
                 { CustomRoles.Refugee, "#ff1919" },
                 { CustomRoles.Virus, "#2E8B57" },
                 { CustomRoles.Farseer, "#BA55D3" },

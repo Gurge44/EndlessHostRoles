@@ -61,6 +61,7 @@ public enum CustomRoles
     Hangman,
     Hitman,
     Hypnotist,
+    Hypocrite,
     Inhibitor,
     Kamikaze,
     Kidnapper,
