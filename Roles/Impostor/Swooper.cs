@@ -57,7 +57,7 @@ public class Swooper : RoleBase
         SwooperVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
 
-        SwooperLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+        SwooperLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Times);
 
@@ -232,7 +232,7 @@ public class Swooper : RoleBase
             }
             else if (!VentNormallyOnCooldown)
             {
-                __instance.RpcBootFromVent(ventId);
+                __instance.RpcExitVent(ventId);
                 pc.Notify(GetString("SwooperInvisInCooldown"));
             }
         }, 0.5f, "Swooper Vent");
@@ -246,7 +246,7 @@ public class Swooper : RoleBase
         lastTime = Utils.TimeStamp;
         SendRPC();
 
-        pc?.MyPhysics?.RpcBootFromVent(vent.Id);
+        pc?.MyPhysics?.RpcExitVent(vent.Id);
         pc?.Notify(GetString("SwooperInvisStateOut"));
     }
 

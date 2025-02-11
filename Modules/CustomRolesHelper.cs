@@ -329,6 +329,7 @@ internal static class CustomRolesHelper
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.NoteKiller => CustomRoles.Crewmate,
             CustomRoles.RoomRusher => RoomRusher.CanVent ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.RegularCoven => CustomRoles.Crewmate,
             CustomRoles.Augur => CustomRoles.Crewmate,
 
             // Vanilla roles (just in case)
@@ -606,7 +607,7 @@ internal static class CustomRolesHelper
 
     public static bool IsSnitchTarget(this CustomRoles role)
     {
-        return role.IsNK() || role.Is(Team.Impostor) || role.IsCoven();
+        return role.IsNK() || role.Is(Team.Impostor) || (role.IsCoven() && Snitch.CanFindCoven);
     }
 
     public static bool IsGhostRole(this CustomRoles role)
@@ -1121,6 +1122,7 @@ internal static class CustomRolesHelper
     public static bool IsCoven(this CustomRoles role)
     {
         return role is
+            CustomRoles.RegularCoven or
             CustomRoles.CovenLeader or
             CustomRoles.SpellCaster or
             CustomRoles.PotionMaster or

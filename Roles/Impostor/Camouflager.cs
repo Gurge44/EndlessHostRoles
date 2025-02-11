@@ -29,7 +29,7 @@ public class Camouflager : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CamoLimitOpt = new IntegerOptionItem(Id + 4, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+        CamoLimitOpt = new IntegerOptionItem(Id + 4, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
             .SetValueFormat(OptionFormat.Times);
 

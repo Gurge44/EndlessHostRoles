@@ -30,7 +30,7 @@ public class Disperser : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Seconds);
 
-        DisperserLimitOpt = new IntegerOptionItem(Id + 7, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+        DisperserLimitOpt = new IntegerOptionItem(Id + 7, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
 

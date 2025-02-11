@@ -24,7 +24,7 @@ public class Bane : RoleBase
     {
         if (killer == null || killer.Is(CustomRoles.Bloodlust)) return;
 
-        CustomRoles erasedRole = killer.IsImpostor() ? CustomRoles.ImpostorEHR : killer.IsCrewmate() ? CustomRoles.CrewmateEHR : CustomRoles.Amnesiac;
+        CustomRoles erasedRole = killer.IsImpostor() ? CustomRoles.ImpostorEHR : killer.IsCrewmate() ? CustomRoles.CrewmateEHR : killer.Is(Team.Coven) ? CustomRoles.RegularCoven : CustomRoles.Amnesiac;
         killer.RpcSetCustomRole(erasedRole);
         killer.RpcChangeRoleBasis(erasedRole);
     }

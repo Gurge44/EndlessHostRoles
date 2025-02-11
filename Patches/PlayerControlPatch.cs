@@ -1928,7 +1928,6 @@ internal static class EnterVentPatch
         {
             case CustomRoles.Mayor when !Options.UsePets.GetBool() && Mayor.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out int count2) && count2 < Mayor.MayorNumOfUseButton.GetInt():
                 if (AmongUsClient.Instance.AmHost) pc.MyPhysics?.RpcBootFromVent(__instance.Id);
-
                 pc.ReportDeadBody(null);
                 break;
         }
@@ -1980,8 +1979,8 @@ internal static class CoEnterVentPatch
                 LateTask.New(() =>
                 {
                     __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
-                    __instance.RpcBootFromVent(id);
-                }, 0.5f, "FFA-NoVentingWhenKCDIsUP");
+                    __instance.RpcExitVent(id);
+                }, 1f, "FFA-NoVentingWhenKCDIsUP");
 
                 return true;
             case CustomGameMode.AllInOne when !CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !CustomGameMode.RoomRush.IsActiveOrIntegrated():
@@ -2003,15 +2002,15 @@ internal static class CoEnterVentPatch
             LateTask.New(() =>
             {
                 __instance.myPlayer?.Notify(BlockedAction.Vent.GetBlockNotify());
-                __instance.RpcBootFromVent(id);
-            }, 0.5f, "RoleBlockedBootFromVent");
+                __instance.RpcExitVent(id);
+            }, 1f, "RoleBlockedBootFromVent");
 
             return true;
         }
 
         if (!Rhapsode.CheckAbilityUse(__instance.myPlayer) || Stasis.IsTimeFrozen || TimeMaster.Rewinding)
         {
-            LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
+            LateTask.New(() => __instance.RpcExitVent(id), 1f, log: false);
             return true;
         }
 
@@ -2041,8 +2040,8 @@ internal static class CoEnterVentPatch
                 LateTask.New(() =>
                 {
                     pc?.Notify(GetString("EnteredBlockedVent"));
-                    __instance.RpcBootFromVent(id);
-                }, 0.5f, "VentguardBlockedVentBootFromVent");
+                    __instance.RpcExitVent(id);
+                }, 1f, "VentguardBlockedVentBootFromVent");
 
                 if (Ventguard.VentguardNotifyOnBlockedVentUse.GetBool())
                     foreach (PlayerControl ventguard in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Ventguard)).ToArray())
@@ -2114,7 +2113,7 @@ internal static class PlayerControlCompleteTaskPatch
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
         if (GameStates.IsMeeting || __instance == null || !__instance.IsAlive()) return;
-        
+
         var task = __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask;
         Benefactor.OnTaskComplete(__instance, task);
         Snitch.OnCompleteTask(__instance);
@@ -2207,7 +2206,7 @@ internal static class PlayerControlSetRolePatch
                 bool self = seer.PlayerId == __instance.PlayerId;
                 bool seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || seer.HasDesyncRole();
 
-                if (__instance.HasGhostRole())
+                if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
                     ghostRoles[seer] = RoleTypes.GuardianAngel;
                 else if ((self && targetIsKiller) || (!seerIsKiller && __instance.Is(CustomRoleTypes.Impostor)))
                     ghostRoles[seer] = RoleTypes.ImpostorGhost;
@@ -2215,7 +2214,7 @@ internal static class PlayerControlSetRolePatch
                     ghostRoles[seer] = RoleTypes.CrewmateGhost;
             }
 
-            if (__instance.HasGhostRole())
+            if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
                 roleType = RoleTypes.GuardianAngel;
             else if (ghostRoles.All(kvp => kvp.Value == RoleTypes.CrewmateGhost))
                 roleType = RoleTypes.CrewmateGhost;
@@ -2332,6 +2331,7 @@ static class RpcSetColorPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte bodyColor)
     {
+        if (DateTime.UtcNow.Month < 4) return true;
         if (!AmongUsClient.Instance.AmHost) return true;
 
         if (AmongUsClient.Instance.AmClient)
@@ -2351,6 +2351,7 @@ static class RpcSnapToPatch
 {
     public static bool Prefix(CustomNetworkTransform __instance, [HarmonyArgument(0)] Vector2 position)
     {
+        if (DateTime.UtcNow.Month < 4) return true;
         if (!AmongUsClient.Instance.AmHost) return true;
 
         if (AmongUsClient.Instance.AmClient)

@@ -33,7 +33,7 @@ internal static class GhostRolesManager
 
         IGhostRole instance = CreateGhostRoleInstance(suitableRole);
         pc.RpcSetCustomRole(suitableRole);
-        pc.RpcSetRole(RoleTypes.GuardianAngel);
+        pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
         instance.OnAssign(pc);
         Main.ResetCamPlayerList.Add(pc.PlayerId);
         AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
@@ -67,7 +67,7 @@ internal static class GhostRolesManager
         var text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Message}</size>";
         var notifyText = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Split}</size>";
         Utils.SendMessage(title: text, sendTo: pc.PlayerId, text: "\n");
-        pc.Notify(notifyText, 5 + (5 * text.Count(x => x == '\n')));
+        pc.Notify(notifyText, 10 + (5 * text.Count(x => x == '\n')));
         return;
 
         (string Split, string Message) GetMessage(string baseMessage)

@@ -51,7 +51,7 @@ internal class Circumvent : IAddon
     {
         if (VentPreventionMode.GetValue() == 0)
         {
-            LateTask.New(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Circumvent Boot From Vent");
+            LateTask.New(() => physics.RpcExitVent(ventId), 1f, "Circumvent Boot From Vent");
             return;
         }
 

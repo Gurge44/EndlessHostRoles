@@ -11,7 +11,8 @@ public class NoteKiller : RoleBase
     public static bool On;
 
     public static OptionItem AbilityCooldown;
-    private static OptionItem NumLettersRevealed;
+    private static OptionItem MinLettersRevealed;
+    private static OptionItem MaxLettersRevealed;
     private static OptionItem ClueShowDuration;
     private static OptionItem WinCondition;
     private static OptionItem NumPlayersToKill;
@@ -54,7 +55,8 @@ public class NoteKiller : RoleBase
     {
         StartSetup(645950, single: true)
             .AutoSetupOption(ref AbilityCooldown, 15f, new FloatValueRule(0f, 90f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref NumLettersRevealed, 2, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
+            .AutoSetupOption(ref MinLettersRevealed, 1, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
+            .AutoSetupOption(ref MaxLettersRevealed, 4, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
             .AutoSetupOption(ref ClueShowDuration, 5, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref WinCondition, 0, WinConditions)
             .AutoSetupOption(ref NumPlayersToKill, 2, new IntegerValueRule(0, 14, 1), overrideParent: WinCondition)
@@ -114,8 +116,9 @@ public class NoteKiller : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         Dictionary<byte, List<int>> revealedPositions = [];
+        int numLettersRevealed = IRandom.Instance.Next(MinLettersRevealed.GetInt(), MaxLettersRevealed.GetInt() + 1);
 
-        for (int i = 0; i < NumLettersRevealed.GetInt(); i++)
+        for (int i = 0; i < numLettersRevealed; i++)
         {
             foreach (KeyValuePair<byte, string> kvp in RealNames)
             {
@@ -204,7 +207,7 @@ public class NoteKiller : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId == target.PlayerId && CustomRoles.NoteKiller.RoleExist() && seer.PlayerId != NoteKillerID && !meeting && RealNames.TryGetValue(seer.PlayerId, out var ownName))
-            return string.Format(Translator.GetString("NoteKiller.OthersSelfSuffix"), CustomRoles.NoteKiller.ToColoredString(), ownName);
+            return MeetingStates.FirstMeeting ? string.Format(Translator.GetString("NoteKiller.OthersSelfSuffix"), CustomRoles.NoteKiller.ToColoredString(), ownName) : string.Format(Translator.GetString("NoteKiller.OthersSelfSuffixShort"), ownName);
 
         if (seer.PlayerId != NoteKillerID || meeting || ShowClueEndTimeStamp == 0 || ShownClues.Count == 0) return string.Empty;
         if (ShownClues.TryGetValue(target.PlayerId, out var clue)) return clue;

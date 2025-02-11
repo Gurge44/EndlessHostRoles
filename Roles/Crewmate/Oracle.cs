@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using static EHR.Options;
 using static EHR.Translator;
@@ -84,44 +85,12 @@ public class Oracle : RoleBase
             return false;
         }
 
-        string text;
-
-        if (target.GetCustomRole().IsImpostor())
-            text = "Imp";
-        else if (target.GetCustomRole().IsNeutral())
-            text = "Neut";
-        else
-            text = "Crew";
+        var team = target.GetTeam();
 
         if (IRandom.Instance.Next(100) < FailChance.GetInt())
-        {
-            int next = IRandom.Instance.Next(1, 3);
+            team = Enum.GetValues<Team>().Without(team).RandomElement();
 
-            text = text switch
-            {
-                "Crew" => next switch
-                {
-                    1 => "Neut",
-                    2 => "Imp",
-                    _ => text
-                },
-                "Neut" => next switch
-                {
-                    1 => "Crew",
-                    2 => "Imp",
-                    _ => text
-                },
-                "Imp" => next switch
-                {
-                    1 => "Neut",
-                    2 => "Crew",
-                    _ => text
-                },
-                _ => text
-            };
-        }
-
-        string msg = string.Format(GetString("OracleCheck." + text), target.GetRealName());
+        string msg = string.Format(GetString($"OracleCheck.{GetString($"ShortTeamName.{team}")}"), target.GetRealName());
 
         Utils.SendMessage($"{GetString("OracleCheck")}\n{msg}\n\n{string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit())}", player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
 

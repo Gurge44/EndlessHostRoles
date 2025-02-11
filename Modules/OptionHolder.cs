@@ -50,7 +50,7 @@ public static class Options
     }
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    enum ModLanguages
+    public enum ModLanguages
     {
         UseGameLanguage,
         Hungarian,
@@ -889,7 +889,7 @@ public static class Options
                 sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {coven,17} | {add,17} |");
             }
 
-            sb.Append($"| {grouped[2].Length} | {grouped[0].Length} | {grouped[1].Length} | {grouped[5].Length} | {grouped[3].Length} |");
+            sb.Append($"| {grouped[2].Length,17} | {grouped[0].Length,17} | {grouped[1].Length,17} | {grouped[5].Length,17} | {grouped[3].Length,17} |");
 
             const string path = "./roles.txt";
             if (!File.Exists(path)) File.Create(path).Close();
@@ -1428,10 +1428,11 @@ public static class Options
 
         PostLobbyCodeToEHRWebsite = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings)
             .SetHeader(true);
-        
+
         StoreCompletedAchievementsOnEHRDatabase = new BooleanOptionItem(19423, "StoreCompletedAchievementsOnEHRDatabase", true, TabGroup.SystemSettings);
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
+            .SetHeader(true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
 
         KPDCamouflageMode = new StringOptionItem(19500, "KPDCamouflageMode", CamouflageMode, 0, TabGroup.SystemSettings)

@@ -111,6 +111,7 @@ internal static class ExileControllerWrapUpPatch
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
 
+        if (exiled == null) return;
         var id = exiled.PlayerId;
 
         LateTask.New(() =>

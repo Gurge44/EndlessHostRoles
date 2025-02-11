@@ -26,18 +26,21 @@ public static class LobbySharingAPI
         if (roomCode == LastRoomCode) return;
         LastRoomCode = roomCode;
 
+        var modLanguage = Options.ModLanguage.GetValue();
+        var language = modLanguage == 0 ? Translator.GetUserTrueLang().ToString() : ((Options.ModLanguages)modLanguage).ToString();
+
         var serverName = Utils.GetRegionName();
-        var language = Translator.GetUserTrueLang().ToString();
-        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", gameId));
+        var hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
+        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", gameId, hostName));
     }
 
-    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId)
+    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName)
     {
         var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
-        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\"}}";
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
         UnityWebRequest request = new UnityWebRequest("https://gurge44.pythonanywhere.com/lobby_created", "POST")

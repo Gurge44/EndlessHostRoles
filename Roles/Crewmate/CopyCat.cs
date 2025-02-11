@@ -13,6 +13,7 @@ public class CopyCat : RoleBase
     private static OptionItem CanKill;
     private static OptionItem CopyCrewVar;
     private static OptionItem MiscopyLimitOpt;
+    private static OptionItem ResetToCopyCatEachRound;
     public static OptionItem UsePet;
 
     public PlayerControl CopyCatPC;
@@ -38,6 +39,9 @@ public class CopyCat : RoleBase
         MiscopyLimitOpt = new IntegerOptionItem(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles)
             .SetParent(CanKill)
             .SetValueFormat(OptionFormat.Times);
+
+        ResetToCopyCatEachRound = new BooleanOptionItem(Id + 9, "CopyCatResetToCopyCatEachRound", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
 
         UsePet = CreatePetUseSetting(Id + 14, CustomRoles.CopyCat);
     }
@@ -75,40 +79,17 @@ public class CopyCat : RoleBase
 
     private void ResetRole()
     {
-        CustomRoles role = CopyCatPC.GetCustomRole();
-
-        // Remove settings for current role
-        switch (role)
-        {
-            case CustomRoles.Cleanser:
-                Cleanser.DidVote.Remove(CopyCatPC.PlayerId);
-                break;
-            case CustomRoles.Merchant:
-                Merchant.AddonsSold.Remove(CopyCatPC.PlayerId);
-                Merchant.BribedKiller.Remove(CopyCatPC.PlayerId);
-                break;
-            case CustomRoles.Paranoia:
-                Paranoia.ParaUsedButtonCount.Remove(CopyCatPC.PlayerId);
-                break;
-            case CustomRoles.Snitch:
-                Snitch.IsExposed.Remove(CopyCatPC.PlayerId);
-                Snitch.IsComplete.Remove(CopyCatPC.PlayerId);
-                break;
-            case CustomRoles.Mayor:
-                Mayor.MayorUsedButtonCount.Remove(CopyCatPC.PlayerId);
-                break;
-        }
-
-        Main.PlayerStates[CopyCatPC.PlayerId].MainRole = CustomRoles.CopyCat;
+        CopyCatPC.RpcSetCustomRole(CustomRoles.CopyCat);
+        CopyCatPC.RpcChangeRoleBasis(CustomRoles.CopyCat);
         Main.PlayerStates[CopyCatPC.PlayerId].Role = this;
         SetKillCooldown(CopyCatPC.PlayerId);
         CopyCatPC.SetAbilityUseLimit(TempLimit);
-        CopyCatPC.RpcChangeRoleBasis(CustomRoles.CopyCat);
         CopyCatPC.SyncSettings();
     }
 
     public static void ResetRoles()
     {
+        if (!ResetToCopyCatEachRound.GetBool()) return;
         Instances.Do(x => x.ResetRole());
     }
 
@@ -143,7 +124,7 @@ public class CopyCat : RoleBase
             };
         }
 
-        if (tpc.IsCrewmate() && !tpc.GetCustomSubRoles().Contains(CustomRoles.Rascal) && !tpc.IsConverted())
+        if (tpc.IsCrewmate() && !tpc.Is(CustomRoles.Rascal) && !tpc.Is(CustomRoles.Jailor) && !tpc.IsConverted())
         {
             TempLimit = pc.GetAbilityUseLimit();
 

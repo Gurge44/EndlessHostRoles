@@ -16,7 +16,7 @@ public class Framer : RoleBase
     {
         Options.SetupRoleOptions(647196, TabGroup.ImpostorRoles, CustomRoles.Framer);
 
-        AbilityUseLimit = new IntegerOptionItem(647198, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
+        AbilityUseLimit = new IntegerOptionItem(647198, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Framer])
             .SetValueFormat(OptionFormat.Times);
 

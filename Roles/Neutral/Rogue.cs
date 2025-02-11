@@ -13,6 +13,8 @@ public class Rogue : RoleBase
     private const int Id = 644300;
     public static bool On;
 
+    private static Dictionary<Reward, OptionItem> RewardEnabledSettings = [];
+
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private bool AllTasksCompleted;
@@ -42,6 +44,9 @@ public class Rogue : RoleBase
 
         CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rogue]);
+
+        RewardEnabledSettings = Enum.GetValues<Reward>().ToDictionary(x => x, x => new BooleanOptionItem(Id + 4 + (int)x, $"Rogue.RewardEnabled.{x}", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rogue]));
     }
 
     public override void Init()
@@ -92,7 +97,7 @@ public class Rogue : RoleBase
         {
             MorphCooldown = 15 + (int)Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
-            PlayerControl target = Main.AllAlivePlayerControls.Except([pc]).Shuffle()[0];
+            PlayerControl target = Main.AllAlivePlayerControls.Except([pc]).RandomElement();
             pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
             return false;
         }
@@ -162,18 +167,21 @@ public class Rogue : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
-            if (pc.IsShifted() && MorphCooldown <= Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown)) pc.RpcShapeshift(pc, !Options.DisableAllShapeshiftAnimations.GetBool());
+            if (pc.IsShifted() && MorphCooldown <= Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown))
+                pc.RpcShapeshift(pc, !Options.DisableAllShapeshiftAnimations.GetBool());
         }
     }
 
     public void OnButtonPressed()
     {
-        if (CurrentTask.Objective == Objective.CallEmergencyMeeting) SetTaskCompleted(true);
+        if (CurrentTask.Objective == Objective.CallEmergencyMeeting)
+            SetTaskCompleted(true);
     }
 
     public void OnFixSabotage()
     {
-        if (CurrentTask.Objective == Objective.FixSabotage) SetTaskCompleted();
+        if (CurrentTask.Objective == Objective.FixSabotage)
+            SetTaskCompleted();
     }
 
     private void SetTaskCompleted(bool chatMessage = false)
@@ -191,7 +199,8 @@ public class Rogue : RoleBase
     {
         DoCheck = false;
 
-        if (CurrentTask.Objective == Objective.DontStopWalking && Moving) SetTaskCompleted(true);
+        if (CurrentTask.Objective == Objective.DontStopWalking && Moving)
+            SetTaskCompleted(true);
     }
 
     public override void AfterMeetingTasks()
@@ -222,13 +231,13 @@ public class Rogue : RoleBase
                     break;
             }
 
-            Objective objective = Enum.GetValues<Objective>().Except(GotObjectives).Shuffle()[0];
-            Reward reward = Enum.GetValues<Reward>().Except(GotRewards).Shuffle()[0];
+            Objective objective = Enum.GetValues<Objective>().Except(GotObjectives).RandomElement();
+            Reward reward = Enum.GetValues<Reward>().Except(GotRewards).Where(x => RewardEnabledSettings[x].GetBool()).RandomElement();
 
             object data = objective switch
             {
                 Objective.KillInSpecificRoom => Translator.GetString(ShipStatus.Instance.AllRooms.RandomElement().RoomId.ToString()),
-                Objective.KillSpecificPlayer => Main.AllAlivePlayerControls.Select(x => x.PlayerId).Without(RoguePC.PlayerId).Shuffle()[0],
+                Objective.KillSpecificPlayer => Main.AllAlivePlayerControls.Select(x => x.PlayerId).Without(RoguePC.PlayerId).RandomElement(),
                 Objective.VentXTimes => IRandom.Instance.Next(2, 20),
                 Objective.KillXTimes => IRandom.Instance.Next(2, 5),
                 _ => null

@@ -34,7 +34,7 @@ public class Hangman : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
             .SetValueFormat(OptionFormat.Seconds);
 
-        HangmanLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
+        HangmanLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
             .SetValueFormat(OptionFormat.Times);
 

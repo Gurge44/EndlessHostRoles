@@ -28,7 +28,7 @@ public class Twister : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
             .SetValueFormat(OptionFormat.Seconds);
 
-        TwisterLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
+        TwisterLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
             .SetValueFormat(OptionFormat.Times);
 

@@ -21,7 +21,7 @@ public class Snitch : RoleBase
     private static bool EnableTargetArrow;
     private static bool CanGetColoredArrow;
     private static bool CanFindNeutralKiller;
-    private static bool CanFindCoven;
+    public static bool CanFindCoven;
     private static bool CanFindMadmate;
     public static int RemainingTasksToBeFound;
 
@@ -76,6 +76,8 @@ public class Snitch : RoleBase
     public override void Remove(byte playerId)
     {
         PlayerIdList.Remove(playerId);
+        IsExposed.Remove(playerId);
+        IsComplete.Remove(playerId);
     }
 
     public static bool IsSnitch(byte playerId)
@@ -131,7 +133,7 @@ public class Snitch : RoleBase
             if (TargetList.Add(targetId))
                 if (CanGetColoredArrow)
                     TargetColorlist.Add(targetId, target.GetRoleColor());
-            
+
             Utils.NotifyRoles(SpecifySeer: snitch, SpecifyTarget: target);
         }
 

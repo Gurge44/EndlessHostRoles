@@ -86,7 +86,8 @@ internal static class ControllerManagerUpdatePatch
 
             if (!AmongUsClient.Instance.AmHost) return;
 
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift)) HudManager.Instance.Chat.SetVisible(true);
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
+                HudManager.Instance.Chat.SetVisible(true);
 
             if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
             {

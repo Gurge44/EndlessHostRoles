@@ -234,7 +234,7 @@ public class WeaponMaster : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (Mode == 2) pc?.MyPhysics?.RpcBootFromVent(vent.Id);
+        if (Mode == 2) pc?.MyPhysics?.RpcExitVent(vent.Id);
     }
 
     public override string GetProgressText(byte playerId, bool comms)
