@@ -520,6 +520,7 @@ public class Main : BasePlugin
                 { CustomRoles.PlagueDoctor, "#ff6633" },
                 { CustomRoles.Curser, "#510c91" },
                 { CustomRoles.Postman, "#00b893" },
+                { CustomRoles.RoomRusher, "#ffab1b" },
                 { CustomRoles.SchrodingersCat, "#616161" },
                 { CustomRoles.Shifter, "#777777" },
                 { CustomRoles.Impartial, "#4287f5" },
@@ -581,6 +582,8 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Blocked, "#B7A627" },
+                { CustomRoles.Aide, "#ff1919" },
                 { CustomRoles.Anchor, "#6B4CE4" },
                 { CustomRoles.Fragile, "#debe66" },
                 { CustomRoles.Allergic, "#e3bd56" },
@@ -936,6 +939,8 @@ public enum CustomWinner
 public enum AdditionalWinners
 {
     None = -1,
+    
+    AliveNeutrals = -2,
 
     // Hide And Seek
     Fox = CustomRoles.Fox,
@@ -958,6 +963,7 @@ public enum AdditionalWinners
     Maverick = CustomRoles.Maverick,
     Curser = CustomRoles.Curser,
     Postman = CustomRoles.Postman,
+    RoomRusher = CustomRoles.RoomRusher,
     Impartial = CustomRoles.Impartial,
     Gaslighter = CustomRoles.Gaslighter,
     Tank = CustomRoles.Tank,

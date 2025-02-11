@@ -382,12 +382,14 @@ internal static class SetEverythingUpPatch
             Logger.Warn(additionalWinners.ToString(), "AdditionalWinner");
             if (addWinnerRole == CustomRoles.Sidekick) continue;
 
-            AdditionalWinnerText += "\n" + Utils.ColorString(Utils.GetRoleColor(addWinnerRole), GetAdditionalWinnerRoleName(addWinnerRole));
+            Color color = additionalWinners == AdditionalWinners.AliveNeutrals ? Team.Neutral.GetColor() : Utils.GetRoleColor(addWinnerRole);
+            AdditionalWinnerText += "\n" + Utils.ColorString(color, GetAdditionalWinnerRoleName(addWinnerRole));
         }
 
         Skip:
 
-        if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error) WinnerText.text = AdditionalWinnerText == string.Empty ? $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>" : $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size><size=50%>{AdditionalWinnerText}</size>";
+        if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
+            WinnerText.text = AdditionalWinnerText == string.Empty ? $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>" : $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size><size=50%>{AdditionalWinnerText}</size>";
 
         EndOfText:
 

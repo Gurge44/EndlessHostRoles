@@ -328,6 +328,7 @@ internal static class CustomRolesHelper
             CustomRoles.Godfather => CustomRoles.Impostor,
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.NoteKiller => CustomRoles.Crewmate,
+            CustomRoles.RoomRusher => RoomRusher.CanVent ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Augur => CustomRoles.Crewmate,
 
             // Vanilla roles (just in case)
@@ -972,6 +973,8 @@ internal static class CustomRolesHelper
     {
         return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
         {
+            CustomRoles.Blocked when !pc.CanUseVent() => false,
+            CustomRoles.Aide when pc.IsMadmate() => false,
             CustomRoles.Sleuth when pc.Is(CustomRoles.NecroGuesser) => false,
             CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
             CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
@@ -1421,6 +1424,7 @@ internal static class CustomRolesHelper
             CustomRoles.Lawyer => RoleOptionType.Neutral_Benign,
             CustomRoles.Amnesiac => RoleOptionType.Neutral_Benign,
             CustomRoles.Postman => RoleOptionType.Neutral_Benign,
+            CustomRoles.RoomRusher => RoleOptionType.Neutral_Benign,
             CustomRoles.SchrodingersCat => RoleOptionType.Neutral_Benign,
             CustomRoles.Predator => RoleOptionType.Neutral_Benign,
             CustomRoles.Pursuer => RoleOptionType.Neutral_Benign,

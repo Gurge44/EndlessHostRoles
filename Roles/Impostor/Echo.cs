@@ -99,7 +99,7 @@ public class Echo : RoleBase
             if (target == null) return true;
 
             RevertSwap(shapeshifter, target);
-            LateTask.New(() => target.Suicide(PlayerState.DeathReason.Kill, shapeshifter), 0.2f, "Echo Unshift Kill");
+            LateTask.New(() => target.Suicide(PlayerState.DeathReason.Echoed, shapeshifter), 0.2f, "Echo Unshift Kill");
         }
 
         return true;
