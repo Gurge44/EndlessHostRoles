@@ -2772,7 +2772,7 @@
   "Achievement.CoordinatedAttack.Description": "Как Шут, Палач или Невинный, выиграйте вместе с одной из перечисленных ранее ролей",
   "Achievement.ItsJustAPrankBro.Description": "Как Бомбер, взорвите хотя бы половину всех игроков одним взрывом",
   "SpectateCommand.WasSpectatingLastRound": "Отказано в доступе\\nВы были Спектатором в прошлом раунде. В этом раунде вы не можете быть Спектатором.",
-  "SpectateCommand.AlreadySpectating": "<#ff0000>Ошибка</color>\\nВы уже стали Спектатор для следующего раунда",
+  "SpectateCommand.Removed": "<#ffab1b>-</color> You are no longer spectating.",
   "SpectateCommand.Success": "Вы следующем раунде вы будете Спектатором",
   "ReadyClientsInfo": "\\nГотовы: {0} (Тайм-аут через {1}с)",
   "Vision": "Зрение",
