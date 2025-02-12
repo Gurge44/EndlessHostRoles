@@ -583,7 +583,8 @@ internal static class ChatCommands
             return;
         }
 
-        Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.Success"));
+        if (Spectators.Add(player.PlayerId))
+            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.Success"));
     }
 
     private static void WhisperCommand(PlayerControl player, string text, string[] args)
