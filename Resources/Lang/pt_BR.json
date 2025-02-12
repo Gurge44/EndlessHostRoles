@@ -2772,7 +2772,7 @@
   "Achievement.CoordinatedAttack.Description": "Como Palhaço, Executor ou Inocente, vença com qualquer um das 2 funções",
   "Achievement.ItsJustAPrankBro.Description": "Como Bombardeiro, mate metade da partida com 1 bomba",
   "SpectateCommand.WasSpectatingLastRound": "<#ff0000>X</color> Você estava assistindo na última rodada. Você não pode assistir novamente.",
-  "SpectateCommand.AlreadySpectating": "<#ff0000>X</color> Você já está assistindo o próximo jogo.",
+  "SpectateCommand.Removed": "<#ffab1b>-</color> You are no longer spectating.",
   "SpectateCommand.Success": "<#ff0000>X</color> Você agora está assistindo o próximo jogo.",
   "ReadyClientsInfo": "\\nClientes Prontos: {0} (Tempo esgotando em {1}s)",
   "Vision": "Visão",
