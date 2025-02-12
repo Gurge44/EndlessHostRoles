@@ -2772,7 +2772,7 @@
   "Achievement.CoordinatedAttack.Description": "作为小丑, 处刑人或冤罪师, 使用其中两种职业赢得胜利",
   "Achievement.ItsJustAPrankBro.Description": "作为自爆兵，用1枚炸弹杀死大厅的一半人",
   "SpectateCommand.WasSpectatingLastRound": "<#ff0000>X</color> 你已观看最后一轮。你不能再观看。",
-  "SpectateCommand.AlreadySpectating": "<#ff0000>X</color> 你已经在观看下一场游戏。",
+  "SpectateCommand.Removed": "<#ffab1b>-</color> You are no longer spectating.",
   "SpectateCommand.Success": "<#00ff00>✓</color> 你现在正在观看下一场游戏。",
   "ReadyClientsInfo": "\\n准备好的客户端: {0} (超时{1}秒)",
   "Vision": "视野",
