@@ -275,14 +275,12 @@ public class Swooper : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
-
         if (target.Is(CustomRoles.Bait)) return true;
-
         if (!IsInvis) return true;
+        if (!killer.RpcCheckAndMurder(target, check: true)) return false;
 
+        target.Suicide(PlayerState.DeathReason.Swooped, killer);
         killer.SetKillCooldown();
-        target.SetRealKiller(killer);
-        target.RpcCheckAndMurder(target);
         return false;
     }
 

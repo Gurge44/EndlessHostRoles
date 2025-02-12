@@ -223,7 +223,7 @@ internal static class HudManagerPatch
                         case CustomRoles.CTFPlayer:
                             __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
                             break;
-                        case CustomRoles.RRPlayer when __instance.AbilityButton != null && __instance.AbilityButton && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ventLimit):
+                        case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ventLimit):
                             __instance.AbilityButton.SetUsesRemaining(ventLimit);
                             break;
                     }

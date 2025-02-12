@@ -129,6 +129,7 @@ public static class NameColorManager
             CustomRoles.Executioner when Executioner.Target.TryGetValue(seer.PlayerId, out byte exeTarget) && exeTarget == target.PlayerId => "000000",
             CustomRoles.Gangster when target.Is(CustomRoles.Madmate) => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.Crewpostor when target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool() => Main.ImpostorColor,
+            CustomRoles.Hypocrite when target.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool() => Main.ImpostorColor,
             CustomRoles.Succubus when target.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Charmed],
             CustomRoles.Necromancer or CustomRoles.Deathknight when target.Is(CustomRoles.Undead) => Main.RoleColors[CustomRoles.Undead],
             CustomRoles.Necromancer or CustomRoles.Deathknight when Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId) => Main.RoleColors[CustomRoles.Deathknight],
@@ -180,6 +181,7 @@ public static class NameColorManager
             CustomRoles.Necromancer or CustomRoles.Deathknight when seer.Is(CustomRoles.Undead) => Main.RoleColors[targetRole],
             CustomRoles.Succubus when seer.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Succubus],
             CustomRoles.Crewpostor when seer.Is(CustomRoleTypes.Impostor) && Options.AlliesKnowCrewpostor.GetBool() => Main.RoleColors[CustomRoles.Madmate],
+            CustomRoles.Hypocrite when seer.Is(CustomRoleTypes.Impostor) && Hypocrite.AlliesKnowHypocrite.GetBool() => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.President when ((President)targetRoleClass).IsRevealed => Main.RoleColors[CustomRoles.President],
             _ => color
         };
@@ -191,7 +193,7 @@ public static class NameColorManager
         {
             color = target.GetTeam().GetTextColor();
 
-            if (target.GetCustomRole() is CustomRoles.Parasite or CustomRoles.Crewpostor or CustomRoles.Convict or CustomRoles.Refugee) color = Main.ImpostorColor;
+            if (target.IsMadmate()) color = Main.ImpostorColor;
 
             if (target.Is(CustomRoles.Madmate)) color = Main.ImpostorColor;
             if (target.Is(CustomRoles.Rascal)) color = Main.ImpostorColor;

@@ -64,13 +64,19 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player)
     {
-        return CanUseVent(player, GetClosestVent(player)?.Id ?? int.MaxValue);
+        try { return CanUseVent(player, GetClosestVent(player)?.Id ?? int.MaxValue); }
+        catch (Exception e)
+        {
+            ThrowException(e);
+            return true;
+        }
     }
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
         if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) return true;
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
+        if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
         return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId))));
     }
 

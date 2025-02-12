@@ -61,6 +61,7 @@ public enum CustomRoles
     Hangman,
     Hitman,
     Hypnotist,
+    Hypocrite,
     Inhibitor,
     Kamikaze,
     Kidnapper,
@@ -328,6 +329,7 @@ public enum CustomRoles
     Ritualist,
     Rogue,
     Romantic,
+    RoomRusher,
     RouleteGrandeur,
     RuthlessRomantic,
     Samurai,
@@ -424,6 +426,7 @@ public enum CustomRoles
 
     // Sub-role after 500
     NotAssigned = 500,
+    Aide,
     Allergic,
     Anchor,
     Antidote,
@@ -432,11 +435,12 @@ public enum CustomRoles
     Autopsy,
     Avanger,
     Bait,
-    Busy,
     Trapper, // Beartrap
     Bewilder,
+    Blocked,
     Bloodlust,
     Bloodmoon, // Ghost role
+    Busy,
     Charmed,
     Circumvent,
     Cleansed,

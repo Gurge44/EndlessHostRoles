@@ -808,6 +808,7 @@ public static class Utils
             case CustomRoles.NecroGuesser:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
+            case CustomRoles.RoomRusher:
             case CustomRoles.SchrodingersCat:
             case CustomRoles.Shifter:
             case CustomRoles.Technician:
@@ -896,6 +897,7 @@ public static class Utils
                 break;
             case CustomRoles.Cherokious:
             case CustomRoles.Crewpostor:
+            case CustomRoles.Hypocrite:
                 if (ForRecompute && !p.IsDead) hasTasks = false;
                 if (p.IsDead) hasTasks = false;
                 break;
@@ -980,6 +982,7 @@ public static class Utils
         switch (__instance.GetCustomRole())
         {
             case CustomRoles.Crewpostor when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool():
+            case CustomRoles.Hypocrite when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool():
             case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Jackal):
             case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
             case CustomRoles.Jackal when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
@@ -1001,6 +1004,7 @@ public static class Utils
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.IsMadmate() && Options.MadmateKnowWhosImp.GetBool()) ||
                (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
+               (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                (__instance.Is(Team.Coven) && PlayerControl.LocalPlayer.Is(Team.Coven)) ||
                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.IsLocalPlayer()) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
@@ -1110,6 +1114,7 @@ public static class Utils
             {
                 NormalColor = ps.MainRole switch
                 {
+                    CustomRoles.Hypocrite => Color.red,
                     CustomRoles.Crewpostor => Color.red,
                     CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
                     _ => NormalColor
@@ -2382,6 +2387,8 @@ public static class Utils
                                 (seer.IsMadmate() && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.IsMadmate() && Options.ImpKnowWhosMadmate.GetBool()) ||
                                 (seer.Is(CustomRoles.Crewpostor) && target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) ||
+                                (seer.Is(CustomRoles.Hypocrite) && target.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool()) ||
+                                (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                                 (seer.IsMadmate() && target.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool()) ||
                                 ((seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Recruit) || seer.Is(CustomRoles.Jackal)) && (target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Recruit) || target.Is(CustomRoles.Jackal))) ||
@@ -3131,6 +3138,7 @@ public static class Utils
                 {
                     NormalColor = ps.MainRole switch
                     {
+                        CustomRoles.Hypocrite => Color.red,
                         CustomRoles.Crewpostor => Color.red,
                         CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
                         _ => NormalColor

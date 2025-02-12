@@ -38,7 +38,7 @@ public static class RoomRush
 
     private static RandomSpawn.SpawnMap Map;
 
-    private static readonly Dictionary<MapNames, Dictionary<(SystemTypes, SystemTypes), int>> Multipliers = new()
+    public static readonly Dictionary<MapNames, Dictionary<(SystemTypes, SystemTypes), int>> Multipliers = new()
     {
         [MapNames.Skeld] = new()
         {
@@ -337,7 +337,7 @@ public static class RoomRush
         Utils.NotifyRoles();
     }
 
-    private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
+    public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
     {
         return ShipStatus.Instance.AllRooms.First(x => x.RoomId == systemTypes);
     }
@@ -436,7 +436,6 @@ public static class RoomRush
             }
 
             if (LastUpdate == now) return;
-
             LastUpdate = now;
 
             TimeLeft--;

@@ -233,6 +233,7 @@ public class Penguin : RoleBase
                 // During an abduction, only the abductee can be killed.
                 if (!IsGoose)
                 {
+                    Main.PlayerStates[AbductVictim.PlayerId].deathReason = PlayerState.DeathReason.Dragged;
                     Penguin_.Kill(AbductVictim);
                     Penguin_.ResetKillCooldown();
                 }

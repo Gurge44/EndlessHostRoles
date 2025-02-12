@@ -253,6 +253,11 @@ public class Werewolf : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return !Medic.ProtectList.Contains(target.PlayerId) && IsRampaging;
+        if (Medic.ProtectList.Contains(target.PlayerId) || !IsRampaging) return false;
+
+        if (killer.RpcCheckAndMurder(target, check: true))
+            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Mauled;
+        
+        return true;
     }
 }

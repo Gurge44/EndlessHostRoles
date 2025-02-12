@@ -273,6 +273,10 @@ internal static class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.NecroGuesser);
                             break;
+                        case CustomRoles.RoomRusher when (Main.PlayerStates[pc.PlayerId].Role as RoomRusher).Won:
+                            WinnerIds.Add(pc.PlayerId);
+                            AdditionalWinnerTeams.Add(AdditionalWinners.RoomRusher);
+                            break;
                     }
                 }
 
@@ -610,6 +614,12 @@ internal static class GameEndChecker
 
                     Logger.Info($"Crew: {Crew}, Imp: {Imp}, Coven: {Coven}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
                     ResetAndSetWinner((CustomWinner)winner);
+
+                    if (winner == CustomWinner.Crewmate && Main.AllAlivePlayerControls.All(x => x.GetCustomRole().IsNeutral()))
+                    {
+                        AdditionalWinnerTeams.Add(AdditionalWinners.AliveNeutrals);
+                        WinnerIds.UnionWith(Main.AllAlivePlayerControls.Select(x => x.PlayerId));
+                    }
                 }
                 else
                 {

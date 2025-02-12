@@ -406,6 +406,11 @@ Source language: English
 - HyperAtill (RU)
 - ABoringCat (ZH-CN)
 - Reborn (ZH-CN)
+- Pomelo (ZH-TW)
+- Polan (JP)
+- DoArc (ES)
+- Kurma (ID)
+- Gurge44 (HU)
 
 # License for the Custom Team Assigner application (everything inside the `CTA` folder)
 

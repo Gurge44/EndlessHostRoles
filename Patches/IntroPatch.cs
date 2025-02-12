@@ -552,7 +552,7 @@ internal static class BeginCrewmatePatch
             __instance.ImpostorText.text = GetString("SubText.GM");
         }
 
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || PlayerControl.LocalPlayer.Is(CustomRoles.Parasite) || PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor))
+        if (PlayerControl.LocalPlayer.IsMadmate())
         {
             __instance.TeamTitle.text = GetString("TeamMadmate");
             __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 25, 25, byte.MaxValue);
