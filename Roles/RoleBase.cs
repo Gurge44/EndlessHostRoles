@@ -18,6 +18,8 @@ public abstract class RoleBase : IComparable<RoleBase>
 {
     public abstract bool IsEnable { get; }
 
+    public virtual bool SeesArrowsToDeadBodies => false;
+
     public int CompareTo(RoleBase other)
     {
         string thisName = GetType().Name;

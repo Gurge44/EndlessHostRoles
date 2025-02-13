@@ -1583,7 +1583,11 @@ internal static class ExtendedPlayerControl
 
         return;
 
-        void DoKill() => killer.RpcMurderPlayer(target, true);
+        void DoKill()
+        {
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies, x => target.RpcSetRoleDesync(RoleTypes.Noisemaker, x.Player.GetClientId()));
+            killer.RpcMurderPlayer(target, true);
+        }
     }
 
     public static bool RpcCheckAndMurder(this PlayerControl killer, PlayerControl target, bool check = false)

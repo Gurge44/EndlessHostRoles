@@ -29,6 +29,8 @@ public class Amogus : RoleBase
 
     public override bool IsEnable => On;
 
+    public override bool SeesArrowsToDeadBodies => CurrentLevel >= Levels.SuspiciousSus && SuspiciousSusArrowsToBodies.GetBool() && AmogusFormEndTS != 0;
+
     public override void SetupCustomOption()
     {
         StartSetup(649075)
@@ -178,11 +180,7 @@ public class Amogus : RoleBase
 
     public static void OnAnyoneDead(PlayerControl target)
     {
-        Instances.DoIf(x => x.CurrentLevel >= Levels.SuspiciousSus && x.AmogusFormEndTS != 0, x =>
-        {
-            TargetArrow.Remove(x.AmogusID, target.PlayerId);
-            if (SuspiciousSusArrowsToBodies.GetBool()) LocateArrow.Add(x.AmogusID, target.Pos());
-        });
+        Instances.DoIf(x => x.CurrentLevel >= Levels.SuspiciousSus && x.AmogusFormEndTS != 0, x => TargetArrow.Remove(x.AmogusID, target.PlayerId));
     }
 
     public void ReceiveRPC(MessageReader reader)
