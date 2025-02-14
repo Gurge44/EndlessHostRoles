@@ -267,6 +267,7 @@ internal static class CheckMurderPatch
             return Mastermind.ForceKillForManipulatedPlayer(killer, target);
 
         if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(killer, target)) return false;
+        if (!Starspawn.CheckInteraction(killer, target)) return false;
 
         if (Penguin.IsVictim(killer)) return false;
 

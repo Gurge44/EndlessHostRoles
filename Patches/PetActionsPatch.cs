@@ -155,6 +155,7 @@ internal static class ExternalRpcPetPatch
                 pc.AddKCDAsAbilityCD();
 
             if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(pc, target)) goto Skip;
+            if (!Starspawn.CheckInteraction(pc, target)) goto Skip;
             
             Seamstress.OnAnyoneCheckMurder(pc, target);
 
