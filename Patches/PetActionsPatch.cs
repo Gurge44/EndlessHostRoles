@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Impostor;
+using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
@@ -182,6 +183,18 @@ internal static class ExternalRpcPetPatch
             PlayerControl tempTarget = target;
             target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
             Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+            
+            if (tempTarget.IsLocalPlayer())
+            {
+                Detour.TotalRedirections++;
+                if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+            }
+        }
+
+        if (target != null && Spirit.TryGetSwapTarget(target, out var newTarget))
+        {
+            Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
+            target = newTarget;
         }
 
         return target;

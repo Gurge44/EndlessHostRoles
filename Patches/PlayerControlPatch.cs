@@ -162,6 +162,12 @@ internal static class CheckMurderPatch
             }
         }
 
+        if (Spirit.TryGetSwapTarget(target, out var newTarget))
+        {
+            Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
+            target = newTarget;
+        }
+
         if (target.Data == null
             || target.inVent
             || target.inMovingPlat

@@ -71,7 +71,7 @@ public class Seamstress : RoleBase
         shapeshifter.SyncSettings();
         target.Notify(string.Format(Translator.GetString("SewedBySeamstress"), CustomRoles.Seamstress.ToColoredString()));
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
-        Utils.SendRPC(CustomRPC.SyncRoleData, shapeshifter.PlayerId, SewedPlayers.Item1, SewedPlayers.Item2);
+        Utils.SendRPC(CustomRPC.SyncRoleData, SeamstressID, SewedPlayers.Item1, SewedPlayers.Item2);
         return false;
     }
 
