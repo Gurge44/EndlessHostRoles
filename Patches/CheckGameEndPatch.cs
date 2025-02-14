@@ -166,9 +166,12 @@ internal static class GameEndChecker
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    switch (pc.GetCustomRole())
+                    CustomRoles role = pc.GetCustomRole();
+                    RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
+
+                    switch (role)
                     {
-                        case CustomRoles.DarkHide when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.HumansByTask) && Main.PlayerStates[pc.PlayerId].Role is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
+                        case CustomRoles.DarkHide when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.HumansByTask) && roleBase is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
                             ResetAndSetWinner(CustomWinner.DarkHide);
                             WinnerIds.Add(pc.PlayerId);
                             break;
@@ -181,101 +184,43 @@ internal static class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
                             break;
-                        case CustomRoles.Opportunist when pc.IsAlive():
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Opportunist);
-                            break;
-                        case CustomRoles.Pursuer when pc.IsAlive() && WinnerTeam is not CustomWinner.Jester and not CustomWinner.Lovers and not CustomWinner.Terrorist and not CustomWinner.Executioner and not CustomWinner.Collector and not CustomWinner.Innocent and not CustomWinner.Youtuber:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Pursuer);
-                            break;
-                        case CustomRoles.Sunnyboy when !pc.IsAlive():
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Sunnyboy);
-                            break;
-                        case CustomRoles.Maverick when pc.IsAlive() && Main.PlayerStates[pc.PlayerId].Role is Maverick mr && mr.NumOfKills >= Maverick.MinKillsToWin.GetInt():
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Maverick);
-                            break;
-                        case CustomRoles.Provocateur when Provocateur.Provoked.TryGetValue(pc.PlayerId, out byte tar) && !WinnerIds.Contains(tar):
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Provocateur);
-                            break;
-                        case CustomRoles.FFF when (Main.PlayerStates[pc.PlayerId].Role as FFF).IsWon:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.FFF);
-                            break;
-                        case CustomRoles.Totocalcio when Main.PlayerStates[pc.PlayerId].Role is Totocalcio tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Totocalcio);
-                            break;
-                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust)))):
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Romantic);
-                            break;
                         case CustomRoles.VengefulRomantic when VengefulRomantic.HasKilledKiller:
                             WinnerIds.Add(pc.PlayerId);
                             WinnerIds.Add(Romantic.PartnerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.VengefulRomantic);
-                            break;
-                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Lawyer);
-                            break;
-                        case CustomRoles.Postman when (Main.PlayerStates[pc.PlayerId].Role as Postman).IsFinished:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Postman);
-                            break;
-                        case CustomRoles.Impartial when (Main.PlayerStates[pc.PlayerId].Role as Impartial).IsWon:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Impartial);
-                            break;
-                        case CustomRoles.Tank when (Main.PlayerStates[pc.PlayerId].Role as Tank).IsWon:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Tank);
-                            break;
-                        case CustomRoles.Technician when (Main.PlayerStates[pc.PlayerId].Role as Technician).IsWon:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Technician);
-                            break;
-                        case CustomRoles.Backstabber when (Main.PlayerStates[pc.PlayerId].Role as Backstabber).CheckWin():
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Backstabber);
-                            break;
-                        case CustomRoles.Predator when (Main.PlayerStates[pc.PlayerId].Role as Predator).IsWon:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Predator);
-                            break;
-                        case CustomRoles.Gaslighter when (Main.PlayerStates[pc.PlayerId].Role as Gaslighter).AddAsAdditionalWinner():
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Gaslighter);
-                            break;
-                        case CustomRoles.SoulHunter when (Main.PlayerStates[pc.PlayerId].Role as SoulHunter).Souls >= SoulHunter.NumOfSoulsToWin.GetInt():
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.SoulHunter);
-                            break;
-                        case CustomRoles.SchrodingersCat when WinnerTeam == CustomWinner.Crewmate && SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool():
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.SchrodingersCat);
+                            AdditionalWinnerTeams.Add((AdditionalWinners)role);
                             break;
                         case CustomRoles.SchrodingersCat when !pc.IsConverted():
                             WinnerIds.Remove(pc.PlayerId);
                             break;
+                        case CustomRoles.Opportunist when pc.IsAlive():
+                        case CustomRoles.Pursuer when pc.IsAlive() && WinnerTeam is not CustomWinner.Jester and not CustomWinner.Lovers and not CustomWinner.Terrorist and not CustomWinner.Executioner and not CustomWinner.Collector and not CustomWinner.Innocent and not CustomWinner.Youtuber:
+                        case CustomRoles.Sunnyboy when !pc.IsAlive():
+                        case CustomRoles.Maverick when pc.IsAlive() && roleBase is Maverick mr && mr.NumOfKills >= Maverick.MinKillsToWin.GetInt():
+                        case CustomRoles.Provocateur when Provocateur.Provoked.TryGetValue(pc.PlayerId, out byte tar) && !WinnerIds.Contains(tar):
+                        case CustomRoles.FFF when (roleBase as FFF).IsWon:
+                        case CustomRoles.Totocalcio when roleBase is Totocalcio tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
+                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust)))):
+                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
+                        case CustomRoles.Postman when (roleBase as Postman).IsFinished:
+                        case CustomRoles.Impartial when (roleBase as Impartial).IsWon:
+                        case CustomRoles.Tank when (roleBase as Tank).IsWon:
+                        case CustomRoles.Technician when (roleBase as Technician).IsWon:
+                        case CustomRoles.Backstabber when (roleBase as Backstabber).CheckWin():
+                        case CustomRoles.Predator when (roleBase as Predator).IsWon:
+                        case CustomRoles.Gaslighter when (roleBase as Gaslighter).AddAsAdditionalWinner():
+                        case CustomRoles.SoulHunter when (roleBase as SoulHunter).Souls >= SoulHunter.NumOfSoulsToWin.GetInt():
+                        case CustomRoles.SchrodingersCat when WinnerTeam == CustomWinner.Crewmate && SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool():
                         case CustomRoles.Curser when WinnerTeam != CustomWinner.Crewmate:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Curser);
-                            break;
                         case CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller && NoteKiller.Kills >= NoteKiller.NumKillsNeededToWin:
+                        case CustomRoles.NecroGuesser when (roleBase as NecroGuesser).GuessedPlayers >= NecroGuesser.NumGuessesToWin.GetInt():
+                        case CustomRoles.RoomRusher when (roleBase as RoomRusher).Won:
+                        case CustomRoles.Auditor when WinnerTeam != CustomWinner.Crewmate:
+                        case CustomRoles.Magistrate when WinnerTeam != CustomWinner.Crewmate:
+                        case CustomRoles.Seamstress when WinnerTeam != CustomWinner.Crewmate:
+                        case CustomRoles.Spirit when WinnerTeam != CustomWinner.Crewmate:
+                        case CustomRoles.Starspawn when WinnerTeam != CustomWinner.Crewmate:
                             WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.NoteKiller);
-                            break;
-                        case CustomRoles.NecroGuesser when (Main.PlayerStates[pc.PlayerId].Role as NecroGuesser).GuessedPlayers >= NecroGuesser.NumGuessesToWin.GetInt():
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.NecroGuesser);
-                            break;
-                        case CustomRoles.RoomRusher when (Main.PlayerStates[pc.PlayerId].Role as RoomRusher).Won:
-                            WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.RoomRusher);
+                            AdditionalWinnerTeams.Add((AdditionalWinners)role);
                             break;
                     }
                 }

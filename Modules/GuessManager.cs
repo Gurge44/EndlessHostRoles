@@ -135,7 +135,7 @@ public static class GuessManager
 
                     switch (pc.Is(CustomRoles.NecroGuesser))
                     {
-                        case true when (target.IsAlive() || target.Is(CustomRoles.Gravestone) || (Options.SeeEjectedRolesInMeeting.GetBool() && Main.PlayerStates[targetId].deathReason == PlayerState.DeathReason.Vote)):
+                        case true when (target.IsAlive() || target.Is(CustomRoles.Gravestone) || ((Options.SeeEjectedRolesInMeeting.GetBool() || Options.CEMode.GetValue() == 2) && Main.PlayerStates[targetId].deathReason == PlayerState.DeathReason.Vote)):
                             ShowMessage(target.IsAlive() ? "NecroGuesser.TargetAliveError" : "NecroGuesser.TargetRevealedError");
                             return true;
                         case false when !target.IsAlive():

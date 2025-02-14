@@ -278,6 +278,7 @@ internal static class CustomRolesHelper
             CustomRoles.Grenadier => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Lighter => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.SecurityGuard => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+            CustomRoles.Magistrate => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Gangster => CustomRoles.Impostor,
             CustomRoles.Cleaner => CustomRoles.Impostor,
             CustomRoles.Konan => CustomRoles.Crewmate,
@@ -473,6 +474,10 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Curser => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
+            CustomRoles.Auditor => RoleTypes.Impostor,
+            CustomRoles.Seamstress => RoleTypes.Shapeshifter,
+            CustomRoles.Spirit => RoleTypes.Shapeshifter,
+            CustomRoles.Starspawn => RoleTypes.Impostor,
             CustomRoles.Shifter => RoleTypes.Impostor,
             CustomRoles.Impartial => RoleTypes.Impostor,
             CustomRoles.Gaslighter => RoleTypes.Impostor,
@@ -1463,6 +1468,11 @@ internal static class CustomRolesHelper
             CustomRoles.Workaholic => RoleOptionType.Neutral_Evil,
             CustomRoles.Deathknight => RoleOptionType.Neutral_Evil,
             CustomRoles.Innocent => RoleOptionType.Neutral_Evil,
+            CustomRoles.Auditor  => RoleOptionType.Neutral_Evil,
+            CustomRoles.Magistrate => RoleOptionType.Neutral_Evil,
+            CustomRoles.Seamstress => RoleOptionType.Neutral_Evil,
+            CustomRoles.Spirit => RoleOptionType.Neutral_Evil,
+            CustomRoles.Starspawn => RoleOptionType.Neutral_Evil,
             _ => role.IsNK(true) ? RoleOptionType.Neutral_Killing : role.IsImpostor() ? RoleOptionType.Impostor_Miscellaneous : RoleOptionType.Crewmate_Miscellaneous
         };
     }

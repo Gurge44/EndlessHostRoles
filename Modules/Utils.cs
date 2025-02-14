@@ -808,6 +808,11 @@ public static class Utils
             case CustomRoles.NecroGuesser:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
+            case CustomRoles.Auditor:
+            case CustomRoles.Magistrate:
+            case CustomRoles.Seamstress:
+            case CustomRoles.Spirit:
+            case CustomRoles.Starspawn:
             case CustomRoles.RoomRusher:
             case CustomRoles.SchrodingersCat:
             case CustomRoles.Shifter:
