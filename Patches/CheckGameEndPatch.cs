@@ -56,7 +56,7 @@ internal static class GameEndChecker
         {
             Ended = true;
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
-            
+
             NameNotifyManager.Reset();
             NotifyRoles(ForceLoop: true);
 
@@ -199,8 +199,8 @@ internal static class GameEndChecker
                         case CustomRoles.Provocateur when Provocateur.Provoked.TryGetValue(pc.PlayerId, out byte tar) && !WinnerIds.Contains(tar):
                         case CustomRoles.FFF when (roleBase as FFF).IsWon:
                         case CustomRoles.Totocalcio when roleBase is Totocalcio tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
-                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust)))):
-                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
+                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps1) && (WinnerRoles.Contains(ps1.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps1.SubRoles.Contains(CustomRoles.Bloodlust)))):
+                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps2) && (WinnerRoles.Contains(ps2.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps2.SubRoles.Contains(CustomRoles.Bloodlust))))):
                         case CustomRoles.Postman when (roleBase as Postman).IsFinished:
                         case CustomRoles.Impartial when (roleBase as Impartial).IsWon:
                         case CustomRoles.Tank when (roleBase as Tank).IsWon:
