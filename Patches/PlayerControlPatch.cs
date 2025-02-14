@@ -276,6 +276,8 @@ internal static class CheckMurderPatch
         }
 
         if (Pursuer.OnClientMurder(killer)) return false;
+        
+        Seamstress.OnAnyoneCheckMurder(killer, target);
 
         if (killer.PlayerId != target.PlayerId)
         {
