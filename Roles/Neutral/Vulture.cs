@@ -14,7 +14,7 @@ public class Vulture : RoleBase
 
     public static HashSet<byte> UnreportablePlayers = [];
 
-    private static OptionItem ArrowsPointingToDeadBody;
+    public static OptionItem ArrowsPointingToDeadBody;
     private static OptionItem NumberOfReportsToWin;
     public static OptionItem CanVent;
     private static OptionItem VultureReportCD;
@@ -39,6 +39,8 @@ public class Vulture : RoleBase
     private byte VultureId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
+
+    public override bool SeesArrowsToDeadBodies => ArrowsPointingToDeadBody.GetBool();
 
     public override void SetupCustomOption()
     {
@@ -130,20 +132,6 @@ public class Vulture : RoleBase
 
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
-        }
-    }
-
-    public static void OnPlayerDead(PlayerControl target)
-    {
-        if (!ArrowsPointingToDeadBody.GetBool() || target.Data.Disconnected) return;
-
-        foreach (byte pc in PlayerIdList)
-        {
-            PlayerControl player = Utils.GetPlayerById(pc);
-            if (player == null || !player.IsAlive()) continue;
-
-            LocateArrow.Add(pc, target.transform.position);
-            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
     }
 

@@ -577,13 +577,14 @@ internal static class ChatCommands
             return;
         }
 
-        if (!Spectators.Add(player.PlayerId))
+        if (Spectators.Remove(player.PlayerId))
         {
-            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.AlreadySpectating"));
+            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.Removed"));
             return;
         }
 
-        Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.Success"));
+        if (Spectators.Add(player.PlayerId))
+            Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.Success"));
     }
 
     private static void WhisperCommand(PlayerControl player, string text, string[] args)
@@ -807,7 +808,18 @@ internal static class ChatCommands
 
         CustomRoles role = roles[chosenIndex - 1];
         DraftResult[player.PlayerId] = role;
-        Utils.SendMessage(string.Format(GetString("DraftChosen"), role.ToColoredString()), player.PlayerId, GetString("DraftTitle"));
+
+        string roleStr = role.ToColoredString();
+
+        StringBuilder sb = new();
+        var title = $"{roleStr} {Utils.GetRoleMode(role)}";
+        sb.Append(GetString($"{role}InfoLong").TrimStart());
+        string txt = $"<size=90%>{sb}</size>".Replace(role.ToString(), roleStr).Replace(role.ToString().ToLower(), roleStr);
+        sb.Clear().Append(txt);
+        if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+
+        Utils.SendMessage(sb.ToString(), player.PlayerId, title);
+        Utils.SendMessage(string.Format(GetString("DraftChosen"), roleStr), player.PlayerId, GetString("DraftTitle"));
     }
 
     private static void MuteCommand(PlayerControl player, string text, string[] args)

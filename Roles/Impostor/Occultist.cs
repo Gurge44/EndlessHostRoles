@@ -10,7 +10,7 @@ public class Occultist : RoleBase
 
     private static OptionItem AbilityUseLimit;
     private static OptionItem ReviveTime;
-    private static OptionItem ArrowsToBodies;
+    public static OptionItem ArrowsToBodies;
     private static OptionItem RevivedPlayersBodiesCanBeReported;
     private static OptionItem RevivedPlayers;
     private static OptionItem CanReviveImpostorsAndMadmates;
@@ -31,6 +31,8 @@ public class Occultist : RoleBase
     private PlayerControl OccultistPC;
 
     public override bool IsEnable => On;
+
+    public override bool SeesArrowsToDeadBodies => ArrowsToBodies.GetBool();
 
     public override void SetupCustomOption()
     {
@@ -153,13 +155,6 @@ public class Occultist : RoleBase
         }
 
         if (Main.AllAlivePlayerControls.Length < 4) SwitchAction();
-    }
-
-    public static void OnAnyoneDied(PlayerControl target)
-    {
-        if (!ArrowsToBodies.GetBool()) return;
-        var pos = target.Pos();
-        Instances.Do(x => LocateArrow.Add(x.OccultistPC.PlayerId, pos));
     }
 
     public override void OnReportDeadBody()

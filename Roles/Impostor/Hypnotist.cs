@@ -71,11 +71,17 @@ public class Hypnotist : RoleBase
         return false;
     }
 
+    public override bool OnVanish(PlayerControl pc)
+    {
+        OnPet(pc);
+        return false;
+    }
+
     public override void OnPet(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1) return;
         pc.RpcRemoveAbilityUse();
-        
+
         Count = 0;
         ActivateTS = Utils.TimeStamp;
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

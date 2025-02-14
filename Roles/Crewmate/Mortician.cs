@@ -18,6 +18,8 @@ public class Mortician : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
+    public override bool SeesArrowsToDeadBodies => ShowArrows.GetBool();
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
@@ -64,14 +66,6 @@ public class Mortician : RoleBase
         }
 
         LastPlayerName.TryAdd(target.PlayerId, minName);
-
-        foreach (byte pc in PlayerIdList)
-        {
-            PlayerControl player = Utils.GetPlayerById(pc);
-            if (player == null || !player.IsAlive()) continue;
-
-            LocateArrow.Add(pc, target.transform.position);
-        }
     }
 
     public static void OnReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target)

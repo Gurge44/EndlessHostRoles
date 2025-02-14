@@ -26,6 +26,8 @@ public class Bloodhound : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
+    public override bool SeesArrowsToDeadBodies => ArrowsPointingToDeadBody.GetBool();
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Bloodhound);
@@ -87,20 +89,6 @@ public class Bloodhound : RoleBase
     {
         TargetArrow.RemoveAllTarget(BloodhoundId);
         LocateArrow.RemoveAllTarget(BloodhoundId);
-    }
-
-    public static void OnPlayerDead(PlayerControl target)
-    {
-        if (!ArrowsPointingToDeadBody.GetBool()) return;
-
-        foreach (byte id in PlayerIdList)
-        {
-            PlayerControl player = Utils.GetPlayerById(id);
-            if (player == null || !player.IsAlive()) continue;
-
-            Vector2 pos = target.Pos();
-            LocateArrow.Add(id, pos);
-        }
     }
 
     public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)

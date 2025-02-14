@@ -40,6 +40,8 @@ public class Amnesiac : RoleBase
 
     public override bool IsEnable => Instances.Count > 0;
 
+    public override bool SeesArrowsToDeadBodies => RememberMode.GetValue() == 0;
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Amnesiac);
@@ -104,19 +106,6 @@ public class Amnesiac : RoleBase
         {
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = VentDuration.GetFloat();
-        }
-    }
-
-    public static void OnAnyoneDeath(PlayerControl target)
-    {
-        if (RememberMode.GetValue() == 0)
-        {
-            foreach (Amnesiac instance in Instances)
-            {
-                LocateArrow.Add(instance.AmnesiacId, target.Pos());
-                PlayerControl amne = Utils.GetPlayerById(instance.AmnesiacId);
-                Utils.NotifyRoles(SpecifySeer: amne, SpecifyTarget: amne);
-            }
         }
     }
 

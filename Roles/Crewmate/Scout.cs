@@ -28,6 +28,8 @@ public class Scout : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
+    public override bool SeesArrowsToDeadBodies => true;
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Scout);
@@ -164,7 +166,6 @@ public class Scout : RoleBase
             {
                 kvp.Value.Remove(player.PlayerId);
                 TargetArrow.Remove(kvp.Key, player.PlayerId);
-                LocateArrow.Add(kvp.Key, player.Pos());
             }
         }
     }
