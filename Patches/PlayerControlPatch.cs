@@ -1178,7 +1178,14 @@ internal static class ReportDeadBodyPatch
             if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
                 pc.RpcShapeshift(pc, false);
 
-            if (Camouflage.IsCamouflage) Camouflage.RpcSetSkin(pc, RevertToDefault: true, ForceRevert: true);
+            if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
+                Camouflage.RpcSetSkin(pc, RevertToDefault: true, ForceRevert: true);
+
+            if (Magistrate.CallCourtNextMeeting)
+            {
+                Camouflage.IsCamouflage = true;
+                Camouflage.RpcSetSkin(pc);
+            }
         }
 
         Camouflage.CamoTimesThisRound = 0;

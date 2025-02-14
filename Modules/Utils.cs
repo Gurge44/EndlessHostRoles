@@ -2083,6 +2083,13 @@ public static class Utils
                     continue;
                 }
 
+                if (forMeeting && Magistrate.CallCourtNextMeeting)
+                {
+                    SelfName = seer.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
+                    seer.RpcSetNameEx(SelfName);
+                    continue;
+                }
+
                 var fontSize = "1.7";
 
                 if (forMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch))
@@ -2965,13 +2972,9 @@ public static class Utils
             {
                 Hacker.AddDeadBody(target);
                 Mortician.OnPlayerDead(target);
-                Bloodhound.OnPlayerDead(target);
                 Tracefinder.OnPlayerDead(target);
-                Vulture.OnPlayerDead(target);
                 Scout.OnPlayerDeath(target);
-                Amnesiac.OnAnyoneDeath(target);
                 Dad.OnAnyoneDeath(target);
-                Occultist.OnAnyoneDied(target);
                 Crewmate.Sentry.OnAnyoneMurder(target);
                 Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
 
