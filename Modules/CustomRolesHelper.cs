@@ -975,7 +975,9 @@ internal static class CustomRolesHelper
             CustomRoles.Patroller or
             CustomRoles.Weatherman or
             CustomRoles.NoteKiller or
-            CustomRoles.Amogus;
+            CustomRoles.Amogus or
+            CustomRoles.Auditor or
+            CustomRoles.Magistrate;
     }
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
@@ -1468,7 +1470,7 @@ internal static class CustomRolesHelper
             CustomRoles.Workaholic => RoleOptionType.Neutral_Evil,
             CustomRoles.Deathknight => RoleOptionType.Neutral_Evil,
             CustomRoles.Innocent => RoleOptionType.Neutral_Evil,
-            CustomRoles.Auditor  => RoleOptionType.Neutral_Evil,
+            CustomRoles.Auditor => RoleOptionType.Neutral_Evil,
             CustomRoles.Magistrate => RoleOptionType.Neutral_Evil,
             CustomRoles.Seamstress => RoleOptionType.Neutral_Evil,
             CustomRoles.Spirit => RoleOptionType.Neutral_Evil,

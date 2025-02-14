@@ -49,7 +49,7 @@ public class Occultist : RoleBase
     public override void Init()
     {
         On = false;
-        ActionSwitchMode = Options.UseUnshiftTrigger.GetBool() ? ActionSwitchModes.Unshift : Options.UsePets.GetBool() ? ActionSwitchModes.Pet : ActionSwitchModes.Vent;
+        ActionSwitchMode = Options.UsePhantomBasis.GetBool() ? ActionSwitchModes.Vanish : Options.UseUnshiftTrigger.GetBool() ? ActionSwitchModes.Unshift : Options.UsePets.GetBool() ? ActionSwitchModes.Pet : ActionSwitchModes.Vent;
         Instances = [];
         Revives = [];
     }
@@ -90,6 +90,14 @@ public class Occultist : RoleBase
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting && ActionSwitchMode == ActionSwitchModes.Unshift)
+            SwitchAction();
+
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (ActionSwitchMode == ActionSwitchModes.Vanish)
             SwitchAction();
 
         return false;
@@ -174,7 +182,8 @@ public class Occultist : RoleBase
     {
         Vent,
         Pet,
-        Unshift
+        Unshift,
+        Vanish
     }
 
     class ReviveData(long startTimeStamp, Vector2 position, bool done)

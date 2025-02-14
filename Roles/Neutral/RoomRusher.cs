@@ -20,24 +20,24 @@ public class RoomRusher : RoleBase
     private static OptionItem RoomNameDisplay;
     private static OptionItem Arrow;
     private static OptionItem RoomsToWin;
+    private int CompletedNum;
+    private long LastUpdate;
+    private SystemTypes RoomGoal;
+
+    private byte RoomRusherId;
+    private int TimeLeft;
+    private int VentsLeft;
 
     public static bool CanVent => MaxVents.GetInt() > 0;
 
     public override bool IsEnable => On;
 
-    private byte RoomRusherId;
-    private int VentsLeft;
-    private SystemTypes RoomGoal;
-    private int TimeLeft;
-    private int CompletedNum;
-    private long LastUpdate;
-    
     public bool Won => CompletedNum >= RoomsToWin.GetInt();
 
     public override void SetupCustomOption()
     {
         StartSetup(645100)
-            .AutoSetupOption(ref GlobalTimeMultiplier, 1, new FloatValueRule(0.05f, 2f, 0.05f), OptionFormat.Multiplier, overrideName: "RR_GlobalTimeMultiplier")
+            .AutoSetupOption(ref GlobalTimeMultiplier, 1f, new FloatValueRule(0.05f, 2f, 0.05f), OptionFormat.Multiplier, overrideName: "RR_GlobalTimeMultiplier")
             .AutoSetupOption(ref MaxVents, 1, new IntegerValueRule(0, 30, 1))
             .AutoSetupOption(ref RoomNameDisplay, true, overrideName: "RR_DisplayRoomName")
             .AutoSetupOption(ref Arrow, false, overrideName: "RR_DisplayArrowToRoom")
@@ -47,12 +47,12 @@ public class RoomRusher : RoleBase
     public override void Init()
     {
         On = false;
-        
+
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
         AllRooms.Remove(SystemTypes.Hallway);
         AllRooms.Remove(SystemTypes.Outside);
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
-        
+
         Map = Main.CurrentMap switch
         {
             MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
@@ -72,7 +72,7 @@ public class RoomRusher : RoleBase
         VentsLeft = MaxVents.GetInt();
         CompletedNum = 0;
         LastUpdate = Utils.TimeStamp;
-        
+
         LateTask.New(() => StartNewRound(true), Main.CurrentMap == MapNames.Airship ? 22f : 14f);
     }
 
@@ -149,7 +149,7 @@ public class RoomRusher : RoleBase
         LocateArrow.Add(RoomRusherId, goalPos);
 
         Utils.NotifyRoles(SpecifySeer: rrpc, SpecifyTarget: rrpc);
-        
+
         Utils.SendRPC(CustomRPC.SyncRoleData, RoomRusherId, 1, (byte)RoomGoal);
         Utils.SendRPC(CustomRPC.SyncRoleData, RoomRusherId, 2, VentsLeft);
         Utils.SendRPC(CustomRPC.SyncRoleData, RoomRusherId, 3, CompletedNum);
@@ -169,7 +169,7 @@ public class RoomRusher : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || !pc.IsAlive()) return;
-        
+
         PlainShipRoom room = pc.GetPlainShipRoom();
 
         if (!pc.inMovingPlat && !pc.inVent && room != null && room.RoomId == RoomGoal)
@@ -177,7 +177,7 @@ public class RoomRusher : RoleBase
             Logger.Info($"{pc.GetRealName()} entered the correct room", "Room Rusher");
             StartNewRound();
         }
-        
+
         long now = Utils.TimeStamp;
         if (LastUpdate == now) return;
         LastUpdate = now;
@@ -223,19 +223,19 @@ public class RoomRusher : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != RoomRusherId || seer.PlayerId != target.PlayerId || meeting || hud || !seer.IsAlive()) return string.Empty;
-        
+
         StringBuilder sb = new();
         bool done = Won;
         Color color = done ? Color.green : Color.yellow;
-        
+
         if (RoomNameDisplay.GetBool()) sb.Append(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())) + "\n");
         if (Arrow.GetBool()) sb.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer)) + "\n");
-        
+
         color = done ? Color.white : Color.yellow;
         sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
 
         if (!CanVent || seer.IsModClient()) return sb.ToString().Trim();
-        
+
         sb.Append('\n');
         sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), VentsLeft));
 
