@@ -21,7 +21,7 @@ public class Hypocrite : RoleBase
             .AutoSetupOption(ref KnowsAllies, true)
             .AutoSetupOption(ref AlliesKnowHypocrite, true)
             .AutoSetupOption(ref NonImpGetsNotifyWhenLowTasks, true)
-            .AutoSetupOption(ref NotifyAtXTasksLeft, 3, new IntegerValueRule(1, 20, 1))
+            .AutoSetupOption(ref NotifyAtXTasksLeft, 3, new IntegerValueRule(1, 20, 1), overrideParent: NonImpGetsNotifyWhenLowTasks)
             .CreateOverrideTasksData();
     }
 

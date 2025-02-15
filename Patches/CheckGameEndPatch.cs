@@ -39,7 +39,7 @@ internal static class GameEndChecker
 
         Predicate.CheckForGameEnd(out GameOverReason reason);
 
-        if (!CustomGameMode.Standard.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
             if (WinnerIds.Count > 0 || WinnerTeam != CustomWinner.Default)
             {

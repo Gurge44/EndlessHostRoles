@@ -145,9 +145,9 @@ public static class Camouflage
         yield return Utils.NotifyEveryoneAsync(speed: 5);
     }
 
-    public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false, bool Revive = false)
+    public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false, bool Revive = false, bool NotCommsOrCamo = false)
     {
-        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !Revive) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd && !Revive)) return;
+        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !Revive && !NotCommsOrCamo) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd && !Revive && !NotCommsOrCamo)) return;
 
         Logger.Info($"New outfit for {target.GetNameWithRole()}", "Camouflage.RpcSetSkin");
 

@@ -14,7 +14,6 @@ internal class TimeMaster : RoleBase
 
     public static OptionItem TimeMasterRewindTimeLength;
     public static OptionItem TimeMasterSkillCooldown;
-    public static OptionItem TimeMasterSkillDuration;
     public static OptionItem TimeMasterMaxUses;
     public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
@@ -32,11 +31,7 @@ internal class TimeMaster : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Seconds);
 
-        TimeMasterSkillCooldown = new FloatOptionItem(8960, "TimeMasterSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
-            .SetValueFormat(OptionFormat.Seconds);
-
-        TimeMasterSkillDuration = new FloatOptionItem(8961, "TimeMasterSkillDuration", new(0f, 180f, 1f), 15f, TabGroup.CrewmateRoles)
+        TimeMasterSkillCooldown = new FloatOptionItem(8960, "AbilityCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -117,7 +112,7 @@ internal class TimeMaster : RoleBase
             foreach (PlayerControl player in Main.AllPlayerControls)
             {
                 player.ReactorFlash(flashDuration: length * delay);
-                player.Notify(notify, length * delay);
+                player.Notify(notify, Math.Max(length * delay, 4f));
                 player.MarkDirtySettings();
             }
 

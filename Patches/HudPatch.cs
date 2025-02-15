@@ -312,6 +312,9 @@ internal static class HudManagerPatch
 
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
                         __instance.AbilityButton.SetEnabled();
+                    
+                    if ((player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && !state.Role.CanUseSabotage(player))
+                        __instance.SabotageButton.ToggleVisible(false);
                 }
                 else
                 {
@@ -350,25 +353,15 @@ internal static class HudManagerPatch
             if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha0)) RepairSender.Input(0);
-
                 if (Input.GetKeyDown(KeyCode.Alpha1)) RepairSender.Input(1);
-
                 if (Input.GetKeyDown(KeyCode.Alpha2)) RepairSender.Input(2);
-
                 if (Input.GetKeyDown(KeyCode.Alpha3)) RepairSender.Input(3);
-
                 if (Input.GetKeyDown(KeyCode.Alpha4)) RepairSender.Input(4);
-
                 if (Input.GetKeyDown(KeyCode.Alpha5)) RepairSender.Input(5);
-
                 if (Input.GetKeyDown(KeyCode.Alpha6)) RepairSender.Input(6);
-
                 if (Input.GetKeyDown(KeyCode.Alpha7)) RepairSender.Input(7);
-
                 if (Input.GetKeyDown(KeyCode.Alpha8)) RepairSender.Input(8);
-
                 if (Input.GetKeyDown(KeyCode.Alpha9)) RepairSender.Input(9);
-
                 if (Input.GetKeyDown(KeyCode.Return)) RepairSender.InputEnter();
             }
         }

@@ -72,6 +72,7 @@ public class RoomRusher : RoleBase
         VentsLeft = MaxVents.GetInt();
         CompletedNum = 0;
         LastUpdate = Utils.TimeStamp;
+        TimeLeft = 50;
 
         LateTask.New(() => StartNewRound(true), Main.CurrentMap == MapNames.Airship ? 22f : 14f);
     }

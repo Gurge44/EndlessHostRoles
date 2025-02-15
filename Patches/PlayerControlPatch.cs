@@ -1192,8 +1192,8 @@ internal static class ReportDeadBodyPatch
 
             if (Magistrate.CallCourtNextMeeting)
             {
-                Camouflage.IsCamouflage = true;
-                Camouflage.RpcSetSkin(pc);
+                var name = GetString(pc.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName");
+                RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
             }
         }
 
@@ -1907,7 +1907,7 @@ internal static class ExitVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
 
-        if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.6f, log: false);
+        if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.1f, log: false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -1929,6 +1929,8 @@ internal static class EnterVentPatch
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
+
+        if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.1f, log: false);
 
         if (AmongUsClient.Instance.AmHost && !pc.CanUseVent(__instance.Id) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !pc.Is(CustomRoles.Nimble) && !pc.Is(CustomRoles.Bloodlust))
         {
