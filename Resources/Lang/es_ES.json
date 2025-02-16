@@ -3852,6 +3852,8 @@
   "NumGuessersOn.Impostor.Max": "Maximum Number of Impostor Guessers",
   "NumGuessersOn.Neutral.Min": "Minimum Number of Neutral Guessers",
   "NumGuessersOn.Neutral.Max": "Maximum Number of Neutral Guessers",
+  "NumGuessersOn.Coven.Min": "Minimum Number of Coven Guessers",
+  "NumGuessersOn.Coven.Max": "Maximum Number of Coven Guessers",
   "ZombieSpeedReduceInterval": "Intervalo Reducción de Velocidad",
   "ZombieInitialSpeed": "Velocidad Inicial",
   "ZombieMinimumSpeed": "Velocidad Mínima",
