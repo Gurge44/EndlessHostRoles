@@ -162,6 +162,12 @@ internal static class CheckMurderPatch
             }
         }
 
+        if (Spirit.TryGetSwapTarget(target, out var newTarget))
+        {
+            Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
+            target = newTarget;
+        }
+
         if (target.Data == null
             || target.inVent
             || target.inMovingPlat
@@ -261,6 +267,7 @@ internal static class CheckMurderPatch
             return Mastermind.ForceKillForManipulatedPlayer(killer, target);
 
         if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(killer, target)) return false;
+        if (!Starspawn.CheckInteraction(killer, target)) return false;
 
         if (Penguin.IsVictim(killer)) return false;
 
@@ -276,6 +283,8 @@ internal static class CheckMurderPatch
         }
 
         if (Pursuer.OnClientMurder(killer)) return false;
+        
+        Seamstress.OnAnyoneCheckMurder(killer, target);
 
         if (killer.PlayerId != target.PlayerId)
         {
@@ -1183,8 +1192,8 @@ internal static class ReportDeadBodyPatch
 
             if (Magistrate.CallCourtNextMeeting)
             {
-                Camouflage.IsCamouflage = true;
-                Camouflage.RpcSetSkin(pc);
+                var name = GetString(pc.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName");
+                RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
             }
         }
 
@@ -1898,7 +1907,7 @@ internal static class ExitVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
 
-        if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.6f, log: false);
+        if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.1f, log: false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -1920,6 +1929,8 @@ internal static class EnterVentPatch
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
+
+        if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.1f, log: false);
 
         if (AmongUsClient.Instance.AmHost && !pc.CanUseVent(__instance.Id) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !pc.Is(CustomRoles.Nimble) && !pc.Is(CustomRoles.Bloodlust))
         {

@@ -45,7 +45,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (var index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
-            if (allSender is PlayerGameOptionsSender sender) sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender sender)
+                sender.SetDirty();
         }
     }
 
@@ -55,7 +56,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (var index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
-            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId))) sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.HasDesyncRole() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId)))
+                sender.SetDirty();
         }
     }
 
@@ -65,7 +67,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (var index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
-            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))) sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
+                sender.SetDirty();
         }
     }
 
@@ -75,7 +78,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (var index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
-            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && sender.player.CanUseKillButton()) sender.SetDirty();
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && sender.player.CanUseKillButton())
+                sender.SetDirty();
         }
     }
 
@@ -273,6 +277,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             Negotiator.OnAnyoneApplyGameOptions(opt, player.PlayerId);
             Wizard.OnAnyoneApplyGameOptions(opt, player.PlayerId);
             Curser.OnAnyoneApplyGameOptions(opt, player.PlayerId);
+            Auditor.OnAnyoneApplyGameOptions(opt, player.PlayerId);
 
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {

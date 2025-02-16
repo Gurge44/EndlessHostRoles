@@ -53,6 +53,11 @@ public class Auditor : RoleBase
         return pc.IsAlive();
     }
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return pc.IsAlive() && AbilityTrigger == AbilityTriggers.Vent;
+    }
+
     public static void OnAnyoneApplyGameOptions(IGameOptions opt, byte id)
     {
         if (!Instances.Any(x => x.LoweredVisionPlayers.ContainsKey(id))) return;

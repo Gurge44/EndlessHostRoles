@@ -37,8 +37,7 @@ public class Magistrate : RoleBase
     public override void AfterMeetingTasks()
     {
         CallCourtNextMeeting = false;
-        Camouflage.IsCamouflage = false;
-        Main.AllPlayerControls.Do(x => Camouflage.RpcSetSkin(x));
+        Main.AllPlayerControls.Do(x => Camouflage.RpcSetSkin(x, NotCommsOrCamo: true));
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -46,6 +45,11 @@ public class Magistrate : RoleBase
         if (AbilityTrigger != AbilityTriggers.Vent) return;
         AURoleOptions.EngineerCooldown = 1f;
         AURoleOptions.EngineerInVentMaxTime = 1f;
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return pc.IsAlive() && AbilityTrigger == AbilityTriggers.Vent && pc.GetAbilityUseLimit() > 0;
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

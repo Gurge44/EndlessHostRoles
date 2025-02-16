@@ -193,7 +193,8 @@ internal static class ChatCommands
             new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
             new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
-
+            new(["daybreak", "db", "дейбрейк", "破晓"], "", GetString("CommandDescription.DayBreak"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DayBreakCommand, true, true),
+            
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
@@ -266,13 +267,16 @@ internal static class ChatCommands
 
         Logger.Info(text, "SendChat");
 
-        if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-        if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
+        if (!Starspawn.IsDayBreak)
+        {
+            if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
+        }
 
         Main.IsChatCommand = false;
 
@@ -359,6 +363,24 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void DayBreakCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(DayBreakCommand), text);
+            return;
+        }
+        
+        if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Starspawn sp || sp.HasUsedDayBreak) return;
+        
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+        
+        Starspawn.IsDayBreak = true;
+        sp.HasUsedDayBreak = true;
+        
+        Utils.SendMessage("\n", title: string.Format(GetString("StarspawnUsedDayBreak"), CustomRoles.Starspawn.ToColoredString()));
+    }
+    
     private static void AddTagCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
@@ -617,6 +639,8 @@ internal static class ChatCommands
 
     private static void DeathNoteCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+        
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(DeathNoteCommand), text);
@@ -885,6 +909,8 @@ internal static class ChatCommands
 
     private static void NoteCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(NoteCommand), text);
@@ -901,6 +927,8 @@ internal static class ChatCommands
 
     private static void AssumeCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(AssumeCommand), text);
@@ -945,6 +973,8 @@ internal static class ChatCommands
 
     private static void DecreeCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(DecreeCommand), text);
@@ -1498,6 +1528,8 @@ internal static class ChatCommands
 
     private static void CheckCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(CheckCommand), text);
@@ -1519,6 +1551,8 @@ internal static class ChatCommands
 
     private static void ChatCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(ChatCommand), text);
@@ -1538,6 +1572,8 @@ internal static class ChatCommands
 
     private static void TargetCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(TargetCommand), text);
@@ -1598,6 +1634,8 @@ internal static class ChatCommands
 
     private static void AskCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(AskCommand), text);
@@ -2946,21 +2984,24 @@ internal static class ChatCommands
 
         string[] args = text.Split(' ');
 
-        if (GuessManager.GuesserMsg(player, text) ||
-            Judge.TrialMsg(player, text) ||
-            NiceSwapper.SwapMsg(player, text) ||
-            ParityCop.ParityCheckMsg(player, text) ||
-            Councillor.MurderMsg(player, text))
+        if (!Starspawn.IsDayBreak)
         {
-            canceled = true;
-            LastSentCommand[player.PlayerId] = now;
-            return;
-        }
+            if (GuessManager.GuesserMsg(player, text) ||
+                Judge.TrialMsg(player, text) ||
+                NiceSwapper.SwapMsg(player, text) ||
+                ParityCop.ParityCheckMsg(player, text) ||
+                Councillor.MurderMsg(player, text))
+            {
+                canceled = true;
+                LastSentCommand[player.PlayerId] = now;
+                return;
+            }
 
-        if (Mediumshiper.MsMsg(player, text) || Mafia.MafiaMsgCheck(player, text))
-        {
-            LastSentCommand[player.PlayerId] = now;
-            return;
+            if (Mediumshiper.MsMsg(player, text) || Mafia.MafiaMsgCheck(player, text))
+            {
+                LastSentCommand[player.PlayerId] = now;
+                return;
+            }
         }
 
         var commandEntered = false;

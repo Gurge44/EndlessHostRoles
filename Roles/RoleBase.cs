@@ -192,7 +192,7 @@ public abstract class RoleBase : IComparable<RoleBase>
         var tab = TabGroup.OtherRoles;
 
         if (role.IsCoven()) tab = TabGroup.CovenRoles;
-        else if (role.IsImpostor()) tab = TabGroup.ImpostorRoles;
+        else if (role.IsImpostor() || role.IsMadmate()) tab = TabGroup.ImpostorRoles;
         else if (role.IsNeutral(true)) tab = TabGroup.NeutralRoles;
         else if (role.IsCrewmate()) tab = TabGroup.CrewmateRoles;
 

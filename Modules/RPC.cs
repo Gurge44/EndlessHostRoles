@@ -348,6 +348,13 @@ internal static class RPCHandlerPatch
                 {
                     try { option.SetValue(reader.ReadPackedInt32()); }
                     catch { }
+
+                    try
+                    {
+                        if (startAmount == 0 && option.Name == "Preset" && option.CurrentValue != 9)
+                            option.SetValue(9);
+                    }
+                    catch (Exception e) { Utils.ThrowException(e); }
                 }
 
                 OptionShower.GetText();
