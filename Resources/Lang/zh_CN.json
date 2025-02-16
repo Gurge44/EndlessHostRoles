@@ -3852,6 +3852,8 @@
   "NumGuessersOn.Impostor.Max": "内鬼猜测的最大数量",
   "NumGuessersOn.Neutral.Min": "中立猜测的最小数量",
   "NumGuessersOn.Neutral.Max": "中立猜测的最大数量",
+  "NumGuessersOn.Coven.Min": "Minimum Number of Coven Guessers",
+  "NumGuessersOn.Coven.Max": "Maximum Number of Coven Guessers",
   "ZombieSpeedReduceInterval": "减速间隔",
   "ZombieInitialSpeed": "初始速度：",
   "ZombieMinimumSpeed": "最低速度：",
