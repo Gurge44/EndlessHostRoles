@@ -3852,6 +3852,8 @@
   "NumGuessersOn.Impostor.Max": "Макс. кол-во Угадывателей у Предателей",
   "NumGuessersOn.Neutral.Min": "Мин. кол-во Угадывателей у Нейтралов",
   "NumGuessersOn.Neutral.Max": "Макс. кол-во Угадывателей у Нейтралов",
+  "NumGuessersOn.Coven.Min": "Minimum Number of Coven Guessers",
+  "NumGuessersOn.Coven.Max": "Maximum Number of Coven Guessers",
   "ZombieSpeedReduceInterval": "Интервал снижения скорости",
   "ZombieInitialSpeed": "Изначальная скорость",
   "ZombieMinimumSpeed": "Минимальная скорость",
