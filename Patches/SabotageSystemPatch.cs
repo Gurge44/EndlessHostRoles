@@ -250,7 +250,6 @@ public static class ElectricTaskInitializePatch
     {
         long now = Utils.TimeStamp;
         if (LastUpdate >= now) return;
-
         LastUpdate = now;
 
         Utils.MarkEveryoneDirtySettingsV2();
@@ -275,7 +274,6 @@ public static class ElectricTaskCompletePatch
     {
         long now = Utils.TimeStamp;
         if (LastUpdate >= now) return;
-
         LastUpdate = now;
 
         Utils.MarkEveryoneDirtySettingsV2();

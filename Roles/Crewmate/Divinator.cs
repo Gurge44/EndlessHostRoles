@@ -78,7 +78,7 @@ public class Divinator : RoleBase
             int rolesNeeded = players.Length * (RolesPerCategory - 1);
 
             (List<CustomRoles> RoleList, PlayerControl Player)[] roleList = Enum.GetValues<CustomRoles>()
-                .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict and not CustomRoles.NotAssigned && !x.IsForOtherGameMode() && !CustomRoleSelector.RoleResult.ContainsValue(x))
+                .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict and not CustomRoles.Konan and not CustomRoles.NotAssigned && !x.IsForOtherGameMode() && !CustomRoleSelector.RoleResult.ContainsValue(x))
                 .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
                 .Take(rolesNeeded)
                 .Chunk(RolesPerCategory - 1)

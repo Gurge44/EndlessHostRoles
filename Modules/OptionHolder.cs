@@ -2363,7 +2363,7 @@ public static class Options
 
         int goId = 19723;
 
-        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..4].ToDictionary(x => x, x =>
+        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
         {
             Color teamColor = x.GetColor();
 
