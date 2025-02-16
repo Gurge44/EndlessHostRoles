@@ -405,9 +405,8 @@ public static class CaptureTheFlag
                 Utils.NotifyRoles(SpecifySeer: flagCarrierPc, SpecifyTarget: flagCarrierPc);
 
                 CTFTeam enemy = team.GetOppositeTeam();
-                PlainShipRoom flagRoom = Flag.playerControl.GetPlainShipRoom();
 
-                if (flagRoom != null && Translator.GetString(flagRoom.RoomId.ToString()) == enemy.GetFlagBase().RoomName)
+                if (Vector2.Distance(Flag.Position, enemy.GetFlagBase().Position) <= 2f)
                     TeamData[enemy].SetAsWinner();
             }
             catch { }

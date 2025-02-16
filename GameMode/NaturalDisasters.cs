@@ -565,7 +565,7 @@ public static class NaturalDisasters
                     case <= dragRange:
                         Vector2 direction = (Position - pos).normalized;
                         Vector2 newPosition = pos + (direction * 0.1f);
-                        pc.TP(newPosition);
+                        pc.TP(newPosition, noCheckState: true);
                         continue;
                 }
             }
