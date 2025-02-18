@@ -100,7 +100,7 @@
   "RoleSubCategoryLimitOptions.Impostor_Concealing.Min": "Minimum Impostor Concealing Roles",
   "RoleSubCategoryLimitOptions.Impostor_Concealing.Max": "Maximum Impostor Concealing Roles",
   "RoleSubCategoryLimitOptions.Impostor_Miscellaneous.Min": "Minimum Impostor Miscellaneous Roles",
-  "RoleSubCategoryLimitOptions.Impostor_Miscellaneous.Max": "Maximum Impostor Miscellaneous Roles",
+  "RoleSubCategoryLimitOptions.Impostor_Miscellaneous.Max": "その他の インポスター役割の 最大数",
   "RoleSubCategoryLimitOptions.MadMates.Min": "マッド役職の最小人数",
   "RoleSubCategoryLimitOptions.MadMates.Max": "マッド役職の最大人数",
   "RoleSubCategoryLimitOptions.Crewmate_Investigate.Min": "Minimum Crewmate Investigate Roles",
