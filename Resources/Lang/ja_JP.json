@@ -120,7 +120,7 @@
   "RoleSubCategoryLimitOptions.Neutral_Benign.Min": "Minimum Neutral Benign Roles",
   "RoleSubCategoryLimitOptions.Neutral_Benign.Max": "Maximum Neutral Benign Roles",
   "RoleSubCategoryLimitOptions.Neutral_Killing.Min": "Minimum Neutral Killing Roles",
-  "RoleSubCategoryLimitOptions.Neutral_Killing.Max": "Maximum Neutral Killing Roles",
+  "RoleSubCategoryLimitOptions.Neutral_Killing.Max": "殺害する ニュートラル役割の 最大数",
   "FactionLimits.Impostor.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Impostor Roles",
   "FactionLimits.Impostor.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Impostor Roles",
   "FactionLimits.Neutral.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Neutral Roles",
