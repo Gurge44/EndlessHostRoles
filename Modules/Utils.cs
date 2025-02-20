@@ -1700,6 +1700,7 @@ public static class Utils
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
     {
         if (sendTo != byte.MaxValue && GetPlayerById(sendTo, false) == null) return;
+        if (title.Trim().Length == 0 && text.Trim().Length == 0) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {

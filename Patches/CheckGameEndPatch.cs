@@ -344,7 +344,7 @@ internal static class GameEndChecker
         Silencer.ForSilencer.Clear();
 
         // Set ghost role
-        List<byte> ReviveRequiredPlayerIds = [];
+        List<byte> playersToRevive = [];
         CustomWinner winner = WinnerTeam;
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -360,11 +360,11 @@ internal static class GameEndChecker
             SetGhostRole(canWin ^ isCrewmateWin); // XOR
             continue;
 
-            void SetGhostRole(bool ToGhostImpostor)
+            void SetGhostRole(bool toGhostImpostor)
             {
-                if (!pc.Data.IsDead) ReviveRequiredPlayerIds.Add(pc.PlayerId);
+                if (!pc.Data.IsDead) playersToRevive.Add(pc.PlayerId);
 
-                if (ToGhostImpostor)
+                if (toGhostImpostor)
                 {
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: changed to ImpostorGhost", "ResetRoleAndEndGame");
                     pc.RpcSetRole(RoleTypes.ImpostorGhost);
@@ -385,10 +385,10 @@ internal static class GameEndChecker
         // Delay to ensure that resuscitation is delivered after the ghost roll setting
         yield return new WaitForSeconds(EndGameDelay);
 
-        if (ReviveRequiredPlayerIds.Count > 0)
+        if (playersToRevive.Count > 0)
         {
             // Resuscitation Resuscitate one person per transmission to prevent the packet from swelling up and dying
-            foreach (byte playerId in ReviveRequiredPlayerIds)
+            foreach (byte playerId in playersToRevive)
             {
                 NetworkedPlayerInfo playerInfo = GameData.Instance.GetPlayerById(playerId);
                 // resuscitation

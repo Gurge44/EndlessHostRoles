@@ -147,7 +147,7 @@ internal static class SetEverythingUpPatch
             // ---------- Code from TOR (The Other Roles)! ----------
             // https://github.com/TheOtherRolesAU/TheOtherRoles/blob/main/TheOtherRoles/Patches/EndGamePatch.cs
 
-            if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
+            if (Options.CurrentGameMode != CustomGameMode.Standard) goto End;
 
             int num = Mathf.CeilToInt(7.5f);
 

@@ -6,7 +6,6 @@ namespace EHR.Impostor;
 public class Occultist : RoleBase
 {
     public static bool On;
-    private static List<Occultist> Instances = [];
 
     private static OptionItem AbilityUseLimit;
     private static OptionItem ReviveTime;
@@ -50,22 +49,15 @@ public class Occultist : RoleBase
     {
         On = false;
         ActionSwitchMode = Options.UsePhantomBasis.GetBool() ? ActionSwitchModes.Vanish : Options.UseUnshiftTrigger.GetBool() ? ActionSwitchModes.Unshift : Options.UsePets.GetBool() ? ActionSwitchModes.Pet : ActionSwitchModes.Vent;
-        Instances = [];
         Revives = [];
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        Instances.Add(this);
         OccultistPC = playerId.GetPlayer();
         InRevivingMode = true;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
-    }
-
-    public override void Remove(byte playerId)
-    {
-        Instances.Remove(this);
     }
 
     void SwitchAction()

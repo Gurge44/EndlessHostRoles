@@ -146,7 +146,7 @@ internal static class OnPlayerJoinedPatch
                 }
             }
             catch { }
-        }, 5.5f, "green bean kick late task", false);
+        }, 4f, "green bean kick late task", false);
 
         if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
         {
@@ -348,7 +348,7 @@ internal static class InnerNetClientSpawnPatch
             Logger.Warn("client is null or client have invalid color", "TrySyncAndSendMessage");
         else
         {
-            LateTask.New(() => { OptionItem.SyncAllOptions(client.Id); }, 3f, "Sync All Options For New Player");
+            LateTask.New(() => OptionItem.SyncAllOptions(client.Id), 3f, "Sync All Options For New Player");
 
             LateTask.New(() =>
             {
@@ -547,7 +547,7 @@ internal static class SetColorPatch
                         AmongUsClient.Instance.KickPlayer(client.Id, false);
                     }
                 }
-            }, 6f, "fortegreen bean color kick");
+            }, 4.5f, "fortegreen bean color kick");
         }
 
         if (bodyColor == 255) return;
