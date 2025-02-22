@@ -2928,7 +2928,7 @@
   "RoleRate": "<color=#00ffa5>ВКЛ</color>",
   "RoleOn": "<color=#ffffa5>ВСЕГДА</color>",
   "RoleOff": "<color=#54545c>ВЫКЛ</color>",
-  "RoleRateNoColor": "РАНДОМ",
+  "RoleRateNoColor": "Рандомные",
   "RoleOnNoColor": "ВСЕГДА",
   "RoleOffNoColor": "ВЫКЛ",
   "Rate0": "<#662222>0%</color>",
