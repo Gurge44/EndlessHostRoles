@@ -662,7 +662,7 @@
   "BardInfo": "詩の優雅さ、殺害の痕跡、暗い抱擁でのリズミカルなダンス。",
   "NukerInfo": "シェイプシフトで みんなに核攻撃をする",
   "EngineerEHRInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>エンジニアとして、通信妨害ではない限り 通気口にアクセスができます。\\n通信妨害の間は 通気口が無効になります。</size>",
-  "ScientistEHRInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>科学者として、あなたは乗組員のバイタルが記録された 携帯用タブレット を所持しています。\\nこれを好きに使用してください。\\nセルフレポート、身体年齢に関する追加情報、その他... を取得できます。</size>",
+  "ScientistEHRInfoLong": "(Crewmates):\\nAs the Scientist, you have a portable tablet with the crew's vitals on it. Use this any way you'd like. Catching self-reports, extra intel on body age, etc.",
   "ShapeshifterEHRInfoLong": "(<#ff1919>インポスター</color>):\\n<size=80%>シェイプシフターとして、あなたは 他の乗組員に成りすますための 変身能力 があります。\\nただ 変装時は 卵があること、変装は一時的なものであることに 注意してください。</size>",
   "GuardianAngelEHRInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>守護天使として、あなたは幽霊のときに出現し インポスターの脅威から クルーメイトを守るという 任務をする必要があります。</size>",
   "ImpostorEHRInfoLong": "(<#ff1919>インポスター</color>):\\n<size=80%>インポスターとして、あなたの目的は シンプルに クルーメイトを殺すことです。\\nあなたは サボタージュ と 通気口 が使用できます。</size>",
