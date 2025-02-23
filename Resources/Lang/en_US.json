@@ -5643,7 +5643,7 @@
   "Reaper.SoulsRequired": "Number of Souls required to transform into Death",
   "Death": "Death",
   "DeathInfo": "Kill with low cooldown",
-  "DeathInfoLong": "(Coven):\\You cannot be killed normally and you have a low kill cooldown, similar to Pestilence. You cannot have the Necronomicon enhance your powers.",
+  "DeathInfoLong": "(Coven):\\nYou cannot be killed normally and you have a low kill cooldown, similar to Pestilence. You cannot have the Necronomicon enhance your powers.",
   "VoodooMaster": "Voodoo Master",
   "VoodooMasterInfo": "Redirect abilities, kill with Necronomicon",
   "VoodooMasterInfoLong": "(Coven):\\nForce someone to use their ability on themselves or generally (like Tornado or Camouflager). Upon gaining the Necronomicon, you will also kill the target.",
