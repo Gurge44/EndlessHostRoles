@@ -66,6 +66,8 @@ public static class HudSpritePatch
             Sprite newPetButton = Pet;
             Sprite newReportButton = Report;
 
+            bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
+
             switch (player.GetCustomRole())
             {
                 case CustomRoles.CTFPlayer:
@@ -467,9 +469,14 @@ public static class HudSpritePatch
 
                     break;
                 }
+                default:
+                {
+                    if (!usesPetInsteadOfKill) return;
+                    break;
+                }
             }
 
-            if (player.UsesPetInsteadOfKill()) newPetButton = newKillButton;
+            if (usesPetInsteadOfKill) newPetButton = newKillButton;
 
 
             __instance.KillButton.graphic.sprite = newKillButton;

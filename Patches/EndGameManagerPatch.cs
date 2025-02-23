@@ -14,6 +14,7 @@ public static class EndGameManagerPatch
 
     public static void Postfix(EndGameManager __instance)
     {
+        GameEndChecker.LoadingEndScreen = false;
         if (!AmongUsClient.Instance.AmHost || !Options.AutoPlayAgain.GetBool()) return;
 
         IsRestarting = false;

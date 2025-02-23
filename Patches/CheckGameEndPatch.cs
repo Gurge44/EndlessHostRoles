@@ -27,6 +27,7 @@ internal static class GameEndChecker
     public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
     public static bool Ended;
+    public static bool LoadingEndScreen;
 
     public static bool Prefix()
     {
@@ -44,6 +45,7 @@ internal static class GameEndChecker
             if (WinnerIds.Count > 0 || WinnerTeam != CustomWinner.Default)
             {
                 Ended = true;
+                LoadingEndScreen = true;
                 ShipStatus.Instance.enabled = false;
                 StartEndGame(reason);
                 Predicate = null;
@@ -55,6 +57,8 @@ internal static class GameEndChecker
         if (WinnerTeam != CustomWinner.Default)
         {
             Ended = true;
+            LoadingEndScreen = true;
+            
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
 
             NameNotifyManager.Reset();

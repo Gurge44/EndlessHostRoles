@@ -28,7 +28,7 @@ public static class GameStartManagerUpdatePatch
 public static class GameStartManagerPatch
 {
     public static long TimerStartTS;
-    public static float Timer => Math.Max(0, 600f - (Utils.TimeStamp - TimerStartTS));
+    public static float Timer => Math.Max(0, 595f - (Utils.TimeStamp - TimerStartTS));
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public static class GameStartManagerStartPatch

@@ -2366,7 +2366,7 @@ public static class Utils
                                 case CustomRoles.Revolutionist:
                                     if (seer.IsDrawPlayer(target)) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
 
-                                    if (Revolutionist.RevolutionistTimer.TryGetValue(seer.PlayerId, out (PlayerControl PLAYER, float TIMER) ar_kvp1) && ar_kvp1.PLAYER == target) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
+                                    if (Revolutionist.RevolutionistTimer.TryGetValue(seer.PlayerId, out (PlayerControl Player, float Timer) ar_kvp1) && ar_kvp1.Player == target) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
 
                                     break;
                                 case CustomRoles.Farseer:
@@ -3102,21 +3102,14 @@ public static class Utils
 
     public static (int Drawn, int All) GetDrawPlayerCount(byte playerId, out List<PlayerControl> winnerList)
     {
-        var draw = 0;
         int all = Revolutionist.RevolutionistDrawCount.GetInt();
         int max = Main.AllAlivePlayerControls.Length;
+        
         if (!Main.PlayerStates[playerId].IsDead) max--;
-
-        winnerList = [];
         if (all > max) all = max;
 
-        foreach (PlayerControl pc in Main.AllPlayerControls.Where(pc => Revolutionist.IsDraw.TryGetValue((playerId, pc.PlayerId), out bool isDraw) && isDraw).ToArray())
-        {
-            winnerList.Add(pc);
-            draw++;
-        }
-
-        return (draw, all);
+        winnerList = Main.AllPlayerControls.Where(pc => Revolutionist.IsDraw.TryGetValue((playerId, pc.PlayerId), out bool isDraw) && isDraw).ToList();
+        return (winnerList.Count, all);
     }
 
     public static string SummaryTexts(byte id, bool disableColor = true, bool check = false)

@@ -590,15 +590,16 @@ internal static class CheckMurderPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
 internal static class MurderPlayerPatch
 {
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] MurderResultFlags resultFlags*/)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] MurderResultFlags resultFlags, ref bool __state)
     {
-        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? " (Protected)" : string.Empty)}", "MurderPlayer");
-
-        if (GameStates.IsLobby)
-        {
-            Logger.Info("Murder triggered in lobby, so murder canceled", "MurderPlayer Prefix");
-            return false;
-        }
+        if (GameStates.IsLobby || AntiBlackout.SkipTasks) return false;
+        
+        var protectedByClient = resultFlags.HasFlag(MurderResultFlags.DecisionByHost) && target.IsProtected();
+        var protectedByHost = resultFlags.HasFlag(MurderResultFlags.FailedProtected);
+        var failed = resultFlags.HasFlag(MurderResultFlags.FailedError);
+        __state = !protectedByClient && !protectedByHost && !failed;
+        
+        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()} - {nameof(protectedByClient)}: {protectedByClient}, {nameof(protectedByHost)}: {protectedByHost}, {nameof(failed)}: {failed}", "MurderPlayer");
 
         RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Add(__instance.PlayerId);
 
@@ -611,9 +612,9 @@ internal static class MurderPlayerPatch
         return true;
     }
 
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, bool __state)
     {
-        if (__instance == null || target == null || __instance.PlayerId == 255 || target.PlayerId == 255) return;
+        if (__instance == null || target == null || __instance.PlayerId == 255 || target.PlayerId == 255 || !__state) return;
 
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
 

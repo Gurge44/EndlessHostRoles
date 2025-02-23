@@ -153,5 +153,7 @@ static class ExitGamePatch
     public static void Postfix()
     {
         LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.Closed);
+        
+        GameEndChecker.LoadingEndScreen = false;
     }
 }
