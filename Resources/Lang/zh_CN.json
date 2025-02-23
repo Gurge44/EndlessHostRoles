@@ -5643,7 +5643,7 @@
   "Reaper.SoulsRequired": "转化为死亡所需灵魂数量",
   "Death": "死亡",
   "DeathInfo": "以低冷却时间击杀",
-  "DeathInfoLong": "(巫师阵营):\\n诅咒玩家;当被诅咒的玩家死亡时，你会获得一个灵魂。当达到特定数量的灵魂（由房主设置）时，你就会变成死亡。死亡不能正常杀死，并且击杀冷却时间很短，类似于瘟疫。你不能让亡灵魔法增强你的力量。",
+  "DeathInfoLong": "(Coven):\\nYou cannot be killed normally and you have a low kill cooldown, similar to Pestilence. You cannot have the Necronomicon enhance your powers.",
   "VoodooMaster": "巫毒大师",
   "VoodooMasterInfo": "重定向能力，使用亡灵魔法击杀",
   "VoodooMasterInfoLong": "(巫师阵营):\\n强迫某人对自己或一般人使用他们的能力（如龙卷风或隐蔽者）。获得亡灵魔法后，您也将杀死目标。",
