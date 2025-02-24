@@ -28,6 +28,7 @@ public static class GameStartManagerUpdatePatch
 public static class GameStartManagerPatch
 {
     public static long TimerStartTS;
+    private static TextMeshPro warningText;
     public static float Timer => Math.Max(0, 595f - (Utils.TimeStamp - TimerStartTS));
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
@@ -63,6 +64,13 @@ public static class GameStartManagerPatch
                     __instance.HostViewButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
                     __instance.HostViewButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0f, 1f, 1f, 0.5f);
                 }
+                else 
+                {
+                    __instance.ClientViewButton.activeTextColor = __instance.HostViewButton.inactiveTextColor = Color.black;
+                    __instance.ClientViewButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
+                    __instance.ClientViewButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
+                    __instance.ClientViewButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0f, 1f, 1f, 0.5f);
+                }
 
                 if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance.startState == GameStartManager.StartingStates.Starting) return;
 
@@ -75,6 +83,11 @@ public static class GameStartManagerPatch
                 HideName.text = ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
                     ? $"<color={Main.HideColor.Value}>{Main.HideName.Value}</color>"
                     : $"<color={Main.ModColor}>{Main.HideName.Value}</color>";
+
+                warningText = Object.Instantiate(__instance.GameStartText, __instance.transform.parent);
+                warningText.name = "WarningText";
+                warningText.transform.localPosition = new(0f, __instance.transform.localPosition.y + 3f, -1f);
+                warningText.gameObject.SetActive(false);
 
                 if (!AmongUsClient.Instance.AmHost) return;
 
@@ -294,6 +307,7 @@ public static class GameStartManagerPatch
                 var canStartGame = true;
                 var mismatchedClientName = string.Empty;
 
+                string warningMessage = "";
                 if (AmongUsClient.Instance.AmHost)
                 {
                     foreach (ClientData client in AmongUsClient.Instance.allClients)
@@ -326,7 +340,18 @@ public static class GameStartManagerPatch
                             AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
                             SceneChanger.ChangeScene("MainMenu");
                         }
+                        if (ExitTimer != 0)
+                            warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(5 - ExitTimer).ToString()));
                     }
+                }
+                if (warningMessage == "")
+                {
+                    warningText.gameObject.SetActive(false);
+                }
+                else
+                {
+                    warningText.text = warningMessage;
+                    warningText.gameObject.SetActive(true);
                 }
 
                 __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");
