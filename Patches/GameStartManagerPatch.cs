@@ -357,7 +357,7 @@ public static class GameStartManagerPatch
                 __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
                 // Lobby timer
-                if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame) return;
+                if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame || GameStates.CurrentServerType == GameStates.ServerType.Modded && GameStates.CurrentServerType == GameStates.ServerType.Custom) return;
 
                 float timer = Timer;
 
@@ -388,6 +388,7 @@ public static class GameStartManagerPatch
                     tmp.outlineWidth = 0.4f;
                     tmp.transform.localPosition += new Vector3(-0.8f, -0.42f, 0f);
                     tmp.transform.localScale = new(0.6f, 0.6f, 1f);
+                    tmp.gameObject.SetActive(AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla);
                 }
 
                 tmp.text = suffix;
