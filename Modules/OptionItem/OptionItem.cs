@@ -151,6 +151,13 @@ public abstract class OptionItem
         Do(i => i.Children.Add(child));
     }
 
+    /// <summary>
+    /// Register an event that will be called when the value of this option is updated.
+    /// </summary>
+    /// <param name="handler">The event handler that has two arguments:
+    /// the first argument is the OptionItem instance that was updated,
+    /// the second one contains the old and the new value of the setting.</param>
+    /// <returns></returns>
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
     {
         return Do(_ => UpdateValueEvent += handler);
@@ -185,6 +192,8 @@ public abstract class OptionItem
             "LoverDieConsequence" => GetValue() == 1,
             "Bargainer.LensOfTruth.DurationSwitch" => GetValue() == 3,
             "BlackHoleDespawnMode" => GetValue() == 1,
+            "CTF_TaggedPlayersGet" => GetValue() == 2,
+            "CTF_GameEndCriteria" => true,
             _ => CurrentValue != 0
         };
     }
@@ -217,15 +226,15 @@ public abstract class OptionItem
 
     private bool CheckHidden()
     {
-        int LastParent = Id;
+        int lastParent = Id;
 
         for (var i = 0; i < 5; i++)
         {
-            if (AllOptions.First(x => x.Id == LastParent).Parent == null) break;
-            LastParent = AllOptions.First(x => x.Id == LastParent).Parent.Id;
+            if (AllOptions.First(x => x.Id == lastParent).Parent == null) break;
+            lastParent = AllOptions.First(x => x.Id == lastParent).Parent.Id;
         }
 
-        return IsHidden || Parent?.IsHidden == true || AllOptions.First(x => x.Id == LastParent).IsHidden;
+        return IsHidden || Parent?.IsHidden == true || AllOptions.First(x => x.Id == lastParent).IsHidden;
     }
 
     protected string ApplyFormat(string value)

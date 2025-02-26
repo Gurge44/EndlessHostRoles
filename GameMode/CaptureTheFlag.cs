@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
 
@@ -16,14 +17,20 @@ public static class CaptureTheFlag
     private static OptionItem AlertTeamMembersOfEnemyFlagTaken;
     private static OptionItem ArrowToOwnFlagCarrier;
     private static OptionItem TaggedPlayersGet;
+    private static OptionItem BackTime;
     private static OptionItem WhenFlagCarrierGetsTagged;
     private static OptionItem SpeedReductionForFlagCarrier;
     private static OptionItem TagCooldown;
+    private static OptionItem GameEndCriteria;
+    private static OptionItem RoundsToPlay;
+    private static OptionItem PointsToWin;
+    private static OptionItem TimeLimit;
 
     private static readonly string[] TaggedPlayersGetOptions =
     [
         "CTF_TaggedPlayersGet.SentBackToBase",
-        "CTF_TaggedPlayersGet.Killed"
+        "CTF_TaggedPlayersGet.Killed",
+        "CTF_TaggedPlayersGet.TemporarilyOut"
     ];
 
     private static readonly string[] WhenFlagCarrierGetsTaggedOptions =
@@ -32,13 +39,23 @@ public static class CaptureTheFlag
         "CTF_WhenFlagCarrierGetsTagged.FlagIsReturned"
     ];
 
+    private static readonly string[] GameEndCriteriaOptions =
+    [
+        "CTF_GameEndCriteria.PlayXRounds",
+        "CTF_GameEndCriteria.FirstToXPoints",
+        "CTF_GameEndCriteria.TimeLimit"
+    ];
+
     public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     private static Dictionary<byte, CTFTeam> PlayerTeams = [];
     private static Dictionary<CTFTeam, CTFTeamData> TeamData = [];
     private static Dictionary<byte, CTFPlayerData> PlayerData = [];
     private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
+    private static Dictionary<byte, long> TemporarilyOutPlayers = [];
     private static bool ValidTag;
+    private static long GameStartTS;
+    private static int RoundsPlayed => TeamData.Values.Sum(x => x.RoundsWon);
     public static bool IsDeathPossible => TaggedPlayersGet.GetValue() == 1;
 
     private static NetworkedPlayerInfo.PlayerOutfit YellowOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 5, "", "", "", "pet_coaltonpet", "");
@@ -89,8 +106,14 @@ public static class CaptureTheFlag
             .SetParent(AlertTeamMembersOfEnemyFlagTaken)
             .SetColor(color);
 
-        TaggedPlayersGet = new StringOptionItem(id + 4, "CTF_TaggedPlayersGet", TaggedPlayersGetOptions, 0, TabGroup.GameSettings)
+        TaggedPlayersGet = new StringOptionItem(id + 4, "CTF_TaggedPlayersGet", TaggedPlayersGetOptions, 2, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetColor(color);
+
+        BackTime = new IntegerOptionItem(id + 20, "CTF_BackTime", new(1, 30, 1), 5, TabGroup.GameSettings)
+            .SetParent(TaggedPlayersGet)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color);
 
         WhenFlagCarrierGetsTagged = new StringOptionItem(id + 5, "CTF_WhenFlagCarrierGetsTagged", WhenFlagCarrierGetsTaggedOptions, 0, TabGroup.GameSettings)
@@ -103,6 +126,32 @@ public static class CaptureTheFlag
             .SetColor(color);
 
         TagCooldown = new FloatOptionItem(id + 7, "CTF_TagCooldown", new(0f, 30f, 0.5f), 4.5f, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(color);
+
+        GameEndCriteria = new StringOptionItem(id + 8, "CTF_GameEndCriteria", GameEndCriteriaOptions, 0, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetColor(color)
+            .RegisterUpdateValueEvent((_, args) =>
+            {
+                RoundsToPlay.SetHidden(args.CurrentValue != 0);
+                PointsToWin.SetHidden(args.CurrentValue != 1);
+                TimeLimit.SetHidden(args.CurrentValue != 2);
+            });
+
+        RoundsToPlay = new IntegerOptionItem(id + 9, "CTF_RoundsToPlay", new(1, 10, 1), 3, TabGroup.GameSettings)
+            .SetParent(GameEndCriteria)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetColor(color);
+
+        PointsToWin = new IntegerOptionItem(id + 10, "CTF_PointsToWin", new(1, 10, 1), 3, TabGroup.GameSettings)
+            .SetParent(GameEndCriteria)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetColor(color);
+
+        TimeLimit = new IntegerOptionItem(id + 11, "CTF_TimeLimit", new(10, 900, 10), 300, TabGroup.GameSettings)
+            .SetParent(GameEndCriteria)
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color);
@@ -130,7 +179,18 @@ public static class CaptureTheFlag
 
         string arrows = TargetArrow.GetAllArrows(seer);
         arrows = arrows.Length > 0 ? $"{arrows}\n" : string.Empty;
-        return $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" | ", "\n")}</size>";
+
+        var str = $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" | ", "\n")}</size>\n";
+
+        if (GameEndCriteria.GetValue() == 2)
+        {
+            var timeLeft = TimeLimit.GetInt() - (Utils.TimeStamp - GameStartTS) + 1;
+
+            if (timeLeft >= 0) str += $"<size=1.6>{(timeLeft / 60):00}:{(timeLeft % 60):00}</size>\n";
+            else str += $"<size=1.6>{Translator.GetString("CTF_TimeIsUp")}</size>\n";
+        }
+
+        return str + string.Join(" | ", TeamData.Select(x => Utils.ColorString(x.Key.GetTeamColor(), x.Value.RoundsWon.ToString())));
     }
 
     public static string GetStatistics(byte id)
@@ -203,6 +263,7 @@ public static class CaptureTheFlag
         WinnerData = (Color.white, "No one wins");
         PlayerData = Main.PlayerStates.Keys.ToDictionary(x => x, _ => new CTFPlayerData());
         DefaultOutfits = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
+        TemporarilyOutPlayers = [];
         ValidTag = false;
 
         // Check if the current game mode is Capture The Flag
@@ -277,13 +338,27 @@ public static class CaptureTheFlag
             }
 
             ValidTag = true;
+            GameStartTS = Utils.TimeStamp;
             LateTask.New(() => Main.ProcessShapeshifts = true, 3f, log: false);
         }, 12f, "CTFManager.OnGameStart");
     }
 
+    private static void Restart()
+    {
+        Logger.Info("Restarting Capture The Flag game", "CTF");
+
+        foreach ((CTFTeam team, CTFTeamData data) in TeamData)
+        {
+            var flagBase = team.GetFlagBase().Position;
+            data.DropFlag();
+            data.Flag.TP(flagBase);
+            data.Players.ToValidPlayers().Do(x => x.TP(flagBase));
+        }
+    }
+
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!ValidTag || !PlayerTeams.TryGetValue(target.PlayerId, out var targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out var killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
+        if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out var targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out var killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
         new[] { killer, target }.Do(x => x.SetKillCooldown(TagCooldown.GetFloat()));
 
@@ -304,6 +379,12 @@ public static class CaptureTheFlag
                 target.Suicide();
                 string notify = string.Format(Translator.GetString("CTF_TeamMemberFallen"), target.PlayerId.ColoredPlayerName());
                 TeamData[targetTeam].Players.ToValidPlayers().Do(x => x.Notify(notify));
+                break;
+            case 2:
+                TemporarilyOutPlayers[target.PlayerId] = Utils.TimeStamp + BackTime.GetInt();
+                Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
+                target.TP(Pelican.GetBlackRoomPS());
+                target.MarkDirtySettings();
                 break;
         }
 
@@ -378,6 +459,7 @@ public static class CaptureTheFlag
         public CustomNetObject Flag { get; } = flag;
         public HashSet<byte> Players { get; } = players;
         public byte FlagCarrier { get; private set; } = flagCarrier;
+        public int RoundsWon { get; private set; }
 
         public void SetAsWinner()
         {
@@ -407,7 +489,25 @@ public static class CaptureTheFlag
                 CTFTeam enemy = team.GetOppositeTeam();
 
                 if (Vector2.Distance(Flag.Position, enemy.GetFlagBase().Position) <= 2f)
-                    TeamData[enemy].SetAsWinner();
+                {
+                    Main.AllPlayerControls.Do(x => x.Notify($"CTF_{enemy}TeamWonThisRound"));
+                    CTFTeamData enemyTeam = TeamData[enemy];
+
+                    if (++enemyTeam.RoundsWon >= PointsToWin.GetInt() && GameEndCriteria.GetValue() == 1)
+                    {
+                        enemyTeam.SetAsWinner();
+                        return;
+                    }
+
+                    if (GameEndCriteria.GetValue() == 0 && RoundsPlayed >= RoundsToPlay.GetInt() && RoundsWon != enemyTeam.RoundsWon)
+                    {
+                        var winner = TeamData.Values.MaxBy(x => x.RoundsWon);
+                        winner.SetAsWinner();
+                        return;
+                    }
+
+                    Restart();
+                }
             }
             catch { }
         }
@@ -462,7 +562,7 @@ public static class CaptureTheFlag
 
         public bool IsNearFlag(Vector2 pos)
         {
-            return Vector2.Distance(Flag.Position, pos) < 1f;
+            return Vector2.Distance(Flag.Position, pos) < 1.25f;
         }
     }
 
@@ -478,9 +578,32 @@ public static class CaptureTheFlag
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255 || WinnerData.Team != "No one wins") return;
 
-            if (__instance.IsHost()) TeamData.Values.Do(x => x.Update());
+            if (__instance.IsHost())
+            {
+                TeamData.Values.Do(x => x.Update());
+
+                if (GameEndCriteria.GetValue() == 2)
+                {
+                    var timeLeft = TimeLimit.GetInt() - (Utils.TimeStamp - GameStartTS) + 1;
+
+                    switch (timeLeft)
+                    {
+                        case <= 1 when TeamData[CTFTeam.Blue].RoundsWon != TeamData[CTFTeam.Yellow].RoundsWon:
+                        {
+                            var winner = TeamData.Values.MaxBy(x => x.RoundsWon);
+                            winner.SetAsWinner();
+                            return;
+                        }
+                        case >= 0:
+                        {
+                            Utils.NotifyRoles();
+                            break;
+                        }
+                    }
+                }
+            }
 
             if (!PlayerTeams.TryGetValue(__instance.PlayerId, out var team)) return;
             bool blue = team == CTFTeam.Blue;
@@ -488,6 +611,28 @@ public static class CaptureTheFlag
 
             if (__instance.Data.DefaultOutfit.ColorId != colorId)
                 Utils.RpcChangeSkin(__instance, blue ? BlueOutfit : YellowOutfit);
+
+            Vector2 pos = __instance.Pos();
+            Vector2 blackRoomPS = Pelican.GetBlackRoomPS();
+
+            if (TemporarilyOutPlayers.TryGetValue(__instance.PlayerId, out var endTS))
+            {
+                if (Utils.TimeStamp >= endTS)
+                {
+                    TemporarilyOutPlayers.Remove(__instance.PlayerId);
+                    Main.AllPlayerSpeed[__instance.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    __instance.MarkDirtySettings();
+                    __instance.TP(team.GetFlagBase().Position);
+                    __instance.SetKillCooldown();
+                }
+                else if (GameEndCriteria.GetValue() != 2)
+                {
+                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance);
+                    if (Vector2.Distance(pos, blackRoomPS) > 2f) __instance.TP(blackRoomPS);
+                }
+            }
+            else if (Vector2.Distance(pos, blackRoomPS) <= 2f)
+                __instance.TP(team.GetFlagBase().Position);
         }
     }
 }
