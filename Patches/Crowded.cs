@@ -153,7 +153,7 @@ internal static class Crowded
     }
 
     [HarmonyPatch(typeof(ServerManager), nameof(ServerManager.SetRegion))]
-    public static class ServerManager_SetRegion
+    public static class ServerManagerSetRegion
     {
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix()
@@ -240,6 +240,21 @@ internal static class Crowded
             targetOptions.SetInt(Int32OptionNames.MaxPlayers, maxPlayers);
             __instance.SetTargetOptions(targetOptions);
             __instance.UpdateMaxPlayersButtons(targetOptions);
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(CreateOptionsPicker), nameof(CreateOptionsPicker.Refresh))]
+    public static class CreateOptionsPickerRefresh
+    {
+        public static bool Prefix(CreateOptionsPicker __instance)
+        {
+            IGameOptions targetOptions = __instance.GetTargetOptions();
+            __instance.UpdateImpostorsButtons(targetOptions.NumImpostors);
+            __instance.UpdateMaxPlayersButtons(targetOptions);
+            __instance.UpdateLanguageButton((uint)targetOptions.Keywords);
+            __instance.MapMenu.UpdateMapButtons(targetOptions.MapId);
+            __instance.GameModeText.text = DestroyableSingleton<TranslationController>.Instance.GetString(GameModesHelpers.ModeToName[GameOptionsManager.Instance.CurrentGameOptions.GameMode]);
             return false;
         }
     }

@@ -12,7 +12,6 @@ public class Amnesiac : RoleBase
 {
     private const int Id = 35000;
     private static List<Amnesiac> Instances = [];
-    public static HashSet<byte> WasAmnesiac = [];
 
     private static OptionItem RememberCooldown;
     private static OptionItem CanRememberCrewPower;
@@ -74,7 +73,6 @@ public class Amnesiac : RoleBase
     public override void Init()
     {
         Instances = [];
-        WasAmnesiac = [];
     }
 
     public override void Add(byte playerId)
@@ -174,25 +172,20 @@ public class Amnesiac : RoleBase
                 switch (target.GetTeam())
                 {
                     case Team.Impostor:
-                        RememberedRole = CustomRoles.Refugee;
+                        RememberedRole = SingleRoles.Contains(targetRole) ? CustomRoles.Refugee : targetRole;
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
                         break;
                     case Team.Crewmate:
                         RememberedRole = CanRememberCrewPower.GetBool() || targetRole.GetCrewmateRoleCategory() != RoleOptionType.Crewmate_Power ? targetRole : CustomRoles.Sheriff;
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
                         break;
+                    case Team.Neutral when !SingleRoles.Contains(targetRole):
+                        RememberedRole = targetRole;
+                        amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                        break;
                     case Team.Neutral:
-                        if (!SingleRoles.Contains(targetRole))
-                        {
-                            RememberedRole = targetRole;
-                            amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
-                        }
-                        else
-                        {
-                            RememberedRole = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()];
-                            amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{RememberedRole}"));
-                        }
-
+                        RememberedRole = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()];
+                        amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{RememberedRole}"));
                         break;
                     case Team.Coven:
                         RememberedRole = targetRole == CustomRoles.CovenLeader ? Enum.GetValues<CustomRoles>().FindFirst(x => x.IsCoven() && !x.RoleExist(true), out var unusedCovenRole) ? unusedCovenRole : null : targetRole;
@@ -224,9 +217,6 @@ public class Amnesiac : RoleBase
         target.RpcGuardAndKill(target);
 
         if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);
-
-        if (role.GetRoleTypes() == RoleTypes.Engineer)
-            WasAmnesiac.Add(amnesiac.PlayerId);
 
         if (!amnesiac.IsLocalPlayer()) return;
 

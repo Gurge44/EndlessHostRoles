@@ -127,6 +127,6 @@ public class Cleanser : RoleBase
         Logger.Info($"Removed all the add ons of {targetPc.GetNameWithRole().RemoveHtmlTags()}", "Cleanser");
         CleanserTarget = byte.MaxValue;
         targetPc.MarkDirtySettings();
-        targetPc.Notify(GetString("LostAddonByCleanser"));
+        targetPc.Notify(string.Format(GetString("LostAddonByCleanser"), CustomRoles.Cleanser.ToColoredString()));
     }
 }

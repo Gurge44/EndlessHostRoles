@@ -5,6 +5,7 @@ internal class SchrodingersCat : RoleBase
     public static bool On;
 
     public static OptionItem WinsWithCrewIfNotAttacked;
+    public static OptionItem StealsExactImpostorRole;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -13,6 +14,9 @@ internal class SchrodingersCat : RoleBase
         Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.SchrodingersCat);
 
         WinsWithCrewIfNotAttacked = new BooleanOptionItem(id + 2, "SchrodingersCat.WinsWithCrewIfNotAttacked", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SchrodingersCat]);
+
+        StealsExactImpostorRole = new BooleanOptionItem(id + 3, "SchrodingersCat.StealsExactImpostorRole", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SchrodingersCat]);
     }
 
@@ -29,10 +33,9 @@ internal class SchrodingersCat : RoleBase
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
         CustomRoles killerRole = killer.GetCustomRole();
-        if (killerRole.IsImpostor() || killerRole.IsMadmate()) killerRole = CustomRoles.Refugee;
 
+        if (!StealsExactImpostorRole.GetBool() && (killerRole.IsImpostor() || killerRole.IsMadmate())) killerRole = CustomRoles.Refugee;
         if (killerRole == CustomRoles.Jackal) killerRole = CustomRoles.Sidekick;
-
         if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
 
         target.RpcSetCustomRole(killerRole);
