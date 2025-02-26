@@ -35,7 +35,7 @@
   "ShortTeamName.Coven": "Coven",
   "YouAreCrewmate": "<size=1.7><color=#ffffff>Jesteś</color> Crewmate</size>",
   "YouAreImpostor": "<size=1.7><color=#ffffff>Jesteś</color> Impostorem</size>",
-  "YouAreNeutral": "<size=1.7><color=#ffffff>You are a</color> Neutral</size>",
+  "YouAreNeutral": "<size=1.7><color=#ffffff>Jesteś</color> Neutralem</size>",
   "YouAreCoven": "<size=1.7><color=#ffffff>You are in the</color> Coven</size>",
   "YouAreMadmate": "<size=1.7><color=#ffffff>You are in the</color> Impostor <color=#ffffff>team</color></size>",
   "CrewmateSub": "Find and exile the <color=#ff1919>Impostors</color>",
