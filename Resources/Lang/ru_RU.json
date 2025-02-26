@@ -2521,7 +2521,7 @@
   "JailTalkTitle": "ТЮРЬМА",
   "DisableWhisperCommand": "Выключить команду /whisper",
   "DisableSpectateCommand": "Выключить команду /spectate",
-  "Disable8ballCommand": "Disable /8ball command",
+  "Disable8ballCommand": "Выключить команду /8ball",
   "SpectateDisabled": "Отказано в доступе\\nКоманда <b>/spectate</b> отключена в настройках игры.",
   "WhisperDisabled": "Отказано в доступе\\nКоманда <b>/whisper</b> отключена в настройках игры.",
   "EightBallDisabled": "<#ff0000>X</color> The /8ball command is disabled in this lobby.",
