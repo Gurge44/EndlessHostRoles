@@ -16,8 +16,9 @@ public class Sapper : RoleBase
     public static OptionItem ShapeshiftCooldown;
     private static OptionItem Delay;
     private static OptionItem Radius;
+    private static OptionItem CanSabotage;
 
-    public static Dictionary<Vector2, long> Bombs = [];
+    private static Dictionary<Vector2, long> Bombs = [];
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -25,14 +26,20 @@ public class Sapper : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sapper);
 
-        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "SapperCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
+        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "SapperCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
             .SetValueFormat(OptionFormat.Seconds);
 
-        Delay = new IntegerOptionItem(Id + 12, "SapperDelay", new(1, 15, 1), 5, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
+        Delay = new IntegerOptionItem(Id + 12, "SapperDelay", new(1, 15, 1), 5, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
             .SetValueFormat(OptionFormat.Times);
 
-        Radius = new FloatOptionItem(Id + 13, "SapperRadius", new(0f, 10f, 0.25f), 3f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
+        Radius = new FloatOptionItem(Id + 13, "SapperRadius", new(0f, 10f, 0.25f), 3f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
             .SetValueFormat(OptionFormat.Multiplier);
+        
+        CanSabotage = new BooleanOptionItem(Id + 14, "CanSabotage", false, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Sapper]);
     }
 
     public override void Init()
@@ -67,10 +74,14 @@ public class Sapper : RoleBase
         Main.AllPlayerKillCooldown[id] = 300f;
     }
 
+    public override bool CanUseSabotage(PlayerControl pc)
+    {
+        return CanSabotage.GetBool();
+    }
+
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
-
         return PlaceBomb(shapeshifter);
     }
 
@@ -97,11 +108,8 @@ public class Sapper : RoleBase
     private static bool PlaceBomb(PlayerControl pc)
     {
         if (pc == null) return false;
-
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
-
         Bombs.TryAdd(pc.Pos(), TimeStamp);
-
         return false;
     }
 

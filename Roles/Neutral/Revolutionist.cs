@@ -9,7 +9,7 @@ namespace EHR.Neutral;
 internal class Revolutionist : RoleBase
 {
     public static Dictionary<(byte, byte), bool> IsDraw = [];
-    public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> RevolutionistTimer = [];
+    public static Dictionary<byte, (PlayerControl Player, float Timer)> RevolutionistTimer = [];
     public static Dictionary<byte, long> RevolutionistStart = [];
     public static Dictionary<byte, long> RevolutionistLastTime = [];
     public static Dictionary<byte, int> RevolutionistCountdown = [];
@@ -53,7 +53,8 @@ internal class Revolutionist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        foreach (PlayerControl ar in Main.AllPlayerControls) IsDraw.Add((playerId, ar.PlayerId), false);
+        foreach (PlayerControl ar in Main.AllPlayerControls)
+            IsDraw.Add((playerId, ar.PlayerId), false);
     }
 
     public override void Init()
@@ -140,7 +141,7 @@ internal class Revolutionist : RoleBase
 
         if (GameStates.IsInTask && RevolutionistTimer.ContainsKey(playerId))
         {
-            PlayerControl rvTarget = RevolutionistTimer[playerId].PLAYER;
+            PlayerControl rvTarget = RevolutionistTimer[playerId].Player;
 
             if (!player.IsAlive() || Pelican.IsEaten(playerId))
             {
@@ -150,8 +151,8 @@ internal class Revolutionist : RoleBase
             }
             else
             {
-                PlayerControl rv_target = RevolutionistTimer[playerId].PLAYER;
-                float rv_time = RevolutionistTimer[playerId].TIMER;
+                PlayerControl rv_target = RevolutionistTimer[playerId].Player;
+                float rv_time = RevolutionistTimer[playerId].Timer;
 
                 if (!rv_target.IsAlive())
                     RevolutionistTimer.Remove(playerId);

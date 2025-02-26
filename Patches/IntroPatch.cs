@@ -850,7 +850,11 @@ internal static class IntroCutsceneDestroyPatch
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             PlayerControl lp = PlayerControl.LocalPlayer;
-            LateTask.New(() => lp.RpcChangeRoleBasis(lp.GetCustomRole()), 1f, log: false);
+            LateTask.New(() =>
+            {
+                lp.RpcChangeRoleBasis(lp.GetCustomRole());
+                lp.RpcResetAbilityCooldown();
+            }, 1f, log: false);
 
             if (Options.UsePets.GetBool())
             {

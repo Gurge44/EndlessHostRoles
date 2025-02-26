@@ -228,7 +228,7 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || ((!Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && (!Options.UseUnshiftTrigger.GetBool() || !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool())))))
+                    if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || ((!Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && (!Options.UseUnshiftTrigger.GetBool() || !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool())))))
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)

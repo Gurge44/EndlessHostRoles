@@ -77,12 +77,12 @@ internal class Merchant : RoleBase
 
         GroupedAddons.Remove(AddonTypes.ImpOnly);
 
-        Addons = GroupedAddons.Values.Flatten().ToList();
+        Addons = GroupedAddons.Values.Flatten().Shuffle();
 
         if (OptionSellOnlyEnabledAddons.GetBool()) Addons.RemoveAll(x => x.GetMode() == 0);
 
         Addons.RemoveAll(StartGameHostPatch.BasisChangingAddons.ContainsKey);
-        Addons.RemoveAll(x => x.IsNotAssignableMidGame());
+        Addons.RemoveAll(x => x.IsNotAssignableMidGame() || x.IsConverted() || x == CustomRoles.Madmate);
     }
 
     public override void Add(byte playerId)
