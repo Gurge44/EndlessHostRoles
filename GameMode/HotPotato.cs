@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
@@ -50,12 +51,12 @@ internal static class HotPotato
         SurvivalTimes = [];
         foreach (PlayerControl pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
 
-        DefaultSpeed = Main.AllPlayerSpeed[0];
+        DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
     }
 
     public static void OnGameStart()
     {
-        LateTask.New(() => { FixedUpdatePatch.Return = false; }, 7f, log: false);
+        LateTask.New(() => FixedUpdatePatch.Return = false, 7f, log: false);
         HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 40, 1);
     }
 
@@ -165,14 +166,8 @@ internal static class HotPotato
                     Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "HotPotatoManager.FixedUpdatePatch.PassHotPotato");
-            }
-            finally
-            {
-                Utils.NotifyRoles(SpecifyTarget: target);
-            }
+            catch (Exception ex) { Logger.Exception(ex, "HotPotatoManager.FixedUpdatePatch.PassHotPotato"); }
+            finally { Utils.NotifyRoles(SpecifyTarget: target); }
         }
     }
 }

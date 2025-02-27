@@ -984,6 +984,7 @@ internal static class CustomRolesHelper
     {
         return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
         {
+            CustomRoles.Shy when Options.DisableWhisperCommand.GetBool() => false,
             CustomRoles.Blocked when !pc.CanUseVent() => false,
             CustomRoles.Aide when pc.IsMadmate() => false,
             CustomRoles.Sleuth when pc.Is(CustomRoles.NecroGuesser) => false,

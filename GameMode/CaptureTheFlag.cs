@@ -186,11 +186,17 @@ public static class CaptureTheFlag
         {
             var timeLeft = TimeLimit.GetInt() - (Utils.TimeStamp - GameStartTS) + 1;
 
-            if (timeLeft >= 0) str += $"<size=1.6>{(timeLeft / 60):00}:{(timeLeft % 60):00}</size>\n";
-            else str += $"<size=1.6>{Translator.GetString("CTF_TimeIsUp")}</size>\n";
+            if (timeLeft >= 0) str += $"<size=1.8><#ffffff>{(timeLeft / 60):00}:{(timeLeft % 60):00}</color></size>\n";
+            else str += $"<size=1.6><#ffffff>{Translator.GetString("CTF_TimeIsUp")}</color></size>\n";
         }
 
-        return str + string.Join(" | ", TeamData.Select(x => Utils.ColorString(x.Key.GetTeamColor(), x.Value.RoundsWon.ToString())));
+        if (TemporarilyOutPlayers.TryGetValue(seer.PlayerId, out var backTS))
+        {
+            var timeLeft = backTS - Utils.TimeStamp;
+            str += $"{Translator.GetString("CTF_BackIn")}{timeLeft}\n";
+        }
+
+        return str + string.Join("<#ffffff> | </color>", TeamData.Select(x => Utils.ColorString(x.Key.GetTeamColor(), x.Value.RoundsWon.ToString())));
     }
 
     public static string GetStatistics(byte id)
@@ -490,7 +496,7 @@ public static class CaptureTheFlag
 
                 if (Vector2.Distance(Flag.Position, enemy.GetFlagBase().Position) <= 2f)
                 {
-                    Main.AllPlayerControls.Do(x => x.Notify($"CTF_{enemy}TeamWonThisRound"));
+                    Main.AllPlayerControls.Do(x => x.Notify(Translator.GetString($"CTF_{enemy}TeamWonThisRound")));
                     CTFTeamData enemyTeam = TeamData[enemy];
 
                     if (++enemyTeam.RoundsWon >= PointsToWin.GetInt() && GameEndCriteria.GetValue() == 1)
@@ -596,7 +602,7 @@ public static class CaptureTheFlag
                             winner.SetAsWinner();
                             return;
                         }
-                        case >= 0:
+                        case >= -1:
                         {
                             Utils.NotifyRoles();
                             break;

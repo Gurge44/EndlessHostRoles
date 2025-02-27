@@ -588,6 +588,7 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Shy, "#9582f5" },
                 { CustomRoles.Blocked, "#B7A627" },
                 { CustomRoles.Aide, "#ff1919" },
                 { CustomRoles.Anchor, "#6B4CE4" },
@@ -945,7 +946,7 @@ public enum CustomWinner
 public enum AdditionalWinners
 {
     None = -1,
-    
+
     AliveNeutrals = -2,
 
     // Hide And Seek
