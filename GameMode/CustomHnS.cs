@@ -231,6 +231,10 @@ internal static class CustomHnS
             result[lp] = CustomRoles.GM;
             PlayerRoles[lp.PlayerId] = (new Hider(), CustomRoles.GM);
         }
+        foreach (byte spectator in ChatCommands.Spectators)
+        {
+            PlayerRoles[spectator] = (new Hider(), CustomRoles.GM);
+        }
 
         LateTask.New(() => result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
 
