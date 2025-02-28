@@ -20,6 +20,7 @@ public class RoomRusher : RoleBase
     private static OptionItem RoomNameDisplay;
     private static OptionItem Arrow;
     private static OptionItem RoomsToWin;
+    
     private int CompletedNum;
     private long LastUpdate;
     private SystemTypes RoomGoal;
@@ -134,7 +135,7 @@ public class RoomRusher : RoleBase
         switch (map)
         {
             case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
-                time = (int)(time * 0.4f);
+                time = (int)(time * 0.7f);
                 break;
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
