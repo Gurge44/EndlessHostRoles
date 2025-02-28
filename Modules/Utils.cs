@@ -2892,6 +2892,48 @@ public static class Utils
     {
         try
         {
+            if (!disconnect)
+            {
+                bool setRole = true;
+                RoleTypes roleType = RoleTypes.CrewmateGhost;
+
+                bool targetIsKiller = target.Is(CustomRoleTypes.Impostor) || target.HasDesyncRole();
+                Dictionary<PlayerControl, RoleTypes> ghostRoles = new();
+
+                foreach (PlayerControl seer in Main.AllPlayerControls)
+                {
+                    bool self = seer.PlayerId == target.PlayerId;
+                    bool seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || seer.HasDesyncRole();
+
+                    if (target.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(target))
+                        ghostRoles[seer] = RoleTypes.GuardianAngel;
+                    else if ((self && targetIsKiller) || (!seerIsKiller && target.Is(CustomRoleTypes.Impostor)))
+                        ghostRoles[seer] = RoleTypes.ImpostorGhost;
+                    else
+                        ghostRoles[seer] = RoleTypes.CrewmateGhost;
+                }
+
+                if (target.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(target))
+                    roleType = RoleTypes.GuardianAngel;
+                else if (ghostRoles.All(kvp => kvp.Value == RoleTypes.CrewmateGhost))
+                    roleType = RoleTypes.CrewmateGhost;
+                else if (ghostRoles.All(kvp => kvp.Value == RoleTypes.ImpostorGhost))
+                    roleType = RoleTypes.ImpostorGhost;
+                else
+                {
+                    foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
+                        target.RpcSetRoleDesync(role, seer.GetClientId());
+
+                    setRole = false;
+                }
+
+                if (setRole) target.RpcSetRoleDesync(roleType, target.GetClientId());
+            }
+        }
+        catch (Exception e) { ThrowException(e); }
+
+        try
+        {
             if (!onMeeting) Main.DiedThisRound.Add(target.PlayerId);
 
             // Record the first death
@@ -3104,7 +3146,7 @@ public static class Utils
     {
         int all = Revolutionist.RevolutionistDrawCount.GetInt();
         int max = Main.AllAlivePlayerControls.Length;
-        
+
         if (!Main.PlayerStates[playerId].IsDead) max--;
         if (all > max) all = max;
 

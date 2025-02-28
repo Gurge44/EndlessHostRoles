@@ -21,6 +21,10 @@ public static class RoomRush
     private static OptionItem DontKillLastPlayer;
     private static OptionItem DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom;
     private static OptionItem DontKillPlayersOutsideRoomWhenTimeRunsOut;
+    private static OptionItem WinByPointsInsteadOfDeaths;
+    private static OptionItem PointsToWin;
+
+    private static Dictionary<byte, int> Points = [];
 
     public static readonly HashSet<string> HasPlayedFriendCodes = [];
 
@@ -92,13 +96,14 @@ public static class RoomRush
             [(SystemTypes.Ventilation, SystemTypes.Lounge)] = 2,
             [(SystemTypes.Ventilation, SystemTypes.Electrical)] = 2,
             [(SystemTypes.Ventilation, SystemTypes.Medical)] = 2,
+            [(SystemTypes.Ventilation, SystemTypes.MeetingRoom)] = 3,
             [(SystemTypes.Comms, SystemTypes.VaultRoom)] = 2,
             [(SystemTypes.GapRoom, SystemTypes.Records)] = 3,
             [(SystemTypes.GapRoom, SystemTypes.Lounge)] = 3,
-            [(SystemTypes.GapRoom, SystemTypes.Brig)] = 4,
+            [(SystemTypes.GapRoom, SystemTypes.Brig)] = 3,
             [(SystemTypes.GapRoom, SystemTypes.VaultRoom)] = 3,
             [(SystemTypes.GapRoom, SystemTypes.Engine)] = 2,
-            [(SystemTypes.MeetingRoom, SystemTypes.Records)] = 3,
+            [(SystemTypes.MeetingRoom, SystemTypes.Records)] = 5,
             [(SystemTypes.MeetingRoom, SystemTypes.Lounge)] = 3,
             [(SystemTypes.MeetingRoom, SystemTypes.MainHall)] = 2,
             [(SystemTypes.Engine, SystemTypes.Security)] = 2,
@@ -121,7 +126,12 @@ public static class RoomRush
             [(SystemTypes.MiningPit, SystemTypes.FishingDock)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.RecRoom)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.Kitchen)] = 2,
-            [(SystemTypes.MiningPit, SystemTypes.Cafeteria)] = 2
+            [(SystemTypes.MiningPit, SystemTypes.Cafeteria)] = 2,
+            [(SystemTypes.MiningPit, SystemTypes.Comms)] = 2,
+            [(SystemTypes.SleepingQuarters, SystemTypes.Greenhouse)] = 2,
+            [(SystemTypes.SleepingQuarters, SystemTypes.Storage)] = 2,
+            [(SystemTypes.RecRoom, SystemTypes.Kitchen)] = 2,
+            [(SystemTypes.RecRoom, SystemTypes.Cafeteria)] = 2
         }
     };
 
@@ -162,7 +172,16 @@ public static class RoomRush
             .SetGameMode(gameMode)
             .SetColor(color);
 
-        DontKillPlayersOutsideRoomWhenTimeRunsOut = new BooleanOptionItem(id, "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut", false, TabGroup.GameSettings)
+        DontKillPlayersOutsideRoomWhenTimeRunsOut = new BooleanOptionItem(id++, "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut", false, TabGroup.GameSettings)
+            .SetGameMode(gameMode)
+            .SetColor(color);
+
+        WinByPointsInsteadOfDeaths = new BooleanOptionItem(id++, "RR_WinByPointsInsteadOfDeaths", false, TabGroup.GameSettings)
+            .SetGameMode(gameMode)
+            .SetColor(color);
+
+        PointsToWin = new IntegerOptionItem(id, "RR_PointsToWin", new(5, 500, 5), 100, TabGroup.GameSettings)
+            .SetParent(WinByPointsInsteadOfDeaths)
             .SetGameMode(gameMode)
             .SetColor(color);
     }
@@ -198,6 +217,10 @@ public static class RoomRush
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
 
         DonePlayers = [];
+        Points = [];
+
+        if (WinByPointsInsteadOfDeaths.GetBool())
+            Points = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => 0);
 
         Map = Main.CurrentMap switch
         {
@@ -318,7 +341,7 @@ public static class RoomRush
         switch (map)
         {
             case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
-                time = (int)(time * 0.4f);
+                time = (int)(time * 0.7f);
                 break;
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
@@ -328,7 +351,7 @@ public static class RoomRush
                 break;
         }
 
-        TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 5);
+        TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6);
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= AllInOneGameMode.RoomRushTimeLimitMultiplier.GetInt();
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "RoomRush");
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
@@ -358,6 +381,9 @@ public static class RoomRush
 
         color = done ? Color.white : Color.yellow;
         sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
+
+        if (WinByPointsInsteadOfDeaths.GetBool() && Points.TryGetValue(seer.PlayerId, out var points))
+            sb.Append(string.Format(Translator.GetString("RR_Points"), points, PointsToWin.GetInt()));
 
         if (VentTimes.GetInt() == 0 || dead || seer.IsModClient()) return sb.ToString().Trim();
 
@@ -398,6 +424,19 @@ public static class RoomRush
             long now = Utils.TimeStamp;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
+            if (WinByPointsInsteadOfDeaths.GetBool())
+            {
+                foreach ((byte id, int points) in Points)
+                {
+                    if (points >= PointsToWin.GetInt())
+                    {
+                        Logger.Info($"{Main.AllPlayerNames[id]} has reached the points limit, ending the game", "RoomRush");
+                        CustomWinnerHolder.WinnerIds = [id];
+                        return;
+                    }
+                }
+            }
+
             foreach (PlayerControl pc in aapc)
             {
                 PlainShipRoom room = pc.GetPlainShipRoom();
@@ -408,6 +447,9 @@ public static class RoomRush
                 {
                     Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
                     pc.Notify($"{DonePlayers.Count}.", 2f);
+
+                    if (WinByPointsInsteadOfDeaths.GetBool())
+                        Points[pc.PlayerId] += aapc.Length - DonePlayers.Count - 1;
 
                     int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
 
@@ -425,14 +467,20 @@ public static class RoomRush
                     {
                         PlayerControl last = aapc.First(x => !DonePlayers.Contains(x.PlayerId));
                         Logger.Info($"All players entered the correct room except one, killing the last player ({last.GetRealName()})", "RoomRush");
-                        last.Suicide();
                         last.Notify(Translator.GetString("RR_YouWereLast"));
+
+                        if (WinByPointsInsteadOfDeaths.GetBool()) last.TP(DonePlayers.RandomElement().GetPlayer());
+                        else last.Suicide();
+
                         StartNewRound();
                         return;
                     }
                 }
                 else if ((room == null || room.RoomId != RoomGoal) && (notAllInOne || !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool()))
+                {
+                    if (WinByPointsInsteadOfDeaths.GetBool()) Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count - 1;
                     DonePlayers.Remove(pc.PlayerId);
+                }
             }
 
             if (LastUpdate == now) return;
@@ -446,9 +494,15 @@ public static class RoomRush
                 Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
                 PlayerControl[] lateAapc = Main.AllAlivePlayerControls;
                 PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
-                if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
 
-                playersOutsideRoom.Do(x => x.Suicide());
+                if (!WinByPointsInsteadOfDeaths.GetBool())
+                {
+                    if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                    playersOutsideRoom.Do(x => x.Suicide());
+                }
+                else if (playersOutsideRoom.Length != lateAapc.Length)
+                    playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
+
                 StartNewRound();
 
                 if (playersOutsideRoom.Any(x => x.IsLocalPlayer()))

@@ -194,7 +194,7 @@ internal static class ChatCommands
             new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
             new(["daybreak", "db", "дейбрейк", "破晓"], "", GetString("CommandDescription.DayBreak"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DayBreakCommand, true, true),
-            
+
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
@@ -370,17 +370,17 @@ internal static class ChatCommands
             RequestCommandProcessingFromHost(nameof(DayBreakCommand), text);
             return;
         }
-        
+
         if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Starspawn sp || sp.HasUsedDayBreak) return;
-        
+
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-        
+
         Starspawn.IsDayBreak = true;
         sp.HasUsedDayBreak = true;
-        
+
         Utils.SendMessage("\n", title: string.Format(GetString("StarspawnUsedDayBreak"), CustomRoles.Starspawn.ToColoredString()));
     }
-    
+
     private static void AddTagCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
@@ -420,6 +420,12 @@ internal static class ChatCommands
 
     private static void EightBallCommand(PlayerControl player, string text, string[] args)
     {
+        if (Options.Disable8ballCommand.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("EightBallDisabled"));
+            return;
+        }
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(EightBallCommand), text);
@@ -628,7 +634,8 @@ internal static class ChatCommands
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
-        if (Main.PlayerStates[targetId].IsDead) return;
+        PlayerState state = Main.PlayerStates[targetId];
+        if (state.IsDead || state.SubRoles.Contains(CustomRoles.Shy)) return;
 
         string msg = args[2..].Join(delimiter: " ");
         string title = string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName(), player.PlayerId);
@@ -640,7 +647,7 @@ internal static class ChatCommands
     private static void DeathNoteCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
-        
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(DeathNoteCommand), text);

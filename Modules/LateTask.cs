@@ -7,30 +7,30 @@ namespace EHR;
 internal class LateTask
 {
     private static readonly List<LateTask> Tasks = [];
-    private readonly Action action;
-    private readonly string callerData;
-    private readonly bool log;
-    private readonly string name;
-    private float timer;
+    private readonly Action Action;
+    private readonly string CallerData;
+    private readonly bool LOG;
+    private readonly string Name;
+    private float Timer;
 
     private LateTask(Action action, float time, string name, bool log, string callerData)
     {
-        this.action = action;
-        timer = time;
-        this.name = name;
-        this.log = log;
-        this.callerData = callerData;
+        this.Action = action;
+        Timer = time;
+        this.Name = name;
+        this.LOG = log;
+        this.CallerData = callerData;
         Tasks.Add(this);
         if (log && name is not "" and not "No Name Task") Logger.Info("\"" + name + "\" is created", "LateTask");
     }
 
     private bool Run(float deltaTime)
     {
-        timer -= deltaTime;
+        Timer -= deltaTime;
 
-        if (timer <= 0)
+        if (Timer <= 0)
         {
-            action();
+            Action();
             return true;
         }
 
@@ -57,15 +57,15 @@ internal class LateTask
             {
                 if (task.Run(deltaTime))
                 {
-                    if (task.name is not "" and not "No Name Task" && task.log)
-                        Logger.Info($"\"{task.name}\" is finished", "LateTask");
+                    if (task.Name is not "" and not "No Name Task" && task.LOG)
+                        Logger.Info($"\"{task.Name}\" is finished", "LateTask");
 
                     Tasks.Remove(task);
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{task.name}\" ({task.callerData})\n{ex.StackTrace}", "LateTask.Error", false);
+                Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{task.Name}\" ({task.CallerData})\n{ex.StackTrace}", "LateTask.Error", false);
                 Tasks.Remove(task);
             }
         }

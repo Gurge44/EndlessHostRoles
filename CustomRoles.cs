@@ -504,6 +504,7 @@ public enum CustomRoles
     Trainee,
     DualPersonality, // Schizophrenic
     Seer,
+    Shy,
     Sleuth,
     Sonar,
     Stained,

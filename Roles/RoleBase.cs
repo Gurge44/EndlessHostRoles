@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
-using EHR.Neutral;
 
 
 namespace EHR;
@@ -53,7 +52,7 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || Amnesiac.WasAmnesiac.Contains(pc.PlayerId) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc);
+        return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc);
     }
 
     public virtual bool CanUseVent(PlayerControl pc, int ventId)
