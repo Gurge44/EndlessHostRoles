@@ -39,6 +39,14 @@
 
 Share the download link with your friends: [bit.ly/downloadehr](https://bit.ly/downloadehr)
 
+<br>
+
+[![GitHub license](https://badgen.net/github/license/Gurge44/EndlessHostRoles)](https://github.com/Gurge44/EndlessHostRoles/blob/main/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/Gurge44/EndlessHostRoles.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
+[![GitHub latest commit](https://badgen.net/github/last-commit/Gurge44/EndlessHostRoles)](https://GitHub.com/Gurge44/EndlessHostRoles/commit/)
+[![Github all releases](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
+[![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Gurge44/badges/)
+
 ## Want to become a beta tester?
 
 Join our Discord server and download the latest test build from the #test-builds channel.
