@@ -48,22 +48,6 @@ public class RoomRusher : RoleBase
     public override void Init()
     {
         On = false;
-
-        AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
-        AllRooms.Remove(SystemTypes.Hallway);
-        AllRooms.Remove(SystemTypes.Outside);
-        AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
-
-        Map = Main.CurrentMap switch
-        {
-            MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-            MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-            MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-            MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-            MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-            MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-            _ => throw new ArgumentOutOfRangeException()
-        };
     }
 
     public override void Add(byte playerId)
@@ -75,7 +59,26 @@ public class RoomRusher : RoleBase
         LastUpdate = Utils.TimeStamp;
         TimeLeft = 50;
 
-        LateTask.New(() => StartNewRound(true), Main.CurrentMap == MapNames.Airship ? 22f : 14f);
+        LateTask.New(() =>
+        {
+            AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
+            AllRooms.Remove(SystemTypes.Hallway);
+            AllRooms.Remove(SystemTypes.Outside);
+            AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
+
+            Map = Main.CurrentMap switch
+            {
+                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
+                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
+                MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
+                MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
+                MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
+                MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            
+            StartNewRound(true);
+        }, Main.CurrentMap == MapNames.Airship ? 22f : 14f);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
