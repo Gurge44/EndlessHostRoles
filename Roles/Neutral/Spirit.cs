@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
@@ -36,6 +37,12 @@ public class Spirit : RoleBase
         SpiritID = playerId;
         playerId.SetAbilityUseLimit(2);
         Targets = (byte.MaxValue, byte.MaxValue);
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+        AURoleOptions.ShapeshifterDuration = 1f;
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

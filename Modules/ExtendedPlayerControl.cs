@@ -1408,6 +1408,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.KB_Normal => SoloPVP.KB_ATKCooldown.GetFloat(),
             CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             CustomRoles.Runner => Speedrun.KCD,
+            CustomRoles.CTFPlayer => CaptureTheFlag.KCD,
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
 

@@ -57,6 +57,7 @@ public static class CaptureTheFlag
     private static long GameStartTS;
     private static int RoundsPlayed => TeamData.Values.Sum(x => x.RoundsWon);
     public static bool IsDeathPossible => TaggedPlayersGet.GetValue() == 1;
+    public static float KCD => TagCooldown.GetFloat();
 
     private static NetworkedPlayerInfo.PlayerOutfit YellowOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 5, "", "", "", "pet_coaltonpet", "");
     private static NetworkedPlayerInfo.PlayerOutfit BlueOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 1, "", "", "", "pet_coaltonpet", "");
@@ -193,7 +194,7 @@ public static class CaptureTheFlag
         if (TemporarilyOutPlayers.TryGetValue(seer.PlayerId, out var backTS))
         {
             var timeLeft = backTS - Utils.TimeStamp;
-            str += $"{Translator.GetString("CTF_BackIn")}{timeLeft}\n";
+            str += $"{string.Format(Translator.GetString("CTF_BackIn"), timeLeft)}\n";
         }
 
         return str + string.Join("<#ffffff> | </color>", TeamData.Select(x => Utils.ColorString(x.Key.GetTeamColor(), x.Value.RoundsWon.ToString())));

@@ -141,7 +141,7 @@ public static class Translator
         return str;
     }
 
-    private static string GetString(string str, SupportedLangs langId)
+    public static string GetString(string str, SupportedLangs langId)
     {
         var res = $"<INVALID:{str}>";
 

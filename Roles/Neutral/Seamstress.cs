@@ -20,7 +20,7 @@ public class Seamstress : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(645500)
+        StartSetup(645800)
             .AutoSetupOption(ref ShapeshiftCooldown, 15f, new FloatValueRule(0.5f, 60f, 0.5f), OptionFormat.Seconds);
     }
 

@@ -2339,7 +2339,7 @@ public static class Options
         PassiveNeutralsCanGuess = new BooleanOptionItem(19713, "PassiveNeutralsCanGuess", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
-        CovenCanGuess = new BooleanOptionItem(19730, "CovenCanGuess", false, TabGroup.TaskSettings)
+        CovenCanGuess = new BooleanOptionItem(19735, "CovenCanGuess", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
         BetrayalAddonsCanGuess = new BooleanOptionItem(19719, "BetrayalAddonsCanGuess", false, TabGroup.TaskSettings)
