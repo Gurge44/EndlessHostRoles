@@ -14,8 +14,11 @@ public class Auditor : RoleBase
     private static OptionItem LoweredVision;
     private static OptionItem LoweredVisionDuration;
     private static OptionItem StealAllChargesInsteadOfOne;
-    private AbilityTriggers AbilityTrigger;
+    private static OptionItem AbilityUseLimit;
+    private static OptionItem SmokebombCooldown;
+    private static OptionItem AuditCooldown;
 
+    private AbilityTriggers AbilityTrigger;
     private byte AuditorID;
     private Dictionary<byte, long> LoweredVisionPlayers = [];
     private Modes Mode;
@@ -28,7 +31,10 @@ public class Auditor : RoleBase
         StartSetup(645300)
             .AutoSetupOption(ref LoweredVision, 0.3f, new FloatValueRule(0.05f, 1.25f, 0.05f), OptionFormat.Multiplier)
             .AutoSetupOption(ref LoweredVisionDuration, 10, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
-            .AutoSetupOption(ref StealAllChargesInsteadOfOne, false);
+            .AutoSetupOption(ref StealAllChargesInsteadOfOne, false)
+            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 20, 1), OptionFormat.Times)
+            .AutoSetupOption(ref SmokebombCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref AuditCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds);
     }
 
     public override void Init()
@@ -46,11 +52,12 @@ public class Auditor : RoleBase
         Mode = Modes.Auditing;
         LoweredVisionPlayers = [];
         RevealedPlayers = [];
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return pc.GetAbilityUseLimit() > 0;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -73,6 +80,7 @@ public class Auditor : RoleBase
         switch (Mode)
         {
             case Modes.Auditing:
+            {
                 if (StealAllChargesInsteadOfOne.GetBool())
                 {
                     if (!float.IsNaN(target.GetAbilityUseLimit()))
@@ -80,12 +88,17 @@ public class Auditor : RoleBase
                 }
                 else target.RpcRemoveAbilityUse();
 
+                killer.SetKillCooldown(AuditCooldown.GetFloat());
                 break;
+            }
             case Modes.Smokebombing:
+            {
                 var containsKey = LoweredVisionPlayers.ContainsKey(target.PlayerId);
                 LoweredVisionPlayers[target.PlayerId] = Utils.TimeStamp + LoweredVisionDuration.GetInt();
                 if (!containsKey) target.MarkDirtySettings();
+                killer.SetKillCooldown(SmokebombCooldown.GetFloat());
                 break;
+            }
         }
 
         if (RevealedPlayers.Add(target.PlayerId))

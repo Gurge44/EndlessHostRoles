@@ -591,6 +591,7 @@ public class Main : BasePlugin
                 { CustomRoles.Shy, "#9582f5" },
                 { CustomRoles.Blocked, "#B7A627" },
                 { CustomRoles.Aide, "#ff1919" },
+                { CustomRoles.Underdog, "#ff1919" },
                 { CustomRoles.Anchor, "#6B4CE4" },
                 { CustomRoles.Fragile, "#debe66" },
                 { CustomRoles.Allergic, "#e3bd56" },

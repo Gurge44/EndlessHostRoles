@@ -83,11 +83,12 @@ public class RoomRusher : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
+        opt.SetVision(true);
         AURoleOptions.EngineerCooldown = 1f;
         AURoleOptions.EngineerInVentMaxTime = 300f;
     }
 
-    void StartNewRound(bool initial = false, bool dontCount = false)
+    void StartNewRound(bool initial = false, bool dontCount = false, bool afterMeeting = false)
     {
         MapNames map = Main.CurrentMap;
 
@@ -96,9 +97,9 @@ public class RoomRusher : RoleBase
             : map switch
             {
                 MapNames.Skeld => SystemTypes.Cafeteria,
-                MapNames.Mira => SystemTypes.Launchpad,
+                MapNames.Mira => afterMeeting ? SystemTypes.Cafeteria : SystemTypes.Launchpad,
                 MapNames.Dleks => SystemTypes.Cafeteria,
-                MapNames.Polus => SystemTypes.Dropship,
+                MapNames.Polus => afterMeeting ? SystemTypes.Office : SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
                 MapNames.Fungle => SystemTypes.Dropship,
                 _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
@@ -109,7 +110,7 @@ public class RoomRusher : RoleBase
         RoomGoal = AllRooms.Without(previous).RandomElement();
         Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
         Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? rrpc.Pos() : previous.GetRoomClass().transform.position);
-        float distance = initial ? 50 : Vector2.Distance(goalPos, previousPos);
+        float distance = initial || afterMeeting ? 50 : Vector2.Distance(goalPos, previousPos);
         float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         var time = (int)Math.Ceiling(distance / speed);
         Dictionary<(SystemTypes, SystemTypes), int> multipliers = RoomRush.Multipliers[map == MapNames.Dleks ? MapNames.Skeld : map];
@@ -169,6 +170,11 @@ public class RoomRusher : RoleBase
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return pc.PlayerId != RoomRusherId || (CanVent && VentsLeft > 0);
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        StartNewRound(dontCount: true, afterMeeting: true);
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

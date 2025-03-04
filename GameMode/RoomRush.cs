@@ -478,8 +478,8 @@ public static class RoomRush
                 }
                 else if ((room == null || room.RoomId != RoomGoal) && (notAllInOne || !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool()))
                 {
-                    if (WinByPointsInsteadOfDeaths.GetBool()) Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count - 1;
-                    DonePlayers.Remove(pc.PlayerId);
+                    if (DonePlayers.Remove(pc.PlayerId) && WinByPointsInsteadOfDeaths.GetBool())
+                        Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count;
                 }
             }
 

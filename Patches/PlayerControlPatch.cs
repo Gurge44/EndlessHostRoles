@@ -1022,7 +1022,7 @@ internal static class ReportDeadBodyPatch
 
             if (Options.SyncButtonMode.GetBool() && target == null)
             {
-                Logger.Info("Max buttons:" + Options.SyncedButtonCount.GetInt() + ", used:" + Options.UsedButtonCount, "ReportDeadBody");
+                Logger.Info($"Max buttons: {Options.SyncedButtonCount.GetInt()}, used: {Options.UsedButtonCount}", "ReportDeadBody");
 
                 if (Options.SyncedButtonCount.GetFloat() <= Options.UsedButtonCount)
                 {
@@ -1060,6 +1060,8 @@ internal static class ReportDeadBodyPatch
         Main.DiedThisRound = [];
 
         Main.AllAlivePlayerControls.DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos());
+
+        if (Lovers.PrivateChat.GetBool()) ChatManager.SendPreviousMessagesToAll(clear: true);
 
         if (target == null)
         {

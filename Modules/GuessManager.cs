@@ -332,12 +332,6 @@ public static class GuessManager
                         else return true;
                     }
 
-                    if (target.Is(CustomRoles.Lovers) && Lovers.GuessAbility.GetValue() == 0)
-                    {
-                        ShowMessage("GuessLovers");
-                        return true;
-                    }
-
                     if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));

@@ -357,7 +357,7 @@ internal static class RPCHandlerPatch
                     catch (Exception e) { Utils.ThrowException(e); }
                 }
 
-                OptionShower.GetText();
+                Main.Instance.StartCoroutine(OptionShower.GetText());
                 break;
             }
             case CustomRPC.SetDeathReason:

@@ -41,7 +41,15 @@ public class Spirit : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+        bool firstIsSet = Targets.Item1 != byte.MaxValue;
+        bool secondIsSet = Targets.Item2 != byte.MaxValue;
+        
+        float cd;
+        if (firstIsSet ^ secondIsSet) cd = 1f;
+        else if (firstIsSet) cd = 300f;
+        else cd = ShapeshiftCooldown.GetFloat();
+        
+        AURoleOptions.ShapeshifterCooldown = cd;
         AURoleOptions.ShapeshifterDuration = 1f;
     }
 
@@ -63,6 +71,7 @@ public class Spirit : RoleBase
         }
         
         shapeshifter.RpcRemoveAbilityUse();
+        shapeshifter.SyncSettings();
         target.Notify(string.Format(Translator.GetString("SpiritTarget"), CustomRoles.Spirit.ToColoredString()));
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
         Utils.SendRPC(CustomRPC.SyncRoleData, SpiritID, Targets.Item1, Targets.Item2);
@@ -113,5 +122,17 @@ public class Spirit : RoleBase
             if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out var alive))
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: alive);
         }
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+    {
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SpiritID || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        
+        bool firstIsSet = Targets.Item1 != byte.MaxValue;
+        bool secondIsSet = Targets.Item2 != byte.MaxValue;
+
+        if (firstIsSet && secondIsSet) return string.Format(Translator.GetString("SpiritTargetBoth"), Targets.Item1.ColoredPlayerName(), Targets.Item2.ColoredPlayerName());
+        if (firstIsSet ^ secondIsSet) return string.Format(Translator.GetString("SpiritTargetOne"), (firstIsSet ? Targets.Item1 : Targets.Item2).ColoredPlayerName());
+        return Translator.GetString("SpiritTargetNone");
     }
 }

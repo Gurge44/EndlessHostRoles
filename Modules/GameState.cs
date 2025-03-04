@@ -106,6 +106,8 @@ public class PlayerState(byte playerId)
         try { Utils.RemovePlayerFromPreviousRoleData(Player); }
         catch (Exception e) { Utils.ThrowException(e); }
 
+        var previousHasTasks = Utils.HasTasks(Player.Data, false);
+
         countTypes = role.GetCountTypes();
 
         if (SubRoles.Contains(CustomRoles.Recruit))
@@ -167,6 +169,9 @@ public class PlayerState(byte playerId)
                 Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 
             if (Options.UsePets.GetBool()) PetsHelper.SetPet(Player, PetsHelper.GetPetId());
+
+            var nowHasTasks = Utils.HasTasks(Player.Data, false);
+            if (!previousHasTasks && nowHasTasks) TaskState.Init(Player);
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
@@ -177,11 +182,11 @@ public class PlayerState(byte playerId)
         if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();
     }
 
-    public void SetSubRole(CustomRoles role, bool AllReplace = false)
+    public void SetSubRole(CustomRoles role, bool replaceAll = false)
     {
-        if (role == CustomRoles.Cleansed) AllReplace = true;
+        if (role == CustomRoles.Cleansed) replaceAll = true;
 
-        if (AllReplace)
+        if (replaceAll)
         {
             SubRoles.Clear();
             Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
