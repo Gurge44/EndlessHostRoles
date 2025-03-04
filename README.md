@@ -476,6 +476,8 @@ When using this integration, we collect the following non-personal information:
 - **Server Name:** The region where the game server is hosted (e.g., Asia, EU, NA).
 - **User Language:** The selected language for the game (e.g., English, Russian, Spanish).
 - **Mod Version:** The version of the Endless Host Roles (EHR) mod being used.
+- **Host Name:** The username of the player who created the lobby.
+- **Player Count:** The number of players in the lobby.
 - **Lobby Status:** The current status of the lobby (e.g., In Lobby, In Game, Ended).
 
 Furthermore, the following information is collected to enhance the user experience:
