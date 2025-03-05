@@ -82,6 +82,11 @@ public static class HudSpritePatch
 
                     break;
                 }
+                case CustomRoles.Dreamweaver:
+                {
+                    newKillButton = CustomButton.Get("Dreamweave");
+                    break;
+                }
                 case CustomRoles.Wizard:
                 {
                     newAbilityButton = CustomButton.Get("Up");
