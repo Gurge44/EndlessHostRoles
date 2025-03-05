@@ -449,7 +449,7 @@ public static class RoomRush
                     pc.Notify($"{DonePlayers.Count}.", 2f);
 
                     if (WinByPointsInsteadOfDeaths.GetBool())
-                        Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count - 1;
+                        Points[pc.PlayerId] += aapc.Length == 1 ? 1 : aapc.Length - DonePlayers.Count;
 
                     int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
 
