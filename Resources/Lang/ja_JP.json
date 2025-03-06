@@ -1263,7 +1263,7 @@
   "GSInfo.CovenCount": "<#7b3fbb>カヴン:</color> {0}",
   "GSInfo.CrewCount": "<#8cffff>クルーメイト:</color> {0}",
   "GSInfo.RomanticState": "{0}",
-  "GSInfo.LoversState": "<#ff9ace>ラバーズ</color>の 生存の人数 : {0}",
+  "GSInfo.LoversState": "<#ff9ace>ラバーズ</color>の 生存の人数: {0}",
   "GSInfo.Tasks": "<#00ffa5>完了したタスク数:</color> {0}/{1}",
   "GSRomanticState.0": "<#ff1493>ロマンチック</color> ペアの状態: <#888888>存在していない</color>",
   "GSRomanticState.1": "<#ff1493>ロマンチック</color> ペアの状態: <#888888>存在していない</color>",
