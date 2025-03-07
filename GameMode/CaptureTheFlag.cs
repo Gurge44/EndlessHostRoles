@@ -25,6 +25,7 @@ public static class CaptureTheFlag
     private static OptionItem RoundsToPlay;
     private static OptionItem PointsToWin;
     private static OptionItem TimeLimit;
+    private static OptionItem FlagPickupRange;
 
     private static readonly string[] TaggedPlayersGetOptions =
     [
@@ -155,6 +156,11 @@ public static class CaptureTheFlag
             .SetParent(GameEndCriteria)
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(color);
+        
+        FlagPickupRange = new FloatOptionItem(id + 12, "CTF_FlagPickupRange", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color);
     }
 
@@ -569,7 +575,7 @@ public static class CaptureTheFlag
 
         public bool IsNearFlag(Vector2 pos)
         {
-            return Vector2.Distance(Flag.Position, pos) < 1.25f;
+            return Vector2.Distance(Flag.Position, pos) <= FlagPickupRange.GetFloat();
         }
     }
 

@@ -844,6 +844,7 @@ public static class Options
         GroupOptions();
         GroupAddons();
         Achievements.LoadAllData();
+        OptionShower.LastText = Translator.GetString("Loading");
 
 #if DEBUG
         // Used for generating the table of roles for the README

@@ -24,11 +24,11 @@ namespace EHR
         public PlayerControl playerControl;
         private float PlayerControlTimer;
         public Vector2 Position;
-
-        public string Sprite;
+        protected string Sprite;
 
         public void RpcChangeSprite(string sprite)
         {
+            if (!AmongUsClient.Instance.AmHost) return;
             if (this is not DisasterWarningTimer) Logger.Info($" Change Custom Net Object {GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
 
             Sprite = sprite;
@@ -91,6 +91,7 @@ namespace EHR
 
         public void Despawn()
         {
+            if (!AmongUsClient.Instance.AmHost) return;
             Logger.Info($" Despawn Custom Net Object {GetType().Name} (ID {Id})", "CNO.Despawn");
 
             try
@@ -115,6 +116,7 @@ namespace EHR
 
         protected void Hide(PlayerControl player)
         {
+            if (!AmongUsClient.Instance.AmHost) return;
             Logger.Info($" Hide Custom Net Object {GetType().Name} (ID {Id}) from {player.GetNameWithRole()}", "CNO.Hide");
 
             HiddenList.Add(player.PlayerId);
@@ -152,6 +154,8 @@ namespace EHR
 
         protected virtual void OnFixedUpdate()
         {
+            if (!AmongUsClient.Instance.AmHost) return;
+            
             PlayerControlTimer += Time.fixedDeltaTime;
 
             if (PlayerControlTimer > 20f)
@@ -347,7 +351,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
-            if (GameStates.IsEnded || GameStates.CurrentServerType == GameStates.ServerType.Modded) return;
+            if (GameStates.IsEnded || GameStates.CurrentServerType == GameStates.ServerType.Modded || !AmongUsClient.Instance.AmHost) return;
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;

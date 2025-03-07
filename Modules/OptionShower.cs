@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -11,12 +12,23 @@ public static class OptionShower
     private const int MaxLinesPerPage = 50;
     public static int CurrentPage;
     public static List<string> Pages = [];
+    public static string LastText = string.Empty;
 
     static OptionShower() { }
 
     public static string GetTextNoFresh()
     {
-        return $"{Pages[CurrentPage]}{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
+        try
+        {
+            var text = $"{Pages[CurrentPage]}{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
+            LastText = text;
+            return text;
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+            return LastText;
+        }
     }
 
     public static System.Collections.IEnumerator GetText()
@@ -65,6 +77,8 @@ public static class OptionShower
             Pages.Add("");
             sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
 
+            int index = 0;
+            
             if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
             {
                 foreach (KeyValuePair<CustomRoles, StringOptionItem> kvp in Options.CustomRoleSpawnChances)
@@ -75,7 +89,11 @@ public static class OptionShower
                     sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  ×{kvp.Key.GetCount()}\n");
                     ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
 
-                    yield return null;
+                    if (index++ >= 2)
+                    {
+                        yield return null;
+                        index = 0;
+                    }
                 }
             }
 

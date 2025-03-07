@@ -476,11 +476,8 @@ public static class RoomRush
                         return;
                     }
                 }
-                else if ((room == null || room.RoomId != RoomGoal) && (notAllInOne || !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool()))
-                {
-                    if (DonePlayers.Remove(pc.PlayerId) && WinByPointsInsteadOfDeaths.GetBool())
-                        Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count;
-                }
+                else if ((room == null || room.RoomId != RoomGoal) && (notAllInOne || !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool()) && DonePlayers.Remove(pc.PlayerId) && WinByPointsInsteadOfDeaths.GetBool())
+                    Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count;
             }
 
             if (LastUpdate == now) return;
