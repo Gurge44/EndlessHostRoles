@@ -79,7 +79,7 @@ public class Wiper : RoleBase
         var room = pc.GetPlainShipRoom();
         if (room == null) return;
 
-        Main.AllAlivePlayerControls.DoIf(x => x.GetPlainShipRoom() == room, x => x.Suicide(PlayerState.DeathReason.WipedOut, pc));
+        Main.AllAlivePlayerControls.Without(pc).DoIf(x => x.GetPlainShipRoom() == room, x => x.Suicide(PlayerState.DeathReason.WipedOut, pc));
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

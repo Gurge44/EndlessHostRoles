@@ -12,7 +12,10 @@ using Random = UnityEngine.Random;
 namespace EHR;
 
 [SuppressMessage("ReSharper", "UnusedType.Local")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class NaturalDisasters
 {
     private const float Range = 1.5f;
@@ -366,6 +369,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = DurationOpt.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_100;
@@ -460,6 +464,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = (int)((Phases - 1) * FlowStepDelay.GetFloat()) + DurationAfterFlowComplete.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_200;
@@ -525,6 +530,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = DurationOpt.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_300;
@@ -626,6 +632,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = DurationOpt.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_400;
@@ -695,6 +702,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = DurationOpt.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_500;
@@ -776,6 +784,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = int.MaxValue;
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_600;
