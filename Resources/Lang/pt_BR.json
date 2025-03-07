@@ -4725,6 +4725,7 @@
   "CTF_RoundsToPlay": "Rodadas para Jogar",
   "CTF_PointsToWin": "Pontos para vencer",
   "CTF_TimeLimit": "Limite de Tempo",
+  "CTF_FlagPickupRange": "Flag Pickup Range",
   "CTFPlayer": "Capture a Bandeira",
   "CTFPlayerInfo": "CAPTURE A BANDEIRA DO INIMIGO PARA GANHAR",
   "CTFPlayerInfoLong": "CAPTURE A BANDEIRA DO INIMIGO PARA GANHAR",
