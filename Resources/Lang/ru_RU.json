@@ -4725,6 +4725,7 @@
   "CTF_RoundsToPlay": "Кол-во раундов",
   "CTF_PointsToWin": "Кол-во очков",
   "CTF_TimeLimit": "Лимит",
+  "CTF_FlagPickupRange": "Flag Pickup Range",
   "CTFPlayer": "Захват Флага",
   "CTFPlayerInfo": "УКРАДИТЕ ФЛАГ ПРОТИВНИКА",
   "CTFPlayerInfoLong": "УКРАДИТЕ ФЛАГ ПРОТИВНИКА",
