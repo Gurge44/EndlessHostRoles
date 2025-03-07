@@ -4725,6 +4725,7 @@
   "CTF_RoundsToPlay": "Rounds to Play",
   "CTF_PointsToWin": "Points to Win",
   "CTF_TimeLimit": "Time Limit",
+  "CTF_FlagPickupRange": "Flag Pickup Range",
   "CTFPlayer": "夺旗",
   "CTFPlayerInfo": "夺取敌旗获胜",
   "CTFPlayerInfoLong": "夺取敌旗获胜",
