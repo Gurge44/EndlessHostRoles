@@ -109,6 +109,7 @@ public enum CustomRoles
     Warlock,
     Wasp,
     Wildling,
+    Wiper,
     Witch,
     YinYanger,
     Zombie,

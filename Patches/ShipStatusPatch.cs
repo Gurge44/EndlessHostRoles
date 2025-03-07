@@ -104,38 +104,30 @@ internal static class RepairSystemPatch
 
         switch (systemType)
         {
-            case SystemTypes.Doors when player.Is(CustomRoles.Unlucky) && player.IsAlive():
-                var Ue = IRandom.Instance;
-
-                if (Ue.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt())
+            case SystemTypes.Doors when player.Is(CustomRoles.Unlucky) && player.IsAlive() && IRandom.Instance.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt():
+            {
+                player.Suicide();
+                return false;
+            }
+            case SystemTypes.Electrical when amount <= 4:
+            {
+                if (Main.NormalOptions.MapId == 4)
                 {
-                    player.Suicide();
-                    return false;
+                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
+                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
+                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
                 }
 
-                break;
-            case SystemTypes.Electrical when amount <= 4 && Main.NormalOptions.MapId == 4:
-                if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
+                var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
 
-                if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
-
-                if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
-
-                goto Next;
-            case SystemTypes.Electrical when amount <= 4:
-                Next:
-
-            {
-                var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
-
-                if (SwitchSystem is { IsActive: true })
+                if (switchSystem is { IsActive: true })
                 {
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
                         case SabotageMaster:
                         {
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SabotageMaster");
-                            SabotageMaster.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
+                            SabotageMaster.SwitchSystemRepair(player.PlayerId, switchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                         }
@@ -144,7 +136,7 @@ internal static class RepairSystemPatch
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Alchemist");
                             if (amount.HasBit(SwitchSystem.DamageSystem)) break;
 
-                            SwitchSystem.ActualSwitches = (byte)(SwitchSystem.ExpectedSwitches ^ (1 << amount));
+                            switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ (1 << amount));
                             am.FixNextSabo = false;
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
@@ -154,7 +146,7 @@ internal static class RepairSystemPatch
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Adventurer");
                             if (amount.HasBit(SwitchSystem.DamageSystem)) break;
 
-                            SwitchSystem.ActualSwitches = (byte)(SwitchSystem.ExpectedSwitches ^ (1 << amount));
+                            switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ (1 << amount));
                             av.OnLightsFix();
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
@@ -162,7 +154,7 @@ internal static class RepairSystemPatch
                         case Technician:
                         {
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Technician");
-                            Technician.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
+                            Technician.SwitchSystemRepair(player.PlayerId, switchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                         }
@@ -172,8 +164,8 @@ internal static class RepairSystemPatch
                 break;
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
+            {
                 if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
-
                 if (SecurityGuard.BlockSabo.Count > 0) return false;
 
                 if (player.IsRoleBlocked())
@@ -183,7 +175,6 @@ internal static class RepairSystemPatch
                 }
 
                 if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
-
                 if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
 
                 return player.GetCustomRole() switch
@@ -195,7 +186,9 @@ internal static class RepairSystemPatch
                     CustomRoles.Refugee when player.IsAlive() => true,
                     _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
                 };
+            }
             case SystemTypes.Security when amount == 1:
+            {
                 bool camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
                 {
                     MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
@@ -205,8 +198,8 @@ internal static class RepairSystemPatch
                 };
 
                 if (camerasDisabled) player.Notify(Translator.GetString("CamerasDisabledNotify"), 15f);
-
                 return !camerasDisabled;
+            }
         }
 
         return true;
@@ -217,8 +210,10 @@ internal static class RepairSystemPatch
         switch (systemType)
         {
             case SystemTypes.Comms:
+            {
                 if (!Camouflage.CheckCamouflage()) Utils.NotifyRoles();
                 goto case SystemTypes.Reactor;
+            }
             case SystemTypes.Reactor:
             case SystemTypes.LifeSupp:
             case SystemTypes.Laboratory:
@@ -235,6 +230,20 @@ internal static class RepairSystemPatch
                     rg.OnFixSabotage();
 
                 break;
+            }
+        }
+
+        if (new List<SystemTypes> {SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage}.Contains(systemType) && !Utils.IsActive(systemType))
+        {
+            bool petcd = !Options.UseUnshiftTrigger.GetBool() && !Options.UsePhantomBasis.GetBool();
+
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
+                if (pc.Is(CustomRoles.Wiper))
+                {
+                    if (petcd) pc.AddAbilityCD();
+                    else pc.RpcResetAbilityCooldown();
+                }
             }
         }
     }
@@ -259,7 +268,6 @@ internal static class CloseDoorsPatch
         bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne;
 
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
-
         if (Options.DisableCloseDoor.GetBool()) allow = false;
 
         Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");

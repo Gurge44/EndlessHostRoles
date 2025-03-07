@@ -2246,7 +2246,7 @@ internal static class PlayerControlSetRolePatch
                 foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
                 {
                     Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                    __instance.RpcSetRoleDesync(role, seer.GetClientId());
+                    __instance.RpcSetRoleDesync(role, seer.GetClientId(), true);
                 }
 
                 return false;

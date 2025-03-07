@@ -186,8 +186,7 @@ public static class Utils
     {
         try
         {
-            ClientData client = AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Id == id);
-            return client;
+            return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Id == id);
         }
         catch { return null; }
     }
@@ -2749,6 +2748,7 @@ public static class Utils
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
             CustomRoles.Abyssbringer => Abyssbringer.BlackHolePlaceCooldown.GetInt(),
+            CustomRoles.Wiper => Wiper.AbilityCooldown.GetInt(),
             CustomRoles.Warlock => Warlock.IsCursed ? -1 : Warlock.ShapeshiftCooldown.GetInt(),
             CustomRoles.Stasis => Stasis.AbilityCooldown.GetInt() + (includeDuration ? Stasis.AbilityDuration.GetInt() : 0),
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
@@ -2771,7 +2771,10 @@ public static class Utils
         Main.AbilityCD[playerId] = (TimeStamp, CD);
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, CD);
 
-        if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && !role.AlwaysUsesUnshift()) GetPlayerById(playerId)?.RpcResetAbilityCooldown();
+        if (role.SimpleAbilityTrigger() &&
+            ((Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && !role.AlwaysUsesUnshift()) ||
+             (Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool()))))
+            GetPlayerById(playerId)?.RpcResetAbilityCooldown();
     }
 
     public static (RoleTypes RoleType, CustomRoles CustomRole) GetRoleMap(byte seerId, byte targetId = byte.MaxValue)
@@ -2822,7 +2825,7 @@ public static class Utils
 
                 if (Options.UsePets.GetBool())
                 {
-                    pc.AddAbilityCD(false);
+                    pc.AddAbilityCD(includeDuration: false);
 
                     LateTask.New(() =>
                     {
@@ -2922,12 +2925,12 @@ public static class Utils
                 else
                 {
                     foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
-                        target.RpcSetRoleDesync(role, seer.GetClientId());
+                        target.RpcSetRoleDesync(role, seer.GetClientId(), true);
 
                     setRole = false;
                 }
 
-                if (setRole) target.RpcSetRoleDesync(roleType, target.GetClientId());
+                if (setRole) target.RpcSetRoleDesync(roleType, target.GetClientId(), true);
             }
         }
         catch (Exception e) { ThrowException(e); }

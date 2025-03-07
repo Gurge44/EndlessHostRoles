@@ -65,6 +65,7 @@ public class PlayerState(byte playerId)
         Echoed,
         Dragged,
         Mauled,
+        WipedOut,
 
         // Natural Disasters
         Meteor,

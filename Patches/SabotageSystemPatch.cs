@@ -281,8 +281,18 @@ public static class ElectricTaskCompletePatch
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
+            {
+                CustomRoles role = pc.GetCustomRole();
+
+                if (role.NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
+
+                if (role == CustomRoles.Wiper)
+                {
+                    if (Options.UseUnshiftTrigger.GetBool() || Options.UsePhantomBasis.GetBool()) pc.RpcResetAbilityCooldown();
+                    else pc.AddAbilityCD();
+                }
+            }
         }
 
         Logger.Info("Lights sabotage fixed", "ElectricTask");

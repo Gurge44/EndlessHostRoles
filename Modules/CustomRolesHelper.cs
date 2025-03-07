@@ -34,6 +34,7 @@ internal static class CustomRolesHelper
         CustomRoles.NoteKiller,
         CustomRoles.Weatherman,
         CustomRoles.Amogus,
+        CustomRoles.Wiper,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -135,6 +136,7 @@ internal static class CustomRolesHelper
             CustomRoles.DoubleAgent => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Occultist => CustomRoles.Impostor,
+            CustomRoles.Wiper => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
             CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Wasp => CustomRoles.Impostor,
@@ -656,6 +658,7 @@ internal static class CustomRolesHelper
             CustomRoles.Ventriloquist or
             CustomRoles.Augmenter or
             CustomRoles.Inhibitor or
+            CustomRoles.Wiper or
             CustomRoles.Kidnapper or
             CustomRoles.Stasis or
             CustomRoles.Occultist or
@@ -840,7 +843,7 @@ internal static class CustomRolesHelper
 
     public static bool NeedUpdateOnLights(this CustomRoles role)
     {
-        return !role.UsesPetInsteadOfKill() && role is CustomRoles.Lighter;
+        return !role.UsesPetInsteadOfKill() && role is CustomRoles.Lighter or CustomRoles.Wiper;
     }
 
     public static bool IsBetrayalAddon(this CustomRoles role)
@@ -1512,6 +1515,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sniper => RoleOptionType.Impostor_Killing,
             CustomRoles.BoobyTrap => RoleOptionType.Impostor_Killing,
             CustomRoles.Wasp => RoleOptionType.Impostor_Killing,
+            CustomRoles.Wiper => RoleOptionType.Impostor_Killing,
             CustomRoles.Witch => RoleOptionType.Impostor_Killing,
             CustomRoles.Zombie => RoleOptionType.Impostor_Killing,
             CustomRoles.Bard => RoleOptionType.Impostor_Support,
