@@ -1748,7 +1748,7 @@
   "SuccubusKnowTargetRole": "<color=#cf6acd>魅了した</color>プレイヤーの役割を知れる",
   "SuccubusTargetKnowOtherTarget": "<color=#cf6acd>魅了した</color>プレイヤーは お互いを知れる",
   "SuccubusCanCharmNeutral": "<color=#ffab1b>ニュートラル</color>の役割を 魅了することができる",
-  "CharmedDiesOnSuccubusDeath": "<#cf6acd>カルティスト</color>が死んだとき <color=#cf6acd>魅了した</color>プレイヤーも死ぬ",
+  "CharmedDiesOnSuccubusDeath": "<color=#cf6acd>魅了した</color>プレイヤーは <#cf6acd>カルティスト</color>が死んだときに死亡する",
   "InfectiousBiteCooldown": "感染のクールダウン",
   "KnowTargetRole": "ターゲットの役割を知れる",
   "TargetKnowsLawyer": "Target knows their <color=#008080>Lawyer</color>",
