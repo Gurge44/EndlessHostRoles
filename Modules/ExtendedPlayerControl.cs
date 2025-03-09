@@ -106,7 +106,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetVentInteraction(this PlayerControl player)
     {
-        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
         if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, player);
     }
 
@@ -312,7 +312,7 @@ internal static class ExtendedPlayerControl
             (byte, byte) key = (player.PlayerId, GetClientById(clientId).Character.PlayerId);
             StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = (role, StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key].CustomRole);
         }
-        
+
         if (AmongUsClient.Instance.ClientId == clientId)
         {
             player.SetRole(role);

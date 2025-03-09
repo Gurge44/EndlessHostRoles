@@ -1284,9 +1284,9 @@ public class GameSettingMenuPatch
         ModSettingsButtons = [];
         ModSettingsTabs = [];
 
-        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && GameStates.CurrentServerType == GameStates.ServerType.Modded && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
+        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && GameStates.CurrentServerType == GameStates.ServerType.ModdedWithoutCNOSupport && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
             FastDestroyableSingleton<HudManager>.Instance.ShowPopUp(Translator.GetString("ModdedServerDoesntSupportCNOMessage"));
-        
+
         Main.Instance.StartCoroutine(OptionShower.GetText());
     }
 }

@@ -520,7 +520,8 @@ public static class GameStates
     public enum ServerType
     {
         Vanilla,
-        Modded,
+        ModdedWithCNOSupport,
+        ModdedWithoutCNOSupport,
         Niko,
         Custom
     }
@@ -553,7 +554,8 @@ public static class GameStates
             {
                 "Local Game" => ServerType.Custom,
                 "EU" or "NA" or "AS" => ServerType.Vanilla,
-                "MEU" or "MNA" or "MAS" => ServerType.Modded,
+                "MNA" => ServerType.ModdedWithoutCNOSupport,
+                "MEU" or "MAS" => ServerType.ModdedWithCNOSupport,
                 _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
             };
         }

@@ -92,7 +92,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (GameManager.Instance.TryCast<HideAndSeekManager>())
+                    if (GameManager.Instance.CastFast<HideAndSeekManager>() != null)
                     {
                         WarnHost();
                         Report(pc, "Try to Report body in Hide and Seek");

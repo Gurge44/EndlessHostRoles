@@ -184,10 +184,7 @@ public static class Utils
 
     public static ClientData GetClientById(int id)
     {
-        try
-        {
-            return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Id == id);
-        }
+        try { return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Id == id); }
         catch { return null; }
     }
 
@@ -205,8 +202,8 @@ public static class Utils
                 {
                     if (mapId == 5) return false; // if The Fungle return false
 
-                    var SwitchSystem = systemType.TryCast<SwitchSystem>();
-                    return SwitchSystem is { IsActive: true };
+                    var switchSystem = systemType.CastFast<SwitchSystem>();
+                    return switchSystem is { IsActive: true };
                 }
                 case SystemTypes.Reactor:
                 {
@@ -217,13 +214,13 @@ public static class Utils
                         // Only Airhip
                         case 4:
                         {
-                            var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
-                            return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                            var heliSabotageSystem = systemType.CastFast<HeliSabotageSystem>();
+                            return heliSabotageSystem != null && heliSabotageSystem.IsActive;
                         }
                         default:
                         {
-                            var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
-                            return ReactorSystemType is { IsActive: true };
+                            var reactorSystemType = systemType.CastFast<ReactorSystemType>();
+                            return reactorSystemType is { IsActive: true };
                         }
                     }
                 }
@@ -231,40 +228,40 @@ public static class Utils
                 {
                     if (mapId != 2) return false; // Only Polus
 
-                    var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
-                    return ReactorSystemType is { IsActive: true };
+                    var reactorSystemType = systemType.CastFast<ReactorSystemType>();
+                    return reactorSystemType is { IsActive: true };
                 }
                 case SystemTypes.LifeSupp:
                 {
                     if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
 
-                    var LifeSuppSystemType = systemType.TryCast<LifeSuppSystemType>();
-                    return LifeSuppSystemType is { IsActive: true };
+                    var lifeSuppSystemType = systemType.CastFast<LifeSuppSystemType>();
+                    return lifeSuppSystemType is { IsActive: true };
                 }
                 case SystemTypes.Comms:
                 {
                     if (mapId is 1 or 5) // Only Mira HQ & The Fungle
                     {
-                        var HqHudSystemType = systemType.TryCast<HqHudSystemType>();
-                        return HqHudSystemType is { IsActive: true };
+                        var hqHudSystemType = systemType.CastFast<HqHudSystemType>();
+                        return hqHudSystemType is { IsActive: true };
                     }
 
-                    var HudOverrideSystemType = systemType.TryCast<HudOverrideSystemType>();
-                    return HudOverrideSystemType is { IsActive: true };
+                    var hudOverrideSystemType = systemType.CastFast<HudOverrideSystemType>();
+                    return hudOverrideSystemType is { IsActive: true };
                 }
                 case SystemTypes.HeliSabotage:
                 {
                     if (mapId != 4) return false; // Only Airhip
 
-                    var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
-                    return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                    var heliSabotageSystem = systemType.CastFast<HeliSabotageSystem>();
+                    return heliSabotageSystem != null && heliSabotageSystem.IsActive;
                 }
                 case SystemTypes.MushroomMixupSabotage:
                 {
                     if (mapId != 5) return false; // Only The Fungle
 
-                    var MushroomMixupSabotageSystem = systemType.TryCast<MushroomMixupSabotageSystem>();
-                    return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
+                    var mushroomMixupSabotageSystem = systemType.CastFast<MushroomMixupSabotageSystem>();
+                    return mushroomMixupSabotageSystem != null && mushroomMixupSabotageSystem.IsActive;
                 }
                 default:
                     return false;
@@ -728,7 +725,7 @@ public static class Utils
 
     public static void SetAllVentInteractions()
     {
-        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
         if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem);
     }
 
@@ -2246,16 +2243,19 @@ public static class Utils
                         {
                             if (GameStartTimeStamp + 40 > now) SeerRealName = CustomHnS.GetRoleInfoText(seer);
                         }
-                        else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModClient())
+                        else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard)
                         {
                             bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && GameStartTimeStamp + description.Duration > now;
-                            string mHelp = (!showLongInfo || description.Long) && CustomGameMode.Standard.IsActiveOrIntegrated() ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
+                            string mHelp = (!showLongInfo || description.Long) ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
                             string color = seerTeam.GetTextColor();
                             string teamStr = seerTeam == Team.Impostor && seer.IsMadmate() ? "Madmate" : seerTeam.ToString();
                             string info = (showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp;
                             SeerRealName = $"<color={color}>{GetString($"YouAre{teamStr}")}</color>\n<size=90%>{info}</size>";
                         }
                     }
+
+                    if (GameStartTimeStamp + 50 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out var playedFCs) && !playedFCs.Contains(seer.FriendCode))
+                        SelfSuffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
                 }
 
                 // Combine seer's job title and SelfTaskText with seer's player name and SelfMark
@@ -3373,15 +3373,22 @@ public static class Utils
         return null;
     }
 
-    public static Texture2D LoadTextureFromResources(string path)
+    private static unsafe Texture2D LoadTextureFromResources(string path)
     {
         try
         {
-            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
-            Texture2D texture = new(1, 1, TextureFormat.ARGB32, false);
-            using MemoryStream ms = new();
-            stream?.CopyTo(ms);
-            texture.LoadImage(ms.ToArray(), false);
+            Texture2D texture = new(2, 2, TextureFormat.ARGB32, true);
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Stream stream = assembly.GetManifestResourceStream(path);
+
+            if (stream != null)
+            {
+                var length = stream.Length;
+                var byteTexture = new Il2CppStructArray<byte>(length);
+                stream.Read(new Span<byte>(IntPtr.Add(byteTexture.Pointer, IntPtr.Size * 4).ToPointer(), (int)length));
+                texture.LoadImage(byteTexture, false);
+            }
+
             return texture;
         }
         catch { Logger.Error($"Error loading texture: {path}", "LoadImage"); }

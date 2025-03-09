@@ -376,6 +376,65 @@ public class InnerNetClientPatch
     }
 }
 
+[HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.Serialize))]
+internal static class NetworkedPlayerInfoSerializePatch
+{
+    public static bool Prefix(NetworkedPlayerInfo __instance, MessageWriter writer, bool initialState, ref bool __result)
+    {
+        writer.Write(__instance.PlayerId);
+        writer.WritePacked(__instance.ClientId);
+        writer.Write((byte)__instance.Outfits.Count);
+
+        foreach (var keyValuePair in __instance.Outfits)
+        {
+            writer.Write((byte)keyValuePair.Key);
+
+            if (initialState)
+            {
+                var oldOutfit = keyValuePair.Value;
+                NetworkedPlayerInfo.PlayerOutfit playerOutfit = new();
+                Main.AllClientRealNames.TryGetValue(__instance.ClientId, out var name);
+                playerOutfit.Set(name ?? " ", oldOutfit.ColorId, oldOutfit.HatId, oldOutfit.SkinId, oldOutfit.VisorId, oldOutfit.PetId, oldOutfit.NamePlateId);
+                playerOutfit.Serialize(writer);
+            }
+            else { keyValuePair.Value.Serialize(writer); }
+        }
+
+        writer.WritePacked(__instance.PlayerLevel);
+
+        byte b = 0;
+        if (__instance.Disconnected) b |= 1;
+        if (__instance.IsDead) b |= 4;
+
+        writer.Write(b);
+        writer.Write((ushort)__instance.Role.Role);
+        writer.Write(false);
+
+        if (__instance.Tasks != null)
+        {
+            writer.Write((byte)__instance.Tasks.Count);
+
+            for (int i = 0; i < __instance.Tasks.Count; i++)
+            {
+                __instance.Tasks[i].Serialize(writer); // False error
+            }
+        }
+        else
+            writer.Write(0);
+
+        writer.Write(__instance.FriendCode ?? string.Empty);
+
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            writer.Write(__instance.Puid ?? string.Empty);
+        else
+            writer.Write(string.Empty);
+
+        if (!initialState) __instance.ClearDirtyBits();
+        __result = true;
+        return false;
+    }
+}
+
 [HarmonyPatch(typeof(GameData), nameof(GameData.DirtyAllData))]
 internal class DirtyAllDataPatch
 {

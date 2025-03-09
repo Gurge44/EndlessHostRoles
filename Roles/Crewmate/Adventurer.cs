@@ -213,7 +213,7 @@ internal class Adventurer : RoleBase
                     case Weapon.Wrench:
                         if (Utils.IsActive(SystemTypes.Electrical))
                         {
-                            var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.TryCast<SwitchSystem>();
+                            var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
 
                             if (switchSystem != null)
                             {

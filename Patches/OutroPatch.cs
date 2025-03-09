@@ -124,6 +124,11 @@ internal static class EndGamePatch
                 case CustomGameMode.RoomRush:
                     Main.AllPlayerControls.Do(x => RoomRush.HasPlayedFriendCodes.Add(x.FriendCode));
                     break;
+                default:
+                    if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out var playedFCs))
+                        playedFCs.UnionWith(Main.AllPlayerControls.Select(x => x.FriendCode));
+
+                    break;
             }
         }
     }

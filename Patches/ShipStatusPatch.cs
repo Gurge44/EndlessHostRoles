@@ -233,7 +233,7 @@ internal static class RepairSystemPatch
             }
         }
 
-        if (new List<SystemTypes> {SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage}.Contains(systemType) && !Utils.IsActive(systemType))
+        if (new List<SystemTypes> { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Contains(systemType) && !Utils.IsActive(systemType))
         {
             bool petcd = !Options.UseUnshiftTrigger.GetBool() && !Options.UsePhantomBasis.GetBool();
 
@@ -440,7 +440,7 @@ internal static class ShipStatusSerializePatch
         if (!AmongUsClient.Instance.AmHost || initialState) return;
 
         bool cancel = Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction);
-        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
 
         if (cancel && ventilationSystem is { IsDirty: true })
         {

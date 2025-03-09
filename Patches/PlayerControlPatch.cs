@@ -283,7 +283,7 @@ internal static class CheckMurderPatch
         }
 
         if (Pursuer.OnClientMurder(killer)) return false;
-        
+
         Seamstress.OnAnyoneCheckMurder(killer, target);
 
         if (killer.PlayerId != target.PlayerId)
@@ -593,12 +593,12 @@ internal static class MurderPlayerPatch
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] MurderResultFlags resultFlags, ref bool __state)
     {
         if (GameStates.IsLobby || AntiBlackout.SkipTasks) return false;
-        
+
         var protectedByClient = resultFlags.HasFlag(MurderResultFlags.DecisionByHost) && target.IsProtected();
         var protectedByHost = resultFlags.HasFlag(MurderResultFlags.FailedProtected);
         var failed = resultFlags.HasFlag(MurderResultFlags.FailedError);
         __state = !protectedByClient && !protectedByHost && !failed;
-        
+
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()} - {nameof(protectedByClient)}: {protectedByClient}, {nameof(protectedByHost)}: {protectedByHost}, {nameof(failed)}: {failed}", "MurderPlayer");
 
         RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Add(__instance.PlayerId);
@@ -1635,10 +1635,8 @@ internal static class FixedUpdatePatch
 
                 switch (seer.GetCustomRole())
                 {
-                    case CustomRoles.Lookout:
-                        if (seer.IsAlive() && target.IsAlive())
-                            Mark.Append(ColorString(GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId) + " ");
-
+                    case CustomRoles.Lookout when seer.IsAlive() && target.IsAlive():
+                        Mark.Append(ColorString(GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId) + " ");
                         break;
                     case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId):
                         Mark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
@@ -1669,20 +1667,14 @@ internal static class FixedUpdatePatch
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
 
                         break;
-                    case CustomRoles.Analyst:
-                        if ((Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId)
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
-
+                    case CustomRoles.Analyst when (Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId:
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
                         break;
-                    case CustomRoles.Samurai:
-                        if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId)
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
-
+                    case CustomRoles.Samurai when (Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId:
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
                         break;
-                    case CustomRoles.Puppeteer:
-                        if (Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId))
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
-
+                    case CustomRoles.Puppeteer when Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId):
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
                         break;
                     case CustomRoles.EvilTracker:
                         Mark.Append(EvilTracker.GetTargetMark(seer, target));
@@ -1777,6 +1769,9 @@ internal static class FixedUpdatePatch
                         if (self) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - "));
                         break;
                 }
+
+                if (self && GameStartTimeStamp + 50 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out var playedFCs) && !playedFCs.Contains(seer.FriendCode))
+                    Suffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
 
                 if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA) Suffix.Append(GetString("DiedR1Warning"));
 

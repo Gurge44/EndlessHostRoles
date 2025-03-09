@@ -155,7 +155,7 @@ namespace EHR
         protected virtual void OnFixedUpdate()
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            
+
             PlayerControlTimer += Time.fixedDeltaTime;
 
             if (PlayerControlTimer > 20f)
@@ -327,12 +327,12 @@ namespace EHR
                 PlayerControlTimer = 0f;
                 return;
             }
-            
+
             var nt = playerControl.NetTransform;
             if (nt == null) return;
-            
+
             playerControl.Collider.enabled = false;
-            
+
             if (Position != nt.body.position)
             {
                 Transform transform = nt.transform;
@@ -351,7 +351,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
-            if (GameStates.IsEnded || GameStates.CurrentServerType == GameStates.ServerType.Modded || !AmongUsClient.Instance.AmHost) return;
+            if (GameStates.IsEnded || GameStates.CurrentServerType == GameStates.ServerType.ModdedWithoutCNOSupport || !AmongUsClient.Instance.AmHost) return;
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;

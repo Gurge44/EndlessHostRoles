@@ -492,13 +492,20 @@ public static class RoomRush
                 PlayerControl[] lateAapc = Main.AllAlivePlayerControls;
                 PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
 
-                if (!WinByPointsInsteadOfDeaths.GetBool())
+                if (WinByPointsInsteadOfDeaths.GetBool())
+                {
+                    if (playersOutsideRoom.Length == lateAapc.Length)
+                    {
+                        var roomPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
+                        playersOutsideRoom.Do(x => x.TP(roomPos));
+                    }
+                    else playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
+                }
+                else
                 {
                     if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                     playersOutsideRoom.Do(x => x.Suicide());
                 }
-                else if (playersOutsideRoom.Length != lateAapc.Length)
-                    playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
 
                 StartNewRound();
 

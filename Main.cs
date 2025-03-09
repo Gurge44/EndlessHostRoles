@@ -112,6 +112,17 @@ public class Main : BasePlugin
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;
 
+    public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
+    {
+        [CustomGameMode.SoloKombat] = [],
+        [CustomGameMode.FFA] = [],
+        [CustomGameMode.HotPotato] = [],
+        [CustomGameMode.HideAndSeek] = [],
+        [CustomGameMode.Speedrun] = [],
+        [CustomGameMode.CaptureTheFlag] = [],
+        [CustomGameMode.NaturalDisasters] = []
+    };
+
     public static readonly Dictionary<CustomGameMode, Dictionary<string, int>> NumWinsPerGM = [];
     public static HashSet<byte> DiedThisRound = [];
     public static List<PlayerControl> LoversPlayers = [];
