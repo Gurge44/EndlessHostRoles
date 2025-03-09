@@ -92,11 +92,11 @@ public static class LobbySharingAPI
 
         void StartMessageEdit()
         {
-            Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' ')));
+            Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' '), PlayerControl.AllPlayerControls.Count));
         }
     }
 
-    private static IEnumerator SendLobbyStatusChangedRequest(string roomCode, string newStatus)
+    private static IEnumerator SendLobbyStatusChangedRequest(string roomCode, string newStatus, int players)
     {
         if (string.IsNullOrEmpty(Token)) yield break;
 
@@ -104,7 +104,7 @@ public static class LobbySharingAPI
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
-        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\"}}";
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\",\"players\":\"{players}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
         UnityWebRequest request = new UnityWebRequest("https://gurge44.pythonanywhere.com/update_status", "POST")

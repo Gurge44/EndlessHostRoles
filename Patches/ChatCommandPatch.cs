@@ -631,6 +631,12 @@ internal static class ChatCommands
             return;
         }
 
+        if (Magistrate.CallCourtNextMeeting)
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("NoWhisperDuringCourt"));
+            return;
+        }
+
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 

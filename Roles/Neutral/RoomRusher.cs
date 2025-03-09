@@ -20,6 +20,7 @@ public class RoomRusher : RoleBase
     private static OptionItem RoomNameDisplay;
     private static OptionItem Arrow;
     private static OptionItem RoomsToWin;
+    
     private int CompletedNum;
     private long LastUpdate;
     private SystemTypes RoomGoal;
@@ -47,22 +48,6 @@ public class RoomRusher : RoleBase
     public override void Init()
     {
         On = false;
-
-        AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
-        AllRooms.Remove(SystemTypes.Hallway);
-        AllRooms.Remove(SystemTypes.Outside);
-        AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
-
-        Map = Main.CurrentMap switch
-        {
-            MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-            MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-            MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-            MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-            MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-            MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-            _ => throw new ArgumentOutOfRangeException()
-        };
     }
 
     public override void Add(byte playerId)
@@ -74,16 +59,36 @@ public class RoomRusher : RoleBase
         LastUpdate = Utils.TimeStamp;
         TimeLeft = 50;
 
-        LateTask.New(() => StartNewRound(true), Main.CurrentMap == MapNames.Airship ? 22f : 14f);
+        LateTask.New(() =>
+        {
+            AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
+            AllRooms.Remove(SystemTypes.Hallway);
+            AllRooms.Remove(SystemTypes.Outside);
+            AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
+
+            Map = Main.CurrentMap switch
+            {
+                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
+                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
+                MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
+                MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
+                MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
+                MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            
+            StartNewRound(true);
+        }, Main.CurrentMap == MapNames.Airship ? 22f : 14f);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
+        opt.SetVision(true);
         AURoleOptions.EngineerCooldown = 1f;
         AURoleOptions.EngineerInVentMaxTime = 300f;
     }
 
-    void StartNewRound(bool initial = false, bool dontCount = false)
+    void StartNewRound(bool initial = false, bool dontCount = false, bool afterMeeting = false)
     {
         MapNames map = Main.CurrentMap;
 
@@ -92,9 +97,9 @@ public class RoomRusher : RoleBase
             : map switch
             {
                 MapNames.Skeld => SystemTypes.Cafeteria,
-                MapNames.Mira => SystemTypes.Launchpad,
+                MapNames.Mira => afterMeeting ? SystemTypes.Cafeteria : SystemTypes.Launchpad,
                 MapNames.Dleks => SystemTypes.Cafeteria,
-                MapNames.Polus => SystemTypes.Dropship,
+                MapNames.Polus => afterMeeting ? SystemTypes.Office : SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
                 MapNames.Fungle => SystemTypes.Dropship,
                 _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
@@ -105,7 +110,7 @@ public class RoomRusher : RoleBase
         RoomGoal = AllRooms.Without(previous).RandomElement();
         Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
         Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? rrpc.Pos() : previous.GetRoomClass().transform.position);
-        float distance = initial ? 50 : Vector2.Distance(goalPos, previousPos);
+        float distance = initial || afterMeeting ? 50 : Vector2.Distance(goalPos, previousPos);
         float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         var time = (int)Math.Ceiling(distance / speed);
         Dictionary<(SystemTypes, SystemTypes), int> multipliers = RoomRush.Multipliers[map == MapNames.Dleks ? MapNames.Skeld : map];
@@ -134,7 +139,7 @@ public class RoomRusher : RoleBase
         switch (map)
         {
             case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
-                time = (int)(time * 0.4f);
+                time = (int)(time * 0.7f);
                 break;
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
@@ -165,6 +170,11 @@ public class RoomRusher : RoleBase
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return pc.PlayerId != RoomRusherId || (CanVent && VentsLeft > 0);
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        StartNewRound(dontCount: true, afterMeeting: true);
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

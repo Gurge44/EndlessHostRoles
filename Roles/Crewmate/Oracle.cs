@@ -90,7 +90,7 @@ public class Oracle : RoleBase
         if (IRandom.Instance.Next(100) < FailChance.GetInt())
             team = Enum.GetValues<Team>().Without(team).RandomElement();
 
-        string msg = string.Format(GetString($"OracleCheck.{GetString($"ShortTeamName.{team}")}"), target.GetRealName());
+        string msg = string.Format(GetString($"OracleCheck.{GetString($"ShortTeamName.{team}", SupportedLangs.English)}"), target.GetRealName());
 
         Utils.SendMessage($"{GetString("OracleCheck")}\n{msg}\n\n{string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit())}", player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
 

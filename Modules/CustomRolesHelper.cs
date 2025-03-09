@@ -34,6 +34,7 @@ internal static class CustomRolesHelper
         CustomRoles.NoteKiller,
         CustomRoles.Weatherman,
         CustomRoles.Amogus,
+        CustomRoles.Wiper,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -135,6 +136,7 @@ internal static class CustomRolesHelper
             CustomRoles.DoubleAgent => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Occultist => CustomRoles.Impostor,
+            CustomRoles.Wiper => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
             CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Wasp => CustomRoles.Impostor,
@@ -651,12 +653,12 @@ internal static class CustomRolesHelper
             CustomRoles.Escapee or
             CustomRoles.SerialKiller or
             CustomRoles.Overheat or
-            CustomRoles.Underdog or
             CustomRoles.Abyssbringer or
             CustomRoles.Echo or
             CustomRoles.Ventriloquist or
             CustomRoles.Augmenter or
             CustomRoles.Inhibitor or
+            CustomRoles.Wiper or
             CustomRoles.Kidnapper or
             CustomRoles.Stasis or
             CustomRoles.Occultist or
@@ -841,7 +843,7 @@ internal static class CustomRolesHelper
 
     public static bool NeedUpdateOnLights(this CustomRoles role)
     {
-        return !role.UsesPetInsteadOfKill() && role is CustomRoles.Lighter;
+        return !role.UsesPetInsteadOfKill() && role is CustomRoles.Lighter or CustomRoles.Wiper;
     }
 
     public static bool IsBetrayalAddon(this CustomRoles role)
@@ -984,6 +986,7 @@ internal static class CustomRolesHelper
     {
         return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
         {
+            CustomRoles.Underdog when pc.Is(CustomRoles.Mare) => false,
             CustomRoles.Shy when Options.DisableWhisperCommand.GetBool() => false,
             CustomRoles.Blocked when !pc.CanUseVent() => false,
             CustomRoles.Aide when pc.IsMadmate() => false,
@@ -1032,7 +1035,6 @@ internal static class CustomRolesHelper
             CustomRoles.Needy when pc.GetCustomRole().IsAdditionRole() => false,
             CustomRoles.TicketsStealer when pc.Is(CustomRoles.Vindicator) => false,
             CustomRoles.Bloodlust when !pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsTaskBasedCrewmate() || pc.GetCustomRole() is CustomRoles.Medic => false,
-            CustomRoles.Mare when pc.Is(CustomRoles.Underdog) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Inhibitor) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Saboteur) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Swift) => false,
@@ -1512,8 +1514,8 @@ internal static class CustomRolesHelper
             CustomRoles.Sapper => RoleOptionType.Impostor_Killing,
             CustomRoles.Sniper => RoleOptionType.Impostor_Killing,
             CustomRoles.BoobyTrap => RoleOptionType.Impostor_Killing,
-            CustomRoles.Underdog => RoleOptionType.Impostor_Killing,
             CustomRoles.Wasp => RoleOptionType.Impostor_Killing,
+            CustomRoles.Wiper => RoleOptionType.Impostor_Killing,
             CustomRoles.Witch => RoleOptionType.Impostor_Killing,
             CustomRoles.Zombie => RoleOptionType.Impostor_Killing,
             CustomRoles.Bard => RoleOptionType.Impostor_Support,

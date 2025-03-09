@@ -25,6 +25,7 @@ public static class CaptureTheFlag
     private static OptionItem RoundsToPlay;
     private static OptionItem PointsToWin;
     private static OptionItem TimeLimit;
+    private static OptionItem FlagPickupRange;
 
     private static readonly string[] TaggedPlayersGetOptions =
     [
@@ -57,6 +58,7 @@ public static class CaptureTheFlag
     private static long GameStartTS;
     private static int RoundsPlayed => TeamData.Values.Sum(x => x.RoundsWon);
     public static bool IsDeathPossible => TaggedPlayersGet.GetValue() == 1;
+    public static float KCD => TagCooldown.GetFloat();
 
     private static NetworkedPlayerInfo.PlayerOutfit YellowOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 5, "", "", "", "pet_coaltonpet", "");
     private static NetworkedPlayerInfo.PlayerOutfit BlueOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 1, "", "", "", "pet_coaltonpet", "");
@@ -155,6 +157,11 @@ public static class CaptureTheFlag
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color);
+        
+        FlagPickupRange = new FloatOptionItem(id + 12, "CTF_FlagPickupRange", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(color);
     }
 
     public static bool KnowTargetRoleColor(PlayerControl target, ref string color)
@@ -193,7 +200,7 @@ public static class CaptureTheFlag
         if (TemporarilyOutPlayers.TryGetValue(seer.PlayerId, out var backTS))
         {
             var timeLeft = backTS - Utils.TimeStamp;
-            str += $"{Translator.GetString("CTF_BackIn")}{timeLeft}\n";
+            str += $"{string.Format(Translator.GetString("CTF_BackIn"), timeLeft)}\n";
         }
 
         return str + string.Join("<#ffffff> | </color>", TeamData.Select(x => Utils.ColorString(x.Key.GetTeamColor(), x.Value.RoundsWon.ToString())));
@@ -568,7 +575,7 @@ public static class CaptureTheFlag
 
         public bool IsNearFlag(Vector2 pos)
         {
-            return Vector2.Distance(Flag.Position, pos) < 1.25f;
+            return Vector2.Distance(Flag.Position, pos) <= FlagPickupRange.GetFloat();
         }
     }
 

@@ -812,7 +812,7 @@ internal static class IntroCutsceneDestroyPatch
                     if (pc.GetCustomRole().UsesPetInsteadOfKill())
                         pc.AddAbilityCD(10);
                     else
-                        pc.AddAbilityCD(false);
+                        pc.AddAbilityCD(includeDuration: false);
                 }
 
                 if (CustomGameMode.Standard.IsActiveOrIntegrated())

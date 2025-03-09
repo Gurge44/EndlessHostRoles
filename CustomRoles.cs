@@ -101,7 +101,6 @@ public enum CustomRoles
     BoobyTrap, // Trapster
     Trickster,
     Twister,
-    Underdog,
     Undertaker,
     Vampire,
     Ventriloquist,
@@ -110,6 +109,7 @@ public enum CustomRoles
     Warlock,
     Wasp,
     Wildling,
+    Wiper,
     Witch,
     YinYanger,
     Zombie,
@@ -517,6 +517,7 @@ public enum CustomRoles
     Torch,
     Truant,
     Undead,
+    Underdog,
     Unlucky,
     Warden, // Ghost role
     Watcher,

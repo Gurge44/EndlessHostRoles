@@ -1022,7 +1022,7 @@ internal static class ReportDeadBodyPatch
 
             if (Options.SyncButtonMode.GetBool() && target == null)
             {
-                Logger.Info("Max buttons:" + Options.SyncedButtonCount.GetInt() + ", used:" + Options.UsedButtonCount, "ReportDeadBody");
+                Logger.Info($"Max buttons: {Options.SyncedButtonCount.GetInt()}, used: {Options.UsedButtonCount}", "ReportDeadBody");
 
                 if (Options.SyncedButtonCount.GetFloat() <= Options.UsedButtonCount)
                 {
@@ -1060,6 +1060,8 @@ internal static class ReportDeadBodyPatch
         Main.DiedThisRound = [];
 
         Main.AllAlivePlayerControls.DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos());
+
+        if (Lovers.PrivateChat.GetBool()) ChatManager.SendPreviousMessagesToAll(clear: true);
 
         if (target == null)
         {
@@ -2244,7 +2246,7 @@ internal static class PlayerControlSetRolePatch
                 foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
                 {
                     Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                    __instance.RpcSetRoleDesync(role, seer.GetClientId());
+                    __instance.RpcSetRoleDesync(role, seer.GetClientId(), true);
                 }
 
                 return false;

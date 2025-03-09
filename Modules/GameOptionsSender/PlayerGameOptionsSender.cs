@@ -235,7 +235,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
+            state.Role.ApplyGameOptions(opt, player.PlayerId);
 
             if (player.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) opt.SetVision(true);
 
@@ -258,7 +258,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             switch (role)
             {
-                case CustomRoles.Alchemist when ((Alchemist)Main.PlayerStates[player.PlayerId].Role).VisionPotionActive:
+                case CustomRoles.Alchemist when ((Alchemist)state.Role).VisionPotionActive:
                     opt.SetVisionV2();
 
                     if (Utils.IsActive(SystemTypes.Electrical))
@@ -270,6 +270,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomRoles.Mayor when Mayor.MayorSeesVoteColorsWhenDoneTasks.GetBool() && player.GetTaskState().IsTaskFinished:
                     opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                     break;
+            }
+
+            if (state.Role.SeesArrowsToDeadBodies)
+            {
+                AURoleOptions.NoisemakerImpostorAlert = true;
+                AURoleOptions.NoisemakerAlertDuration = 300f;
             }
 
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
@@ -306,13 +312,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             Spiritcaller.ReduceVision(opt, player);
 
-            if (Randomizer.HasSuperVision(player))
-                SetMaxVision();
+            if (Randomizer.HasSuperVision(player)) SetMaxVision();
             else if (Randomizer.IsBlind(player)) SetBlind();
 
-            List<CustomRoles> array = Main.PlayerStates[player.PlayerId].SubRoles;
-
-            foreach (CustomRoles subRole in array)
+            foreach (CustomRoles subRole in state.SubRoles)
             {
                 if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
                 {

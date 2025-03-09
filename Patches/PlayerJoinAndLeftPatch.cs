@@ -65,6 +65,8 @@ internal static class OnGameJoinedPatch
 
                 ClientData client = PlayerControl.LocalPlayer.GetClient();
                 Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
+                
+                Main.Instance.StartCoroutine(OptionShower.GetText());
             }, 1f, "OnGameJoinedPatch");
 
             Main.SetRoles = [];
@@ -87,6 +89,10 @@ internal static class OnGameJoinedPatch
                 }
                 else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType} (IsOnlineGame: {GameStates.IsOnlineGame})", "OnGameJoinedPatch");
             }, 5f, "NotifyLobbyCreated");
+        }
+        else
+        {
+            LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client");
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -11,23 +12,26 @@ public static class OptionShower
     private const int MaxLinesPerPage = 50;
     public static int CurrentPage;
     public static List<string> Pages = [];
-
-    private static long LastUpdate;
+    public static string LastText = string.Empty;
 
     static OptionShower() { }
 
     public static string GetTextNoFresh()
     {
-        if (Pages.Count < 3 || (CurrentPage == 0 && LastUpdate != Utils.TimeStamp))
+        try
         {
-            GetText();
-            LastUpdate = Utils.TimeStamp;
+            var text = $"{Pages[CurrentPage]}{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
+            LastText = text;
+            return text;
         }
-
-        return $"{Pages[CurrentPage]}{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+            return LastText;
+        }
     }
 
-    public static string GetText()
+    public static System.Collections.IEnumerator GetText()
     {
         StringBuilder sb = new();
 
@@ -60,6 +64,8 @@ public static class OptionShower
                             count = 0;
                             Pages.Add(sb + "\n\n");
                             sb.Clear().Append(GetString("ActiveRolesList")).Append('\n');
+
+                            yield return null;
                         }
                     }
                 }
@@ -71,6 +77,8 @@ public static class OptionShower
             Pages.Add("");
             sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
 
+            int index = 0;
+            
             if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
             {
                 foreach (KeyValuePair<CustomRoles, StringOptionItem> kvp in Options.CustomRoleSpawnChances)
@@ -80,6 +88,12 @@ public static class OptionShower
                     sb.Append('\n');
                     sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  ×{kvp.Key.GetCount()}\n");
                     ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
+
+                    if (index++ >= 2)
+                    {
+                        yield return null;
+                        index = 0;
+                    }
                 }
             }
 
@@ -91,6 +105,8 @@ public static class OptionShower
 
                     sb.Append($"{opt.GetName()}: {opt.GetString()}\n");
                     if (opt.GetBool()) ShowChildren(opt, ref sb, Color.white, 1);
+
+                    if (opt.IsHeader) yield return null;
                 }
             }
         }
@@ -106,8 +122,6 @@ public static class OptionShower
         }
 
         if (CurrentPage >= Pages.Count) CurrentPage = Pages.Count - 1;
-
-        return $"{Pages[CurrentPage]}{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
     }
 
     public static void Next()

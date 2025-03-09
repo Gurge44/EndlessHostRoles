@@ -303,10 +303,16 @@ internal static class ExtendedPlayerControl
         Main.PlayerStates[player.PlayerId].InitTask(player);
     }
 
-    public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
+    public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)
     {
         if (player == null) return;
 
+        if (setRoleMap)
+        {
+            (byte, byte) key = (player.PlayerId, GetClientById(clientId).Character.PlayerId);
+            StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = (role, StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key].CustomRole);
+        }
+        
         if (AmongUsClient.Instance.ClientId == clientId)
         {
             player.SetRole(role);
@@ -1408,6 +1414,8 @@ internal static class ExtendedPlayerControl
             CustomRoles.KB_Normal => SoloPVP.KB_ATKCooldown.GetFloat(),
             CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             CustomRoles.Runner => Speedrun.KCD,
+            CustomRoles.CTFPlayer => CaptureTheFlag.KCD,
+            _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Length <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
 
@@ -1585,7 +1593,7 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
-            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies, x => target.RpcSetRoleDesync(RoleTypes.Noisemaker, x.Player.GetClientId()));
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies, x => target.RpcSetRoleDesync(RoleTypes.Noisemaker, x.Player.GetClientId(), true));
             killer.RpcMurderPlayer(target, true);
         }
     }

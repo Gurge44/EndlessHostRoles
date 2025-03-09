@@ -289,8 +289,6 @@ public static class Options
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyMafia;
-    public static OptionItem MarioVentNumWin;
-    public static OptionItem MarioVentCD;
     public static OptionItem VeteranSkillCooldown;
     public static OptionItem VeteranSkillDuration;
     public static OptionItem VeteranSkillMaxOfUseage;
@@ -328,10 +326,6 @@ public static class Options
     public static OptionItem DleksChance;
     public static OptionItem AirshipChance;
     public static OptionItem FungleChance;
-
-    public static OptionItem UnderdogKillCooldown;
-    public static OptionItem UnderdogMaximumPlayersNeededToKill;
-    public static OptionItem UnderdogKillCooldownWithMorePlayersAlive;
 
     public static OptionItem GodfatherCancelVote;
 
@@ -850,6 +844,7 @@ public static class Options
         GroupOptions();
         GroupAddons();
         Achievements.LoadAllData();
+        OptionShower.LastText = Translator.GetString("Loading");
 
 #if DEBUG
         // Used for generating the table of roles for the README
@@ -2339,7 +2334,7 @@ public static class Options
         PassiveNeutralsCanGuess = new BooleanOptionItem(19713, "PassiveNeutralsCanGuess", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
-        CovenCanGuess = new BooleanOptionItem(19730, "CovenCanGuess", false, TabGroup.TaskSettings)
+        CovenCanGuess = new BooleanOptionItem(19735, "CovenCanGuess", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
         BetrayalAddonsCanGuess = new BooleanOptionItem(19719, "BetrayalAddonsCanGuess", false, TabGroup.TaskSettings)

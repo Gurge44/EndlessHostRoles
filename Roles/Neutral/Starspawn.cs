@@ -43,6 +43,11 @@ public class Starspawn : RoleBase
         HasUsedDayBreak = false;
     }
 
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return pc.IsAlive();
+    }
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = AbilityCooldown.GetFloat();

@@ -211,7 +211,7 @@ internal static class RPCHandlerPatch
             case RpcCalls.Pet:
                 Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} petted their pet", "RpcHandlerPatch");
                 break;
-            case RpcCalls.SetScanner when Main.HasJustStarted:
+            case RpcCalls.SetScanner when Main.HasJustStarted && AmongUsClient.Instance.AmHost:
                 Logger.Fatal($"{__instance.GetNameWithRole().RemoveHtmlTags()} triggered this bs ---- revive was attempted", "RpcHandlerPatch");
                 __instance?.Revive();
                 return false;
@@ -357,7 +357,7 @@ internal static class RPCHandlerPatch
                     catch (Exception e) { Utils.ThrowException(e); }
                 }
 
-                OptionShower.GetText();
+                Main.Instance.StartCoroutine(OptionShower.GetText());
                 break;
             }
             case CustomRPC.SetDeathReason:
@@ -1484,8 +1484,26 @@ internal static class StartRpcPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
 internal static class StartRpcImmediatelyPatch
 {
-    public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option, [HarmonyArgument(3)] int targetClientId = -1)
+    public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option, [HarmonyArgument(3)] int targetClientId = -1)
     {
+        if (!__instance.AmHost) __instance.StartRpc(targetNetId, callId, option);
         RPC.SendRpcLogger(targetNetId, callId, option, targetClientId);
+        return __instance.AmHost;
+    }
+}
+
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FinishRpcImmediately))]
+static class FinishRpcImmediatelyPatch
+{
+    public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] MessageWriter msg)
+    {
+        if (!__instance.AmHost)
+        {
+            Logger.Warn("FinishRpcImmediately called on client, changed to MessageWriter.EndMessage", "FinishRpcImmediately");
+            msg.EndMessage();
+            return false;
+        }
+        
+        return true;
     }
 }
