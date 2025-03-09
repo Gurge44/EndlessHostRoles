@@ -1335,6 +1335,9 @@ internal static class FixedUpdatePatch
         {
             Zoom.OnFixedUpdate();
             TextBoxTMPSetTextPatch.Update();
+
+            if (lowLoad && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
+                NotifyRoles();
         }
 
         if (!lowLoad)
