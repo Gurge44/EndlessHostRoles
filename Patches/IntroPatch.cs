@@ -108,6 +108,16 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("RRPlayerInfo");
                     break;
                 }
+                case CustomGameMode.KingOfTheZones:
+                {
+                    Color color = ColorUtility.TryParseHtmlString("#ff0000", out Color c) ? c : new(255, 255, 255, 255);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("KOTZPlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("KOTZPlayerInfo");
+                    break;
+                }
                 case CustomGameMode.AllInOne:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : new(255, 255, 255, 255);
@@ -422,7 +432,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.AntiAdminer or
                     CustomRoles.Monitor
                     => FastDestroyableSingleton<HudManager>.Instance.Chat.warningSound,
-                    
+
                 CustomRoles.GM or
                     CustomRoles.Snitch or
                     CustomRoles.Speedrunner or
@@ -448,7 +458,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Chameleon or
                     CustomRoles.Drainer or
                     CustomRoles.Swooper or
-                    CustomRoles.Wraith                  
+                    CustomRoles.Wraith
                     => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
 
                 CustomRoles.Addict or
@@ -636,7 +646,7 @@ internal static class BeginCrewmatePatch
             {
                 __instance.TeamTitle.text = GetString("HideAndSeek");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(52, 94, 235, byte.MaxValue);
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("SubText.HideAndSeek");
                 break;
@@ -666,6 +676,15 @@ internal static class BeginCrewmatePatch
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("RRPlayerInfo");
+                break;
+            }
+            case CustomGameMode.KingOfTheZones:
+            {
+                __instance.TeamTitle.text = GetString("KOTZPlayer");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 0, 0, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("KOTZPlayerInfo");
                 break;
             }
             case CustomGameMode.AllInOne:
@@ -850,6 +869,7 @@ internal static class IntroCutsceneDestroyPatch
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             PlayerControl lp = PlayerControl.LocalPlayer;
+
             LateTask.New(() =>
             {
                 lp.RpcChangeRoleBasis(lp.GetCustomRole());
@@ -925,7 +945,7 @@ internal static class IntroCutsceneDestroyPatch
                     }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
             }
 
-            if (Options.RandomSpawn.GetBool() && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
+            if (Options.RandomSpawn.GetBool() && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
             {
                 RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
                 {
@@ -954,6 +974,9 @@ internal static class IntroCutsceneDestroyPatch
                     target.Data.Role.NameColor = Color.white;
                 }
             }
+
+            if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
+                Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
 
             Utils.CheckAndSetVentInteractions();
 

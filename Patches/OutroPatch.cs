@@ -67,7 +67,7 @@ internal static class EndGamePatch
 
             byte killerId = value.GetRealKiller();
             bool gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-            bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.AllInOne;
+            bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.AllInOne;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -123,6 +123,9 @@ internal static class EndGamePatch
                     break;
                 case CustomGameMode.RoomRush:
                     Main.AllPlayerControls.Do(x => RoomRush.HasPlayedFriendCodes.Add(x.FriendCode));
+                    break;
+                case CustomGameMode.KingOfTheZones:
+                    Main.AllPlayerControls.Do(x => KingOfTheZones.PlayedFCs.Add(x.FriendCode));
                     break;
                 default:
                     if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out var playedFCs))
@@ -290,6 +293,14 @@ internal static class SetEverythingUpPatch
                 __instance.BackgroundBar.material.color = new Color32(255, 171, 27, 255);
                 WinnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
                 WinnerText.color = Main.PlayerColors[winnerId];
+                goto EndOfText;
+            }
+            case CustomGameMode.KingOfTheZones:
+            {
+                (Color Color, string Team) winnerData = KingOfTheZones.WinnerData;
+                __instance.BackgroundBar.material.color = winnerData.Color;
+                WinnerText.text = winnerData.Team;
+                WinnerText.color = winnerData.Color;
                 goto EndOfText;
             }
             case CustomGameMode.AllInOne:
@@ -485,6 +496,13 @@ internal static class SetEverythingUpPatch
             case CustomGameMode.RoomRush:
             {
                 IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(RoomRush.GetSurvivalTime);
+                foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
+
+                break;
+            }
+            case CustomGameMode.KingOfTheZones:
+            {
+                IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(KingOfTheZones.GetZoneTime);
                 foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                 break;

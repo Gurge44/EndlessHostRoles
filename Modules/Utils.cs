@@ -755,6 +755,7 @@ public static class Utils
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.RoomRush:
+            case CustomGameMode.KingOfTheZones:
                 return false;
             case CustomGameMode.HideAndSeek:
                 return CustomHnS.HasTasks(p);
@@ -968,7 +969,7 @@ public static class Utils
     {
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
+            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones:
             case CustomGameMode.Standard when IsRevivingRoleAlive() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
             case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.AllInOne:
@@ -1443,6 +1444,7 @@ public static class Utils
             case CustomGameMode.AllInOne:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
+            case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.Speedrun:
             case CustomGameMode.HotPotato:
@@ -1819,6 +1821,7 @@ public static class Utils
                     CustomGameMode.CaptureTheFlag => $"<color=#1313c2><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.NaturalDisasters => $"<color=#03fc4a><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.RoomRush => $"<color=#ffab1b><size=1.7>{modeText}</size></color>\r\n{name}",
+                    CustomGameMode.KingOfTheZones => $"<color=#ff0000><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.AllInOne => $"<color=#f542ad><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"<size=1.7>{modeText}</size>\r\n") + name,
                     _ => name
@@ -2200,6 +2203,9 @@ public static class Utils
                         case CustomGameMode.RoomRush:
                             SelfSuffix.Append(RoomRush.GetSuffix(seer));
                             break;
+                        case CustomGameMode.KingOfTheZones:
+                            SelfSuffix.Append(KingOfTheZones.GetSuffix(seer));
+                            break;
                         case CustomGameMode.AllInOne:
                             bool alive = seer.IsAlive();
                             if (alive) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true) + "\n");
@@ -2220,7 +2226,7 @@ public static class Utils
                     if ((CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFATeamMode.GetBool()) || CustomGameMode.HotPotato.IsActiveOrIntegrated())
                         SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, forMeeting);
 
-                    if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne)
+                    if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.AllInOne)
                     {
                         CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
 
@@ -2423,7 +2429,7 @@ public static class Utils
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 TargetRoleText = string.Empty;
 
-                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) TargetRoleText = string.Empty;
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones) TargetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
                             {
@@ -3230,6 +3236,9 @@ public static class Utils
                     summary = $"{ColorString(Main.PlayerColors[id], name)}: {CaptureTheFlag.GetStatistics(id)}";
                     if (CaptureTheFlag.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
                     break;
+                case CustomGameMode.KingOfTheZones:
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - {KingOfTheZones.GetStatistics(id)}";
+                    break;
                 case CustomGameMode.AllInOne:
                     string survivalTimeText = !Main.PlayerStates[id].IsDead ? string.Empty : $" ({GetString("SurvivedTimePrefix")}: <#f542ad>{RoomRush.GetSurvivalTime(id)}s</color>)";
                     summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount}{GetKillCountText(id, true)} ({GetVitalText(id, true)}){survivalTimeText}";
@@ -3548,6 +3557,7 @@ public static class Utils
         {
             CustomGameMode.SoloKombat => 3000f,
             CustomGameMode.CaptureTheFlag => 1500f,
+            CustomGameMode.KingOfTheZones => 1500f,
             _ => 1000f
         };
 

@@ -460,6 +460,11 @@ internal static class GameEndChecker
         Predicate = new RoomRushGameEndPredicate();
     }
 
+    public static void SetPredicateToKingOfTheZones()
+    {
+        Predicate = new KingOfTheZonesGameEndPredicate();
+    }
+
     public static void SetPredicateToAllInOne()
     {
         Predicate = new AllInOneGameEndPredicate();
@@ -908,6 +913,20 @@ internal static class GameEndChecker
                 default:
                     return false;
             }
+        }
+    }
+
+    private class KingOfTheZonesGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return KingOfTheZones.CheckForGameEnd(out reason);
         }
     }
 

@@ -238,6 +238,9 @@ internal static class CheckMurderPatch
             case CustomGameMode.AllInOne:
                 if (killer.Is(CustomRoles.Killer)) killer.Kill(target);
 
+                if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
+                    KingOfTheZones.OnCheckMurder(killer, target);
+
                 if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
                     CaptureTheFlag.OnCheckMurder(killer, target);
 
@@ -253,6 +256,9 @@ internal static class CheckMurderPatch
                 return false;
             case CustomGameMode.CaptureTheFlag:
                 CaptureTheFlag.OnCheckMurder(killer, target);
+                return false;
+            case CustomGameMode.KingOfTheZones:
+                KingOfTheZones.OnCheckMurder(killer, target);
                 return false;
         }
 
@@ -1765,6 +1771,9 @@ internal static class FixedUpdatePatch
                     case CustomGameMode.RoomRush when self:
                         Suffix.Append(RoomRush.GetSuffix(seer));
                         break;
+                    case CustomGameMode.KingOfTheZones when self:
+                        Suffix.Append(KingOfTheZones.GetSuffix(seer));
+                        break;
                     case CustomGameMode.AllInOne:
                         if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
                         if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
@@ -2007,6 +2016,7 @@ internal static class CoEnterVentPatch
             case CustomGameMode.Speedrun:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.NaturalDisasters:
+            case CustomGameMode.KingOfTheZones:
                 LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:

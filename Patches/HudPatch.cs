@@ -312,7 +312,7 @@ internal static class HudManagerPatch
 
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
                         __instance.AbilityButton.SetEnabled();
-                    
+
                     if ((player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && !state.Role.CanUseSabotage(player))
                         __instance.SabotageButton.ToggleVisible(false);
                 }
@@ -468,6 +468,7 @@ internal static class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 goto case CustomGameMode.HideAndSeek;
             case CustomGameMode.CaptureTheFlag:
+            case CustomGameMode.KingOfTheZones:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(true);

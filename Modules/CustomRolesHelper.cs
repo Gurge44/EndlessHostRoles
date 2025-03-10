@@ -58,7 +58,8 @@ internal static class CustomRolesHelper
             CustomRoles.Runner or
             CustomRoles.CTFPlayer or
             CustomRoles.NDPlayer or
-            CustomRoles.RRPlayer;
+            CustomRoles.RRPlayer or
+            CustomRoles.KOTZPlayer;
     }
 
     public static RoleBase GetRoleClass(this CustomRoles role)
@@ -411,6 +412,8 @@ internal static class CustomRolesHelper
             CustomRoles.Killer => RoleTypes.Impostor,
             // Capture The Flag
             CustomRoles.CTFPlayer => RoleTypes.Phantom,
+            // King of the Zones
+            CustomRoles.KOTZPlayer => RoleTypes.Impostor,
             // Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

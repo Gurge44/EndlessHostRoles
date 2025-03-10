@@ -29,7 +29,8 @@ internal static class CustomRoleSelector
         { CustomGameMode.Speedrun, CustomRoles.Runner },
         { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },
         { CustomGameMode.NaturalDisasters, CustomRoles.NDPlayer },
-        { CustomGameMode.RoomRush, CustomRoles.RRPlayer }
+        { CustomGameMode.RoomRush, CustomRoles.RRPlayer },
+        { CustomGameMode.KingOfTheZones, CustomRoles.KOTZPlayer }
     };
 
     public static void SelectCustomRoles()

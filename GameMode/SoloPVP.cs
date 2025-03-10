@@ -317,7 +317,7 @@ internal static class SoloPVP
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private class FixedUpdatePatch
+    private static class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
 

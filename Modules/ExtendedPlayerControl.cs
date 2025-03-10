@@ -1415,6 +1415,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             CustomRoles.Runner => Speedrun.KCD,
             CustomRoles.CTFPlayer => CaptureTheFlag.KCD,
+            CustomRoles.KOTZPlayer => KingOfTheZones.KCD,
             _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Length <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };

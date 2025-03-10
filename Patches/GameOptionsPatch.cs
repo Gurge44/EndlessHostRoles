@@ -78,6 +78,7 @@ internal static class SetRecommendationsPatch
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.HotPotato:
             case CustomGameMode.CaptureTheFlag:
+            case CustomGameMode.KingOfTheZones:
                 __instance.CrewLightMod = __instance.ImpostorLightMod = 1.25f;
                 __instance.NumImpostors = 3;
                 __instance.NumCommonTasks = 0;

@@ -690,6 +690,8 @@ public class Main : BasePlugin
                 { CustomRoles.NDPlayer, "#03fc4a" },
                 // Room Rush
                 { CustomRoles.RRPlayer, "#ffab1b" },
+                // King of the Zones
+                { CustomRoles.KOTZPlayer, "#ff0000" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },

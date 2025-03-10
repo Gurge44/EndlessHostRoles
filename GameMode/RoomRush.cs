@@ -37,7 +37,7 @@ public static class RoomRush
 
     private static long RoundStartTS;
 
-    public static bool GameGoing;
+    private static bool GameGoing;
     private static DateTime GameStartDateTime;
 
     private static RandomSpawn.SpawnMap Map;
@@ -244,7 +244,7 @@ public static class RoomRush
             goto Skip;
         }
 
-        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3;
+        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 3;
 
         if (showTutorial)
         {
