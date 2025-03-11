@@ -138,6 +138,15 @@ public class PlayerState(byte playerId)
 
         Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
+        if (Main.IntroDestroyed)
+        {
+            if (!previousHasTasks && Utils.HasTasks(Player.Data, false))
+            {
+                Player.RpcResetTasks();
+                if (!AmongUsClient.Instance.AmHost) LateTask.New(() => TaskState.Init(Player), 1f, log: false);
+            }
+        }
+
         if (!AmongUsClient.Instance.AmHost) return;
 
         if (Main.IntroDestroyed)
@@ -167,12 +176,6 @@ public class PlayerState(byte playerId)
                 Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 
             if (Options.UsePets.GetBool()) PetsHelper.SetPet(Player, PetsHelper.GetPetId());
-
-            if (!previousHasTasks && Utils.HasTasks(Player.Data, false))
-            {
-                Player.RpcResetTasks();
-                TaskState.Init(Player);
-            }
 
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
