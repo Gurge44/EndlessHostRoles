@@ -4854,6 +4854,7 @@
   "KOTZ.SuffixHelp.GameEndTimer": "<size=80%>Game End Timer: </size>",
   "KOTZ.Suffix.RespawnTime": "<#ff0000>DEAD</color> <#888888>-</color> RESPAWNING IN <#ffff44>{0}</color>",
   "KOTZ.Suffix.PointsToWin": "First to <#ffff44>{0}</color> points wins",
+  "KOTZ.Suffix.Tie": "Tie: {0}\\nWaiting for the tie to break....",
   "KOTZ.EndScreen.Winner.Red": "The Red Team wins!",
   "KOTZ.EndScreen.Winner.Blue": "The Blue Team wins!",
   "KOTZ.EndScreen.Winner.Green": "The Green Team wins!",
