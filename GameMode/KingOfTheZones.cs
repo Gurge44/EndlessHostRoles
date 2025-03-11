@@ -67,6 +67,7 @@ public static class KingOfTheZones
         ]
     };
 
+    private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
     private static Dictionary<byte, KOTZTeam> PlayerTeams = [];
     private static Dictionary<byte, long> RespawnTimes = [];
     private static Dictionary<KOTZTeam, int> Points = [];
@@ -205,7 +206,10 @@ public static class KingOfTheZones
         Points = teams.ToDictionary(x => x, _ => 0);
         ZoneDomination = Zones.ToDictionary(x => x, _ => KOTZTeam.None);
         ZoneMoveSchedules = [];
+        ZoneDowntimeExpire = [];
         RespawnTimes = [];
+
+        DefaultOutfits = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
 
         var parts = Main.PlayerStates.Keys.Partition(NumTeams.GetInt());
         PlayerTeams = parts.Zip(teams, (players, team) => players.ToDictionary(x => x, _ => team)).SelectMany(x => x).ToDictionary(x => x.Key, x => x.Value);
@@ -381,6 +385,43 @@ public static class KingOfTheZones
     {
         try { return Points[PlayerTeams[id]]; }
         catch { return 0; }
+    }
+
+    public static bool CheckForGameEnd(out GameOverReason reason)
+    {
+        reason = GameOverReason.ImpostorByKill;
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+        if (!Main.IntroDestroyed || !GameGoing) return false;
+
+        switch (aapc.Length)
+        {
+            case 0:
+                ResetSkins();
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                CustomWinnerHolder.WinnerIds = Main.PlayerStates.Keys.ToHashSet();
+                reason = GameOverReason.HumansDisconnect;
+                return true;
+            case 1:
+                ResetSkins();
+                var winner = PlayerTeams[aapc[0].PlayerId];
+                var color = winner.GetColor();
+                WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{winner}")));
+                return true;
+            default:
+                if (WinnerData.Team != "No one wins")
+                {
+                    ResetSkins();
+                    return true;
+                }
+
+                return false;
+        }
+
+        void ResetSkins()
+        {
+            DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+        }
     }
 
     enum KOTZTeam
