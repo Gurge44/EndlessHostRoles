@@ -2687,7 +2687,7 @@ public static class Options
 
     public static OptionItem CreateVoteCancellingUseSetting(int id, CustomRoles role, TabGroup tab)
     {
-        return new BooleanOptionItem(id, "UseVoteCancellingAfterVote", false, tab)
+        return new BooleanOptionItem(id, "UseVoteCancellingAfterVote", true, tab)
             .SetParent(CustomRoleSpawnChances[role])
             .SetColor(Color.yellow);
     }

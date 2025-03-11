@@ -945,19 +945,10 @@ internal static class IntroCutsceneDestroyPatch
                     }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
             }
 
-            if (Options.RandomSpawn.GetBool() && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
+            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
             {
-                RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
-                {
-                    0 => new RandomSpawn.SkeldSpawnMap(),
-                    1 => new RandomSpawn.MiraHQSpawnMap(),
-                    2 => new RandomSpawn.PolusSpawnMap(),
-                    3 => new RandomSpawn.DleksSpawnMap(),
-                    5 => new RandomSpawn.FungleSpawnMap(),
-                    _ => null
-                };
-
-                if ((map != null) && AmongUsClient.Instance.AmHost) aapc.Do(map.RandomTeleport);
+                RandomSpawn.SpawnMap map = RandomSpawn.SpawnMap.GetSpawnMap();
+                aapc.Do(map.RandomTeleport);
             }
 
             if (lp.HasDesyncRole())

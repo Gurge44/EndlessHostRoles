@@ -113,7 +113,7 @@ public static class NaturalDisasters
 
         if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return;
 
-        Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RoomLocations()?.Values;
+        Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values;
         if (rooms == null) return;
 
         float[] x = rooms.Select(r => r.x).ToArray();
@@ -186,20 +186,6 @@ public static class NaturalDisasters
         };
     }
 
-    private static Dictionary<SystemTypes, Vector2> RoomLocations()
-    {
-        return Main.CurrentMap switch
-        {
-            MapNames.Skeld => new RandomSpawn.SkeldSpawnMap().positions,
-            MapNames.Mira => new RandomSpawn.MiraHQSpawnMap().positions,
-            MapNames.Polus => new RandomSpawn.PolusSpawnMap().positions,
-            MapNames.Dleks => new RandomSpawn.DleksSpawnMap().positions,
-            MapNames.Airship => new RandomSpawn.AirshipSpawnMap().positions,
-            MapNames.Fungle => new RandomSpawn.FungleSpawnMap().positions,
-            _ => null
-        };
-    }
-
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class FixedUpdatePatch
     {
@@ -267,7 +253,7 @@ public static class NaturalDisasters
                 if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
 
                 Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
-                KeyValuePair<SystemTypes, Vector2> roomKvp = RoomLocations().RandomElement();
+                KeyValuePair<SystemTypes, Vector2> roomKvp = RandomSpawn.SpawnMap.GetSpawnMap().Positions.RandomElement();
 
                 Vector2 position = disaster.Name switch
                 {

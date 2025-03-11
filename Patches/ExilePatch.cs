@@ -93,19 +93,10 @@ internal static class ExileControllerWrapUpPatch
             PetsHelper.RpcRemovePet(pc);
         }
 
-        if (Options.RandomSpawn.GetBool())
+        if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
         {
-            RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
-            {
-                0 => new RandomSpawn.SkeldSpawnMap(),
-                1 => new RandomSpawn.MiraHQSpawnMap(),
-                2 => new RandomSpawn.PolusSpawnMap(),
-                3 => new RandomSpawn.DleksSpawnMap(),
-                5 => new RandomSpawn.FungleSpawnMap(),
-                _ => null
-            };
-
-            if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
+            RandomSpawn.SpawnMap map = RandomSpawn.SpawnMap.GetSpawnMap();
+            Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
 
         FallFromLadder.Reset();

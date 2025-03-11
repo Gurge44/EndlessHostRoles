@@ -222,16 +222,7 @@ public static class RoomRush
         if (WinByPointsInsteadOfDeaths.GetBool())
             Points = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => 0);
 
-        Map = Main.CurrentMap switch
-        {
-            MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-            MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-            MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-            MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-            MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-            MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-            _ => throw new ArgumentOutOfRangeException()
-        };
+        Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
         yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 22f : 14f);
 

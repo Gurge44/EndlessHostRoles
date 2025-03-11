@@ -234,23 +234,7 @@ internal static class SoloPVP
         pc.RpcGuardAndKill();
 
         if (pc.inVent) pc.MyPhysics.RpcBootFromVent(ShipStatus.Instance.AllVents.RandomElement().Id);
-        else PlayerRandomSpwan(pc);
-    }
-
-    private static void PlayerRandomSpwan(PlayerControl pc)
-    {
-        SpawnMap map = Main.CurrentMap switch
-        {
-            MapNames.Skeld => new SkeldSpawnMap(),
-            MapNames.Mira => new MiraHQSpawnMap(),
-            MapNames.Polus => new PolusSpawnMap(),
-            MapNames.Airship => new AirshipSpawnMap(),
-            MapNames.Fungle => new FungleSpawnMap(),
-            MapNames.Dleks => new DleksSpawnMap(),
-            _ => null
-        };
-
-        map?.RandomTeleport(pc);
+        else SpawnMap.GetSpawnMap().RandomTeleport(pc);
     }
 
     private static void OnPlayerDead(PlayerControl target)
@@ -346,7 +330,7 @@ internal static class SoloPVP
                 {
                     Vector2 pos = Pelican.GetBlackRoomPS();
                     float dis = Vector2.Distance(pos, __instance.Pos());
-                    if (dis < 1.1f) PlayerRandomSpwan(__instance);
+                    if (dis < 1.1f) SpawnMap.GetSpawnMap().RandomTeleport(__instance);
                     break;
                 }
             }

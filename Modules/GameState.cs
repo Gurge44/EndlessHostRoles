@@ -93,10 +93,9 @@ public class PlayerState(byte playerId)
 
     private int RoleChangeTimes = -1;
     public bool IsDead { get; set; }
-#pragma warning disable IDE1006 // Naming Styles
+
     // ReSharper disable once InconsistentNaming
     public DeathReason deathReason { get; set; } = DeathReason.etc;
-#pragma warning restore IDE1006 // Naming Styles
     public bool IsBlackOut { get; set; }
 
     public bool IsSuicide => deathReason == DeathReason.Suicide;
@@ -141,11 +140,9 @@ public class PlayerState(byte playerId)
 
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (!Main.HasJustStarted)
+        if (Main.IntroDestroyed)
         {
             Player.ResetKillCooldown();
-            Utils.NotifyRoles(SpecifySeer: Player);
-            Utils.NotifyRoles(SpecifyTarget: Player);
 
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
@@ -173,11 +170,14 @@ public class PlayerState(byte playerId)
 
             var nowHasTasks = Utils.HasTasks(Player.Data, false);
             if (!previousHasTasks && nowHasTasks) TaskState.Init(Player);
+
+            Utils.NotifyRoles(SpecifySeer: Player);
+            Utils.NotifyRoles(SpecifyTarget: Player);
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
-        if (Main.HasJustStarted || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+        if (!Main.IntroDestroyed || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
         RoleChangeTimes++;
         if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();

@@ -20,7 +20,7 @@ public class RoomRusher : RoleBase
     private static OptionItem RoomNameDisplay;
     private static OptionItem Arrow;
     private static OptionItem RoomsToWin;
-    
+
     private int CompletedNum;
     private long LastUpdate;
     private SystemTypes RoomGoal;
@@ -66,17 +66,8 @@ public class RoomRusher : RoleBase
             AllRooms.Remove(SystemTypes.Outside);
             AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
 
-            Map = Main.CurrentMap switch
-            {
-                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-                MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-                MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-                MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-                MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            
+            Map = RandomSpawn.SpawnMap.GetSpawnMap();
+
             StartNewRound(true);
         }, Main.CurrentMap == MapNames.Airship ? 22f : 14f);
     }
