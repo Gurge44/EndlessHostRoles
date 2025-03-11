@@ -467,8 +467,12 @@ internal static class SetHudActivePatch
             case CustomGameMode.RoomRush:
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 goto case CustomGameMode.HideAndSeek;
-            case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.KingOfTheZones:
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.SabotageButton?.ToggleVisible(false);
+                __instance.AbilityButton?.ToggleVisible(false);
+                break;
+            case CustomGameMode.CaptureTheFlag:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(true);

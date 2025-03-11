@@ -1484,7 +1484,7 @@ internal static class StartRpcPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
 internal static class StartRpcImmediatelyPatch
 {
-    public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option, [HarmonyArgument(3)] int targetClientId = -1, ref MessageWriter __result)
+    public static bool Prefix(InnerNetClient __instance, ref MessageWriter __result, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option, [HarmonyArgument(3)] int targetClientId = -1)
     {
         if (!__instance.AmHost) __result = __instance.StartRpc(targetNetId, callId, option);
         RPC.SendRpcLogger(targetNetId, callId, option, targetClientId);

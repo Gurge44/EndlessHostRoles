@@ -1234,6 +1234,7 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
+            case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
                 return true;
             case CustomGameMode.AllInOne:

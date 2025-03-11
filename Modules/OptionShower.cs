@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -26,12 +27,12 @@ public static class OptionShower
         }
         catch (Exception e)
         {
-            Utils.ThrowException(e);
+            if (!OnGameJoinedPatch.JoiningGame) Utils.ThrowException(e);
             return LastText;
         }
     }
 
-    public static System.Collections.IEnumerator GetText()
+    public static IEnumerator GetText()
     {
         StringBuilder sb = new();
 
@@ -78,7 +79,7 @@ public static class OptionShower
             sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
 
             int index = 0;
-            
+
             if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
             {
                 foreach (KeyValuePair<CustomRoles, StringOptionItem> kvp in Options.CustomRoleSpawnChances)

@@ -68,6 +68,8 @@ public static class NameColorManager
                 return true;
             case CustomGameMode.CaptureTheFlag:
                 return CaptureTheFlag.KnowTargetRoleColor(target, ref color);
+            case CustomGameMode.KingOfTheZones:
+                return KingOfTheZones.GetNameColor(target, ref color);
         }
 
         RoleBase seerRoleClass = Main.PlayerStates[seer.PlayerId].Role;

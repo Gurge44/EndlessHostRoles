@@ -662,7 +662,7 @@ internal static class BeginCrewmatePatch
             }
             case CustomGameMode.NaturalDisasters:
             {
-                __instance.TeamTitle.text = "<size=70%>" + GetString("NDPlayer") + "</size>";
+                __instance.TeamTitle.text = $"<size=70%>{GetString("NDPlayer")}</size>";
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(3, 252, 74, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.GuardianAngel);
                 __instance.ImpostorText.gameObject.SetActive(true);
@@ -680,7 +680,7 @@ internal static class BeginCrewmatePatch
             }
             case CustomGameMode.KingOfTheZones:
             {
-                __instance.TeamTitle.text = GetString("KOTZPlayer");
+                __instance.TeamTitle.text = $"<size=70%>{GetString("KOTZPlayer")}</size>";
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 0, 0, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
