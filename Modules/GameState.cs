@@ -168,8 +168,11 @@ public class PlayerState(byte playerId)
 
             if (Options.UsePets.GetBool()) PetsHelper.SetPet(Player, PetsHelper.GetPetId());
 
-            var nowHasTasks = Utils.HasTasks(Player.Data, false);
-            if (!previousHasTasks && nowHasTasks) TaskState.Init(Player);
+            if (!previousHasTasks && Utils.HasTasks(Player.Data, false))
+            {
+                Player.RpcResetTasks();
+                TaskState.Init(Player);
+            }
 
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
