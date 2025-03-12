@@ -4819,7 +4819,7 @@
   "RR_Tutorial_DontMoveOutOfRoom": "<size=90%>After you get to the correct room, don't move out of it!</size>",
   "RR_Tutorial_Venting": "<size=90%>Every player can vent <#ffff44>{0}</color> times.</size>",
   "RR_Tutorial_PointsSystem": "<size=90%>When you get to the correct room, you get points. The sooner you get there, the more points you get.</size>",
-  "RR_Tutorial_TimeLimitLastPoints": "<size=90%>If you are last to or don't get to the correct room within the time limit,\\nyou get teleported to a nplayer who did and don't get any points.</size>",
+  "RR_Tutorial_TimeLimitLastPoints": "<size=90%>If you are last to or don't get to the correct room within the time limit,\\nyou get teleported to a player who did and don't get any points.</size>",
   "RR_Tutorial_PointsToWin": "<size=90%>The first player to reach <#ffff44>{0}</color> points wins.</size>",
   "RR_VentsRemaining": "<size=80%>Remaining vent uses: {0}</size>",
   "RR_YouWereLast": "<#ff1919>You were the last to get to the room</color>",
