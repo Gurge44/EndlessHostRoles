@@ -263,7 +263,7 @@ public static class KingOfTheZones
             yield return null;
         }
 
-        yield return new WaitForSeconds(showTutorial ? 17f : 4f);
+        yield return new WaitForSeconds(showTutorial ? 18f : 3f);
         NameNotifyManager.Reset();
         if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -330,6 +330,14 @@ public static class KingOfTheZones
             yield return new WaitForSeconds(7f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
+        }
+
+        for (var i = 3; i > 0; i--)
+        {
+            int time = i;
+            NameNotifyManager.Reset();
+            aapc.Do(x => x.Notify(string.Format(GetString("RR_ReadyQM"), time.ToString())));
+            yield return new WaitForSeconds(1f);
         }
 
         var spawnsConst = RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).ToArray();
