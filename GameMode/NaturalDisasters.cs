@@ -477,7 +477,7 @@ public static class NaturalDisasters
             if (Timer >= FlowStepDelay.GetFloat())
             {
                 Timer = 0f;
-                Phase++;
+                if (Phase <= Phases) Phase++;
                 if (Phase > Phases) return;
 
                 string newSprite = Phase switch
@@ -491,7 +491,7 @@ public static class NaturalDisasters
                 NetObject.RpcChangeSprite(newSprite);
             }
 
-            float range = Range - ((Phases - Phase) * 0.4f);
+            float range = Range - ((Phases - Math.Min(4, Phase)) * 0.4f);
             KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
         }
     }
