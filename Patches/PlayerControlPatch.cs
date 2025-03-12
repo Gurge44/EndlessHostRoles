@@ -1795,7 +1795,7 @@ internal static class FixedUpdatePatch
                 // Camouflage
                 if (Camouflage.IsCamouflage) realName = $"<size=0>{realName}</size> ";
 
-                if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
+                if (!self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                     realName = EmptyMessage;
 
                 string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
