@@ -337,6 +337,8 @@ public static class KingOfTheZones
 
         foreach (PlayerControl player in aapc)
         {
+            player.SetKillCooldown(TagCooldown.GetInt());
+
             var spawn = spawns.RandomElement();
             player.TP(spawn.Value);
             spawns.RemoveAll(x => x.Key == spawn.Key);
