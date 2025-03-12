@@ -2535,10 +2535,14 @@ public static class Utils
                             if (seer.KnowDeathReason(target) && !GameStates.IsLobby) TargetDeathReason = $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>";
 
                             // Devourer
-                            if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !camouflageIsForMeeting) TargetPlayerName = GetString("DevouredName");
+                            if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !camouflageIsForMeeting)
+                                TargetPlayerName = GetString("DevouredName");
 
                             // Camouflage
                             if (Camouflage.IsCamouflage && !camouflageIsForMeeting) TargetPlayerName = $"<size=0>{TargetPlayerName}</size>";
+
+                            if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
+                                TargetPlayerName = EmptyMessage;
 
                             var TargetName = $"{TargetRoleText}{TargetPlayerName}{TargetDeathReason}{TargetMark}";
                             TargetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{TargetSuffix}";
@@ -2600,7 +2604,11 @@ public static class Utils
 
     public static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
     {
+        if (newOutfit.Compare(pc.Data.DefaultOutfit)) return;
+
         Camouflage.SetPetForOutfitIfNecessary(newOutfit);
+
+        if (newOutfit.Compare(pc.Data.DefaultOutfit)) return;
 
         var sender = CustomRpcSender.Create($"Utils.RpcChangeSkin({pc.Data.PlayerName})");
 

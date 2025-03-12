@@ -1785,13 +1785,18 @@ internal static class FixedUpdatePatch
                 if (self && GameStartTimeStamp + 50 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out var playedFCs) && !playedFCs.Contains(seer.FriendCode))
                     Suffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
 
-                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA) Suffix.Append(GetString("DiedR1Warning"));
+                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+                    Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer
-                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId))) realName = GetString("DevouredName");
+                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)))
+                    realName = GetString("DevouredName");
 
                 // Camouflage
                 if (Camouflage.IsCamouflage) realName = $"<size=0>{realName}</size> ";
+
+                if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
+                    realName = EmptyMessage;
 
                 string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 

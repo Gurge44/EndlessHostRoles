@@ -1380,7 +1380,7 @@ public static class Options
         KickNotJoinedPlayersRegularly = new BooleanOptionItem(60295, "KickNotJoinedPlayersRegularly", true, TabGroup.SystemSettings)
             .SetColor(Color.yellow);
 
-        CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings)
+        CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 4, TabGroup.SystemSettings)
             .SetHeader(true);
 
         EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", false, TabGroup.SystemSettings)

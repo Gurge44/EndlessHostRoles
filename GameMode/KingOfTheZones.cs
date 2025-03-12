@@ -76,10 +76,10 @@ public static class KingOfTheZones
     private static Dictionary<SystemTypes, long> ZoneDowntimeExpire = [];
     private static List<SystemTypes> Zones = [];
     private static HashSet<SystemTypes> AllRooms = [];
-    private static bool GameGoing;
     private static int TimeLeft;
     private static long GameStartTS;
 
+    public static bool GameGoing;
     public static readonly HashSet<string> PlayedFCs = [];
 
     static KingOfTheZones()
@@ -197,6 +197,8 @@ public static class KingOfTheZones
 
     public static void Init()
     {
+        WinnerData = (Color.white, "No one wins");
+
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
         AllRooms.Remove(SystemTypes.Hallway);
         AllRooms.Remove(SystemTypes.Outside);
@@ -210,11 +212,19 @@ public static class KingOfTheZones
         ZoneMoveSchedules = [];
         ZoneDowntimeExpire = [];
         RespawnTimes = [];
+        TimeLeft = 0;
 
         DefaultOutfits = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
 
-        var parts = Main.PlayerStates.Keys.Shuffle().Partition(NumTeams.GetInt());
-        PlayerTeams = parts.Zip(teams[1..], (players, team) => players.ToDictionary(x => x, _ => team)).SelectMany(x => x).ToDictionary(x => x.Key, x => x.Value);
+        List<byte> ids = Main.PlayerStates.Keys.Shuffle();
+        if (Main.GM.Value) ids.Remove(0);
+        ids.RemoveAll(ChatCommands.Spectators.Contains);
+
+        PlayerTeams = ids
+            .Partition(NumTeams.GetInt())
+            .Zip(teams[1..], (players, team) => players.ToDictionary(x => x, _ => team))
+            .SelectMany(x => x)
+            .ToDictionary(x => x.Key, x => x.Value);
 
         Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
         GameGoing = false;
@@ -231,18 +241,9 @@ public static class KingOfTheZones
         int teams = NumTeams.GetInt();
         int zones = NumZones.GetInt();
 
-        var spawnsConst = RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).ToArray();
-        var spawns = spawnsConst.ToList();
-
         foreach ((byte id, KOTZTeam team) in PlayerTeams)
         {
             PlayerControl player = id.GetPlayer();
-
-            var spawn = spawns.RandomElement();
-            player.TP(spawn.Value);
-            spawns.RemoveAll(x => x.Key == spawn.Key);
-
-            if (spawns.Count == 0) spawns = spawnsConst.ToList();
 
             string name = Main.AllPlayerNames[id];
             var skin = new NetworkedPlayerInfo.PlayerOutfit().Set(name, team.GetColorId(), "", "", "", "", "");
@@ -258,11 +259,13 @@ public static class KingOfTheZones
 
             player.Notify($"<#ffffff>{notify}</color>", 100f);
             Logger.Info($"{name} assigned to {team} team", "KOTZ");
+
+            yield return null;
         }
 
         yield return new WaitForSeconds(showTutorial ? 17f : 4f);
-        if (!GameStates.InGame || !Main.IntroDestroyed) yield break;
         NameNotifyManager.Reset();
+        if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
         int tagCooldown = TagCooldown.GetInt();
         int respawnTime = RespawnTime.GetInt();
@@ -287,15 +290,15 @@ public static class KingOfTheZones
 
             aapc.Do(x => x.Notify($"<#ffffff>{gameEnd}</color>", 100f));
             yield return new WaitForSeconds(endByPoints && endByTime ? 10f : 7f);
-            if (!GameStates.InGame || !Main.IntroDestroyed) yield break;
             NameNotifyManager.Reset();
+            if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
             string tags = string.Format(GetString("KOTZ.Notify.Tutorial.Tagging"), tagCooldown, respawnTime);
 
             aapc.Do(x => x.Notify($"<#ffffff>{tags}</color>", 100f));
             yield return new WaitForSeconds(8f);
-            if (!GameStates.InGame || !Main.IntroDestroyed) yield break;
             NameNotifyManager.Reset();
+            if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
             if (ZonesMove.GetBool())
             {
@@ -303,8 +306,8 @@ public static class KingOfTheZones
 
                 aapc.Do(x => x.Notify($"<#ffffff>{zoneMovement}</color>", 100f));
                 yield return new WaitForSeconds(6f);
-                if (!GameStates.InGame || !Main.IntroDestroyed) yield break;
                 NameNotifyManager.Reset();
+                if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
                 int downTime = DowntimeAfterZoneMove.GetInt();
 
@@ -314,8 +317,8 @@ public static class KingOfTheZones
 
                     aapc.Do(x => x.Notify($"<#ffffff>{downTimeInfo}</color>", 100f));
                     yield return new WaitForSeconds(8f);
-                    if (!GameStates.InGame || !Main.IntroDestroyed) yield break;
                     NameNotifyManager.Reset();
+                    if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
                 }
             }
         }
@@ -325,17 +328,33 @@ public static class KingOfTheZones
 
             aapc.Do(x => x.Notify($"<#ffffff>{info}</color>", 100f));
             yield return new WaitForSeconds(7f);
-            if (!GameStates.InGame || !Main.IntroDestroyed) yield break;
             NameNotifyManager.Reset();
+            if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
+        }
+
+        var spawnsConst = RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).ToArray();
+        var spawns = spawnsConst.ToList();
+
+        foreach (PlayerControl player in aapc)
+        {
+            var spawn = spawns.RandomElement();
+            player.TP(spawn.Value);
+            spawns.RemoveAll(x => x.Key == spawn.Key);
+
+            if (spawns.Count == 0) spawns = spawnsConst.ToList();
         }
 
         TimeLeft = GameEndsByTimeLimit.GetBool() ? MaxGameLength.GetInt() : 0;
         GameStartTS = Utils.TimeStamp;
 
+        GameGoing = true;
+
+        End:
+
         Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
         Utils.MarkEveryoneDirtySettings();
 
-        GameGoing = true;
+        yield return Utils.NotifyEveryoneAsync(speed: 1, noCache: false);
     }
 
     public static bool GetNameColor(PlayerControl pc, ref string color)
@@ -361,7 +380,7 @@ public static class KingOfTheZones
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!Main.IntroDestroyed || !GameGoing || new[] { killer, target }.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
+        if (!Main.IntroDestroyed || !GameGoing || new[] { killer, target }.Any(x => RespawnTimes.ContainsKey(x.PlayerId)) || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId]) return;
 
         int cd = TagCooldown.GetInt();
         killer.SetKillCooldown(cd);
@@ -447,16 +466,11 @@ public static class KingOfTheZones
                 ResetSkins();
                 var winner = PlayerTeams[aapc[0].PlayerId];
                 var color = winner.GetColor();
+                CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == winner).Select(x => x.Key).ToHashSet();
                 WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{winner}")));
                 return true;
             default:
-                if (WinnerData.Team != "No one wins")
-                {
-                    ResetSkins();
-                    return true;
-                }
-
-                return false;
+                return WinnerData.Team != "No one wins";
         }
 
         void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
@@ -582,11 +596,11 @@ public static class KingOfTheZones
                         _ when teamPlayers[0].Length == teamPlayers[1].Length => KOTZTeam.None,
                         _ => teamPlayers[0].Team
                     };
-
-                Logger.Info($"Zone {zone} dominated by {ZoneDomination[zone]} team", "KOTZ");
             }
 
             ZoneDomination.Values.DoIf(x => x != KOTZTeam.None, x => Points[x]++);
+
+            Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key}: {x.Value}"))}", "KOTZ");
 
             foreach (PlayerControl player in Main.AllAlivePlayerControls)
             {
