@@ -673,6 +673,7 @@ public class Main : BasePlugin
                 { CustomRoles.Antidote, "#FF9876" },
                 { CustomRoles.Swift, "#ff1919" },
                 { CustomRoles.Mare, "#ff1919" },
+                { CustomRoles.Underdog, "#ff1919" },
 
                 // SoloKombat
                 { CustomRoles.KB_Normal, "#f55252" },
