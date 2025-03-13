@@ -255,7 +255,10 @@ internal static class SoloPVP
     private static void OnPlayerKill(PlayerControl killer)
     {
         killer.KillFlash();
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) PlayerControl.LocalPlayer.KillFlash();
+        foreach (var player in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.GM)))
+        {
+            player.KillFlash();
+        }
 
         KBScore[killer.PlayerId]++;
 
