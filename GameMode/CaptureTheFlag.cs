@@ -371,6 +371,12 @@ public static class CaptureTheFlag
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        target.KillFlash();
+        foreach (var player in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.GM)))
+        {
+            player.KillFlash();
+        }
+        
         if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out var targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out var killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
         new[] { killer, target }.Do(x => x.SetKillCooldown(TagCooldown.GetFloat()));
