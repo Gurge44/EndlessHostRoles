@@ -227,6 +227,10 @@ public static class KingOfTheZones
             .ToDictionary(x => x.Key, x => x.Value);
 
         Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
+        float normalSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        if (Main.GM.Value) Main.AllPlayerSpeed[0] = normalSpeed;
+        ChatCommands.Spectators.Do(x => Main.AllPlayerSpeed[x] = normalSpeed);
+
         GameGoing = false;
     }
 
@@ -235,7 +239,7 @@ public static class KingOfTheZones
         if (!CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) yield break;
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
-        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Length / 3;
+        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Length / 2;
         NameNotifyManager.Reset();
 
         int teams = NumTeams.GetInt();
@@ -263,7 +267,7 @@ public static class KingOfTheZones
             yield return null;
         }
 
-        yield return new WaitForSeconds(showTutorial ? 18f : 3f);
+        yield return new WaitForSeconds(showTutorial ? 15f : 2f);
         NameNotifyManager.Reset();
         if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -289,14 +293,14 @@ public static class KingOfTheZones
             };
 
             aapc.Do(x => x.Notify($"<#ffffff>{gameEnd}</color>", 100f));
-            yield return new WaitForSeconds(endByPoints && endByTime ? 10f : 7f);
+            yield return new WaitForSeconds(endByPoints && endByTime ? 9f : 6f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
             string tags = string.Format(GetString("KOTZ.Notify.Tutorial.Tagging"), tagCooldown, respawnTime);
 
             aapc.Do(x => x.Notify($"<#ffffff>{tags}</color>", 100f));
-            yield return new WaitForSeconds(8f);
+            yield return new WaitForSeconds(7f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -305,7 +309,7 @@ public static class KingOfTheZones
                 string zoneMovement = string.Format(GetString(AllZonesMoveAtOnce.GetBool() ? "KOTZ.Notify.Tutorial.ZonesMoving.AllAtOnce" : "KOTZ.Notify.Tutorial.ZonesMoving.Separately"), ZoneMoveTime.GetInt());
 
                 aapc.Do(x => x.Notify($"<#ffffff>{zoneMovement}</color>", 100f));
-                yield return new WaitForSeconds(6f);
+                yield return new WaitForSeconds(5f);
                 NameNotifyManager.Reset();
                 if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -316,10 +320,18 @@ public static class KingOfTheZones
                     string downTimeInfo = string.Format(GetString("KOTZ.Notify.Tutorial.ZonesMoving.Downtime"), downTime);
 
                     aapc.Do(x => x.Notify($"<#ffffff>{downTimeInfo}</color>", 100f));
-                    yield return new WaitForSeconds(8f);
+                    yield return new WaitForSeconds(7f);
                     NameNotifyManager.Reset();
                     if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
                 }
+            }
+
+            for (var i = 3; i > 0; i--)
+            {
+                int time = i;
+                NameNotifyManager.Reset();
+                aapc.Do(x => x.Notify($"<#ffffff>{string.Format(GetString("RR_ReadyQM"), time)}</color>", 100f));
+                yield return new WaitForSeconds(1f);
             }
         }
         else
@@ -330,14 +342,6 @@ public static class KingOfTheZones
             yield return new WaitForSeconds(7f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
-        }
-
-        for (var i = 3; i > 0; i--)
-        {
-            int time = i;
-            NameNotifyManager.Reset();
-            aapc.Do(x => x.Notify(string.Format(GetString("RR_ReadyQM"), time.ToString())));
-            yield return new WaitForSeconds(1f);
         }
 
         var spawnsConst = RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).ToArray();
@@ -362,7 +366,7 @@ public static class KingOfTheZones
         End:
 
         Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-        Utils.MarkEveryoneDirtySettings();
+        Utils.SyncAllSettings();
 
         yield return Utils.NotifyEveryoneAsync(speed: 1, noCache: false);
     }
@@ -390,11 +394,12 @@ public static class KingOfTheZones
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!Main.IntroDestroyed || !GameGoing || new[] { killer, target }.Any(x => RespawnTimes.ContainsKey(x.PlayerId)) || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId]) return;
+        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId]) return;
 
-        int cd = TagCooldown.GetInt();
-        killer.SetKillCooldown(cd);
-        target.SetKillCooldown(RespawnTime.GetInt() + cd + 1);
+        PlayerControl[] pcs = [killer, target];
+        if (pcs.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
+
+        pcs.Do(x => x.SetKillCooldown(TagCooldown.GetInt()));
 
         RespawnTimes[target.PlayerId] = Utils.TimeStamp + RespawnTime.GetInt() + 1;
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
@@ -610,7 +615,7 @@ public static class KingOfTheZones
 
             ZoneDomination.Values.DoIf(x => x != KOTZTeam.None, x => Points[x]++);
 
-            Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key}: {x.Value}"))}", "KOTZ");
+            Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key} = {x.Value}"))}", "KOTZ");
 
             foreach (PlayerControl player in Main.AllAlivePlayerControls)
             {

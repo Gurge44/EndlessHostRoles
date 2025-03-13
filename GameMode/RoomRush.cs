@@ -235,11 +235,11 @@ public static class RoomRush
             goto Skip;
         }
 
-        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 3;
+        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 2;
 
         if (showTutorial)
         {
-            int readingTime = 6;
+            int readingTime = 4;
 
             StringBuilder sb = new(Translator.GetString("RR_Tutorial_Basics"));
             sb.AppendLine();
@@ -314,7 +314,7 @@ public static class RoomRush
         {
             int time = i;
             NameNotifyManager.Reset();
-            aapc.Do(x => x.Notify(string.Format(Translator.GetString("RR_ReadyQM"), time.ToString())));
+            aapc.Do(x => x.Notify(string.Format(Translator.GetString("RR_ReadyQM"), time)));
             yield return new WaitForSeconds(1f);
         }
 
