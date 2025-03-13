@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
@@ -646,7 +647,7 @@ internal static class BeginCrewmatePatch
             {
                 __instance.TeamTitle.text = GetString("HideAndSeek");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(52, 94, 235, byte.MaxValue);
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("SubText.HideAndSeek");
                 break;
@@ -682,7 +683,7 @@ internal static class BeginCrewmatePatch
             {
                 __instance.TeamTitle.text = $"<size=70%>{GetString("KOTZPlayer")}</size>";
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 0, 0, byte.MaxValue);
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Engineer);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("KOTZPlayerInfo");
                 break;
@@ -698,23 +699,22 @@ internal static class BeginCrewmatePatch
             }
         }
 
-        // if (Input.GetKey(KeyCode.RightShift))
-        // {
-        //     __instance.TeamTitle.text = "明天就跑路啦";
-        //     __instance.ImpostorText.gameObject.SetActive(true);
-        //     __instance.ImpostorText.text = "嘿嘿嘿嘿嘿嘿";
-        //     __instance.TeamTitle.color = Color.cyan;
-        //     StartFadeIntro(__instance, Color.cyan, Color.yellow);
-        // }
-        //
-        // if (Input.GetKey(KeyCode.RightControl))
-        // {
-        //     __instance.TeamTitle.text = "警告";
-        //     __instance.ImpostorText.gameObject.SetActive(true);
-        //     __instance.ImpostorText.text = "请远离无知的玩家";
-        //     __instance.TeamTitle.color = Color.magenta;
-        //     StartFadeIntro(__instance, Color.magenta, Color.magenta);
-        // }
+        if (Input.GetKey(KeyCode.RightShift))
+        {
+            __instance.TeamTitle.text = "Damn!!";
+            __instance.ImpostorText.gameObject.SetActive(true);
+            __instance.ImpostorText.text = "You found the Secret Intro";
+            __instance.TeamTitle.color = new Color32(186, 3, 175, byte.MaxValue);
+            StartFadeIntro(__instance, Color.yellow, Color.cyan);
+        }
+        if (Input.GetKey(KeyCode.RightControl))
+        {
+            __instance.TeamTitle.text = "Warning!!";
+            __instance.ImpostorText.gameObject.SetActive(true);
+            __instance.ImpostorText.text = "Please stay away from all Impostor based players";
+            __instance.TeamTitle.color = new Color32(241, 187, 2, byte.MaxValue);
+            StartFadeIntro(__instance, new Color32(241, 187, 2, byte.MaxValue), Color.red);
+        }
 
         return;
 
@@ -734,27 +734,24 @@ internal static class BeginCrewmatePatch
         return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType)?.IntroSound;
     }
 
-    /*
-        private static async void StartFadeIntro(IntroCutscene __instance, Color start, Color end)
+    private static async void StartFadeIntro(IntroCutscene __instance, Color start, Color end)
+    {
+        await Task.Delay(1000);
+        int milliseconds = 0;
+        while (true)
         {
-            await Task.Delay(1000);
-            int milliseconds = 0;
-            while (true)
+            await Task.Delay(20);
+            milliseconds += 20;
+            float time = milliseconds / (float)500;
+            Color LerpingColor = Color.Lerp(start, end, time);
+            if (__instance == null || milliseconds > 500)
             {
-                await Task.Delay(20);
-                milliseconds += 20;
-                float time = milliseconds / (float)500;
-                Color LerpingColor = Color.Lerp(start, end, time);
-                if (__instance == null || milliseconds > 500)
-                {
-                    Logger.Info("ループを終了します", "StartFadeIntro");
-                    break;
-                }
-
-                __instance.BackgroundBar.material.color = LerpingColor;
+                Logger.Info("Terminates the loop", "StartFadeIntro");
+                break;
             }
+            __instance.BackgroundBar.material.color = LerpingColor;
         }
-    */
+    }
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
