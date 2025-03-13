@@ -469,6 +469,11 @@ internal static class CustomHnS
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        foreach (var player in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.GM)))
+        {
+            player.KillFlash();
+        }
+        
         if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor) return;
 
         killer.Kill(target);
