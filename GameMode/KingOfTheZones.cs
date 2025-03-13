@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
@@ -394,6 +395,12 @@ public static class KingOfTheZones
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        target.KillFlash();
+        foreach (var player in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.GM)))
+        {
+            player.KillFlash();
+        }
+        
         if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId]) return;
 
         PlayerControl[] pcs = [killer, target];
@@ -586,6 +593,7 @@ public static class KingOfTheZones
 
                     PlayerControl player = id.GetPlayer();
                     Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
                     player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
                     player.SetKillCooldown(TagCooldown.GetInt());
                     player.MarkDirtySettings();
