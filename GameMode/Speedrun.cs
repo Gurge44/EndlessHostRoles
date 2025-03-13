@@ -143,6 +143,11 @@ public static class Speedrun
 
     public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        foreach (var player in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.GM)))
+        {
+            player.KillFlash();
+        }
+        
         if (!CanKill.Contains(killer.PlayerId)) return false;
 
         return CanKill.Contains(target.PlayerId) || KillersCanKillTaskingPlayers.GetBool();
