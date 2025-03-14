@@ -238,6 +238,9 @@ internal static class CheckMurderPatch
             case CustomGameMode.AllInOne:
                 if (killer.Is(CustomRoles.Killer)) killer.Kill(target);
 
+                if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
+                    KingOfTheZones.OnCheckMurder(killer, target);
+
                 if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
                     CaptureTheFlag.OnCheckMurder(killer, target);
 
@@ -253,6 +256,9 @@ internal static class CheckMurderPatch
                 return false;
             case CustomGameMode.CaptureTheFlag:
                 CaptureTheFlag.OnCheckMurder(killer, target);
+                return false;
+            case CustomGameMode.KingOfTheZones:
+                KingOfTheZones.OnCheckMurder(killer, target);
                 return false;
         }
 
@@ -283,7 +289,7 @@ internal static class CheckMurderPatch
         }
 
         if (Pursuer.OnClientMurder(killer)) return false;
-        
+
         Seamstress.OnAnyoneCheckMurder(killer, target);
 
         if (killer.PlayerId != target.PlayerId)
@@ -593,12 +599,12 @@ internal static class MurderPlayerPatch
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] MurderResultFlags resultFlags, ref bool __state)
     {
         if (GameStates.IsLobby || AntiBlackout.SkipTasks) return false;
-        
+
         var protectedByClient = resultFlags.HasFlag(MurderResultFlags.DecisionByHost) && target.IsProtected();
         var protectedByHost = resultFlags.HasFlag(MurderResultFlags.FailedProtected);
         var failed = resultFlags.HasFlag(MurderResultFlags.FailedError);
         __state = !protectedByClient && !protectedByHost && !failed;
-        
+
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()} - {nameof(protectedByClient)}: {protectedByClient}, {nameof(protectedByHost)}: {protectedByHost}, {nameof(failed)}: {failed}", "MurderPlayer");
 
         RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Add(__instance.PlayerId);
@@ -1335,6 +1341,9 @@ internal static class FixedUpdatePatch
         {
             Zoom.OnFixedUpdate();
             TextBoxTMPSetTextPatch.Update();
+
+            if (lowLoad && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
+                NotifyRoles();
         }
 
         if (!lowLoad)
@@ -1635,10 +1644,8 @@ internal static class FixedUpdatePatch
 
                 switch (seer.GetCustomRole())
                 {
-                    case CustomRoles.Lookout:
-                        if (seer.IsAlive() && target.IsAlive())
-                            Mark.Append(ColorString(GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId) + " ");
-
+                    case CustomRoles.Lookout when seer.IsAlive() && target.IsAlive():
+                        Mark.Append(ColorString(GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId) + " ");
                         break;
                     case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId):
                         Mark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
@@ -1669,20 +1676,14 @@ internal static class FixedUpdatePatch
                             Mark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
 
                         break;
-                    case CustomRoles.Analyst:
-                        if ((Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId)
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
-
+                    case CustomRoles.Analyst when (Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId:
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
                         break;
-                    case CustomRoles.Samurai:
-                        if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId)
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
-
+                    case CustomRoles.Samurai when (Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId:
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
                         break;
-                    case CustomRoles.Puppeteer:
-                        if (Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId))
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
-
+                    case CustomRoles.Puppeteer when Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId):
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
                         break;
                     case CustomRoles.EvilTracker:
                         Mark.Append(EvilTracker.GetTargetMark(seer, target));
@@ -1770,6 +1771,9 @@ internal static class FixedUpdatePatch
                     case CustomGameMode.RoomRush when self:
                         Suffix.Append(RoomRush.GetSuffix(seer));
                         break;
+                    case CustomGameMode.KingOfTheZones when self:
+                        Suffix.Append(KingOfTheZones.GetSuffix(seer));
+                        break;
                     case CustomGameMode.AllInOne:
                         if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
                         if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
@@ -1778,13 +1782,21 @@ internal static class FixedUpdatePatch
                         break;
                 }
 
-                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA) Suffix.Append(GetString("DiedR1Warning"));
+                if (self && GameStartTimeStamp + 50 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out var playedFCs) && !playedFCs.Contains(seer.FriendCode))
+                    Suffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
+
+                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+                    Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer
-                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId))) realName = GetString("DevouredName");
+                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)))
+                    realName = GetString("DevouredName");
 
                 // Camouflage
                 if (Camouflage.IsCamouflage) realName = $"<size=0>{realName}</size> ";
+
+                if (!self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
+                    realName = EmptyMessage;
 
                 string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 
@@ -2009,6 +2021,7 @@ internal static class CoEnterVentPatch
             case CustomGameMode.Speedrun:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.NaturalDisasters:
+            case CustomGameMode.KingOfTheZones:
                 LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:

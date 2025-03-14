@@ -184,10 +184,7 @@ public static class Utils
 
     public static ClientData GetClientById(int id)
     {
-        try
-        {
-            return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Id == id);
-        }
+        try { return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Id == id); }
         catch { return null; }
     }
 
@@ -205,8 +202,8 @@ public static class Utils
                 {
                     if (mapId == 5) return false; // if The Fungle return false
 
-                    var SwitchSystem = systemType.TryCast<SwitchSystem>();
-                    return SwitchSystem is { IsActive: true };
+                    var switchSystem = systemType.CastFast<SwitchSystem>();
+                    return switchSystem is { IsActive: true };
                 }
                 case SystemTypes.Reactor:
                 {
@@ -217,13 +214,13 @@ public static class Utils
                         // Only Airhip
                         case 4:
                         {
-                            var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
-                            return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                            var heliSabotageSystem = systemType.CastFast<HeliSabotageSystem>();
+                            return heliSabotageSystem != null && heliSabotageSystem.IsActive;
                         }
                         default:
                         {
-                            var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
-                            return ReactorSystemType is { IsActive: true };
+                            var reactorSystemType = systemType.CastFast<ReactorSystemType>();
+                            return reactorSystemType is { IsActive: true };
                         }
                     }
                 }
@@ -231,40 +228,40 @@ public static class Utils
                 {
                     if (mapId != 2) return false; // Only Polus
 
-                    var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
-                    return ReactorSystemType is { IsActive: true };
+                    var reactorSystemType = systemType.CastFast<ReactorSystemType>();
+                    return reactorSystemType is { IsActive: true };
                 }
                 case SystemTypes.LifeSupp:
                 {
                     if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
 
-                    var LifeSuppSystemType = systemType.TryCast<LifeSuppSystemType>();
-                    return LifeSuppSystemType is { IsActive: true };
+                    var lifeSuppSystemType = systemType.CastFast<LifeSuppSystemType>();
+                    return lifeSuppSystemType is { IsActive: true };
                 }
                 case SystemTypes.Comms:
                 {
                     if (mapId is 1 or 5) // Only Mira HQ & The Fungle
                     {
-                        var HqHudSystemType = systemType.TryCast<HqHudSystemType>();
-                        return HqHudSystemType is { IsActive: true };
+                        var hqHudSystemType = systemType.CastFast<HqHudSystemType>();
+                        return hqHudSystemType is { IsActive: true };
                     }
 
-                    var HudOverrideSystemType = systemType.TryCast<HudOverrideSystemType>();
-                    return HudOverrideSystemType is { IsActive: true };
+                    var hudOverrideSystemType = systemType.CastFast<HudOverrideSystemType>();
+                    return hudOverrideSystemType is { IsActive: true };
                 }
                 case SystemTypes.HeliSabotage:
                 {
                     if (mapId != 4) return false; // Only Airhip
 
-                    var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
-                    return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                    var heliSabotageSystem = systemType.CastFast<HeliSabotageSystem>();
+                    return heliSabotageSystem != null && heliSabotageSystem.IsActive;
                 }
                 case SystemTypes.MushroomMixupSabotage:
                 {
                     if (mapId != 5) return false; // Only The Fungle
 
-                    var MushroomMixupSabotageSystem = systemType.TryCast<MushroomMixupSabotageSystem>();
-                    return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
+                    var mushroomMixupSabotageSystem = systemType.CastFast<MushroomMixupSabotageSystem>();
+                    return mushroomMixupSabotageSystem != null && mushroomMixupSabotageSystem.IsActive;
                 }
                 default:
                     return false;
@@ -728,7 +725,7 @@ public static class Utils
 
     public static void SetAllVentInteractions()
     {
-        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
         if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem);
     }
 
@@ -758,6 +755,7 @@ public static class Utils
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.RoomRush:
+            case CustomGameMode.KingOfTheZones:
                 return false;
             case CustomGameMode.HideAndSeek:
                 return CustomHnS.HasTasks(p);
@@ -971,7 +969,7 @@ public static class Utils
     {
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
+            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones:
             case CustomGameMode.Standard when IsRevivingRoleAlive() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
             case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.AllInOne:
@@ -1446,6 +1444,7 @@ public static class Utils
             case CustomGameMode.AllInOne:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
+            case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.Speedrun:
             case CustomGameMode.HotPotato:
@@ -1822,6 +1821,7 @@ public static class Utils
                     CustomGameMode.CaptureTheFlag => $"<color=#1313c2><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.NaturalDisasters => $"<color=#03fc4a><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.RoomRush => $"<color=#ffab1b><size=1.7>{modeText}</size></color>\r\n{name}",
+                    CustomGameMode.KingOfTheZones => $"<color=#ff0000><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.AllInOne => $"<color=#f542ad><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"<size=1.7>{modeText}</size>\r\n") + name,
                     _ => name
@@ -2203,6 +2203,9 @@ public static class Utils
                         case CustomGameMode.RoomRush:
                             SelfSuffix.Append(RoomRush.GetSuffix(seer));
                             break;
+                        case CustomGameMode.KingOfTheZones:
+                            SelfSuffix.Append(KingOfTheZones.GetSuffix(seer));
+                            break;
                         case CustomGameMode.AllInOne:
                             bool alive = seer.IsAlive();
                             if (alive) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true) + "\n");
@@ -2223,7 +2226,7 @@ public static class Utils
                     if ((CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFATeamMode.GetBool()) || CustomGameMode.HotPotato.IsActiveOrIntegrated())
                         SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, forMeeting);
 
-                    if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne)
+                    if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.AllInOne)
                     {
                         CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
 
@@ -2246,22 +2249,27 @@ public static class Utils
                         {
                             if (GameStartTimeStamp + 40 > now) SeerRealName = CustomHnS.GetRoleInfoText(seer);
                         }
-                        else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModClient())
+                        else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard)
                         {
                             bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && GameStartTimeStamp + description.Duration > now;
-                            string mHelp = (!showLongInfo || description.Long) && CustomGameMode.Standard.IsActiveOrIntegrated() ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
+                            string mHelp = (!showLongInfo || description.Long) ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
                             string color = seerTeam.GetTextColor();
                             string teamStr = seerTeam == Team.Impostor && seer.IsMadmate() ? "Madmate" : seerTeam.ToString();
                             string info = (showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp;
                             SeerRealName = $"<color={color}>{GetString($"YouAre{teamStr}")}</color>\n<size=90%>{info}</size>";
                         }
                     }
+
+                    if (GameStartTimeStamp + 50 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out var playedFCs) && !playedFCs.Contains(seer.FriendCode))
+                        SelfSuffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
                 }
 
+                bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones;
+
                 // Combine seer's job title and SelfTaskText with seer's player name and SelfMark
-                string SelfRoleName = GameStates.IsLobby ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{SelfTaskText}</size>";
-                string SelfDeathReason = seer.KnowDeathReason(seer) && !GameStates.IsLobby ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))}』</size>" : string.Empty;
-                SelfName = $"{ColorString(GameStates.IsLobby ? Color.white : seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
+                string SelfRoleName = noRoleText ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{SelfTaskText}</size>";
+                string SelfDeathReason = seer.KnowDeathReason(seer) && !noRoleText ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))}』</size>" : string.Empty;
+                SelfName = $"{ColorString(noRoleText ? Color.white : seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
 
                 if (!CustomGameMode.Standard.IsActiveOrIntegrated() || GameStates.IsLobby) goto GameMode2;
 
@@ -2423,7 +2431,7 @@ public static class Utils
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 TargetRoleText = string.Empty;
 
-                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) TargetRoleText = string.Empty;
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones) TargetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
                             {
@@ -2527,10 +2535,14 @@ public static class Utils
                             if (seer.KnowDeathReason(target) && !GameStates.IsLobby) TargetDeathReason = $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>";
 
                             // Devourer
-                            if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !camouflageIsForMeeting) TargetPlayerName = GetString("DevouredName");
+                            if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !camouflageIsForMeeting)
+                                TargetPlayerName = GetString("DevouredName");
 
                             // Camouflage
                             if (Camouflage.IsCamouflage && !camouflageIsForMeeting) TargetPlayerName = $"<size=0>{TargetPlayerName}</size>";
+
+                            if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
+                                TargetPlayerName = EmptyMessage;
 
                             var TargetName = $"{TargetRoleText}{TargetPlayerName}{TargetDeathReason}{TargetMark}";
                             TargetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{TargetSuffix}";
@@ -2592,7 +2604,11 @@ public static class Utils
 
     public static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
     {
+        if (newOutfit.Compare(pc.Data.DefaultOutfit)) return;
+
         Camouflage.SetPetForOutfitIfNecessary(newOutfit);
+
+        if (newOutfit.Compare(pc.Data.DefaultOutfit)) return;
 
         var sender = CustomRpcSender.Create($"Utils.RpcChangeSkin({pc.Data.PlayerName})");
 
@@ -3230,6 +3246,9 @@ public static class Utils
                     summary = $"{ColorString(Main.PlayerColors[id], name)}: {CaptureTheFlag.GetStatistics(id)}";
                     if (CaptureTheFlag.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
                     break;
+                case CustomGameMode.KingOfTheZones:
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - {KingOfTheZones.GetStatistics(id)}";
+                    break;
                 case CustomGameMode.AllInOne:
                     string survivalTimeText = !Main.PlayerStates[id].IsDead ? string.Empty : $" ({GetString("SurvivedTimePrefix")}: <#f542ad>{RoomRush.GetSurvivalTime(id)}s</color>)";
                     summary = $"{ColorString(Main.PlayerColors[id], name)} -{TaskCount}{GetKillCountText(id, true)} ({GetVitalText(id, true)}){survivalTimeText}";
@@ -3373,15 +3392,22 @@ public static class Utils
         return null;
     }
 
-    public static Texture2D LoadTextureFromResources(string path)
+    private static unsafe Texture2D LoadTextureFromResources(string path)
     {
         try
         {
-            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
-            Texture2D texture = new(1, 1, TextureFormat.ARGB32, false);
-            using MemoryStream ms = new();
-            stream?.CopyTo(ms);
-            texture.LoadImage(ms.ToArray(), false);
+            Texture2D texture = new(2, 2, TextureFormat.ARGB32, true);
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Stream stream = assembly.GetManifestResourceStream(path);
+
+            if (stream != null)
+            {
+                var length = stream.Length;
+                var byteTexture = new Il2CppStructArray<byte>(length);
+                stream.Read(new Span<byte>(IntPtr.Add(byteTexture.Pointer, IntPtr.Size * 4).ToPointer(), (int)length));
+                texture.LoadImage(byteTexture, false);
+            }
+
             return texture;
         }
         catch { Logger.Error($"Error loading texture: {path}", "LoadImage"); }
@@ -3541,6 +3567,7 @@ public static class Utils
         {
             CustomGameMode.SoloKombat => 3000f,
             CustomGameMode.CaptureTheFlag => 1500f,
+            CustomGameMode.KingOfTheZones => 1500f,
             _ => 1000f
         };
 

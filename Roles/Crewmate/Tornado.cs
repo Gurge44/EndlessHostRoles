@@ -57,17 +57,7 @@ internal class Tornado : RoleBase
 
         try
         {
-            Map = Main.CurrentMap switch
-            {
-                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-                MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-                MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-                MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-                MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-                _ => throw new ArgumentOutOfRangeException(Main.CurrentMap.ToString(), "Unsupported Map")
-            };
-
+            Map = RandomSpawn.SpawnMap.GetSpawnMap();
             CanUseMap = true;
         }
         catch (ArgumentOutOfRangeException)

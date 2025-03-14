@@ -14,7 +14,7 @@ namespace EHR;
 public static class RoomRush
 {
     private static OptionItem GlobalTimeMultiplier;
-    private static OptionItem TimeWhenFirstPlayerEntersRoom;
+    private static OptionItem TimeWhenFirstTwoPlayersEnterRoom;
     private static OptionItem VentTimes;
     private static OptionItem DisplayRoomName;
     private static OptionItem DisplayArrowToRoom;
@@ -37,7 +37,7 @@ public static class RoomRush
 
     private static long RoundStartTS;
 
-    public static bool GameGoing;
+    private static bool GameGoing;
     private static DateTime GameStartDateTime;
 
     private static RandomSpawn.SpawnMap Map;
@@ -146,7 +146,7 @@ public static class RoomRush
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        TimeWhenFirstPlayerEntersRoom = new IntegerOptionItem(id++, "RR_TimeWhenTwoPlayersEntersRoom", new(1, 30, 1), 5, TabGroup.GameSettings)
+        TimeWhenFirstTwoPlayersEnterRoom = new IntegerOptionItem(id++, "RR_TimeWhenTwoPlayersEntersRoom", new(1, 30, 1), 5, TabGroup.GameSettings)
             .SetColor(color)
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Seconds);
@@ -222,16 +222,7 @@ public static class RoomRush
         if (WinByPointsInsteadOfDeaths.GetBool())
             Points = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => 0);
 
-        Map = Main.CurrentMap switch
-        {
-            MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-            MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-            MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-            MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-            MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-            MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-            _ => throw new ArgumentOutOfRangeException()
-        };
+        Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
         yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 22f : 14f);
 
@@ -240,35 +231,90 @@ public static class RoomRush
 
         if (Options.CurrentGameMode == CustomGameMode.AllInOne)
         {
-            yield return new WaitForSeconds(4f);
+            yield return new WaitForSeconds(2f);
             goto Skip;
         }
 
-        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3;
+        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 2;
 
         if (showTutorial)
         {
-            string[] notifies = [Translator.GetString("RR_Tutorial_1"), Translator.GetString("RR_Tutorial_2"), Translator.GetString("RR_Tutorial_3"), Translator.GetString("RR_Tutorial_4")];
+            int readingTime = 4;
 
-            foreach (string notify in notifies)
+            StringBuilder sb = new(Translator.GetString("RR_Tutorial_Basics"));
+            sb.AppendLine();
+
+            bool points = WinByPointsInsteadOfDeaths.GetBool();
+
+            if (points)
             {
-                aapc.Do(x => x.Notify(notify, 8f));
-                yield return new WaitForSeconds(3f);
+                sb.AppendLine(Translator.GetString("RR_Tutorial_PointsSystem"));
+                sb.AppendLine(Translator.GetString("RR_Tutorial_TimeLimitLastPoints"));
+                sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_PointsToWin"), PointsToWin.GetInt()));
+                readingTime += 14;
+            }
+            else
+            {
+                sb.AppendLine(Translator.GetString("RR_Tutorial_TimeLimitDeath"));
+                readingTime += 4;
             }
 
-            yield return new WaitForSeconds(4f);
+            bool arrow = DisplayArrowToRoom.GetBool();
+            bool name = DisplayRoomName.GetBool();
+
+            switch (arrow, name)
+            {
+                case (true, true):
+                    sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_ArrowAndName"));
+                    readingTime += 5;
+                    break;
+                case (true, false):
+                    sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_ArrowOnly"));
+                    readingTime += 4;
+                    break;
+                case (false, true):
+                    sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_NameOnly"));
+                    readingTime += 3;
+                    break;
+            }
+
+            if (!points)
+            {
+                if (!DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool())
+                {
+                    sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_LowerTimeWhenTwoPlayersEnterRoom"), TimeWhenFirstTwoPlayersEnterRoom.GetInt()));
+                    readingTime += 5;
+                }
+
+                if (!DontKillLastPlayer.GetBool())
+                {
+                    sb.AppendLine(Translator.GetString("RR_Tutorial_LastDeath"));
+                    readingTime += 3;
+                }
+
+                if (!DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool())
+                {
+                    sb.AppendLine(Translator.GetString("RR_Tutorial_DontMoveOutOfRoom"));
+                    readingTime += 3;
+                }
+            }
+
+            if (ventLimit > 0)
+            {
+                sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_Venting"), ventLimit));
+                readingTime += 4;
+            }
+
+            aapc.Do(x => x.Notify(sb.Insert(0, "<#ffffff>").Append("</color>").ToString().Trim(), 100f));
+            yield return new WaitForSeconds(readingTime);
+            if (!GameStates.InGame) yield break;
         }
-
-        NameNotifyManager.Reset();
-        aapc.Do(x => x.Notify(Translator.GetString("RR_ReadyQM")));
-
-        yield return new WaitForSeconds(2f);
 
         for (var i = 3; i > 0; i--)
         {
             int time = i;
             NameNotifyManager.Reset();
-            aapc.Do(x => x.Notify(time.ToString()));
+            aapc.Do(x => x.Notify(string.Format(Translator.GetString("RR_ReadyQM"), time)));
             yield return new WaitForSeconds(1f);
         }
 
@@ -383,7 +429,18 @@ public static class RoomRush
         sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
 
         if (WinByPointsInsteadOfDeaths.GetBool() && Points.TryGetValue(seer.PlayerId, out var points))
+        {
             sb.Append(string.Format(Translator.GetString("RR_Points"), points, PointsToWin.GetInt()));
+
+            int highestPoints = Points.Values.Max();
+            bool tie = Points.Values.Count(x => x == highestPoints) > 1;
+
+            if (tie && highestPoints >= PointsToWin.GetInt())
+            {
+                byte tieWith = Points.First(x => x.Key != seer.PlayerId && x.Value == highestPoints).Key;
+                sb.Append("\n" + string.Format(Translator.GetString("RR_Tie"), tieWith.ColoredPlayerName()));
+            }
+        }
 
         if (VentTimes.GetInt() == 0 || dead || seer.IsModClient()) return sb.ToString().Trim();
 
@@ -426,14 +483,15 @@ public static class RoomRush
 
             if (WinByPointsInsteadOfDeaths.GetBool())
             {
-                foreach ((byte id, int points) in Points)
+                int highestPoints = Points.Values.Max();
+                bool tie = Points.Values.Count(x => x == highestPoints) > 1;
+
+                if (!tie && highestPoints >= PointsToWin.GetInt())
                 {
-                    if (points >= PointsToWin.GetInt())
-                    {
-                        Logger.Info($"{Main.AllPlayerNames[id]} has reached the points limit, ending the game", "RoomRush");
-                        CustomWinnerHolder.WinnerIds = [id];
-                        return;
-                    }
+                    byte winner = Points.GetKeyByValue(highestPoints);
+                    Logger.Info($"{Main.AllPlayerNames[winner]} has reached the points goal, ending the game", "RoomRush");
+                    CustomWinnerHolder.WinnerIds = [winner];
+                    return;
                 }
             }
 
@@ -451,7 +509,7 @@ public static class RoomRush
                     if (WinByPointsInsteadOfDeaths.GetBool())
                         Points[pc.PlayerId] += aapc.Length == 1 ? 1 : aapc.Length - DonePlayers.Count;
 
-                    int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
+                    int timeLeft = TimeWhenFirstTwoPlayersEnterRoom.GetInt();
 
                     if (DonePlayers.Count == 2 && timeLeft < TimeLeft && (notAllInOne || !DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool()))
                     {
@@ -492,13 +550,20 @@ public static class RoomRush
                 PlayerControl[] lateAapc = Main.AllAlivePlayerControls;
                 PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
 
-                if (!WinByPointsInsteadOfDeaths.GetBool())
+                if (WinByPointsInsteadOfDeaths.GetBool())
+                {
+                    if (playersOutsideRoom.Length == lateAapc.Length)
+                    {
+                        var roomPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
+                        playersOutsideRoom.Do(x => x.TP(roomPos));
+                    }
+                    else playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
+                }
+                else
                 {
                     if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                     playersOutsideRoom.Do(x => x.Suicide());
                 }
-                else if (playersOutsideRoom.Length != lateAapc.Length)
-                    playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
 
                 StartNewRound();
 

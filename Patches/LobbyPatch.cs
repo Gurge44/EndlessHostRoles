@@ -35,6 +35,11 @@ public static class HostInfoPanelSetUpPatch
 {
     private static TextMeshPro HostText;
 
+    public static bool Prefix(HostInfoPanel __instance)
+    {
+        return GameStates.IsLobby && __instance.player.ColorId != byte.MaxValue;
+    }
+
     public static void Postfix(HostInfoPanel __instance)
     {
         try

@@ -468,13 +468,13 @@ internal static class RPCHandlerPatch
             {
                 var cno = reader.ReadNetObject<PlayerControl>();
                 bool active = reader.ReadBoolean();
-                
+
                 if (cno != null)
                 {
                     cno.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(active);
                     cno.Collider.enabled = false;
                 }
-                
+
                 break;
             }
             case CustomRPC.SyncGeneralOptions:
@@ -1484,9 +1484,9 @@ internal static class StartRpcPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
 internal static class StartRpcImmediatelyPatch
 {
-    public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option, [HarmonyArgument(3)] int targetClientId = -1)
+    public static bool Prefix(InnerNetClient __instance, ref MessageWriter __result, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option, [HarmonyArgument(3)] int targetClientId = -1)
     {
-        if (!__instance.AmHost) __instance.StartRpc(targetNetId, callId, option);
+        if (!__instance.AmHost) __result = __instance.StartRpc(targetNetId, callId, option);
         RPC.SendRpcLogger(targetNetId, callId, option, targetClientId);
         return __instance.AmHost;
     }
@@ -1503,7 +1503,7 @@ static class FinishRpcImmediatelyPatch
             msg.EndMessage();
             return false;
         }
-        
+
         return true;
     }
 }

@@ -792,6 +792,9 @@ internal static class StartGameHostPatch
                     case CustomGameMode.RoomRush:
                         RoomRush.OnGameStart();
                         break;
+                    case CustomGameMode.KingOfTheZones:
+                        KingOfTheZones.Init();
+                        break;
                 }
             });
 
@@ -840,6 +843,9 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.RoomRush:
                     GameEndChecker.SetPredicateToRoomRush();
+                    break;
+                case CustomGameMode.KingOfTheZones:
+                    GameEndChecker.SetPredicateToKingOfTheZones();
                     break;
                 case CustomGameMode.AllInOne:
                     GameEndChecker.SetPredicateToAllInOne();

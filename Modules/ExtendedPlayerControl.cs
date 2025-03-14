@@ -106,7 +106,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetVentInteraction(this PlayerControl player)
     {
-        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
         if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, player);
     }
 
@@ -312,7 +312,7 @@ internal static class ExtendedPlayerControl
             (byte, byte) key = (player.PlayerId, GetClientById(clientId).Character.PlayerId);
             StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = (role, StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key].CustomRole);
         }
-        
+
         if (AmongUsClient.Instance.ClientId == clientId)
         {
             player.SetRole(role);
@@ -1234,6 +1234,7 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
+            case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
                 return true;
             case CustomGameMode.AllInOne:
@@ -1415,6 +1416,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             CustomRoles.Runner => Speedrun.KCD,
             CustomRoles.CTFPlayer => CaptureTheFlag.KCD,
+            CustomRoles.KOTZPlayer => KingOfTheZones.KCD,
             _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Length <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };

@@ -233,7 +233,7 @@ internal static class RepairSystemPatch
             }
         }
 
-        if (new List<SystemTypes> {SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage}.Contains(systemType) && !Utils.IsActive(systemType))
+        if (new List<SystemTypes> { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Contains(systemType) && !Utils.IsActive(systemType))
         {
             bool petcd = !Options.UseUnshiftTrigger.GetBool() && !Options.UsePhantomBasis.GetBool();
 
@@ -265,7 +265,7 @@ internal static class CloseDoorsPatch
 {
     public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne;
+        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.AllInOne;
 
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
@@ -440,7 +440,7 @@ internal static class ShipStatusSerializePatch
         if (!AmongUsClient.Instance.AmHost || initialState) return;
 
         bool cancel = Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction);
-        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
 
         if (cancel && ventilationSystem is { IsDirty: true })
         {

@@ -28,7 +28,8 @@ public enum CustomGameMode
     CaptureTheFlag = 0x08,
     NaturalDisasters = 0x09,
     RoomRush = 0x0A,
-    AllInOne = 0x0B,
+    KingOfTheZones = 0x0B,
+    AllInOne = 0x0C,
     All = int.MaxValue
 }
 
@@ -75,6 +76,7 @@ public static class Options
         "CaptureTheFlag",
         "NaturalDisasters",
         "RoomRush",
+        "KingOfTheZones",
         "AllInOne"
     ];
 
@@ -819,7 +821,8 @@ public static class Options
         7 => CustomGameMode.CaptureTheFlag,
         8 => CustomGameMode.NaturalDisasters,
         9 => CustomGameMode.RoomRush,
-        10 => CustomGameMode.AllInOne,
+        10 => CustomGameMode.KingOfTheZones,
+        11 => CustomGameMode.AllInOne,
         _ => CustomGameMode.Standard
     };
 
@@ -1377,7 +1380,7 @@ public static class Options
         KickNotJoinedPlayersRegularly = new BooleanOptionItem(60295, "KickNotJoinedPlayersRegularly", true, TabGroup.SystemSettings)
             .SetColor(Color.yellow);
 
-        CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings)
+        CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 4, TabGroup.SystemSettings)
             .SetHeader(true);
 
         EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", false, TabGroup.SystemSettings)
@@ -1465,6 +1468,8 @@ public static class Options
         NaturalDisasters.SetupCustomOption();
         // Room Rush
         RoomRush.SetupCustomOption();
+        // King Of The Zones
+        KingOfTheZones.SetupCustomOption();
 
         yield return null;
 
@@ -2682,7 +2687,7 @@ public static class Options
 
     public static OptionItem CreateVoteCancellingUseSetting(int id, CustomRoles role, TabGroup tab)
     {
-        return new BooleanOptionItem(id, "UseVoteCancellingAfterVote", false, tab)
+        return new BooleanOptionItem(id, "UseVoteCancellingAfterVote", true, tab)
             .SetParent(CustomRoleSpawnChances[role])
             .SetColor(Color.yellow);
     }

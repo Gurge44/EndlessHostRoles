@@ -93,10 +93,9 @@ public class PlayerState(byte playerId)
 
     private int RoleChangeTimes = -1;
     public bool IsDead { get; set; }
-#pragma warning disable IDE1006 // Naming Styles
+
     // ReSharper disable once InconsistentNaming
     public DeathReason deathReason { get; set; } = DeathReason.etc;
-#pragma warning restore IDE1006 // Naming Styles
     public bool IsBlackOut { get; set; }
 
     public bool IsSuicide => deathReason == DeathReason.Suicide;
@@ -139,13 +138,20 @@ public class PlayerState(byte playerId)
 
         Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
+        if (Main.IntroDestroyed)
+        {
+            if (!previousHasTasks && Utils.HasTasks(Player.Data, false))
+            {
+                Player.RpcResetTasks();
+                if (!AmongUsClient.Instance.AmHost) LateTask.New(() => TaskState.Init(Player), 1f, log: false);
+            }
+        }
+
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (!Main.HasJustStarted)
+        if (Main.IntroDestroyed)
         {
             Player.ResetKillCooldown();
-            Utils.NotifyRoles(SpecifySeer: Player);
-            Utils.NotifyRoles(SpecifyTarget: Player);
 
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
@@ -171,13 +177,13 @@ public class PlayerState(byte playerId)
 
             if (Options.UsePets.GetBool()) PetsHelper.SetPet(Player, PetsHelper.GetPetId());
 
-            var nowHasTasks = Utils.HasTasks(Player.Data, false);
-            if (!previousHasTasks && nowHasTasks) TaskState.Init(Player);
+            Utils.NotifyRoles(SpecifySeer: Player);
+            Utils.NotifyRoles(SpecifyTarget: Player);
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
-        if (Main.HasJustStarted || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+        if (!Main.IntroDestroyed || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
         RoleChangeTimes++;
         if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();
@@ -520,7 +526,8 @@ public static class GameStates
     public enum ServerType
     {
         Vanilla,
-        Modded,
+        ModdedWithCNOSupport,
+        ModdedWithoutCNOSupport,
         Niko,
         Custom
     }
@@ -553,7 +560,8 @@ public static class GameStates
             {
                 "Local Game" => ServerType.Custom,
                 "EU" or "NA" or "AS" => ServerType.Vanilla,
-                "MEU" or "MNA" or "MAS" => ServerType.Modded,
+                "MNA" => ServerType.ModdedWithoutCNOSupport,
+                "MEU" or "MAS" => ServerType.ModdedWithCNOSupport,
                 _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
             };
         }

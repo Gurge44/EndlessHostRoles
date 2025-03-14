@@ -11,7 +11,7 @@ public static class DoorsReset
 
     private static bool IsEnabled;
     private static ResetMode Mode;
-    private static DoorsSystemType DoorsSystem => ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType system) ? system.TryCast<DoorsSystemType>() : null;
+    private static DoorsSystemType DoorsSystem => ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType system) ? system.CastFast<DoorsSystemType>() : null;
 
     public static void Initialize()
     {

@@ -29,7 +29,8 @@ internal static class CustomRoleSelector
         { CustomGameMode.Speedrun, CustomRoles.Runner },
         { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },
         { CustomGameMode.NaturalDisasters, CustomRoles.NDPlayer },
-        { CustomGameMode.RoomRush, CustomRoles.RRPlayer }
+        { CustomGameMode.RoomRush, CustomRoles.RRPlayer },
+        { CustomGameMode.KingOfTheZones, CustomRoles.KOTZPlayer }
     };
 
     public static void SelectCustomRoles()
@@ -171,7 +172,7 @@ internal static class CustomRoleSelector
 
         if (Roles[RoleAssignType.Crewmate].Count == 0 && numNeutrals == 0 && !Main.SetRoles.Values.Any(x => x.IsCrewmate()))
         {
-            Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.CrewmateEHR, 100, playerCount));
+            Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.CrewmateEHR, 100, playerCount - optImpNum));
             Logger.Warn("Adding Vanilla Crewmates", "CustomRoleSelector");
         }
 

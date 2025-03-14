@@ -58,7 +58,7 @@ internal static class GameEndChecker
         {
             Ended = true;
             LoadingEndScreen = true;
-            
+
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
 
             NameNotifyManager.Reset();
@@ -458,6 +458,11 @@ internal static class GameEndChecker
     public static void SetPredicateToRoomRush()
     {
         Predicate = new RoomRushGameEndPredicate();
+    }
+
+    public static void SetPredicateToKingOfTheZones()
+    {
+        Predicate = new KingOfTheZonesGameEndPredicate();
     }
 
     public static void SetPredicateToAllInOne()
@@ -911,6 +916,20 @@ internal static class GameEndChecker
         }
     }
 
+    private class KingOfTheZonesGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return KingOfTheZones.CheckForGameEnd(out reason);
+        }
+    }
+
     private class AllInOneGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
@@ -981,7 +1000,7 @@ internal static class GameEndChecker
             LifeSuppSystemType LifeSupp;
 
             if (systems.ContainsKey(SystemTypes.LifeSupp) && // Confirmation of sabotage existence
-                (LifeSupp = systems[SystemTypes.LifeSupp].TryCast<LifeSuppSystemType>()) != null && // Confirmation that cast is possible
+                (LifeSupp = systems[SystemTypes.LifeSupp].CastFast<LifeSuppSystemType>()) != null && // Confirmation that cast is possible
                 LifeSupp.Countdown <= 0f) // Time up confirmation
             {
                 // oxygen sabotage
@@ -1002,7 +1021,7 @@ internal static class GameEndChecker
             ICriticalSabotage critical;
 
             if (sys != null && // Confirmation of sabotage existence
-                (critical = sys.TryCast<ICriticalSabotage>()) != null && // Confirmation that cast is possible
+                (critical = sys.CastFast<ICriticalSabotage>()) != null && // Confirmation that cast is possible
                 critical.Countdown <= 0f) // Time up confirmation
             {
                 // reactor sabotage

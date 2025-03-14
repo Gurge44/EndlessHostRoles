@@ -127,7 +127,7 @@ public class SabotageMaster : RoleBase
         switch (activeSystem)
         {
             case SystemTypes.Electrical:
-                var switchSystem = ShipStatus.Instance.Systems[SystemTypes.Electrical].TryCast<SwitchSystem>();
+                var switchSystem = ShipStatus.Instance.Systems[SystemTypes.Electrical].CastFast<SwitchSystem>();
                 if (switchSystem == null) break;
                 switchSystem.ActualSwitches = switchSystem.ExpectedSwitches;
                 switchSystem.IsDirty = true;

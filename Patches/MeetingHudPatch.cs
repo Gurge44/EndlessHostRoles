@@ -272,8 +272,9 @@ internal static class CheckForEndVotingPatch
             if (tie)
             {
                 var target = byte.MaxValue;
+                var playerNum = Main.AllPlayerControls.Length;
 
-                foreach (KeyValuePair<byte, int> data in VotingData.Where(x => x.Key < 15 && x.Value == max))
+                foreach (KeyValuePair<byte, int> data in VotingData.Where(x => x.Key < playerNum && x.Value == max))
                 {
                     if (Main.BrakarVoteFor.Contains(data.Key))
                     {

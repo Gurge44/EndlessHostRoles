@@ -35,8 +35,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "5.3.2";
-    public const string PluginDisplayVersion = "5.3.2";
+    public const string PluginVersion = "5.4.0";
+    public const string PluginDisplayVersion = "5.4.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -111,6 +111,17 @@ public class Main : BasePlugin
     public static bool ResetOptions = true;
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;
+
+    public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
+    {
+        [CustomGameMode.SoloKombat] = [],
+        [CustomGameMode.FFA] = [],
+        [CustomGameMode.HotPotato] = [],
+        [CustomGameMode.HideAndSeek] = [],
+        [CustomGameMode.Speedrun] = [],
+        [CustomGameMode.CaptureTheFlag] = [],
+        [CustomGameMode.NaturalDisasters] = []
+    };
 
     public static readonly Dictionary<CustomGameMode, Dictionary<string, int>> NumWinsPerGM = [];
     public static HashSet<byte> DiedThisRound = [];
@@ -591,7 +602,6 @@ public class Main : BasePlugin
                 { CustomRoles.Shy, "#9582f5" },
                 { CustomRoles.Blocked, "#B7A627" },
                 { CustomRoles.Aide, "#ff1919" },
-                { CustomRoles.Underdog, "#ff1919" },
                 { CustomRoles.Anchor, "#6B4CE4" },
                 { CustomRoles.Fragile, "#debe66" },
                 { CustomRoles.Allergic, "#e3bd56" },
@@ -680,6 +690,8 @@ public class Main : BasePlugin
                 { CustomRoles.NDPlayer, "#03fc4a" },
                 // Room Rush
                 { CustomRoles.RRPlayer, "#ffab1b" },
+                // King of the Zones
+                { CustomRoles.KOTZPlayer, "#ff0000" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },

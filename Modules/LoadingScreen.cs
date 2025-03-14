@@ -31,14 +31,17 @@ internal static class LoadingScreen
             float z = basePos.z;
             LoadingAnimation.transform.position = new(x, y, z);
         }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "LoadingScreen.UpdateLoadingAnimation");
-        }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "LoadingScreen.UpdateLoadingAnimation"); }
     }
 
     private static void NewHint()
     {
+        if (GameEndChecker.LoadingEndScreen)
+        {
+            Hint = string.Empty;
+            return;
+        }
+
         int index;
         if (ToldHints.Count == HintCount) ToldHints.Clear();
 
@@ -105,9 +108,6 @@ internal static class LoadingScreen
                     break;
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "LoadingScreen.Update");
-        }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "LoadingScreen.Update"); }
     }
 }

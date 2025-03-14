@@ -37,7 +37,7 @@ public static class HudSpritePatch
             if (player == null) return;
 
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
-            if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive() || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+            if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive() || Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.CaptureTheFlag) return;
 
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
             {
