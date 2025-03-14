@@ -472,6 +472,9 @@ internal static class CustomHnS
         if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor) return;
 
         killer.Kill(target);
+        
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+        ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
         // If the Troll is killed, they win
         if (target.Is(CustomRoles.Troll))

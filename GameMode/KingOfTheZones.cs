@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
@@ -589,6 +590,7 @@ public static class KingOfTheZones
                     player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
                     player.SetKillCooldown(TagCooldown.GetInt());
                     player.MarkDirtySettings();
+                    RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
                     toRemove.Add(id);
 
                     Logger.Info($"{Main.AllPlayerNames[id]} respawned", "KOTZ");

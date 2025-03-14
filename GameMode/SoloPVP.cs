@@ -255,7 +255,8 @@ internal static class SoloPVP
     private static void OnPlayerKill(PlayerControl killer)
     {
         killer.KillFlash();
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) PlayerControl.LocalPlayer.KillFlash();
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+        ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
         KBScore[killer.PlayerId]++;
 
