@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
 
@@ -77,10 +78,12 @@ internal class Mario : RoleBase
     {
         MarioVentCount.TryAdd(pc.PlayerId, 0);
         MarioVentCount[pc.PlayerId]++;
+        pc.RPCPlayCustomSound("MarioJump");
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
         if (AmongUsClient.Instance.AmHost && MarioVentCount[pc.PlayerId] >= MarioVentNumWin)
         {
+            pc.RPCPlayCustomSound("MarioCoin");
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }
