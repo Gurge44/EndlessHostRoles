@@ -4823,7 +4823,7 @@
   "RR_Tutorial_PointsToWin": "<size=90%>The first player to reach <#ffff44>{0}</color> points wins.</size>",
   "RR_VentsRemaining": "<size=80%>Usos restantes de dutos: {0}</size>",
   "RR_YouWereLast": "<#ff1919>Você foi o último a chegar à sala</color>",
-  "RR_ReadyQM": "Ready?\\nStarting in <#ffff44>{0}</color>",
+  "RR_ReadyQM": "Preparado?",
   "RR_Points": "Pontos: {0}/{1}",
   "RR_Tie": "<size=80%><#00a5ff>In tie with {0}\\nWaiting for the tie to break....</color></size>",
   "RRPlayer": "Corrida entre Salas",
