@@ -79,6 +79,7 @@ public static class KingOfTheZones
     private static HashSet<SystemTypes> AllRooms = [];
     private static int TimeLeft;
     private static long GameStartTS;
+    private static string LastShortInfo = string.Empty;
 
     public static bool GameGoing;
     public static readonly HashSet<string> PlayedFCs = [];
@@ -268,7 +269,7 @@ public static class KingOfTheZones
             yield return null;
         }
 
-        yield return new WaitForSeconds(showTutorial ? 15f : 2f);
+        yield return new WaitForSeconds(showTutorial ? 13f : 2f);
         NameNotifyManager.Reset();
         if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -327,22 +328,22 @@ public static class KingOfTheZones
                 }
             }
 
-            for (var i = 3; i > 0; i--)
-            {
-                int time = i;
-                NameNotifyManager.Reset();
-                aapc.Do(x => x.Notify($"<#ffffff>{string.Format(GetString("RR_ReadyQM"), time)}</color>", 100f));
-                yield return new WaitForSeconds(1f);
-            }
+            yield return StartingCountdown();
         }
         else
         {
             string info = string.Format(GetString("KOTZ.Notify.ShortIntro"), teams, zones, tagCooldown, respawnTime);
 
-            aapc.Do(x => x.Notify($"<#ffffff>{info}</color>", 100f));
-            yield return new WaitForSeconds(7f);
-            NameNotifyManager.Reset();
-            if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
+            if (LastShortInfo != info)
+            {
+                LastShortInfo = info;
+                aapc.Do(x => x.Notify($"<#ffffff>{info}</color>", 100f));
+                yield return new WaitForSeconds(7f);
+                NameNotifyManager.Reset();
+                if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
+            }
+            else
+                yield return StartingCountdown();
         }
 
         var spawnsConst = RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).ToArray();
@@ -370,6 +371,20 @@ public static class KingOfTheZones
         Utils.SyncAllSettings();
 
         yield return Utils.NotifyEveryoneAsync(speed: 1, noCache: false);
+        yield break;
+
+        IEnumerator StartingCountdown()
+        {
+            for (var i = 3; i > 0; i--)
+            {
+                int time = i;
+                NameNotifyManager.Reset();
+                aapc.Do(x => x.Notify($"<#ffffff>{string.Format(GetString("RR_ReadyQM"), time)}</color>", 100f));
+                yield return new WaitForSeconds(1f);
+            }
+
+            NameNotifyManager.Reset();
+        }
     }
 
     public static bool GetNameColor(PlayerControl pc, ref string color)
