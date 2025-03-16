@@ -315,26 +315,30 @@ internal static class SoloPVP
             bool soloAlive = __instance.SoloAlive();
             bool inVent = __instance.inVent;
 
-            switch (soloAlive)
+            try
             {
-                case false:
+                switch (soloAlive)
                 {
-                    if (inVent && KB_BootVentWhenDead.GetBool())
-                        __instance.MyPhysics.RpcExitVent(2);
+                    case false:
+                    {
+                        if (inVent && KB_BootVentWhenDead.GetBool())
+                            __instance.MyPhysics.RpcExitVent(2);
 
-                    Vector2 pos = Pelican.GetBlackRoomPS();
-                    float dis = Vector2.Distance(pos, __instance.Pos());
-                    if (dis > 1f) __instance.TP(pos);
-                    break;
-                }
-                case true when !inVent:
-                {
-                    Vector2 pos = Pelican.GetBlackRoomPS();
-                    float dis = Vector2.Distance(pos, __instance.Pos());
-                    if (dis < 1.1f) SpawnMap.GetSpawnMap().RandomTeleport(__instance);
-                    break;
+                        Vector2 pos = Pelican.GetBlackRoomPS();
+                        float dis = Vector2.Distance(pos, __instance.Pos());
+                        if (dis > 1f) __instance.TP(pos);
+                        break;
+                    }
+                    case true when !inVent:
+                    {
+                        Vector2 pos = Pelican.GetBlackRoomPS();
+                        float dis = Vector2.Distance(pos, __instance.Pos());
+                        if (dis < 1.1f) SpawnMap.GetSpawnMap().RandomTeleport(__instance);
+                        break;
+                    }
                 }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             long now = Utils.TimeStamp;
             if (LastCountdownTime[id] == now) return;

@@ -181,170 +181,174 @@ internal static class FreeForAll
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || !CustomGameMode.FFA.IsActiveOrIntegrated()) return;
-
-        if (target.inVent)
+        try
         {
-            Logger.Info("Target is in a vent, kill blocked", "FFA");
-            return;
-        }
+            if (killer == null || target == null || !CustomGameMode.FFA.IsActiveOrIntegrated()) return;
 
-        if (FFATeamMode.GetBool() && PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId])
-        {
-            Logger.Info("Killer and Target are in the same team, attack blocked", "FFA");
-            return;
-        }
-
-        int totalalive = Main.AllAlivePlayerControls.Length;
-
-        if (FFAShieldedList.TryGetValue(target.PlayerId, out long dur))
-        {
-            killer.Notify(GetString("FFA_TargetIsShielded"));
-            Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFAShieldDuration.GetInt() - (Utils.TimeStamp - dur)}s", "FFA");
-
-            if (FFAShieldIsOneTimeUse.GetBool())
+            if (target.inVent)
             {
-                FFAShieldedList.Remove(target.PlayerId);
-                target.Notify(GetString("FFA_ShieldBroken"));
-                Logger.Info($"{target.GetRealName().RemoveHtmlTags()}'s shield was removed because {killer.GetRealName().RemoveHtmlTags()} tried to kill them and the shield is one-time-use according to settings", "FFA");
+                Logger.Info("Target is in a vent, kill blocked", "FFA");
+                return;
             }
 
-            return;
-        }
-
-        OnPlayerKill(killer);
-
-        if (totalalive == 3)
-        {
-            PlayerControl otherPC = null;
-
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
+            if (FFATeamMode.GetBool() && PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId])
             {
-                TargetArrow.Add(killer.PlayerId, pc.PlayerId);
-                TargetArrow.Add(pc.PlayerId, killer.PlayerId);
-                otherPC = pc;
+                Logger.Info("Killer and Target are in the same team, attack blocked", "FFA");
+                return;
             }
 
-            Logger.Info($"The last 2 players ({killer.GetRealName().RemoveHtmlTags()} & {otherPC?.GetRealName().RemoveHtmlTags()}) now have an arrow toward each other", "FFA");
-        }
+            int totalalive = Main.AllAlivePlayerControls.Length;
 
-        if (FFAEnableRandomAbilities.GetBool())
-        {
-            var sync = false;
-            var mark = false;
-            float nowKCD = Main.AllPlayerKillCooldown[killer.PlayerId];
-            byte EffectType;
-
-            if (Main.NormalOptions.MapId != 4)
-                EffectType = (byte)IRandom.Instance.Next(0, 10);
-            else
-                EffectType = (byte)IRandom.Instance.Next(4, 10);
-
-            switch (EffectType)
+            if (FFAShieldedList.TryGetValue(target.PlayerId, out long dur))
             {
-                // Buff
-                case <= 7:
+                killer.Notify(GetString("FFA_TargetIsShielded"));
+                Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFAShieldDuration.GetInt() - (Utils.TimeStamp - dur)}s", "FFA");
+
+                if (FFAShieldIsOneTimeUse.GetBool())
                 {
-                    var EffectID = (byte)IRandom.Instance.Next(0, 3);
-                    if (Main.NormalOptions.MapId == 4) EffectID = 2;
-
-                    switch (EffectID)
-                    {
-                        case 0:
-                            FFAShieldedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                            killer.Notify(GetString("FFA-Event-GetShield"), FFAShieldDuration.GetFloat());
-                            Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
-                            break;
-                        case 1:
-                            if (FFAIncreasedSpeedList.ContainsKey(killer.PlayerId))
-                            {
-                                FFAIncreasedSpeedList.Remove(killer.PlayerId);
-                                FFAIncreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
-                            }
-                            else
-                            {
-                                FFAIncreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                                OriginalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
-                                Main.AllPlayerSpeed[killer.PlayerId] = FFAIncreasedSpeed.GetFloat();
-                            }
-
-                            killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
-                            Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
-                            mark = true;
-                            break;
-                        case 2:
-                            Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFAKcd.GetFloat() - 3f, 1f, 60f);
-                            killer.Notify(GetString("FFA-Event-GetLowKCD"));
-                            sync = true;
-                            break;
-                        default:
-                            Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
-                            break;
-                    }
-
-                    break;
+                    FFAShieldedList.Remove(target.PlayerId);
+                    target.Notify(GetString("FFA_ShieldBroken"));
+                    Logger.Info($"{target.GetRealName().RemoveHtmlTags()}'s shield was removed because {killer.GetRealName().RemoveHtmlTags()} tried to kill them and the shield is one-time-use according to settings", "FFA");
                 }
-                // De-Buff
-                case 8:
-                {
-                    var EffectID = (byte)IRandom.Instance.Next(0, 3);
-                    if (Main.NormalOptions.MapId == 4) EffectID = 1;
 
-                    switch (EffectID)
-                    {
-                        case 0:
-                            if (FFADecreasedSpeedList.ContainsKey(killer.PlayerId))
-                            {
-                                FFADecreasedSpeedList.Remove(killer.PlayerId);
-                                FFADecreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
-                            }
-                            else
-                            {
-                                FFADecreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                                OriginalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
-                                Main.AllPlayerSpeed[killer.PlayerId] = FFADecreasedSpeed.GetFloat();
-                            }
-
-                            killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
-                            Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
-                            mark = true;
-                            break;
-                        case 1:
-                            Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFAKcd.GetFloat() + 3f, 1f, 60f);
-                            killer.Notify(GetString("FFA-Event-GetHighKCD"));
-                            sync = true;
-                            break;
-                        case 2:
-                            FFALowerVisionList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                            Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
-                            killer.Notify(GetString("FFA-Event-GetLowVision"));
-                            mark = true;
-                            break;
-                        default:
-                            Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
-                            break;
-                    }
-
-                    break;
-                }
-                // Mixed
-                default:
-                    LateTask.New(() => killer.TPToRandomVent(), 0.5f, "FFA-Event-TP");
-                    killer.Notify(GetString("FFA-Event-GetTP"));
-                    Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
-                    break;
+                return;
             }
 
-            if (killer.IsHost()) Main.AllPlayerKillCooldown[killer.PlayerId] += Utils.CalculatePingDelay();
+            OnPlayerKill(killer);
 
-            if (sync || Math.Abs(nowKCD - Main.AllPlayerKillCooldown[killer.PlayerId]) > 0.1f)
+            if (totalalive == 3)
             {
-                mark = false;
-                killer.SyncSettings();
+                PlayerControl otherPC = null;
+
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
+                {
+                    TargetArrow.Add(killer.PlayerId, pc.PlayerId);
+                    TargetArrow.Add(pc.PlayerId, killer.PlayerId);
+                    otherPC = pc;
+                }
+
+                Logger.Info($"The last 2 players ({killer.GetRealName().RemoveHtmlTags()} & {otherPC?.GetRealName().RemoveHtmlTags()}) now have an arrow toward each other", "FFA");
             }
 
-            if (mark) killer.MarkDirtySettings();
+            if (FFAEnableRandomAbilities.GetBool())
+            {
+                var sync = false;
+                var mark = false;
+                float nowKCD = Main.AllPlayerKillCooldown[killer.PlayerId];
+                byte EffectType;
+
+                if (Main.NormalOptions.MapId != 4)
+                    EffectType = (byte)IRandom.Instance.Next(0, 10);
+                else
+                    EffectType = (byte)IRandom.Instance.Next(4, 10);
+
+                switch (EffectType)
+                {
+                    // Buff
+                    case <= 7:
+                    {
+                        var EffectID = (byte)IRandom.Instance.Next(0, 3);
+                        if (Main.NormalOptions.MapId == 4) EffectID = 2;
+
+                        switch (EffectID)
+                        {
+                            case 0:
+                                FFAShieldedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
+                                killer.Notify(GetString("FFA-Event-GetShield"), FFAShieldDuration.GetFloat());
+                                Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
+                                break;
+                            case 1:
+                                if (FFAIncreasedSpeedList.ContainsKey(killer.PlayerId))
+                                {
+                                    FFAIncreasedSpeedList.Remove(killer.PlayerId);
+                                    FFAIncreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
+                                }
+                                else
+                                {
+                                    FFAIncreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
+                                    OriginalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
+                                    Main.AllPlayerSpeed[killer.PlayerId] = FFAIncreasedSpeed.GetFloat();
+                                }
+
+                                killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
+                                Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
+                                mark = true;
+                                break;
+                            case 2:
+                                Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFAKcd.GetFloat() - 3f, 1f, 60f);
+                                killer.Notify(GetString("FFA-Event-GetLowKCD"));
+                                sync = true;
+                                break;
+                            default:
+                                Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
+                                break;
+                        }
+
+                        break;
+                    }
+                    // De-Buff
+                    case 8:
+                    {
+                        var EffectID = (byte)IRandom.Instance.Next(0, 3);
+                        if (Main.NormalOptions.MapId == 4) EffectID = 1;
+
+                        switch (EffectID)
+                        {
+                            case 0:
+                                if (FFADecreasedSpeedList.ContainsKey(killer.PlayerId))
+                                {
+                                    FFADecreasedSpeedList.Remove(killer.PlayerId);
+                                    FFADecreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
+                                }
+                                else
+                                {
+                                    FFADecreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
+                                    OriginalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
+                                    Main.AllPlayerSpeed[killer.PlayerId] = FFADecreasedSpeed.GetFloat();
+                                }
+
+                                killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
+                                Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
+                                mark = true;
+                                break;
+                            case 1:
+                                Main.AllPlayerKillCooldown[killer.PlayerId] = Math.Clamp(FFAKcd.GetFloat() + 3f, 1f, 60f);
+                                killer.Notify(GetString("FFA-Event-GetHighKCD"));
+                                sync = true;
+                                break;
+                            case 2:
+                                FFALowerVisionList.TryAdd(killer.PlayerId, Utils.TimeStamp);
+                                Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
+                                killer.Notify(GetString("FFA-Event-GetLowVision"));
+                                mark = true;
+                                break;
+                            default:
+                                Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
+                                break;
+                        }
+
+                        break;
+                    }
+                    // Mixed
+                    default:
+                        LateTask.New(() => killer.TPToRandomVent(), 0.5f, "FFA-Event-TP");
+                        killer.Notify(GetString("FFA-Event-GetTP"));
+                        Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
+                        break;
+                }
+
+                if (killer.IsHost()) Main.AllPlayerKillCooldown[killer.PlayerId] += Utils.CalculatePingDelay();
+
+                if (sync || Math.Abs(nowKCD - Main.AllPlayerKillCooldown[killer.PlayerId]) > 0.1f)
+                {
+                    mark = false;
+                    killer.SyncSettings();
+                }
+
+                if (mark) killer.MarkDirtySettings();
+            }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         killer.Kill(target);
     }
