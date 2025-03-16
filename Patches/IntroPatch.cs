@@ -922,28 +922,30 @@ internal static class IntroCutsceneDestroyPatch
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
-            if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
-                LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
-
-            float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
-
-            foreach (var player in Main.AllPlayerControls)
+            try
             {
-                if (player.Is(CustomRoles.GM))
+                if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
+                    LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            try
+            {
+                float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
+
+                var spectators = ChatCommands.Spectators.ToValidPlayers();
+                if (Main.GM.Value) spectators = spectators.Append(PlayerControl.LocalPlayer);
+
+                foreach (PlayerControl pc in spectators)
                 {
-                    player.RpcExile();
-                    Main.PlayerStates[player.PlayerId].SetDead();
+                    LateTask.New(() =>
+                        {
+                            pc.RpcExileV2();
+                            Main.PlayerStates[pc.PlayerId].SetDead();
+                        }, specExileDelay, $"Set Spectator Dead ({pc.PlayerId.ColoredPlayerName().RemoveHtmlTags()})");
                 }
             }
-
-            foreach (byte spectator in ChatCommands.Spectators)
-            {
-                LateTask.New(() =>
-                    {
-                        spectator.GetPlayer().RpcExileV2();
-                        Main.PlayerStates[spectator].SetDead();
-                    }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
-            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
             {
@@ -951,20 +953,28 @@ internal static class IntroCutsceneDestroyPatch
                 aapc.Do(map.RandomTeleport);
             }
 
-            if (lp.HasDesyncRole())
+            try
             {
-                lp.Data.Role.AffectedByLightAffectors = false;
-
-                foreach (PlayerControl target in Main.AllPlayerControls)
+                if (lp.HasDesyncRole())
                 {
-                    // Set all players as killable players
-                    target.Data.Role.CanBeKilled = true;
+                    lp.Data.Role.AffectedByLightAffectors = false;
 
-                    // When target is impostor, set name color as white
-                    target.cosmetics.SetNameColor(Color.white);
-                    target.Data.Role.NameColor = Color.white;
+                    foreach (PlayerControl target in Main.AllPlayerControls)
+                    {
+                        try
+                        {
+                            // Set all players as killable players
+                            target.Data.Role.CanBeKilled = true;
+
+                            // When target is impostor, set name color as white
+                            target.cosmetics.SetNameColor(Color.white);
+                            target.Data.Role.NameColor = Color.white;
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
+                    }
                 }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
                 Main.Instance.StartCoroutine(KingOfTheZones.GameStart());

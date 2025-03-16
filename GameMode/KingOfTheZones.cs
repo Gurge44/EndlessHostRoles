@@ -249,22 +249,30 @@ public static class KingOfTheZones
 
         foreach ((byte id, KOTZTeam team) in PlayerTeams)
         {
-            PlayerControl player = id.GetPlayer();
-
-            string name = Main.AllPlayerNames[id];
-            var skin = new NetworkedPlayerInfo.PlayerOutfit().Set(name, team.GetColorId(), "", "", "", "", "");
-            Utils.RpcChangeSkin(player, skin);
-
-            var notify = Utils.ColorString(team.GetColor(), GetString($"KOTZ.Notify.AssignedToTeam.{team}"));
-
-            if (showTutorial)
+            try
             {
-                string tutorial = string.Format(GetString("KOTZ.Notify.Tutorial.Basics"), teams, zones);
-                notify = notify.Insert(0, tutorial + "\n\n");
-            }
+                PlayerControl player = id.GetPlayer();
+                string name = Main.AllPlayerNames[id];
 
-            player.Notify($"<#ffffff>{notify}</color>", 100f);
-            Logger.Info($"{name} assigned to {team} team", "KOTZ");
+                try
+                {
+                    var skin = new NetworkedPlayerInfo.PlayerOutfit().Set(name, team.GetColorId(), "", "", "", "", "");
+                    Utils.RpcChangeSkin(player, skin);
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                var notify = Utils.ColorString(team.GetColor(), GetString($"KOTZ.Notify.AssignedToTeam.{team}"));
+
+                if (showTutorial)
+                {
+                    string tutorial = string.Format(GetString("KOTZ.Notify.Tutorial.Basics"), teams, zones);
+                    notify = notify.Insert(0, tutorial + "\n\n");
+                }
+
+                player.Notify($"<#ffffff>{notify}</color>", 100f);
+                Logger.Info($"{name} assigned to {team} team", "KOTZ");
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             yield return null;
         }
@@ -351,13 +359,17 @@ public static class KingOfTheZones
 
         foreach (PlayerControl player in aapc)
         {
-            player.SetKillCooldown(TagCooldown.GetInt());
+            try
+            {
+                player.SetKillCooldown(TagCooldown.GetInt());
 
-            var spawn = spawns.RandomElement();
-            player.TP(spawn.Value);
-            spawns.RemoveAll(x => x.Key == spawn.Key);
+                var spawn = spawns.RandomElement();
+                player.TP(spawn.Value);
+                spawns.RemoveAll(x => x.Key == spawn.Key);
 
-            if (spawns.Count == 0) spawns = spawnsConst.ToList();
+                if (spawns.Count == 0) spawns = spawnsConst.ToList();
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         TimeLeft = GameEndsByTimeLimit.GetBool() ? MaxGameLength.GetInt() : 0;
