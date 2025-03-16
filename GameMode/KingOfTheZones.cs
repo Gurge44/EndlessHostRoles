@@ -252,6 +252,7 @@ public static class KingOfTheZones
             try
             {
                 PlayerControl player = id.GetPlayer();
+                if (player == null) continue;
                 string name = Main.AllPlayerNames[id];
 
                 try

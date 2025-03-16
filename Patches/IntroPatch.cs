@@ -931,18 +931,27 @@ internal static class IntroCutsceneDestroyPatch
 
             try
             {
-                float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
-
                 var spectators = ChatCommands.Spectators.ToValidPlayers();
                 if (Main.GM.Value) spectators = spectators.Append(PlayerControl.LocalPlayer);
 
-                foreach (PlayerControl pc in spectators)
+                if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool())
                 {
                     LateTask.New(() =>
+                    {
+                        foreach (PlayerControl pc in spectators)
                         {
                             pc.RpcExileV2();
                             Main.PlayerStates[pc.PlayerId].SetDead();
-                        }, specExileDelay, $"Set Spectator Dead ({pc.PlayerId.ColoredPlayerName().RemoveHtmlTags()})");
+                        }
+                    }, 12.5f, log: false);
+                }
+                else
+                {
+                    foreach (PlayerControl pc in spectators)
+                    {
+                        pc.RpcExileV2();
+                        Main.PlayerStates[pc.PlayerId].SetDead();
+                    }
                 }
             }
             catch (Exception e) { Utils.ThrowException(e); }
