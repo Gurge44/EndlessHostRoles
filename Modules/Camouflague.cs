@@ -4,6 +4,7 @@ using AmongUs.Data;
 using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
+using Hazel;
 
 namespace EHR;
 
@@ -126,6 +127,8 @@ public static class Camouflage
 
     private static IEnumerator UpdateCamouflageStatusAsync()
     {
+        var sender = CustomRpcSender.Create("Camouflage.RpcSetSkin", SendOption.Reliable);
+        
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
@@ -134,26 +137,24 @@ public static class Camouflage
                 continue;
             }
 
-            RpcSetSkin(pc);
-
-            if (!IsCamouflage && !pc.IsAlive())
-                PetsHelper.RpcRemovePet(pc);
+            RpcSetSkin(pc, sender: sender);
 
             yield return null;
         }
 
+        sender.SendMessage();
         yield return Utils.NotifyEveryoneAsync(speed: 5);
     }
 
-    public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false, bool Revive = false, bool NotCommsOrCamo = false)
+    public static void RpcSetSkin(PlayerControl target, bool forceRevert = false, bool revertToDefault = false, bool gameEnd = false, bool revive = false, bool notCommsOrCamo = false, CustomRpcSender sender = null)
     {
-        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !Revive && !NotCommsOrCamo) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd && !Revive && !NotCommsOrCamo)) return;
+        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !revive && !notCommsOrCamo) || target == null || (BlockCamouflage && !forceRevert && !revertToDefault && !gameEnd && !revive && !notCommsOrCamo)) return;
 
         Logger.Info($"New outfit for {target.GetNameWithRole()}", "Camouflage.RpcSetSkin");
 
         byte id = target.PlayerId;
 
-        if (IsCamouflage && !target.IsAlive() && target.Data.IsDead && !Revive)
+        if (IsCamouflage && !target.IsAlive() && target.Data.IsDead && !revive)
         {
             Logger.Info("Player is dead, returning", "Camouflage.RpcSetSkin");
             return;
@@ -161,15 +162,15 @@ public static class Camouflage
 
         NetworkedPlayerInfo.PlayerOutfit newOutfit = CamouflageOutfit;
 
-        if (!IsCamouflage || ForceRevert)
+        if (!IsCamouflage || forceRevert)
         {
-            if (id.IsPlayerShifted() && !RevertToDefault) id = Main.ShapeshiftTarget[id];
+            if (id.IsPlayerShifted() && !revertToDefault) id = Main.ShapeshiftTarget[id];
 
-            if (!GameEnd && Doppelganger.DoppelPresentSkin.TryGetValue(id, out NetworkedPlayerInfo.PlayerOutfit value))
+            if (!gameEnd && Doppelganger.DoppelPresentSkin.TryGetValue(id, out NetworkedPlayerInfo.PlayerOutfit value))
                 newOutfit = value;
             else
             {
-                if (GameEnd && Doppelganger.DoppelVictim.TryGetValue(id, out string value1))
+                if (gameEnd && Doppelganger.DoppelVictim.TryGetValue(id, out string value1))
                 {
                     PlayerControl dpc = Utils.GetPlayerById(id);
                     dpc?.RpcSetName(value1);
@@ -181,6 +182,9 @@ public static class Camouflage
 
         SetPetForOutfitIfNecessary(newOutfit);
 
+        if (Options.RemovePetsAtDeadPlayers.GetBool() && !target.IsAlive())
+            newOutfit.PetId = string.Empty;
+
         // if the current Outfit is the same, return
         if (newOutfit.Compare(target.Data.DefaultOutfit))
         {
@@ -190,8 +194,14 @@ public static class Camouflage
 
         Logger.Info($"Setting new outfit: {newOutfit.GetString()}", "Camouflage.RpcSetSkin");
 
-        var sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+        bool noSender = sender == null;
+        if (noSender) sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})", SendOption.Reliable);
+        WriteToSender(sender, target, newOutfit);
+        if (noSender) sender.SendMessage();
+    }
 
+    private static void WriteToSender(CustomRpcSender sender, PlayerControl target, NetworkedPlayerInfo.PlayerOutfit newOutfit)
+    {
         target.SetColor(newOutfit.ColorId);
 
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
@@ -230,8 +240,6 @@ public static class Camouflage
             .Write(newOutfit.PetId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();
-
-        sender.SendMessage();
     }
 
     public static void OnFixedUpdate(PlayerControl pc)

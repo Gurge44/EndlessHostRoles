@@ -392,6 +392,8 @@ public static class CaptureTheFlag
                 target.Suicide();
                 string notify = string.Format(Translator.GetString("CTF_TeamMemberFallen"), target.PlayerId.ColoredPlayerName());
                 TeamData[targetTeam].Players.ToValidPlayers().Do(x => x.Notify(notify));
+                if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+                ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
                 break;
             case 2:
                 TemporarilyOutPlayers[target.PlayerId] = Utils.TimeStamp + BackTime.GetInt();
@@ -637,6 +639,7 @@ public static class CaptureTheFlag
                     __instance.MarkDirtySettings();
                     __instance.TP(team.GetFlagBase().Position);
                     __instance.SetKillCooldown();
+                    RPC.PlaySoundRPC(__instance.PlayerId, Sounds.TaskComplete);
                 }
                 else if (GameEndCriteria.GetValue() != 2)
                 {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
@@ -25,6 +26,7 @@ public static class KingOfTheZones
     private static OptionItem PointsToWin;
     private static OptionItem GameEndsByTimeLimit;
     private static OptionItem MaxGameLength;
+    private static OptionItem SpawnProtectionTime;
 
     public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
@@ -70,6 +72,7 @@ public static class KingOfTheZones
     private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
     private static Dictionary<byte, KOTZTeam> PlayerTeams = [];
     private static Dictionary<byte, long> RespawnTimes = [];
+    private static Dictionary<byte, long> SpawnProtectionTimes = [];
     private static Dictionary<KOTZTeam, int> Points = [];
     private static Dictionary<SystemTypes, KOTZTeam> ZoneDomination = [];
     private static Dictionary<SystemTypes, long> ZoneMoveSchedules = [];
@@ -78,6 +81,7 @@ public static class KingOfTheZones
     private static HashSet<SystemTypes> AllRooms = [];
     private static int TimeLeft;
     private static long GameStartTS;
+    private static string LastShortInfo = string.Empty;
 
     public static bool GameGoing;
     public static readonly HashSet<string> PlayedFCs = [];
@@ -95,7 +99,7 @@ public static class KingOfTheZones
         var color = ColorUtility.TryParseHtmlString("#ff0000", out Color c) ? c : Color.red;
         const CustomGameMode gameMode = CustomGameMode.KingOfTheZones;
 
-        NumTeams = new IntegerOptionItem(id++, "KingOfTheZones.NumTeams", new(2, 4, 1), 2, TabGroup.GameSettings)
+        NumTeams = new IntegerOptionItem(id++, "KingOfTheZones.NumTeams", new(2, 7, 1), 2, TabGroup.GameSettings)
             .SetHeader(true)
             .SetGameMode(gameMode)
             .SetColor(color);
@@ -169,6 +173,12 @@ public static class KingOfTheZones
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(gameMode)
             .SetColor(color);
+        
+        SpawnProtectionTime = new IntegerOptionItem(id, "KingOfTheZones.SpawnProtectionTime", new(0, 30, 1), 5, TabGroup.GameSettings)
+            .SetHeader(true)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(gameMode)
+            .SetColor(color);
     }
 
     static Color GetColor(this KOTZTeam team)
@@ -179,6 +189,9 @@ public static class KingOfTheZones
             KOTZTeam.Yellow => Color.yellow,
             KOTZTeam.Blue => Color.cyan,
             KOTZTeam.Green => Color.green,
+            KOTZTeam.Tan => Palette.Brown,
+            KOTZTeam.Rose => Color.magenta,
+            KOTZTeam.Orange => Palette.Orange,
             _ => Color.white
         };
     }
@@ -189,8 +202,11 @@ public static class KingOfTheZones
         {
             KOTZTeam.Red => 0,
             KOTZTeam.Yellow => 5,
-            KOTZTeam.Blue => 1,
+            KOTZTeam.Blue => 10,
             KOTZTeam.Green => 11,
+            KOTZTeam.Tan => 16,
+            KOTZTeam.Rose => 13,
+            KOTZTeam.Orange => 4,
             _ => 7
         };
     }
@@ -212,6 +228,7 @@ public static class KingOfTheZones
         ZoneMoveSchedules = [];
         ZoneDowntimeExpire = [];
         RespawnTimes = [];
+        SpawnProtectionTimes = [];
         TimeLeft = 0;
 
         DefaultOutfits = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
@@ -247,27 +264,36 @@ public static class KingOfTheZones
 
         foreach ((byte id, KOTZTeam team) in PlayerTeams)
         {
-            PlayerControl player = id.GetPlayer();
-
-            string name = Main.AllPlayerNames[id];
-            var skin = new NetworkedPlayerInfo.PlayerOutfit().Set(name, team.GetColorId(), "", "", "", "", "");
-            Utils.RpcChangeSkin(player, skin);
-
-            var notify = Utils.ColorString(team.GetColor(), GetString($"KOTZ.Notify.AssignedToTeam.{team}"));
-
-            if (showTutorial)
+            try
             {
-                string tutorial = string.Format(GetString("KOTZ.Notify.Tutorial.Basics"), teams, zones);
-                notify = notify.Insert(0, tutorial + "\n\n");
-            }
+                PlayerControl player = id.GetPlayer();
+                if (player == null) continue;
+                string name = Main.AllPlayerNames[id];
 
-            player.Notify($"<#ffffff>{notify}</color>", 100f);
-            Logger.Info($"{name} assigned to {team} team", "KOTZ");
+                try
+                {
+                    var skin = new NetworkedPlayerInfo.PlayerOutfit().Set(name, team.GetColorId(), "", "", "", "", "");
+                    Utils.RpcChangeSkin(player, skin);
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                var notify = Utils.ColorString(team.GetColor(), GetString($"KOTZ.Notify.AssignedToTeam.{team}"));
+
+                if (showTutorial)
+                {
+                    string tutorial = string.Format(GetString("KOTZ.Notify.Tutorial.Basics"), teams, zones);
+                    notify = notify.Insert(0, tutorial + "\n\n");
+                }
+
+                player.Notify($"<#ffffff>{notify}</color>", 100f);
+                Logger.Info($"{name} assigned to {team} team", "KOTZ");
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             yield return null;
         }
 
-        yield return new WaitForSeconds(showTutorial ? 15f : 2f);
+        yield return new WaitForSeconds(showTutorial ? 13f : 2f);
         NameNotifyManager.Reset();
         if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -326,22 +352,22 @@ public static class KingOfTheZones
                 }
             }
 
-            for (var i = 3; i > 0; i--)
-            {
-                int time = i;
-                NameNotifyManager.Reset();
-                aapc.Do(x => x.Notify($"<#ffffff>{string.Format(GetString("RR_ReadyQM"), time)}</color>", 100f));
-                yield return new WaitForSeconds(1f);
-            }
+            yield return StartingCountdown();
         }
         else
         {
             string info = string.Format(GetString("KOTZ.Notify.ShortIntro"), teams, zones, tagCooldown, respawnTime);
 
-            aapc.Do(x => x.Notify($"<#ffffff>{info}</color>", 100f));
-            yield return new WaitForSeconds(7f);
-            NameNotifyManager.Reset();
-            if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
+            if (LastShortInfo != info)
+            {
+                LastShortInfo = info;
+                aapc.Do(x => x.Notify($"<#ffffff>{info}</color>", 100f));
+                yield return new WaitForSeconds(7f);
+                NameNotifyManager.Reset();
+                if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
+            }
+            else
+                yield return StartingCountdown();
         }
 
         var spawnsConst = RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).ToArray();
@@ -349,13 +375,17 @@ public static class KingOfTheZones
 
         foreach (PlayerControl player in aapc)
         {
-            player.SetKillCooldown(TagCooldown.GetInt());
+            try
+            {
+                player.SetKillCooldown(TagCooldown.GetInt());
 
-            var spawn = spawns.RandomElement();
-            player.TP(spawn.Value);
-            spawns.RemoveAll(x => x.Key == spawn.Key);
+                var spawn = spawns.RandomElement();
+                player.TP(spawn.Value);
+                spawns.RemoveAll(x => x.Key == spawn.Key);
 
-            if (spawns.Count == 0) spawns = spawnsConst.ToList();
+                if (spawns.Count == 0) spawns = spawnsConst.ToList();
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         TimeLeft = GameEndsByTimeLimit.GetBool() ? MaxGameLength.GetInt() : 0;
@@ -369,6 +399,20 @@ public static class KingOfTheZones
         Utils.SyncAllSettings();
 
         yield return Utils.NotifyEveryoneAsync(speed: 1, noCache: false);
+        yield break;
+
+        IEnumerator StartingCountdown()
+        {
+            for (var i = 3; i > 0; i--)
+            {
+                int time = i;
+                NameNotifyManager.Reset();
+                aapc.Do(x => x.Notify($"<#ffffff>{string.Format(GetString("RR_ReadyQM"), time)}</color>", 100f));
+                yield return new WaitForSeconds(1f);
+            }
+
+            NameNotifyManager.Reset();
+        }
     }
 
     public static bool GetNameColor(PlayerControl pc, ref string color)
@@ -383,6 +427,9 @@ public static class KingOfTheZones
                 KOTZTeam.Yellow => "#ffff00",
                 KOTZTeam.Blue => "#00ffff",
                 KOTZTeam.Green => "#00ff00",
+                KOTZTeam.Tan => "#A88E8E",
+                KOTZTeam.Rose => "#FAB8EB",
+                KOTZTeam.Orange => "#ff8800",
                 _ => "#ffffff"
             };
 
@@ -394,7 +441,7 @@ public static class KingOfTheZones
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId]) return;
+        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId)) return;
 
         PlayerControl[] pcs = [killer, target];
         if (pcs.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
@@ -417,6 +464,8 @@ public static class KingOfTheZones
 
         if (RespawnTimes.TryGetValue(seer.PlayerId, out var respawnTS))
             sb.AppendLine(string.Format(GetString("KOTZ.Suffix.RespawnTime"), respawnTS - now));
+        else if (SpawnProtectionTimes.TryGetValue(seer.PlayerId, out var protectionEndTS))
+            sb.AppendLine(string.Format(GetString("KOTZ.Suffix.SpawnProtectionTime"), protectionEndTS - now));
 
         var room = seer.GetPlainShipRoom();
         var zone = room == null ? SystemTypes.Hallway : room.RoomId;
@@ -497,7 +546,10 @@ public static class KingOfTheZones
         Red,
         Yellow,
         Blue,
-        Green
+        Green,
+        Tan,
+        Rose,
+        Orange
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -575,6 +627,19 @@ public static class KingOfTheZones
                     toRemove.ForEach(x => ZoneDowntimeExpire.Remove(x));
                 }
             }
+            
+            if (SpawnProtectionTimes.Count > 0)
+            {
+                List<byte> toRemove = [];
+
+                foreach ((byte id, long protectionTS) in SpawnProtectionTimes)
+                {
+                    if (protectionTS > now) continue;
+                    toRemove.Add(id);
+                }
+
+                toRemove.ForEach(x => SpawnProtectionTimes.Remove(x));
+            }
 
             if (RespawnTimes.Count > 0)
             {
@@ -589,6 +654,11 @@ public static class KingOfTheZones
                     player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
                     player.SetKillCooldown(TagCooldown.GetInt());
                     player.MarkDirtySettings();
+                    RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
+                    
+                    int spawnProtectionTime = SpawnProtectionTime.GetInt();
+                    if (spawnProtectionTime > 0) SpawnProtectionTimes[id] = now + spawnProtectionTime;
+                    
                     toRemove.Add(id);
 
                     Logger.Info($"{Main.AllPlayerNames[id]} respawned", "KOTZ");

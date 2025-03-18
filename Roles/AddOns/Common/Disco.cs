@@ -23,8 +23,9 @@ internal class Disco : IAddon
 
         pc.SetColor(colorId);
 
-        try { pc.RpcSetColor((byte)colorId); }
-        catch
+        if (GameStates.CurrentServerType is GameStates.ServerType.ModdedWithCNOSupport or GameStates.ServerType.ModdedWithoutCNOSupport)
+            pc.RpcSetColor((byte)colorId);
+        else
         {
             var sender = CustomRpcSender.Create($"Disco.ChangeColor({pc.Data.PlayerName})");
 

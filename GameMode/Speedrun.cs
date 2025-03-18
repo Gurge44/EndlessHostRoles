@@ -145,7 +145,15 @@ public static class Speedrun
     {
         if (!CanKill.Contains(killer.PlayerId)) return false;
 
-        return CanKill.Contains(target.PlayerId) || KillersCanKillTaskingPlayers.GetBool();
+        bool allow = CanKill.Contains(target.PlayerId) || KillersCanKillTaskingPlayers.GetBool();
+
+        if (allow)
+        {
+            if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+            ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
+        }
+        
+        return allow;
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
