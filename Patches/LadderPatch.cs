@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -44,7 +45,7 @@ public class FallFromLadder
                 Vector2 targetPos = (Vector2)TargetLadderData[player.PlayerId] + new Vector2(0.1f, 0f);
                 var num = (ushort)(NetHelpers.XRange.ReverseLerp(targetPos.x) * 65535f);
                 var num2 = (ushort)(NetHelpers.YRange.ReverseLerp(targetPos.y) * 65535f);
-                var sender = CustomRpcSender.Create("LadderFallRpc");
+                var sender = CustomRpcSender.Create("LadderFallRpc", SendOption.Reliable);
 
                 sender.AutoStartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
                     .Write(num)

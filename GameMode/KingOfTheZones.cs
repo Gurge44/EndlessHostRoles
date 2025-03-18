@@ -26,6 +26,7 @@ public static class KingOfTheZones
     private static OptionItem PointsToWin;
     private static OptionItem GameEndsByTimeLimit;
     private static OptionItem MaxGameLength;
+    private static OptionItem SpawnProtectionTime;
 
     public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
@@ -71,6 +72,7 @@ public static class KingOfTheZones
     private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
     private static Dictionary<byte, KOTZTeam> PlayerTeams = [];
     private static Dictionary<byte, long> RespawnTimes = [];
+    private static Dictionary<byte, long> SpawnProtectionTimes = [];
     private static Dictionary<KOTZTeam, int> Points = [];
     private static Dictionary<SystemTypes, KOTZTeam> ZoneDomination = [];
     private static Dictionary<SystemTypes, long> ZoneMoveSchedules = [];
@@ -97,7 +99,7 @@ public static class KingOfTheZones
         var color = ColorUtility.TryParseHtmlString("#ff0000", out Color c) ? c : Color.red;
         const CustomGameMode gameMode = CustomGameMode.KingOfTheZones;
 
-        NumTeams = new IntegerOptionItem(id++, "KingOfTheZones.NumTeams", new(2, 4, 1), 2, TabGroup.GameSettings)
+        NumTeams = new IntegerOptionItem(id++, "KingOfTheZones.NumTeams", new(2, 7, 1), 2, TabGroup.GameSettings)
             .SetHeader(true)
             .SetGameMode(gameMode)
             .SetColor(color);
@@ -171,6 +173,12 @@ public static class KingOfTheZones
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(gameMode)
             .SetColor(color);
+        
+        SpawnProtectionTime = new IntegerOptionItem(id, "KingOfTheZones.SpawnProtectionTime", new(0, 30, 1), 5, TabGroup.GameSettings)
+            .SetHeader(true)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(gameMode)
+            .SetColor(color);
     }
 
     static Color GetColor(this KOTZTeam team)
@@ -181,6 +189,9 @@ public static class KingOfTheZones
             KOTZTeam.Yellow => Color.yellow,
             KOTZTeam.Blue => Color.cyan,
             KOTZTeam.Green => Color.green,
+            KOTZTeam.Tan => Palette.Brown,
+            KOTZTeam.Rose => Color.magenta,
+            KOTZTeam.Orange => Palette.Orange,
             _ => Color.white
         };
     }
@@ -191,8 +202,11 @@ public static class KingOfTheZones
         {
             KOTZTeam.Red => 0,
             KOTZTeam.Yellow => 5,
-            KOTZTeam.Blue => 1,
+            KOTZTeam.Blue => 10,
             KOTZTeam.Green => 11,
+            KOTZTeam.Tan => 16,
+            KOTZTeam.Rose => 13,
+            KOTZTeam.Orange => 4,
             _ => 7
         };
     }
@@ -214,6 +228,7 @@ public static class KingOfTheZones
         ZoneMoveSchedules = [];
         ZoneDowntimeExpire = [];
         RespawnTimes = [];
+        SpawnProtectionTimes = [];
         TimeLeft = 0;
 
         DefaultOutfits = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
@@ -412,6 +427,9 @@ public static class KingOfTheZones
                 KOTZTeam.Yellow => "#ffff00",
                 KOTZTeam.Blue => "#00ffff",
                 KOTZTeam.Green => "#00ff00",
+                KOTZTeam.Tan => "#A88E8E",
+                KOTZTeam.Rose => "#FAB8EB",
+                KOTZTeam.Orange => "#ff8800",
                 _ => "#ffffff"
             };
 
@@ -423,7 +441,7 @@ public static class KingOfTheZones
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId]) return;
+        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId)) return;
 
         PlayerControl[] pcs = [killer, target];
         if (pcs.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
@@ -446,6 +464,8 @@ public static class KingOfTheZones
 
         if (RespawnTimes.TryGetValue(seer.PlayerId, out var respawnTS))
             sb.AppendLine(string.Format(GetString("KOTZ.Suffix.RespawnTime"), respawnTS - now));
+        else if (SpawnProtectionTimes.TryGetValue(seer.PlayerId, out var protectionEndTS))
+            sb.AppendLine(string.Format(GetString("KOTZ.Suffix.SpawnProtectionTime"), protectionEndTS - now));
 
         var room = seer.GetPlainShipRoom();
         var zone = room == null ? SystemTypes.Hallway : room.RoomId;
@@ -526,7 +546,10 @@ public static class KingOfTheZones
         Red,
         Yellow,
         Blue,
-        Green
+        Green,
+        Tan,
+        Rose,
+        Orange
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -604,6 +627,19 @@ public static class KingOfTheZones
                     toRemove.ForEach(x => ZoneDowntimeExpire.Remove(x));
                 }
             }
+            
+            if (SpawnProtectionTimes.Count > 0)
+            {
+                List<byte> toRemove = [];
+
+                foreach ((byte id, long protectionTS) in SpawnProtectionTimes)
+                {
+                    if (protectionTS > now) continue;
+                    toRemove.Add(id);
+                }
+
+                toRemove.ForEach(x => SpawnProtectionTimes.Remove(x));
+            }
 
             if (RespawnTimes.Count > 0)
             {
@@ -619,6 +655,10 @@ public static class KingOfTheZones
                     player.SetKillCooldown(TagCooldown.GetInt());
                     player.MarkDirtySettings();
                     RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
+                    
+                    int spawnProtectionTime = SpawnProtectionTime.GetInt();
+                    if (spawnProtectionTime > 0) SpawnProtectionTimes[id] = now + spawnProtectionTime;
+                    
                     toRemove.Add(id);
 
                     Logger.Info($"{Main.AllPlayerNames[id]} respawned", "KOTZ");

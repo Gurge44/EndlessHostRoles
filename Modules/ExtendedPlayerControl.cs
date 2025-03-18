@@ -275,6 +275,34 @@ internal static class ExtendedPlayerControl
         writer.Write(name);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+    
+    // From TOH: https://github.com/tukasa0001/TownOfHost
+    public static void RpcSetName(this CustomRpcSender sender, PlayerControl player, string name, PlayerControl seer = null)
+    {
+        bool seerIsNull = seer == null;
+        var targetClientId = seerIsNull ? -1 : seer.GetClientId();
+        
+        name = name.Replace("color=", string.Empty);
+        
+        switch (seerIsNull)
+        {
+            case true when Main.LastNotifyNames.Where(x => x.Key.Item1 == player.PlayerId).All(x => x.Value == name):
+            case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
+                return;
+            case true:
+                Main.AllPlayerControls.Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
+                break;
+            default:
+                Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+                break;
+        }
+
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, targetClientId)
+            .Write(player.Data.NetId)
+            .Write(name)
+            .Write(false)
+            .EndRpc();
+    }
 
     // By TommyXL
     public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
@@ -580,7 +608,7 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None, clientId);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable, clientId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -1002,7 +1030,7 @@ internal static class ExtendedPlayerControl
         else
         {
             // If target is not host
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.None, target.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.Reliable, target.GetClientId());
             writer.WriteNetObject(target);
             writer.Write(0);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

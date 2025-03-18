@@ -146,7 +146,7 @@ public class Doppelganger : RoleBase
 
     private static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
     {
-        var sender = CustomRpcSender.Create($"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})");
+        var sender = CustomRpcSender.Create($"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})", SendOption.Reliable);
 
         pc.SetName(newOutfit.PlayerName);
 

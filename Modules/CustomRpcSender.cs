@@ -315,6 +315,11 @@ public class CustomRpcSender
         return Write(w => w.WriteNetObject(obj));
     }
 
+    public CustomRpcSender WriteVector2(Vector2 vector2)
+    {
+        return Write(w => NetHelpers.WriteVector2(vector2, w));
+    }
+
     #endregion
 }
 

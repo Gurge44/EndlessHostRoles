@@ -1,4 +1,6 @@
-﻿namespace EHR.Modules;
+﻿using Hazel;
+
+namespace EHR.Modules;
 
 public static class PetsHelper
 {
@@ -11,7 +13,7 @@ public static class PetsHelper
 
     public static void SetPet(PlayerControl pc, string petId)
     {
-        var sender = CustomRpcSender.Create("Remove Pet From Dead Player");
+        var sender = CustomRpcSender.Create("Remove Pet From Dead Player", SendOption.Reliable);
 
         pc.SetPet(petId);
         pc.Data.DefaultOutfit.PetSequenceId += 10;

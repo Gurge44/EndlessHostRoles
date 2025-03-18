@@ -368,7 +368,7 @@ public class Penguin : RoleBase
                         abductVictim.NetTransform.SnapTo(Penguin_.transform.position, (ushort)sId);
                         Penguin_.Kill(abductVictim);
 
-                        var sender = CustomRpcSender.Create("PenguinMurder");
+                        var sender = CustomRpcSender.Create("PenguinMurder", SendOption.Reliable);
 
                         {
                             sender.AutoStartRpc(abductVictim.NetTransform.NetId, (byte)RpcCalls.SnapTo);
