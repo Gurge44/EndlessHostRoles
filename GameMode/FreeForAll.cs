@@ -355,10 +355,8 @@ internal static class FreeForAll
 
     private static void OnPlayerKill(PlayerControl killer)
     {
-        foreach (var player in Main.AllPlayerControls.Where(x => x.Is(CustomRoles.GM)))
-        {
-            player.KillFlash();
-        }
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+        ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
         KillCount[killer.PlayerId]++;
     }
