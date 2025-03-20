@@ -162,9 +162,6 @@ public static class Utils
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-        
-        var sender = CustomRpcSender.Create($"TP {pc.GetNameWithRole()}", sendOption);
-        sender.WriteNetObject()
 
         if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
 
