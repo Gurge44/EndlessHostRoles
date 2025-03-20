@@ -134,7 +134,7 @@ public class Penguin : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable);
         writer.Write(PenguinId);
         writer.Write(1);
         writer.Write(AbductVictim?.PlayerId ?? 255);

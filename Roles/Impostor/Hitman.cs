@@ -69,7 +69,7 @@ public class Hitman : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHitmanTarget, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHitmanTarget, SendOption.Reliable);
         writer.Write(HitmanId);
         writer.Write(TargetId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

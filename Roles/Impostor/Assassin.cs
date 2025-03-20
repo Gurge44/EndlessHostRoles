@@ -77,7 +77,7 @@ internal class Assassin : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(MarkedPlayer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

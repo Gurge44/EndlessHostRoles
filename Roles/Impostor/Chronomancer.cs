@@ -41,7 +41,7 @@ public class Chronomancer : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, SendOption.Reliable);
         writer.Write(ChronomancerId);
         writer.Write(IsRampaging);
         writer.Write(ChargePercent);

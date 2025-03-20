@@ -110,7 +110,7 @@ public class Werewolf : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWwTimer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWwTimer, SendOption.Reliable);
         writer.Write(WWId);
         writer.Write(RampageTime.ToString());
         writer.Write(lastTime.ToString());
@@ -257,7 +257,7 @@ public class Werewolf : RoleBase
 
         if (killer.RpcCheckAndMurder(target, check: true))
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Mauled;
-        
+
         return true;
     }
 }

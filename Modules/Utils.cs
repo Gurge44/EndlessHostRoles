@@ -157,12 +157,12 @@ public static class Utils
         }
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
-        var sendOption = NumSnapToRPCsThisRound < 100 ? SendOption.Reliable : HazelExtensions.SendOption;
+        var sendOption = NumSnapToRPCsThisRound < 100 || GameStates.CurrentServerType != GameStates.ServerType.Vanilla || DateTime.UtcNow.Month < 4 ? SendOption.Reliable : SendOption.None;
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, sendOption);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-        
+
         var sender = CustomRpcSender.Create($"TP {pc.GetNameWithRole()}", sendOption);
         sender.WriteNetObject()
 
@@ -593,7 +593,7 @@ public static class Utils
 
     public static MessageWriter CreateRPC(CustomRPC rpc)
     {
-        return AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, HazelExtensions.SendOption);
+        return AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable);
     }
 
     public static void EndRPC(MessageWriter writer)
@@ -2023,14 +2023,14 @@ public static class Utils
         foreach (PlayerControl seer in aapc)
         {
             CustomRpcSender sender = null;
-            
+
             foreach (PlayerControl target in aapc)
             {
                 if (GameStates.IsMeeting) yield break;
                 WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target]);
                 if (count++ % speed == 0) yield return null;
             }
-            
+
             sender?.SendMessage();
         }
     }
@@ -2039,7 +2039,7 @@ public static class Utils
     public static void NotifyRoles(bool ForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
         if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && (CustomGameMode.Standard.IsActiveOrIntegrated() || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting))) return;
-        
+
         PlayerControl[] apc = Main.AllPlayerControls;
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
         PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
@@ -2067,7 +2067,7 @@ public static class Utils
     private static void WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, PlayerControl[] seerList, PlayerControl[] targetList)
     {
         long now = TimeStamp;
-        
+
         try
         {
             if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())))

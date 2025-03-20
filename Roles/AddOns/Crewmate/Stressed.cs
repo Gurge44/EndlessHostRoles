@@ -152,7 +152,7 @@ public class Stressed : IAddon
     {
         if (!Utils.DoRPC || !IsEnable) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable);
         writer.Write(id);
         writer.Write(time);
         writer.Write(lastUpdate.ToString());

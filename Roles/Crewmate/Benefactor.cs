@@ -61,7 +61,7 @@ internal class Benefactor : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBenefactorMarkedTask, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBenefactorMarkedTask, SendOption.Reliable);
         writer.Write(benefactorId);
         writer.Write(taskIndex);
         writer.Write(isShield);

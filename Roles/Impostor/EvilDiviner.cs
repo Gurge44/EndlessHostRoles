@@ -89,7 +89,7 @@ public class EvilDiviner : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEvilDiviner, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEvilDiviner, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(targetId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

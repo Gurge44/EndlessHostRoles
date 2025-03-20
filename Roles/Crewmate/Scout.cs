@@ -82,7 +82,7 @@ public class Scout : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTrackerTarget, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTrackerTarget, SendOption.Reliable);
         writer.Write(trackerId);
         writer.Write(targetId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

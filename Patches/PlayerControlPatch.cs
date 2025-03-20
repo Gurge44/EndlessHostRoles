@@ -81,7 +81,7 @@ internal static class RpcMurderPlayerPatch
         if (AmongUsClient.Instance.AmClient)
             __instance.MurderPlayer(target, murderResultFlags);
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, HazelExtensions.SendOption);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
         messageWriter.WriteNetObject(target);
         messageWriter.Write((int)murderResultFlags);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -99,7 +99,7 @@ internal static class CmdCheckMurderPatch
             __instance.CheckMurder(target);
         else if (!CustomGameMode.FFA.IsActiveOrIntegrated())
         {
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, HazelExtensions.SendOption);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, SendOption.Reliable);
             messageWriter.WriteNetObject(target);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }

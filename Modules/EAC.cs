@@ -214,7 +214,7 @@ internal static class EAC
                 case RpcCalls.Shapeshift when !pc.IsHost():
                 {
                     Report(pc, "Directly Shapeshift");
-                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, HazelExtensions.SendOption);
+                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
                     swriter.WriteNetObject(pc);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);
@@ -227,7 +227,7 @@ internal static class EAC
                 {
                     string sreason = "Direct Phantom RPCs " + rpc;
                     Report(pc, sreason);
-                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, HazelExtensions.SendOption);
+                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, SendOption.Reliable);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);
                     HandleCheat(pc, sreason);

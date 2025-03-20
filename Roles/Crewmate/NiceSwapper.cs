@@ -253,7 +253,7 @@ public class NiceSwapper : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceSwapperVotes, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceSwapperVotes, SendOption.Reliable);
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

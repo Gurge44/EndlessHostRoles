@@ -133,7 +133,7 @@ public class PlagueDoctor : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPlagueDoctor, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPlagueDoctor, SendOption.Reliable);
         writer.Write(targetId);
         writer.Write(rate);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

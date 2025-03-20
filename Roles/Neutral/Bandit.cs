@@ -95,7 +95,7 @@ public class Bandit : RoleBase
     {
         if (!On || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBanditStealLimit, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBanditStealLimit, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(TotalSteals[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

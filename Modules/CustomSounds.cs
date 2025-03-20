@@ -22,7 +22,7 @@ public static class CustomSoundsManager
             return;
         }
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, HazelExtensions.SendOption, pc.GetClientId());
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable, pc.GetClientId());
         writer.Write(sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -31,7 +31,7 @@ public static class CustomSoundsManager
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable);
         writer.Write(sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         Play(sound);
