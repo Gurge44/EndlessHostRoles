@@ -23,7 +23,7 @@ public static class LobbySharingAPI
         if (gameId == 32) return;
 
         var roomCode = GameCode.IntToGameName(gameId);
-        if (roomCode == LastRoomCode) return;
+        if (roomCode == LastRoomCode || roomCode.IsNullOrWhiteSpace() || string.IsNullOrEmpty(roomCode)) return;
         LastRoomCode = roomCode;
 
         var modLanguage = Options.ModLanguage.GetValue();
@@ -153,7 +153,7 @@ static class ExitGamePatch
     public static void Postfix()
     {
         LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.Closed);
-        
+
         GameEndChecker.LoadingEndScreen = false;
     }
 }
