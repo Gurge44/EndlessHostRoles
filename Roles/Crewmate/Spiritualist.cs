@@ -99,7 +99,7 @@ internal class Spiritualist : RoleBase
 
             TargetArrow.Add(spiritualist, target.PlayerId);
 
-            var writer = CustomRpcSender.Create("SpiritualistSendMessage");
+            var writer = CustomRpcSender.Create("SpiritualistSendMessage", Hazel.SendOption.Reliable);
             writer.StartMessage(target.GetClientId());
 
             writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)

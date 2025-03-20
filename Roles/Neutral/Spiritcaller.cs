@@ -115,7 +115,7 @@ public class Spiritcaller : RoleBase
 
             target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
-            var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
+            var writer = CustomRpcSender.Create("SpiritCallerSendMessage", Hazel.SendOption.Reliable);
             writer.StartMessage(target.GetClientId());
 
             writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)

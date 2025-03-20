@@ -226,7 +226,7 @@ public static class ChatManager
 
             string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
 
-            for (int i = clear ? 0 : filtered.Length; i < 30; i++)
+            for (int i = clear ? 0 : filtered.Length; i < 20; i++)
             {
                 PlayerControl player = x[r.Next(0, totalAlive)];
                 FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, Utils.EmptyMessage);
@@ -257,7 +257,7 @@ public static class ChatManager
 
     private static void SendRPC(InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
     {
-        var writer = CustomRpcSender.Create("MessagesToSend");
+        var writer = CustomRpcSender.Create("MessagesToSend", Hazel.SendOption.Reliable);
         writer.StartMessage(targetClientId);
 
         writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
@@ -280,7 +280,7 @@ public static class ChatManager
             var clientId = target.GetClientId();
             if (clientId == -1) return;
 
-            Loop.Times(30, _ => SendRPC(sender, Utils.EmptyMessage, clientId));
+            Loop.Times(20, _ => SendRPC(sender, Utils.EmptyMessage, clientId));
             return;
         }
 

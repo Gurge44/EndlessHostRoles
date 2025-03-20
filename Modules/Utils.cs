@@ -163,9 +163,6 @@ public static class Utils
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
-        var sender = CustomRpcSender.Create($"TP {pc.GetNameWithRole()}", sendOption);
-        sender.WriteNetObject()
-
         if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
 
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;

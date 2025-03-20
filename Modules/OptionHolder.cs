@@ -671,6 +671,7 @@ public static class Options
 
     public static OptionItem PostLobbyCodeToEHRWebsite;
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
+    public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
@@ -848,6 +849,12 @@ public static class Options
         GroupAddons();
         Achievements.LoadAllData();
         OptionShower.LastText = Translator.GetString("Loading");
+        
+        if (AllCrewRolesHaveVanillaColor.GetBool())
+        {
+            List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => x.IsCrewmate()).ToList();
+            toChange.ForEach(x => Main.RoleColors[x] = "#8cffff");
+        }
 
 #if DEBUG
         // Used for generating the table of roles for the README
@@ -1429,6 +1436,9 @@ public static class Options
             .SetHeader(true);
 
         StoreCompletedAchievementsOnEHRDatabase = new BooleanOptionItem(19423, "StoreCompletedAchievementsOnEHRDatabase", true, TabGroup.SystemSettings);
+        
+        AllCrewRolesHaveVanillaColor = new BooleanOptionItem(19424, "AllCrewRolesHaveVanillaColor", false, TabGroup.SystemSettings)
+            .SetHeader(true);
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .SetHeader(true)

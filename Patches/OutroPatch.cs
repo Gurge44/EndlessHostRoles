@@ -399,7 +399,7 @@ internal static class SetEverythingUpPatch
             if (addWinnerRole == CustomRoles.Sidekick) continue;
 
             Color color = additionalWinners == AdditionalWinners.AliveNeutrals ? Team.Neutral.GetColor() : Utils.GetRoleColor(addWinnerRole);
-            AdditionalWinnerText += "\n" + Utils.ColorString(color, GetAdditionalWinnerRoleName(addWinnerRole));
+            AdditionalWinnerText += "\n" + Utils.ColorString(color, GetAdditionalWinnerRoleName(additionalWinners == AdditionalWinners.AliveNeutrals ? additionalWinners.ToString() : addWinnerRole.ToString()));
         }
 
         Skip:
@@ -566,10 +566,11 @@ internal static class SetEverythingUpPatch
 
         return;
 
-        static string GetAdditionalWinnerRoleName(CustomRoles role)
+        static string GetAdditionalWinnerRoleName(string role)
         {
             string name = GetString($"AdditionalWinnerRoleText.{role}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("AdditionalWinnerRoleText.Default"), GetString($"{role}"));
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID"))
+                name = string.Format(GetString("AdditionalWinnerRoleText.Default"), GetString(role));
 
             return name;
         }
@@ -577,7 +578,8 @@ internal static class SetEverythingUpPatch
         static string GetWinnerRoleName(CustomRoles role)
         {
             string name = GetString($"WinnerRoleText.{role}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("WinnerRoleText.Default"), GetString($"{role}"));
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID"))
+                name = string.Format(GetString("WinnerRoleText.Default"), GetString($"{role}"));
 
             return name;
         }
