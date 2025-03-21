@@ -129,7 +129,7 @@ internal class Asthmatic : IAddon
 
         string suffix = GetSuffixText(pc.PlayerId);
 
-        if (!pc.IsModClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (!pc.IsModdedClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
         LastSuffix[pc.PlayerId] = suffix;
     }

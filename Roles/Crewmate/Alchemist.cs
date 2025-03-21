@@ -307,7 +307,7 @@ public class Alchemist : RoleBase
                     refresh = true;
                     InvisTime = -10;
                     break;
-                case <= 10 when !player.IsModClient():
+                case <= 10 when !player.IsModdedClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
@@ -367,7 +367,7 @@ public class Alchemist : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
+        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || Utils.GetPlayerById(playerId).IsModdedClient()) return string.Empty;
 
         var str = new StringBuilder();
 

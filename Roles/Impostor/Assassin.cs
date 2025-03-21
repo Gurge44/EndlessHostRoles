@@ -129,7 +129,7 @@ internal class Assassin : RoleBase
         SendRPC(killer.PlayerId);
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-        if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
+        if (killer.IsModdedClient()) killer.RpcResetAbilityCooldown();
 
         killer.SyncSettings();
         killer.RPCPlayCustomSound("Clothe");

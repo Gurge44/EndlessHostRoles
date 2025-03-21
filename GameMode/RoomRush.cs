@@ -442,7 +442,7 @@ public static class RoomRush
             }
         }
 
-        if (VentTimes.GetInt() == 0 || dead || seer.IsModClient()) return sb.ToString().Trim();
+        if (VentTimes.GetInt() == 0 || dead || seer.IsModdedClient()) return sb.ToString().Trim();
 
         sb.Append('\n');
 

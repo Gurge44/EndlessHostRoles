@@ -170,7 +170,7 @@ internal static class EAC
                     }
 
                     break;
-                case RpcCalls.SetColor when !pc.IsHost() && (!pc.IsModClient() || !Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
+                case RpcCalls.SetColor when !pc.IsHost() && (!pc.IsModdedClient() || !Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
                     Report(pc, "Directly SetColor");
                     HandleCheat(pc, "Directly SetColor");
                     Logger.Fatal($"Directly SetColor【{pc.GetClientId()}:{pc.GetRealName()}】has been rejected", "EAC");
@@ -538,7 +538,7 @@ internal static class EAC
 
     internal static bool CheckInvalidSabotage(SystemTypes systemType, PlayerControl player, byte amount)
     {
-        if (player.IsModClient() || !AmongUsClient.Instance.AmHost) return false;
+        if (player.IsModdedClient() || !AmongUsClient.Instance.AmHost) return false;
 
         if (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Discussion)
         {

@@ -202,7 +202,7 @@ public class Librarian : RoleBase
         var result = string.Empty;
         if (target.Is(CustomRoles.Librarian)) result += GetNameTextForSuffix(target.PlayerId);
 
-        if (hud || (seer.PlayerId == target.PlayerId && !seer.IsModClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
+        if (hud || (seer.PlayerId == target.PlayerId && !seer.IsModdedClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
 
         return result;
     }

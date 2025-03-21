@@ -268,7 +268,7 @@ public class Evolver : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != EvolverPC.PlayerId || (seer.IsModClient() && !hud) || meeting || ChooseTimer == 0 || Upgrades.Count == 0 || SelectedUpgradeIndex == -1) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != EvolverPC.PlayerId || (seer.IsModdedClient() && !hud) || meeting || ChooseTimer == 0 || Upgrades.Count == 0 || SelectedUpgradeIndex == -1) return string.Empty;
 
         return string.Format(Translator.GetString("EvolverSuffix"), ChooseTimer, Translator.GetString($"EvolverUpgrade.{Upgrades[SelectedUpgradeIndex]}"), string.Join(", ", Upgrades.ConvertAll(x => Translator.GetString($"EvolverUpgrade.{x}"))));
     }

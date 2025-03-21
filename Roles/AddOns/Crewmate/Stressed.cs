@@ -145,7 +145,7 @@ public class Stressed : IAddon
 
         if (pc.IsNonHostModClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
 
-        if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (!pc.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public static void SendRPC(byte id, int time, long lastUpdate)

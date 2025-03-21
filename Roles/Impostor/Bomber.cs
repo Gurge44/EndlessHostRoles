@@ -147,7 +147,7 @@ internal class Bomber : RoleBase
 
         foreach (PlayerControl tg in Main.AllPlayerControls)
         {
-            if (!tg.IsModClient()) tg.KillFlash();
+            if (!tg.IsModdedClient()) tg.KillFlash();
 
             Vector2 pos = pc.Pos();
             float dis = Vector2.Distance(pos, tg.Pos());

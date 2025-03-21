@@ -236,7 +236,7 @@ public class RoomRusher : RoleBase
         color = done ? Color.white : Color.yellow;
         sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
 
-        if (!CanVent || seer.IsModClient()) return sb.ToString().Trim();
+        if (!CanVent || seer.IsModdedClient()) return sb.ToString().Trim();
 
         sb.Append('\n');
         sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), VentsLeft));

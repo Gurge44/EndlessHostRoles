@@ -138,7 +138,7 @@ public class Werewolf : RoleBase
 
         if (lastTime != -10)
         {
-            if (!player.IsModClient())
+            if (!player.IsModdedClient())
             {
                 long cooldown = lastTime + (long)RampageCD.GetFloat() - now;
                 if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, overrideAll: true);
@@ -151,7 +151,7 @@ public class Werewolf : RoleBase
                 lastTime = -10;
                 bool unshift = UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool();
 
-                if (!player.IsModClient())
+                if (!player.IsModdedClient())
                 {
                     player.Notify(GetString(unshift ? "WWCanRampageUnshift" : "WWCanRampage"));
                     player.RpcChangeRoleBasis(unshift ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
@@ -173,12 +173,12 @@ public class Werewolf : RoleBase
                 case < 0:
                     lastTime = now;
                     player.Notify(GetString("WWRampageOut"));
-                    if (!player.IsModClient()) player.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+                    if (!player.IsModdedClient()) player.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
                     RampageTime = -10;
                     SendRPC();
                     refresh = true;
                     break;
-                case <= 10 when !player.IsModClient():
+                case <= 10 when !player.IsModdedClient():
                     player.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
@@ -224,7 +224,7 @@ public class Werewolf : RoleBase
                 RampageTime = Utils.TimeStamp;
                 SendRPC();
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
-                if (!pc.IsModClient()) pc.RpcChangeRoleBasis(CustomRoles.Werewolf);
+                if (!pc.IsModdedClient()) pc.RpcChangeRoleBasis(CustomRoles.Werewolf);
             }
         }, 0.5f, "Werewolf Vent");
     }

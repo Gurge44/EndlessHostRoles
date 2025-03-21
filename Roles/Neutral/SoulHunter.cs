@@ -175,7 +175,7 @@ internal class SoulHunter : RoleBase
         PlayerControl target = GetPlayerById(CurrentTarget.ID);
         int waitingTime = WaitingTimeAfterMeeting.GetInt();
 
-        if (!SoulHunter_.IsModClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), target.GetRealName(), waitingTime + 1));
+        if (!SoulHunter_.IsModdedClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), target.GetRealName(), waitingTime + 1));
 
         target.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter_.GetRealName()), 300f);
         LastUpdate = now;
@@ -235,7 +235,7 @@ internal class SoulHunter : RoleBase
                 CurrentTarget.StartTimeStamp = now;
                 SendRPC();
             }
-            else if (!SoulHunter_.IsModClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), targetName, waitingTime - (now - CurrentTarget.StartTimeStamp) + 1));
+            else if (!SoulHunter_.IsModdedClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), targetName, waitingTime - (now - CurrentTarget.StartTimeStamp) + 1));
         }
         else
         {
@@ -250,7 +250,7 @@ internal class SoulHunter : RoleBase
                 if (SoulHunterId == PlayerControl.LocalPlayer.PlayerId)
                     Achievements.Type.OutOfTime.Complete();
             }
-            else if (!SoulHunter_.IsModClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotify"), timeToKill - (now - CurrentTarget.StartTimeStamp) + 1, targetName), overrideAll: true);
+            else if (!SoulHunter_.IsModdedClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotify"), timeToKill - (now - CurrentTarget.StartTimeStamp) + 1, targetName), overrideAll: true);
         }
     }
 

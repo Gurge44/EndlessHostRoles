@@ -77,7 +77,8 @@ internal static class ExtendedPlayerControl
         if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) return true;
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
-        return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId))));
+        if (GameStates.IsInTask) return false;
+        return (player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
@@ -756,7 +757,7 @@ internal static class ExtendedPlayerControl
             FlashColor(new(1f, 0f, 0f, 0.3f));
             if (Constants.ShouldPlaySfx()) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
         }
-        else if (player.IsModClient())
+        else if (player.IsModdedClient())
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -970,7 +971,7 @@ internal static class ExtendedPlayerControl
             gc.LastKill = TimeStamp + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
             gc.KCDTimer = (int)(time / 2);
         }
-        else if (forceAnime || !player.IsModClient() || !Options.DisableShieldAnimations.GetBool())
+        else if (forceAnime || !player.IsModdedClient() || !Options.DisableShieldAnimations.GetBool())
         {
             player.SyncSettings();
             player.RpcGuardAndKill(target, fromSetKCD: true);
@@ -1070,7 +1071,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsNonHostModClient(this PlayerControl pc)
     {
-        return pc.IsModClient() && !pc.IsHost();
+        return pc.IsModdedClient() && !pc.IsHost();
     }
 
     public static string GetDisplayRoleName(this PlayerControl player, bool pure = false, bool seeTargetBetrayalAddons = false)
@@ -1671,7 +1672,7 @@ internal static class ExtendedPlayerControl
     public static bool IsLocalPlayer(this PlayerControl pc) => pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
     public static bool IsLocalPlayer(this NetworkedPlayerInfo npi) => npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
 
-    public static bool IsModClient(this PlayerControl player)
+    public static bool IsModdedClient(this PlayerControl player)
     {
         return player.IsLocalPlayer() || player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
     }

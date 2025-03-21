@@ -140,7 +140,7 @@ internal class Predator : RoleBase
         if (RolesToKill.Contains(targetRole))
         {
             IsWon = true;
-            if (!killer.IsModClient()) killer.Notify(string.Format(Translator.GetString("PredatorCorrectKill"), Translator.GetString($"{targetRole}")));
+            if (!killer.IsModdedClient()) killer.Notify(string.Format(Translator.GetString("PredatorCorrectKill"), Translator.GetString($"{targetRole}")));
 
             return true;
         }
@@ -153,7 +153,7 @@ internal class Predator : RoleBase
     {
         if (seer.PlayerId != target.PlayerId) return string.Empty;
 
-        if (seer.IsModClient() && !hud) return string.Empty;
+        if (seer.IsModdedClient() && !hud) return string.Empty;
 
         if (Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt) return string.Empty;
 

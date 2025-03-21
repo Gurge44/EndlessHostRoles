@@ -225,7 +225,7 @@ public class Wasp : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != WaspPC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting || SwarmModeEnd == 0) return string.Empty;
+        if (seer.PlayerId != WaspPC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || SwarmModeEnd == 0) return string.Empty;
         return string.Format(Translator.GetString("Wasp.SwarmModeSuffix"), SwarmModeEnd - Utils.TimeStamp);
     }
 }

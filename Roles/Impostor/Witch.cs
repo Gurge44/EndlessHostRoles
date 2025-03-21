@@ -238,7 +238,7 @@ public class Witch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         var str = new StringBuilder();
 

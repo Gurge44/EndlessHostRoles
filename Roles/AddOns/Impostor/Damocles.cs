@@ -84,7 +84,7 @@ public class Damocles : IAddon
 
         if (pc.IsNonHostModClient()) SendRPC(id);
 
-        if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (!pc.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public static void SendRPC(byte playerId)

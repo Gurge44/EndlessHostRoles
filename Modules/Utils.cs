@@ -64,7 +64,7 @@ public static class Utils
 
     private static int NumSnapToRPCsThisRound;
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
-    public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
+    public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModdedClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
     private static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
     public static int AllAlivePlayersCount => Main.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
@@ -1834,7 +1834,7 @@ public static class Utils
                 string tag = hasTag ? devUser.GetTag() : string.Empty;
                 if (tag == "null") tag = string.Empty;
 
-                if (player.AmOwner || player.IsModClient())
+                if (player.AmOwner || player.IsModdedClient())
                 {
                     var modTagModded = $"<size=1.4>{GetString("ModeratorTag")}\r\n</size>";
                     var vipTagModded = $"<size=1.4>{GetString("VIPTag")}\r\n</size>";
@@ -2035,7 +2035,7 @@ public static class Utils
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static void NotifyRoles(bool ForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && (CustomGameMode.Standard.IsActiveOrIntegrated() || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting))) return;
+        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (CustomGameMode.Standard.IsActiveOrIntegrated() || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting))) return;
 
         PlayerControl[] apc = Main.AllPlayerControls;
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
@@ -2067,7 +2067,7 @@ public static class Utils
 
         try
         {
-            if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())))
+            if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())))
                 return;
 
             sender ??= CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
@@ -2270,7 +2270,7 @@ public static class Utils
                     {
                         if (GameStartTimeStamp + 40 > now) SeerRealName = CustomHnS.GetRoleInfoText(seer);
                     }
-                    else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard)
+                    else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModdedClient() && Options.CurrentGameMode == CustomGameMode.Standard)
                     {
                         bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && GameStartTimeStamp + description.Duration > now;
                         string mHelp = (!showLongInfo || description.Long) ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;

@@ -428,7 +428,7 @@ public class Dad : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || meeting || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         var sb = new StringBuilder();
 

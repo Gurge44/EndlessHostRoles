@@ -103,7 +103,7 @@ public class Goddess : Coven
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != GoddessId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting || AbilityEndTS == 0) return string.Empty;
+        if (seer.PlayerId != GoddessId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || AbilityEndTS == 0) return string.Empty;
         return string.Format(Translator.GetString("Goddess.Suffix"), AbilityEndTS - Utils.TimeStamp, Main.CovenColor);
     }
 }

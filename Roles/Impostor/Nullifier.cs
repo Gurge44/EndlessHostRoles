@@ -72,7 +72,7 @@ internal class Nullifier : RoleBase
                         cs.SendRPC(target.PlayerId);
                         break;
                     case CustomRoles.NiceHacker:
-                        if (target.IsModClient())
+                        if (target.IsModdedClient())
                         {
                             NiceHacker.UseLimitSeconds[target.PlayerId] -= NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
                             NiceHacker.SendRPC(target.PlayerId, NiceHacker.UseLimitSeconds[target.PlayerId]);

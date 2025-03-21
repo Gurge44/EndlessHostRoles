@@ -273,7 +273,7 @@ public class PlagueDoctor : RoleBase
 
         if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
 
-        if (!hud && seer.IsModClient()) return string.Empty;
+        if (!hud && seer.IsModdedClient()) return string.Empty;
 
         if (Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return string.Empty;
 

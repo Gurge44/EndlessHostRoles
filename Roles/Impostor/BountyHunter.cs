@@ -144,7 +144,7 @@ public class BountyHunter : RoleBase
                 ChangeTimer += Time.fixedDeltaTime;
                 int tempTimer = Timer;
                 Timer = (int)(TargetChangeTime - ChangeTimer);
-                if (tempTimer != Timer && Timer <= 15 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                if (tempTimer != Timer && Timer <= 15 && !player.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
 
             if (Utils.GetPlayerById(targetId)?.IsAlive() == false)

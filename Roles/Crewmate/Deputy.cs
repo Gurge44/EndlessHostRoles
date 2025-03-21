@@ -89,9 +89,9 @@ public class Deputy : RoleBase
                 {
                     target.SetKillCooldown(DeputyHandcuffCDForTarget.GetFloat());
                     target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
-                    if (target.IsModClient()) target.RpcResetAbilityCooldown();
+                    if (target.IsModdedClient()) target.RpcResetAbilityCooldown();
 
-                    if (!target.IsModClient()) target.RpcGuardAndKill(target);
+                    if (!target.IsModdedClient()) target.RpcGuardAndKill(target);
                 }
             }, DeputyHandcuffDelay.GetInt(), "DeputyHandcuffDelay");
 

@@ -164,7 +164,7 @@ public class Occultist : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != OccultistPC.PlayerId || seer.PlayerId != target.PlayerId || meeting || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != OccultistPC.PlayerId || seer.PlayerId != target.PlayerId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
         var str = string.Format(Translator.GetString("OccultistSuffix"), Translator.GetString(InRevivingMode ? "OccultistMode.Revive" : "OccultistMode.Report"), Translator.GetString($"OccultistActionSwitchMode.{ActionSwitchMode}"));
         if (Main.AllAlivePlayerControls.Length < 4) str = str.Split('(')[0].TrimEnd(' ');
         return str;

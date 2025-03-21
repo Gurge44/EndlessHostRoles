@@ -233,7 +233,7 @@ public class Whisperer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != WhispererId || meeting || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != WhispererId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         return "<size=70%>" + string.Join('\n', Info) + (CurrentlyQuestioning.Percent > 0 ? string.Format(Translator.GetString("WhispererQuestioning"), CurrentlyQuestioning.Name, CurrentlyQuestioning.Percent) : string.Empty) + "</size>";
     }

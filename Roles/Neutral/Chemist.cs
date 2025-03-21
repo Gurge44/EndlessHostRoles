@@ -592,7 +592,7 @@ internal class Chemist : RoleBase
         if (Main.PlayerStates[seer.PlayerId].Role is not Chemist cm) return string.Empty;
 
         bool self = seer.PlayerId == target.PlayerId;
-        if (self && seer.IsModClient() && !hud) return string.Empty;
+        if (self && seer.IsModdedClient() && !hud) return string.Empty;
 
         StringBuilder sb = new StringBuilder().Append("<size=80%>");
 

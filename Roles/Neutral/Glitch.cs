@@ -265,12 +265,12 @@ public class Glitch : RoleBase
         if (player.IsNonHostModClient())
             SendRPCSyncTimers();
 
-        if (!player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+        if (!player.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != GlitchId || seer.PlayerId != target.PlayerId || !seer.IsAlive() || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        if (seer == null || seer.PlayerId != GlitchId || seer.PlayerId != target.PlayerId || !seer.IsAlive() || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         var sb = new StringBuilder();
 

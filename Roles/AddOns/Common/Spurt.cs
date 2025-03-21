@@ -97,7 +97,7 @@ internal class Spurt : IAddon
         if (player.IsLocalPlayer() && charge is <= 0 or >= 100)
             LocalPlayerAvoidsZeroAndOneHundredPrecent = false;
 
-        if (DisplaysCharge.GetBool() && !player.IsModClient() && LastNum[player.PlayerId] != charge)
+        if (DisplaysCharge.GetBool() && !player.IsModdedClient() && LastNum[player.PlayerId] != charge)
         {
             LastNum[player.PlayerId] = charge;
             long now = Utils.TimeStamp;

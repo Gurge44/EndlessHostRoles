@@ -215,7 +215,7 @@ internal static class SoloPVP
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-        if (!target.IsModClient() && !target.AmOwner) target.SetKillCooldown(0.01f);
+        if (!target.IsModdedClient() && !target.AmOwner) target.SetKillCooldown(0.01f);
 
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);

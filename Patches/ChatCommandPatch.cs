@@ -67,7 +67,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
         switch (UsageLevel)
         {
             case UsageLevels.Host when !pc.IsHost():
-            case UsageLevels.Modded when !pc.IsModClient():
+            case UsageLevels.Modded when !pc.IsModdedClient():
             case UsageLevels.HostOrModerator when !pc.IsHost() && !ChatCommands.IsPlayerModerator(pc.FriendCode):
                 return false;
         }
@@ -823,7 +823,7 @@ internal static class ChatCommands
             .Partition(allPlayerIds.Length)
             .Zip(allPlayerIds)
             .ToDictionary(x => x.Second, x => x.First.Take(5).ToList());
-        
+
         Main.Instance.StartCoroutine(RepeatedlySendMessage());
         return;
 
@@ -837,7 +837,7 @@ internal static class ChatCommands
                     string msg = string.Format(GetString(index == 0 ? "DraftStart" : "DraftResend"), string.Join('\n', roleList));
                     Utils.SendMessage(msg, id, GetString("DraftTitle"));
                 }
-                
+
                 yield return new WaitForSeconds(20f);
                 if (DraftResult.Count >= DraftRoles.Count || GameStates.InGame) yield break;
             }

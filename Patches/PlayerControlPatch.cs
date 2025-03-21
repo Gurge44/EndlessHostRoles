@@ -1407,7 +1407,7 @@ internal static class FixedUpdatePatch
                     if (QuizMaster.On && inTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
                         QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
 
-                if (!lowLoad && player.IsModClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
+                if (!lowLoad && player.IsModdedClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
 
                 if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
 
@@ -1466,7 +1466,7 @@ internal static class FixedUpdatePatch
                         if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive)
                             player.RemoveAbilityCD();
 
-                        if (!player.IsModClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60)
+                        if (!player.IsModdedClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60)
                             NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
 
                         LastUpdate[playerId] = now;
@@ -1934,7 +1934,7 @@ internal static class ExitVentPatch
 
         if (Options.WhackAMole.GetBool()) LateTask.New(() => pc.TPToRandomVent(), 0.5f, "Whack-A-Mole TP");
 
-        if (!pc.IsModClient() && pc.Is(CustomRoles.Haste)) pc.SetKillCooldown(Math.Max(Main.KillTimers[pc.PlayerId], 0.1f));
+        if (!pc.IsModdedClient() && pc.Is(CustomRoles.Haste)) pc.SetKillCooldown(Math.Max(Main.KillTimers[pc.PlayerId], 0.1f));
     }
 }
 

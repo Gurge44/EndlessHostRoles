@@ -208,7 +208,7 @@ public class Simon : RoleBase
         if (Main.PlayerStates[seer.PlayerId].Role is not Simon simon) return string.Empty;
 
         bool self = seer.PlayerId == target.PlayerId;
-        if (seer.IsModClient() && !hud && self) return string.Empty;
+        if (seer.IsModdedClient() && !hud && self) return string.Empty;
 
         if (self) return Translator.GetString(simon.DoMode ? "SimonDoMode" : "SimonDontMode");
 

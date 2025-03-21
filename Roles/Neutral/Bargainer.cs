@@ -489,7 +489,7 @@ internal class Bargainer : RoleBase
             result += "\n";
         }
 
-        if (seer.IsModClient()) result += "<size=150%>";
+        if (seer.IsModdedClient()) result += "<size=150%>";
 
         result += string.Join(' ', bg.ActiveItems.Select(x =>
         {
@@ -497,10 +497,10 @@ internal class Bargainer : RoleBase
             string icon = Icons[x.Item];
             if (x.Item == Item.LensOfTruth && x.Target != byte.MaxValue) icon = Utils.ColorString(Main.PlayerColors[x.Target], icon);
 
-            return seer.IsModClient() && timeLeft < 10 ? $"{icon} ({timeLeft}s)" : icon;
+            return seer.IsModdedClient() && timeLeft < 10 ? $"{icon} ({timeLeft}s)" : icon;
         }));
 
-        if (seer.IsModClient()) result += "</size>";
+        if (seer.IsModdedClient()) result += "</size>";
 
         return result;
     }

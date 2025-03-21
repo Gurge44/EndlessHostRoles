@@ -137,9 +137,9 @@ public class Chronomancer : RoleBase
             notify = true;
         }
 
-        if (notify && !pc.IsModClient()) pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent), 300f);
+        if (notify && !pc.IsModdedClient()) pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent), 300f);
 
-        if (beforeCharge != ChargePercent && pc.IsModClient() && !pc.IsHost()) SendRPC();
+        if (beforeCharge != ChargePercent && pc.IsModdedClient() && !pc.IsHost()) SendRPC();
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

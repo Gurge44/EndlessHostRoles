@@ -376,7 +376,7 @@ internal static class InnerNetClientSpawnPatch
                     if (GameStates.IsLobby && client.Character != null && LobbyBehaviour.Instance != null && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                     {
                         // Only for vanilla
-                        if (!client.Character.IsModClient())
+                        if (!client.Character.IsModdedClient())
                         {
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
                             writer.WritePacked((int)GameStartManagerPatch.Timer);
@@ -499,7 +499,7 @@ internal static class PlayerControlCheckNamePatch
 
         LateTask.New(() =>
         {
-            if (__instance != null && !__instance.Data.Disconnected && !__instance.IsModClient())
+            if (__instance != null && !__instance.Data.Disconnected && !__instance.IsModdedClient())
             {
                 MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.OwnerId);
                 AmongUsClient.Instance.FinishRpcImmediately(sender);

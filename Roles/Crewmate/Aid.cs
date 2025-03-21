@@ -146,7 +146,7 @@ public class Aid : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         if (TargetKnowsShield.GetBool() && ShieldedPlayers.TryGetValue(seer.PlayerId, out long ts))
         {
