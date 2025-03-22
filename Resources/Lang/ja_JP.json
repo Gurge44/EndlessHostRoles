@@ -3317,7 +3317,7 @@
   "Wasp.PestControlSpeed": "害虫駆除中の速度",
   "Wasp.PestControlVision": "害虫駆除中の視力",
   "Wasp.SwarmModeSuffix": "<#ffff00>あなたは攻撃を受け そして {0} 秒間の 群れモードに入った！</color>",
-  "Occultist": "Occultist",
+  "Occultist": "オカルティスト",
   "OccultistInfo": "プレイヤーを あなたのチームに蘇生させる",
   "OccultistInfoLong": "(<color=#ff1919>インポスター</color>):\\n<size=75%>オカルティストとして、あなたは 2つのモードがあります: 報告 または 蘇生。\\n報告モードでは、あなたは 通常の死体報告を行います。\\n蘇生モードでは、あなたが 誰かの死体に報告を押したとき、あなたは 彼を蘇生し そして 彼は <#ff1919>反逆者</color> / <#ff1919>マッドメイト</color>の属性 (彼が <#ff1919>インポスター</color>ではない場合) を獲得します。</size>",
   "Occultist.ReviveTime": "報告を押してから プレイヤーが復活する間の遅れ",
