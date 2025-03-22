@@ -3410,7 +3410,7 @@
   "JailedSuffix": "牢屋",
   "Car": "自動車",
   "CarInfo": "マップ内をドライブしよう",
-  "CarInfoLong": "(<color=#8cffff>クルーメイト</color>):\\n<size=75%>自動車として、あなたは マップ内をドライブできます。\\n全員があなたを車としてみることができ、自分自身も含まれます。\\n誰かに触れたとき、あなたは彼らを 運転方向の遠くに飛ばします。\\nこの役割は 楽しむこと以外で 全く目的がありません。</size>",
+  "CarInfoLong": "(<color=#8cffff>クルーメイト</color>):\\n<size=80%>自動車として、あなたは マップ内をドライブできます。\\n全員があなたを車としてみることができ、自分自身も含まれます。\\n誰かに触れたとき、あなたは彼らを 運転方向の遠くに飛ばします。\\nこの役割は 楽しむこと以外で 全く目的がありません。</size>",
   "Car.PropelDistance": "飛ばす距離",
   "Shiftguard": "Shiftguard",
   "ShiftguardInfo": "Know When Someone Shapeshifts",
