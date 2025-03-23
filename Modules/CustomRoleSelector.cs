@@ -827,7 +827,7 @@ internal static class CustomRoleSelector
                 .GroupBy(x => x.Info.OptionType)
                 .Select(x => (Grouping: x, x.FirstOrDefault().Limit))
                 .SelectMany(x => x.Limit.Exists ? x.Grouping.Take(x.Limit.Value) : x.Grouping)
-                .OrderByDescending(x => x.Limit is { Exists: true, Value: > 0 })
+                .OrderBy(x => x.Limit is { Exists: true, Value: > 0 } ? rd.Next(100) : rd.Next(100, 1000))
                 .Take(type switch
                 {
                     RoleAssignType.Impostor => optImpNum,
