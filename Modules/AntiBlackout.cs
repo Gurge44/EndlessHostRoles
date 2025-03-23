@@ -75,7 +75,7 @@ public static class AntiBlackout
 
     private static void RevivePlayersAndSetDummyImp()
     {
-        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default || PlayerControl.AllPlayerControls.Count < 2) return;
 
         PlayerControl dummyImp = Main.AllAlivePlayerControls.First(x => x.PlayerId != ExilePlayerId);
 
