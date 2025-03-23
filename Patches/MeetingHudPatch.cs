@@ -687,7 +687,7 @@ internal static class MeetingHudStartPatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.IsModClient()) continue;
+                if (pc.IsModdedClient()) continue;
 
                 CustomRoles role = pc.GetCustomRole();
                 StringBuilder sb = new();

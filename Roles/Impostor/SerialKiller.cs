@@ -106,7 +106,7 @@ public class SerialKiller : RoleBase
             SuicideTimer += Time.fixedDeltaTime;
             int tempTimer = Timer;
             Timer = TimeLimit.GetInt() - (int)SuicideTimer;
-            if (Timer != tempTimer && Timer <= 20 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+            if (Timer != tempTimer && Timer <= 20 && !player.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
     }
 

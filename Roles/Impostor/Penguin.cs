@@ -134,7 +134,7 @@ public class Penguin : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable);
         writer.Write(PenguinId);
         writer.Write(1);
         writer.Write(AbductVictim?.PlayerId ?? 255);
@@ -415,7 +415,7 @@ public class Penguin : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         if (!Main.PlayerStates.TryGetValue(seer.PlayerId, out PlayerState state) || state.Role is not Penguin pg || pg.AbductVictim == null) return string.Empty;
 

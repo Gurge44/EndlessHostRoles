@@ -114,7 +114,7 @@ public class Adrenaline : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdrenalineId || meeting || (seer.IsModClient() && !hud) || Timer == 0) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdrenalineId || meeting || (seer.IsModdedClient() && !hud) || Timer == 0) return string.Empty;
 
         return string.Format(Translator.GetString("Adrenaline.Suffix"), Timer);
     }

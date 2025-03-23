@@ -60,7 +60,7 @@ internal static class GhostRolesManager
     {
         if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole)) return;
 
-        if (!first && pc.IsModClient()) return;
+        if (!first && pc.IsModdedClient()) return;
 
         CustomRoles role = ghostRole.Role;
         (string Split, string Message) info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));

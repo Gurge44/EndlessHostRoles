@@ -41,7 +41,7 @@ public class Chronomancer : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, SendOption.Reliable);
         writer.Write(ChronomancerId);
         writer.Write(IsRampaging);
         writer.Write(ChargePercent);
@@ -137,9 +137,9 @@ public class Chronomancer : RoleBase
             notify = true;
         }
 
-        if (notify && !pc.IsModClient()) pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent), 300f);
+        if (notify && !pc.IsModdedClient()) pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent), 300f);
 
-        if (beforeCharge != ChargePercent && pc.IsModClient() && !pc.IsHost()) SendRPC();
+        if (beforeCharge != ChargePercent && pc.IsModdedClient() && !pc.IsHost()) SendRPC();
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

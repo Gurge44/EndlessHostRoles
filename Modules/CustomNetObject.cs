@@ -42,7 +42,7 @@ namespace EHR
                 string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
                 string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
                 string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-                var sender = CustomRpcSender.Create("SetFakeData");
+                var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable);
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
@@ -130,7 +130,7 @@ namespace EHR
 
             LateTask.New(() =>
             {
-                var sender = CustomRpcSender.Create("FixModdedClientCNOText", HazelExtensions.SendOption);
+                var sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
 
                 sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.GetClientId())
                     .WriteNetObject(playerControl)
@@ -206,7 +206,7 @@ namespace EHR
                     string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
                     string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
                     string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-                    var sender = CustomRpcSender.Create("SetFakeData");
+                    var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable);
                     MessageWriter writer = sender.stream;
                     sender.StartMessage();
                     PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + Sprite;
@@ -257,7 +257,7 @@ namespace EHR
 
                     LateTask.New(() =>
                     {
-                        var sender = CustomRpcSender.Create("SetFakeData");
+                        var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable);
                         MessageWriter writer = sender.stream;
                         sender.StartMessage(pc.GetClientId());
                         writer.StartMessage(1);
@@ -303,7 +303,7 @@ namespace EHR
                     // Fix for Non-Host Modded
                     foreach (PlayerControl visiblePC in Main.AllPlayerControls.ExceptBy(HiddenList, x => x.PlayerId))
                     {
-                        var sender = CustomRpcSender.Create("FixModdedClientCNOText", HazelExtensions.SendOption);
+                        var sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
 
                         sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, visiblePC.GetClientId())
                             .WriteNetObject(playerControl)
@@ -395,7 +395,7 @@ namespace EHR
                 string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
                 string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
                 string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-                var sender = CustomRpcSender.Create("SetFakeData");
+                var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable);
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
@@ -453,7 +453,7 @@ namespace EHR
 
                 LateTask.New(() =>
                 {
-                    var sender = CustomRpcSender.Create("SetFakeData");
+                    var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable);
                     MessageWriter writer = sender.stream;
                     sender.StartMessage(pc.GetClientId());
                     writer.StartMessage(1);

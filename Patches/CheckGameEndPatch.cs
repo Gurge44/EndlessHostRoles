@@ -382,7 +382,7 @@ internal static class GameEndChecker
         }
 
         // Sync of CustomWinnerHolder info
-        MessageWriter winnerWriter = self.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.EndGame, HazelExtensions.SendOption);
+        MessageWriter winnerWriter = self.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.EndGame, SendOption.Reliable);
         WriteTo(winnerWriter);
         self.FinishRpcImmediately(winnerWriter);
 

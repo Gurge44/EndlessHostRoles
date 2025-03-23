@@ -60,7 +60,7 @@ internal static class DisableDevice
         {
             try
             {
-                if (pc.IsModClient()) continue;
+                if (pc.IsModdedClient()) continue;
 
                 var doComms = false;
                 Vector2 PlayerPos = pc.Pos();

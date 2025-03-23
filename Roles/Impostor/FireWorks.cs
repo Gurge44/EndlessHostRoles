@@ -89,7 +89,7 @@ public class FireWorks : RoleBase
         if (!On || !Utils.DoRPC) return;
 
         Logger.Info($"Player{playerId}:SendRPC", "FireWorks");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(nowFireWorksCount);
         writer.Write((int)state);

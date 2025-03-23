@@ -442,7 +442,7 @@ public class TaskState
                         sm.SendRPC();
                         break;
                     case CustomRoles.NiceHacker:
-                        if (!player.IsModClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId))
+                        if (!player.IsModdedClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId))
                             NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
                         else if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
 
@@ -534,7 +534,7 @@ public static class GameStates
 
     public static bool InGame;
     public static bool AlreadyDied;
-    public static bool IsModHost => PlayerControl.LocalPlayer.IsHost() || PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModClient());
+    public static bool IsModHost => PlayerControl.LocalPlayer.IsHost() || PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModdedClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
     public static bool IsEnded => GameEndChecker.Ended || AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;

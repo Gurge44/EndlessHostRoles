@@ -8,14 +8,14 @@ public class Wiper : RoleBase
 {
     public static bool On;
 
-    public override bool IsEnable => On;
-
     public static OptionItem AbilityCooldown;
     private static OptionItem KillOtherImpostors;
     private static OptionItem CanVent;
+    private PlainShipRoom LastRoom;
 
     private byte WiperID;
-    private PlainShipRoom LastRoom;
+
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -75,7 +75,7 @@ public class Wiper : RoleBase
     void WipeOutEveryoneInRoom(PlayerControl pc)
     {
         if (new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(Utils.IsActive)) return;
-        
+
         var room = pc.GetPlainShipRoom();
         if (room == null) return;
 
@@ -97,7 +97,7 @@ public class Wiper : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != WiperID || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != WiperID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         if (new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(Utils.IsActive))
             return Utils.ColorString(Color.red, Translator.GetString("Wiper.CannotUseAbilityDuringSabotage"));

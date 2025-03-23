@@ -93,7 +93,7 @@ public class CustomRpcSender
         return this;
     }
 
-    public void SendMessage()
+    public void SendMessage(bool dispose = false)
     {
         if (currentState == State.InRootMessage) EndMessage();
 
@@ -107,8 +107,12 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        AmongUsClient.Instance.SendOrDisconnect(stream);
-        onSendDelegate();
+        if (!dispose)
+        {
+            AmongUsClient.Instance.SendOrDisconnect(stream);
+            onSendDelegate();
+        }
+
         currentState = State.Finished;
         Logger.Info($"\"{name}\" is finished", "CustomRpcSender");
         stream.Recycle();

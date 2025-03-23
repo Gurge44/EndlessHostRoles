@@ -170,7 +170,7 @@ internal static class EAC
                     }
 
                     break;
-                case RpcCalls.SetColor when !pc.IsHost() && (!pc.IsModClient() || !Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
+                case RpcCalls.SetColor when !pc.IsHost() && (!pc.IsModdedClient() || !Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
                     Report(pc, "Directly SetColor");
                     HandleCheat(pc, "Directly SetColor");
                     Logger.Fatal($"Directly SetColor【{pc.GetClientId()}:{pc.GetRealName()}】has been rejected", "EAC");
@@ -214,7 +214,7 @@ internal static class EAC
                 case RpcCalls.Shapeshift when !pc.IsHost():
                 {
                     Report(pc, "Directly Shapeshift");
-                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, HazelExtensions.SendOption);
+                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
                     swriter.WriteNetObject(pc);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);
@@ -227,7 +227,7 @@ internal static class EAC
                 {
                     string sreason = "Direct Phantom RPCs " + rpc;
                     Report(pc, sreason);
-                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, HazelExtensions.SendOption);
+                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, SendOption.Reliable);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);
                     HandleCheat(pc, sreason);
@@ -538,7 +538,7 @@ internal static class EAC
 
     internal static bool CheckInvalidSabotage(SystemTypes systemType, PlayerControl player, byte amount)
     {
-        if (player.IsModClient() || !AmongUsClient.Instance.AmHost) return false;
+        if (player.IsModdedClient() || !AmongUsClient.Instance.AmHost) return false;
 
         if (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Discussion)
         {

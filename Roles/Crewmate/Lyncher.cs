@@ -152,7 +152,7 @@ public class Lyncher : RoleBase
         return (seer.PlayerId == target.PlayerId) switch
         {
             false when KnownCharacters.TryGetValue(target.PlayerId, out List<char> chars) && chars.Count > 0 => string.Join(' ', chars),
-            true when !seer.IsModClient() || hud => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
+            true when !seer.IsModdedClient() || hud => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
             _ => string.Empty
         };
     }

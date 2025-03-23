@@ -133,7 +133,7 @@ public class Swooper : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, SendOption.Reliable);
         writer.Write(SwooperId);
         writer.Write(InvisTime.ToString());
         writer.Write(lastTime.ToString());
@@ -165,7 +165,7 @@ public class Swooper : RoleBase
 
         if (lastTime != -10)
         {
-            if (!player.IsModClient() && UsedRole != CustomRoles.Chameleon)
+            if (!player.IsModdedClient() && UsedRole != CustomRoles.Chameleon)
             {
                 long cooldown = lastTime + (long)Cooldown - now;
                 if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, overrideAll: true);
@@ -176,7 +176,7 @@ public class Swooper : RoleBase
             if (lastTime + (long)Cooldown < now)
             {
                 lastTime = -10;
-                if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"), 10f);
+                if (!player.IsModdedClient()) player.Notify(GetString("SwooperCanVent"), 10f);
 
                 SendRPC();
                 CD = 0;
@@ -199,7 +199,7 @@ public class Swooper : RoleBase
                     SendRPC();
                     refresh = true;
                     break;
-                case <= 10 when !player.IsModClient():
+                case <= 10 when !player.IsModdedClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }

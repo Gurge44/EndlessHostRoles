@@ -998,7 +998,7 @@ internal static class StartGameHostPatch
                 playerInfo.IsDead = data;
             }
 
-            MessageWriter stream = MessageWriter.Get(HazelExtensions.SendOption);
+            MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
 
@@ -1083,7 +1083,7 @@ internal static class StartGameHostPatch
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", HazelExtensions.SendOption, false)
+                Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false)
                     .StartMessage(pc.GetClientId());
             }
         }

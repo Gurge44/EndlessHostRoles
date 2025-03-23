@@ -68,7 +68,7 @@ public class Dynamo : IAddon
 
         int charge = DetermineCharge(player, out float minSpeed, out float maxSpeed);
 
-        if (DisplaysCharge.GetBool() && !player.IsModClient() && LastNum[player.PlayerId] != charge)
+        if (DisplaysCharge.GetBool() && !player.IsModdedClient() && LastNum[player.PlayerId] != charge)
         {
             LastNum[player.PlayerId] = charge;
             long now = Utils.TimeStamp;
@@ -82,7 +82,7 @@ public class Dynamo : IAddon
 
         if (!moving) Main.AllPlayerSpeed[player.PlayerId] -= Mathf.Clamp(decreaseby, 0f, Main.AllPlayerSpeed[player.PlayerId] - minSpeed);
         else Main.AllPlayerSpeed[player.PlayerId] += Mathf.Clamp(increaseBy, 0f, maxSpeed - Main.AllPlayerSpeed[player.PlayerId]);
-        
+
         if (moving) player.MarkDirtySettings();
     }
 

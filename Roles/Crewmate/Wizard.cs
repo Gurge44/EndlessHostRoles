@@ -281,7 +281,7 @@ public class Wizard : RoleBase
 
         if (PlayerBuffs.TryGetValue(target.PlayerId, out Dictionary<Buff, float> buffs)) return string.Join('\n', buffs.Select(x => $"{Translator.GetString($"Wizard.Buff.{x.Key}")}: {Math.Round(x.Value, 1):N1}{GetBuffFormat(x.Key)}"));
 
-        if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         return string.Format(Translator.GetString("Wizard.SelectedBuff"), SelectedBuff, BuffValues[SelectedBuff], GetBuffFormat(SelectedBuff));
 

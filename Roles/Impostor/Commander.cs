@@ -246,7 +246,7 @@ internal class Commander : RoleBase
 
         if (seer.PlayerId == target.PlayerId && Main.PlayerStates[seer.PlayerId].Role is Commander { IsEnable: true } cm)
         {
-            if (seer.IsModClient() && !hud) return string.Empty;
+            if (seer.IsModdedClient() && !hud) return string.Empty;
 
             string whistlingText = cm.IsWhistling ? $"\n<size=70%>{Translator.GetString("CommanderWhistling")}</size>" : string.Empty;
             return $"{string.Format(Translator.GetString("WMMode"), Translator.GetString($"Commander{cm.CurrentMode}Mode"))}{whistlingText}";

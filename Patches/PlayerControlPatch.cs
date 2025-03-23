@@ -81,7 +81,7 @@ internal static class RpcMurderPlayerPatch
         if (AmongUsClient.Instance.AmClient)
             __instance.MurderPlayer(target, murderResultFlags);
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, HazelExtensions.SendOption);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
         messageWriter.WriteNetObject(target);
         messageWriter.Write((int)murderResultFlags);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -99,7 +99,7 @@ internal static class CmdCheckMurderPatch
             __instance.CheckMurder(target);
         else if (!CustomGameMode.FFA.IsActiveOrIntegrated())
         {
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, HazelExtensions.SendOption);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, SendOption.Reliable);
             messageWriter.WriteNetObject(target);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
@@ -1201,7 +1201,7 @@ internal static class ReportDeadBodyPatch
 
             if (Magistrate.CallCourtNextMeeting)
             {
-                var name = GetString(pc.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName");
+                var name = pc.GetRealName();
                 RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
             }
         }
@@ -1407,7 +1407,7 @@ internal static class FixedUpdatePatch
                     if (QuizMaster.On && inTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
                         QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
 
-                if (!lowLoad && player.IsModClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
+                if (!lowLoad && player.IsModdedClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
 
                 if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
 
@@ -1466,7 +1466,7 @@ internal static class FixedUpdatePatch
                         if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive)
                             player.RemoveAbilityCD();
 
-                        if (!player.IsModClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60)
+                        if (!player.IsModdedClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60)
                             NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
 
                         LastUpdate[playerId] = now;
@@ -1798,6 +1798,9 @@ internal static class FixedUpdatePatch
                 if (!self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                     realName = EmptyMessage;
 
+                if (Magistrate.CallCourtNextMeeting)
+                    realName = target.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
+
                 string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 
                 string currentText = target.cosmetics.nameText.text;
@@ -1934,7 +1937,7 @@ internal static class ExitVentPatch
 
         if (Options.WhackAMole.GetBool()) LateTask.New(() => pc.TPToRandomVent(), 0.5f, "Whack-A-Mole TP");
 
-        if (!pc.IsModClient() && pc.Is(CustomRoles.Haste)) pc.SetKillCooldown(Math.Max(Main.KillTimers[pc.PlayerId], 0.1f));
+        if (!pc.IsModdedClient() && pc.Is(CustomRoles.Haste)) pc.SetKillCooldown(Math.Max(Main.KillTimers[pc.PlayerId], 0.1f));
     }
 }
 

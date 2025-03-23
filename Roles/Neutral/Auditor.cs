@@ -184,7 +184,7 @@ public class Auditor : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != AuditorID || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != AuditorID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
         return string.Format(Translator.GetString($"Auditor.Suffix.{Mode}"), Translator.GetString($"OccultistActionSwitchMode.{AbilityTrigger}"));
     }
 

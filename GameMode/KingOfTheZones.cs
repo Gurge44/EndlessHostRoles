@@ -173,7 +173,7 @@ public static class KingOfTheZones
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(gameMode)
             .SetColor(color);
-        
+
         SpawnProtectionTime = new IntegerOptionItem(id, "KingOfTheZones.SpawnProtectionTime", new(0, 30, 1), 5, TabGroup.GameSettings)
             .SetHeader(true)
             .SetValueFormat(OptionFormat.Seconds)
@@ -566,134 +566,164 @@ public static class KingOfTheZones
             if (LastUpdate == now) return;
             LastUpdate = now;
 
-            if (ZonesMove.GetBool())
+            try
             {
-                int moveTime = ZoneMoveTime.GetInt();
-                double timePart = moveTime / NumZones.GetFloat();
-                bool atOnce = AllZonesMoveAtOnce.GetBool();
-                int downtime = DowntimeAfterZoneMove.GetInt();
-
-                if (ZoneMoveSchedules.Count == 0)
+                if (ZonesMove.GetBool())
                 {
-                    for (var index = 0; index < Zones.Count; index++)
+                    int moveTime = ZoneMoveTime.GetInt();
+                    double timePart = moveTime / NumZones.GetFloat();
+                    bool atOnce = AllZonesMoveAtOnce.GetBool();
+                    int downtime = DowntimeAfterZoneMove.GetInt();
+
+                    if (ZoneMoveSchedules.Count == 0)
                     {
-                        SystemTypes zone = Zones[index];
-                        int timeFromNow = atOnce ? moveTime : (int)Math.Ceiling(timePart * (index + 1));
-                        ZoneMoveSchedules[zone] = now + timeFromNow;
+                        for (var index = 0; index < Zones.Count; index++)
+                        {
+                            SystemTypes zone = Zones[index];
+                            int timeFromNow = atOnce ? moveTime : (int)Math.Ceiling(timePart * (index + 1));
+                            ZoneMoveSchedules[zone] = now + timeFromNow;
+                        }
                     }
-                }
-                else
-                {
-                    List<SystemTypes> added = [];
-                    List<SystemTypes> removed = [];
-
-                    foreach ((SystemTypes zone, long moveTS) in ZoneMoveSchedules)
+                    else
                     {
-                        if (moveTS > now) continue;
+                        List<SystemTypes> added = [];
+                        List<SystemTypes> removed = [];
 
-                        SystemTypes newZone = AllRooms.Except(Zones).RandomElement();
+                        foreach ((SystemTypes zone, long moveTS) in ZoneMoveSchedules)
+                        {
+                            if (moveTS > now) continue;
 
-                        int index = Zones.IndexOf(zone);
-                        Zones.RemoveAt(index);
-                        Zones.Insert(index, newZone);
+                            try
+                            {
+                                SystemTypes newZone = AllRooms.Except(Zones).RandomElement();
 
-                        added.Add(newZone);
+                                int index = Zones.IndexOf(zone);
+                                Zones.RemoveAt(index);
+                                Zones.Insert(index, newZone);
 
-                        removed.Add(zone);
-                        ZoneDomination.Remove(zone);
+                                added.Add(newZone);
 
-                        Logger.Info($"Zone moved: {zone} => {newZone}", "KOTZ");
-                    }
+                                removed.Add(zone);
+                                ZoneDomination.Remove(zone);
 
-                    removed.ForEach(x => ZoneMoveSchedules.Remove(x));
+                                Logger.Info($"Zone moved: {zone} => {newZone}", "KOTZ");
+                            }
+                            catch (Exception e) { Utils.ThrowException(e); }
+                        }
 
-                    added.ForEach(x =>
-                    {
-                        ZoneMoveSchedules[x] = now + moveTime + downtime;
-                        if (downtime > 0) ZoneDowntimeExpire[x] = now + downtime;
-                    });
-                }
+                        removed.ForEach(x => ZoneMoveSchedules.Remove(x));
 
-                if (downtime > 0 && ZoneDowntimeExpire.Count > 0)
-                {
-                    List<SystemTypes> toRemove = [];
-
-                    foreach ((SystemTypes zone, long downtimeExpire) in ZoneDowntimeExpire)
-                    {
-                        if (downtimeExpire > now) continue;
-                        toRemove.Add(zone);
+                        added.ForEach(x =>
+                        {
+                            ZoneMoveSchedules[x] = now + moveTime + downtime;
+                            if (downtime > 0) ZoneDowntimeExpire[x] = now + downtime;
+                        });
                     }
 
-                    toRemove.ForEach(x => ZoneDowntimeExpire.Remove(x));
-                }
-            }
-            
-            if (SpawnProtectionTimes.Count > 0)
-            {
-                List<byte> toRemove = [];
-
-                foreach ((byte id, long protectionTS) in SpawnProtectionTimes)
-                {
-                    if (protectionTS > now) continue;
-                    toRemove.Add(id);
-                }
-
-                toRemove.ForEach(x => SpawnProtectionTimes.Remove(x));
-            }
-
-            if (RespawnTimes.Count > 0)
-            {
-                List<byte> toRemove = [];
-
-                foreach ((byte id, long respawnTS) in RespawnTimes)
-                {
-                    if (respawnTS > now) continue;
-
-                    PlayerControl player = id.GetPlayer();
-                    Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                    player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
-                    player.SetKillCooldown(TagCooldown.GetInt());
-                    player.MarkDirtySettings();
-                    RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
-                    
-                    int spawnProtectionTime = SpawnProtectionTime.GetInt();
-                    if (spawnProtectionTime > 0) SpawnProtectionTimes[id] = now + spawnProtectionTime;
-                    
-                    toRemove.Add(id);
-
-                    Logger.Info($"{Main.AllPlayerNames[id]} respawned", "KOTZ");
-                }
-
-                toRemove.ForEach(x => RespawnTimes.Remove(x));
-            }
-
-            Dictionary<byte, PlainShipRoom> playerRooms = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, x => x.GetPlainShipRoom());
-            Dictionary<SystemTypes, List<(KOTZTeam Team, int Length)>> roomPlayersAndTeams = Zones.ToDictionary(x => x, x => playerRooms.Where(k => k.Value != null && k.Value.RoomId == x).GroupBy(k => PlayerTeams[k.Key]).Select(k => (Team: k.Key, Length: k.Count())).OrderByDescending(k => k.Length).ToList());
-
-            foreach ((SystemTypes zone, List<(KOTZTeam Team, int Length)> teamPlayers) in roomPlayersAndTeams)
-            {
-                ZoneDomination[zone] = ZoneDowntimeExpire.ContainsKey(zone)
-                    ? KOTZTeam.None
-                    : teamPlayers.Count switch
+                    if (downtime > 0 && ZoneDowntimeExpire.Count > 0)
                     {
-                        0 => KOTZTeam.None,
-                        1 => teamPlayers[0].Team,
-                        _ when teamPlayers[0].Length == teamPlayers[1].Length => KOTZTeam.None,
-                        _ => teamPlayers[0].Team
-                    };
+                        List<SystemTypes> toRemove = [];
+
+                        foreach ((SystemTypes zone, long downtimeExpire) in ZoneDowntimeExpire)
+                        {
+                            if (downtimeExpire > now) continue;
+                            toRemove.Add(zone);
+                        }
+
+                        toRemove.ForEach(x => ZoneDowntimeExpire.Remove(x));
+                    }
+                }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
 
-            ZoneDomination.Values.DoIf(x => x != KOTZTeam.None, x => Points[x]++);
+            try
+            {
+                if (SpawnProtectionTimes.Count > 0)
+                {
+                    List<byte> toRemove = [];
 
-            Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key} = {x.Value}"))}", "KOTZ");
+                    foreach ((byte id, long protectionTS) in SpawnProtectionTimes)
+                    {
+                        if (protectionTS > now) continue;
+                        toRemove.Add(id);
+                    }
+
+                    toRemove.ForEach(x => SpawnProtectionTimes.Remove(x));
+                }
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            try
+            {
+                if (RespawnTimes.Count > 0)
+                {
+                    List<byte> toRemove = [];
+
+                    foreach ((byte id, long respawnTS) in RespawnTimes)
+                    {
+                        if (respawnTS > now) continue;
+
+                        try
+                        {
+                            PlayerControl player = id.GetPlayer();
+                            if (player == null) continue;
+
+                            Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                            player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
+                            player.SetKillCooldown(TagCooldown.GetInt());
+                            player.MarkDirtySettings();
+                            RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
+
+                            int spawnProtectionTime = SpawnProtectionTime.GetInt();
+                            if (spawnProtectionTime > 0) SpawnProtectionTimes[id] = now + spawnProtectionTime;
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
+
+                        toRemove.Add(id);
+
+                        Logger.Info($"{Main.AllPlayerNames[id]} respawned", "KOTZ");
+                    }
+
+                    toRemove.ForEach(x => RespawnTimes.Remove(x));
+                }
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            try
+            {
+                Dictionary<byte, PlainShipRoom> playerRooms = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, x => x.GetPlainShipRoom());
+                Dictionary<SystemTypes, List<(KOTZTeam Team, int Length)>> roomPlayersAndTeams = Zones.ToDictionary(x => x, x => playerRooms.ExceptBy(RespawnTimes.Keys, k => k.Key).Where(k => k.Value != null && k.Value.RoomId == x).GroupBy(k => PlayerTeams[k.Key]).Select(k => (Team: k.Key, Length: k.Count())).OrderByDescending(k => k.Length).ToList());
+
+                foreach ((SystemTypes zone, List<(KOTZTeam Team, int Length)> teamPlayers) in roomPlayersAndTeams)
+                {
+                    ZoneDomination[zone] = ZoneDowntimeExpire.ContainsKey(zone)
+                        ? KOTZTeam.None
+                        : teamPlayers.Count switch
+                        {
+                            0 => KOTZTeam.None,
+                            1 => teamPlayers[0].Team,
+                            _ when teamPlayers[0].Length == teamPlayers[1].Length => KOTZTeam.None,
+                            _ => teamPlayers[0].Team
+                        };
+                }
+
+                ZoneDomination.Values.DoIf(x => x != KOTZTeam.None, x => Points[x]++);
+
+                Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key} = {x.Value}"))}", "KOTZ");
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             foreach (PlayerControl player in Main.AllAlivePlayerControls)
             {
-                byte colorId = PlayerTeams[player.PlayerId].GetColorId();
-                if (player.Data.DefaultOutfit.ColorId == colorId) continue;
+                try
+                {
+                    byte colorId = PlayerTeams[player.PlayerId].GetColorId();
+                    if (player.Data.DefaultOutfit.ColorId == colorId) continue;
 
-                string name = Main.AllPlayerNames[player.PlayerId];
-                Utils.RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, colorId, "", "", "", "", ""));
+                    string name = Main.AllPlayerNames[player.PlayerId];
+                    Utils.RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, colorId, "", "", "", "", ""));
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
             }
 
             int highestPoints = Points.Values.Max();

@@ -91,7 +91,7 @@ public class Librarian : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLibrarianMode, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLibrarianMode, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(isInSilenceMode);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -202,7 +202,7 @@ public class Librarian : RoleBase
         var result = string.Empty;
         if (target.Is(CustomRoles.Librarian)) result += GetNameTextForSuffix(target.PlayerId);
 
-        if (hud || (seer.PlayerId == target.PlayerId && !seer.IsModClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
+        if (hud || (seer.PlayerId == target.PlayerId && !seer.IsModdedClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
 
         return result;
     }

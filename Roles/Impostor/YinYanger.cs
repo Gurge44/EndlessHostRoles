@@ -54,7 +54,7 @@ public class YinYanger : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYinYanger, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYinYanger, SendOption.Reliable);
         writer.Write(YinYangerId);
         writer.Write(isClear);
         if (!isClear) writer.Write(playerId);
@@ -140,7 +140,7 @@ public class YinYanger : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.IsModClient() && !hud) return string.Empty;
+        if (seer.IsModdedClient() && !hud) return string.Empty;
 
         if (Main.PlayerStates[seer.PlayerId].Role is YinYanger { IsEnable: true } yy)
         {

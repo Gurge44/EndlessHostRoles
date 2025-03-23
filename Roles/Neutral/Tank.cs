@@ -72,7 +72,7 @@ public class Tank : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != TankId || meeting || (seer.IsModClient() && !hud) || IsWon) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != TankId || meeting || (seer.IsModdedClient() && !hud) || IsWon) return string.Empty;
 
         string randomVentName = ShipStatus.Instance?.AllVents?.FirstOrDefault(x => x.Id == AllVents.Except(EnteredVents).FirstOrDefault())?.name ?? string.Empty;
         return randomVentName == string.Empty ? string.Empty : string.Format(Translator.GetString("Tank.Suffix"), randomVentName);

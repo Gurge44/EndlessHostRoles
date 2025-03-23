@@ -134,7 +134,7 @@ public class PotionMaster : Coven
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId == target.PlayerId && seer.IsModClient() && !hud) return string.Empty;
+        if (seer.PlayerId == target.PlayerId && seer.IsModdedClient() && !hud) return string.Empty;
         if (seer.PlayerId != target.PlayerId && seer.PlayerId != PotionMasterId) return string.Empty;
         if (!ShieldedPlayers.TryGetValue(target.PlayerId, out var shieldExpireTS)) return string.Empty;
 

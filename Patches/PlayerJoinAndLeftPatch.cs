@@ -65,7 +65,7 @@ internal static class OnGameJoinedPatch
 
                 ClientData client = PlayerControl.LocalPlayer.GetClient();
                 Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
-                
+
                 Main.Instance.StartCoroutine(OptionShower.GetText());
             }, 1f, "OnGameJoinedPatch");
 
@@ -90,10 +90,7 @@ internal static class OnGameJoinedPatch
                 else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType} (IsOnlineGame: {GameStates.IsOnlineGame})", "OnGameJoinedPatch");
             }, 5f, "NotifyLobbyCreated");
         }
-        else
-        {
-            LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client");
-        }
+        else { LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client"); }
     }
 }
 
@@ -368,7 +365,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 if (client.Character == null) return;
 
-                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, HazelExtensions.SendOption, client.Character.OwnerId);
+                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, client.Character.OwnerId);
                 AmongUsClient.Instance.FinishRpcImmediately(sender);
             }, 3f, "RPC Request Retry Version Check");
 
@@ -379,7 +376,7 @@ internal static class InnerNetClientSpawnPatch
                     if (GameStates.IsLobby && client.Character != null && LobbyBehaviour.Instance != null && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                     {
                         // Only for vanilla
-                        if (!client.Character.IsModClient())
+                        if (!client.Character.IsModdedClient())
                         {
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
                             writer.WritePacked((int)GameStartManagerPatch.Timer);
@@ -389,7 +386,7 @@ internal static class InnerNetClientSpawnPatch
                         // Non-host modded client
                         else
                         {
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, HazelExtensions.SendOption, client.Id);
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, SendOption.Reliable, client.Id);
                             writer.WritePacked((int)GameStartManagerPatch.TimerStartTS);
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
@@ -502,9 +499,9 @@ internal static class PlayerControlCheckNamePatch
 
         LateTask.New(() =>
         {
-            if (__instance != null && !__instance.Data.Disconnected && !__instance.IsModClient())
+            if (__instance != null && !__instance.Data.Disconnected && !__instance.IsModdedClient())
             {
-                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, HazelExtensions.SendOption, __instance.OwnerId);
+                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.OwnerId);
                 AmongUsClient.Instance.FinishRpcImmediately(sender);
             }
         }, 0.6f, "Retry Version Check", false);

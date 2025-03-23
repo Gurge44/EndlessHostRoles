@@ -138,30 +138,30 @@ internal class Warlock : RoleBase
         if (killer.IsShifted()) return false;
 
         if (killer.CheckDoubleTrigger(target, () =>
+        {
+            if (CurseCD > 0f) return;
+
+            IsCurseAndKill.TryAdd(killer.PlayerId, false);
+
+            if (!killer.IsShifted() && !IsCurseAndKill[killer.PlayerId])
             {
-                if (CurseCD > 0f) return;
+                if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return;
 
-                IsCurseAndKill.TryAdd(killer.PlayerId, false);
+                IsCursed = true;
+                killer.SetKillCooldown();
+                RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+                killer.RPCPlayCustomSound("Line");
+                CursedPlayers[killer.PlayerId] = target;
+                WarlockTimer.Add(killer.PlayerId, 0f);
+                IsCurseAndKill[killer.PlayerId] = true;
 
-                if (!killer.IsShifted() && !IsCurseAndKill[killer.PlayerId])
-                {
-                    if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return;
+                ResetCooldowns(true, true, warlock: killer);
 
-                    IsCursed = true;
-                    killer.SetKillCooldown();
-                    RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                    killer.RPCPlayCustomSound("Line");
-                    CursedPlayers[killer.PlayerId] = target;
-                    WarlockTimer.Add(killer.PlayerId, 0f);
-                    IsCurseAndKill[killer.PlayerId] = true;
+                return;
+            }
 
-                    ResetCooldowns(true, true, warlock: killer);
-
-                    return;
-                }
-
-                if (IsCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
-            }))
+            if (IsCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
+        }))
         {
             if (KCD > 0f) return false;
 
@@ -313,7 +313,7 @@ internal class Warlock : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.IsModClient() && !hud) return string.Empty;
+        if (seer.IsModdedClient() && !hud) return string.Empty;
 
         if (Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl) return string.Empty;
 
