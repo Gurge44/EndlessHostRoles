@@ -1231,7 +1231,7 @@
   "ReadyCheckTitle": "<#ffff00>★ 準備確認 ★</color>",
   "EveryoneReadyTitle": "<#00ff00>全員 準備ができています！</color>",
   "PlayersNotReadyTitle": "<#ffff00><#ffab1b>{0}</color> プレイヤーの 準備が完了していません！</color> 彼らです:",
-  "SpectatorsList": "<#888888>次の </color>{0}<#888888> プレイヤーが 感染します:</color>",
+  "SpectatorsList": "<#888888>次の </color>{0}<#888888> プレイヤーが 観戦します:</color>",
   "ShieldPersonDiedFirst": "前回のゲームで 最初に殺された人を 保護する",
   "SidekickKnowOtherSidekick": "<color=#00b4eb>サイドキック</color>は お互いを知れる",
   "SidekickCanKillSidekick": "<color=#00b4eb>サイドキック</color>は 他の<color=#00b4eb>サイドキック</color>を 殺害できる",
