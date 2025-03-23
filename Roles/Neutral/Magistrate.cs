@@ -24,6 +24,7 @@ public class Magistrate : RoleBase
     public override void Init()
     {
         On = false;
+        CallCourtNextMeeting = false;
     }
 
     public override void Add(byte playerId)

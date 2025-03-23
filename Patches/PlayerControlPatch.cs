@@ -1201,7 +1201,7 @@ internal static class ReportDeadBodyPatch
 
             if (Magistrate.CallCourtNextMeeting)
             {
-                var name = GetString(pc.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName");
+                var name = pc.GetRealName();
                 RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
             }
         }
@@ -1797,6 +1797,9 @@ internal static class FixedUpdatePatch
 
                 if (!self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                     realName = EmptyMessage;
+
+                if (Magistrate.CallCourtNextMeeting)
+                    realName = target.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
 
                 string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 

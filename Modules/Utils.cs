@@ -2070,8 +2070,11 @@ public static class Utils
             if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())))
                 return;
 
-            sender ??= CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
-            sender.StartMessage(seer.GetClientId());
+            if (sender == null)
+            {
+                sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
+                sender.StartMessage(seer.GetClientId());
+            }
 
             // During intro scene, set team name for non-modded clients and skip the rest.
             string SelfName;

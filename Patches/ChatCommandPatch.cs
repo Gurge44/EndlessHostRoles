@@ -1429,7 +1429,7 @@ internal static class ChatCommands
         }
 
         string subArgs = args.Length < 2 ? string.Empty : args[1];
-        byte color = Utils.MsgToColor(subArgs, true);
+        byte color = Utils.MsgToColor(subArgs, player.IsHost());
 
         if (color == byte.MaxValue)
         {
