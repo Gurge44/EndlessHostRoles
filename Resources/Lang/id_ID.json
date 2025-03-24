@@ -5224,7 +5224,7 @@
   "TraineeNotify": "<#ffff00>As the <#4287f5>Trainee</color>, you can't vent, sabotage, shapeshift, or pet on the first round!</color>",
   "Soothsayer": "Soothsayer",
   "SoothsayerInfo": "Predict Who Kills You",
-  "SoothsayerInfoLong": "(Crewmates):\\nAs the Soothsayer, you can predict who kills you. If you're correct, when you die, everyone will be notified of the killer's identity.",
+  "SoothsayerInfoLong": "(Crewmates):\\nAs the Soothsayer, you can predict who kills you by voting them. If you're correct, when you die, everyone will be notified of the killer's identity.",
   "SoothsayerDiedNotify": "The Soothsayer predicted that {0} would kill them\\nand they were correct!",
   "Ventriloquist": "Ventriloquist",
   "VentriloquistInfo": "Manipulasikan chat pemain lain",
