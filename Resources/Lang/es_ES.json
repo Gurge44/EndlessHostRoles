@@ -5224,7 +5224,7 @@
   "TraineeNotify": "<#ffff00>¡Como el <#4287f5>Aprendiz</color>, no puedes usar las ventilas, sabotear, cambiar de forma, o acariciar en la primera ronda!</color>",
   "Soothsayer": "Pitonisa",
   "SoothsayerInfo": "Predice Quien Te Matará",
-  "SoothsayerInfoLong": "(Tripulantes):\\nComo la Pitonisa, puedes predecir quien te matará. Si es correcto, cuando mueres, todos serán notificados de la identidad del asesino.",
+  "SoothsayerInfoLong": "(Crewmates):\\nAs the Soothsayer, you can predict who kills you by voting them. If you're correct, when you die, everyone will be notified of the killer's identity.",
   "SoothsayerDiedNotify": "La Pitonisa predijo que {0} lo iba a matar\\n¡Y tenía razón!",
   "Ventriloquist": "Ventrílocuo",
   "VentriloquistInfo": "Has Que Otros Digan Lo Que Quieras",
