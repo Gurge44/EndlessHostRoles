@@ -5224,7 +5224,7 @@
   "TraineeNotify": "<#ffff00>Como o <#4287f5>Aprendiz</color>, você não pode usar os dutos, sabotar, transformar, ou usar o pet na primeira rodada!</color>",
   "Soothsayer": "Adivinho",
   "SoothsayerInfo": "Preveja quem matar você",
-  "SoothsayerInfoLong": "(Tripulantes):\\nComo o Adivinho, você pode prever quem te mata. Se você estiver certo, quando morrer, todos serão notificados da identidade do assassino.",
+  "SoothsayerInfoLong": "(Crewmates):\\nAs the Soothsayer, you can predict who kills you by voting them. If you're correct, when you die, everyone will be notified of the killer's identity.",
   "SoothsayerDiedNotify": "O Adivinho previu que {0} iria matá-los\ne eles estavam corretos!",
   "Ventriloquist": "Ventriloquista",
   "VentriloquistInfo": "Faça outros dizerem o que você quer",
