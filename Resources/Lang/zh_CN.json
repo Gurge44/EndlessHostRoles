@@ -5224,7 +5224,7 @@
   "TraineeNotify": "<#ffff00>作为<#4287f5>修练者</color>，你不能使用通风管道/破坏/变形/宠物按钮 在第一回合！</color>",
   "Soothsayer": "预知者",
   "SoothsayerInfo": "预测谁会杀你",
-  "SoothsayerInfoLong": "(船员职业):\\n预知者可以预测谁会杀你.如果你的预测正确,在你死亡时.所有人将会被告知杀手的身份.",
+  "SoothsayerInfoLong": "(Crewmates):\\nAs the Soothsayer, you can predict who kills you by voting them. If you're correct, when you die, everyone will be notified of the killer's identity.",
   "SoothsayerDiedNotify": "预知者预测了{0}会杀死他\\n他的预测正确!",
   "Ventriloquist": "腹语者",
   "VentriloquistInfo": "说我所想...让你接纳我的灵魂！",
