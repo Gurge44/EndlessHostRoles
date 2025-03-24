@@ -5224,7 +5224,7 @@
   "TraineeNotify": "<#ffff00>身為<#4287f5>實習生</color>，你不能在第一輪使用通風口、破壞、變形或撫摸寵物!</color>",
   "Soothsayer": "推測者",
   "SoothsayerInfo": "推測誰會殺死你",
-  "SoothsayerInfoLong": "(船員陣營):\\n推測者可以透過投票給某人來推測會殺死你的兇手。如果你的猜測正確，則會在你死亡後將兇手的信息向所有人公布。",
+  "SoothsayerInfoLong": "(Crewmates):\\nAs the Soothsayer, you can predict who kills you by voting them. If you're correct, when you die, everyone will be notified of the killer's identity.",
   "SoothsayerDiedNotify": "推測者正確!\\n殺死他的兇手就是{0}!",
   "Ventriloquist": "腹語師",
   "VentriloquistInfo": "讓別人說你想說的話",
