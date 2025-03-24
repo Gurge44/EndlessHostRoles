@@ -526,6 +526,16 @@ internal static class ChatCommands
             sb.Append(factionMax);
             sb.Append("\n\n");
 
+            if (team == Team.Neutral)
+            {
+                sb.Append(Options.MinNNKs.GetInt());
+                sb.Append('-');
+                sb.Append(Options.MaxNNKs.GetInt());
+                sb.Append(' ');
+                sb.Append(GetString("NeutralNonKillingRoles"));
+                sb.Append("\n\n");
+            }
+
             if (rot.TryGetValue(team, out var subCategories))
             {
                 foreach (var subCategory in subCategories)
@@ -808,7 +818,7 @@ internal static class ChatCommands
 
         IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
         IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt());
-        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Evil][2].GetInt() + Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Benign][2].GetInt());
+        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.MaxNNKs.GetInt());
         IEnumerable<CustomRoles> covenRoles = allRoles.Where(x => x.IsCoven()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Coven].MaxSetting.GetInt());
 
         allRoles.RemoveAll(x => x.IsImpostor());

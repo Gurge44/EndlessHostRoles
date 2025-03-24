@@ -1709,6 +1709,11 @@ internal static class ExtendedPlayerControl
     {
         return player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil;
     }
+    
+    public static bool IsNeutralPariah(this PlayerControl player)
+    {
+        return player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Pariah;
+    }
 
     public static bool IsSnitchTarget(this PlayerControl player)
     {

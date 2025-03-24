@@ -199,9 +199,9 @@ public class Judge : RoleBase
                             judgeSuicide = false;
                         else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && CanTrialNeutralB.GetBool())
                             judgeSuicide = false;
-                        else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil && CanTrialNeutralE.GetBool())
+                        else if (targetRole.GetNeutralRoleCategory() is RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah && CanTrialNeutralE.GetBool())
                             judgeSuicide = false;
-                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && targetRole.GetNeutralRoleCategory() is not RoleOptionType.Neutral_Benign and not RoleOptionType.Neutral_Evil && CanTrialNeutralK.GetBool())
+                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && targetRole.GetNeutralRoleCategory() is not RoleOptionType.Neutral_Benign and not RoleOptionType.Neutral_Evil and not RoleOptionType.Neutral_Pariah && CanTrialNeutralK.GetBool())
                             judgeSuicide = false;
                         else if (targetRole.IsCoven() && CanTrialCoven.GetBool())
                             judgeSuicide = false;

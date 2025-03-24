@@ -168,7 +168,7 @@ public static class KingOfTheZones
                     GameEndsByPoints.SetValue(1);
             });
 
-        MaxGameLength = new IntegerOptionItem(id, "KingOfTheZones.MaxGameLength", new(10, 900, 10), 300, TabGroup.GameSettings)
+        MaxGameLength = new IntegerOptionItem(id++, "KingOfTheZones.MaxGameLength", new(10, 900, 10), 300, TabGroup.GameSettings)
             .SetParent(GameEndsByTimeLimit)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(gameMode)
