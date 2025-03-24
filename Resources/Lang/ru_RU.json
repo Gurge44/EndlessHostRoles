@@ -5224,7 +5224,7 @@
   "TraineeNotify": "<#ffff00>Как <#4287f5>Trainee</color>, вы не можете делать это во время первого раунда!</color>",
   "Soothsayer": "Предугадыватель",
   "SoothsayerInfo": "Предугадывайте своего убийцу",
-  "SoothsayerInfoLong": "(Член Экипажа):\\nКак Предугадыватель, вы можете попробовать предсказать игрока, который вас убьёт. Если вы угадали и этот игрок действительно убьёт вас, все узнают, кто он.",
+  "SoothsayerInfoLong": "(Crewmates):\\nAs the Soothsayer, you can predict who kills you by voting them. If you're correct, when you die, everyone will be notified of the killer's identity.",
   "SoothsayerDiedNotify": "Предугадыватель предположил, что {0} убьёт его и оказался прав!\\n{0} - убийца!",
   "Ventriloquist": "Переговорщик",
   "VentriloquistInfo": "Заставляйте других говорить что вы хотите",
