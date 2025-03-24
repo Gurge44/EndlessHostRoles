@@ -1483,7 +1483,7 @@ internal static class CustomRolesHelper
             CustomRoles.Seamstress => RoleOptionType.Neutral_Pariah,
             CustomRoles.Spirit => RoleOptionType.Neutral_Pariah,
             CustomRoles.Starspawn => RoleOptionType.Neutral_Pariah,
-            _ => role.IsNK(true) ? RoleOptionType.Neutral_Killing : RoleOptionType.Neutral_Benign
+            _ => role.IsNK(true) ? RoleOptionType.Neutral_Killing : role.IsImpostor() ? RoleOptionType.Impostor_Miscellaneous : RoleOptionType.Crewmate_Miscellaneous
         };
     }
 
@@ -1590,7 +1590,7 @@ internal static class CustomRolesHelper
             CustomRoles.Phantom => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.PhantomEHR => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
-            _ => RoleOptionType.Impostor_Miscellaneous
+            _ => role.IsCrewmate() ? RoleOptionType.Crewmate_Miscellaneous : RoleOptionType.Neutral_Benign
         };
     }
 
@@ -1732,7 +1732,7 @@ internal static class CustomRolesHelper
             CustomRoles.Randomizer => RoleOptionType.Crewmate_Chaos,
             CustomRoles.ToiletMaster => RoleOptionType.Crewmate_Chaos,
             CustomRoles.Tornado => RoleOptionType.Crewmate_Chaos,
-            _ => RoleOptionType.Crewmate_Miscellaneous
+            _ => role.IsImpostor() ? RoleOptionType.Impostor_Miscellaneous : RoleOptionType.Neutral_Benign
         };
     }
 
