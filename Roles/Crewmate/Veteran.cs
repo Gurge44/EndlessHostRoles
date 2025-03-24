@@ -14,7 +14,7 @@ internal class Veteran : RoleBase
 
     public override void SetupCustomOption()
     {
-        const int id = 8990;
+        const int id = 652200;
         SetupRoleOptions(id, TabGroup.CrewmateRoles, CustomRoles.Veteran);
 
         VeteranSkillCooldown = new FloatOptionItem(id + 2, "VeteranSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
