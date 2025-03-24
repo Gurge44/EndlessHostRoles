@@ -3059,7 +3059,7 @@ public static class Utils
                 Scout.OnPlayerDeath(target);
                 Dad.OnAnyoneDeath(target);
                 Crewmate.Sentry.OnAnyoneMurder(target);
-                Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
+                Soothsayer.OnAnyoneDeath(target.GetRealKiller());
 
                 TargetDies(target.GetRealKiller(), target);
             }

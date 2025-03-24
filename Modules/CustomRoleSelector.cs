@@ -225,24 +225,6 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Madmate].Select(x => x.Role.ToString())), "PreSelectedMadmateRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Coven].Select(x => x.Role.ToString())), "PreSelectedCovenRoles");
         Logger.Msg("===================================================", "PreSelectedRoles");
-
-        try
-        {
-            int attempts = 0;
-            const RoleAssignType type = RoleAssignType.NonKillingNeutral;
-
-            while (Roles[type].Count > nnkLimit)
-            {
-                if (attempts++ > 100) break;
-
-                if (Roles[type].Count == 0) break;
-                var toRemove = Roles[type].RandomElement();
-                Roles[type].Remove(toRemove);
-
-                Logger.Info($"Removed {toRemove.Role} from {type}", "CustomRoleSelector");
-            }
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
         
         try
         {

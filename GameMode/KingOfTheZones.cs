@@ -441,12 +441,11 @@ public static class KingOfTheZones
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId)) return;
+        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId) || new[] { killer, target }.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
 
-        PlayerControl[] pcs = [killer, target];
-        if (pcs.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
-
-        pcs.Do(x => x.SetKillCooldown(TagCooldown.GetInt()));
+        int cd = TagCooldown.GetInt();
+        killer.SetKillCooldown(ZoneDomination.ContainsValue(PlayerTeams[killer.PlayerId]) ? cd * 1.5f : cd);
+        target.SetKillCooldown(ZoneDomination.ContainsValue(PlayerTeams[target.PlayerId]) ? cd * 1.5f : cd);
 
         RespawnTimes[target.PlayerId] = Utils.TimeStamp + RespawnTime.GetInt() + 1;
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
