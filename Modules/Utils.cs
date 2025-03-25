@@ -1975,36 +1975,40 @@ public static class Utils
 
             foreach (PlayerControl seer in Main.AllPlayerControls)
             {
-                string longInfo = seer.GetRoleInfo(true).Split("\n\n")[0];
-                if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
-
-                var tooLong = false;
-                bool showLongInfo = Options.ShowLongInfo.GetBool();
-
-                if (showLongInfo)
+                try
                 {
-                    if (longInfo.Length > 296)
+                    string longInfo = seer.GetRoleInfo(true).Split("\n\n")[0];
+                    if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
+
+                    var tooLong = false;
+                    bool showLongInfo = Options.ShowLongInfo.GetBool();
+
+                    if (showLongInfo)
                     {
-                        longInfo = longInfo[..296];
-                        longInfo += "...";
-                        tooLong = true;
+                        if (longInfo.Length > 296)
+                        {
+                            longInfo = longInfo[..296];
+                            longInfo += "...";
+                            tooLong = true;
+                        }
+
+                        for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
+                        {
+                            if (tooLong && (i > 296)) break;
+
+                            int index = longInfo.LastIndexOf(' ', i);
+                            if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
+                        }
                     }
 
-                    for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
-                    {
-                        if (tooLong && (i > 296)) break;
+                    longInfo = $"<#ffffff>{longInfo}</color>";
 
-                        int index = longInfo.LastIndexOf(' ', i);
-                        if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
-                    }
+                    int lines = longInfo.Count(x => x == '\n');
+                    int readTime = 20 + (lines * 5);
+
+                    LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
                 }
-
-                longInfo = $"<#ffffff>{longInfo}</color>";
-
-                int lines = longInfo.Count(x => x == '\n');
-                int readTime = 20 + (lines * 5);
-
-                LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
+                catch (Exception e) { ThrowException(e); }
             }
         }
         catch (Exception e) { ThrowException(e); }
