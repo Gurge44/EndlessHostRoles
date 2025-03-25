@@ -75,6 +75,7 @@ public static class RoomRush
         },
         [MapNames.Polus] = new()
         {
+            [(SystemTypes.Laboratory, SystemTypes.Comms)] = 2,
             [(SystemTypes.Laboratory, SystemTypes.Admin)] = 2,
             [(SystemTypes.Storage, SystemTypes.Comms)] = 2,
             [(SystemTypes.Storage, SystemTypes.Office)] = 2,
@@ -89,7 +90,6 @@ public static class RoomRush
             [(SystemTypes.MainHall, SystemTypes.GapRoom)] = 2,
             [(SystemTypes.MainHall, SystemTypes.Kitchen)] = 2,
             [(SystemTypes.Showers, SystemTypes.CargoBay)] = 2,
-            [(SystemTypes.Showers, SystemTypes.Lounge)] = 2,
             [(SystemTypes.Showers, SystemTypes.Electrical)] = 2,
             [(SystemTypes.Showers, SystemTypes.Medical)] = 2,
             [(SystemTypes.Ventilation, SystemTypes.CargoBay)] = 2,
@@ -106,6 +106,8 @@ public static class RoomRush
             [(SystemTypes.MeetingRoom, SystemTypes.Records)] = 5,
             [(SystemTypes.MeetingRoom, SystemTypes.Lounge)] = 3,
             [(SystemTypes.MeetingRoom, SystemTypes.MainHall)] = 2,
+            [(SystemTypes.MeetingRoom, SystemTypes.CargoBay)] = 2,
+            [(SystemTypes.MeetingRoom, SystemTypes.Showers)] = 2,
             [(SystemTypes.Engine, SystemTypes.Security)] = 2,
             [(SystemTypes.MainHall, SystemTypes.Security)] = 2
         },
@@ -113,7 +115,7 @@ public static class RoomRush
         {
             [(SystemTypes.Lookout, SystemTypes.SleepingQuarters)] = 3,
             [(SystemTypes.Lookout, SystemTypes.MeetingRoom)] = 2,
-            [(SystemTypes.Lookout, SystemTypes.Storage)] = 2,
+            [(SystemTypes.Lookout, SystemTypes.Storage)] = 3,
             [(SystemTypes.Lookout, SystemTypes.Dropship)] = 2,
             [(SystemTypes.Lookout, SystemTypes.FishingDock)] = 2,
             [(SystemTypes.Lookout, SystemTypes.RecRoom)] = 2,

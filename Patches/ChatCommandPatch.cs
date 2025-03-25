@@ -395,7 +395,7 @@ internal static class ChatCommands
         var pc = id.GetPlayer();
         if (pc == null) return;
 
-        var color = ColorUtility.TryParseHtmlString($"#{args[2]}", out var c) ? c : Color.red;
+        var color = ColorUtility.TryParseHtmlString($"#{args[2].ToLower()}", out var c) ? c : Color.red;
         var tag = Utils.ColorString(color, string.Join(' ', args[3..]));
         PrivateTagManager.AddTag(pc.FriendCode, tag);
 

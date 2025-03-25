@@ -809,9 +809,6 @@ internal static class StartGameHostPatch
             {
                 switch (x)
                 {
-                    case CustomGameMode.HotPotato:
-                        HotPotato.OnGameStart();
-                        break;
                     case CustomGameMode.HideAndSeek:
                         CustomHnS.StartSeekerBlindTime();
                         break;

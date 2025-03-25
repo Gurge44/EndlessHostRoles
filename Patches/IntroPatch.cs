@@ -981,6 +981,9 @@ internal static class IntroCutsceneDestroyPatch
 
             if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
                 Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
+            
+            if (CustomGameMode.HotPotato.IsActiveOrIntegrated())
+                HotPotato.OnGameStart();
 
             Utils.CheckAndSetVentInteractions();
 

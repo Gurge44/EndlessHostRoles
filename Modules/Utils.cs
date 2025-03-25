@@ -1809,21 +1809,21 @@ public static class Utils
                 if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
-                string modeText = GetString($"Mode{Options.CurrentGameMode}");
+                string modeText = GetString($"Mode{Options.CurrentGameMode}").Split(' ')[1..].Join(delimiter: " ");
 
                 name = Options.CurrentGameMode switch
                 {
-                    CustomGameMode.SoloKombat => $"<color=#f55252><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.FFA => $"<color=#00ffff><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.MoveAndStop => $"<color=#00ffa5><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.HotPotato => $"<color=#e8cd46><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.HideAndSeek => $"<color=#345eeb><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.CaptureTheFlag => $"<color=#1313c2><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.NaturalDisasters => $"<color=#03fc4a><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.RoomRush => $"<color=#ffab1b><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.KingOfTheZones => $"<color=#ff0000><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.AllInOne => $"<color=#f542ad><size=1.7>{modeText}</size></color>\r\n{name}",
-                    CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"<size=1.7>{modeText}</size>\r\n") + name,
+                    CustomGameMode.SoloKombat => $"<color=#f55252><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.FFA => $"<color=#00ffff><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.MoveAndStop => $"<color=#00ffa5><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.HotPotato => $"<color=#e8cd46><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.HideAndSeek => $"<color=#345eeb><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.CaptureTheFlag => $"<color=#1313c2><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.NaturalDisasters => $"<color=#03fc4a><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.RoomRush => $"<color=#ffab1b><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.KingOfTheZones => $"<color=#ff0000><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.AllInOne => $"<color=#f542ad><size=1.7>{modeText}</size></color> {name}",
+                    CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"<size=1.7>{modeText}</size> ") + name,
                     _ => name
                 };
             }
@@ -1834,32 +1834,23 @@ public static class Utils
                 string tag = hasTag ? devUser.GetTag() : string.Empty;
                 if (tag == "null") tag = string.Empty;
 
-                if (player.AmOwner || player.IsModdedClient())
-                {
-                    var modTagModded = $"<size=1.4>{GetString("ModeratorTag")}\r\n</size>";
-                    var vipTagModded = $"<size=1.4>{GetString("VIPTag")}\r\n</size>";
-                    name = $"{(hasTag ? tag : string.Empty)}{(isMod ? modTagModded : string.Empty)}{(isVIP ? vipTagModded : string.Empty)}{pTag}{name}";
-                }
-                else
-                {
-                    var modTagVanilla = $"<size=1.4>{GetString("ModeratorTag")} - </size>";
-                    var vipTagVanilla = $"<size=1.4>{GetString("VIPTag")} - </size>";
-                    name = $"{(hasTag ? tag.Replace("\r\n", " - ") : string.Empty)}{(isMod ? modTagVanilla : string.Empty)}{(isVIP ? vipTagVanilla : string.Empty)}{pTag}{name}";
-                }
+                var modTagVanilla = $"<size=1.4>{GetString("ModeratorTag")} </size>";
+                var vipTagVanilla = $"<size=1.4>{GetString("VIPTag")} </size>";
+                name = $"{(hasTag ? tag.Replace("\r\n", " ") : string.Empty)}{(isMod ? modTagVanilla : string.Empty)}{(isVIP ? vipTagVanilla : string.Empty)}{pTag}{name}";
             }
 
             if (player.AmOwner)
             {
                 name = Options.GetSuffixMode() switch
                 {
-                    SuffixModes.EHR => $"{name}\r\n<color={Main.ModColor}>EHR v{Main.PluginDisplayVersion}</color>",
-                    SuffixModes.Streaming => $"{name}\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color></size>",
-                    SuffixModes.Recording => $"{name}\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color></size>",
-                    SuffixModes.RoomHost => $"{name}\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color></size>",
-                    SuffixModes.OriginalName => $"{name}\r\n<size=1.7><color={Main.ModColor}>{DataManager.player.Customization.Name}</color></size>",
-                    SuffixModes.DoNotKillMe => $"{name}\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.DoNotKillMe")}</color></size>",
-                    SuffixModes.NoAndroidPlz => $"{name}\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.NoAndroidPlz")}</color></size>",
-                    SuffixModes.AutoHost => $"{name}\r\n<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.AutoHost")}</color></size>",
+                    SuffixModes.EHR => $"{name} (<size=1.7><color={Main.ModColor}>EHR v{Main.PluginDisplayVersion}</color>)",
+                    SuffixModes.Streaming => $"{name} (<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color></size>)",
+                    SuffixModes.Recording => $"{name} (<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color></size>)",
+                    SuffixModes.RoomHost => $"{name} (<size=1.7><color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color></size>)",
+                    SuffixModes.OriginalName => $"{name} (<size=1.7><color={Main.ModColor}>{DataManager.player.Customization.Name}</color></size>)",
+                    SuffixModes.DoNotKillMe => $"{name} (<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.DoNotKillMe")}</color></size>)",
+                    SuffixModes.NoAndroidPlz => $"{name} (<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.NoAndroidPlz")}</color></size>)",
+                    SuffixModes.AutoHost => $"{name} (<size=1.7><color={Main.ModColor}>{GetString("SuffixModeText.AutoHost")}</color></size>)",
                     _ => name
                 };
             }
