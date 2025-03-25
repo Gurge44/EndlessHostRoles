@@ -119,7 +119,7 @@ public static class Speedrun
             if (player != null)
             {
                 CustomWinnerHolder.WinnerIds = [player.PlayerId];
-                reason = GameOverReason.HumansByTask;
+                reason = GameOverReason.CrewmatesByTask;
                 return true;
             }
         }
@@ -128,15 +128,15 @@ public static class Speedrun
         {
             case 1:
                 CustomWinnerHolder.WinnerIds = [aapc[0].PlayerId];
-                reason = GameOverReason.ImpostorByKill;
+                reason = GameOverReason.ImpostorsByKill;
                 return true;
             case 0:
                 CustomWinnerHolder.WinnerIds = [];
-                reason = GameOverReason.HumansDisconnect;
+                reason = GameOverReason.CrewmateDisconnect;
                 return true;
         }
 
-        reason = GameOverReason.ImpostorByKill;
+        reason = GameOverReason.ImpostorsByKill;
         KeyCode[] keys = [KeyCode.LeftShift, KeyCode.L, KeyCode.Return];
         return keys.Any(Input.GetKeyDown) && keys.All(Input.GetKey);
     }

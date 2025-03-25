@@ -41,31 +41,32 @@ internal static class ChangeRoleSettings
         IEnumerator<object> CoStartGame()
         {
             AmongUsClient amongUsClient = __instance;
-            if (FastDestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen) FastDestroyableSingleton<HudManager>.Instance.GameMenu.Close();
-
+            if (FastDestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen)
+                FastDestroyableSingleton<HudManager>.Instance.GameMenu.Close();
             FastDestroyableSingleton<UnityTelemetry>.Instance.Init();
-            amongUsClient.logger.Info($"Received game start: {amongUsClient.AmHost}");
+            amongUsClient.logger.Info("Received game start: " + amongUsClient.AmHost);
             yield return null;
-            while (!DestroyableSingleton<HudManager>.InstanceExists) yield return null;
-
-            while (PlayerControl.LocalPlayer == null) yield return null;
-
+            while (!DestroyableSingleton<HudManager>.InstanceExists) 
+                yield return null;
+            while (!PlayerControl.LocalPlayer)
+                yield return null;
             PlayerControl.LocalPlayer.moveable = false;
             PlayerControl.LocalPlayer.MyPhysics.inputHandler.enabled = true;
-            var objectOfType1 = Object.FindObjectOfType<PlayerCustomizationMenu>();
-            if (objectOfType1 != null) objectOfType1.Close(false);
-
-            var objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
-            if (objectOfType2 != null) objectOfType2.Close();
-
+            PlayerCustomizationMenu objectOfType1 = Object.FindObjectOfType<PlayerCustomizationMenu>();
+            if (objectOfType1)
+                objectOfType1.Close(false);
+            GameSettingMenu objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
+            if (objectOfType2)
+                objectOfType2.Close();
             if (DestroyableSingleton<GameStartManager>.InstanceExists)
             {
                 // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) FastDestroyableSingleton<GameStartManager>.Instance);
                 Object.Destroy(FastDestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
-
-            if (DestroyableSingleton<LobbyInfoPane>.InstanceExists) Object.Destroy(FastDestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
-            if (DestroyableSingleton<DiscordManager>.InstanceExists) FastDestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
+            if (DestroyableSingleton<LobbyInfoPane>.InstanceExists) 
+                Object.Destroy(FastDestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
+            if (DestroyableSingleton<DiscordManager>.InstanceExists) 
+                FastDestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
 
             if (!string.IsNullOrEmpty(DataManager.Player.Store.ActiveCosmicube))
                 AmongUsClient.Instance.SetActivePodType(FastDestroyableSingleton<CosmicubeManager>.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
@@ -78,24 +79,29 @@ internal static class ChangeRoleSettings
             FastDestroyableSingleton<FriendsListManager>.Instance.ConfirmationScreen.Cancel();
             FastDestroyableSingleton<FriendsListManager>.Instance.Ui.Close(true);
             FastDestroyableSingleton<FriendsListManager>.Instance.ReparentUI();
-            // CosmeticsCache.ClearUnusedCosmetics();
-            yield return FastDestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.clear, Color.black, showLoader: true);
-            ++StatsManager.Instance.BanPoints;
-            StatsManager.Instance.LastGameStarted = DateTime.UtcNow;
+
+            try
+            {
+                CosmeticsCache.ClearUnusedCosmetics();
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+            yield return FastDestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.clear, Color.black);
+            ++DataManager.Player.Ban.BanPoints;
+            DataManager.Player.Ban.PreviousGameStartDate = DateTime.UtcNow;
+            DataManager.Player.Save();
 
             if (amongUsClient.AmHost)
                 yield return amongUsClient.CoStartGameHost();
             else
             {
                 yield return amongUsClient.CoStartGameClient();
-                if (amongUsClient.AmHost) yield return amongUsClient.CoStartGameHost();
+                if (amongUsClient.AmHost) 
+                    yield return amongUsClient.CoStartGameHost();
             }
-
-            for (var index = 0; index < GameData.Instance.PlayerCount; ++index)
+            for (int index = 0; index < GameData.Instance.PlayerCount; ++index)
             {
-                PlayerControl player = GameData.Instance.AllPlayers.ToArray()[index].Object;
-
-                if (player != null)
+                PlayerControl player = GameData.Instance.AllPlayers[index].Object;
+                if (player)
                 {
                     player.moveable = true;
                     player.NetTransform.enabled = true;
@@ -106,21 +112,20 @@ internal static class ChangeRoleSettings
                     ShipStatus.Instance.SpawnPlayer(player, GameData.Instance.PlayerCount, true);
                 }
             }
-
             FastDestroyableSingleton<FriendsListManager>.Instance.SetRecentlyPlayed(GameData.Instance.AllPlayers);
             GameData.TimeGameStarted = Time.realtimeSinceStartup;
             int map = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
             string gameName = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
-            FastDestroyableSingleton<DebugAnalytics>.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames)map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, FastDestroyableSingleton<ServerManager>.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
-
+            FastDestroyableSingleton<DebugAnalytics>.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames) map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, FastDestroyableSingleton<ServerManager>.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
             try
             {
-                FastDestroyableSingleton<UnityTelemetry>.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, StatsManager.Instance.GetStat(StringNames.StatsGamesImpostor), StatsManager.Instance.GetStat(StringNames.StatsGamesStarted), StatsManager.Instance.GetStat(StringNames.StatsCrewmateStreak));
+                FastDestroyableSingleton<UnityTelemetry>.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, DataManager.Player.Stats.GetStat(StatID.GamesAsImpostor), DataManager.Player.Stats.GetStat(StatID.GamesStarted), DataManager.Player.Stats.GetStat(StatID.CrewmateStreak));
                 NetworkedPlayerInfo.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
                 FastDestroyableSingleton<UnityTelemetry>.Instance.StartGameCosmetics(defaultOutfit.ColorId, defaultOutfit.HatId, defaultOutfit.SkinId, defaultOutfit.PetId, defaultOutfit.VisorId, defaultOutfit.NamePlateId);
             }
-            catch { }
-
+            catch
+            {
+            }
             GameDebugCommands.AddCommands();
         }
     }
@@ -415,7 +420,7 @@ internal static class StartGameHostPatch
 
     public static readonly Dictionary<byte, bool> DataDisconnected = [];
 
-    private static RoleOptionsCollectionV08 RoleOpt => Main.NormalOptions.roleOptions;
+    private static RoleOptionsCollectionV09 RoleOpt => Main.NormalOptions.roleOptions;
 
     private static void UpdateRoleTypeNums()
     {

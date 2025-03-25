@@ -2189,7 +2189,7 @@ internal static class ChatCommands
         {
             case "crew":
                 GameManager.Instance.enabled = false;
-                GameManager.Instance.RpcEndGame(GameOverReason.HumansDisconnect, false);
+                GameManager.Instance.RpcEndGame(GameOverReason.CrewmateDisconnect, false);
                 break;
 
             case "imp":

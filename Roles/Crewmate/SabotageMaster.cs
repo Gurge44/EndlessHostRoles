@@ -222,7 +222,7 @@ public class SabotageMaster : RoleBase
 
                 break;
             }
-            case SystemTypes.Comms when Main.CurrentMap == MapNames.Mira:
+            case SystemTypes.Comms when Main.CurrentMap == MapNames.MiraHQ:
             {
                 if (!FixesComms.GetBool()) break;
 

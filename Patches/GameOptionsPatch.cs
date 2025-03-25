@@ -35,11 +35,11 @@ internal static class SwitchGameModePatch
     }
 }
 
-[HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations), typeof(int), typeof(bool), typeof(RulesPresets))]
-[HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations), typeof(int), typeof(bool))]
+[HarmonyPatch(typeof(NormalGameOptionsV09), nameof(NormalGameOptionsV09.SetRecommendations), typeof(int), typeof(bool), typeof(RulesPresets))]
+[HarmonyPatch(typeof(NormalGameOptionsV09), nameof(NormalGameOptionsV09.SetRecommendations), typeof(int), typeof(bool))]
 internal static class SetRecommendationsPatch
 {
-    public static void Postfix(NormalGameOptionsV08 __instance,
+    public static void Postfix(NormalGameOptionsV09 __instance,
         [HarmonyArgument(0)] int numPlayers,
         [HarmonyArgument(1)] bool isOnline)
     {

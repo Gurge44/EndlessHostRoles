@@ -58,7 +58,7 @@ public static class RoomRush
             [(SystemTypes.Storage, SystemTypes.Security)] = 2,
             [(SystemTypes.Storage, SystemTypes.MedBay)] = 2
         },
-        [MapNames.Mira] = new()
+        [MapNames.MiraHQ] = new()
         {
             [(SystemTypes.Launchpad, SystemTypes.Reactor)] = 2,
             [(SystemTypes.Greenhouse, SystemTypes.Laboratory)] = 2,
@@ -345,7 +345,7 @@ public static class RoomRush
             : map switch
             {
                 MapNames.Skeld => SystemTypes.Cafeteria,
-                MapNames.Mira => SystemTypes.Launchpad,
+                MapNames.MiraHQ => SystemTypes.Launchpad,
                 MapNames.Dleks => SystemTypes.Cafeteria,
                 MapNames.Polus => SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
@@ -366,7 +366,7 @@ public static class RoomRush
 
         bool involvesDecontamination = map switch
         {
-            MapNames.Mira => (previous is SystemTypes.Laboratory or SystemTypes.Reactor) ^ (RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
+            MapNames.MiraHQ => (previous is SystemTypes.Laboratory or SystemTypes.Reactor) ^ (RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
             _ => false
         };

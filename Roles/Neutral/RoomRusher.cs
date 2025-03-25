@@ -88,7 +88,7 @@ public class RoomRusher : RoleBase
             : map switch
             {
                 MapNames.Skeld => SystemTypes.Cafeteria,
-                MapNames.Mira => afterMeeting ? SystemTypes.Cafeteria : SystemTypes.Launchpad,
+                MapNames.MiraHQ => afterMeeting ? SystemTypes.Cafeteria : SystemTypes.Launchpad,
                 MapNames.Dleks => SystemTypes.Cafeteria,
                 MapNames.Polus => afterMeeting ? SystemTypes.Office : SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
@@ -109,7 +109,7 @@ public class RoomRusher : RoleBase
 
         bool involvesDecontamination = map switch
         {
-            MapNames.Mira => (previous is SystemTypes.Laboratory or SystemTypes.Reactor) ^ (RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
+            MapNames.MiraHQ => (previous is SystemTypes.Laboratory or SystemTypes.Reactor) ^ (RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
             _ => false
         };

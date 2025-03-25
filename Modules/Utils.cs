@@ -1350,7 +1350,7 @@ public static class Utils
             switch (opt.Value.Name)
             {
                 case "DisableSkeldDevices" when Main.CurrentMap is not MapNames.Skeld and not MapNames.Dleks:
-                case "DisableMiraHQDevices" when Main.CurrentMap != MapNames.Mira:
+                case "DisableMiraHQDevices" when Main.CurrentMap != MapNames.MiraHQ:
                 case "DisablePolusDevices" when Main.CurrentMap != MapNames.Polus:
                 case "DisableAirshipDevices" when Main.CurrentMap != MapNames.Airship:
                 case "PolusReactorTimeLimit" when Main.CurrentMap != MapNames.Polus:

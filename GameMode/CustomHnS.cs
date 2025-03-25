@@ -352,14 +352,14 @@ internal static class CustomHnS
 
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
-        reason = GameOverReason.ImpostorByKill;
+        reason = GameOverReason.ImpostorsByKill;
 
         PlayerControl[] alivePlayers = Main.AllAlivePlayerControls;
 
         // If there are 0 players alive, the game is over and only foxes win
         if (alivePlayers.Length == 0)
         {
-            reason = GameOverReason.HumansDisconnect;
+            reason = GameOverReason.CrewmateDisconnect;
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
             AddFoxesToWinners();
             return true;
@@ -368,7 +368,7 @@ internal static class CustomHnS
         // If there are no crew roles left, the game is over and only impostors win
         if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
         {
-            reason = GameOverReason.HideAndSeek_ByKills;
+            reason = GameOverReason.HideAndSeek_ImpostorsByKills;
             SetWinners(CustomWinner.Seeker, Team.Impostor);
             return true;
         }
@@ -376,7 +376,7 @@ internal static class CustomHnS
         // If time is up or there are no impostors in the game, the game is over and crewmates win
         if (TimeLeft <= 0 || PlayerRoles.Values.All(x => x.Interface.Team != Team.Impostor))
         {
-            reason = TimeLeft <= 0 ? GameOverReason.HideAndSeek_ByTimer : GameOverReason.ImpostorDisconnect;
+            reason = TimeLeft <= 0 ? GameOverReason.HideAndSeek_CrewmatesByTimer : GameOverReason.ImpostorDisconnect;
             SetWinners(CustomWinner.Hider, Team.Crewmate);
             return true;
         }

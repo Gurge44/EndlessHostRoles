@@ -39,7 +39,7 @@ public static class KingOfTheZones
             [SystemTypes.LowerEngine, SystemTypes.Admin, SystemTypes.Weapons],
             [SystemTypes.LowerEngine, SystemTypes.UpperEngine, SystemTypes.Weapons, SystemTypes.Shields]
         ],
-        [MapNames.Mira] =
+        [MapNames.MiraHQ] =
         [
             [SystemTypes.LockerRoom],
             [SystemTypes.Launchpad, SystemTypes.Balcony],
@@ -512,7 +512,7 @@ public static class KingOfTheZones
 
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
-        reason = GameOverReason.ImpostorByKill;
+        reason = GameOverReason.ImpostorsByKill;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
         if (!Main.IntroDestroyed) return false;
@@ -523,7 +523,7 @@ public static class KingOfTheZones
                 ResetSkins();
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 CustomWinnerHolder.WinnerIds = Main.PlayerStates.Keys.ToHashSet();
-                reason = GameOverReason.HumansDisconnect;
+                reason = GameOverReason.CrewmateDisconnect;
                 return true;
             case 1:
                 ResetSkins();
