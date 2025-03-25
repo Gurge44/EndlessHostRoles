@@ -58,7 +58,7 @@ public static class CustomSoundsManager
 
             if (stream == null)
             {
-                Logger.Warn($"声音文件缺失：{sound}", "CustomSounds");
+                Logger.Warn($"Could not find sound: {sound}", "CustomSounds");
                 return;
             }
 
