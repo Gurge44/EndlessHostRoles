@@ -977,7 +977,7 @@ public static class GuessManager
             }
 
             container.transform.localScale *= 0.75f;
-            GuesserSelectRole(CustomRoleTypes.Crewmate);
+            GuesserSelectRole(CustomRoleTypes.Neutral);
             ReloadPage();
         }
         catch (Exception ex)

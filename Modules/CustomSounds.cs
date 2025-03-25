@@ -68,7 +68,7 @@ public static class CustomSoundsManager
         }
 
         StartPlay(path);
-        Logger.Msg($"Playing sound：{sound}", "CustomSounds");
+        Logger.Msg($"Playing sound: {sound}", "CustomSounds");
     }
 
     [DllImport("winmm.dll", CharSet = CharSet.Unicode)]
