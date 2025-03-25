@@ -175,7 +175,6 @@ public class Abyssbringer : RoleBase
                     state.RealKiller = (DateTime.Now, AbyssbringerId);
                     state.SetDead();
 
-                    FixedUpdatePatch.LoversSuicide(nearestPlayer.PlayerId);
                     Utils.AfterPlayerDeathTasks(nearestPlayer);
 
                     if (despawnMode == DespawnMode.After1PlayerEaten) RemoveBlackHole();

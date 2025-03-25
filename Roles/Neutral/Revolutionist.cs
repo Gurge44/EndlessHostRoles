@@ -128,6 +128,7 @@ internal class Revolutionist : RoleBase
             Main.PlayerStates[tar.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
             tar.RpcExileV2();
             Main.PlayerStates[tar.PlayerId].SetDead();
+            Utils.AfterPlayerDeathTasks(tar, true);
         }
 
         RevolutionistTimer.Clear();

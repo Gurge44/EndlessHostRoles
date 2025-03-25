@@ -300,7 +300,8 @@ internal class QuizMaster : RoleBase
         {
             index = answer[0] - 'A';
 
-            string name = Utils.GetPlayerById(Target)?.GetNameWithRole();
+            PlayerControl pc = Utils.GetPlayerById(Target);
+            string name = pc?.GetNameWithRole();
             if (index != -1) Logger.Info($"Player {name} answered {CurrentQuestion.Answers[index]}", "QuizMaster");
 
             if (CurrentQuestion.CorrectAnswerIndex == index)
@@ -317,7 +318,8 @@ internal class QuizMaster : RoleBase
 
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
                 Main.PlayerStates[Target].SetDead();
-                Utils.GetPlayerById(Target).RpcExileV2();
+                pc?.RpcExileV2();
+                Utils.AfterPlayerDeathTasks(pc, true);
 
                 Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");
             }

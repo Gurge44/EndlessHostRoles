@@ -707,10 +707,12 @@ internal static class ChatCommands
         state.SetDead();
 
         pc.RpcExileV2();
+        Utils.AfterPlayerDeathTasks(pc, true);
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
 
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathNoteCommand.Success"), deadPlayer.ColoredPlayerName()));
-        Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), deadPlayer.ColoredPlayerName()));
+        string coloredName = deadPlayer.ColoredPlayerName();
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathNoteCommand.Success"), coloredName));
+        Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), coloredName));
 
         NoteKiller.Kills++;
     }
@@ -1158,7 +1160,7 @@ internal static class ChatCommands
 
             string result = winners.Length == 1
                 ? string.Format(GetString("Poll.Winner"), winners[0].Key, PollAnswers[winners[0].Key], winners[0].Value) +
-                  PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} / {t.Value} {PollAnswers[t.Key]}\n")
+                  PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} - {t.Value} {PollAnswers[t.Key]}\n")
                 : string.Format(GetString("Poll.Tie"), string.Join(" & ", winners.Select(x => $"{x.Key}{PollAnswers[x.Key]}")), maxVotes);
 
             Utils.SendMessage(result, title: Utils.ColorString(new(0, 255, 165, 255), GetString("PollResultTitle")));
@@ -1505,6 +1507,7 @@ internal static class ChatCommands
             Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.etc;
             pc.RpcExileV2();
             Main.PlayerStates[pc.PlayerId].SetDead();
+            Utils.AfterPlayerDeathTasks(pc, GameStates.IsMeeting);
 
             if (pc.AmOwner)
                 Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");

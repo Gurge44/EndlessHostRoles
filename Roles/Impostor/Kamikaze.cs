@@ -114,7 +114,7 @@ internal class Kamikaze : RoleBase
                         IncreaseAbilityUseLimitOnKill(kamikazePc);
 
                         victim.RpcExileV2();
-                        FixedUpdatePatch.LoversSuicide(victim.PlayerId, guess: true);
+                        AfterPlayerDeathTasks(victim, true);
                     }
                 }
 

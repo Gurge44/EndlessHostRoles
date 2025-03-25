@@ -1097,6 +1097,7 @@ internal static class MeetingHudUpdatePatch
                         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Execution;
                         player.RpcExileV2();
                         Main.PlayerStates[player.PlayerId].SetDead();
+                        Utils.AfterPlayerDeathTasks(player, true);
                         Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
                         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} was executed by the host", "Execution");
                         __instance.CheckForEndVoting();
