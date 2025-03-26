@@ -163,10 +163,7 @@ internal static class Crowded
                 if (GameOptionsManager.Instance.GameHostOptions != null && GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
                     GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
 
-                if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3)
-                {
-                    GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3);
-                }
+                if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3) { GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3); }
 
                 if (Instance)
                 {
@@ -355,19 +352,13 @@ internal static class Crowded
         {
             Logger.Info("Host Game is being called!", "Crowded");
 
-            if (GameStates.IsVanillaServer && !GameStates.IsLocalGame)
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !GameStates.IsLocalGame)
             {
                 if (GameOptionsManager.Instance.GameHostOptions != null)
                 {
-                    if (GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
-                    {
-                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
-                    }
+                    if (GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15) { GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15); }
 
-                    if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3)
-                    {
-                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3);
-                    }
+                    if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3) { GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3); }
                 }
             }
         }
@@ -399,6 +390,7 @@ public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
     public virtual void Update()
     {
         bool chatIsOpen = HudManager.Instance.Chat.IsOpenOrOpening;
+
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || (!chatIsOpen && Input.mouseScrollDelta.y > 0f))
             Cycle(false);
         else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || (!chatIsOpen && Input.mouseScrollDelta.y < 0f))
