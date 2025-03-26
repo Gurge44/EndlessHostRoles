@@ -180,7 +180,7 @@ public static class RoomRush
             .SetGameMode(gameMode)
             .SetColor(color);
 
-        PointsToWin = new IntegerOptionItem(id, "RR_PointsToWin", new(5, 500, 5), 100, TabGroup.GameSettings)
+        PointsToWin = new IntegerOptionItem(id, "RR_PointsToWin", new(5, 500, 5), 70, TabGroup.GameSettings)
             .SetParent(WinByPointsInsteadOfDeaths)
             .SetGameMode(gameMode)
             .SetColor(color);
