@@ -128,6 +128,7 @@ internal class Revolutionist : RoleBase
             Main.PlayerStates[tar.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
             tar.RpcExileV2();
             Main.PlayerStates[tar.PlayerId].SetDead();
+            Utils.AfterPlayerDeathTasks(tar, true);
         }
 
         RevolutionistTimer.Clear();
@@ -176,7 +177,7 @@ internal class Revolutionist : RoleBase
                 }
                 else
                 {
-                    float range = NormalGameOptionsV08.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
+                    float range = NormalGameOptionsV09.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
                     float dis = Vector2.Distance(player.transform.position, rv_target.transform.position);
 
                     if (dis <= range)

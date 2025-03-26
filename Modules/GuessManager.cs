@@ -796,7 +796,7 @@ public static class GuessManager
                 TextMeshPro Teamlabel = Object.Instantiate(textTemplate, Teambutton);
                 Teambutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
                 RoleSelectButtons.Add((CustomRoleTypes)index, Teambutton.GetComponent<SpriteRenderer>());
-                TeambuttonParent.localPosition = new(-2.75f + (tabCount++ * 1.73f), 2.225f, -200);
+                TeambuttonParent.localPosition = new(-3.10f + (tabCount++ * 1.47f), 2.225f, -200);
                 TeambuttonParent.localScale = new(0.53f, 0.53f, 1f);
 
                 Teamlabel.color = (CustomRoleTypes)index switch
@@ -986,7 +986,7 @@ public static class GuessManager
             return;
         }
 
-        PlayerControl.LocalPlayer.RPCPlayCustomSound("Gunload");
+        CustomSoundsManager.Play("Gunload");
     }
 
     // Modded non-host client guess Role/Add-on

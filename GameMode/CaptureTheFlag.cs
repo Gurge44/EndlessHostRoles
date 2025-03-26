@@ -66,7 +66,7 @@ public static class CaptureTheFlag
     private static (Vector2 Position, string RoomName) BlueFlagBase => Main.CurrentMap switch
     {
         MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(SystemTypes.Nav.ToString())),
-        MapNames.Mira => (new(-4.5f, 2.0f), Translator.GetString(SystemTypes.Launchpad.ToString())),
+        MapNames.MiraHQ => (new(-4.5f, 2.0f), Translator.GetString(SystemTypes.Launchpad.ToString())),
         MapNames.Dleks => (new(-16.5f, -4.8f), Translator.GetString(SystemTypes.Nav.ToString())),
         MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(SystemTypes.Electrical.ToString())),
         MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(SystemTypes.Cockpit.ToString())),
@@ -77,7 +77,7 @@ public static class CaptureTheFlag
     private static (Vector2 Position, string RoomName) YellowFlagBase => Main.CurrentMap switch
     {
         MapNames.Skeld => (new(-20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor.ToString())),
-        MapNames.Mira => (new(17.8f, 23.0f), Translator.GetString(SystemTypes.Greenhouse.ToString())),
+        MapNames.MiraHQ => (new(17.8f, 23.0f), Translator.GetString(SystemTypes.Greenhouse.ToString())),
         MapNames.Dleks => (new(20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor.ToString())),
         MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(SystemTypes.Laboratory.ToString())),
         MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(SystemTypes.CargoBay.ToString())),
@@ -226,7 +226,7 @@ public static class CaptureTheFlag
 
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
-        reason = GameOverReason.ImpostorByKill;
+        reason = GameOverReason.ImpostorsByKill;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
         if (!ValidTag) return false;
@@ -237,7 +237,7 @@ public static class CaptureTheFlag
                 ResetSkins();
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 CustomWinnerHolder.WinnerIds = Main.PlayerStates.Keys.ToHashSet();
-                reason = GameOverReason.HumansDisconnect;
+                reason = GameOverReason.CrewmateDisconnect;
                 return true;
             case 1:
                 ResetSkins();
@@ -624,7 +624,7 @@ public static class CaptureTheFlag
             bool blue = team == CTFTeam.Blue;
             int colorId = blue ? 1 : 5;
 
-            if (__instance.Data.DefaultOutfit.ColorId != colorId)
+            if (__instance.CurrentOutfit.ColorId != colorId)
                 Utils.RpcChangeSkin(__instance, blue ? BlueOutfit : YellowOutfit);
 
             Vector2 pos = __instance.Pos();

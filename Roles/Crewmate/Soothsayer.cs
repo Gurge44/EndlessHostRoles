@@ -43,7 +43,6 @@ public class Soothsayer : RoleBase
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null || player.PlayerId == target.PlayerId) return false;
-
         if (Target != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
         Target = target.PlayerId;
@@ -52,7 +51,7 @@ public class Soothsayer : RoleBase
         return true;
     }
 
-    public static void OnAnyoneDeath(PlayerControl killer, PlayerControl target)
+    public static void OnAnyoneDeath(PlayerControl killer)
     {
         Instances.DoIf(x => x.Target == killer.PlayerId, _ => Main.AllAlivePlayerControls.Do(p => p.Notify(string.Format(Translator.GetString("SoothsayerDiedNotify"), Utils.ColorString(Main.PlayerColors.GetValueOrDefault(killer.PlayerId), killer.GetRealName())), 10f)));
     }

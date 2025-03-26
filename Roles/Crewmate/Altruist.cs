@@ -75,7 +75,7 @@ public class Altruist : RoleBase
         state.RealKiller = (DateTime.Now, target.PlayerId);
         state.SetDead();
         reporter.RpcExileV2();
-        FixedUpdatePatch.LoversSuicide(reporter.PlayerId);
+        Utils.AfterPlayerDeathTasks(reporter);
 
         RevivingMode = false;
         ReviveTarget = target.PlayerId;

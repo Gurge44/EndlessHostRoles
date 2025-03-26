@@ -1,11 +1,12 @@
-﻿using HarmonyLib;
+﻿using AmongUs.Data.Player;
+using HarmonyLib;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(StatsManager), nameof(StatsManager.BanMinutesLeft), MethodType.Getter)]
+[HarmonyPatch(typeof(PlayerBanData), nameof(PlayerBanData.BanMinutesLeft), MethodType.Getter)]
 public static class DisconnectPenaltyPatch
 {
-    public static bool Prefix(StatsManager __instance, ref int __result)
+    public static bool Prefix(PlayerBanData __instance, ref int __result)
     {
         if (!DebugModeManager.AmDebugger) return true;
 

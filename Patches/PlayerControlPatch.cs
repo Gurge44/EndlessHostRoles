@@ -2151,9 +2151,14 @@ internal static class PlayerControlCompleteTaskPatch
     {
         if (GameStates.IsMeeting || __instance == null || !__instance.IsAlive()) return;
 
-        var task = __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask;
-        Benefactor.OnTaskComplete(__instance, task);
         Snitch.OnCompleteTask(__instance);
+
+        try
+        {
+            var task = __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask;
+            Benefactor.OnTaskComplete(__instance, task);
+        }
+        catch (System.Exception e) { ThrowException(e); }
     }
 }
 

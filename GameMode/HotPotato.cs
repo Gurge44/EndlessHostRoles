@@ -45,9 +45,7 @@ internal static class HotPotato
 
     public static void Init()
     {
-        FixedUpdatePatch.Return = true;
-
-        HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 60, 1);
+        HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt(), 1);
         SurvivalTimes = [];
         foreach (PlayerControl pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
 
@@ -56,8 +54,7 @@ internal static class HotPotato
 
     public static void OnGameStart()
     {
-        LateTask.New(() => FixedUpdatePatch.Return = false, 7f, log: false);
-        HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 40, 1);
+        HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt(), 1);
     }
 
     public static int GetSurvivalTime(byte id)
@@ -81,12 +78,11 @@ internal static class HotPotato
     {
         private static float UpdateDelay;
         private static long LastFixedUpdate;
-        public static bool Return;
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!CustomGameMode.HotPotato.IsActiveOrIntegrated() || Return || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId == 255) return;
+            if (!CustomGameMode.HotPotato.IsActiveOrIntegrated() || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId == 255) return;
 
             PlayerControl Holder = Utils.GetPlayerById(HotPotatoState.HolderID);
 
@@ -134,7 +130,7 @@ internal static class HotPotato
 
         private static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
         {
-            if (Return || Main.AllAlivePlayerControls.Length < 2) return;
+            if (!Main.IntroDestroyed || Main.AllAlivePlayerControls.Length < 2) return;
 
             if (resetTime)
             {

@@ -233,6 +233,9 @@ public static class Options
     public static OptionItem DeepLowLoad;
     public static OptionItem DisableVoteBan;
 
+    public static OptionItem MinNNKs;
+    public static OptionItem MaxNNKs;
+
     public static OptionItem CovenReceiveNecronomiconAfterNumMeetings;
     public static OptionItem CovenLeaderKillCooldown;
 
@@ -1035,6 +1038,13 @@ public static class Options
 
             FactionMinMaxSettings[team] = (minSetting, maxSetting);
         }
+
+        MinNNKs = new IntegerOptionItem(id++, "MinNNKs", new(0, 15, 1), 0, TabGroup.NeutralRoles)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true);
+        
+        MaxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(0, 15, 1), 2, TabGroup.NeutralRoles)
+            .SetGameMode(CustomGameMode.Standard);
 
         HashSet<TabGroup> doneTabs = [];
 

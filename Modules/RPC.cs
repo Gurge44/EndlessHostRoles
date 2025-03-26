@@ -1251,6 +1251,7 @@ internal static class RPC
 
         static IEnumerator VersionCheck()
         {
+            yield return null;
             while (PlayerControl.LocalPlayer == null) yield return null;
 
             if (AmongUsClient.Instance.AmHost)

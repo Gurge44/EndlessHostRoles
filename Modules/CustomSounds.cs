@@ -58,7 +58,7 @@ public static class CustomSoundsManager
 
             if (stream == null)
             {
-                Logger.Warn($"声音文件缺失：{sound}", "CustomSounds");
+                Logger.Warn($"Could not find sound: {sound}", "CustomSounds");
                 return;
             }
 
@@ -68,7 +68,7 @@ public static class CustomSoundsManager
         }
 
         StartPlay(path);
-        Logger.Msg($"Playing sound：{sound}", "CustomSounds");
+        Logger.Msg($"Playing sound: {sound}", "CustomSounds");
     }
 
     [DllImport("winmm.dll", CharSet = CharSet.Unicode)]

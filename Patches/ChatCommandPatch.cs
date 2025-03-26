@@ -395,7 +395,7 @@ internal static class ChatCommands
         var pc = id.GetPlayer();
         if (pc == null) return;
 
-        var color = ColorUtility.TryParseHtmlString($"#{args[2]}", out var c) ? c : Color.red;
+        var color = ColorUtility.TryParseHtmlString($"#{args[2].ToLower()}", out var c) ? c : Color.red;
         var tag = Utils.ColorString(color, string.Join(' ', args[3..]));
         PrivateTagManager.AddTag(pc.FriendCode, tag);
 
@@ -525,6 +525,16 @@ internal static class ChatCommands
             sb.Append(" - ");
             sb.Append(factionMax);
             sb.Append("\n\n");
+
+            if (team == Team.Neutral)
+            {
+                sb.Append(Options.MinNNKs.GetInt());
+                sb.Append('-');
+                sb.Append(Options.MaxNNKs.GetInt());
+                sb.Append(' ');
+                sb.Append(GetString("NeutralNonKillingRoles"));
+                sb.Append("\n\n");
+            }
 
             if (rot.TryGetValue(team, out var subCategories))
             {
@@ -697,10 +707,12 @@ internal static class ChatCommands
         state.SetDead();
 
         pc.RpcExileV2();
+        Utils.AfterPlayerDeathTasks(pc, true);
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
 
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathNoteCommand.Success"), deadPlayer.ColoredPlayerName()));
-        Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), deadPlayer.ColoredPlayerName()));
+        string coloredName = deadPlayer.ColoredPlayerName();
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathNoteCommand.Success"), coloredName));
+        Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), coloredName));
 
         NoteKiller.Kills++;
     }
@@ -808,7 +820,7 @@ internal static class ChatCommands
 
         IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
         IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt());
-        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Evil][2].GetInt() + Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Benign][2].GetInt());
+        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.MaxNNKs.GetInt());
         IEnumerable<CustomRoles> covenRoles = allRoles.Where(x => x.IsCoven()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Coven].MaxSetting.GetInt());
 
         allRoles.RemoveAll(x => x.IsImpostor());
@@ -890,14 +902,15 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsHost() && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
-        if (!byte.TryParse(args[1], out byte id) || id.IsHost()) return;
+        bool host = player.IsHost();
+        if (!host && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
+        if (!byte.TryParse(args[1], out byte id) || id.IsHost() || (!host && IsPlayerModerator(id.GetPlayer()?.FriendCode))) return;
 
         int duration = args.Length < 3 || !int.TryParse(args[2], out int dur) ? 60 : dur;
         MutedPlayers[id] = (Utils.TimeStamp, duration);
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerMuted"), id.ColoredPlayerName(), duration));
         Utils.SendMessage("\n", id, string.Format(GetString("YouMuted"), player.PlayerId.ColoredPlayerName(), duration));
-        if (!player.IsHost()) Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration));
+        if (!host) Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration));
     }
 
     private static void UnmuteCommand(PlayerControl player, string text, string[] args)
@@ -1147,7 +1160,7 @@ internal static class ChatCommands
 
             string result = winners.Length == 1
                 ? string.Format(GetString("Poll.Winner"), winners[0].Key, PollAnswers[winners[0].Key], winners[0].Value) +
-                  PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} / {t.Value} {PollAnswers[t.Key]}\n")
+                  PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} - {t.Value} {PollAnswers[t.Key]}\n")
                 : string.Format(GetString("Poll.Tie"), string.Join(" & ", winners.Select(x => $"{x.Key}{PollAnswers[x.Key]}")), maxVotes);
 
             Utils.SendMessage(result, title: Utils.ColorString(new(0, 255, 165, 255), GetString("PollResultTitle")));
@@ -1494,6 +1507,7 @@ internal static class ChatCommands
             Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.etc;
             pc.RpcExileV2();
             Main.PlayerStates[pc.PlayerId].SetDead();
+            Utils.AfterPlayerDeathTasks(pc, GameStates.IsMeeting);
 
             if (pc.AmOwner)
                 Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
@@ -2175,7 +2189,7 @@ internal static class ChatCommands
         {
             case "crew":
                 GameManager.Instance.enabled = false;
-                GameManager.Instance.RpcEndGame(GameOverReason.HumansDisconnect, false);
+                GameManager.Instance.RpcEndGame(GameOverReason.CrewmateDisconnect, false);
                 break;
 
             case "imp":

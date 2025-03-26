@@ -105,7 +105,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.Changeling when Changeling.GetAvailableRoles(true).Count == 0:
                 case CustomRoles.Camouflager when Camouflager.DoesntSpawnOnFungle.GetBool() && Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.DarkHide when Main.CurrentMap == MapNames.Fungle:
-                case CustomRoles.Doormaster when Main.CurrentMap == MapNames.Mira:
+                case CustomRoles.Doormaster when Main.CurrentMap == MapNames.MiraHQ:
                 case CustomRoles.Pelican when Roles[RoleAssignType.Impostor].Any(x => x.Role == CustomRoles.Duellist):
                 case CustomRoles.Duellist when Roles[RoleAssignType.NeutralKilling].Any(x => x.Role == CustomRoles.Pelican):
                 case CustomRoles.VengefulRomantic:
@@ -152,7 +152,7 @@ internal static class CustomRoleSelector
         }
 
         var covenLimits = Options.FactionMinMaxSettings[Team.Coven];
-        var numCovens = IRandom.Instance.Next(covenLimits.MinSetting.GetInt(), covenLimits.MaxSetting.GetInt() + 1);
+        var numCovens = rd.Next(covenLimits.MinSetting.GetInt(), covenLimits.MaxSetting.GetInt() + 1);
 
         if (numCovens > 0 && !Main.SetRoles.ContainsValue(CustomRoles.CovenLeader) && !ChatCommands.DraftResult.ContainsValue(CustomRoles.CovenLeader))
         {
@@ -162,7 +162,7 @@ internal static class CustomRoleSelector
         }
 
         var neutralLimits = Options.FactionMinMaxSettings[Team.Neutral];
-        var numNeutrals = IRandom.Instance.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1);
+        var numNeutrals = rd.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1);
 
         if (Roles[RoleAssignType.Impostor].Count == 0 && numNeutrals == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
         {
@@ -191,7 +191,7 @@ internal static class CustomRoleSelector
 
         Dictionary<RoleOptionType, int> subCategoryLimits = Options.RoleSubCategoryLimits
             .Where(x => x.Key.GetTabFromOptionType() == TabGroup.NeutralRoles || x.Value[0].GetBool())
-            .ToDictionary(x => x.Key, x => IRandom.Instance.Next(x.Value[1].GetInt(), x.Value[2].GetInt() + 1));
+            .ToDictionary(x => x.Key, x => rd.Next(x.Value[1].GetInt(), x.Value[2].GetInt() + 1));
 
         try
         {
@@ -205,9 +205,9 @@ internal static class CustomRoleSelector
         if (subCategoryLimits.Count > 0) Logger.Info($"Sub-Category Limits: {string.Join(", ", subCategoryLimits.Select(x => $"{x.Key}: {x.Value}"))}", "SubCategoryLimits");
 
         int nkLimit = subCategoryLimits[RoleOptionType.Neutral_Killing];
-        int nnkLimit = subCategoryLimits[RoleOptionType.Neutral_Evil] + subCategoryLimits[RoleOptionType.Neutral_Benign];
+        int nnkLimit = rd.Next(Options.MinNNKs.GetInt(), Options.MaxNNKs.GetInt() + 1);
 
-        int madmateNum = IRandom.Instance.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1);
+        int madmateNum = rd.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1);
 
         Logger.Info($"Number of Neutral Killing roles to select: {nkLimit}", "NeutralKillingLimit");
         Logger.Info($"Number of Non-Killing Neutral roles to select: {nnkLimit}", "NonKillingNeutralLimit");
@@ -225,7 +225,7 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Madmate].Select(x => x.Role.ToString())), "PreSelectedMadmateRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Coven].Select(x => x.Role.ToString())), "PreSelectedCovenRoles");
         Logger.Msg("===================================================", "PreSelectedRoles");
-
+        
         try
         {
             int attempts = 0;

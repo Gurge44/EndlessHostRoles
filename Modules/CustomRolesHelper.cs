@@ -543,7 +543,7 @@ internal static class CustomRolesHelper
 
     public static bool IsNonNK(this CustomRoles role, bool check = false)
     {
-        return (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistCanIgniteAnytime != null && !Options.ArsonistCanIgniteAnytime.GetBool()) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil;
+        return (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistCanIgniteAnytime != null && !Options.ArsonistCanIgniteAnytime.GetBool()) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah;
     }
 
     public static bool IsNK(this CustomRoles role, bool check = false)
@@ -1031,7 +1031,7 @@ internal static class CustomRolesHelper
             CustomRoles.Damocles when pc.GetCustomRole() is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous => false,
             CustomRoles.Damocles when !pc.CanUseKillButton() => false,
             CustomRoles.Flashman when pc.Is(CustomRoles.Swiftclaw) || pc.Is(CustomRoles.Giant) || pc.Is(CustomRoles.Spurt) => false,
-            CustomRoles.Giant when pc.Is(CustomRoles.Flashman) || pc.Is(CustomRoles.Spurt) => false,
+            CustomRoles.Giant when pc.Is(CustomRoles.Flashman) || pc.Is(CustomRoles.Spurt) || pc.Is(CustomRoles.RoomRusher) => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Visionary) => false,
             CustomRoles.Mimic when pc.Is(CustomRoles.Mafia) => false,
             CustomRoles.Rascal when !pc.IsCrewmate() => false,
@@ -1394,6 +1394,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Crewmate_Chaos => Utils.GetRoleColor(CustomRoles.Tornado),
             RoleOptionType.Neutral_Benign => Utils.GetRoleColor(CustomRoles.Chameleon),
             RoleOptionType.Neutral_Evil => Utils.GetRoleColor(CustomRoles.Mario),
+            RoleOptionType.Neutral_Pariah => Utils.GetRoleColor(CustomRoles.Wraith),
             RoleOptionType.Neutral_Killing => Palette.ImpostorRed,
             RoleOptionType.Coven_Miscellaneous => Utils.GetRoleColor(CustomRoles.CovenLeader),
             _ => Utils.GetRoleColor(CustomRoles.SwordsMan)
@@ -1416,6 +1417,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Crewmate_Chaos => TabGroup.CrewmateRoles,
             RoleOptionType.Neutral_Benign => TabGroup.NeutralRoles,
             RoleOptionType.Neutral_Evil => TabGroup.NeutralRoles,
+            RoleOptionType.Neutral_Pariah => TabGroup.NeutralRoles,
             RoleOptionType.Neutral_Killing => TabGroup.NeutralRoles,
             RoleOptionType.Coven_Miscellaneous => TabGroup.CovenRoles,
             _ => TabGroup.OtherRoles
@@ -1463,7 +1465,6 @@ internal static class CustomRolesHelper
             CustomRoles.Tank => RoleOptionType.Neutral_Benign,
             CustomRoles.Totocalcio => RoleOptionType.Neutral_Benign,
             CustomRoles.Arsonist => RoleOptionType.Neutral_Evil,
-            CustomRoles.Curser => RoleOptionType.Neutral_Evil,
             CustomRoles.Jester => RoleOptionType.Neutral_Evil,
             CustomRoles.Gaslighter => RoleOptionType.Neutral_Evil,
             CustomRoles.God => RoleOptionType.Neutral_Evil,
@@ -1476,11 +1477,12 @@ internal static class CustomRolesHelper
             CustomRoles.Workaholic => RoleOptionType.Neutral_Evil,
             CustomRoles.Deathknight => RoleOptionType.Neutral_Evil,
             CustomRoles.Innocent => RoleOptionType.Neutral_Evil,
-            CustomRoles.Auditor => RoleOptionType.Neutral_Evil,
-            CustomRoles.Magistrate => RoleOptionType.Neutral_Evil,
-            CustomRoles.Seamstress => RoleOptionType.Neutral_Evil,
-            CustomRoles.Spirit => RoleOptionType.Neutral_Evil,
-            CustomRoles.Starspawn => RoleOptionType.Neutral_Evil,
+            CustomRoles.Curser => RoleOptionType.Neutral_Pariah,
+            CustomRoles.Auditor => RoleOptionType.Neutral_Pariah,
+            CustomRoles.Magistrate => RoleOptionType.Neutral_Pariah,
+            CustomRoles.Seamstress => RoleOptionType.Neutral_Pariah,
+            CustomRoles.Spirit => RoleOptionType.Neutral_Pariah,
+            CustomRoles.Starspawn => RoleOptionType.Neutral_Pariah,
             _ => role.IsNK(true) ? RoleOptionType.Neutral_Killing : role.IsImpostor() ? RoleOptionType.Impostor_Miscellaneous : RoleOptionType.Crewmate_Miscellaneous
         };
     }
@@ -1581,6 +1583,12 @@ internal static class CustomRolesHelper
             CustomRoles.Generator => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Visionary => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Wildling => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.Impostor => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.ImpostorEHR => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.Shapeshifter => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.ShapeshifterEHR => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.Phantom => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.PhantomEHR => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
             _ => role.IsCrewmate() ? RoleOptionType.Crewmate_Miscellaneous : RoleOptionType.Neutral_Benign
         };
@@ -1590,6 +1598,16 @@ internal static class CustomRolesHelper
     {
         return role switch
         {
+            CustomRoles.Crewmate => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.CrewmateEHR => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.Engineer => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.EngineerEHR => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.Scientist => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.ScientistEHR => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.Tracker => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.TrackerEHR => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.Noisemaker => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.NoisemakerEHR => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.CyberStar => RoleOptionType.Crewmate_Miscellaneous,
@@ -1736,6 +1754,7 @@ public enum RoleOptionType
     Crewmate_Chaos,
     Neutral_Benign,
     Neutral_Evil,
+    Neutral_Pariah,
     Neutral_Killing,
     Coven_Miscellaneous
 }

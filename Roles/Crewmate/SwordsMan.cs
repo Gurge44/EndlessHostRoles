@@ -8,7 +8,7 @@ namespace EHR.Crewmate;
 
 public class SwordsMan : RoleBase
 {
-    private const int Id = 9000;
+    private const int Id = 652300;
     private static List<byte> PlayerIdList = [];
     public static List<byte> Killed = [];
     private static OptionItem CanVent;

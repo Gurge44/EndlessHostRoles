@@ -222,13 +222,21 @@ internal static class SetUpRoleTextPatch
 
         foreach (OptionItem o in OptionItem.AllOptions)
         {
-            if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals(disabledRoleStr)))
+            if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
                 sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
             if (i++ > 20)
             {
                 yield return null;
                 i = 0;
+            }
+
+            continue;
+
+            bool AllParentsEnabled(OptionItem oi)
+            {
+                if (oi.Parent == null) return true;
+                return oi.Parent.GetBool() && AllParentsEnabled(oi.Parent);
             }
         }
 
@@ -931,27 +939,21 @@ internal static class IntroCutsceneDestroyPatch
 
             try
             {
-                var spectators = ChatCommands.Spectators.ToValidPlayers();
-                if (Main.GM.Value) spectators = spectators.Append(PlayerControl.LocalPlayer);
+                var spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
+                if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
 
                 if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool())
+                    LateTask.New(SetSpectatorsDead, 12.5f, log: false);
+                else SetSpectatorsDead();
+
+                void SetSpectatorsDead()
                 {
-                    LateTask.New(() =>
+                    spectators.ForEach(x =>
                     {
-                        foreach (PlayerControl pc in spectators)
-                        {
-                            pc.RpcExileV2();
-                            Main.PlayerStates[pc.PlayerId].SetDead();
-                        }
-                    }, 12.5f, log: false);
-                }
-                else
-                {
-                    foreach (PlayerControl pc in spectators)
-                    {
-                        pc.RpcExileV2();
-                        Main.PlayerStates[pc.PlayerId].SetDead();
-                    }
+                        x.RpcExileV2();
+                        Main.PlayerStates[x.PlayerId].SetDead();
+                        Utils.AfterPlayerDeathTasks(x);
+                    });
                 }
             }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -987,6 +989,9 @@ internal static class IntroCutsceneDestroyPatch
 
             if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
                 Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
+            
+            if (CustomGameMode.HotPotato.IsActiveOrIntegrated())
+                HotPotato.OnGameStart();
 
             Utils.CheckAndSetVentInteractions();
 

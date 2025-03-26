@@ -170,6 +170,7 @@ internal static class ControllerManagerUpdatePatch
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
                 PlayerControl.LocalPlayer.RpcExileV2();
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
+                Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer);
                 Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
             }
 

@@ -830,9 +830,9 @@ internal static class DialogueBoxShowPatch
     public static bool Prefix(DialogueBox __instance, [HarmonyArgument(0)] string dialogue)
     {
         __instance.target.text = dialogue;
-        if (Minigame.Instance != null) Minigame.Instance.Close();
-
-        if (Minigame.Instance != null) Minigame.Instance.Close();
+        
+        if (Minigame.Instance) Minigame.Instance.Close();
+        if (Minigame.Instance) Minigame.Instance.Close();
 
         __instance.gameObject.SetActive(true);
         return false;

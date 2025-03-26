@@ -259,11 +259,11 @@ internal static class Crowded
         }
     }
 
-    [HarmonyPatch(typeof(GameOptionsData), nameof(GameOptionsData.AreInvalid))]
+    [HarmonyPatch(typeof(NormalGameOptionsV09), nameof(NormalGameOptionsV09.AreInvalid))]
     public static class InvalidOptionsPatches
     {
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
-        public static bool Prefix(GameOptionsData __instance, [HarmonyArgument(0)] int maxExpectedPlayers)
+        public static bool Prefix(NormalGameOptionsV09 __instance, [HarmonyArgument(0)] int maxExpectedPlayers)
         {
             return __instance.MaxPlayers > maxExpectedPlayers ||
                    __instance.NumImpostors < 1 ||

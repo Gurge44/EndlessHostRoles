@@ -51,7 +51,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2024.8.13";
+    public const string SupportedAUVersion = "2025.3.25";
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
@@ -155,7 +155,7 @@ public class Main : BasePlugin
 
     private Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
+    public static NormalGameOptionsV09 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }
@@ -744,8 +744,8 @@ public class Main : BasePlugin
         ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
 
-        NormalGameOptionsV08.RecommendedImpostors = NormalGameOptionsV08.MaxImpostors = Enumerable.Repeat(127, 127).ToArray();
-        NormalGameOptionsV08.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
+        NormalGameOptionsV09.RecommendedImpostors = NormalGameOptionsV09.MaxImpostors = Enumerable.Repeat(127, 127).ToArray();
+        NormalGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
         HideNSeekGameOptionsV08.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
 
         CustomLogger.ClearLog();

@@ -338,8 +338,17 @@ internal static class ExtendedPlayerControl
 
         if (setRoleMap)
         {
-            (byte, byte) key = (player.PlayerId, GetClientById(clientId).Character.PlayerId);
-            StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = (role, StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key].CustomRole);
+            try
+            {
+                (byte, byte) key = (player.PlayerId, GetClientById(clientId).Character.PlayerId);
+
+                if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out var pair))
+                {
+                    pair.RoleType = role;
+                    StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = pair;
+                }
+            }
+            catch (Exception e) { ThrowException(e); }
         }
 
         if (AmongUsClient.Instance.ClientId == clientId)
@@ -1708,6 +1717,11 @@ internal static class ExtendedPlayerControl
     public static bool IsNeutralEvil(this PlayerControl player)
     {
         return player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil;
+    }
+    
+    public static bool IsNeutralPariah(this PlayerControl player)
+    {
+        return player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Pariah;
     }
 
     public static bool IsSnitchTarget(this PlayerControl player)

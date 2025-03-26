@@ -163,7 +163,7 @@ public class Technician : RoleBase
             }
             case SystemTypes.Comms:
             {
-                if (Main.CurrentMap is MapNames.Mira or MapNames.Fungle)
+                if (Main.CurrentMap is MapNames.MiraHQ or MapNames.Fungle)
                 {
                     var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
                     if (tags == HqHudSystemType.Tags.ActiveBit) technician.FixedSabotage = false;

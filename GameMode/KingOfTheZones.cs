@@ -39,7 +39,7 @@ public static class KingOfTheZones
             [SystemTypes.LowerEngine, SystemTypes.Admin, SystemTypes.Weapons],
             [SystemTypes.LowerEngine, SystemTypes.UpperEngine, SystemTypes.Weapons, SystemTypes.Shields]
         ],
-        [MapNames.Mira] =
+        [MapNames.MiraHQ] =
         [
             [SystemTypes.LockerRoom],
             [SystemTypes.Launchpad, SystemTypes.Balcony],
@@ -168,7 +168,7 @@ public static class KingOfTheZones
                     GameEndsByPoints.SetValue(1);
             });
 
-        MaxGameLength = new IntegerOptionItem(id, "KingOfTheZones.MaxGameLength", new(10, 900, 10), 300, TabGroup.GameSettings)
+        MaxGameLength = new IntegerOptionItem(id++, "KingOfTheZones.MaxGameLength", new(10, 900, 10), 300, TabGroup.GameSettings)
             .SetParent(GameEndsByTimeLimit)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(gameMode)
@@ -441,12 +441,11 @@ public static class KingOfTheZones
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId)) return;
+        if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId) || new[] { killer, target }.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
 
-        PlayerControl[] pcs = [killer, target];
-        if (pcs.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
-
-        pcs.Do(x => x.SetKillCooldown(TagCooldown.GetInt()));
+        int cd = TagCooldown.GetInt();
+        killer.SetKillCooldown(ZoneDomination.ContainsValue(PlayerTeams[killer.PlayerId]) ? cd * 1.5f : cd);
+        target.SetKillCooldown(ZoneDomination.ContainsValue(PlayerTeams[target.PlayerId]) ? cd * 1.5f : cd);
 
         RespawnTimes[target.PlayerId] = Utils.TimeStamp + RespawnTime.GetInt() + 1;
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
@@ -513,7 +512,7 @@ public static class KingOfTheZones
 
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
-        reason = GameOverReason.ImpostorByKill;
+        reason = GameOverReason.ImpostorsByKill;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
         if (!Main.IntroDestroyed) return false;
@@ -524,7 +523,7 @@ public static class KingOfTheZones
                 ResetSkins();
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 CustomWinnerHolder.WinnerIds = Main.PlayerStates.Keys.ToHashSet();
-                reason = GameOverReason.HumansDisconnect;
+                reason = GameOverReason.CrewmateDisconnect;
                 return true;
             case 1:
                 ResetSkins();
@@ -718,7 +717,7 @@ public static class KingOfTheZones
                 try
                 {
                     byte colorId = PlayerTeams[player.PlayerId].GetColorId();
-                    if (player.Data.DefaultOutfit.ColorId == colorId) continue;
+                    if (player.CurrentOutfit.ColorId == colorId) continue;
 
                     string name = Main.AllPlayerNames[player.PlayerId];
                     Utils.RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, colorId, "", "", "", "", ""));

@@ -110,7 +110,7 @@ internal abstract class RandomSpawn
             return Main.CurrentMap switch
             {
                 MapNames.Skeld => new SkeldSpawnMap(),
-                MapNames.Mira => new MiraHQSpawnMap(),
+                MapNames.MiraHQ => new MiraHQSpawnMap(),
                 MapNames.Polus => new PolusSpawnMap(),
                 MapNames.Dleks => new DleksSpawnMap(),
                 MapNames.Airship => new AirshipSpawnMap(),

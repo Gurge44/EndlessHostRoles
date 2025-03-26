@@ -394,7 +394,7 @@ internal static class FreeForAll
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            if (!GameStates.IsInTask || ExileController.Instance || !CustomGameMode.FFA.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost) return;
+            if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || !CustomGameMode.FFA.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost) return;
 
             long now = Utils.TimeStamp;
             if (LastFixedUpdate == now) return;
