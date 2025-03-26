@@ -510,6 +510,9 @@ public static class NumberOptionPatch
                 __instance.Value = (float)Math.Round(__instance.Value, 2);
                 if (DebugModeManager.AmDebugger) __instance.ValidRange.min = 0;
                 break;
+            case StringNames.CapacityLabel:
+                __instance.ValidRange = new(4, 127);
+                break;
         }
 
         if (ModGameOptionsMenu.OptionList.TryGetValue(__instance, out int index))
