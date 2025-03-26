@@ -624,7 +624,7 @@ public static class CaptureTheFlag
             bool blue = team == CTFTeam.Blue;
             int colorId = blue ? 1 : 5;
 
-            if (__instance.Data.DefaultOutfit.ColorId != colorId)
+            if (__instance.CurrentOutfit.ColorId != colorId)
                 Utils.RpcChangeSkin(__instance, blue ? BlueOutfit : YellowOutfit);
 
             Vector2 pos = __instance.Pos();

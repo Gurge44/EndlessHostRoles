@@ -222,13 +222,21 @@ internal static class SetUpRoleTextPatch
 
         foreach (OptionItem o in OptionItem.AllOptions)
         {
-            if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals(disabledRoleStr)))
+            if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
                 sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
             if (i++ > 20)
             {
                 yield return null;
                 i = 0;
+            }
+
+            continue;
+
+            bool AllParentsEnabled(OptionItem oi)
+            {
+                if (oi.Parent == null) return true;
+                return oi.Parent.GetBool() && AllParentsEnabled(oi.Parent);
             }
         }
 

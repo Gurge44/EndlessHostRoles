@@ -397,9 +397,10 @@ internal static class ChangeRoleSettings
 
         System.Collections.IEnumerator PopulateSkinItems()
         {
+            while (!ShipStatus.Instance) yield return null;
             BlockPopulateSkins = false;
+            LateTask.New(() => BlockPopulateSkins = true, 0.5f, log: false);
             yield return ShipStatus.Instance.CosmeticsCache.PopulateFromPlayers();
-            BlockPopulateSkins = true;
         }
     }
 }
@@ -1207,53 +1208,86 @@ internal static class StartGameHostPatch
         {
             try
             {
-                foreach ((byte playerId, CustomRoles role) in RoleResult)
+                List<byte> doneIds = [];
+
+                try
                 {
-                    try
+                    foreach ((byte playerId, CustomRoles role) in RoleResult)
                     {
-                        PlayerControl player = Utils.GetPlayerById(playerId);
-                        if (player == null || role.IsDesyncRole()) continue;
-
-                        if (CustomGameMode.Speedrun.IsActiveOrIntegrated() && Speedrun.CanKill.Contains(playerId)) continue;
-
-                        RoleTypes roleType = role.GetRoleTypes();
-
-                        if (BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out KeyValuePair<CustomRoles, List<byte>> kvp))
+                        try
                         {
-                            if (kvp.Key == CustomRoles.Bloodlust) continue;
+                            PlayerControl player = Utils.GetPlayerById(playerId);
+                            if (player == null || role.IsDesyncRole()) continue;
 
-                            roleType = kvp.Key switch
+                            if (CustomGameMode.Speedrun.IsActiveOrIntegrated() && Speedrun.CanKill.Contains(playerId)) continue;
+
+                            RoleTypes roleType = role.GetRoleTypes();
+
+                            if (BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out KeyValuePair<CustomRoles, List<byte>> kvp))
                             {
-                                CustomRoles.Nimble => RoleTypes.Engineer,
-                                CustomRoles.Physicist => RoleTypes.Scientist,
-                                CustomRoles.Finder => RoleTypes.Tracker,
-                                CustomRoles.Noisy => RoleTypes.Noisemaker,
-                                _ => roleType
-                            };
-                        }
+                                if (kvp.Key == CustomRoles.Bloodlust) continue;
 
-                        StoragedData[playerId] = roleType;
-
-                        foreach (PlayerControl target in Main.AllPlayerControls)
-                        {
-                            try
-                            {
-                                if (RoleResult.TryGetValue(target.PlayerId, out CustomRoles targetRole) && targetRole.IsDesyncRole() && !target.IsHost()) continue;
-                                RoleMap[(target.PlayerId, playerId)] = (roleType, role);
+                                roleType = kvp.Key switch
+                                {
+                                    CustomRoles.Nimble => RoleTypes.Engineer,
+                                    CustomRoles.Physicist => RoleTypes.Scientist,
+                                    CustomRoles.Finder => RoleTypes.Tracker,
+                                    CustomRoles.Noisy => RoleTypes.Noisemaker,
+                                    _ => roleType
+                                };
                             }
-                            catch (Exception e) { Utils.ThrowException(e); }
-                        }
 
-                        if (playerId != PlayerControl.LocalPlayer.PlayerId)
-                        {
-                            // canOverride should be false for the host during assign
-                            player.SetRole(roleType, false);
-                        }
+                            StoragedData[playerId] = roleType;
+                            doneIds.Add(playerId);
 
-                        Logger.Info($"Set original role type => {player.GetRealName()}: {role} => {role.GetRoleTypes()}", "AssignNormalRoles");
+                            foreach (PlayerControl target in Main.AllPlayerControls)
+                            {
+                                try
+                                {
+                                    if (RoleResult.TryGetValue(target.PlayerId, out CustomRoles targetRole) && targetRole.IsDesyncRole() && !target.IsHost()) continue;
+                                    RoleMap[(target.PlayerId, playerId)] = (roleType, role);
+                                }
+                                catch (Exception e) { Utils.ThrowException(e); }
+                            }
+
+                            if (playerId != PlayerControl.LocalPlayer.PlayerId)
+                            {
+                                // canOverride should be false for the host during assign
+                                player.SetRole(roleType, false);
+                            }
+
+                            Logger.Info($"Set original role type => {player.GetRealName()}: {role} => {role.GetRoleTypes()}", "AssignNormalRoles");
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
                     }
-                    catch (Exception e) { Utils.ThrowException(e); }
                 }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                try
+                {
+                    foreach (PlayerControl pc in Main.AllPlayerControls)
+                    {
+                        try
+                        {
+                            if (!doneIds.Contains(pc.PlayerId))
+                            {
+                                StoragedData[pc.PlayerId] = RoleTypes.Crewmate;
+                                
+                                foreach (PlayerControl target in Main.AllPlayerControls)
+                                {
+                                    try
+                                    {
+                                        if (RoleResult.TryGetValue(target.PlayerId, out CustomRoles targetRole) && targetRole.IsDesyncRole() && !target.IsHost()) continue;
+                                        RoleMap[(target.PlayerId, pc.PlayerId)] = (RoleTypes.Crewmate, CustomRoles.CrewmateEHR);
+                                    }
+                                    catch (Exception e) { Utils.ThrowException(e); }
+                                }
+                            }
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
+                    }
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }

@@ -717,7 +717,7 @@ public static class KingOfTheZones
                 try
                 {
                     byte colorId = PlayerTeams[player.PlayerId].GetColorId();
-                    if (player.Data.DefaultOutfit.ColorId == colorId) continue;
+                    if (player.CurrentOutfit.ColorId == colorId) continue;
 
                     string name = Main.AllPlayerNames[player.PlayerId];
                     Utils.RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, colorId, "", "", "", "", ""));

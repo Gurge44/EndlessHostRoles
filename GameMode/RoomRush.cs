@@ -406,6 +406,9 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
         Utils.NotifyRoles();
+        
+        if (WinByPointsInsteadOfDeaths.GetBool())
+            Logger.Info($"Points: {string.Join(", ", Points.Select(x => $"{Main.AllPlayerNames[x.Key]}: {x.Value}"))}", "RoomRush");
     }
 
     public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
