@@ -29,7 +29,7 @@ internal static class CreateOptionsPickerPatch
                 dlekS_ehT.transform.SetSiblingIndex(dleksPos + 2);
                 var dlekS_ehT_MapButton = dlekS_ehT.GetComponent<MapSelectButton>();
                 DleksButton = dlekS_ehT_MapButton;
-                //dlekS_ehT_MapButton.MapIcon.transform.localScale = new(-1f, 1f, 1f);
+                dlekS_ehT_MapButton.MapIcon[0].transform.localScale = new(-1f, 1f, 1f);
                 dlekS_ehT_MapButton.Button.OnClick.RemoveAllListeners();
 
                 dlekS_ehT_MapButton.Button.OnClick.AddListener((Action)(() =>

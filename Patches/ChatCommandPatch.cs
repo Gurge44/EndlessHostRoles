@@ -2676,20 +2676,6 @@ internal static class ChatCommands
                 subArgs = args.Length < 3 ? "" : args[2];
                 GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.TrackerDelay, float.Parse(subArgs));
                 break;
-            case "ghostdotasks":
-                subArgs = args.Length < 3 ? "" : args[2];
-
-                switch (subArgs)
-                {
-                    case "on":
-                        GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.GhostsDoTasks, true);
-                        break;
-                    case "off":
-                        GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.GhostsDoTasks, false);
-                        break;
-                }
-
-                break;
             default:
                 Utils.SendMessage(GetString("Commands.ChangeSettingHelp"), player.PlayerId);
                 break;

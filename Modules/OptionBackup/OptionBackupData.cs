@@ -18,7 +18,7 @@ public class OptionBackupData
                 AllValues.Add(new ByteOptionBackupValue(name, value));
 
         foreach (BoolOptionNames name in Enum.GetValues<BoolOptionNames>())
-            if (option.TryGetBool(name, out bool value) && name != BoolOptionNames.GhostsDoTasks)
+            if (option.TryGetBool(name, out bool value) && name is not BoolOptionNames.GhostsDoTasks and not BoolOptionNames.Roles)
                 AllValues.Add(new BoolOptionBackupValue(name, value));
 
         foreach (FloatOptionNames name in Enum.GetValues<FloatOptionNames>())
