@@ -26,8 +26,8 @@ public abstract class GameOptionsSender
 
         if (opt.TryCast(out NormalGameOptionsV09 normalOpt))
             NormalGameOptionsV09.Serialize(writer, normalOpt);
-        else if (opt.TryCast(out HideNSeekGameOptionsV08 hnsOpt))
-            HideNSeekGameOptionsV08.Serialize(writer, hnsOpt);
+        else if (opt.TryCast(out HideNSeekGameOptionsV09 hnsOpt))
+            HideNSeekGameOptionsV09.Serialize(writer, hnsOpt);
         else
         {
             writer.Recycle();
