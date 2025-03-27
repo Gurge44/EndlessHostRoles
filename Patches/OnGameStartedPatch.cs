@@ -453,6 +453,40 @@ internal static class StartGameHostPatch
             { RoleTypes.Tracker, AddTrackerNum }
         };
     }
+    
+    private static System.Collections.IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
+    {
+        float startTime = Time.time;
+
+        while (Time.time - startTime < duration)
+        {
+            float t = (Time.time - startTime) / duration; // Normalized time (0 to 1)
+            float newPercent = Mathf.Lerp(startPercent, targetPercent, t);
+
+            try
+            {
+                loadingBarManager.SetLoadingPercent(newPercent, StringNames.LoadingBarGameStart);
+                loadingBarManager.loadingBar.loadingText.text = loadingText;
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+
+            yield return null; // Wait for the next frame
+        }
+
+        // Ensure it reaches exactly the target percentage at the end
+        try
+        {
+            loadingBarManager.SetLoadingPercent(targetPercent, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = loadingText;
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
+    }
 
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
     [HarmonyPrefix]
@@ -497,7 +531,6 @@ internal static class StartGameHostPatch
             AUClient.ShipLoadingAsyncHandle = AUClient.ShipPrefabs[index].InstantiateAsync(); // False error
             yield return AUClient.ShipLoadingAsyncHandle;
             GameObject result = AUClient.ShipLoadingAsyncHandle.Result;
-            AUClient.ShipLoadingAsyncHandle = new AsyncOperationHandle<GameObject>();
             ShipStatus.Instance = result.GetComponent<ShipStatus>();
             AUClient.Spawn(ShipStatus.Instance);
         }
@@ -564,23 +597,7 @@ internal static class StartGameHostPatch
         }
 
         AUClient.SendClientReady();
-
-        try
-        {
-            loadingBarManager.SetLoadingPercent(65f, StringNames.LoadingBarGameStart);
-            loadingBarManager.loadingBar.loadingText.text = GetString("LoadingBarText.3");
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-
-        yield return new WaitForSeconds(2f);
-
-        try
-        {
-            loadingBarManager.SetLoadingPercent(70f, StringNames.LoadingBarGameStart);
-            loadingBarManager.loadingBar.loadingText.text = GetString("LoadingBarText.4");
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(65f, 70f, 2f, GetString("LoadingBarText.3"));
         yield return AssignRoles();
     }
 
@@ -1006,29 +1023,13 @@ internal static class StartGameHostPatch
         }
 
         Logger.Info("Others assign finished", "AssignRoleTypes");
-        yield return new WaitForSeconds(1f);
-
-        string loadingTextText5 = GetString("LoadingBarText.5");
-
-        try
-        {
-            loadingBarManager.SetLoadingPercent(90f, StringNames.LoadingBarGameStart);
-            loadingBarManager.loadingBar.loadingText.text = loadingTextText5;
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(80f, 85f, 1f, GetString("LoadingBarText.4"));
 
         Logger.Info("Send rpc disconnected for all", "AssignRoleTypes");
         DataDisconnected.Clear();
         RpcSetDisconnected(true);
 
-        yield return new WaitForSeconds(4f);
-
-        try
-        {
-            loadingBarManager.SetLoadingPercent(100f, StringNames.LoadingBarGameStart);
-            loadingBarManager.loadingBar.loadingText.text = loadingTextText5;
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(85f, 100f, 4f, GetString("LoadingBarText.5"));
 
         Logger.Info("Assign self", "AssignRoleTypes");
         SetRoleSelf();
@@ -1464,12 +1465,17 @@ internal static class StartGameHostPatch
 
             if (Senders == null) yield break;
 
+            LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
+            float step = (80f - 70f) / Senders.Count;
+            int index = 0;
+
             foreach (CustomRpcSender sender in Senders.Values)
             {
                 try { sender.SendMessage(); }
                 catch (Exception e) { Utils.ThrowException(e); }
 
-                yield return new WaitForSeconds(0.3f);
+                index++;
+                yield return loadingBarManager.WaitAndSmoothlyUpdate(70f + (step * (index - 1)), 70f + (step * index), 0.3f, GetString("LoadingBarText.4"));
             }
         }
 
