@@ -134,7 +134,7 @@
   "MinMadmateRoles": "<#ff1919>マッドメイト</color>役割の <#00ffa5>最小</color>の人数",
   "MaxMadmateRoles": "<#ff1919>マッドメイト</color>役割の <#00a5ff>最大</color>の人数",
   "MinNNKs": "<#ffff00>非-殺害</color> <#ffab1b>ニュートラル役割</color> <#888888>(良性、邪悪、拒絶された)</color> の <#00ffa5>最小</color>の人数",
-  "MaxNNKs": "<#ffff00>非-殺害</color> <#ffab1b>ニュートラル役割</color> <#888888>(良性、邪悪、拒絶された)</color>  の <#00a5ff>最小</color>の人数",
+  "MaxNNKs": "<#ffff00>非-殺害</color> <#ffab1b>ニュートラル役割</color> <#888888>(良性、邪悪、拒絶された)</color> の <#00a5ff>最小</color>の人数",
   "NeutralNonKillingRoles": "<#ffff00>非-殺害</color>の役割",
   "CTA.TeamEnabled.Prefix": "有効 ",
   "CTA.TeamEnabled.Suffix": " ",
