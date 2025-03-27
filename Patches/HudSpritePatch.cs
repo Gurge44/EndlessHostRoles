@@ -137,6 +137,11 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("Commander");
                     break;
                 }
+                case CustomRoles.Cleaner:
+                {
+                    newReportButton = CustomButton.Get("Clean");
+                    break;
+                }
                 case CustomRoles.Amnesiac:
                 {
                     if (Amnesiac.RememberMode.GetValue() == 1) newKillButton = CustomButton.Get("AmnesiacKill");
