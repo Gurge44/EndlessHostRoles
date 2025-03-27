@@ -81,20 +81,9 @@ internal static class CreateOptionsPickerPatch
         public static bool Prefix_FixedUpdate(GameOptionsMapPicker __instance)
         {
             if (__instance == null) return true;
-
             if (__instance.MapName == null) return false;
 
-            if (DleksButton != null)
-            {
-                if (__instance.selectedMapId == 3)
-                {
-                    SetDleks = true;
-                }
-                else
-                {
-                    SetDleks = false;
-                }
-            }
+            if (DleksButton != null) SetDleks = __instance.selectedMapId == 3;
 
             if (__instance.selectedMapId == 3)
             {
@@ -169,7 +158,6 @@ internal static class CreateOptionsPickerPatch
 
             SwapIconOrButtonPositions(airhipIconInMenu, dleksIconInMenuCopy);
             SwapIconOrButtonPositions(fungleIconInMenu, airhipIconInMenu);
-
             SwapIconOrButtonPositions(airshipMenuButton, dleksMenuButtonCopy);
 
             // set flipped dleks map Icon/button
