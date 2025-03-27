@@ -67,7 +67,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-#### Over 400 roles and add-ons, 10 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+#### Over 400 roles and add-ons, 12 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
 ## List of Roles <span style="font-size: 12px;">(excluding Hide and Seek roles and vanilla roles)</span>
 
