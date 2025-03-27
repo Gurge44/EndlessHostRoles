@@ -2012,10 +2012,10 @@ public static class Utils
         var count = 0;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
+        CustomRpcSender sender = null;
+
         foreach (PlayerControl seer in aapc)
         {
-            CustomRpcSender sender = null;
-
             foreach (PlayerControl target in aapc)
             {
                 if (GameStates.IsMeeting) yield break;
@@ -2023,8 +2023,10 @@ public static class Utils
                 if (count++ % speed == 0) yield return null;
             }
 
-            sender?.SendMessage();
+            sender?.EndMessage();
         }
+        
+        sender?.SendMessage();
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -2036,14 +2038,21 @@ public static class Utils
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
         PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
 
-        // seer: Players who can see changes made here
-        // target: Players subject to changes that seer can see
+        CustomRpcSender sender = null;
+
         foreach (PlayerControl seer in seerList)
         {
-            CustomRpcSender sender = null;
             WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList);
-            sender?.SendMessage();
+            sender?.EndMessage();
+
+            if (sender?.stream.Length >= 500)
+            {
+                sender?.SendMessage();
+                sender = null;
+            }
         }
+        
+        sender?.SendMessage();
 
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
@@ -2065,11 +2074,8 @@ public static class Utils
             if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())))
                 return;
 
-            if (sender == null)
-            {
-                sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
-                sender.StartMessage(seer.GetClientId());
-            }
+            sender ??= CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
+            if (sender.CurrentState == CustomRpcSender.State.Ready) sender.StartMessage(seer.GetClientId());
 
             // During intro scene, set team name for non-modded clients and skip the rest.
             string SelfName;

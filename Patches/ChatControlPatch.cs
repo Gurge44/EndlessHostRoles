@@ -218,19 +218,18 @@ public static class ChatManager
 
         try
         {
-            int totalAlive = Main.AllAlivePlayerControls.Length;
-            if (totalAlive == 0) return;
+            var aapc = Main.AllAlivePlayerControls;
+            if (aapc.Length == 0) return;
 
-            PlayerControl[] x = Main.AllAlivePlayerControls;
-            var r = IRandom.Instance;
-
-            string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+            var filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+            var chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+            var writer = CustomRpcSender.Create("MessagesToSend", Hazel.SendOption.Reliable);
 
             for (int i = clear ? 0 : filtered.Length; i < 20; i++)
             {
-                PlayerControl player = x[r.Next(0, totalAlive)];
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, Utils.EmptyMessage);
-                SendRPC(player, Utils.EmptyMessage);
+                PlayerControl player = aapc.RandomElement();
+                chat.AddChat(player, Utils.EmptyMessage);
+                SendRPC(writer, player, Utils.EmptyMessage);
             }
 
             if (!clear)
@@ -245,19 +244,19 @@ public static class ChatManager
                     PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
                     if (senderPlayer == null) continue;
 
-                    FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-                    SendRPC(senderPlayer, senderMessage);
+                    chat.AddChat(senderPlayer, senderMessage);
+                    SendRPC(writer, senderPlayer, senderMessage);
                 }
             }
-
+            
+            writer.SendMessage();
             ChatUpdatePatch.SendLastMessages();
         }
         finally { ChatUpdatePatch.DoBlockChat = false; }
     }
 
-    private static void SendRPC(InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
+    private static void SendRPC(CustomRpcSender writer, InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
     {
-        var writer = CustomRpcSender.Create("MessagesToSend", Hazel.SendOption.Reliable);
         writer.StartMessage(targetClientId);
 
         writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
@@ -265,7 +264,6 @@ public static class ChatManager
             .EndRpc();
 
         writer.EndMessage();
-        writer.SendMessage();
     }
 
     public static void ClearChatForSpecificPlayer(PlayerControl target)
@@ -280,10 +278,13 @@ public static class ChatManager
             var clientId = target.GetClientId();
             if (clientId == -1) return;
 
-            Loop.Times(20, _ => SendRPC(sender, Utils.EmptyMessage, clientId));
+            var writer = CustomRpcSender.Create("MessagesToSend", Hazel.SendOption.Reliable);
+            Loop.Times(20, _ => SendRPC(writer, sender, Utils.EmptyMessage, clientId));
+            writer.SendMessage();
             return;
         }
 
-        Loop.Times(20, _ => FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, Utils.EmptyMessage));
+        var chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+        Loop.Times(20, _ => chat.AddChat(sender, Utils.EmptyMessage));
     }
 }
