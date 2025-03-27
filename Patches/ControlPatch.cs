@@ -92,7 +92,7 @@ internal static class ControllerManagerUpdatePatch
             if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                GameManager.Instance.LogicFlow.CheckEndCriteria();
+                GameEndChecker.Prefix();
             }
 
             if (KeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsInGame)

@@ -293,7 +293,7 @@ public static class KingOfTheZones
             yield return null;
         }
 
-        yield return new WaitForSeconds(showTutorial ? 13f : 2f);
+        yield return new WaitForSeconds(showTutorial ? 11f : 2f);
         NameNotifyManager.Reset();
         if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -319,7 +319,7 @@ public static class KingOfTheZones
             };
 
             aapc.Do(x => x.Notify($"<#ffffff>{gameEnd}</color>", 100f));
-            yield return new WaitForSeconds(endByPoints && endByTime ? 9f : 6f);
+            yield return new WaitForSeconds(endByPoints && endByTime ? 8f : 5f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -362,7 +362,7 @@ public static class KingOfTheZones
             {
                 LastShortInfo = info;
                 aapc.Do(x => x.Notify($"<#ffffff>{info}</color>", 100f));
-                yield return new WaitForSeconds(7f);
+                yield return new WaitForSeconds(6f);
                 NameNotifyManager.Reset();
                 if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
             }

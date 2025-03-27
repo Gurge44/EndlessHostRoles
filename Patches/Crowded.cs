@@ -163,6 +163,8 @@ internal static class Crowded
                 if (GameOptionsManager.Instance.GameHostOptions != null && GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
                     GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
 
+                if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3) { GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3); }
+
                 if (Instance)
                 {
                     for (var i = 1; i < 11; i++)
@@ -289,7 +291,8 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix(PlayerTab __instance)
         {
-            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers > 15) { __instance.currentColorIsEquipped = false; }
+            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers > 15)
+                __instance.currentColorIsEquipped = false;
         }
     }
 
@@ -299,13 +302,14 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static bool Prefix(PlayerTab __instance)
         {
-            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers <= 15) { return true; }
+            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers <= 15) return true;
 
             __instance.AvailableColors.Clear();
 
             for (var i = 0; i < Palette.PlayerColors.Count; i++)
             {
-                if (!PlayerControl.LocalPlayer || PlayerControl.LocalPlayer.CurrentOutfit.ColorId != i) { __instance.AvailableColors.Add(i); }
+                if (!PlayerControl.LocalPlayer || PlayerControl.LocalPlayer.CurrentOutfit.ColorId != i)
+                    __instance.AvailableColors.Add(i);
             }
 
             return false;
@@ -341,6 +345,28 @@ internal static class Crowded
             __instance.gameObject.AddComponent<VitalsPagingBehaviour>().vitalsMinigame = __instance;
         }
     }
+
+    [HarmonyPatch(typeof(PSManager), nameof(PSManager.CreateGame))]
+    [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.ContinueStart))]
+    public static class BeforeHostGamePatch
+    {
+        public static void Prefix()
+        {
+            Logger.Info("Host Game is being called!", "Crowded");
+
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !GameStates.IsLocalGame)
+            {
+                if (GameOptionsManager.Instance.GameHostOptions != null)
+                {
+                    if (GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
+                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
+
+                    if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3)
+                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3);
+                }
+            }
+        }
+    }
 }
 
 public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
@@ -367,9 +393,11 @@ public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
 
     public virtual void Update()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.mouseScrollDelta.y > 0f)
+        bool chatIsOpen = HudManager.Instance.Chat.IsOpenOrOpening;
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || (!chatIsOpen && Input.mouseScrollDelta.y > 0f))
             Cycle(false);
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.mouseScrollDelta.y < 0f)
+        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || (!chatIsOpen && Input.mouseScrollDelta.y < 0f))
             Cycle(true);
     }
 

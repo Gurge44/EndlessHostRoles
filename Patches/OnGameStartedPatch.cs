@@ -19,6 +19,7 @@ using Il2CppSystem.Collections;
 using InnerNet;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.UI;
 using static EHR.Modules.CustomRoleSelector;
 using static EHR.Translator;
 using DateTime = Il2CppSystem.DateTime;
@@ -464,6 +465,29 @@ internal static class StartGameHostPatch
 
     private static System.Collections.IEnumerator StartGameHost()
     {
+        string loadingTextText1 = GetString("LoadingBarText.1");
+        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
+
+        try
+        {
+            loadingBarManager.ToggleLoadingBar(true);
+            loadingBarManager.SetLoadingPercent(0f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.DestroyTranslator();
+            loadingBarManager.loadingBar.loadingText.text = loadingTextText1;
+
+            var loadingBarLogo = GameObject.Find("Loading Bar Manager/Loading Bar/Canvas/Logo")?.GetComponent<Image>();
+
+            if (loadingBarLogo)
+            {
+                loadingBarLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 600f);
+                loadingBarLogo.SetNativeSize();
+            }
+
+            var fillImage = GameObject.Find("Loading Bar Manager/Loading Bar/Canvas/Bar/Fill")?.GetComponent<Image>();
+            if (fillImage) fillImage.color = new Color(0f, 0.647f, 1f, 1f);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         if (LobbyBehaviour.Instance)
             LobbyBehaviour.Instance.Despawn();
 
@@ -478,6 +502,13 @@ internal static class StartGameHostPatch
             AUClient.Spawn(ShipStatus.Instance);
         }
 
+        try
+        {
+            loadingBarManager.SetLoadingPercent(5f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = loadingTextText1;
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         DateTime start = DateTime.Now;
 
         while (true)
@@ -488,6 +519,9 @@ internal static class StartGameHostPatch
 
             if ((GameOptionsManager.Instance.CurrentGameOptions.MapId == 5) || (GameOptionsManager.Instance.CurrentGameOptions.MapId == 4))
                 num = 15;
+
+            int clientsReady = 0;
+            int allClientsCount = AUClient.allClients.Count;
 
             lock (AUClient.allClients)
             {
@@ -506,14 +540,22 @@ internal static class StartGameHostPatch
                             AUClient.OnPlayerLeft(allClient, DisconnectReasons.ClientTimeout);
                         }
                     }
+                    else
+                        ++clientsReady;
                 }
             }
 
-            if ((totalSeconds > 1.0) && (totalSeconds < (double)num))
+            try
             {
-                FastDestroyableSingleton<LoadingBarManager>.Instance.ToggleLoadingBar(true);
-                FastDestroyableSingleton<LoadingBarManager>.Instance.SetLoadingPercent((float)(totalSeconds / (double)num * 100.0), StringNames.LoadingBarGameStartWaitingPlayers);
+                if ((totalSeconds > 1.0) && (totalSeconds < (double)num))
+                {
+                    loadingBarManager.SetLoadingPercent(5 + (float)(totalSeconds / (double)num * 60.0), StringNames.LoadingBarGameStartWaitingPlayers);
+
+                    int timeoutIn = num - (int)totalSeconds;
+                    loadingBarManager.loadingBar.loadingText.text = string.Format(GetString("LoadingBarText.2"), clientsReady, allClientsCount, timeoutIn);
+                }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             if (!flag)
                 yield return new WaitForEndOfFrame();
@@ -521,15 +563,36 @@ internal static class StartGameHostPatch
                 break;
         }
 
-        FastDestroyableSingleton<LoadingBarManager>.Instance.ToggleLoadingBar(false);
         AUClient.SendClientReady();
+
+        try
+        {
+            loadingBarManager.SetLoadingPercent(65f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = GetString("LoadingBarText.3");
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         yield return new WaitForSeconds(2f);
+
+        try
+        {
+            loadingBarManager.SetLoadingPercent(70f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = GetString("LoadingBarText.4");
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         yield return AssignRoles();
     }
 
     private static System.Collections.IEnumerator AssignRoles()
     {
-        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
+        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
+
+        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended)
+        {
+            loadingBarManager.ToggleLoadingBar(false);
+            yield break;
+        }
 
         RpcSetRoleReplacer.Initialize();
 
@@ -682,6 +745,13 @@ internal static class StartGameHostPatch
         // Send all RPCs
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) yield return RpcSetRoleReplacer.ReleaseAsync();
         else RpcSetRoleReplacer.Release();
+
+        try
+        {
+            loadingBarManager.SetLoadingPercent(80f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = GetString("LoadingBarText.4");
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         try
         {
@@ -931,11 +1001,21 @@ internal static class StartGameHostPatch
         {
             Utils.ErrorEnd("Select Role Postfix");
             Utils.ThrowException(ex);
+            loadingBarManager.ToggleLoadingBar(false);
             yield break;
         }
 
         Logger.Info("Others assign finished", "AssignRoleTypes");
         yield return new WaitForSeconds(1f);
+
+        string loadingTextText5 = GetString("LoadingBarText.5");
+
+        try
+        {
+            loadingBarManager.SetLoadingPercent(90f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = loadingTextText5;
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         Logger.Info("Send rpc disconnected for all", "AssignRoleTypes");
         DataDisconnected.Clear();
@@ -943,10 +1023,20 @@ internal static class StartGameHostPatch
 
         yield return new WaitForSeconds(4f);
 
+        try
+        {
+            loadingBarManager.SetLoadingPercent(100f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = loadingTextText5;
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         Logger.Info("Assign self", "AssignRoleTypes");
         SetRoleSelf();
 
         RpcSetRoleReplacer.EndReplace();
+
+        try { loadingBarManager.ToggleLoadingBar(false); }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)

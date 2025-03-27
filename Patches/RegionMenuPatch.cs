@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace EHR.Patches;
 // https://github.com/0xDrMoe/TownofHost-Enhanced/blob/4ba167ac3009c54b14ee007534dc033227ded2a1/Patches/RegionMenuPatch.cs
@@ -38,6 +39,76 @@ public static class RegionMenuPatch
             int col = i / buttonsPerColumn;
             int row = i % buttonsPerColumn;
             buttons[i].transform.localPosition = startPosition + new Vector3(col * buttonSpacingSide, -row * buttonSpacing, 0f);
+        }
+    }
+}
+
+[HarmonyPatch]
+public static class ServerDropDownPatch
+{
+    [HarmonyPatch(typeof(ServerDropdown), nameof(ServerDropdown.FillServerOptions))]
+    [HarmonyPostfix]
+    public static void AdjustButtonPositions(ServerDropdown __instance)
+    {
+        List<ServerListButton> allButtons = __instance.GetComponentsInChildren<ServerListButton>().ToList();
+
+        if (allButtons.Count == 0)
+            return;
+
+        float buttonSpacing = 0.6f;
+        float columnSpacing = 4.25f;
+
+        if (SceneManager.GetActiveScene().name == "FindAGame")
+        {
+            const int buttonsPerColumn = 7;
+
+            int columnCount = (allButtons.Count + buttonsPerColumn - 1) / buttonsPerColumn;
+
+            Vector3 startPosition = new Vector3(0, -buttonSpacing, 0);
+
+            for (int i = 0; i < allButtons.Count; i++)
+            {
+                int col = i / buttonsPerColumn;
+                int row = i % buttonsPerColumn;
+                allButtons[i].transform.localPosition = startPosition + new Vector3(col * columnSpacing, -row * buttonSpacing, 0f);
+            }
+        }
+        else
+        {
+            // Total 2 colums
+            const int buttonsInFirstColumn = 5;
+
+            int buttonsInSecondColumn = allButtons.Count - buttonsInFirstColumn;
+
+            // If we have less than 5 buttons to show, skip following codes
+            if (buttonsInFirstColumn <= 0 || buttonsInSecondColumn <= 0)
+            {
+                for (int i = 0; i < allButtons.Count; i++)
+                {
+                    allButtons[i].transform.localPosition = new Vector3(0, -i * buttonSpacing, 0);
+                }
+                return;
+            }
+
+            Vector3 startPosition = new Vector3(0, -buttonSpacing, 0);
+
+            for (int i = 0; i < buttonsInFirstColumn; i++)
+            {
+                allButtons[i].transform.localPosition = startPosition + new Vector3(0, -i * buttonSpacing, 0);
+            }
+
+            float secondColumnStartY = 0;
+            if (buttonsInSecondColumn > 1)
+            {
+                // Last button in second column should be at the same height as the last button in the first column
+                secondColumnStartY = -(buttonsInFirstColumn - buttonsInSecondColumn) * buttonSpacing;
+            }
+
+            for (int i = 0; i < buttonsInSecondColumn; i++)
+            {
+                int buttonIndex = buttonsInFirstColumn + i;
+                allButtons[buttonIndex].transform.localPosition = startPosition + new Vector3(columnSpacing, secondColumnStartY - i * buttonSpacing, 0);
+            }
         }
     }
 }
