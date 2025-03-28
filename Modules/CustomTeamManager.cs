@@ -45,8 +45,9 @@ internal static class CustomTeamManager
             var killEachOther = new BooleanOptionItem(id++, "CTA.KillEachOther", false, tab);
             var guessEachOther = new BooleanOptionItem(id++, "CTA.GuessEachOther", false, tab);
             var arrows = new BooleanOptionItem(id, "CTA.Arrows", true, tab);
+            var maxPlayers = new IntegerOptionItem(id, "CTA.MaxPlayersAssignedToTeam", new(1, 15, 1), 15, tab);
 
-            CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows);
+            CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows, maxPlayers);
             group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));
             group.AllOptions.ForEach(x => x.SetColor(new Color32(215, 227, 84, byte.MaxValue)));
             group.AllOptions.ForEach(x => x.SetGameMode(CustomGameMode.Standard));
@@ -71,7 +72,7 @@ internal static class CustomTeamManager
             .IntersectBy(Main.AllAlivePlayerControls.Select(x => x.PlayerId), x => x.Key)
             .GroupBy(x => EnabledCustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(x.Value.MainRole)), x => x.Key)
             .Where(x => x.Key != null)
-            .ToDictionary(x => x.Key, x => x.ToHashSet());
+            .ToDictionary(x => x.Key, x => x.Shuffle().Take(CustomTeamOptions.First(g => g.Team.Equals(x.Key)).MaxPlayers.GetInt()).ToHashSet());
 
         foreach ((CustomTeam team, HashSet<byte> players) in CustomTeamPlayerIds)
         {
@@ -210,12 +211,13 @@ internal static class CustomTeamManager
         }
     }
 
-    internal class CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows)
+    internal class CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows, IntegerOptionItem maxPlayers)
     {
-        public readonly List<BooleanOptionItem> AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows];
+        public readonly List<OptionItem> AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows, maxPlayers];
         public CustomTeam Team { get; } = team;
 
         public BooleanOptionItem Enabled { get; } = enabled;
+        public IntegerOptionItem MaxPlayers { get; } = maxPlayers;
     }
 }
 
@@ -226,5 +228,6 @@ public enum CTAOption
     WinWithOriginalTeam,
     KillEachOther,
     GuessEachOther,
-    Arrows
+    Arrows,
+    MaxPlayersAssignedToTeam
 }
