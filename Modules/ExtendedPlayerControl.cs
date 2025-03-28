@@ -77,7 +77,7 @@ internal static class ExtendedPlayerControl
         if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) return true;
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
-        if (GameStates.IsInTask) return false;
+        if (!GameStates.IsInTask) return false;
         return (player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
