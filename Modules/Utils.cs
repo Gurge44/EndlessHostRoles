@@ -2033,6 +2033,12 @@ public static class Utils
             }
 
             sender?.EndMessage();
+            
+            if (sender?.stream.Length >= 500)
+            {
+                sender.SendMessage();
+                sender = null;
+            }
         }
         
         sender?.SendMessage();
