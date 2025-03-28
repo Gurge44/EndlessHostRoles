@@ -253,12 +253,12 @@ public static class RoomRush
                 sb.AppendLine(Translator.GetString("RR_Tutorial_PointsSystem"));
                 sb.AppendLine(Translator.GetString("RR_Tutorial_TimeLimitLastPoints"));
                 sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_PointsToWin"), PointsToWin.GetInt()));
-                readingTime += 14;
+                readingTime += 12;
             }
             else
             {
                 sb.AppendLine(Translator.GetString("RR_Tutorial_TimeLimitDeath"));
-                readingTime += 4;
+                readingTime += 3;
             }
 
             bool arrow = DisplayArrowToRoom.GetBool();
@@ -268,11 +268,11 @@ public static class RoomRush
             {
                 case (true, true):
                     sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_ArrowAndName"));
-                    readingTime += 5;
+                    readingTime += 4;
                     break;
                 case (true, false):
                     sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_ArrowOnly"));
-                    readingTime += 4;
+                    readingTime += 3;
                     break;
                 case (false, true):
                     sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_NameOnly"));
@@ -285,7 +285,7 @@ public static class RoomRush
                 if (!DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool())
                 {
                     sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_LowerTimeWhenTwoPlayersEnterRoom"), TimeWhenFirstTwoPlayersEnterRoom.GetInt()));
-                    readingTime += 5;
+                    readingTime += 4;
                 }
 
                 if (!DontKillLastPlayer.GetBool())
@@ -297,14 +297,14 @@ public static class RoomRush
                 if (!DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool())
                 {
                     sb.AppendLine(Translator.GetString("RR_Tutorial_DontMoveOutOfRoom"));
-                    readingTime += 3;
+                    readingTime += 2;
                 }
             }
 
             if (ventLimit > 0)
             {
                 sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_Venting"), ventLimit));
-                readingTime += 4;
+                readingTime += 3;
             }
 
             aapc.Do(x => x.Notify(sb.Insert(0, "<#ffffff>").Append("</color>").ToString().Trim(), 100f));
