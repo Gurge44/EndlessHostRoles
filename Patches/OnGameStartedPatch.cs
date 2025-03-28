@@ -244,7 +244,6 @@ internal static class ChangeRoleSettings
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];
-            VentilationSystemDeterioratePatch.LastClosestVent = [];
             GuessManager.Guessers = [];
 
             Options.UsedButtonCount = 0;
@@ -640,7 +639,7 @@ internal static class StartGameHostPatch
 
                 if (CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
-                    bool bloodlustSpawn = (random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0)) && CustomRoles.Bloodlust.IsEnable();
+                    bool bloodlustSpawn = (random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0)) && CustomRoles.Bloodlust.IsEnable() && Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt() > 0;
                     bool physicistSpawn = (random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out IntegerOptionItem option1) ? option1.GetFloat() : 0)) && CustomRoles.Physicist.IsEnable();
                     bool nimbleSpawn = (random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out IntegerOptionItem option2) ? option2.GetFloat() : 0)) && CustomRoles.Nimble.IsEnable();
                     bool finderSpawn = (random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Finder, out IntegerOptionItem option3) ? option3.GetFloat() : 0)) && CustomRoles.Finder.IsEnable();
