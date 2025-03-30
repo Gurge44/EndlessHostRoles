@@ -234,11 +234,6 @@ internal static class EAC
                     Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()} {sreason}, rejected", "EAC");
                     return true;
                 }
-                case RpcCalls.SendChatNote when !pc.IsModdedClient():
-                    Report(pc, "Directly Send ChatNote");
-                    HandleCheat(pc, "Directly Send ChatNote");
-                    Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly sent ChatNote, which has been rejected", "EAC");
-                    return true;
                 case RpcCalls.CompleteTask when GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost() && !(Main.CurrentMap == MapNames.Airship && ExileController.Instance):
                     Report(pc, "Complete Task in Meeting");
                     HandleCheat(pc, "Complete Task in Meeting");
