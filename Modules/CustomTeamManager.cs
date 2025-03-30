@@ -44,8 +44,8 @@ internal static class CustomTeamManager
             var winWithOriginalTeam = new BooleanOptionItem(id++, "CTA.WinWithOriginalTeam", false, tab);
             var killEachOther = new BooleanOptionItem(id++, "CTA.KillEachOther", false, tab);
             var guessEachOther = new BooleanOptionItem(id++, "CTA.GuessEachOther", false, tab);
-            var arrows = new BooleanOptionItem(id, "CTA.Arrows", true, tab);
-            var maxPlayers = new IntegerOptionItem(id, "CTA.MaxPlayersAssignedToTeam", new(1, 15, 1), 15, tab);
+            var arrows = new BooleanOptionItem(id++, "CTA.Arrows", true, tab);
+            var maxPlayers = new IntegerOptionItem(id++, "CTA.MaxPlayersAssignedToTeam", new(1, 15, 1), 15, tab);
             
             var teamPlayerCounts = new Dictionary<Team, IntegerOptionItem[]>();
             
