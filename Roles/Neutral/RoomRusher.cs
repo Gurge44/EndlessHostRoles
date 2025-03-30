@@ -64,6 +64,7 @@ public class RoomRusher : RoleBase
             AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
             AllRooms.Remove(SystemTypes.Hallway);
             AllRooms.Remove(SystemTypes.Outside);
+            AllRooms.Remove(SystemTypes.Ventilation);
             AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
 
             Map = RandomSpawn.SpawnMap.GetSpawnMap();
@@ -129,9 +130,6 @@ public class RoomRusher : RoleBase
 
         switch (map)
         {
-            case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
-                time = (int)(time * 0.7f);
-                break;
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
                 break;

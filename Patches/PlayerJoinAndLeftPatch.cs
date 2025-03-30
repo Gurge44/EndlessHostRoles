@@ -329,7 +329,7 @@ internal static class OnPlayerLeftPatch
         catch (Exception ex) { Logger.Error(ex.ToString(), "OnPlayerLeftPatch.Postfix"); }
         finally
         {
-            Utils.NotifyRoles(ForceLoop: true);
+            if (GameStates.IsInTask && !ExileController.Instance) Utils.NotifyRoles(ForceLoop: true);
             ChatUpdatePatch.DoBlockChat = false;
         }
     }

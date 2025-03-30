@@ -92,11 +92,6 @@ public static class RoomRush
             [(SystemTypes.Showers, SystemTypes.CargoBay)] = 2,
             [(SystemTypes.Showers, SystemTypes.Electrical)] = 2,
             [(SystemTypes.Showers, SystemTypes.Medical)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.CargoBay)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.Lounge)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.Electrical)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.Medical)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.MeetingRoom)] = 3,
             [(SystemTypes.Comms, SystemTypes.VaultRoom)] = 2,
             [(SystemTypes.GapRoom, SystemTypes.Records)] = 3,
             [(SystemTypes.GapRoom, SystemTypes.Lounge)] = 3,
@@ -216,6 +211,7 @@ public static class RoomRush
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
         AllRooms.Remove(SystemTypes.Hallway);
         AllRooms.Remove(SystemTypes.Outside);
+        AllRooms.Remove(SystemTypes.Ventilation);
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
 
         DonePlayers = [];
@@ -388,9 +384,6 @@ public static class RoomRush
 
         switch (map)
         {
-            case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
-                time = (int)(time * 0.7f);
-                break;
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
                 break;
