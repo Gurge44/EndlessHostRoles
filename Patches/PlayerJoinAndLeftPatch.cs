@@ -359,7 +359,7 @@ internal static class InnerNetClientSpawnPatch
                     Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
                 else
                     TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
-            }, 3f, "Welcome Message");
+            }, GameStates.CurrentServerType == GameStates.ServerType.Niko ? 7f : 3f, "Welcome Message");
 
             LateTask.New(() =>
             {
