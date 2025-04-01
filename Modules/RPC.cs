@@ -505,7 +505,7 @@ internal static class RPCHandlerPatch
                 byte sendTo = reader.ReadByte();
                 string title = reader.ReadString();
                 bool noSplit = reader.ReadBoolean();
-                Utils.SendMessage(text, sendTo, title, noSplit);
+                Utils.SendMessage(text, sendTo, title, noSplit: noSplit);
                 break;
             }
             case CustomRPC.NotificationPopper:

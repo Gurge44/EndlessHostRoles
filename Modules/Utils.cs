@@ -1695,9 +1695,10 @@ public static class Utils
         catch (Exception e) { ThrowException(e); }
     }
 
-    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
+    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false)
     {
-        if (sendTo != byte.MaxValue && GetPlayerById(sendTo, false) == null) return;
+        PlayerControl receiver = GetPlayerById(sendTo, false);
+        if (sendTo != byte.MaxValue && receiver == null) return;
         if (title.Trim().Length == 0 && text.Trim().Length == 0) return;
 
         if (!AmongUsClient.Instance.AmHost)
@@ -1726,24 +1727,43 @@ public static class Utils
         }
 
         text = text.Replace("color=", string.Empty);
+        title = title.Replace("color=", string.Empty);
 
-        if (text.Length >= 1200 && !noSplit)
+        var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+
+        if (sendTo != byte.MaxValue)
+        {
+            writer ??= CustomRpcSender.Create("Utils.SendMessage", SendOption.Reliable);
+            if (writer.CurrentState == CustomRpcSender.State.Ready) writer.StartMessage(receiver.GetClientId());
+
+            if (!noSplit)
+            {
+                writer.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
+                    .Write(sender.Data.NetId)
+                    .Write(title)
+                    .EndRpc();
+            }
+        }
+
+        const int sizeLimit = 1000;
+
+        if (text.Length >= sizeLimit && !noSplit)
         {
             string[] lines = text.Split('\n');
             var shortenedText = string.Empty;
 
             foreach (string line in lines)
             {
-                if (shortenedText.Length + line.Length < 1200)
+                if (shortenedText.Length + line.Length < sizeLimit)
                 {
                     shortenedText += line + "\n";
                     continue;
                 }
 
-                if (shortenedText.Length >= 1200)
-                    shortenedText.Chunk(1200).Do(x => SendMessage(new(x), sendTo, title, true));
+                if (shortenedText.Length >= sizeLimit)
+                    shortenedText.Chunk(sizeLimit).Do(x => SendMessage(new(x), sendTo, title, noSplit: true, writer: writer));
                 else
-                    SendMessage(shortenedText, sendTo, title, true);
+                    SendMessage(shortenedText, sendTo, title, noSplit: true, writer: writer);
 
                 string sentText = shortenedText;
                 shortenedText = line + "\n";
@@ -1755,7 +1775,16 @@ public static class Utils
                 }
             }
 
-            if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, true);
+            if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, noSplit: true, writer: writer, final: true);
+            else if (writer != null && sendTo != byte.MaxValue && writer.CurrentState == CustomRpcSender.State.InRootMessage)
+            {
+                writer.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
+                    .Write(sender.Data.NetId)
+                    .Write(sender.Data.PlayerName)
+                    .EndRpc();
+
+                writer.SendMessage();
+            }
 
             return;
         }
@@ -1773,7 +1802,20 @@ public static class Utils
         if (sendTo == byte.MaxValue) Main.MessagesToSend.Add((text, sendTo, title));
         else
         {
-            ChatUpdatePatch.SendMessage(Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer, text, sendTo, title);
+            writer.StartRpc(sender.NetId, (byte)RpcCalls.SendChat)
+                .Write(text)
+                .EndRpc();
+
+            if ((noSplit && final) || !noSplit)
+            {
+                writer.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
+                    .Write(sender.Data.NetId)
+                    .Write(sender.Data.PlayerName)
+                    .EndRpc();
+
+                writer.SendMessage();
+            }
+
             ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
         }
     }
