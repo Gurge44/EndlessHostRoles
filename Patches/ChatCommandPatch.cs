@@ -129,7 +129,7 @@ internal static class ChatCommands
             new(["dis", "disconnect", "дис", "断连"], "{team}", GetString("CommandDescription.Disconnect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, DisconnectCommand, true, false, [GetString("CommandArgs.Disconnect.Team")]),
             new(["r", "р", "função"], "[role]", GetString("CommandDescription.R"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RCommand, true, false, [GetString("CommandArgs.R.Role")]),
             new(["up", "指定"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, false, [GetString("CommandArgs.Up.Role")]),
-            new(["setrole", "сетроль", "预设职业", "definir-função"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, false, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
+            new(["setrole", "setaddon", "сетроль", "预设职业", "definir-função"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, false, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
             new(["h", "help", "хэлп", "хелп", "помощь", "帮助", "ajuda"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true, false),
             new(["gamestate", "gstate", "gs", "kcount", "kc", "кубийц", "гс", "статигры", "对局状态", "estadojogo", "status"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true, false),
             new(["addmod", "добмодера", "指定协管", "moderador-add"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, false, [GetString("CommandArgs.AddMod.Id")]),
@@ -3141,17 +3141,13 @@ internal static class ChatUpdatePatch
         LastMessages.Add((msg, sendTo, title, Utils.TimeStamp));
     }
 
-    internal static void SendLastMessages()
+    internal static void SendLastMessages(CustomRpcSender sender)
     {
         PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return;
-        
-        var sender = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
 
         foreach ((string msg, byte sendTo, string title, _) in LastMessages)
             SendMessage(player, msg, sendTo, title, sender);
-        
-        sender.SendMessage();
     }
 
     internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title, CustomRpcSender sender = null)

@@ -282,7 +282,7 @@ public class Main : BasePlugin
         Logger.Disable("NotifyRoles");
         Logger.Disable("SwitchSystem");
         Logger.Disable("ModNews");
-        Logger.Disable("CustomRpcSender");
+        //Logger.Disable("CustomRpcSender");
 
         if (!DebugModeManager.AmDebugger)
         {
@@ -291,7 +291,7 @@ public class Main : BasePlugin
             // Logger.Disable("SendRPC");
             Logger.Disable("SetRole");
             Logger.Disable("Info.Role");
-            Logger.Disable("TaskState.Init");
+            //Logger.Disable("TaskState.Init");
             Logger.Disable("RpcSetNamePrivate");
             Logger.Disable("SetName");
             Logger.Disable("PlayerControl.RpcSetRole");

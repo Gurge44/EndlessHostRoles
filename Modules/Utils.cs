@@ -1730,6 +1730,16 @@ public static class Utils
         title = title.Replace("color=", string.Empty);
 
         var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        
+        if (sendTo != byte.MaxValue && receiver.IsLocalPlayer())
+        {
+            string name = sender.Data.PlayerName;
+            sender.SetName(title);
+            FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
+            sender.SetName(name);
+            ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+            return;
+        }
 
         if (sendTo != byte.MaxValue)
         {

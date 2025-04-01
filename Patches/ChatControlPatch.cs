@@ -249,8 +249,8 @@ public static class ChatManager
                 }
             }
             
+            ChatUpdatePatch.SendLastMessages(writer);
             writer.SendMessage();
-            ChatUpdatePatch.SendLastMessages();
         }
         finally { ChatUpdatePatch.DoBlockChat = false; }
     }

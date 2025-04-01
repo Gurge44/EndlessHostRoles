@@ -1063,6 +1063,17 @@ internal static class ReportDeadBodyPatch
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
 
+        foreach (byte id in Main.DiedThisRound)
+        {
+            PlayerControl receiver = id.GetPlayer();
+            if (receiver == null) continue;
+            
+            PlayerControl killer = receiver.GetRealKiller();
+            if (killer == null) continue;
+
+            SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()));
+        }
+        
         Main.DiedThisRound = [];
 
         Main.AllAlivePlayerControls.DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos());
