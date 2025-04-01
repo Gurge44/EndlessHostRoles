@@ -2351,7 +2351,7 @@
   "CommandDescription.Disconnect": "Deshacerse de todos los jugadores del equipo especificado",
   "CommandDescription.R": "Ver la lista de roles o la descripción de un rol específico",
   "CommandDescription.Up": "[OBSOLETO] Usa /setrole en su lugar",
-  "CommandDescription.SetRole": "Establecer el rol de un jugador para el próximo juego",
+  "CommandDescription.SetRole": "Set a player's role or add-on for the next game",
   "CommandDescription.Help": "Ver la lista de comandos",
   "CommandDescription.KCount": "Ver el número de impostores y neutrales asesinos restantes",
   "CommandDescription.AddMod": "Hace al jugador especificado un moderador",
