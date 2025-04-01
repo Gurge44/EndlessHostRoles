@@ -170,8 +170,7 @@ public class CustomRpcSender
         return this;
     }
 
-    [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
-    public CustomRpcSender EndMessage(int targetClientId = -1)
+    public CustomRpcSender EndMessage()
     {
         if (currentState != State.InRootMessage)
         {

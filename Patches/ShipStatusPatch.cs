@@ -22,7 +22,7 @@ internal static class ShipFixedUpdatePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
+        if (Main.IsFixedCooldown && (Main.RefixCooldownDelay >= 0))
             Main.RefixCooldownDelay -= Time.fixedDeltaTime;
         else if (!float.IsNaN(Main.RefixCooldownDelay))
         {
@@ -78,12 +78,12 @@ internal static class RepairSystemPatch
         [HarmonyArgument(2)] byte amount)
     {
         Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "RepairSystem");
-        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame) Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
+        if (RepairSender.Enabled && (AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame))
+            Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
 
-        if ((!CustomGameMode.Standard.IsActiveOrIntegrated() || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
-
+        if ((!CustomGameMode.Standard.IsActiveOrIntegrated() || Options.DisableSabotage.GetBool()) && (systemType == SystemTypes.Sabotage)) return false;
         if (player.Is(CustomRoles.Fool) && systemType is SystemTypes.Comms or SystemTypes.Electrical) return false;
 
         switch (player.GetCustomRole())
@@ -104,7 +104,7 @@ internal static class RepairSystemPatch
 
         switch (systemType)
         {
-            case SystemTypes.Doors when player.Is(CustomRoles.Unlucky) && player.IsAlive() && IRandom.Instance.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt():
+            case SystemTypes.Doors when player.Is(CustomRoles.Unlucky) && player.IsAlive() && (IRandom.Instance.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt()):
             {
                 player.Suicide();
                 return false;
@@ -113,9 +113,9 @@ internal static class RepairSystemPatch
             {
                 if (Main.NormalOptions.MapId == 4)
                 {
-                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
-                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
-                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
+                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && (Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f)) return false;
+                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && (Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f)) return false;
+                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && (Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f)) return false;
                 }
 
                 var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
@@ -314,7 +314,7 @@ internal static class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || !CustomGameMode.Standard.IsActiveOrIntegrated())
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || (TaskState.InitialTotalTasks == 0) || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || !CustomGameMode.Standard.IsActiveOrIntegrated())
         {
             __result = false;
             return false;
@@ -329,7 +329,7 @@ public static class HauntMenuMinigameSetFilterTextPatch
 {
     public static bool Prefix(HauntMenuMinigame __instance)
     {
-        if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
+        if ((__instance.HauntTarget != null) && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
         {
             byte id = __instance.HauntTarget.PlayerId;
             __instance.FilterText.text = Utils.GetDisplayRoleName(id) + Utils.GetProgressText(id);
@@ -432,170 +432,6 @@ internal static class PerformVentOpPatch
     }
 }
 
-[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Serialize))]
-internal static class ShipStatusSerializePatch
-{
-    public static void Prefix(ShipStatus __instance, [HarmonyArgument(1)] bool initialState)
-    {
-        if (!AmongUsClient.Instance.AmHost || initialState) return;
-
-        bool cancel = Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction);
-        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
-
-        if (cancel && ventilationSystem is { IsDirty: true })
-        {
-            Utils.SetAllVentInteractions();
-            ventilationSystem.IsDirty = false;
-        }
-    }
-}
-
-[HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.Deteriorate))]
-static class VentilationSystemDeterioratePatch
-{
-    public static Dictionary<byte, int> LastClosestVent = [];
-
-    public static void Postfix(VentilationSystem __instance)
-    {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
-
-        foreach (var pc in PlayerControl.AllPlayerControls)
-        {
-            if (BlockVentInteraction(pc))
-            {
-                if (LastClosestVent.TryGetValue(pc.PlayerId, out var ventId) && pc.GetClosestVent().Id == ventId) continue;
-                LastClosestVent[pc.PlayerId] = pc.GetClosestVent().Id;
-                MessageWriter writer = MessageWriter.Get();
-                writer.StartMessage(6);
-                writer.Write(AmongUsClient.Instance.GameId);
-                writer.WritePacked(pc.GetClientId());
-                writer.StartMessage(1);
-                writer.WritePacked(ShipStatus.Instance.NetId);
-                writer.StartMessage((byte)SystemTypes.Ventilation);
-                int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
-                List<NetworkedPlayerInfo> allPlayers = [];
-
-                foreach (var playerInfo in GameData.Instance.AllPlayers)
-                {
-                    if (playerInfo != null && !playerInfo.Disconnected)
-                        allPlayers.Add(playerInfo);
-                }
-
-                int maxVents = Math.Min(vents, allPlayers.Count);
-                int blockedVents = 0;
-                writer.WritePacked(maxVents);
-
-                foreach (var vent in pc.GetVentsFromClosest())
-                {
-                    if (!pc.CanUseVent(vent.Id))
-                    {
-                        writer.Write(allPlayers[blockedVents].PlayerId);
-                        writer.Write((byte)vent.Id);
-                        ++blockedVents;
-                    }
-
-                    if (blockedVents >= maxVents)
-                        break;
-                }
-
-                writer.WritePacked(__instance.PlayersInsideVents.Count);
-
-                foreach (Il2CppSystem.Collections.Generic.KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
-                {
-                    writer.Write(keyValuePair2.Key);
-                    writer.Write(keyValuePair2.Value);
-                }
-
-                writer.EndMessage();
-                writer.EndMessage();
-                writer.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(writer);
-                writer.Recycle();
-            }
-        }
-    }
-
-    public static bool BlockVentInteraction(PlayerControl pc)
-    {
-        return !pc.AmOwner && !pc.IsModdedClient() && !pc.Data.IsDead && pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
-    }
-
-    public static void SerializeV2(VentilationSystem __instance, PlayerControl player = null)
-    {
-        foreach (var pc in PlayerControl.AllPlayerControls)
-        {
-            if (pc.AmOwner) continue;
-            if (player != null && pc != player) continue;
-
-            if (BlockVentInteraction(pc))
-            {
-                MessageWriter writer = MessageWriter.Get();
-                writer.StartMessage(6);
-                writer.Write(AmongUsClient.Instance.GameId);
-                writer.WritePacked(pc.GetClientId());
-                writer.StartMessage(1);
-                writer.WritePacked(ShipStatus.Instance.NetId);
-                writer.StartMessage((byte)SystemTypes.Ventilation);
-                int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
-                List<NetworkedPlayerInfo> allPlayers = [];
-
-                foreach (var playerInfo in GameData.Instance.AllPlayers)
-                {
-                    if (playerInfo != null && !playerInfo.Disconnected)
-                        allPlayers.Add(playerInfo);
-                }
-
-                int maxVents = Math.Min(vents, allPlayers.Count);
-                int blockedVents = 0;
-                writer.WritePacked(maxVents);
-
-                foreach (var vent in pc.GetVentsFromClosest())
-                {
-                    if (!pc.CanUseVent(vent.Id))
-                    {
-                        writer.Write(allPlayers[blockedVents].PlayerId);
-                        writer.Write((byte)vent.Id);
-                        ++blockedVents;
-                    }
-
-                    if (blockedVents >= maxVents)
-                        break;
-                }
-
-                writer.WritePacked(__instance.PlayersInsideVents.Count);
-
-                foreach (Il2CppSystem.Collections.Generic.KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
-                {
-                    writer.Write(keyValuePair2.Key);
-                    writer.Write(keyValuePair2.Value);
-                }
-
-                writer.EndMessage();
-                writer.EndMessage();
-                writer.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(writer);
-                writer.Recycle();
-            }
-            else
-            {
-                MessageWriter writer = MessageWriter.Get();
-                writer.StartMessage(6);
-                writer.Write(AmongUsClient.Instance.GameId);
-                writer.WritePacked(pc.GetClientId());
-                writer.StartMessage(1);
-                writer.WritePacked(ShipStatus.Instance.NetId);
-                writer.StartMessage((byte)SystemTypes.Ventilation);
-                __instance.Serialize(writer, false);
-                writer.EndMessage();
-                writer.EndMessage();
-                writer.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(writer);
-                writer.Recycle();
-            }
-        }
-    }
-}
-
 [HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.IsVentCurrentlyBeingCleaned))]
 internal static class VentSystemIsVentCurrentlyBeingCleanedPatch
 {
@@ -611,5 +447,245 @@ internal static class VentSystemIsVentCurrentlyBeingCleanedPatch
         }
 
         return true;
+    }
+}
+
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Serialize))]
+internal static class ShipStatusSerializePatch
+{
+    public static void Prefix(ShipStatus __instance, [HarmonyArgument(0)] MessageWriter writer, [HarmonyArgument(1)] bool initialState)
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (initialState) return;
+        
+        var cancel = false;
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
+                cancel = true;
+        }
+
+        var hudOverrideSystem = __instance.Systems[SystemTypes.Comms].TryCast<HudOverrideSystemType>();
+
+        if ((Options.CurrentGameMode == CustomGameMode.Standard) && hudOverrideSystem is { IsDirty: true })
+        {
+            SerializeHudOverrideSystemV2(hudOverrideSystem);
+            hudOverrideSystem.IsDirty = false;
+        }
+
+        var hqHudSystem = __instance.Systems[SystemTypes.Comms].TryCast<HqHudSystemType>();
+
+        if ((Options.CurrentGameMode == CustomGameMode.Standard) && hqHudSystem is { IsDirty: true })
+        {
+            SerializeHqHudSystemV2(hqHudSystem);
+            hqHudSystem.IsDirty = false;
+        }
+
+        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].TryCast<VentilationSystem>();
+
+        if (cancel && ventilationSystem is { IsDirty: true })
+        {
+            Utils.SetAllVentInteractions();
+            ventilationSystem.IsDirty = false;
+        }
+    }
+
+    private static void SerializeHudOverrideSystemV2(HudOverrideSystemType __instance)
+    {
+        var doSend = false;
+        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (pc.IsRoleBlocked()) continue;
+            writer.StartMessage(6);
+            writer.Write(AmongUsClient.Instance.GameId);
+            writer.WritePacked(pc.GetClientId());
+            writer.StartMessage(1);
+            writer.WritePacked(ShipStatus.Instance.NetId);
+            writer.StartMessage((byte)SystemTypes.Comms);
+            __instance.Serialize(writer, false);
+            writer.EndMessage();
+            writer.EndMessage();
+            writer.EndMessage();
+            doSend = true;
+        }
+
+        if (doSend) AmongUsClient.Instance.SendOrDisconnect(writer);
+        writer.Recycle();
+    }
+
+    private static void SerializeHqHudSystemV2(HqHudSystemType __instance)
+    {
+        var doSend = false;
+        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (Main.AllPlayerSpeed.TryGetValue(pc.PlayerId, out float speed) && Mathf.Approximately(speed, Main.MinSpeed)) continue;
+            writer.StartMessage(6);
+            writer.Write(AmongUsClient.Instance.GameId);
+            writer.WritePacked(pc.GetClientId());
+            writer.StartMessage(1);
+            writer.WritePacked(ShipStatus.Instance.NetId);
+            writer.StartMessage((byte)SystemTypes.Comms);
+            __instance.Serialize(writer, false);
+            writer.EndMessage();
+            writer.EndMessage();
+            writer.EndMessage();
+            doSend = true;
+        }
+
+        if (doSend) AmongUsClient.Instance.SendOrDisconnect(writer);
+        writer.Recycle();
+    }
+}
+
+[HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.Deteriorate))]
+internal static class VentilationSystemDeterioratePatch
+{
+    public static void Postfix(VentilationSystem __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (!GameStates.InGame || !Main.IntroDestroyed) return;
+        List<NetworkedPlayerInfo> AllPlayers = [];
+
+        foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+        {
+            if ((playerInfo != null) && !playerInfo.Disconnected)
+                AllPlayers.Add(playerInfo);
+        }
+
+        var doSend = false;
+        MessageWriter writer = MessageWriter.Get();
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (BlockVentInteraction(pc))
+            {
+                int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
+                if (AllPlayers.Count >= vents) continue;
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(pc.GetClientId());
+                writer.StartMessage(1);
+                writer.WritePacked(ShipStatus.Instance.NetId);
+                writer.StartMessage((byte)SystemTypes.Ventilation);
+                var blockedVents = 0;
+                writer.WritePacked(AllPlayers.Count);
+
+                foreach (Vent vent in pc.GetVentsFromClosest())
+                {
+                    if (!pc.CanUseVent(vent.Id))
+                    {
+                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write((byte)vent.Id);
+                        ++blockedVents;
+                    }
+
+                    if (blockedVents >= AllPlayers.Count)
+                        break;
+                }
+
+                writer.WritePacked(__instance.PlayersInsideVents.Count);
+
+                foreach (Il2CppSystem.Collections.Generic.KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
+                {
+                    writer.Write(keyValuePair2.Key);
+                    writer.Write(keyValuePair2.Value);
+                }
+
+                writer.EndMessage();
+                writer.EndMessage();
+                writer.EndMessage();
+                doSend = true;
+            }
+        }
+
+        if (doSend) AmongUsClient.Instance.SendOrDisconnect(writer);
+        writer.Recycle();
+    }
+
+    public static bool BlockVentInteraction(PlayerControl pc)
+    {
+        return !pc.AmOwner && !pc.IsModdedClient() && !pc.Data.IsDead && pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
+    }
+
+    public static void SerializeV2(VentilationSystem __instance, PlayerControl player = null)
+    {
+        var doSend = false;
+        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (pc.AmOwner) continue;
+            if ((player != null) && (pc != player)) continue;
+
+            if (BlockVentInteraction(pc))
+            {
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(pc.GetClientId());
+                writer.StartMessage(1);
+                writer.WritePacked(ShipStatus.Instance.NetId);
+                writer.StartMessage((byte)SystemTypes.Ventilation);
+                int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
+                List<NetworkedPlayerInfo> AllPlayers = [];
+
+                foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+                {
+                    if ((playerInfo != null) && !playerInfo.Disconnected)
+                        AllPlayers.Add(playerInfo);
+                }
+
+                int maxVents = Math.Min(vents, AllPlayers.Count);
+                var blockedVents = 0;
+                writer.WritePacked(maxVents);
+
+                foreach (Vent vent in pc.GetVentsFromClosest())
+                {
+                    if (!pc.CanUseVent(vent.Id))
+                    {
+                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write((byte)vent.Id);
+                        ++blockedVents;
+                    }
+
+                    if (blockedVents >= maxVents)
+                        break;
+                }
+
+                writer.WritePacked(__instance.PlayersInsideVents.Count);
+
+                foreach (Il2CppSystem.Collections.Generic.KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
+                {
+                    writer.Write(keyValuePair2.Key);
+                    writer.Write(keyValuePair2.Value);
+                }
+
+                writer.EndMessage();
+                writer.EndMessage();
+                writer.EndMessage();
+            }
+            else
+            {
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(pc.GetClientId());
+                writer.StartMessage(1);
+                writer.WritePacked(ShipStatus.Instance.NetId);
+                writer.StartMessage((byte)SystemTypes.Ventilation);
+                __instance.Serialize(writer, false);
+                writer.EndMessage();
+                writer.EndMessage();
+                writer.EndMessage();
+            }
+
+            doSend = true;
+        }
+
+        if (doSend) AmongUsClient.Instance.SendOrDisconnect(writer);
+        writer.Recycle();
     }
 }

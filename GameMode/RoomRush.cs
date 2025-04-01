@@ -92,11 +92,6 @@ public static class RoomRush
             [(SystemTypes.Showers, SystemTypes.CargoBay)] = 2,
             [(SystemTypes.Showers, SystemTypes.Electrical)] = 2,
             [(SystemTypes.Showers, SystemTypes.Medical)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.CargoBay)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.Lounge)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.Electrical)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.Medical)] = 2,
-            [(SystemTypes.Ventilation, SystemTypes.MeetingRoom)] = 3,
             [(SystemTypes.Comms, SystemTypes.VaultRoom)] = 2,
             [(SystemTypes.GapRoom, SystemTypes.Records)] = 3,
             [(SystemTypes.GapRoom, SystemTypes.Lounge)] = 3,
@@ -216,6 +211,7 @@ public static class RoomRush
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
         AllRooms.Remove(SystemTypes.Hallway);
         AllRooms.Remove(SystemTypes.Outside);
+        AllRooms.Remove(SystemTypes.Ventilation);
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
 
         DonePlayers = [];
@@ -253,12 +249,12 @@ public static class RoomRush
                 sb.AppendLine(Translator.GetString("RR_Tutorial_PointsSystem"));
                 sb.AppendLine(Translator.GetString("RR_Tutorial_TimeLimitLastPoints"));
                 sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_PointsToWin"), PointsToWin.GetInt()));
-                readingTime += 14;
+                readingTime += 12;
             }
             else
             {
                 sb.AppendLine(Translator.GetString("RR_Tutorial_TimeLimitDeath"));
-                readingTime += 4;
+                readingTime += 3;
             }
 
             bool arrow = DisplayArrowToRoom.GetBool();
@@ -268,11 +264,11 @@ public static class RoomRush
             {
                 case (true, true):
                     sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_ArrowAndName"));
-                    readingTime += 5;
+                    readingTime += 4;
                     break;
                 case (true, false):
                     sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_ArrowOnly"));
-                    readingTime += 4;
+                    readingTime += 3;
                     break;
                 case (false, true):
                     sb.AppendLine(Translator.GetString("RR_Tutorial_RoomIndication_NameOnly"));
@@ -285,7 +281,7 @@ public static class RoomRush
                 if (!DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool())
                 {
                     sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_LowerTimeWhenTwoPlayersEnterRoom"), TimeWhenFirstTwoPlayersEnterRoom.GetInt()));
-                    readingTime += 5;
+                    readingTime += 4;
                 }
 
                 if (!DontKillLastPlayer.GetBool())
@@ -297,14 +293,14 @@ public static class RoomRush
                 if (!DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool())
                 {
                     sb.AppendLine(Translator.GetString("RR_Tutorial_DontMoveOutOfRoom"));
-                    readingTime += 3;
+                    readingTime += 2;
                 }
             }
 
             if (ventLimit > 0)
             {
                 sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_Venting"), ventLimit));
-                readingTime += 4;
+                readingTime += 3;
             }
 
             aapc.Do(x => x.Notify(sb.Insert(0, "<#ffffff>").Append("</color>").ToString().Trim(), 100f));
@@ -388,9 +384,6 @@ public static class RoomRush
 
         switch (map)
         {
-            case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
-                time = (int)(time * 0.7f);
-                break;
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
                 break;

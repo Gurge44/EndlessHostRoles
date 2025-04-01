@@ -117,7 +117,11 @@ internal static class ExileControllerWrapUpPatch
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)
         {
-            Utils.NotifyRoles();
+            try
+            {
+                Utils.NotifyRoles();
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             LateTask.New(() =>
             {

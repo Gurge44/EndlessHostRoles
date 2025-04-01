@@ -1007,7 +1007,7 @@ public static class Utils
                (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool()) ||
-               (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
+               (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId) == null && CustomTeamManager.GetCustomTeam(__instance.PlayerId) == null) ||
                (__instance.Is(Team.Coven) && PlayerControl.LocalPlayer.Is(Team.Coven)) ||
                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.IsLocalPlayer()) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                (CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, CTAOption.KnowRoles)) ||
@@ -1846,34 +1846,26 @@ public static class Utils
         {
             if (!GameStates.IsLobby) return;
 
-            SuffixModes suffixMode = Options.GetSuffixMode();
-
             if (player.AmOwner)
             {
                 if (GameStates.IsOnlineGame || GameStates.IsLocalGame)
                     name = $"<color={GetString("HostColor")}>{GetString("HostText")}</color><color={GetString("IconColor")}>{GetString("Icon")}</color><color={GetString("NameColor")}>{name}</color>";
 
-                if (suffixMode != SuffixModes.None || Options.CurrentGameMode != CustomGameMode.Standard || hasTag || hasPrivateTag)
-                    name = $"<size=1.7>{name}</size>";
-
-                string modeText = GetString($"Mode{Options.CurrentGameMode}");
-
-                if (suffixMode != SuffixModes.None || hasTag || hasPrivateTag)
-                    modeText = modeText.Split(' ')[1..].Join(delimiter: " ");
+                string modeText = $"<size=1.8>{GetString($"Mode{Options.CurrentGameMode}")}</size>";
 
                 name = Options.CurrentGameMode switch
                 {
-                    CustomGameMode.SoloKombat => $"<color=#f55252><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.FFA => $"<color=#00ffff><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.MoveAndStop => $"<color=#00ffa5><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.HotPotato => $"<color=#e8cd46><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.HideAndSeek => $"<color=#345eeb><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.CaptureTheFlag => $"<color=#1313c2><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.NaturalDisasters => $"<color=#03fc4a><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.RoomRush => $"<color=#ffab1b><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.KingOfTheZones => $"<color=#ff0000><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.AllInOne => $"<color=#f542ad><size=1.5>{modeText}</size></color> {name}",
-                    CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"<size=1.5>{modeText}</size> ") + name,
+                    CustomGameMode.SoloKombat => $"<color=#f55252>{modeText}</color>\r\n{name}",
+                    CustomGameMode.FFA => $"<color=#00ffff>{modeText}</color>\r\n{name}",
+                    CustomGameMode.MoveAndStop => $"<color=#00ffa5>{modeText}</color>\r\n{name}",
+                    CustomGameMode.HotPotato => $"<color=#e8cd46>{modeText}</color>\r\n{name}",
+                    CustomGameMode.HideAndSeek => $"<color=#345eeb>{modeText}</color>\r\n{name}",
+                    CustomGameMode.CaptureTheFlag => $"<color=#1313c2>{modeText}</color>\r\n{name}",
+                    CustomGameMode.NaturalDisasters => $"<color=#03fc4a>{modeText}</color>\r\n{name}",
+                    CustomGameMode.RoomRush => $"<color=#ffab1b>{modeText}</color>\r\n{name}",
+                    CustomGameMode.KingOfTheZones => $"<color=#ff0000>{modeText}</color>\r\n{name}",
+                    CustomGameMode.AllInOne => $"<color=#f542ad>{modeText}</color>\r\n{name}",
+                    CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"{modeText}\r\n") + name,
                     _ => name
                 };
             }
@@ -1885,23 +1877,24 @@ public static class Utils
                 if (tag == "null") tag = string.Empty;
 
                 bool host = player.IsHost();
-                var modTagVanilla = host ? string.Empty : $"<size=1.4>{GetString("ModeratorTag")} </size>";
-                var vipTagVanilla = host ? string.Empty : $"<size=1.4>{GetString("VIPTag")} </size>";
-                name = $"{(hasTag ? tag.Replace("\r\n", " ") : string.Empty)}{(mod ? modTagVanilla : string.Empty)}{(vip ? vipTagVanilla : string.Empty)}{pTag}{name}";
+                var separator = player.AmOwner || player.IsModdedClient() ? "\r\n" : " ";
+                var modTag = host ? string.Empty : $"<size=1.7>{GetString("ModeratorTag")}{separator}</size>";
+                var vipTag = host ? string.Empty : $"<size=1.7>{GetString("VIPTag")}{separator}</size>";
+                name = $"{(hasTag ? tag.Replace("\r\n", separator) : string.Empty)}{(mod ? modTag : string.Empty)}{(vip ? vipTag : string.Empty)}{pTag}{name}";
             }
 
             if (player.AmOwner)
             {
-                name = suffixMode switch
+                name = Options.GetSuffixMode() switch
                 {
-                    SuffixModes.EHR => $"{name} (<size=1.5><color={Main.ModColor}>EHR v{Main.PluginDisplayVersion}</color>)",
-                    SuffixModes.Streaming => $"{name} (<size=1.5><color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color></size>)",
-                    SuffixModes.Recording => $"{name} (<size=1.5><color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color></size>)",
-                    SuffixModes.RoomHost => $"{name} (<size=1.5><color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color></size>)",
-                    SuffixModes.OriginalName => $"{name} (<size=1.5><color={Main.ModColor}>{DataManager.player.Customization.Name}</color></size>)",
-                    SuffixModes.DoNotKillMe => $"{name} (<size=1.5><color={Main.ModColor}>{GetString("SuffixModeText.DoNotKillMe")}</color></size>)",
-                    SuffixModes.NoAndroidPlz => $"{name} (<size=1.5><color={Main.ModColor}>{GetString("SuffixModeText.NoAndroidPlz")}</color></size>)",
-                    SuffixModes.AutoHost => $"{name} (<size=1.5><color={Main.ModColor}>{GetString("SuffixModeText.AutoHost")}</color></size>)",
+                    SuffixModes.EHR => $"{name} (<color={Main.ModColor}>EHR v{Main.PluginDisplayVersion}</color>)",
+                    SuffixModes.Streaming => $"{name} (<color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color>)",
+                    SuffixModes.Recording => $"{name} (<color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color>)",
+                    SuffixModes.RoomHost => $"{name} (<color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color>)",
+                    SuffixModes.OriginalName => $"{name} (<color={Main.ModColor}>{DataManager.player.Customization.Name}</color>)",
+                    SuffixModes.DoNotKillMe => $"{name} (<color={Main.ModColor}>{GetString("SuffixModeText.DoNotKillMe")}</color>)",
+                    SuffixModes.NoAndroidPlz => $"{name} (<color={Main.ModColor}>{GetString("SuffixModeText.NoAndroidPlz")}</color>)",
+                    SuffixModes.AutoHost => $"{name} (<color={Main.ModColor}>{GetString("SuffixModeText.AutoHost")}</color>)",
                     _ => name
                 };
             }
@@ -2063,10 +2056,10 @@ public static class Utils
         var count = 0;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
+        CustomRpcSender sender = null;
+
         foreach (PlayerControl seer in aapc)
         {
-            CustomRpcSender sender = null;
-
             foreach (PlayerControl target in aapc)
             {
                 if (GameStates.IsMeeting) yield break;
@@ -2074,8 +2067,17 @@ public static class Utils
                 if (count++ % speed == 0) yield return null;
             }
 
-            sender?.SendMessage();
+            if (sender?.CurrentState == CustomRpcSender.State.InRootMessage)
+                sender.EndMessage();
+            
+            if (sender?.stream.Length >= 500)
+            {
+                sender.SendMessage();
+                sender = null;
+            }
         }
+        
+        sender?.SendMessage();
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -2087,14 +2089,23 @@ public static class Utils
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
         PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
 
-        // seer: Players who can see changes made here
-        // target: Players subject to changes that seer can see
+        CustomRpcSender sender = null;
+
         foreach (PlayerControl seer in seerList)
         {
-            CustomRpcSender sender = null;
             WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList);
-            sender?.SendMessage();
+            
+            if (sender?.CurrentState == CustomRpcSender.State.InRootMessage)
+                sender.EndMessage();
+
+            if (sender?.stream.Length >= 500)
+            {
+                sender?.SendMessage();
+                sender = null;
+            }
         }
+        
+        sender?.SendMessage();
 
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
@@ -2116,11 +2127,8 @@ public static class Utils
             if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())))
                 return;
 
-            if (sender == null)
-            {
-                sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
-                sender.StartMessage(seer.GetClientId());
-            }
+            sender ??= CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
+            if (sender.CurrentState == CustomRpcSender.State.Ready) sender.StartMessage(seer.GetClientId());
 
             // During intro scene, set team name for non-modded clients and skip the rest.
             string SelfName;
@@ -2469,7 +2477,7 @@ public static class Utils
                                 (target.Is(CustomRoles.Gravestone) && target.Data.IsDead) ||
                                 (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                                 (seer.Is(Team.Coven) && target.Is(Team.Coven)) ||
-                                (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
+                                (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(seer.PlayerId) == null && CustomTeamManager.GetCustomTeam(target.PlayerId) == null) ||
                                 (seer.IsMadmate() && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.IsMadmate() && Options.ImpKnowWhosMadmate.GetBool()) ||
                                 (seer.Is(CustomRoles.Crewpostor) && target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) ||

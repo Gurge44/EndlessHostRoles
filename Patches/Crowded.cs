@@ -163,7 +163,8 @@ internal static class Crowded
                 if (GameOptionsManager.Instance.GameHostOptions != null && GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
                     GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
 
-                if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3) { GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3); }
+                if (GameOptionsManager.Instance.GameHostOptions != null && GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3)
+                    GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3);
 
                 if (Instance)
                 {

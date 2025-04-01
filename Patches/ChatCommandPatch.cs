@@ -3145,12 +3145,16 @@ internal static class ChatUpdatePatch
     {
         PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return;
+        
+        var sender = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
 
         foreach ((string msg, byte sendTo, string title, _) in LastMessages)
-            SendMessage(player, msg, sendTo, title);
+            SendMessage(player, msg, sendTo, title, sender);
+        
+        sender.SendMessage();
     }
 
-    internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title)
+    internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title, CustomRpcSender sender = null)
     {
         int clientId = sendTo == byte.MaxValue ? -1 : Utils.GetPlayerById(sendTo).GetClientId();
 
@@ -3163,7 +3167,7 @@ internal static class ChatUpdatePatch
             player.SetName(name);
         }
 
-        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+        var writer = sender ?? CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
         writer.StartMessage(clientId);
 
         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
@@ -3181,7 +3185,7 @@ internal static class ChatUpdatePatch
             .EndRpc();
 
         writer.EndMessage();
-        writer.SendMessage();
+        if (sender == null) writer.SendMessage();
     }
 }
 

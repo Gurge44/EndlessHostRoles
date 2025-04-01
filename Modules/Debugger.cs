@@ -175,6 +175,12 @@ public class CustomLogger
     private CustomLogger()
     {
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
+        else if (new FileInfo(LOGFilePath).Length > 2 * 1024 * 1024) // 2 MB
+        {
+            ClearLog(false);
+            Logger.SendInGame("The size of the log file exceeded 2 MB and was dumped.");
+        }
+
         Main.Instance.StartCoroutine(InactivityCheck());
     }
 
@@ -183,9 +189,9 @@ public class CustomLogger
         get { return PrivateInstance ??= new(); }
     }
 
-    public static void ClearLog()
+    public static void ClearLog(bool check = true)
     {
-        if (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0)
+        if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
             Utils.DumpLog(false);
 
         File.WriteAllText(LOGFilePath, HtmlHeader);

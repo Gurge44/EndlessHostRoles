@@ -286,7 +286,7 @@ internal static class BeginCrewmatePatch
                     break;
             }
         }
-        else if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
+        else if (PlayerControl.LocalPlayer.IsMadmate())
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
@@ -357,68 +357,91 @@ internal static class BeginCrewmatePatch
             __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = GetString("SubText.Bloodlust");
         }
-        else if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
+        else switch (role)
         {
-            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
-            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
-            byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
-            __instance.ImpostorText.gameObject.SetActive(true);
-            __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), otherLoverId.ColoredPlayerName());
-        }
-        else
-        {
-            switch (role.GetCustomRoleTypes())
+            case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor:
             {
-                case CustomRoleTypes.Impostor:
-                    __instance.TeamTitle.text = GetString("TeamImpostor");
-                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 25, 25, byte.MaxValue);
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
-                    __instance.ImpostorText.gameObject.SetActive(true);
-                    __instance.ImpostorText.text = GetString("SubText.Impostor");
-                    break;
-                case CustomRoleTypes.Crewmate:
-                    __instance.TeamTitle.text = GetString("TeamCrewmate");
-                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(140, 255, 255, byte.MaxValue);
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
-                    __instance.ImpostorText.gameObject.SetActive(true);
-                    __instance.ImpostorText.text = GetString("SubText.Crewmate");
-                    break;
-                case CustomRoleTypes.Neutral:
-
-                    if (Options.UniqueNeutralRevealScreen.GetBool())
-                    {
-                        __instance.TeamTitle.text = GetString($"{role}");
-                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
-                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
-                        __instance.ImpostorText.gameObject.SetActive(true);
-                        __instance.ImpostorText.text = GetString($"{role}Info");
-                    }
-                    else
-                    {
-                        __instance.TeamTitle.text = GetString("TeamNeutral");
-                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 171, 27, byte.MaxValue);
-                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
-                        __instance.ImpostorText.gameObject.SetActive(true);
-                        __instance.ImpostorText.text = GetString("SubText.Neutral");
-                    }
-
-                    break;
-                case CustomRoleTypes.Coven:
-                    __instance.TeamTitle.text = GetString("TeamCoven");
-                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
-                    __instance.ImpostorText.gameObject.SetActive(true);
-                    __instance.ImpostorText.text = GetString("SubText.Coven");
-                    break;
-            }
-
-            if ((Main.LoversPlayers.Count == 2) && Main.LoversPlayers.Exists(x => x.IsLocalPlayer()))
-            {
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
                 byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.DestroyTranslator();
-                __instance.ImpostorText.text = string.Format(GetString("SubText.LovingCrewmate"), otherLoverId.ColoredPlayerName());
+                __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), otherLoverId.ColoredPlayerName());
+                break;
+            }
+            case CustomRoles.DoubleAgent:
+            {
+                __instance.TeamTitle.text = GetString("TeamImpostor");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(140, 255, 255, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("SubText.Crewmate");
+                break;
+            }
+            default:
+            {
+                switch (role.GetCustomRoleTypes())
+                {
+                    case CustomRoleTypes.Impostor:
+                    {
+                        __instance.TeamTitle.text = GetString("TeamImpostor");
+                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 25, 25, byte.MaxValue);
+                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                        __instance.ImpostorText.gameObject.SetActive(true);
+                        __instance.ImpostorText.text = GetString("SubText.Impostor");
+                        break;
+                    }
+                    case CustomRoleTypes.Crewmate:
+                    {
+                        __instance.TeamTitle.text = GetString("TeamCrewmate");
+                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(140, 255, 255, byte.MaxValue);
+                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
+                        __instance.ImpostorText.gameObject.SetActive(true);
+                        __instance.ImpostorText.text = GetString("SubText.Crewmate");
+                        break;
+                    }
+                    case CustomRoleTypes.Neutral:
+                    {
+                        if (Options.UniqueNeutralRevealScreen.GetBool())
+                        {
+                            __instance.TeamTitle.text = GetString($"{role}");
+                            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+                            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                            __instance.ImpostorText.gameObject.SetActive(true);
+                            __instance.ImpostorText.text = GetString($"{role}Info");
+                        }
+                        else
+                        {
+                            __instance.TeamTitle.text = GetString("TeamNeutral");
+                            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 171, 27, byte.MaxValue);
+                            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                            __instance.ImpostorText.gameObject.SetActive(true);
+                            __instance.ImpostorText.text = GetString("SubText.Neutral");
+                        }
+
+                        break;
+                    }
+
+                    case CustomRoleTypes.Coven:
+                    {
+                        __instance.TeamTitle.text = GetString("TeamCoven");
+                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
+                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
+                        __instance.ImpostorText.gameObject.SetActive(true);
+                        __instance.ImpostorText.text = GetString("SubText.Coven");
+                        break;
+                    }
+                }
+
+                if ((Main.LoversPlayers.Count == 2) && Main.LoversPlayers.Exists(x => x.IsLocalPlayer()))
+                {
+                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
+                    byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
+                    __instance.ImpostorText.gameObject.SetActive(true);
+                    __instance.ImpostorText.DestroyTranslator();
+                    __instance.ImpostorText.text = string.Format(GetString("SubText.LovingCrewmate"), otherLoverId.ColoredPlayerName());
+                }
+
+                break;
             }
         }
 

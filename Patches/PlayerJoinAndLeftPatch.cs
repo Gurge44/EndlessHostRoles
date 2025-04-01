@@ -329,7 +329,7 @@ internal static class OnPlayerLeftPatch
         catch (Exception ex) { Logger.Error(ex.ToString(), "OnPlayerLeftPatch.Postfix"); }
         finally
         {
-            Utils.NotifyRoles(ForceLoop: true);
+            if (GameStates.IsInTask && !ExileController.Instance) Utils.NotifyRoles(ForceLoop: true);
             ChatUpdatePatch.DoBlockChat = false;
         }
     }
@@ -359,7 +359,7 @@ internal static class InnerNetClientSpawnPatch
                     Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
                 else
                     TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
-            }, 3f, "Welcome Message");
+            }, GameStates.CurrentServerType == GameStates.ServerType.Niko ? 7f : 3f, "Welcome Message");
 
             LateTask.New(() =>
             {

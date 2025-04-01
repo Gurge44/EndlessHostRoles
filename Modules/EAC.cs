@@ -170,7 +170,7 @@ internal static class EAC
                     }
 
                     break;
-                case RpcCalls.SetColor when !pc.IsHost() && (!pc.IsModdedClient() || !Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
+                case RpcCalls.SetColor when !pc.IsModdedClient() && (!Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
                     Report(pc, "Directly SetColor");
                     HandleCheat(pc, "Directly SetColor");
                     Logger.Fatal($"Directly SetColor【{pc.GetClientId()}:{pc.GetRealName()}】has been rejected", "EAC");
@@ -234,11 +234,6 @@ internal static class EAC
                     Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()} {sreason}, rejected", "EAC");
                     return true;
                 }
-                case RpcCalls.SendChatNote:
-                    Report(pc, "Directly Send ChatNote");
-                    HandleCheat(pc, "Directly Send ChatNote");
-                    Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly sent ChatNote, which has been rejected", "EAC");
-                    return true;
                 case RpcCalls.CompleteTask when GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost() && !(Main.CurrentMap == MapNames.Airship && ExileController.Instance):
                     Report(pc, "Complete Task in Meeting");
                     HandleCheat(pc, "Complete Task in Meeting");
@@ -275,8 +270,8 @@ internal static class EAC
 
                         if (aumid == pc.PlayerId)
                         {
-                            Report(pc, "AUM RPC");
-                            HandleCheat(pc, "AUM RPC");
+                            Report(pc, "AUM RPC (Hack)");
+                            HandleCheat(pc, "AUM RPC (Hack)");
                             Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sent AUM RPC, rejected", "EAC");
                             return true;
                         }
@@ -287,8 +282,8 @@ internal static class EAC
                 case unchecked((byte)420): // 164 Sicko
                     if (sr.BytesRemaining == 0)
                     {
-                        Report(pc, "Sicko RPC");
-                        HandleCheat(pc, "Sicko RPC");
+                        Report(pc, "Sicko RPC (Hack against host-only mods, like EHR)");
+                        HandleCheat(pc, "Sicko RPC (Hack against host-only mods, like EHR)");
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sent Sicko RPC, rejected", "EAC");
                         return true;
                     }
