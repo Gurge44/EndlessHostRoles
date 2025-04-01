@@ -2351,7 +2351,7 @@
   "CommandDescription.Disconnect": "Se livrar de todos os jogadores de um time",
   "CommandDescription.R": "Veja a lista de funções ou a descrição de uma função especifica",
   "CommandDescription.Up": "[OBSOLETO] Use /setrole em vez disso",
-  "CommandDescription.SetRole": "Defina a função de um jogador para o próximo jogo",
+  "CommandDescription.SetRole": "Set a player's role or add-on for the next game",
   "CommandDescription.Help": "Veja a lista de comandos",
   "CommandDescription.KCount": "Veja o número de Impostores e Neutros Assassinos restantes",
   "CommandDescription.AddMod": "Faz do jogador especificado um moderador",
