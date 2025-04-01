@@ -2351,7 +2351,7 @@
   "CommandDescription.Disconnect": "从指定阵营中移除玩家",
   "CommandDescription.R": "查看职业列表和具体职业介绍",
   "CommandDescription.Up": "过时的阵营名称，改用 /setrole",
-  "CommandDescription.SetRole": "为下一场游戏设定玩家的职业",
+  "CommandDescription.SetRole": "Set a player's role or add-on for the next game",
   "CommandDescription.Help": "查看可使用的命令列表",
   "CommandDescription.KCount": "查看剩余的内鬼和带刀中立数量",
   "CommandDescription.AddMod": "使指定的玩家成为协管",
