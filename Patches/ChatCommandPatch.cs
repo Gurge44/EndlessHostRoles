@@ -2121,13 +2121,13 @@ internal static class ChatCommands
 
         if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
         {
-            Utils.SendMessage($"{GetString("InvalidArguments")}", player.PlayerId);
+            Utils.SendMessage(GetString("InvalidArguments"), player.PlayerId);
             return;
         }
 
         if (resultId != 0 && !player.FriendCode.GetDevUser().up)
         {
-            Utils.SendMessage($"{GetString("Message.NoPermissionSetRoleOthers")}", player.PlayerId);
+            Utils.SendMessage(GetString("Message.NoPermissionSetRoleOthers"), player.PlayerId);
             return;
         }
 
