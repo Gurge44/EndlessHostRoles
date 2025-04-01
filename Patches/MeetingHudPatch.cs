@@ -10,6 +10,7 @@ using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -24,6 +25,7 @@ internal static class CheckForEndVotingPatch
 {
     public static string EjectionText = string.Empty;
     public static bool RunRoleCode = true;
+    public static NetworkedPlayerInfo TempExiledPlayer;
 
     public static bool Prefix(MeetingHud __instance)
     {
@@ -73,6 +75,14 @@ internal static class CheckForEndVotingPatch
                     });
 
                     states = [.. statesList];
+
+                    voteTarget.SetRealKiller(pc);
+                    Main.LastVotedPlayerInfo = voteTarget.Data;
+                    AntiBlackout.ExilePlayerId = voteTarget.PlayerId;
+
+                    if (Main.LastVotedPlayerInfo != null)
+                        ConfirmEjections(Main.LastVotedPlayerInfo, false);
+
                     __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false);
 
                     Statistics.OnVotingComplete(states.ToArray(), voteTarget.Data, false, true);
@@ -80,12 +90,6 @@ internal static class CheckForEndVotingPatch
                     Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} expelled by dictator", "Dictator");
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
                     Logger.Info("Dictatorship vote, forced end of meeting", "Special Phase");
-                    voteTarget.SetRealKiller(pc);
-                    Main.LastVotedPlayerInfo = voteTarget.Data;
-                    AntiBlackout.ExilePlayerId = voteTarget.PlayerId;
-
-                    if (Main.LastVotedPlayerInfo != null)
-                        ConfirmEjections(Main.LastVotedPlayerInfo, false);
 
                     return true;
                 }
@@ -323,13 +327,6 @@ internal static class CheckForEndVotingPatch
 
             exiledPlayer?.Object.SetRealKiller(null);
 
-            __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
-
-            Statistics.OnVotingComplete(states.ToArray(), exiledPlayer, tie, false);
-
-            CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
-            Utils.CheckAndSpawnAdditionalRefugee(exiledPlayer);
-
             Main.LastVotedPlayerInfo = exiledPlayer;
             AntiBlackout.ExilePlayerId = exileId;
 
@@ -338,6 +335,13 @@ internal static class CheckForEndVotingPatch
                 AntiBlackout.ExilePlayerId = exileId;
                 ConfirmEjections(Main.LastVotedPlayerInfo, braked);
             }
+
+            __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
+
+            Statistics.OnVotingComplete(states.ToArray(), exiledPlayer, tie, false);
+
+            CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
+            Utils.CheckAndSpawnAdditionalRefugee(exiledPlayer);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersVotedLastMeeting = __instance.playerStates.Count(x => x.DidVote);
 
@@ -504,28 +508,8 @@ internal static class CheckForEndVotingPatch
 
 
         name = name.Replace("color=", string.Empty) + "<size=0>";
-        EjectionText = name.Split('\n')[DecidedWinner ? 1 : 0];
-
-        LateTask.New(() =>
-        {
-            Main.DoBlockNameChange = true;
-
-            if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
-            {
-                exiledPlayer.UpdateName(name, Utils.GetClientById(exiledPlayer.ClientId));
-                player.RpcSetName(name);
-            }
-        }, 2.5f, "Change Exiled Player Name");
-
-        LateTask.New(() =>
-        {
-            if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
-            {
-                exiledPlayer.UpdateName(realName, Utils.GetClientById(exiledPlayer.ClientId));
-                player.RpcSetName(realName);
-                Main.DoBlockNameChange = false;
-            }
-        }, 11.5f, "Change Exiled Player Name Back");
+        TempExiledPlayer = exiledPlayer;
+        EjectionText = name;
 
         LateTask.New(() =>
         {
@@ -829,6 +813,8 @@ internal static class MeetingHudStartPatch
         Main.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
         MeetingStates.MeetingCalled = true;
         MeetingStates.MeetingNum++;
+        CheckForEndVotingPatch.TempExiledPlayer = null;
+        CheckForEndVotingPatch.EjectionText = string.Empty;
     }
 
     public static void Postfix(MeetingHud __instance)
@@ -1079,6 +1065,25 @@ internal static class MeetingHudUpdatePatch
             x => Object.Destroy(x.transform.FindChild("ShootButton").gameObject));
     }
 
+    public static bool Prefix(MeetingHud __instance)
+    {
+        if (__instance.CurrentState != MeetingHud.VoteStates.Results) return true;
+
+        __instance.discussionTimer += Time.deltaTime;
+
+        float num4 = __instance.discussionTimer - __instance.resultsStartedAt;
+        float num5 = Mathf.Max(0f, 5f - num4);
+        __instance.UpdateTimerText(StringNames.MeetingProceeds, Mathf.CeilToInt(num5));
+
+        if (AmongUsClient.Instance.AmHost && num5 <= 0f)
+        {
+            __instance.state = MeetingHud.VoteStates.Proceeding;
+            __instance.RpcClose();
+        }
+
+        return false;
+    }
+
     public static void Postfix(MeetingHud __instance)
     {
         try
@@ -1266,5 +1271,102 @@ internal static class MeetingHudCmdCastVotePatch
     public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)
     {
         MeetingHudCastVotePatch.Postfix(srcPlayerId);
+    }
+}
+
+// All below are from: https://github.com/EnhancedNetwork/TownofHost-Enhanced (with some modifications)
+
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.RpcClose))]
+static class MeetingHudRpcClosePatch
+{
+    public static bool Prefix(MeetingHud __instance)
+    {
+        Logger.Info("MeetingHud.RpcClose is being called", "MeetingHudRpcClosePatch");
+
+        if (Options.CurrentGameMode == CustomGameMode.Standard)
+        {
+            if (AmongUsClient.Instance.AmClient) { __instance.Close(); }
+
+            var writer = MessageWriter.Get(SendOption.Reliable);
+
+            writer.StartMessage(5);
+            writer.Write(AmongUsClient.Instance.GameId);
+
+            if (CheckForEndVotingPatch.TempExiledPlayer != null)
+            {
+                var info = CheckForEndVotingPatch.TempExiledPlayer;
+                var player = info.Object;
+
+                if (player != null)
+                {
+                    writer.StartMessage(2);
+                    writer.WritePacked(player.NetId);
+                    writer.Write((byte)RpcCalls.SetName);
+                    writer.Write(info.NetId);
+                    writer.Write(CheckForEndVotingPatch.EjectionText);
+                    writer.EndMessage();
+                }
+            }
+
+            writer.StartMessage(2);
+            writer.WritePacked(__instance.NetId);
+            writer.Write((byte)RpcCalls.CloseMeeting);
+            writer.Write(CheckForEndVotingPatch.EjectionText);
+            writer.EndMessage();
+
+            writer.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
+
+            return false;
+        }
+
+        return true;
+    }
+}
+
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.HandleRpc))]
+static class MeetingHudHandleRpcPatch
+{
+    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
+    {
+        if (callId == (byte)RpcCalls.CloseMeeting)
+        {
+            if (AmongUsClient.Instance.AmHost)
+            {
+                EAC.WarnHost(4);
+                Logger.Warn("MeetingHud.HandleRpc CloseMeeting is being called, impossible to receive as host.", "MeetingHudHandleRpcPatch");
+                return false;
+            }
+
+            Logger.Info("Received Close Meeting Rpc", "MeetingHudHandleRpcPatch");
+
+            if (reader.BytesRemaining > 6)
+            {
+                try
+                {
+                    var temp = reader.ReadString();
+
+                    if (temp.Contains("<size"))
+                    {
+                        Logger.Info($"Read Name From Rpc: {temp}", "MeetingHudHandleRpcPatch");
+                        CheckForEndVotingPatch.EjectionText = temp;
+                    }
+                }
+                catch { }
+            }
+        }
+
+        return true;
+    }
+}
+
+[HarmonyPatch(typeof(ExileController), nameof(ExileController.Begin))]
+static class ExileControllerBeginPatch
+{
+    public static void Postfix(ExileController __instance, [HarmonyArgument(0)] ExileController.InitProperties init)
+    {
+        if (Options.CurrentGameMode == CustomGameMode.Standard && init is { outfit: not null })
+            __instance.completeString = CheckForEndVotingPatch.EjectionText;
     }
 }

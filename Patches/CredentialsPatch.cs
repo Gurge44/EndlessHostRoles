@@ -36,7 +36,7 @@ internal static class PingTrackerUpdatePatch
 
         Sb.Clear();
 
-        if (GameStates.IsLobby) Sb.Append("\r\n");
+        Sb.Append(GameStates.IsLobby ? "\r\n<size=2>" : "<size=1.5>");
 
         Sb.Append(Main.CredentialsText);
 
@@ -51,7 +51,7 @@ internal static class PingTrackerUpdatePatch
             _ => "#ff4500"
         };
 
-        AppendSeparator();
+        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
         Sb.Append($"<color={color}>{ping} {GetString("PingText")}</color>");
         AppendSeparator();
         Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
@@ -74,7 +74,7 @@ internal static class PingTrackerUpdatePatch
         if (GameStates.InGame) Sb.Append("\r\n.");
         return;
 
-        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "  -  ");
     }
 }
 
@@ -88,7 +88,7 @@ internal static class VersionShowerStartPatch
         string testBuildIndicator = Main.TestBuild ? " <#ff0000>TEST</color>" : string.Empty;
 #pragma warning restore CS0162 // Unreachable code detected
 
-        Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
+        Main.CredentialsText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
