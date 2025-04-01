@@ -1759,7 +1759,7 @@ internal static class ChatCommands
             return;
         }
 
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out Color32 kColor) ? kColor : Color.white, killer.GetRealName()), (killer.Is(CustomRoles.Bloodlust) ? CustomRoles.Bloodlust.ToColoredString() : string.Empty) + killer.GetCustomRole().ToColoredString()));
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()));
     }
 
     private static void MessageWaitCommand(PlayerControl player, string text, string[] args)

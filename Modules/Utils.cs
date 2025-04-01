@@ -3056,6 +3056,11 @@ public static class Utils
             Logger.CurrentMethod();
             Logger.Exception(ex, "AfterPlayerDeathTasks");
         }
+        
+        if (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive()) return;
+
+        var killer = target.GetRealKiller();
+        if (killer != null) target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString())}</color>", 10f);
     }
 
     public static void CountAlivePlayers(bool sendLog = false)
