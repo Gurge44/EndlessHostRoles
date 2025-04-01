@@ -1699,7 +1699,7 @@ public static class Utils
     {
         PlayerControl receiver = GetPlayerById(sendTo, false);
         if (sendTo != byte.MaxValue && receiver == null) return;
-        if (title.Trim().Length == 0 && text.Trim().Length == 0) return;
+        if (title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
@@ -2069,14 +2069,14 @@ public static class Utils
 
             if (sender?.CurrentState == CustomRpcSender.State.InRootMessage)
                 sender.EndMessage();
-            
+
             if (sender?.stream.Length >= 500)
             {
                 sender.SendMessage();
                 sender = null;
             }
         }
-        
+
         sender?.SendMessage();
     }
 
@@ -2094,7 +2094,7 @@ public static class Utils
         foreach (PlayerControl seer in seerList)
         {
             WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList);
-            
+
             if (sender?.CurrentState == CustomRpcSender.State.InRootMessage)
                 sender.EndMessage();
 
@@ -2104,7 +2104,7 @@ public static class Utils
                 sender = null;
             }
         }
-        
+
         sender?.SendMessage();
 
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
@@ -2181,7 +2181,7 @@ public static class Utils
 
             if (!GameStates.IsLobby)
             {
-                if (AntiBlackout.SkipTasks) SelfSuffix.AppendLine(GetString("AntiBlackoutSkipTasks"));
+                if (AntiBlackout.SkipTasks && seer.IsAlive()) SelfSuffix.AppendLine(GetString("AntiBlackoutSkipTasks"));
 
                 if (!CustomGameMode.Standard.IsActiveOrIntegrated()) goto GameMode0;
 

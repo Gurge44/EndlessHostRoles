@@ -117,10 +117,7 @@ internal static class ExileControllerWrapUpPatch
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)
         {
-            try
-            {
-                Utils.NotifyRoles();
-            }
+            try { Utils.NotifyRoles(); }
             catch (Exception e) { Utils.ThrowException(e); }
 
             LateTask.New(() =>
@@ -164,10 +161,10 @@ internal static class ExileControllerWrapUpPatch
         if (!AmongUsClient.Instance.AmHost || (Lovers.IsChatActivated && Lovers.PrivateChat.GetBool())) return;
 
         bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
-        bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
+        bool ejectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
         Logger.Msg($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
 
-        if ((showRemainingKillers || appendEjectionNotify) && CustomGameMode.Standard.IsActiveOrIntegrated())
+        if ((showRemainingKillers || ejectionNotify) && CustomGameMode.Standard.IsActiveOrIntegrated())
         {
             string text = showRemainingKillers ? Utils.GetRemainingKillers(true) : string.Empty;
             text = $"<#ffffff>{text}</color>";
@@ -175,13 +172,7 @@ internal static class ExileControllerWrapUpPatch
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                string finalText = text;
-
-                if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
-                    finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
-
-                if (!showRemainingKillers) finalText = finalText.TrimStart();
-
+                string finalText = ejectionNotify ? CheckForEndVotingPatch.EjectionText.Trim() : text;
                 pc.Notify(finalText, r.Next(7, 13));
             }
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
@@ -15,10 +16,8 @@ using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
-using Il2CppSystem.Collections;
 using InnerNet;
 using UnityEngine;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 using static EHR.Modules.CustomRoleSelector;
 using static EHR.Translator;
@@ -409,7 +408,7 @@ internal static class ChangeRoleSettings
 
         return;
 
-        System.Collections.IEnumerator PopulateSkinItems()
+        IEnumerator PopulateSkinItems()
         {
             while (!ShipStatus.Instance) yield return null;
             BlockPopulateSkins = false;
@@ -452,8 +451,8 @@ internal static class StartGameHostPatch
             { RoleTypes.Tracker, AddTrackerNum }
         };
     }
-    
-    private static System.Collections.IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
+
+    private static IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
     {
         float startTime = Time.time;
 
@@ -467,10 +466,7 @@ internal static class StartGameHostPatch
                 loadingBarManager.SetLoadingPercent(newPercent, StringNames.LoadingBarGameStart);
                 loadingBarManager.loadingBar.loadingText.text = loadingText;
             }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             yield return null; // Wait for the next frame
         }
@@ -481,22 +477,19 @@ internal static class StartGameHostPatch
             loadingBarManager.SetLoadingPercent(targetPercent, StringNames.LoadingBarGameStart);
             loadingBarManager.loadingBar.loadingText.text = loadingText;
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
     [HarmonyPrefix]
-    public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref IEnumerator __result)
+    public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
         AUClient = __instance;
         __result = StartGameHost().WrapToIl2Cpp();
         return false;
     }
 
-    private static System.Collections.IEnumerator StartGameHost()
+    private static IEnumerator StartGameHost()
     {
         string loadingTextText1 = GetString("LoadingBarText.1");
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
@@ -600,7 +593,7 @@ internal static class StartGameHostPatch
         yield return AssignRoles();
     }
 
-    private static System.Collections.IEnumerator AssignRoles()
+    private static IEnumerator AssignRoles()
     {
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
 
@@ -1129,16 +1122,20 @@ internal static class StartGameHostPatch
     {
         try
         {
+            var sender = CustomRpcSender.Create("OnGameStartedPatch.SetRoleSelf", SendOption.Reliable);
+
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                try { SetRoleSelf(pc); }
+                try { SetRoleSelf(pc, sender); }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
+
+            sender.SendMessage();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static void SetRoleSelf(PlayerControl target)
+    private static void SetRoleSelf(PlayerControl target, CustomRpcSender sender)
     {
         try
         {
@@ -1151,7 +1148,7 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
-            target.RpcSetRoleDesync(roleType, targetClientId);
+            sender.RpcSetRole(target, roleType, targetClientId);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -1458,7 +1455,7 @@ internal static class StartGameHostPatch
             catch (Exception e) { Utils.ThrowException(e); }
         }
 
-        public static System.Collections.IEnumerator ReleaseAsync()
+        public static IEnumerator ReleaseAsync()
         {
             BlockSetRole = false;
 

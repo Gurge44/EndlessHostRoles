@@ -450,6 +450,8 @@ internal static class ExtendedPlayerControl
         CustomRoles newRoleVN = newCustomRole.GetVNRole();
         RoleTypes newRoleDY = newCustomRole.GetDYRole();
 
+        var writer = CustomRpcSender.Create("RpcChangeRoleBasis", SendOption.Reliable);
+
         switch (oldRoleIsDesync, newRoleIsDesync)
         {
             // Desync role to normal role
@@ -470,7 +472,7 @@ internal static class ExtendedPlayerControl
 
                     // Set role type for seer
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                    player.RpcSetRoleDesync(remeberRoleType, seerClientId);
+                    writer.RpcSetRole(player, remeberRoleType, seerClientId);
 
                     if (self) continue;
 
@@ -491,13 +493,13 @@ internal static class ExtendedPlayerControl
                         if (!playerIsKiller && seer.Is(Team.Impostor)) remeberRoleType = RoleTypes.ImpostorGhost;
 
                         StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (seerCustomRole.IsDesyncRole() ? seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist : seerRoleType, seerCustomRole);
-                        seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
+                        writer.RpcSetRole(seer, remeberRoleType, playerClientId);
                         continue;
                     }
 
                     // Set role type for player
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (remeberRoleType, seerCustomRole);
-                    seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
+                    writer.RpcSetRole(seer, remeberRoleType, playerClientId);
                 }
 
                 break;
@@ -524,7 +526,7 @@ internal static class ExtendedPlayerControl
                         remeberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
 
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                    player.RpcSetRoleDesync(remeberRoleType, seerClientId);
+                    writer.RpcSetRole(player, remeberRoleType, seerClientId);
 
                     if (self) continue;
 
@@ -537,13 +539,13 @@ internal static class ExtendedPlayerControl
                         remeberRoleType = RoleTypes.CrewmateGhost;
 
                         StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (seerCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist, seerCustomRole);
-                        seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
+                        writer.RpcSetRole(seer, remeberRoleType, playerClientId);
                         continue;
                     }
 
                     // Set role type for player
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (remeberRoleType, seerCustomRole);
-                    seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
+                    writer.RpcSetRole(seer, remeberRoleType, playerClientId);
                 }
 
                 break;
@@ -565,7 +567,7 @@ internal static class ExtendedPlayerControl
                         remeberRoleType = newRoleType;
 
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                    player.RpcSetRoleDesync(remeberRoleType, seerClientId);
+                    writer.RpcSetRole(player, remeberRoleType, seerClientId);
                 }
 
                 break;
@@ -1633,8 +1635,17 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
-            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies, x => target.RpcSetRoleDesync(RoleTypes.Noisemaker, x.Player.GetClientId(), true));
-            killer.RpcMurderPlayer(target, true);
+            var sender = CustomRpcSender.Create("Send Noisemaker Alerts", SendOption.Reliable);
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies, x => sender.RpcSetRole(target, RoleTypes.Noisemaker, x.Player.GetClientId()));
+
+            const MurderResultFlags resultFlags = (MurderResultFlags)(8 | 1);
+            if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, resultFlags);
+            sender.AutoStartRpc(killer.NetId, 12);
+            sender.WriteNetObject(target);
+            sender.Write((int)resultFlags);
+            sender.EndRpc();
+
+            sender.SendMessage();
         }
     }
 
@@ -1718,7 +1729,7 @@ internal static class ExtendedPlayerControl
     {
         return player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil;
     }
-    
+
     public static bool IsNeutralPariah(this PlayerControl player)
     {
         return player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Pariah;
