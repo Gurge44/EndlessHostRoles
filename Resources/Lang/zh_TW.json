@@ -2351,7 +2351,7 @@
   "CommandDescription.Disconnect": "清除指定陣營中的所有玩家",
   "CommandDescription.R": "查看職業清單或特定職業的描述",
   "CommandDescription.Up": "[已棄用] 使用/setrole來替代",
-  "CommandDescription.SetRole": "為下一場遊戲設定玩家的職業",
+  "CommandDescription.SetRole": "Set a player's role or add-on for the next game",
   "CommandDescription.Help": "查看指令列表",
   "CommandDescription.KCount": "查看剩餘的偽裝者和帶刀中立數量",
   "CommandDescription.AddMod": "使指定的玩家成為管理員",
