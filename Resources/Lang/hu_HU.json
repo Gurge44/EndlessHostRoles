@@ -2351,7 +2351,7 @@
   "CommandDescription.Disconnect": "Get rid of all players in the specified team",
   "CommandDescription.R": "View the list of roles or the description of a specific role",
   "CommandDescription.Up": "[DEPRECATED] Use /setrole instead",
-  "CommandDescription.SetRole": "Set a player's role for the next game",
+  "CommandDescription.SetRole": "Set a player's role or add-on for the next game",
   "CommandDescription.Help": "View the list of commands",
   "CommandDescription.KCount": "View the number of remaining impostors and neutral killers",
   "CommandDescription.AddMod": "Makes the specified player a moderator",
