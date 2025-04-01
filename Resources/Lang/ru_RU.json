@@ -2351,7 +2351,7 @@
   "CommandDescription.Disconnect": "Уничтожить всех игроков определённой команды",
   "CommandDescription.R": "Показать список ролей/описание определённой роли",
   "CommandDescription.Up": "Устаревшая команда. Используйте вместо этого /setrole",
-  "CommandDescription.SetRole": "Установить роль игроку на следующую игру",
+  "CommandDescription.SetRole": "Set a player's role or add-on for the next game",
   "CommandDescription.Help": "Показать список некоторых команд",
   "CommandDescription.KCount": "Отобразить состояние игры (эта команда может включать в себя самые разные данные)",
   "CommandDescription.AddMod": "Назначить определённого игрока Модератором",
