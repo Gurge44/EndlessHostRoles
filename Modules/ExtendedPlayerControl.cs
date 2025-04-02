@@ -1267,7 +1267,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseKillButton(this PlayerControl pc)
     {
-        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !pc.IsAlive()) return false;
+        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !Main.IntroDestroyed || !pc.IsAlive()) return false;
 
         switch (Options.CurrentGameMode)
         {

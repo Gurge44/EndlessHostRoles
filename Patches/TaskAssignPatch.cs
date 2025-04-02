@@ -273,7 +273,7 @@ internal static class RpcSetTasksPatch
 
             PlayerTask GetTaskFromTaskType(TaskTypes type) => allTasks.FirstOrDefault(t => t.TaskType == type);
         }
-        catch (Exception e) { Utils.ThrowException(e); }
+        catch { }
 
         #endregion
     }
