@@ -143,7 +143,7 @@
   "CTA.KillEachOther": "Jogadores pode matar uns aos outros",
   "CTA.GuessEachOther": "Jogadores podem adivinhar uns aos outros",
   "CTA.Arrows": "Jogadores tem setas apontando para parceiros do time",
-  "CTA.MaxPlayersAssignedToTeam": "Maxmimum number of players assigned to this team",
+  "CTA.MaxPlayersAssignedToTeam": "Maximum number of players assigned to this team",
   "CTA.MinPlayers.Impostor": "<#00ffff>Minimum</color> Players from the <color=#ff1919>Impostor</color> team",
   "CTA.MinPlayers.Neutral": "<#00ffff>Minimum</color> Players from the <color=#ffab1b>Neutral</color> team",
   "CTA.MinPlayers.Crewmate": "<#00ffff>Minimum</color> Players from the <color=#8cffff>Crewmate</color> team",
