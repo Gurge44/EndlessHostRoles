@@ -50,7 +50,7 @@
   "CrewmatesCanGuess": "<color=#8cffff>Crewmates</color> can guess",
   "ImpostorsCanGuess": "<color=#ff1919>Impostors</color> can guess",
   "NeutralKillersCanGuess": "<color=#ffab1b>Neutral Killers</color> can guess",
-  "PassiveNeutralsCanGuess": "Passive <color=#ffab1b>Neutrals</color> can guess",
+  "PassiveNeutralsCanGuess": "Passive <color=#ffab1b>Neutrale</color> können raten",
   "CovenCanGuess": "<color=#7b3fbb>Coven</color> can guess",
   "CanGuessAddons": "Can Guess Add-ons",
   "CrewCanGuessCrew": "<color=#8cffff>Crewmates</color> Can Guess <color=#8cffff>Crewmate</color> Roles",
