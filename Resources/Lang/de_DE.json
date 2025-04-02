@@ -143,7 +143,7 @@
   "CTA.KillEachOther": "Spieler können sich gegenseitig töten",
   "CTA.GuessEachOther": "Spieler können sich gegenseitig erraten",
   "CTA.Arrows": "Spieler haben einen sich gegenseitig zeigenden Pfeil",
-  "CTA.MaxPlayersAssignedToTeam": "Maximale Anzahl von Spielern an diesem Team zugewiesen",
+  "CTA.MaxPlayersAssignedToTeam": "Maximum number of players assigned to this team",
   "CTA.MinPlayers.Impostor": "<#00ffff>Minimale</color> Spieler von dem <color=#ff1919>Verräter</color> Team",
   "CTA.MinPlayers.Neutral": "<#00ffff>Minimale</color> Spieler von dem <color=#ff1919>Neutral</color> Team",
   "CTA.MinPlayers.Crewmate": "<#00ffff>Minimale</color> Spieler von dem <color=#8cffff>Crewmitglieds</color> Team",
