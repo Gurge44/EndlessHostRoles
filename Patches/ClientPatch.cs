@@ -376,8 +376,12 @@ internal static class NetworkedPlayerInfoSerializePatch
     public static int IgnorePatchTimes;
     public static bool Prefix(NetworkedPlayerInfo __instance, MessageWriter writer, bool initialState, ref bool __result)
     {
-        if (IgnorePatchTimes-- > 0) return true;
-        
+        if (IgnorePatchTimes > 0)
+        {
+            IgnorePatchTimes--;
+            return true;
+        }
+
         writer.Write(__instance.PlayerId);
         writer.WritePacked(__instance.ClientId);
         writer.Write((byte)__instance.Outfits.Count);
