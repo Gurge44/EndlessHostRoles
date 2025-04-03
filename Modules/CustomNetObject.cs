@@ -22,7 +22,6 @@ namespace EHR
         private readonly HashSet<byte> HiddenList = [];
         protected int Id;
         public PlayerControl playerControl;
-        private float PlayerControlTimer;
         public Vector2 Position;
         protected string Sprite;
 
@@ -271,8 +270,7 @@ namespace EHR
             }, 0.2f);
 
             Position = position;
-            PlayerControlTimer = 0f;
-            //playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+            // playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
             // playerControl.cosmetics.colorBlindText.color = Color.clear;
             Sprite = sprite;
             ++MaxId;
