@@ -411,7 +411,7 @@ internal static class MoveAndStop
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameStates.IsInTask || !CustomGameMode.MoveAndStop.IsActiveOrIntegrated() || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || __instance.PlayerId == 255) return;
+            if (!GameStates.IsInTask || !CustomGameMode.MoveAndStop.IsActiveOrIntegrated() || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || __instance.PlayerId >= 254) return;
 
             PlayerControl pc = __instance;
             long now = Utils.TimeStamp;

@@ -620,7 +620,7 @@ internal static class MurderPlayerPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, bool __state)
     {
-        if (__instance == null || target == null || __instance.PlayerId == 255 || target.PlayerId == 255 || !__state) return;
+        if (__instance == null || target == null || __instance.PlayerId >= 254 || target.PlayerId >= 254 || !__state) return;
 
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
 
@@ -774,7 +774,7 @@ internal static class ShapeshiftPatch
 {
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        if (!Main.ProcessShapeshifts) return true;
+        if (!Main.ProcessShapeshifts || shapeshifter.PlayerId >= 254) return true;
 
         if (AntiBlackout.SkipTasks)
         {
@@ -1063,15 +1063,18 @@ internal static class ReportDeadBodyPatch
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
 
-        foreach (byte id in Main.DiedThisRound)
+        if (Options.CurrentGameMode == CustomGameMode.Standard)
         {
-            PlayerControl receiver = id.GetPlayer();
-            if (receiver == null) continue;
+            foreach (byte id in Main.DiedThisRound)
+            {
+                PlayerControl receiver = id.GetPlayer();
+                if (receiver == null) continue;
             
-            PlayerControl killer = receiver.GetRealKiller();
-            if (killer == null) continue;
+                PlayerControl killer = receiver.GetRealKiller();
+                if (killer == null) continue;
 
-            SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()));
+                SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()));
+            }
         }
         
         Main.DiedThisRound = [];
@@ -1238,7 +1241,7 @@ internal static class FixedUpdatePatch
 
     public static void Postfix(PlayerControl __instance)
     {
-        if (__instance == null || __instance.PlayerId == 255) return;
+        if (__instance == null || __instance.PlayerId >= 254) return;
 
         CheckMurderPatch.Update(__instance.PlayerId);
 

@@ -1616,7 +1616,11 @@ internal static class ChatCommands
 
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
-        LateTask.New(() => Utils.GetPlayerById(vl2.Target)?.RpcSendChat(text[6..]), 0.2f, log: false);
+        var tg = Utils.GetPlayerById(vl2.Target);
+        var msg = text[6..];
+        LateTask.New(() => tg?.RpcSendChat(msg), 0.2f, log: false);
+        ChatManager.AddChatHistory(tg, msg);
+        
         player.RpcRemoveAbilityUse();
     }
 

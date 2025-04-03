@@ -593,7 +593,7 @@ public static class CaptureTheFlag
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId == 255 || WinnerData.Team != "No one wins") return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.PlayerId >= 254 || WinnerData.Team != "No one wins") return;
 
             if (__instance.IsHost())
             {

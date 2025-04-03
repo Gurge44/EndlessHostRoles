@@ -408,25 +408,32 @@ public static class GameOptionsMenuPatch
         return baseGameSetting;
     }
 
+    // From MoreGamemodes, by Rabek009
     public static void ReloadUI(int index)
     {
         UIReloadTS = Utils.TimeStamp;
 
-        GameSettingMenu.Instance?.Close();
-
-        LateTask.New(() =>
+        var tab = ModGameOptionsMenu.TabIndex;
+        if (GameSettingMenu.Instance == null) return;
+        GameSettingMenu.Instance.Close();
+        OptionsConsole optionsConsole = null;
+        foreach (var console in Object.FindObjectsOfType<OptionsConsole>())
         {
-            if (GameStates.IsLobby) GameObject.Find("Host Buttons")?.transform.FindChild("Edit")?.GetComponent<PassiveButton>()?.ReceiveClickDown();
-        }, 0.1f, log: false);
+            if (console.HostOnly)
+                optionsConsole = console;
+        }
+        if (optionsConsole == null) return;
 
-        LateTask.New(() =>
+        if (Camera.main != null)
         {
-            if (GameStates.IsLobby)
-            {
-                GameSettingMenu.Instance?.ChangeTab(index, Controller.currentTouchType == Controller.TouchType.Joystick);
-                ModGameOptionsMenu.TabIndex = index;
-            }
-        }, 0.38f, log: false);
+            GameObject gameObject = Object.Instantiate(optionsConsole.MenuPrefab, Camera.main.transform, false);
+            gameObject.transform.localPosition = optionsConsole.CustomPosition;
+        }
+
+        LateTask.New(() => {
+            if (GameSettingMenu.Instance == null) return;
+            GameSettingMenu.Instance.ChangeTab(tab, false);
+        }, 0.01f);
     }
 }
 

@@ -82,7 +82,7 @@ internal static class HotPotato
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!CustomGameMode.HotPotato.IsActiveOrIntegrated() || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId == 255) return;
+            if (!CustomGameMode.HotPotato.IsActiveOrIntegrated() || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254) return;
 
             PlayerControl Holder = Utils.GetPlayerById(HotPotatoState.HolderID);
 

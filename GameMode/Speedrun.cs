@@ -164,7 +164,7 @@ public static class Speedrun
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId == 255) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId >= 254) return;
 
             if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
             {

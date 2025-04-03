@@ -1334,13 +1334,13 @@ public static class Utils
             }
         }
 
-        SendMessage(sb.Append("\n.").ToString(), PlayerId, GetString("GMRoles"));
-        SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")));
-        SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")));
-        SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, GetString("NeutralRoles"));
-        SendMessage(covensb.Append("\n.").ToString(), PlayerId, GetString("CovenRoles"));
-        SendMessage(ghostsb.Append("\n.").ToString(), PlayerId, GetString("GhostRoles"));
-        SendMessage(addonsb.Append("\n.").ToString(), PlayerId, GetString("AddonRoles"));
+        SendMessage($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GMRoles"));
+        SendMessage($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")));
+        SendMessage($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")));
+        SendMessage($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("NeutralRoles"));
+        SendMessage($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("CovenRoles"));
+        SendMessage($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GhostRoles"));
+        SendMessage($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("AddonRoles"));
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
@@ -1632,7 +1632,7 @@ public static class Utils
     public static void ShowHelp(byte ID)
     {
         PlayerControl player = GetPlayerById(ID);
-        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player, false) && !x.CommandForms.Contains("help")).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.TakeWhile(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ColorString(GetColor(i), x)).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), ID, GetString("CommandList"));
+        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player, false) && !x.CommandForms.Contains("help")).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.TakeWhile(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ID == 0 ? ColorString(GetColor(i), x) : x).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), ID, GetString("CommandList"));
         return;
 
         Color GetColor(int i)
@@ -1641,14 +1641,14 @@ public static class Utils
             {
                 0 => Palette.Orange,
                 1 => Color.magenta,
-                2 => Color.blue,
+                2 => ID == 0 && Main.DarkTheme.Value ? Color.yellow : Color.blue,
                 3 => Color.red,
-                4 => Palette.Brown,
-                5 => Color.cyan,
-                6 => Color.green,
+                4 => Color.cyan,
+                5 => Color.green,
+                6 => Palette.Brown,
                 7 => Palette.Purple,
 
-                _ => Color.yellow
+                _ => Color.white
             };
         }
     }
@@ -1755,7 +1755,7 @@ public static class Utils
             }
         }
 
-        const int sizeLimit = 1000;
+        const int sizeLimit = 600;
 
         if (text.Length >= sizeLimit && !noSplit)
         {
@@ -3109,7 +3109,7 @@ public static class Utils
             Logger.Exception(ex, "AfterPlayerDeathTasks");
         }
         
-        if (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive()) return;
+        if (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive() || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         var killer = target.GetRealKiller();
         if (killer != null) target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString())}</color>", 10f);

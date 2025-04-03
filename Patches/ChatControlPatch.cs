@@ -161,6 +161,7 @@ public static class ChatManager
     public static void SendMessage(PlayerControl player, string message)
     {
         string playername = player.GetNameWithRole();
+        string originalMessage = message.Trim();
         message = message.ToLower().Trim();
 
         if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())) return;
@@ -196,9 +197,7 @@ public static class ChatManager
                 Logger.Info($"Command: {message}", "ChatManager");
                 break;
             case 3: // In Lobby & Evertything Else
-                var chatEntry = $"{player.PlayerId}: {message}";
-                ChatHistory.Add(chatEntry);
-                if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
+                AddChatHistory(player, originalMessage);
                 break;
         }
 
@@ -207,6 +206,13 @@ public static class ChatManager
 
         if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.InGame && operate != 1 && Banshee.On)
             Banshee.OnReceiveChat();
+    }
+
+    public static void AddChatHistory(PlayerControl player, string message)
+    {
+        var chatEntry = $"{player.PlayerId}: {message}";
+        ChatHistory.Add(chatEntry);
+        if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
     }
 
     public static void SendPreviousMessagesToAll(bool clear = false)
