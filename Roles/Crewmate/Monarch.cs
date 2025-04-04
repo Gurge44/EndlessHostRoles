@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -75,17 +76,22 @@ public class Monarch : RoleBase
         {
             killer.RpcRemoveAbilityUse();
             target.RpcSetCustomRole(CustomRoles.Knighted);
+            
+            var sender = CustomRpcSender.Create("Monarch.OnCheckMurder", SendOption.Reliable);
 
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("KnightedByMonarch")));
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+            sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")), setName: false);
+            sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("KnightedByMonarch")), setName: false);
 
             killer.ResetKillCooldown();
-            killer.SetKillCooldown();
+            sender.SetKillCooldown(killer);
 
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
+            sender.RpcGuardAndKill(target, killer);
+            sender.RpcGuardAndKill(target, target);
+            
+            sender.SendMessage();
+            
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
             Logger.Info("SetRole:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Knighted, "Assign " + CustomRoles.Knighted);
             return false;

@@ -74,14 +74,24 @@ public class DarkHide : RoleBase
         dh.IsWinKill = IsKillerKill;
     }
 
-    private void DRpcSetKillCount(PlayerControl player)
+    private void DRpcSetKillCount(PlayerControl player, CustomRpcSender sender = null)
     {
         if (!IsEnable || !Utils.DoRPC || !AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDarkHiderKillCount, SendOption.Reliable);
-        writer.Write(player.PlayerId);
-        writer.Write(IsWinKill);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
+        if (sender == null)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDarkHiderKillCount, SendOption.Reliable);
+            writer.Write(player.PlayerId);
+            writer.Write(IsWinKill);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        else
+        {
+            sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDarkHiderKillCount);
+            sender.Write(player.PlayerId);
+            sender.Write(IsWinKill);
+            sender.EndRpc();
+        }
     }
 
     public override void SetKillCooldown(byte id)
@@ -112,22 +122,24 @@ public class DarkHide : RoleBase
 
         if (succeeded && SnatchesWin.GetBool()) IsWinKill = true;
 
-        DRpcSetKillCount(killer);
-        MessageWriter SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, killer.GetClientId());
-        SabotageFixWriter.Write((byte)SystemTypes.Electrical);
-        SabotageFixWriter.WriteNetObject(killer);
-        AmongUsClient.Instance.FinishRpcImmediately(SabotageFixWriter);
+        var sender = CustomRpcSender.Create("DarkHide.OnCheckMurder", SendOption.Reliable);
+        DRpcSetKillCount(killer, sender);
+        sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, killer.GetClientId());
+        sender.Write((byte)SystemTypes.Electrical);
+        sender.WriteNetObject(killer);
+        sender.EndRpc();
 
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
             if (target.PlayerId == killer.PlayerId || target.Data.Disconnected) continue;
 
-            SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.GetClientId());
-            SabotageFixWriter.Write((byte)SystemTypes.Electrical);
-            SabotageFixWriter.WriteNetObject(target);
-            AmongUsClient.Instance.FinishRpcImmediately(SabotageFixWriter);
+            sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, target.GetClientId());
+            sender.Write((byte)SystemTypes.Electrical);
+            sender.WriteNetObject(target);
+            sender.EndRpc();
         }
 
+        sender.SendMessage();
         return true;
     }
 }

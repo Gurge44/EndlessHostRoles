@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -203,18 +204,22 @@ public class Amnesiac : RoleBase
             return;
         }
 
+        var sender = CustomRpcSender.Create("Amnesiac.RememberRole", SendOption.Reliable);
+
         CustomRoles role = RememberedRole.Value;
 
         amnesiac.RpcSetCustomRole(role);
-        amnesiac.RpcChangeRoleBasis(role);
+        amnesiac.RpcChangeRoleBasis(role, sender: sender);
 
-        amnesiac.Notify(amneNotifyString);
-        target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
+        sender.Notify(amnesiac, amneNotifyString);
+        sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
 
-        amnesiac.SetKillCooldown(3f);
+        sender.SetKillCooldown(amnesiac, 3f);
 
-        target.RpcGuardAndKill(amnesiac);
-        target.RpcGuardAndKill(target);
+        sender.RpcGuardAndKill(target, amnesiac);
+        sender.RpcGuardAndKill(target, target);
+        
+        sender.SendMessage();
 
         if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);
 

@@ -7,6 +7,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -371,6 +372,7 @@ public static class KingOfTheZones
                 yield return StartingCountdown();
         }
 
+        var sender = CustomRpcSender.Create("KOTZ.GameStart.RandomSpawns", SendOption.Reliable);
         var spawnsConst = RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).ToArray();
         var spawns = spawnsConst.ToList();
 
@@ -378,16 +380,18 @@ public static class KingOfTheZones
         {
             try
             {
-                player.SetKillCooldown(TagCooldown.GetInt());
+                sender.SetKillCooldown(player, TagCooldown.GetInt());
 
                 var spawn = spawns.RandomElement();
-                player.TP(spawn.Value);
+                sender.TP(player, spawn.Value);
                 spawns.RemoveAll(x => x.Key == spawn.Key);
 
                 if (spawns.Count == 0) spawns = spawnsConst.ToList();
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
+        
+        sender.SendMessage();
 
         TimeLeft = GameEndsByTimeLimit.GetBool() ? MaxGameLength.GetInt() : 0;
         GameStartTS = Utils.TimeStamp;
@@ -445,13 +449,15 @@ public static class KingOfTheZones
         if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId) || new[] { killer, target }.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
 
         int cd = TagCooldown.GetInt();
-        killer.SetKillCooldown(ZoneDomination.ContainsValue(PlayerTeams[killer.PlayerId]) ? cd * 1.5f : cd);
-        target.SetKillCooldown(ZoneDomination.ContainsValue(PlayerTeams[target.PlayerId]) ? cd * 1.5f : cd);
+        var sender = CustomRpcSender.Create("KOTZ.OnCheckMurder", SendOption.Reliable);
+        sender.SetKillCooldown(killer, ZoneDomination.ContainsValue(PlayerTeams[killer.PlayerId]) ? cd * 1.5f : cd);
+        sender.SetKillCooldown(target, ZoneDomination.ContainsValue(PlayerTeams[target.PlayerId]) ? cd * 1.5f : cd);
 
         RespawnTimes[target.PlayerId] = Utils.TimeStamp + RespawnTime.GetInt() + 1;
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         target.MarkDirtySettings();
-        target.TP(Pelican.GetBlackRoomPS());
+        sender.TP(target, Pelican.GetBlackRoomPS());
+        sender.SendMessage();
     }
 
     public static string GetSuffix(PlayerControl seer)

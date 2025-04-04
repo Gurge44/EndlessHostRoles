@@ -935,8 +935,15 @@ internal static class MeetingHudStartPatch
 
             LateTask.New(() =>
             {
+                var sender = CustomRpcSender.Create("RpcSetNameEx on meeting start", SendOption.Reliable);
                 foreach (PlayerControl pc in Main.AllPlayerControls)
-                    pc.RpcSetNameEx(pc.GetRealName(true));
+                {
+                    sender.AutoStartRpc(pc.NetId, 6);
+                    sender.Write(pc.Data.NetId);
+                    sender.Write(pc.GetRealName(true));
+                    sender.EndRpc();
+                }
+                sender.SendMessage();
 
                 ChatUpdatePatch.DoBlockChat = false;
             }, 3f, "SetName To Chat");

@@ -120,12 +120,14 @@ public class Agitater : RoleBase
         CurrentBombedPlayer = target.PlayerId;
         LastBombedPlayer = killer.PlayerId;
         CurrentBombedPlayerTime = Utils.TimeStamp;
-        killer.RpcGuardAndKill(killer);
-        killer.Notify(GetString("AgitaterPassNotify"));
-        target.Notify(GetString("AgitaterTargetNotify"));
+        var sender = CustomRpcSender.Create("Agitater.OnCheckMurder", SendOption.Reliable);
+        sender.RpcGuardAndKill(killer, killer);
+        sender.Notify(killer, GetString("AgitaterPassNotify"));
+        sender.Notify(target, GetString("AgitaterTargetNotify"));
         AgitaterHasBombed = true;
         killer.ResetKillCooldown();
-        killer.SetKillCooldown();
+        sender.SetKillCooldown(killer);
+        sender.SendMessage();
 
         LateTask.New(() =>
         {

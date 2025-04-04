@@ -100,10 +100,10 @@ public static class Utils
             writer.EndMessage();
 
             if (Options.EndWhenPlayerBug.GetBool())
-                LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/), 3f, "Anti-Black Msg SendInGame");
             else
             {
-                LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd") /*, true*/), 3f, "Anti-Black Msg SendInGame");
 
                 LateTask.New(() =>
                 {
@@ -1825,6 +1825,12 @@ public static class Utils
 
                 writer.SendMessage();
             }
+            else if (writer.stream.Length > 800)
+            {
+                writer.SendMessage();
+                writer = CustomRpcSender.Create("Utils.SendMessage", SendOption.Reliable);
+                writer.StartMessage(receiver.GetClientId());
+            }
 
             ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
         }
@@ -2080,7 +2086,7 @@ public static class Utils
             if (sender?.CurrentState == CustomRpcSender.State.InRootMessage)
                 sender.EndMessage();
 
-            if (sender?.stream.Length >= 500)
+            if (sender?.stream.Length >= 800)
             {
                 sender.SendMessage();
                 sender = null;
@@ -2108,7 +2114,7 @@ public static class Utils
             if (sender?.CurrentState == CustomRpcSender.State.InRootMessage)
                 sender.EndMessage();
 
-            if (sender?.stream.Length >= 500)
+            if (sender?.stream.Length >= 800)
             {
                 sender?.SendMessage();
                 sender = null;
@@ -2128,7 +2134,7 @@ public static class Utils
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
     }
 
-    private static void WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, PlayerControl[] seerList, PlayerControl[] targetList)
+    public static void WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, PlayerControl[] seerList, PlayerControl[] targetList)
     {
         long now = TimeStamp;
 
@@ -2930,8 +2936,10 @@ public static class Utils
 
                     LateTask.New(() =>
                     {
+                        var sender = CustomRpcSender.Create("Reassign pet", SendOption.Reliable);
                         string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId);
+                        PetsHelper.SetPet(pc, petId, sender);
+                        sender.SendMessage();
                     }, 3f, "No Pet Reassign");
                 }
 

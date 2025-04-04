@@ -77,11 +77,14 @@ public static class PhantomRolePatch
                 .Write((ushort)RoleTypes.Phantom)
                 .Write(true)
                 .EndRpc();
+            
+            sender.StartRpc(phantom.NetId, (byte)RpcCalls.ProtectPlayer)
+                .WriteNetObject(phantom)
+                .Write(0)
+                .EndRpc();
 
             sender.EndMessage();
             sender.SendMessage();
-
-            phantom.RpcResetAbilityCooldown();
 
             LateTask.New(() => phantom.SetKillCooldown(Math.Max(Main.KillTimers[phantom.PlayerId], 0.001f)), 0.2f);
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using AsmResolver.PE.DotNet.Metadata.Tables;
 using EHR.Modules;
 using EHR.Neutral;
 using Hazel;
@@ -301,7 +302,11 @@ public class Alchemist : RoleBase
             switch (remainTime)
             {
                 case < 0:
-                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId, x));
+                    var sender = CustomRpcSender.Create("RpcExitVentDesync", SendOption.Reliable);
+                    var ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
+                    var hasValue = Main.AllPlayerControls.Where(pc => player.PlayerId != pc.PlayerId).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
+                    sender.SendMessage(dispose: !hasValue);
+                    
                     player.Notify(GetString("SwooperInvisStateOut"));
                     SendRPC();
                     refresh = true;

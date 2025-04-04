@@ -79,6 +79,18 @@ public static class NameNotifyManager
         writer.Write(overrideAll);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
+    
+    public static void SendRPC(CustomRpcSender sender, byte playerId, string text, long expireTS, bool overrideAll)
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify);
+        sender.Write(playerId);
+        sender.Write(text);
+        sender.Write(expireTS.ToString());
+        sender.Write(overrideAll);
+        sender.EndRpc();
+    }
 
     public static void ReceiveRPC(MessageReader reader)
     {

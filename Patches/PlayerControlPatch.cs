@@ -562,11 +562,13 @@ internal static class CheckMurderPatch
             Main.MadmateNum++;
             target.RpcSetCustomRole(CustomRoles.Madmate);
             ExtendedPlayerControl.RpcSetCustomRole(target.PlayerId, CustomRoles.Madmate);
-            target.Notify(ColorString(GetRoleColor(CustomRoles.Madmate), GetString("BecomeMadmateCuzMadmateMode")));
-            killer.SetKillCooldown();
-            killer.RpcGuardAndKill(target);
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
+            var sender = CustomRpcSender.Create("RpcCheckAndMurder - Madmate", SendOption.Reliable);
+            sender.Notify(target, ColorString(GetRoleColor(CustomRoles.Madmate), GetString("BecomeMadmateCuzMadmateMode")));
+            sender.SetKillCooldown(killer);
+            sender.RpcGuardAndKill(killer, target);
+            sender.RpcGuardAndKill(target, killer);
+            sender.RpcGuardAndKill(target, target);
+            sender.SendMessage();
             Logger.Info($"Add-on assigned: {target?.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Madmate}", $"Assign {CustomRoles.Madmate}");
             return false;
         }
@@ -1432,7 +1434,9 @@ internal static class FixedUpdatePatch
                     player.RpcSetCustomRole(CustomRoles.Pestilence);
                     player.Notify(GetString("PlagueBearerToPestilence"));
                     player.RpcGuardAndKill(player);
-                    if (!PlagueBearer.PestilenceList.Contains(playerId)) PlagueBearer.PestilenceList.Add(playerId);
+                    
+                    if (!PlagueBearer.PestilenceList.Contains(playerId))
+                        PlagueBearer.PestilenceList.Add(playerId);
 
                     player.ResetKillCooldown();
                     PlagueBearer.PlayerIdList.Remove(playerId);
@@ -2278,11 +2282,13 @@ internal static class PlayerControlSetRolePatch
                 roleType = RoleTypes.ImpostorGhost;
             else
             {
+                var sender = CustomRpcSender.Create("Set Desync Ghost Role", SendOption.Reliable);
                 foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
                 {
                     Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                    __instance.RpcSetRoleDesync(role, seer.GetClientId(), true);
+                    sender.RpcSetRole(__instance, role, seer.GetClientId());
                 }
+                sender.SendMessage();
 
                 return false;
             }

@@ -11,10 +11,8 @@ public static class PetsHelper
         SetPet(pc, petId);
     }
 
-    public static void SetPet(PlayerControl pc, string petId)
+    public static void SetPet(PlayerControl pc, string petId, CustomRpcSender sender)
     {
-        var sender = CustomRpcSender.Create("Remove Pet From Dead Player", SendOption.Reliable);
-
         pc.SetPet(petId);
         pc.Data.DefaultOutfit.PetSequenceId += 10;
 
@@ -22,8 +20,6 @@ public static class PetsHelper
             .Write(petId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();
-
-        sender.SendMessage();
     }
 
     public static string GetPetId()

@@ -98,7 +98,9 @@ public class Tremor : RoleBase
 
         if (wasDoom != IsDoom)
         {
-            Main.AllAlivePlayerControls.Do(x => x.Notify(Translator.GetString("Tremor.DoomNotify")));
+            var sender = CustomRpcSender.Create("Tremor.DoomNotify", SendOption.Reliable);
+            Main.AllAlivePlayerControls.Do(x => sender.Notify(x, Translator.GetString("Tremor.DoomNotify")));
+            sender.SendMessage();
             DoomTimer = DoomTime.GetInt();
         }
 

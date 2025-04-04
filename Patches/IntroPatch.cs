@@ -5,6 +5,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using Il2CppSystem.Collections.Generic;
 using UnityEngine;
 using static EHR.Translator;
@@ -873,16 +874,20 @@ internal static class IntroCutsceneDestroyPatch
                     {
                         LateTask.New(() =>
                         {
-                            foreach (PlayerControl pc in aapc)
-                                pc.SetKillCooldown(kcd - 2);
+                            var sender = CustomRpcSender.Create("Intro - FixKillCooldown", SendOption.Reliable);
+                            var hasValue = aapc.Aggregate(false, (current, pc) => current || sender.SetKillCooldown(pc, kcd - 2));
+                            sender.SendMessage(dispose: !hasValue);
                         }, 2f, "FixKillCooldownTask");
                     }
                     else if (Options.FixFirstKillCooldown.GetBool())
                     {
                         LateTask.New(() =>
                         {
+                            var sender = CustomRpcSender.Create("Intro - FixKillCooldown", SendOption.Reliable);
+                            var hasValue = false;
                             aapc.Do(x => x.ResetKillCooldown(false));
-                            aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                            aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => hasValue |= sender.SetKillCooldown(pc, Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                            sender.SendMessage(dispose: !hasValue);
                         }, 2f, "FixKillCooldownTask");
                     }
                     else Utils.SyncAllSettings();
@@ -913,42 +918,50 @@ internal static class IntroCutsceneDestroyPatch
 
                 LateTask.New(() =>
                 {
+                    var sender = CustomRpcSender.Create("Pet Assign On Game Start", SendOption.Reliable);
                     foreach (PlayerControl pc in aapc)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
 
                         string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId);
+                        PetsHelper.SetPet(pc, petId, sender);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
+                    sender.SendMessage();
 
                     AntiBlackout.SendGameData();
                 }, 0.3f, "Grant Pet For Everyone");
 
-                try
+                LateTask.New(() =>
                 {
-                    LateTask.New(() =>
+                    var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
+                    sender.Notify(lp, GetString("GLHF"), 2f);
+
+                    foreach (PlayerControl pc in aapc)
                     {
+                        if (pc.IsHost()) continue; // Skip the host
+
                         try
                         {
-                            lp.Notify(GetString("GLHF"), 2f);
-
-                            foreach (PlayerControl pc in aapc)
-                            {
-                                if (pc.IsHost()) continue; // Skip the host
-
-                                try
-                                {
-                                    pc.RpcShapeshift(pc, false);
-                                    pc.Notify(GetString("GLHF"), 2f);
-                                }
-                                catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
-                            }
+                            if (AmongUsClient.Instance.AmClient)
+                                pc.Shapeshift(pc, false);
+                            
+                            sender.AutoStartRpc(pc.NetId, 46);
+                            sender.WriteNetObject(pc);
+                            sender.Write(false);
+                            sender.EndRpc();
+                            
+                            sender.Notify(pc, GetString("GLHF"), 2f);
                         }
-                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.foreachCycle"); }
-                    }, 0.4f, "Show Pet For Everyone");
-                }
-                catch { }
+                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
+
+                        if (sender.stream.Length > 800)
+                        {
+                            sender.SendMessage();
+                            sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
+                        }
+                    }
+                }, 0.4f, "Show Pet For Everyone");
 
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
@@ -971,9 +984,11 @@ internal static class IntroCutsceneDestroyPatch
 
                 void SetSpectatorsDead()
                 {
-                    spectators.ForEach(x =>
+                    var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
+                    spectators.ForEach(sender.RpcExileV2);
+                    sender.SendMessage(dispose: spectators.Count == 0);
+                    spectators.ForEach(x => 
                     {
-                        x.RpcExileV2();
                         Main.PlayerStates[x.PlayerId].SetDead();
                         Utils.AfterPlayerDeathTasks(x);
                     });

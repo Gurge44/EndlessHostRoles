@@ -328,22 +328,25 @@ public static class AntiBlackout
 
     private static void ResetAllCooldowns()
     {
+        var sender = CustomRpcSender.Create("AntiBlackout.ResetAllCooldowns", SendOption.Reliable);
+        
         foreach (PlayerControl seer in Main.AllPlayerControls)
         {
             try
             {
                 if (seer.IsAlive())
                 {
-                    seer.RpcResetAbilityCooldown();
+                    sender.RpcResetAbilityCooldown(seer);
 
                     if (Main.AllPlayerKillCooldown.TryGetValue(seer.PlayerId, out float kcd) && kcd >= 2f)
-                        seer.SetKillCooldown(kcd - 2f);
+                        sender.SetKillCooldown(seer, kcd - 2f);
                 }
-                else if (seer.HasGhostRole()) seer.RpcResetAbilityCooldown();
+                else if (seer.HasGhostRole()) sender.RpcResetAbilityCooldown(seer);
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
 
+        sender.SendMessage();
         CheckMurderPatch.TimeSinceLastKill.SetAllValues(0f);
     }
 
