@@ -3,22 +3,12 @@ using HarmonyLib;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(PlayerBanData), nameof(PlayerBanData.BanMinutesLeft), MethodType.Getter)]
+[HarmonyPatch(typeof(PlayerBanData), nameof(PlayerBanData.banPoints), MethodType.Getter)]
 public static class DisconnectPenaltyPatch
 {
-    public static bool Prefix(PlayerBanData __instance, ref int __result)
+    public static bool Prefix(ref int __result)
     {
-        if (!DebugModeManager.AmDebugger) return true;
-
-        if (__instance.BanPoints != 0f)
-        {
-            __instance.BanPoints = 0f;
-            __result = 0;
-            Logger.Info("Debug Removed Disconnect ban", "PenaltyPatch");
-            return false;
-        }
-
-        return true;
+        __result = 0;
+        return false;
     }
 }
-//Code from https://github.com/scp222thj/MalumMenu/blob/main/src/Passive/PenaltyPatch.cs
