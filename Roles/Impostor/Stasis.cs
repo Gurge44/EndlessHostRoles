@@ -122,12 +122,12 @@ public class Stasis : RoleBase
             for (int i = 0; i < time; i++)
             {
                 // ReSharper disable once AccessToModifiedClosure
-                imps.Do(x => x.Notify($"<#00ffa5>{Translator.GetString("Stasis.TimeFrozenNotify")}</color> <#888888>-</color> {time - i}", overrideAll: true));
+                imps.NotifyPlayers($"<#00ffa5>{Translator.GetString("Stasis.TimeFrozenNotify")}</color> <#888888>-</color> {time - i}", overrideAll: true);
                 yield return new WaitForSeconds(1f);
             }
 
             UsingAbility = false;
-            imps.Do(x => x.Notify(Translator.GetString("Stasis.TimeFreezeEndNotify"), overrideAll: true));
+            imps.NotifyPlayers(Translator.GetString("Stasis.TimeFreezeEndNotify"), overrideAll: true);
 
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));

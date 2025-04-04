@@ -309,7 +309,7 @@ public static class RoomRush
                 readingTime += 3;
             }
 
-            aapc.Do(x => x.Notify(sb.Insert(0, "<#ffffff>").Append("</color>").ToString().Trim(), 100f));
+            aapc.NotifyPlayers(sb.Insert(0, "<#ffffff>").Append("</color>").ToString().Trim(), 100f);
             yield return new WaitForSeconds(readingTime);
             if (!GameStates.InGame) yield break;
         }
@@ -318,7 +318,7 @@ public static class RoomRush
         {
             int time = i;
             NameNotifyManager.Reset();
-            aapc.Do(x => x.Notify(string.Format(Translator.GetString("RR_ReadyQM"), time)));
+            aapc.NotifyPlayers(string.Format(Translator.GetString("RR_ReadyQM"), time));
             yield return new WaitForSeconds(1f);
         }
 

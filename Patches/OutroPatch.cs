@@ -495,7 +495,7 @@ internal static class SetEverythingUpPatch
             }
             case CustomGameMode.RoomRush:
             {
-                IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(RoomRush.GetSurvivalTime);
+                IOrderedEnumerable<byte> list = RoomRush.PointsSystem ? cloneRoles.OrderByDescending(x => int.Parse(RoomRush.GetPoints(x).Split('/')[0])) : cloneRoles.OrderByDescending(RoomRush.GetSurvivalTime);
                 foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                 break;

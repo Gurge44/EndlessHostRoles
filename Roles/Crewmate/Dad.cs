@@ -240,7 +240,7 @@ public class Dad : RoleBase
             case Ability.GoForMilk:
                 LateTask.New(() => physics.RpcExitVent(ventId), 1f, log: false);
                 LateTask.New(() => physics.myPlayer.TP(Pelican.GetBlackRoomPS()), 2f, log: false);
-                Main.AllAlivePlayerControls.Do(x => x.Notify(Translator.GetString("Dad.GoForMilkNotify"), 10f));
+                Main.AllAlivePlayerControls.NotifyPlayers(Translator.GetString("Dad.GoForMilkNotify"), 10f);
                 UsingAbilities.Add(SelectedAbility);
                 break;
             case Ability.SuperVision:

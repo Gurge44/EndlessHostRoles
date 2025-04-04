@@ -320,14 +320,14 @@ public static class KingOfTheZones
                 _ => string.Empty
             };
 
-            aapc.Do(x => x.Notify($"<#ffffff>{gameEnd}</color>", 100f));
+            aapc.NotifyPlayers($"<#ffffff>{gameEnd}</color>", 100f);
             yield return new WaitForSeconds(endByPoints && endByTime ? 8f : 5f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
             string tags = string.Format(GetString("KOTZ.Notify.Tutorial.Tagging"), tagCooldown, respawnTime);
 
-            aapc.Do(x => x.Notify($"<#ffffff>{tags}</color>", 100f));
+            aapc.NotifyPlayers($"<#ffffff>{tags}</color>", 100f);
             yield return new WaitForSeconds(7f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
@@ -336,7 +336,7 @@ public static class KingOfTheZones
             {
                 string zoneMovement = string.Format(GetString(AllZonesMoveAtOnce.GetBool() ? "KOTZ.Notify.Tutorial.ZonesMoving.AllAtOnce" : "KOTZ.Notify.Tutorial.ZonesMoving.Separately"), ZoneMoveTime.GetInt());
 
-                aapc.Do(x => x.Notify($"<#ffffff>{zoneMovement}</color>", 100f));
+                aapc.NotifyPlayers($"<#ffffff>{zoneMovement}</color>", 100f);
                 yield return new WaitForSeconds(5f);
                 NameNotifyManager.Reset();
                 if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
@@ -347,7 +347,7 @@ public static class KingOfTheZones
                 {
                     string downTimeInfo = string.Format(GetString("KOTZ.Notify.Tutorial.ZonesMoving.Downtime"), downTime);
 
-                    aapc.Do(x => x.Notify($"<#ffffff>{downTimeInfo}</color>", 100f));
+                    aapc.NotifyPlayers($"<#ffffff>{downTimeInfo}</color>", 100f);
                     yield return new WaitForSeconds(7f);
                     NameNotifyManager.Reset();
                     if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
@@ -363,7 +363,7 @@ public static class KingOfTheZones
             if (LastShortInfo != info)
             {
                 LastShortInfo = info;
-                aapc.Do(x => x.Notify($"<#ffffff>{info}</color>", 100f));
+                aapc.NotifyPlayers($"<#ffffff>{info}</color>", 100f);
                 yield return new WaitForSeconds(6f);
                 NameNotifyManager.Reset();
                 if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
@@ -412,7 +412,7 @@ public static class KingOfTheZones
             {
                 int time = i;
                 NameNotifyManager.Reset();
-                aapc.Do(x => x.Notify($"<#ffffff>{string.Format(GetString("RR_ReadyQM"), time)}</color>", 100f));
+                aapc.NotifyPlayers($"<#ffffff>{string.Format(GetString("RR_ReadyQM"), time)}</color>", 100f);
                 yield return new WaitForSeconds(1f);
             }
 

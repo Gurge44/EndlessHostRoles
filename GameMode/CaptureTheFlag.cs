@@ -391,7 +391,7 @@ public static class CaptureTheFlag
             case 1:
                 target.Suicide();
                 string notify = string.Format(Translator.GetString("CTF_TeamMemberFallen"), target.PlayerId.ColoredPlayerName());
-                TeamData[targetTeam].Players.ToValidPlayers().Do(x => x.Notify(notify));
+                TeamData[targetTeam].Players.ToValidPlayers().NotifyPlayers(notify);
                 if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
                 ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
                 break;
@@ -505,7 +505,7 @@ public static class CaptureTheFlag
 
                 if (Vector2.Distance(Flag.Position, enemy.GetFlagBase().Position) <= 2f)
                 {
-                    Main.AllPlayerControls.Do(x => x.Notify(Translator.GetString($"CTF_{enemy}TeamWonThisRound")));
+                    Main.AllPlayerControls.NotifyPlayers(Translator.GetString($"CTF_{enemy}TeamWonThisRound"));
                     CTFTeamData enemyTeam = TeamData[enemy];
 
                     if (++enemyTeam.RoundsWon >= PointsToWin.GetInt() && GameEndCriteria.GetValue() == 1)
