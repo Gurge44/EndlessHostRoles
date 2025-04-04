@@ -9,6 +9,7 @@ using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 
 namespace EHR.Patches;
 
@@ -80,6 +81,8 @@ internal static class ExileControllerWrapUpPatch
 
         NiceSwapper.OnExileFinish();
 
+        var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpPostfix", SendOption.Reliable);
+
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (pc.Is(CustomRoles.Warlock))
@@ -89,9 +92,11 @@ internal static class ExileControllerWrapUpPatch
             }
 
             pc.ResetKillCooldown(false);
-            pc.RpcResetAbilityCooldown();
+            sender.RpcResetAbilityCooldown(pc);
             PetsHelper.RpcRemovePet(pc);
         }
+        
+        sender.SendMessage();
 
         if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
         {
@@ -132,6 +137,10 @@ internal static class ExileControllerWrapUpPatch
                 {
                     AntiBlackout.ResetAfterMeeting();
 
+                    var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer", SendOption.Reliable);
+                    Main.AfterMeetingDeathPlayers.Do(x => sender.RpcExileV2(x.Key.GetPlayer()));
+                    sender.SendMessage(dispose: Main.AfterMeetingDeathPlayers.Count == 0);
+
                     Main.AfterMeetingDeathPlayers.Do(x =>
                     {
                         PlayerControl player = Utils.GetPlayerById(x.Key);
@@ -139,7 +148,6 @@ internal static class ExileControllerWrapUpPatch
                         Logger.Info($"{player?.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
                         state.deathReason = x.Value;
                         state.SetDead();
-                        player?.RpcExileV2();
                         if (x.Value == PlayerState.DeathReason.Suicide) player?.SetRealKiller(player, true);
                         Utils.AfterPlayerDeathTasks(player);
                     });

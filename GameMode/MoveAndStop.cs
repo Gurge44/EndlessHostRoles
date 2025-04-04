@@ -454,15 +454,19 @@ internal static class MoveAndStop
                         }
                         case Events.CommsSabotage:
                         {
-                            Main.AllAlivePlayerControls.Do(x => x.RpcDesyncRepairSystem(SystemTypes.Comms, 128));
+                            var sender = CustomRpcSender.Create("MoveAndStop - CommsSabotage", SendOption.Reliable);
+                            Main.AllAlivePlayerControls.Do(x => sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 128));
+                            sender.SendMessage();
 
                             LateTask.New(() =>
                             {
+                                sender = CustomRpcSender.Create("MoveAndStop - CommsSabotage (Remove)", SendOption.Reliable);
                                 Main.AllAlivePlayerControls.Do(x =>
                                 {
-                                    x.RpcDesyncRepairSystem(SystemTypes.Comms, 16);
-                                    if (Main.NormalOptions.MapId is 1 or 5) x.RpcDesyncRepairSystem(SystemTypes.Comms, 17);
+                                    sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 16);
+                                    if (Main.NormalOptions.MapId is 1 or 5) sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 17);
                                 });
+                                sender.SendMessage();
                             }, duration, log: false);
 
                             break;
