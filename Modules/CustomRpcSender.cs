@@ -113,6 +113,8 @@ public class CustomRpcSender
             else
                 throw new InvalidOperationException(errorMsg);
         }
+        
+        Logger.Info($"\"{name}\" is finished (Length: {stream.Length})", "CustomRpcSender");
 
         if (!dispose)
         {
@@ -121,7 +123,6 @@ public class CustomRpcSender
         }
 
         currentState = State.Finished;
-        Logger.Info($"\"{name}\" is finished", "CustomRpcSender");
         stream.Recycle();
     }
 

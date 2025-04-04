@@ -395,7 +395,7 @@ internal static class ExtendedPlayerControl
                 while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
                 yield return new WaitForSeconds(1f);
                 Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
-                player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
+                player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap, sender);
             }
         }
 

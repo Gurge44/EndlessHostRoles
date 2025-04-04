@@ -326,8 +326,10 @@ public static class RoomRush
 
         if (ventLimit > 0)
         {
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) aapc.DoIf(x => x.GetRoleMap().RoleType is RoleTypes.Crewmate or RoleTypes.Noisemaker or RoleTypes.Scientist or RoleTypes.Tracker, x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
-            else aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+            var sender = CustomRpcSender.Create("Room Rush - Venting RpcChangeRoleBasis", SendOption.Reliable);
+            if (Options.CurrentGameMode == CustomGameMode.AllInOne) aapc.DoIf(x => x.GetRoleMap().RoleType is RoleTypes.Crewmate or RoleTypes.Noisemaker or RoleTypes.Scientist or RoleTypes.Tracker, x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR, sender: sender));
+            else aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR, sender: sender));
+            sender.SendMessage();
         }
 
         Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);

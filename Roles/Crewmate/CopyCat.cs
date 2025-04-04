@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -128,13 +129,17 @@ public class CopyCat : RoleBase
         {
             TempLimit = pc.GetAbilityUseLimit();
 
+            var sender = CustomRpcSender.Create("Copycat.OnCheckMurder", SendOption.Reliable);
+
             pc.RpcSetCustomRole(role);
-            pc.RpcChangeRoleBasis(role);
+            pc.RpcChangeRoleBasis(role, sender: sender);
             pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());
 
+            sender.SetKillCooldown(pc);
+            sender.Notify(pc, string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
+            sender.SendMessage();
+            
             pc.SyncSettings();
-            pc.SetKillCooldown();
-            pc.Notify(string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
             return false;
         }
 

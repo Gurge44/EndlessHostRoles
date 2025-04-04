@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -329,6 +330,9 @@ public static class CaptureTheFlag
             TeamData[CTFTeam.Yellow] = new(CTFTeam.Yellow, yellowFlag, yellowPlayers, byte.MaxValue);
 
             // Teleport players to their respective bases
+            var sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+            var hasValue = false;
+            
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team))
@@ -336,19 +340,29 @@ public static class CaptureTheFlag
                     switch (team)
                     {
                         case CTFTeam.Blue:
-                            pc.TP(blueFlagBase.Position);
-                            pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), yellowFlagBase.RoomName));
+                            sender.TP(pc, blueFlagBase.Position);
+                            sender.Notify(pc, string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), yellowFlagBase.RoomName));
                             break;
                         case CTFTeam.Yellow:
-                            pc.TP(yellowFlagBase.Position);
-                            pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), blueFlagBase.RoomName));
+                            sender.TP(pc, yellowFlagBase.Position);
+                            sender.Notify(pc, string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), blueFlagBase.RoomName));
                             break;
                     }
                 }
 
-                pc.RpcChangeRoleBasis(CustomRoles.CTFPlayer);
-                pc.RpcResetAbilityCooldown();
+                pc.RpcChangeRoleBasis(CustomRoles.CTFPlayer, sender: sender);
+                sender.RpcResetAbilityCooldown(pc);
+                hasValue = true;
+
+                if (sender.stream.Length > 800)
+                {
+                    sender.SendMessage();
+                    sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+                    hasValue = false;
+                }
             }
+            
+            sender.SendMessage(dispose: !hasValue);
 
             ValidTag = true;
             GameStartTS = Utils.TimeStamp;

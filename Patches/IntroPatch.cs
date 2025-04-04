@@ -967,7 +967,7 @@ internal static class IntroCutsceneDestroyPatch
                         }
                     }
                     
-                    if (hasValue) sender.SendMessage();
+                    sender.SendMessage(dispose: !hasValue);
                 }, 0.4f, "Show Pet For Everyone");
 
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");

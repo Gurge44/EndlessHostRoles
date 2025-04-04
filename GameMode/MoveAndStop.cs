@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -432,17 +433,21 @@ internal static class MoveAndStop
                     {
                         case Events.VentAccess:
                         {
-                            Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+                            var sender = CustomRpcSender.Create("MoveAndStop - VentAccess", SendOption.Reliable);
+                            Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR, sender: sender));
+                            sender.SendMessage();
 
                             LateTask.New(() =>
                             {
+                                sender = CustomRpcSender.Create("MoveAndStop - VentAccess (Remove)", SendOption.Reliable);
                                 Main.AllAlivePlayerControls.Do(x =>
                                 {
-                                    x.RpcChangeRoleBasis(CustomRoles.Tasker);
+                                    x.RpcChangeRoleBasis(CustomRoles.Tasker, sender: sender);
 
                                     if (x.inVent || x.MyPhysics.Animations.IsPlayingEnterVentAnimation())
                                         LateTask.New(() => x.MyPhysics.RpcExitVent(x.GetClosestVent().Id), 1f, log: false);
                                 });
+                                sender.SendMessage();
                             }, duration, log: false);
 
                             break;

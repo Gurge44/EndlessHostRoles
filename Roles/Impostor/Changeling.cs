@@ -114,7 +114,6 @@ internal class Changeling : RoleBase
             shapeshifter.RpcChangeRoleBasis(CurrentRole);
             ChangedRole[shapeshifter.PlayerId] = true;
             shapeshifter.RpcResetAbilityCooldown();
-            if (!DisableShapeshiftAnimations.GetBool()) LateTask.New(() => shapeshifter.RpcShapeshift(shapeshifter, false), 1f, log: false);
         }, 0.3f, log: false);
 
         return false;

@@ -159,14 +159,14 @@ public class Jackal : RoleBase
     {
         if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target)) return true;
 
+        var sender = CustomRpcSender.Create("Jackal.OnCheckMurder", SendOption.Reliable);
+
         killer.RpcRemoveAbilityUse();
         target.RpcSetCustomRole(CustomRoles.Sidekick);
-        target.RpcChangeRoleBasis(CustomRoles.Sidekick);
+        target.RpcChangeRoleBasis(CustomRoles.Sidekick, sender: sender);
         SidekickId = target.PlayerId;
 
         Main.ResetCamPlayerList.Add(target.PlayerId);
-
-        var sender = CustomRpcSender.Create("Jackal.OnCheckMurder", SendOption.Reliable);
 
         sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("GangsterSuccessfullyRecruited")), setName: false);
         sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")), setName: false);
