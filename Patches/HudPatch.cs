@@ -807,11 +807,21 @@ internal static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.RoomRush:
 
-                    finalText += Main.AllPlayerControls
-                        .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
-                        .OrderByDescending(x => x.alive)
-                        .ThenByDescending(x => x.time)
-                        .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+                    if (!RoomRush.PointsSystem)
+                    {
+                        finalText += Main.AllPlayerControls
+                            .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
+                            .OrderByDescending(x => x.alive)
+                            .ThenByDescending(x => x.time)
+                            .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+                    }
+                    else
+                    {
+                        finalText += Main.AllPlayerControls
+                            .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.Parse(RoomRush.GetPoints(x.PlayerId).Split('/')[0])))
+                            .OrderByDescending(x => x.points_int)
+                            .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {x.points_string}");
+                    }
 
                     finalText += "</size>";
                     break;

@@ -27,8 +27,8 @@ public static class RoomRush
     private static Dictionary<byte, int> Points = [];
 
     public static readonly HashSet<string> HasPlayedFriendCodes = [];
-
     public static Dictionary<byte, int> VentLimit = [];
+    public static bool PointsSystem => WinByPointsInsteadOfDeaths.GetBool();
 
     private static HashSet<SystemTypes> AllRooms = [];
     private static SystemTypes RoomGoal;
@@ -192,6 +192,12 @@ public static class RoomRush
         DateTime died = state.RealKiller.TimeStamp;
         TimeSpan time = died - GameStartDateTime;
         return (int)time.TotalSeconds;
+    }
+
+    public static string GetPoints(byte id)
+    {
+        if (!WinByPointsInsteadOfDeaths.GetBool()) return string.Empty;
+        return Points.TryGetValue(id, out int points) ? $"{points}/{PointsToWin.GetInt()}" : string.Empty;
     }
 
     public static void OnGameStart()
