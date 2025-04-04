@@ -8,7 +8,10 @@ public static class PetsHelper
     {
         const string petId = "";
         if (!GameStates.IsInGame || !Options.RemovePetsAtDeadPlayers.GetBool() || pc == null || !pc.Data.IsDead || pc.IsAlive() || pc.CurrentOutfit.PetId == petId) return;
-        SetPet(pc, petId);
+        
+        var sender = CustomRpcSender.Create("PetsHelper.RpcRemovePet", SendOption.Reliable);
+        SetPet(pc, petId, sender);
+        sender.SendMessage();
     }
 
     public static void SetPet(PlayerControl pc, string petId, CustomRpcSender sender)

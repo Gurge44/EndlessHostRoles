@@ -9,6 +9,7 @@ using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
+using Hazel;
 using InnerNet;
 
 namespace EHR;
@@ -175,7 +176,12 @@ public class PlayerState(byte playerId)
             if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                 Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 
-            if (Options.UsePets.GetBool()) PetsHelper.SetPet(Player, PetsHelper.GetPetId());
+            if (Options.UsePets.GetBool())
+            {
+                var sender = CustomRpcSender.Create("PlayerState.SetMainRole", SendOption.Reliable);
+                PetsHelper.SetPet(Player, PetsHelper.GetPetId(), sender);
+                sender.SendMessage();
+            }
 
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
