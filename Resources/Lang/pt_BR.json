@@ -5753,6 +5753,8 @@
   "DoomsayerGuessSameRoleAgainMsg": "Você tentou adivinhar a mesma função ou atributo que tentou adivinhar antes",
   "DoYourTasksPlease": "Faça as suas tarefas!",
   "OnlyShowPart": "Mostrar apenas parte",
+  "CanVentBeforeNecronomicon": "Can Vent <#00a5ff>Before</color> Receiving The <#7b3fbb>Necronomicon</color>",
+  "CanVentAfterNecronomicon": "Can Vent <#00ffff>After</color> Receiving The <#7b3fbb>Necronomicon</color>",
   "YouReceivedTheNecronomicon": "Você recebeu o <{0}>Necronomicon</color>! Isso lhe concede a habilidade de matar normalmente, e outras habilidades baseadas em sua função.",
   "PlayerReceivedTheNecronomicon": "<b>{0}</b> recebeu o <{1}>Necronomicon</color>!\\n<size=70%>Agora, {2} os membros do Coven têm o Necronomicon: {3}</size>",
   "RegularCoven": "Membro do coven",
