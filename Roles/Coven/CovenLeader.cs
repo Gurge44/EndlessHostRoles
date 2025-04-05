@@ -25,6 +25,11 @@ public class CovenLeader : Coven
         CovenLeaderId = playerId;
     }
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return pc.IsAlive();
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();

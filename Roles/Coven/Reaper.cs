@@ -12,6 +12,7 @@ public class Reaper : Coven
     private static OptionItem AbilityCooldown;
     private static OptionItem SoulsRequired;
     public static OptionItem KillCooldown;
+    private static OptionItem CanVent;
 
     public HashSet<byte> CursedPlayers = [];
 
@@ -27,7 +28,8 @@ public class Reaper : Coven
         StartSetup(650040)
             .AutoSetupOption(ref AbilityCooldown, 10f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref SoulsRequired, 3, new IntegerValueRule(1, 10, 1))
-            .AutoSetupOption(ref KillCooldown, 15f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds);
+            .AutoSetupOption(ref KillCooldown, 15f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref CanVent, false);
     }
 
     public override void Init()
@@ -48,6 +50,11 @@ public class Reaper : Coven
     public override void Remove(byte playerId)
     {
         Instances.Remove(this);
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return CanVent.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -111,6 +118,11 @@ public class Death : Coven
     public override void Add(byte playerId)
     {
         On = true;
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return pc.IsAlive();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

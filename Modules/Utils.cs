@@ -1730,7 +1730,7 @@ public static class Utils
         title = title.Replace("color=", string.Empty);
 
         var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-        
+
         if (sendTo != byte.MaxValue && receiver.IsLocalPlayer())
         {
             string name = sender.Data.PlayerName;
@@ -2263,7 +2263,7 @@ public static class Utils
                 {
                     SelfMark.Append(Witch.GetSpelledMark(seer.PlayerId, true));
                     SelfMark.Append(Wasp.GetStungMark(seer.PlayerId));
-                    SelfMark.Append(SpellCaster.IsSpelled(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
+                    SelfMark.Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
                 }
 
                 GameMode:
@@ -2429,7 +2429,7 @@ public static class Utils
 
                             TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, forMeeting));
                             if (forMeeting) TargetMark.Append(Wasp.GetStungMark(target.PlayerId));
-                            if (forMeeting) TargetMark.Append(SpellCaster.IsSpelled(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
+                            if (forMeeting) TargetMark.Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
 
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
@@ -3116,7 +3116,7 @@ public static class Utils
             Logger.CurrentMethod();
             Logger.Exception(ex, "AfterPlayerDeathTasks");
         }
-        
+
         if (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive() || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         var killer = target.GetRealKiller();

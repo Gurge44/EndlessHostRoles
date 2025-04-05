@@ -10,6 +10,9 @@ public class SpellCaster : Coven
     public static bool On;
 
     private static OptionItem AbilityCooldown;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
+
     private static Dictionary<byte, bool> HexedPlayers = [];
     private static HashSet<byte> VisibleHexes = [];
     private static HashSet<byte> PlayerIdList = [];
@@ -21,7 +24,9 @@ public class SpellCaster : Coven
     public override void SetupCustomOption()
     {
         StartSetup(650010)
-            .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds);
+            .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, false);
     }
 
     public override void Init()
@@ -43,6 +48,11 @@ public class SpellCaster : Coven
         PlayerIdList.Remove(playerId);
     }
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();
@@ -58,10 +68,10 @@ public class SpellCaster : Coven
     protected override void OnReceiveNecronomicon()
     {
         VisibleHexes = HexedPlayers.Keys.Concat(PlayerIdList).ToHashSet();
-        
+
         if (Main.AllAlivePlayerControls.Length / 2 >= HexedPlayers.Keys.Count)
             VisibleHexes.ExceptWith(PlayerIdList);
-        
+
         HexedPlayers.SetAllValues(true);
     }
 
@@ -76,7 +86,7 @@ public class SpellCaster : Coven
         {
             if (exileIds.Any(PlayerIdList.Contains))
                 HexedPlayers.Clear();
-            
+
             PlayerControl spellCaster = Main.AllAlivePlayerControls.First(x => x.Is(CustomRoles.SpellCaster));
 
             byte[] curseDeathList = Main.PlayerStates.Keys
@@ -90,15 +100,20 @@ public class SpellCaster : Coven
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    public static bool IsSpelled(byte playerId)
+    private static bool IsSpelled(byte playerId)
     {
         return HexedPlayers.TryGetValue(playerId, out bool spell) && spell;
+    }
+
+    public static bool HasSpelledMark(byte playerId)
+    {
+        return VisibleHexes.Contains(playerId);
     }
 
     public override void OnReportDeadBody()
     {
         if (!IsWinConditionMet()) return;
-        
+
         LateTask.New(() =>
         {
             var spellCasterStr = CustomRoles.SpellCaster.ToColoredString();
@@ -118,7 +133,7 @@ public class SpellCaster : Coven
         }
     }
 
-    public static bool IsWinConditionMet()
+    private static bool IsWinConditionMet()
     {
         return PlayerIdList.ToValidPlayers().Any(x => x.IsAlive()) && Main.AllAlivePlayerControls.All(x => x.Is(Team.Coven) || HexedPlayers.ContainsKey(x.PlayerId));
     }

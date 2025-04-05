@@ -13,6 +13,8 @@ public class PotionMaster : Coven
     private static OptionItem AbilityCooldown;
     private static OptionItem KillCooldown;
     private static OptionItem ShieldDuration;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     private byte PotionMasterId;
     private HashSet<byte> RevealedPlayers = [];
@@ -28,7 +30,9 @@ public class PotionMaster : Coven
         StartSetup(650020)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref ShieldDuration, 20, new IntegerValueRule(0, 600, 1), OptionFormat.Seconds);
+            .AutoSetupOption(ref ShieldDuration, 20, new IntegerValueRule(0, 600, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
 
     public override void Init()
@@ -49,6 +53,11 @@ public class PotionMaster : Coven
     public override void Remove(byte playerId)
     {
         Instances.Remove(this);
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

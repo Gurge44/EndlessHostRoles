@@ -112,7 +112,7 @@ internal static class ChangeRoleSettings
 
             for (var index = 0; index < GameData.Instance.PlayerCount; ++index)
             {
-                PlayerControl player = GameData.Instance.AllPlayers[index].Object;
+                PlayerControl player = GameData.Instance.AllPlayers[index].Object; // False error
 
                 if (player)
                 {
@@ -1030,6 +1030,19 @@ internal static class StartGameHostPatch
 
         try { loadingBarManager.ToggleLoadingBar(false); }
         catch (Exception e) { Utils.ThrowException(e); }
+
+        yield return new WaitForSeconds(6f);
+
+        var sender = CustomRpcSender.Create("OnGameStartedPatch - Reset All Cooldowns", SendOption.Reliable);
+        var hasValue = false;
+
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        {
+            hasValue |= sender.SetKillCooldown(pc, 13f);
+            hasValue |= sender.RpcResetAbilityCooldown(pc);
+        }
+
+        sender.SendMessage(dispose: !hasValue);
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)
@@ -1157,6 +1170,12 @@ internal static class StartGameHostPatch
     {
         try
         {
+            MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
+            stream.StartMessage(5);
+            stream.Write(AmongUsClient.Instance.GameId);
+
+            bool hasValue = false;
+
             foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
             {
                 try
@@ -1176,23 +1195,34 @@ internal static class StartGameHostPatch
                         playerInfo.IsDead = data;
                     }
 
-                    MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
-                    stream.StartMessage(5);
-                    stream.Write(AmongUsClient.Instance.GameId);
+                    stream.StartMessage(1);
 
                     {
-                        stream.StartMessage(1);
                         stream.WritePacked(playerInfo.NetId);
                         playerInfo.Serialize(stream, false);
-                        stream.EndMessage();
                     }
 
                     stream.EndMessage();
-                    AmongUsClient.Instance.SendOrDisconnect(stream);
-                    stream.Recycle();
+                    hasValue = true;
+
+                    if (stream.Length > 800)
+                    {
+                        stream.EndMessage();
+                        AmongUsClient.Instance.SendOrDisconnect(stream);
+                        stream.Recycle();
+                        stream = MessageWriter.Get(SendOption.Reliable);
+                        hasValue = false;
+                        stream.StartMessage(5);
+                        stream.Write(AmongUsClient.Instance.GameId);
+                    }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
+
+            stream.EndMessage();
+
+            if (hasValue) AmongUsClient.Instance.SendOrDisconnect(stream);
+            stream.Recycle();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

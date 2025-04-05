@@ -95,7 +95,7 @@ internal static class ExileControllerWrapUpPatch
             sender.RpcResetAbilityCooldown(pc);
             PetsHelper.RpcRemovePet(pc);
         }
-        
+
         sender.SendMessage();
 
         if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
@@ -177,12 +177,15 @@ internal static class ExileControllerWrapUpPatch
             string text = showRemainingKillers ? Utils.GetRemainingKillers(true) : string.Empty;
             text = $"<#ffffff>{text}</color>";
             var r = IRandom.Instance;
+            var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", SendOption.Reliable);
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 string finalText = ejectionNotify ? CheckForEndVotingPatch.EjectionText.Trim() : text;
-                pc.Notify(finalText, r.Next(7, 13));
+                sender.Notify(pc, finalText, r.Next(7, 13));
             }
+
+            sender.SendMessage();
         }
 
         LateTask.New(() => ChatManager.SendPreviousMessagesToAll(true), 3f, log: false);

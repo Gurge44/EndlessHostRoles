@@ -11,6 +11,8 @@ public class Dreamweaver : Coven
 
     private static OptionItem AbilityCooldown;
     private static OptionItem AbilityUseLimit;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     private byte DreamweaverId;
 
@@ -24,7 +26,9 @@ public class Dreamweaver : Coven
     {
         StartSetup(650080)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 10, 1), OptionFormat.Times);
+            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 10, 1), OptionFormat.Times)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, false);
     }
 
     public override void Init()
@@ -38,6 +42,11 @@ public class Dreamweaver : Coven
         InsanePlayers = [];
         DreamweaverId = playerId;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
