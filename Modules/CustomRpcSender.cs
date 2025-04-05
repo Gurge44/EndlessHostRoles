@@ -47,7 +47,7 @@ public class CustomRpcSender
         this.name = name;
         this.isUnsafe = isUnsafe;
         currentRpcTarget = -2;
-        onSendDelegate = () => { };
+        onSendDelegate = () => Logger.Info($"{this.name}'s onSendDelegate =>", "CustomRpcSender");
 
         currentState = State.Ready;
         Logger.Info($"\"{name}\" is ready", "CustomRpcSender");

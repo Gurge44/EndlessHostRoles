@@ -1037,7 +1037,7 @@ internal static class StartGameHostPatch
         return BasisChangingAddons.TryGetValue(role, out List<byte> list) && list.Contains(id);
     }
 
-    private static void AssignDesyncRole(CustomRoles role, PlayerControl player, RoleTypes baseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
+    private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), (RoleTypes, CustomRoles)> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
     {
         try
         {
@@ -1048,7 +1048,7 @@ internal static class StartGameHostPatch
 
             Main.PlayerStates[player.PlayerId].SetMainRole(role);
 
-            RoleTypes selfRole = isHost ? baseRole == RoleTypes.Shapeshifter ? RoleTypes.Shapeshifter : hostBaseRole : baseRole;
+            RoleTypes selfRole = isHost ? BaseRole == RoleTypes.Shapeshifter ? RoleTypes.Shapeshifter : hostBaseRole : BaseRole;
             RoleTypes othersRole = isHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
             // Set Desync role for self and for others
@@ -1061,7 +1061,7 @@ internal static class StartGameHostPatch
 
                     if (targetCustomRole.GetVNRole() is CustomRoles.Noisemaker) targetRoleType = RoleTypes.Noisemaker;
 
-                    RpcSetRoleReplacer.RoleMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? (targetRoleType, targetCustomRole) : (selfRole, role);
+                    rolesMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? (targetRoleType, targetCustomRole) : (selfRole, role);
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
@@ -1072,13 +1072,13 @@ internal static class StartGameHostPatch
                 try
                 {
                     if (player.PlayerId != seer.PlayerId)
-                        RpcSetRoleReplacer.RoleMap[(seer.PlayerId, player.PlayerId)] = (othersRole, role);
+                        rolesMap[(seer.PlayerId, player.PlayerId)] = (othersRole, role);
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
 
 
-            RpcSetRoleReplacer.OverriddenSenderList.Add(player.PlayerId);
+            RpcSetRoleReplacer.OverriddenSenderList.Add(senders[player.PlayerId]);
 
             // Set role for host, but not self
             // canOverride should be false for the host during assign
@@ -1089,7 +1089,7 @@ internal static class StartGameHostPatch
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static void MakeDesyncSender()
+    private static void MakeDesyncSender(Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), (RoleTypes, CustomRoles)> rolesMap)
     {
         try
         {
@@ -1101,13 +1101,14 @@ internal static class StartGameHostPatch
                     {
                         if ((seer.PlayerId == target.PlayerId) || target.IsLocalPlayer()) continue;
 
-                        if (RpcSetRoleReplacer.RoleMap.TryGetValue((seer.PlayerId, target.PlayerId), out (RoleTypes, CustomRoles) roleMap))
+                        if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out (RoleTypes, CustomRoles) roleMap))
                         {
                             int targetClientId = target.GetClientId();
                             if (targetClientId == -1) continue;
 
                             RoleTypes roleType = roleMap.Item1;
-                            RpcSetRoleReplacer.Sender.RpcSetRole(seer, roleType, targetClientId);
+                            CustomRpcSender sender = senders[seer.PlayerId];
+                            sender.RpcSetRole(seer, roleType, targetClientId);
                         }
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
@@ -1152,7 +1153,7 @@ internal static class StartGameHostPatch
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    public static void RpcSetDisconnected(bool disconnected) // when setting to true, merge with setrole rpcs, when false, create new writer
+    public static void RpcSetDisconnected(bool disconnected)
     {
         try
         {
@@ -1174,54 +1175,24 @@ internal static class StartGameHostPatch
                         playerInfo.Disconnected = data;
                         playerInfo.IsDead = data;
                     }
+
+                    MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
+                    stream.StartMessage(5);
+                    stream.Write(AmongUsClient.Instance.GameId);
+
+                    {
+                        stream.StartMessage(1);
+                        stream.WritePacked(playerInfo.NetId);
+                        playerInfo.Serialize(stream, false);
+                        stream.EndMessage();
+                    }
+
+                    stream.EndMessage();
+                    AmongUsClient.Instance.SendOrDisconnect(stream);
+                    stream.Recycle();
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
-            
-            try
-            {
-                CustomRpcSender sender = RpcSetRoleReplacer.Sender;
-                if (sender.CurrentState == CustomRpcSender.State.InRootMessage) sender.EndMessage();
-                MessageWriter writer = sender.stream;
-                writer.StartMessage(5);
-                writer.Write(AmongUsClient.Instance.GameId);
-
-                bool hasValue = false;
-
-                foreach (var playerinfo in GameData.Instance.AllPlayers)
-                {
-                    try
-                    {
-                        writer.StartMessage(1);
-
-                        {
-                            writer.WritePacked(playerinfo.NetId);
-                            playerinfo.Serialize(writer, false);
-                        }
-
-                        writer.EndMessage();
-                        hasValue = true;
-
-                        if (writer.Length > 800)
-                        {
-                            writer.EndMessage();
-                            AmongUsClient.Instance.SendOrDisconnect(writer);
-                            writer.Recycle();
-                            writer = MessageWriter.Get(SendOption.Reliable);
-                            hasValue = false;
-                            writer.StartMessage(5);
-                            writer.Write(AmongUsClient.Instance.GameId);
-                        }
-                    }
-                    catch (Exception e) { Utils.ThrowException(e); }
-                }
-
-                writer.EndMessage();
-
-                if (hasValue) AmongUsClient.Instance.SendOrDisconnect(writer);
-                writer.Recycle();
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -1277,16 +1248,14 @@ internal static class StartGameHostPatch
     public static class RpcSetRoleReplacer
     {
         public static bool BlockSetRole;
-        public static CustomRpcSender Sender;
-        public static HashSet<byte> Senders = [];
+        private static Dictionary<byte, CustomRpcSender> Senders = [];
         public static Dictionary<byte, RoleTypes> StoragedData = [];
         public static Dictionary<(byte SeerID, byte TargetID), (RoleTypes RoleType, CustomRoles CustomRole)> RoleMap = [];
-        public static List<byte> OverriddenSenderList = [];
+        public static List<CustomRpcSender> OverriddenSenderList = [];
 
         public static void Initialize()
         {
             BlockSetRole = true;
-            Sender = null;
             Senders = [];
             RoleMap = [];
             StoragedData = [];
@@ -1304,7 +1273,15 @@ internal static class StartGameHostPatch
         {
             try
             {
-                Sender = CustomRpcSender.Create("Game Start SetRole Sender", SendOption.Reliable, true);
+                foreach (PlayerControl pc in Main.AllPlayerControls)
+                {
+                    try
+                    {
+                        Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false)
+                            .StartMessage(pc.GetClientId());
+                    }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                }
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
@@ -1319,7 +1296,7 @@ internal static class StartGameHostPatch
                     try
                     {
                         if (role.IsDesyncRole() || IsBasisChangingPlayer(playerId, CustomRoles.Bloodlust))
-                            AssignDesyncRole(role, Utils.GetPlayerById(playerId), ForceImp(playerId) ? RoleTypes.Impostor : role.GetDYRole());
+                            AssignDesyncRole(role, Utils.GetPlayerById(playerId), Senders, RoleMap, ForceImp(playerId) ? RoleTypes.Impostor : role.GetDYRole());
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }
@@ -1333,7 +1310,7 @@ internal static class StartGameHostPatch
 
         public static void SendRpcForDesync()
         {
-            try { MakeDesyncSender(); }
+            try { MakeDesyncSender(Senders, RoleMap); }
             catch (Exception e) { Utils.ThrowException(e); }
         }
 
@@ -1427,13 +1404,15 @@ internal static class StartGameHostPatch
 
         public static void SendRpcForNormal()
         {
-            foreach (byte targetId in Senders)
+            foreach ((byte targetId, CustomRpcSender sender) in Senders)
             {
                 try
                 {
                     PlayerControl target = Utils.GetPlayerById(targetId);
-                    if (OverriddenSenderList.Contains(targetId)) continue;
-                    
+                    if (OverriddenSenderList.Contains(sender)) continue;
+
+                    if (sender.CurrentState != CustomRpcSender.State.InRootMessage) throw new InvalidOperationException("A CustomRpcSender had Invalid State.");
+
                     foreach ((byte seerId, RoleTypes roleType) in StoragedData)
                     {
                         try
@@ -1446,10 +1425,16 @@ internal static class StartGameHostPatch
                             int targetClientId = target.GetClientId();
                             if (targetClientId == -1) continue;
 
-                            Sender.RpcSetRole(seer, roleType, targetClientId);
+                            // send rpc set role for other clients
+                            sender.AutoStartRpc(seer.NetId, (byte)RpcCalls.SetRole, targetClientId)
+                                .Write((ushort)roleType)
+                                .Write(true) // canOverride
+                                .EndRpc();
                         }
                         catch (Exception e) { Utils.ThrowException(e); }
                     }
+
+                    sender.EndMessage();
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
@@ -1460,9 +1445,34 @@ internal static class StartGameHostPatch
             try
             {
                 BlockSetRole = false;
-                Sender.SendMessage();
+
+                foreach (CustomRpcSender sender in Senders.Values)
+                {
+                    try { sender.SendMessage(); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                }
             }
             catch (Exception e) { Utils.ThrowException(e); }
+        }
+
+        public static IEnumerator ReleaseAsync()
+        {
+            BlockSetRole = false;
+
+            if (Senders == null) yield break;
+
+            LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
+            float step = (75f - 65f) / Senders.Count;
+            int index = 0;
+
+            foreach (CustomRpcSender sender in Senders.Values)
+            {
+                try { sender.SendMessage(); }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                index++;
+                yield return loadingBarManager.WaitAndSmoothlyUpdate(65f + (step * (index - 1)), 65f + (step * index), 0.3f, GetString("LoadingBarText.4"));
+            }
         }
 
         public static void EndReplace()
@@ -1470,7 +1480,6 @@ internal static class StartGameHostPatch
             try
             {
                 Senders = null;
-                Sender = null;
                 OverriddenSenderList = null;
                 StoragedData = null;
             }
