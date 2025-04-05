@@ -158,7 +158,7 @@ public static class CaptureTheFlag
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color);
-        
+
         FlagPickupRange = new FloatOptionItem(id + 12, "CTF_FlagPickupRange", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Multiplier)
@@ -167,7 +167,7 @@ public static class CaptureTheFlag
 
     public static bool KnowTargetRoleColor(PlayerControl target, ref string color)
     {
-        if (!ValidTag || !PlayerTeams.TryGetValue(target.PlayerId, out var team)) return false;
+        if (!ValidTag || !PlayerTeams.TryGetValue(target.PlayerId, out CTFTeam team)) return false;
 
         color = team switch
         {
@@ -192,15 +192,15 @@ public static class CaptureTheFlag
 
         if (GameEndCriteria.GetValue() == 2)
         {
-            var timeLeft = TimeLimit.GetInt() - (Utils.TimeStamp - GameStartTS) + 1;
+            long timeLeft = TimeLimit.GetInt() - (Utils.TimeStamp - GameStartTS) + 1;
 
-            if (timeLeft >= 0) str += $"<size=1.8><#ffffff>{(timeLeft / 60):00}:{(timeLeft % 60):00}</color></size>\n";
+            if (timeLeft >= 0) str += $"<size=1.8><#ffffff>{timeLeft / 60:00}:{timeLeft % 60:00}</color></size>\n";
             else str += $"<size=1.6><#ffffff>{Translator.GetString("CTF_TimeIsUp")}</color></size>\n";
         }
 
-        if (TemporarilyOutPlayers.TryGetValue(seer.PlayerId, out var backTS))
+        if (TemporarilyOutPlayers.TryGetValue(seer.PlayerId, out long backTS))
         {
-            var timeLeft = backTS - Utils.TimeStamp;
+            long timeLeft = backTS - Utils.TimeStamp;
             str += $"{string.Format(Translator.GetString("CTF_BackIn"), timeLeft)}\n";
         }
 
@@ -253,7 +253,7 @@ public static class CaptureTheFlag
                 }
 
                 // If all players are on the same team, end the game
-                if (aapc.All(x => PlayerTeams.TryGetValue(x.PlayerId, out var team) && team == CTFTeam.Blue) || aapc.All(x => PlayerTeams.TryGetValue(x.PlayerId, out var team) && team == CTFTeam.Yellow))
+                if (aapc.All(x => PlayerTeams.TryGetValue(x.PlayerId, out CTFTeam team) && team == CTFTeam.Blue) || aapc.All(x => PlayerTeams.TryGetValue(x.PlayerId, out CTFTeam team) && team == CTFTeam.Yellow))
                 {
                     ResetSkins();
                     TeamData[PlayerTeams[aapc[0].PlayerId]].SetAsWinner();
@@ -263,10 +263,7 @@ public static class CaptureTheFlag
                 return false;
         }
 
-        void ResetSkins()
-        {
-            DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
-        }
+        void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
     }
 
     public static void OnGameStart()
@@ -332,7 +329,7 @@ public static class CaptureTheFlag
             // Teleport players to their respective bases
             var sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
             var hasValue = false;
-            
+
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team))
@@ -361,8 +358,8 @@ public static class CaptureTheFlag
                     hasValue = false;
                 }
             }
-            
-            sender.SendMessage(dispose: !hasValue);
+
+            sender.SendMessage(!hasValue);
 
             ValidTag = true;
             GameStartTS = Utils.TimeStamp;
@@ -376,7 +373,7 @@ public static class CaptureTheFlag
 
         foreach ((CTFTeam team, CTFTeamData data) in TeamData)
         {
-            var flagBase = team.GetFlagBase().Position;
+            Vector2 flagBase = team.GetFlagBase().Position;
             data.DropFlag();
             data.Flag.TP(flagBase);
             data.Players.ToValidPlayers().Do(x => x.TP(flagBase));
@@ -385,7 +382,7 @@ public static class CaptureTheFlag
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out var targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out var killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
+        if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out CTFTeam targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out CTFTeam killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
         new[] { killer, target }.Do(x => x.SetKillCooldown(TagCooldown.GetFloat()));
 
@@ -417,7 +414,7 @@ public static class CaptureTheFlag
                 break;
         }
 
-        if (PlayerData.TryGetValue(killer.PlayerId, out var data)) data.TagCount++;
+        if (PlayerData.TryGetValue(killer.PlayerId, out CTFPlayerData data)) data.TagCount++;
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
     }
 
@@ -512,7 +509,7 @@ public static class CaptureTheFlag
                 }
 
                 Flag.TP(flagCarrierPc.Pos());
-                if (PlayerData.TryGetValue(FlagCarrier, out var data)) data.FlagTime += Time.fixedDeltaTime;
+                if (PlayerData.TryGetValue(FlagCarrier, out CTFPlayerData data)) data.FlagTime += Time.fixedDeltaTime;
                 Utils.NotifyRoles(SpecifySeer: flagCarrierPc, SpecifyTarget: flagCarrierPc);
 
                 CTFTeam enemy = team.GetOppositeTeam();
@@ -530,7 +527,7 @@ public static class CaptureTheFlag
 
                     if (GameEndCriteria.GetValue() == 0 && RoundsPlayed >= RoundsToPlay.GetInt() && RoundsWon != enemyTeam.RoundsWon)
                     {
-                        var winner = TeamData.Values.MaxBy(x => x.RoundsWon);
+                        CTFTeamData winner = TeamData.Values.MaxBy(x => x.RoundsWon);
                         winner.SetAsWinner();
                         return;
                     }
@@ -615,13 +612,13 @@ public static class CaptureTheFlag
 
                 if (GameEndCriteria.GetValue() == 2)
                 {
-                    var timeLeft = TimeLimit.GetInt() - (Utils.TimeStamp - GameStartTS) + 1;
+                    long timeLeft = TimeLimit.GetInt() - (Utils.TimeStamp - GameStartTS) + 1;
 
                     switch (timeLeft)
                     {
                         case <= 1 when TeamData[CTFTeam.Blue].RoundsWon != TeamData[CTFTeam.Yellow].RoundsWon:
                         {
-                            var winner = TeamData.Values.MaxBy(x => x.RoundsWon);
+                            CTFTeamData winner = TeamData.Values.MaxBy(x => x.RoundsWon);
                             winner.SetAsWinner();
                             return;
                         }
@@ -634,7 +631,7 @@ public static class CaptureTheFlag
                 }
             }
 
-            if (!PlayerTeams.TryGetValue(__instance.PlayerId, out var team)) return;
+            if (!PlayerTeams.TryGetValue(__instance.PlayerId, out CTFTeam team)) return;
             bool blue = team == CTFTeam.Blue;
             int colorId = blue ? 1 : 5;
 
@@ -644,7 +641,7 @@ public static class CaptureTheFlag
             Vector2 pos = __instance.Pos();
             Vector2 blackRoomPS = Pelican.GetBlackRoomPS();
 
-            if (TemporarilyOutPlayers.TryGetValue(__instance.PlayerId, out var endTS))
+            if (TemporarilyOutPlayers.TryGetValue(__instance.PlayerId, out long endTS))
             {
                 if (Utils.TimeStamp >= endTS)
                 {

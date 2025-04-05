@@ -216,7 +216,10 @@ public class Wasp : RoleBase
         return Instances.Any(x => x.MeetingKills.Contains(target)) ? Utils.ColorString(Palette.ImpostorRed, "\u25c0") : string.Empty;
     }
 
-    HashSet<byte> GetStungPlayers(byte[] exileIds) => WaspPC == null || !WaspPC.IsAlive() || Main.AfterMeetingDeathPlayers.ContainsKey(WaspPC.PlayerId) || exileIds.Any(x => x == WaspPC.PlayerId) ? [] : MeetingKills;
+    private HashSet<byte> GetStungPlayers(byte[] exileIds)
+    {
+        return WaspPC == null || !WaspPC.IsAlive() || Main.AfterMeetingDeathPlayers.ContainsKey(WaspPC.PlayerId) || exileIds.Any(x => x == WaspPC.PlayerId) ? [] : MeetingKills;
+    }
 
     public void ReceiveRPC(MessageReader reader)
     {

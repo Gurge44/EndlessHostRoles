@@ -2,7 +2,6 @@
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using InnerNet;
 
 namespace EHR.Neutral;
 

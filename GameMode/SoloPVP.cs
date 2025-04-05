@@ -135,7 +135,7 @@ internal static class SoloPVP
 
     private static string GetStatsForVanilla(PlayerControl pc)
     {
-        string finalText = string.Empty;
+        var finalText = string.Empty;
         if (pc.IsHost()) return finalText;
 
         finalText += "<size=90%>";
@@ -153,7 +153,7 @@ internal static class SoloPVP
 
         if (rank != 1)
         {
-            var first = Main.PlayerStates.Keys.MinBy(GetRankFromScore);
+            byte first = Main.PlayerStates.Keys.MinBy(GetRankFromScore);
             finalText += $"\n1. {first.ColoredPlayerName()} - {string.Format(Translator.GetString("KillCount").TrimStart(' '), KBScore.GetValueOrDefault(first, 0))}";
         }
 
@@ -189,7 +189,7 @@ internal static class SoloPVP
 
     public static string GetHudText()
     {
-        return $"{(RoundTime / 60):00}:{(RoundTime % 60):00}";
+        return $"{RoundTime / 60:00}:{RoundTime % 60:00}";
     }
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
@@ -356,7 +356,7 @@ internal static class SoloPVP
                 if (BackCountdown[id] <= 0) OnPlayerBack(__instance);
             }
 
-            if (NameNotify.TryGetValue(id, out var nameNotify) && nameNotify.TimeStamp < now)
+            if (NameNotify.TryGetValue(id, out (string Text, long TimeStamp) nameNotify) && nameNotify.TimeStamp < now)
                 NameNotify.Remove(id);
 
             Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance);

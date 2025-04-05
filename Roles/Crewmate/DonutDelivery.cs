@@ -144,8 +144,10 @@ public class DonutDelivery : RoleBase
     public static bool IsUnguessable(PlayerControl guesser, PlayerControl target)
     {
         foreach (DonutDelivery instance in Instances)
+        {
             if (instance.DonutDeliveryId == target.PlayerId && instance.Players.Contains(guesser.PlayerId))
                 return true;
+        }
 
         return false;
     }

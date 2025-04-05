@@ -304,8 +304,10 @@ internal static class GameEndChecker
                         if (pc == null || !pc.GetCustomRole().IsNeutral()) continue;
 
                         foreach (PlayerControl tar in Main.AllPlayerControls)
+                        {
                             if (!WinnerIds.Contains(tar.PlayerId) && tar.GetCustomRole() == pc.GetCustomRole())
                                 WinnerIds.Add(tar.PlayerId);
+                        }
                     }
 
                     foreach (CustomRoles role in WinnerRoles) WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.GetCustomRole() == role).Select(x => x.PlayerId));

@@ -122,7 +122,7 @@ internal class TimeMaster : RoleBase
 
                 foreach ((byte playerId, Vector2 pos) in track)
                 {
-                    var player = playerId.GetPlayer();
+                    PlayerControl player = playerId.GetPlayer();
                     if (player == null || !player.IsAlive()) continue;
 
                     player.TP(pos);
@@ -133,7 +133,7 @@ internal class TimeMaster : RoleBase
 
             foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
             {
-                if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out var ps)) continue;
+                if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out PlayerState ps)) continue;
 
                 if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
                 {

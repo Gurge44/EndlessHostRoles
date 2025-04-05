@@ -59,8 +59,8 @@ public class Banshee : Coven
 
     public override bool OnVanish(PlayerControl pc)
     {
-        var radius = Radius.GetFloat();
-        var pos = pc.Pos();
+        float radius = Radius.GetFloat();
+        Vector2 pos = pc.Pos();
         IEnumerable<PlayerControl> nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc);
 
         if (!HasNecronomicon) ScreechedPlayers = nearbyPlayers.Select(x => x.PlayerId).ToHashSet();
@@ -70,7 +70,7 @@ public class Banshee : Coven
         {
             if (Utils.DoRPC)
             {
-                var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
+                MessageWriter w = Utils.CreateRPC(CustomRPC.SyncRoleData);
                 w.Write(BansheeId);
                 w.WritePacked(1);
                 w.WritePacked(ScreechedPlayers.Count);
@@ -113,7 +113,7 @@ public class Banshee : Coven
 
     public static void OnReceiveChat()
     {
-        var screechedPlayers = Instances.SelectMany(x => x.ScreechedPlayers).ToValidPlayers().ToHashSet();
+        HashSet<PlayerControl> screechedPlayers = Instances.SelectMany(x => x.ScreechedPlayers).ToValidPlayers().ToHashSet();
         if (screechedPlayers.Count == 0) return;
 
         LateTask.New(() => screechedPlayers.Do(ChatManager.ClearChatForSpecificPlayer), Utils.CalculatePingDelay());

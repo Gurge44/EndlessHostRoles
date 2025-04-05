@@ -13,12 +13,12 @@ internal class Mario : RoleBase
     public static Dictionary<byte, int> MarioVentCount = [];
 
     public static bool On;
-    public override bool IsEnable => On;
 
     private static OptionItem MarioVentCD;
 
     private static Dictionary<MapNames, OptionItem> MapWinCounts = [];
     private static int MarioVentNumWin;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {

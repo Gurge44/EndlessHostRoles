@@ -72,7 +72,7 @@ internal static class EAC
 
                     break;
                 case RpcCalls.ReportDeadBody:
-                    var targetId = sr.ReadByte();
+                    byte targetId = sr.ReadByte();
 
                     if (GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost())
                     {
@@ -117,7 +117,7 @@ internal static class EAC
 
                     break;
                 case RpcCalls.SendQuickChat:
-                    QuickChatPhraseType quickChatPhraseType = (QuickChatPhraseType)sr.ReadByte();
+                    var quickChatPhraseType = (QuickChatPhraseType)sr.ReadByte();
 
                     switch (quickChatPhraseType)
                     {
@@ -456,15 +456,9 @@ internal static class EAC
 
         return false;
 
-        bool HasLadder(int ladderId)
-        {
-            return ShipStatus.Instance.Ladders.Any(l => l.Id == ladderId);
-        }
+        bool HasLadder(int ladderId) => ShipStatus.Instance.Ladders.Any(l => l.Id == ladderId);
 
-        bool HasVent(int ventId)
-        {
-            return ShipStatus.Instance.AllVents.Any(v => v.Id == ventId);
-        }
+        bool HasVent(int ventId) => ShipStatus.Instance.AllVents.Any(v => v.Id == ventId);
     }
 
     internal static void Report(PlayerControl pc, string reason)

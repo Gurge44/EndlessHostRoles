@@ -18,7 +18,7 @@ internal class Changeling : RoleBase
     private static readonly string[] AvailableRolesMode =
     [
         "CL.All", // 0
-        "CL.Enabled", // 1
+        "CL.Enabled" // 1
     ];
 
     private static List<CustomRoles> Roles = [];

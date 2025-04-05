@@ -82,10 +82,7 @@ internal static class GhostRolesManager
 
             return (ApplyFormat(message), ApplyFormat(baseMessage));
 
-            string ApplyFormat(string m)
-            {
-                return Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
-            }
+            string ApplyFormat(string m) => Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
         }
     }
 
@@ -114,15 +111,13 @@ internal static class GhostRolesManager
                 _ => suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole)
             };
 
-            bool IsPartnerPickedRole()
-            {
-                return Main.PlayerStates[pc.PlayerId].Role switch
+            bool IsPartnerPickedRole() =>
+                Main.PlayerStates[pc.PlayerId].Role switch
                 {
                     Romantic when Romantic.HasPickedPartner => true,
                     Totocalcio tc when tc.BetPlayer != byte.MaxValue => true,
                     _ => false
                 };
-            }
         }
         catch (Exception e)
         {

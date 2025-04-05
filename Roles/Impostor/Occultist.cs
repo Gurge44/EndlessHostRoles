@@ -60,7 +60,7 @@ public class Occultist : RoleBase
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
 
-    void SwitchAction()
+    private void SwitchAction()
     {
         InRevivingMode = Main.AllAlivePlayerControls.Length >= 4 && !InRevivingMode;
         Utils.SendRPC(CustomRPC.SyncRoleData, OccultistPC.PlayerId, 1, InRevivingMode);
@@ -131,10 +131,10 @@ public class Occultist : RoleBase
 
             if (now - data.StartTimeStamp >= ReviveTime.GetInt())
             {
-                var player = id.GetPlayer();
+                PlayerControl player = id.GetPlayer();
                 if (player == null) continue;
 
-                switch (player.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out var convertedAddon))
+                switch (player.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out CustomRoles convertedAddon))
                 {
                     case false when !player.Is(Team.Impostor):
                         player.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Refugee : CustomRoles.Madmate);
@@ -165,12 +165,12 @@ public class Occultist : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != OccultistPC.PlayerId || seer.PlayerId != target.PlayerId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
-        var str = string.Format(Translator.GetString("OccultistSuffix"), Translator.GetString(InRevivingMode ? "OccultistMode.Revive" : "OccultistMode.Report"), Translator.GetString($"OccultistActionSwitchMode.{ActionSwitchMode}"));
+        string str = string.Format(Translator.GetString("OccultistSuffix"), Translator.GetString(InRevivingMode ? "OccultistMode.Revive" : "OccultistMode.Report"), Translator.GetString($"OccultistActionSwitchMode.{ActionSwitchMode}"));
         if (Main.AllAlivePlayerControls.Length < 4) str = str.Split('(')[0].TrimEnd(' ');
         return str;
     }
 
-    enum ActionSwitchModes
+    private enum ActionSwitchModes
     {
         Vent,
         Pet,
@@ -178,7 +178,7 @@ public class Occultist : RoleBase
         Vanish
     }
 
-    class ReviveData(long startTimeStamp, Vector2 position, bool done)
+    private class ReviveData(long startTimeStamp, Vector2 position, bool done)
     {
         public long StartTimeStamp { get; } = startTimeStamp;
         public Vector2 Position { get; } = position;

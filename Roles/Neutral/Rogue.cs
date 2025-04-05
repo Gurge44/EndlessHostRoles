@@ -61,7 +61,7 @@ public class Rogue : RoleBase
         RoguePC = Utils.GetPlayerById(playerId);
         GotObjectives = [];
         GotRewards = [];
-        CurrentTask = (default, default, null, false);
+        CurrentTask = (default(Objective), default(Reward), null, false);
         AllTasksCompleted = false;
         SendRPC();
 

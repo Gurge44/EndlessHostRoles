@@ -42,7 +42,7 @@ public class CovenLeader : Coven
 
     public override void SetKillCooldown(byte id)
     {
-        var kcd = Options.CovenLeaderKillCooldown.GetFloat();
+        float kcd = Options.CovenLeaderKillCooldown.GetFloat();
         Main.AllPlayerKillCooldown[id] = HasNecronomicon ? kcd / 2f : kcd;
     }
 

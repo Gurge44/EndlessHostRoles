@@ -42,8 +42,15 @@ public static class NaturalDisasters
         "ND_LimitReachedOptions.RemoveOldest"
     ];
 
-    public static List<Disaster> GetActiveDisasters() => ActiveDisasters;
-    public static List<Type> GetAllDisasters() => AllDisasters;
+    public static List<Disaster> GetActiveDisasters()
+    {
+        return ActiveDisasters;
+    }
+
+    public static List<Type> GetAllDisasters()
+    {
+        return AllDisasters;
+    }
 
     public static void SetupCustomOption()
     {
@@ -299,7 +306,10 @@ public static class NaturalDisasters
             }
         }
 
-        public static void AddPreparingDisaster(Vector2 position, string disasterName, SystemTypes? room) => PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disasterName), disasterName, room));
+        public static void AddPreparingDisaster(Vector2 position, string disasterName, SystemTypes? room)
+        {
+            PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disasterName), disasterName, room));
+        }
     }
 
     public abstract class Disaster
@@ -334,8 +344,10 @@ public static class NaturalDisasters
         protected void KillNearbyPlayers(PlayerState.DeathReason deathReason, float range = Range)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (Vector2.Distance(pc.Pos(), Position) <= range)
                     pc.Suicide(deathReason);
+            }
         }
     }
 
@@ -557,7 +569,7 @@ public static class NaturalDisasters
                     case <= dragRange:
                         Vector2 direction = (Position - pos).normalized;
                         Vector2 newPosition = pos + (direction * 0.1f);
-                        pc.TP(newPosition, noCheckState: true);
+                        pc.TP(newPosition, true);
                         continue;
                 }
             }
@@ -653,8 +665,10 @@ public static class NaturalDisasters
                 else
                 {
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                    {
                         if (Vector2.Distance(pc.Pos(), hit) <= Range / 2f)
                             pc.Suicide(PlayerState.DeathReason.Lightning);
+                    }
                 }
             }
         }
@@ -722,8 +736,10 @@ public static class NaturalDisasters
             if (base.RemoveIfExpired())
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
                     if (AffectedPlayers.Remove(pc.PlayerId))
                         pc.MarkDirtySettings();
+                }
 
                 return true;
             }
@@ -877,8 +893,10 @@ public static class NaturalDisasters
 
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < Sinkholes.Count; i++)
+                {
                     if (Vector2.Distance(pos, Sinkholes[i].Position) <= Range)
                         pc.Suicide(PlayerState.DeathReason.Sunken);
+                }
             }
         }
 
@@ -906,8 +924,10 @@ public static class NaturalDisasters
             if (room == null) return;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (pc.GetPlainShipRoom() == room)
                     pc.Suicide(PlayerState.DeathReason.Collapsed);
+            }
 
             CollapsedRooms.Add(room);
             Utils.NotifyRoles();

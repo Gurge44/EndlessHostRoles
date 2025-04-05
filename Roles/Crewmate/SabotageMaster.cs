@@ -122,7 +122,7 @@ public class SabotageMaster : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         SystemTypes[] systemTypes = [SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.HeliSabotage, SystemTypes.Comms];
-        if (!CanFixSabotageFromAnywhereWithPet.GetBool() || !systemTypes.FindFirst(Utils.IsActive, out var activeSystem) || PetLimit-- < 1) return;
+        if (!CanFixSabotageFromAnywhereWithPet.GetBool() || !systemTypes.FindFirst(Utils.IsActive, out SystemTypes activeSystem) || PetLimit-- < 1) return;
 
         switch (activeSystem)
         {
@@ -288,8 +288,10 @@ public class SabotageMaster : RoleBase
                             SystemTypes room = openedDoor.Room;
 
                             foreach (OpenableDoor door in shipStatus.AllDoors)
+                            {
                                 if (door.Id != openedDoorId && door.Room == room)
                                     door.SetDoorway(true);
+                            }
                         }
 
                         break;

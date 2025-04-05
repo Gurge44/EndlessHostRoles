@@ -52,7 +52,7 @@ public class Divinator : RoleBase
         AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 16, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
-        
+
         NumRolesListedForEachPlayer = new IntegerOptionItem(Id + 17, "NumRolesListedForEachPlayer", new(1, 10, 1), 5, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
 

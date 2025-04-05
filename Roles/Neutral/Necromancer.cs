@@ -92,7 +92,7 @@ internal class Necromancer : RoleBase
         if (Deathknight.DeathknightId == byte.MaxValue && !target.Is(CustomRoles.Loyal) && !target.Is(CustomRoles.Curser) && !target.IsConverted())
         {
             var sender = CustomRpcSender.Create("Necromancer.OnCheckMurder", SendOption.Reliable);
-            
+
             target.RpcChangeRoleBasis(CustomRoles.Deathknight, sender: sender);
             target.RpcSetCustomRole(CustomRoles.Deathknight);
 
@@ -102,7 +102,7 @@ internal class Necromancer : RoleBase
             sender.SetKillCooldown(target);
 
             sender.Notify(target, GetString("RecruitedToDeathknight"));
-            
+
             sender.SendMessage();
 
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -226,7 +226,7 @@ internal class Deathknight : RoleBase
             sender.SetKillCooldown(killer);
             sender.RpcGuardAndKill(target, killer);
             sender.RpcGuardAndKill(target, target);
-            
+
             sender.SendMessage();
 
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);

@@ -95,7 +95,7 @@ public class Spirit : RoleBase
     {
         newTarget = null;
 
-        if (!Instances.FindFirst(x => x.Targets.Item1 == originalTarget.PlayerId || x.Targets.Item2 == originalTarget.PlayerId, out var spirit))
+        if (!Instances.FindFirst(x => x.Targets.Item1 == originalTarget.PlayerId || x.Targets.Item2 == originalTarget.PlayerId, out Spirit spirit))
             return false;
 
         if (spirit.Targets.Item1 == originalTarget.PlayerId)
@@ -111,7 +111,7 @@ public class Spirit : RoleBase
         byte[] tuple = [Targets.Item1, Targets.Item2];
         if (tuple.All(x => x == byte.MaxValue)) return;
 
-        var sewed = tuple.ToValidPlayers().ToList();
+        List<PlayerControl> sewed = tuple.ToValidPlayers().ToList();
 
         if (sewed.Count != 2 || sewed.Exists(x => !x.IsAlive()))
         {
@@ -120,7 +120,7 @@ public class Spirit : RoleBase
             pc.SetAbilityUseLimit(2);
             pc.RpcResetAbilityCooldown();
 
-            if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out var alive))
+            if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out PlayerControl alive))
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: alive);
         }
     }

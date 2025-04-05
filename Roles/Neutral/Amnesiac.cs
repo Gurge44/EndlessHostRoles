@@ -189,7 +189,7 @@ public class Amnesiac : RoleBase
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{RememberedRole}"));
                         break;
                     case Team.Coven:
-                        RememberedRole = targetRole == CustomRoles.CovenLeader ? Enum.GetValues<CustomRoles>().FindFirst(x => x.IsCoven() && !x.RoleExist(true), out var unusedCovenRole) ? unusedCovenRole : null : targetRole;
+                        RememberedRole = targetRole == CustomRoles.CovenLeader ? Enum.GetValues<CustomRoles>().FindFirst(x => x.IsCoven() && !x.RoleExist(true), out CustomRoles unusedCovenRole) ? unusedCovenRole : null : targetRole;
                         if (RememberedRole.HasValue) amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCoven"));
                         break;
                 }
@@ -218,7 +218,7 @@ public class Amnesiac : RoleBase
 
         sender.RpcGuardAndKill(target, amnesiac);
         sender.RpcGuardAndKill(target, target);
-        
+
         sender.SendMessage();
 
         if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);

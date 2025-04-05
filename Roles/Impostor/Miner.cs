@@ -5,9 +5,9 @@ namespace EHR.Impostor;
 internal class Miner : RoleBase
 {
     public static bool On;
-    public override bool IsEnable => On;
-    
+
     public static OptionItem MinerSSCD;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {

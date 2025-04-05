@@ -413,15 +413,17 @@ public static class GameOptionsMenuPatch
     {
         UIReloadTS = Utils.TimeStamp;
 
-        var tab = ModGameOptionsMenu.TabIndex;
+        int tab = ModGameOptionsMenu.TabIndex;
         if (GameSettingMenu.Instance == null) return;
         GameSettingMenu.Instance.Close();
         OptionsConsole optionsConsole = null;
-        foreach (var console in Object.FindObjectsOfType<OptionsConsole>())
+
+        foreach (OptionsConsole console in Object.FindObjectsOfType<OptionsConsole>())
         {
             if (console.HostOnly)
                 optionsConsole = console;
         }
+
         if (optionsConsole == null) return;
 
         if (Camera.main != null)
@@ -430,7 +432,8 @@ public static class GameOptionsMenuPatch
             gameObject.transform.localPosition = optionsConsole.CustomPosition;
         }
 
-        LateTask.New(() => {
+        LateTask.New(() =>
+        {
             if (GameSettingMenu.Instance == null) return;
             GameSettingMenu.Instance.ChangeTab(tab, false);
         }, 0.01f);
@@ -756,10 +759,7 @@ public static class StringOptionPatch
 
         return $"    <size=2>{string.Join('/', teams.Select(GetColoredShortTeamName))}</size>";
 
-        string GetColoredShortTeamName(Team t)
-        {
-            return Utils.ColorString(t.GetColor(), Translator.GetString($"ShortTeamName.{t}").ToUpper());
-        }
+        string GetColoredShortTeamName(Team t) => Utils.ColorString(t.GetColor(), Translator.GetString($"ShortTeamName.{t}").ToUpper());
     }
 
     [HarmonyPatch(nameof(StringOption.UpdateValue))]
@@ -956,8 +956,10 @@ public class GameSettingMenuPatch
         }
 
         foreach (TabGroup tab in tabGroups)
+        {
             if (ModSettingsButtons.TryGetValue(tab, out PassiveButton button))
                 __instance.ControllerSelectable.Add(button);
+        }
 
         HiddenBySearch.Do(x => x.SetHidden(false));
         HiddenBySearch.Clear();
@@ -1209,12 +1211,16 @@ public class GameSettingMenuPatch
             TabGroup[] tabGroups = Enum.GetValues<TabGroup>();
 
             foreach (TabGroup tab in tabGroups)
+            {
                 if (ModSettingsTabs.TryGetValue(tab, out settingsTab) && settingsTab != null)
                     settingsTab.gameObject.SetActive(false);
+            }
 
             foreach (TabGroup tab in tabGroups)
+            {
                 if (ModSettingsButtons.TryGetValue(tab, out button) && button != null)
                     button.SelectButton(false);
+            }
         }
 
         if (tabNum < 3) return true;

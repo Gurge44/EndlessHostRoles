@@ -71,17 +71,17 @@ public class Wiper : RoleBase
         WipeOutEveryoneInRoom(pc);
         return false;
     }
-    
-    bool IsInvalidRoom(PlainShipRoom room)
+
+    private bool IsInvalidRoom(PlainShipRoom room)
     {
         return room == null || room.RoomId is SystemTypes.Outside or SystemTypes.Hallway or SystemTypes.Ventilation || room.RoomId.ToString().Contains("Decontamination");
     }
 
-    void WipeOutEveryoneInRoom(PlayerControl pc)
+    private void WipeOutEveryoneInRoom(PlayerControl pc)
     {
         if (new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(Utils.IsActive)) return;
 
-        var room = pc.GetPlainShipRoom();
+        PlainShipRoom room = pc.GetPlainShipRoom();
         if (IsInvalidRoom(room)) return;
 
         Main.AllAlivePlayerControls.Without(pc).DoIf(x => x.GetPlainShipRoom() == room, x => x.Suicide(PlayerState.DeathReason.WipedOut, pc));
@@ -91,7 +91,7 @@ public class Wiper : RoleBase
     {
         if (!GameStates.IsInTask || ExileController.Instance || !Main.IntroDestroyed) return;
 
-        var room = pc.GetPlainShipRoom();
+        PlainShipRoom room = pc.GetPlainShipRoom();
 
         if (room != LastRoom)
         {

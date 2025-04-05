@@ -43,8 +43,10 @@ public class Penguin : RoleBase
     public static bool IsVictim(PlayerControl pc)
     {
         foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+        {
             if (state.Value.Role is Penguin { IsEnable: true, VictimCanUseAbilities: false } pg && pg.AbductVictim != null && pg.AbductVictim.PlayerId == pc.PlayerId)
                 return true;
+        }
 
         return false;
     }
@@ -298,8 +300,10 @@ public class Penguin : RoleBase
     public static void OnSpawnAirship()
     {
         foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+        {
             if (state.Value.Role is Penguin { IsEnable: true } pg)
                 pg.RestartAbduct();
+        }
     }
 
     private void RestartAbduct()

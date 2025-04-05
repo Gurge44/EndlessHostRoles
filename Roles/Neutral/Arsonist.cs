@@ -112,8 +112,10 @@ internal class Arsonist : RoleBase
                 CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
                     if (pc != physics.myPlayer)
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
+                }
 
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                     pc.KillFlash();

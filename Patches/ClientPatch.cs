@@ -89,7 +89,7 @@ internal static class BanMenuSetVisiblePatch
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        show &= PlayerControl.LocalPlayer && (PlayerControl.LocalPlayer.Data != null);
+        show &= PlayerControl.LocalPlayer && PlayerControl.LocalPlayer.Data != null;
         __instance.BanButton.gameObject.SetActive(AmongUsClient.Instance.CanBan());
         __instance.KickButton.gameObject.SetActive(AmongUsClient.Instance.CanKick());
         __instance.MenuButton.gameObject.SetActive(show);
@@ -154,7 +154,7 @@ public static class InnerNetClientPatch
     [HarmonyPrefix]
     public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
     {
-        if (!Constants.IsVersionModded() || (__instance.NetworkMode != NetworkModes.OnlineGame)) return true;
+        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
         MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
         messageWriter.StartMessage(6);
         messageWriter.Write(__instance.GameId);
@@ -180,7 +180,7 @@ public static class InnerNetClientPatch
 
                 InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
 
-                if (innerNetObject && ((innerNetObject.OwnerId != -4) || __instance.AmModdedHost) && hashSet.Add(innerNetObject.gameObject))
+                if (innerNetObject && (innerNetObject.OwnerId != -4 || __instance.AmModdedHost) && hashSet.Add(innerNetObject.gameObject))
                 {
                     var gameManager = innerNetObject as GameManager;
 
@@ -203,7 +203,7 @@ public static class InnerNetClientPatch
     [HarmonyPrefix]
     public static bool SendAllStreamedObjectsPrefix(InnerNetClient __instance, ref bool __result)
     {
-        if (!Constants.IsVersionModded() || (__instance.NetworkMode != NetworkModes.OnlineGame)) return true;
+        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
         __result = false;
         List<InnerNetObject> obj = __instance.allObjects;
 
@@ -213,7 +213,7 @@ public static class InnerNetClientPatch
             {
                 InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
 
-                if (innerNetObject && innerNetObject is not NetworkedPlayerInfo && innerNetObject.IsDirty && (innerNetObject.AmOwner || ((innerNetObject.OwnerId == -2) && __instance.AmHost)))
+                if (innerNetObject && innerNetObject is not NetworkedPlayerInfo && innerNetObject.IsDirty && (innerNetObject.AmOwner || (innerNetObject.OwnerId == -2 && __instance.AmHost)))
                 {
                     MessageWriter messageWriter = __instance.Streams[(int)innerNetObject.sendMode];
                     messageWriter.StartMessage(1);
@@ -259,7 +259,7 @@ public static class InnerNetClientPatch
     [HarmonyPostfix]
     public static void Spawn_Postfix(InnerNetClient __instance, InnerNetObject netObjParent, int ownerId = -2, SpawnFlags flags = SpawnFlags.None)
     {
-        if (!Constants.IsVersionModded() || (__instance.NetworkMode != NetworkModes.OnlineGame)) return;
+        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return;
 
         if (__instance.AmHost)
         {
@@ -268,11 +268,11 @@ public static class InnerNetClientPatch
                 case NetworkedPlayerInfo playerinfo:
                     LateTask.New(() =>
                     {
-                        if ((playerinfo != null) && AmongUsClient.Instance.AmConnected)
+                        if (playerinfo != null && AmongUsClient.Instance.AmConnected)
                         {
                             ClientData client = AmongUsClient.Instance.GetClient(playerinfo.ClientId);
 
-                            if ((client != null) && !client.IsDisconnected())
+                            if (client != null && !client.IsDisconnected())
                             {
                                 if (playerinfo.IsIncomplete)
                                 {
@@ -288,13 +288,13 @@ public static class InnerNetClientPatch
                 case PlayerControl player:
                     LateTask.New(() =>
                     {
-                        if ((player != null) && !player.notRealPlayer && !player.isDummy && AmongUsClient.Instance.AmConnected)
+                        if (player != null && !player.notRealPlayer && !player.isDummy && AmongUsClient.Instance.AmConnected)
                         {
                             ClientData client = AmongUsClient.Instance.GetClient(player.OwnerId);
 
-                            if ((client != null) && !client.IsDisconnected())
+                            if (client != null && !client.IsDisconnected())
                             {
-                                if ((player.Data == null) || player.Data.IsIncomplete)
+                                if (player.Data == null || player.Data.IsIncomplete)
                                 {
                                     Logger.Info($"Disconnecting Client [{client.Id}]{client.PlayerName} {client.FriendCode} for playercontrol timeout", "DelayedNetworkedData");
                                     AmongUsClient.Instance.SendLateRejection(client.Id, DisconnectReasons.ClientTimeout);
@@ -316,8 +316,8 @@ public static class InnerNetClientPatch
     [HarmonyPostfix]
     public static void FixedUpdatePostfix(InnerNetClient __instance)
     {
-        if (!Constants.IsVersionModded() || (__instance.NetworkMode != NetworkModes.OnlineGame)) return;
-        if (!__instance.AmHost || (__instance.Streams == null)) return;
+        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return;
+        if (!__instance.AmHost || __instance.Streams == null) return;
 
         if (Timer == 0)
         {
@@ -374,6 +374,7 @@ internal static class DirtyAllDataPatch
 internal static class NetworkedPlayerInfoSerializePatch
 {
     public static int IgnorePatchTimes;
+
     public static bool Prefix(NetworkedPlayerInfo __instance, MessageWriter writer, bool initialState, ref bool __result)
     {
         if (IgnorePatchTimes > 0)
@@ -396,7 +397,7 @@ internal static class NetworkedPlayerInfoSerializePatch
                 NetworkedPlayerInfo.PlayerOutfit playerOutfit = new();
                 Main.AllClientRealNames.TryGetValue(__instance.ClientId, out string name);
 
-                if ((CheckForEndVotingPatch.TempExiledPlayer != null) && (CheckForEndVotingPatch.TempExiledPlayer.ClientId == __instance.ClientId))
+                if (CheckForEndVotingPatch.TempExiledPlayer != null && CheckForEndVotingPatch.TempExiledPlayer.ClientId == __instance.ClientId)
                     name = CheckForEndVotingPatch.EjectionText;
 
                 playerOutfit.Set(name ?? " ", oldOutfit.ColorId, oldOutfit.HatId, oldOutfit.SkinId, oldOutfit.VisorId, oldOutfit.PetId, oldOutfit.NamePlateId);
@@ -460,7 +461,7 @@ internal static class AuthTimeoutPatch
     public static void EnableUdpMatchmakingPrefix(AmongUsClient._CoJoinOnlinePublicGame_d__1 __instance)
     {
         // Skip to state 1, which just calls CoJoinOnlineGameDirect
-        if ((__instance.__1__state == 0) && !ServerManager.Instance.IsHttp)
+        if (__instance.__1__state == 0 && !ServerManager.Instance.IsHttp)
         {
             __instance.__1__state = 1;
 

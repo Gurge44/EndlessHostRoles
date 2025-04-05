@@ -113,7 +113,7 @@ internal class Assassin : RoleBase
     public override bool CanUseKillButton(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive()) return false;
-        return CanKillAfterAssassinate || (!pc.IsShifted() && ((pc.Data.Role as PhantomRole) is null or { IsInvisible: false }));
+        return CanKillAfterAssassinate || (!pc.IsShifted() && (pc.Data.Role as PhantomRole) is null or { IsInvisible: false });
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

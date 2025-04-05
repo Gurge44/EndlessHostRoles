@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using TMPro;
@@ -7,7 +8,7 @@ using UnityEngine;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
-static class TextBoxTMPIsCharAllowed
+internal static class TextBoxTMPIsCharAllowed
 {
     public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
     {
@@ -151,7 +152,7 @@ internal static class TextBoxTMPSetTextPatch
             string text = "/" + (exactMatch ? inputForm : command.CommandForms.Where(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
 
-            string additionalInfo = string.Empty;
+            var additionalInfo = string.Empty;
 
             if (exactMatch && command.Arguments.Length > 0)
             {
@@ -190,16 +191,15 @@ internal static class TextBoxTMPSetTextPatch
 
                     if (additionalInfo.Length == 0 && argName.Replace('[', '{').Replace(']', '}') is "{id}" or "{id1}" or "{id2}")
                     {
-                        var allIds = Main.AllPlayerControls.ToDictionary(x => x.PlayerId.ColoredPlayerName(), x => x.PlayerId);
+                        Dictionary<string, byte> allIds = Main.AllPlayerControls.ToDictionary(x => x.PlayerId.ColoredPlayerName(), x => x.PlayerId);
                         additionalInfo = $"<b><u>{Translator.GetString("PlayerIdList").TrimEnd(' ')}</u></b>\n{string.Join('\n', allIds.Select(x => $"<b>{x.Key}</b> \uffeb <b>{x.Value}</b>"))}";
                         OptionShower.CurrentPage = 0;
                     }
 
                     continue;
 
-                    bool IsInvalidArg()
-                    {
-                        return arg != argName && argName switch
+                    bool IsInvalidArg() =>
+                        arg != argName && argName switch
                         {
                             "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out byte id) || Main.AllPlayerControls.All(x => x.PlayerId != id),
                             "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out int num) || num < 0,
@@ -211,11 +211,9 @@ internal static class TextBoxTMPSetTextPatch
                             "{color}" => arg.Length != 6 || !arg.All(x => char.IsDigit(x) || x is >= 'a' and <= 'f') || !ColorUtility.TryParseHtmlString($"#{arg}", out _),
                             _ => false
                         };
-                    }
 
-                    bool IsValidArg()
-                    {
-                        return argName switch
+                    bool IsValidArg() =>
+                        argName switch
                         {
                             "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out byte id) && Main.AllPlayerControls.Any(x => x.PlayerId == id),
                             "{team}" => arg is "crew" or "imp",
@@ -225,20 +223,17 @@ internal static class TextBoxTMPSetTextPatch
                             "{color}" => arg.Length == 6 && arg.All(x => char.IsDigit(x) || x is >= 'a' and <= 'f') && ColorUtility.TryParseHtmlString($"#{arg}", out _),
                             _ => false
                         };
-                    }
 
-                    string GetExtraArgInfo()
-                    {
-                        return !IsValidArg()
+                    string GetExtraArgInfo() =>
+                        !IsValidArg()
                             ? string.Empty
                             : argName switch
                             {
                                 "{id}" or "{id1}" or "{id2}" => $" ({byte.Parse(arg).ColoredPlayerName()})",
                                 "{role}" or "{addon}" when ChatCommands.GetRoleByName(arg, out CustomRoles role) => $" ({role.ToColoredString()})",
-                                "{color}" when ColorUtility.TryParseHtmlString($"#{arg}", out var color) => $" ({Utils.ColorString(color, "COLOR")})",
+                                "{color}" when ColorUtility.TryParseHtmlString($"#{arg}", out Color color) => $" ({Utils.ColorString(color, "COLOR")})",
                                 _ => string.Empty
                             };
-                    }
                 }
             }
 

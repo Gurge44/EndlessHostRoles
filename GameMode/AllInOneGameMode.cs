@@ -24,7 +24,7 @@ public static class AllInOneGameMode
     public static void SetupCustomOption()
     {
         var id = 69_218_001;
-        var color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : Color.magenta;
+        Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : Color.magenta;
         const CustomGameMode gameMode = CustomGameMode.AllInOne;
 
         foreach (CustomGameMode mode in Enum.GetValues<CustomGameMode>())
@@ -105,7 +105,7 @@ public static class AllInOneGameMode
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.IsEnded || Options.CurrentGameMode != CustomGameMode.AllInOne || Main.HasJustStarted || __instance.PlayerId >= 254 || __instance.Is(CustomRoles.Killer) || CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) return;
 
-            var gameModes = Enum.GetValues<CustomGameMode>().Where(x => x.IsActiveOrIntegrated()).Split(x => x is CustomGameMode.CaptureTheFlag or CustomGameMode.FFA or CustomGameMode.SoloKombat);
+            (List<CustomGameMode> TrueList, List<CustomGameMode> FalseList) gameModes = Enum.GetValues<CustomGameMode>().Where(x => x.IsActiveOrIntegrated()).Split(x => x is CustomGameMode.CaptureTheFlag or CustomGameMode.FFA or CustomGameMode.SoloKombat);
             if (gameModes.TrueList.Count == 0 || gameModes.FalseList.Count == 0) return;
 
             bool doneWithTasks = Taskers.Contains(__instance.PlayerId) && __instance.GetTaskState().IsTaskFinished;

@@ -218,14 +218,12 @@ internal static class CheckForEndVotingPatch
 
                 continue;
 
-                void AddVote()
-                {
+                void AddVote() =>
                     statesList.Add(new()
                     {
                         VoterId = ps.TargetPlayerId,
                         VotedForId = ps.VotedFor
                     });
-                }
             }
 
             if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
@@ -276,7 +274,7 @@ internal static class CheckForEndVotingPatch
             if (tie)
             {
                 var target = byte.MaxValue;
-                var playerNum = Main.AllPlayerControls.Length;
+                int playerNum = Main.AllPlayerControls.Length;
 
                 foreach (KeyValuePair<byte, int> data in VotingData.Where(x => x.Key < playerNum && x.Value == max))
                 {
@@ -441,8 +439,8 @@ internal static class CheckForEndVotingPatch
                         name += Utils.ColorString(team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color color) ? Color.yellow : color, team.RoleRevealScreenTitle == "*" ? team.TeamName : team.RoleRevealScreenTitle);
                     else
                     {
-                        var color = player.GetTeam().GetColor();
-                        var str = GetString($"Team{player.GetTeam()}");
+                        Color color = player.GetTeam().GetColor();
+                        string str = GetString($"Team{player.GetTeam()}");
                         name += Utils.ColorString(color, str);
                     }
 
@@ -515,7 +513,7 @@ internal static class CheckForEndVotingPatch
         {
             foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
             {
-                var pc = id.GetPlayer();
+                PlayerControl pc = id.GetPlayer();
                 if (pc == null || !pc.IsAlive()) continue;
 
                 pc.TP(pos);
@@ -615,8 +613,10 @@ internal static class ExtendedMeetingHud
                         VoteNum = 0;
 
                     if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Brakar))
+                    {
                         if (!Main.BrakarVoteFor.Contains(target.PlayerId))
                             Main.BrakarVoteFor.Add(target.PlayerId);
+                    }
 
                     Collector.CollectorVotes(target, ps);
                 }
@@ -783,8 +783,10 @@ internal static class MeetingHudStartPatch
             MimicMsg = GetString("MimicDeadMsg") + "\n" + MimicMsg;
 
             foreach (PlayerControl ipc in Main.AllPlayerControls)
+            {
                 if (ipc.GetCustomRole().IsImpostorTeam())
                     AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
+            }
         }
 
         if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)), 6f, "Meeting Start Notify");
@@ -799,10 +801,7 @@ internal static class MeetingHudStartPatch
         Enigma.MsgToSend.Clear();
         return;
 
-        void AddMsg(string text, byte sendTo = 255, string title = "")
-        {
-            msgToSend.Add((text, sendTo, title));
-        }
+        void AddMsg(string text, byte sendTo = 255, string title = "") => msgToSend.Add((text, sendTo, title));
     }
 
     public static void Prefix( /*MeetingHud __instance*/)
@@ -1063,7 +1062,7 @@ internal static class MeetingHudStartPatch
 
             if (Magistrate.CallCourtNextMeeting)
             {
-                var name = target.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
+                string name = target.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
                 pva.NameText.text = name;
             }
         }
@@ -1294,7 +1293,7 @@ internal static class MeetingHudCmdCastVotePatch
 // All below are from: https://github.com/EnhancedNetwork/TownofHost-Enhanced (with some modifications)
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.RpcClose))]
-static class MeetingHudRpcClosePatch
+internal static class MeetingHudRpcClosePatch
 {
     public static bool Prefix(MeetingHud __instance)
     {
@@ -1302,17 +1301,18 @@ static class MeetingHudRpcClosePatch
 
         if (Options.CurrentGameMode == CustomGameMode.Standard)
         {
-            if (AmongUsClient.Instance.AmClient) { __instance.Close(); }
+            if (AmongUsClient.Instance.AmClient)
+                __instance.Close();
 
-            var writer = MessageWriter.Get(SendOption.Reliable);
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
             writer.StartMessage(5);
             writer.Write(AmongUsClient.Instance.GameId);
 
             if (CheckForEndVotingPatch.TempExiledPlayer != null)
             {
-                var info = CheckForEndVotingPatch.TempExiledPlayer;
-                var player = info.Object;
+                NetworkedPlayerInfo info = CheckForEndVotingPatch.TempExiledPlayer;
+                PlayerControl player = info.Object;
 
                 if (player != null)
                 {
@@ -1343,7 +1343,7 @@ static class MeetingHudRpcClosePatch
 }
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.HandleRpc))]
-static class MeetingHudHandleRpcPatch
+internal static class MeetingHudHandleRpcPatch
 {
     public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
@@ -1362,7 +1362,7 @@ static class MeetingHudHandleRpcPatch
             {
                 try
                 {
-                    var temp = reader.ReadString();
+                    string temp = reader.ReadString();
 
                     if (temp.Contains("<size"))
                     {
@@ -1379,7 +1379,7 @@ static class MeetingHudHandleRpcPatch
 }
 
 [HarmonyPatch(typeof(ExileController), nameof(ExileController.Begin))]
-static class ExileControllerBeginPatch
+internal static class ExileControllerBeginPatch
 {
     public static void Postfix(ExileController __instance, [HarmonyArgument(0)] ExileController.InitProperties init)
     {

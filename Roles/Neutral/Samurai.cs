@@ -103,8 +103,10 @@ internal class Samurai : RoleBase
             if (player == null || !player.IsAlive()) continue;
 
             if (kvp.Value + KillDelay.GetInt() <= now)
+            {
                 if (pc.RpcCheckAndMurder(player, true))
                     player.Suicide(realKiller: pc);
+            }
         }
 
         if (Target.Id == byte.MaxValue || !pc.IsAlive()) return;

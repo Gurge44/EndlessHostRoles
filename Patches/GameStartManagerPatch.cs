@@ -307,7 +307,7 @@ public static class GameStartManagerPatch
                 var canStartGame = true;
                 var mismatchedClientName = string.Empty;
 
-                string warningMessage = "";
+                var warningMessage = "";
 
                 if (AmongUsClient.Instance.AmHost)
                 {
@@ -347,7 +347,8 @@ public static class GameStartManagerPatch
                     }
                 }
 
-                if (warningMessage == "") { warningText.gameObject.SetActive(false); }
+                if (warningMessage == "")
+                    warningText.gameObject.SetActive(false);
                 else
                 {
                     warningText.text = warningMessage;

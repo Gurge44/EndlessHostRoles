@@ -122,8 +122,10 @@ public class Psychic : RoleBase
         var ENum = 1;
 
         for (var i = 1; i < CanSeeNum.GetInt(); i++)
+        {
             if (IRandom.Instance.Next(0, 100) < 18)
                 ENum++;
+        }
 
         int BNum = CanSeeNum.GetInt() - ENum;
         ENum = Math.Min(ENum, BadList.Count);

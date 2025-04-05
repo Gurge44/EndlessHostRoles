@@ -106,8 +106,10 @@ public class ModNewsHistory
         AllModNews.Do(n => FinalAllNews.Add(n.ToAnnouncement()));
 
         foreach (Announcement news in aRange.ToArray())
+        {
             if (!AllModNews.Any(x => x.Number == news.Number))
                 FinalAllNews.Add(news);
+        }
 
         FinalAllNews.Sort((a1, a2) => { return DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)); });
 

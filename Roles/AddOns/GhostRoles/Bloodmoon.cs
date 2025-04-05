@@ -97,13 +97,11 @@ internal class Bloodmoon : IGhostRole
         (string TextColor, string TimeColor) colors = GetColors();
         return string.Format(Translator.GetString("Bloodmoon.Suffix"), timeLeft, colors.TextColor, colors.TimeColor);
 
-        (string TextColor, string TimeColor) GetColors()
-        {
-            return timeLeft switch
+        (string TextColor, string TimeColor) GetColors() =>
+            timeLeft switch
             {
                 > 5 => ("#ffff00", "#ffa500"),
                 _ => ("#ff0000", "#ffff00")
             };
-        }
     }
 }

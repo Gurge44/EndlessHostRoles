@@ -505,7 +505,7 @@ internal static class RPCHandlerPatch
                 byte sendTo = reader.ReadByte();
                 string title = reader.ReadString();
                 bool noSplit = reader.ReadBoolean();
-                Utils.SendMessage(text, sendTo, title, noSplit: noSplit);
+                Utils.SendMessage(text, sendTo, title, noSplit);
                 break;
             }
             case CustomRPC.NotificationPopper:
@@ -1487,7 +1487,7 @@ internal static class StartRpcImmediatelyPatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FinishRpcImmediately))]
-static class FinishRpcImmediatelyPatch
+internal static class FinishRpcImmediatelyPatch
 {
     public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] MessageWriter msg)
     {

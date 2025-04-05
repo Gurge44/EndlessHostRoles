@@ -13,8 +13,10 @@ public static class CustomSoundsManager
     public static void RPCPlayCustomSound(this PlayerControl pc, string sound, bool force = false)
     {
         if (!force)
+        {
             if (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())
                 return;
+        }
 
         if (pc == null || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
         {

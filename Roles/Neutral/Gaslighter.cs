@@ -50,7 +50,7 @@ public class Gaslighter : RoleBase
         On = true;
         Instances.Add(this);
         GaslighterId = playerId;
-        CurrentRound = default;
+        CurrentRound = default(Round);
         CursedPlayers = [];
         ShieldedPlayers = [];
         CycleFinished = false;
@@ -85,8 +85,10 @@ public class Gaslighter : RoleBase
             foreach (Gaslighter instance in Instances)
             {
                 foreach (byte id in exileIds)
+                {
                     if (id == instance.GaslighterId)
                         instance.CursedPlayers.Clear();
+                }
             }
 
             List<byte> curseDeathList = [];

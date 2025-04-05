@@ -100,7 +100,7 @@ internal static class ExileControllerWrapUpPatch
 
         if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
         {
-            RandomSpawn.SpawnMap map = RandomSpawn.SpawnMap.GetSpawnMap();
+            var map = RandomSpawn.SpawnMap.GetSpawnMap();
             Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
 
@@ -108,12 +108,12 @@ internal static class ExileControllerWrapUpPatch
         Utils.CountAlivePlayers(true);
 
         if (exiled == null) return;
-        var id = exiled.PlayerId;
+        byte id = exiled.PlayerId;
 
         LateTask.New(() =>
         {
             PlayerControl player = id.GetPlayer();
-            if (player != null) Utils.AfterPlayerDeathTasks(player, onMeeting: true);
+            if (player != null) Utils.AfterPlayerDeathTasks(player, true);
         }, 2.5f, "AfterPlayerDeathTasks For Exiled Player");
     }
 
@@ -139,7 +139,7 @@ internal static class ExileControllerWrapUpPatch
 
                     var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer", SendOption.Reliable);
                     Main.AfterMeetingDeathPlayers.Do(x => sender.RpcExileV2(x.Key.GetPlayer()));
-                    sender.SendMessage(dispose: Main.AfterMeetingDeathPlayers.Count == 0);
+                    sender.SendMessage(Main.AfterMeetingDeathPlayers.Count == 0);
 
                     Main.AfterMeetingDeathPlayers.Do(x =>
                     {
@@ -156,7 +156,7 @@ internal static class ExileControllerWrapUpPatch
                     Utils.AfterMeetingTasks();
                     Utils.SyncAllSettings();
                     Utils.CheckAndSetVentInteractions();
-                    Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 5));
+                    Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(5));
                 }
             }, 2f, "AntiBlackout Reset & AfterMeetingTasks");
         }

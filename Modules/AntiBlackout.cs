@@ -84,15 +84,15 @@ public static class AntiBlackout
         var hasValue = false;
         var sender = CustomRpcSender.Create("AntiBlackout.RevivePlayersAndSetDummyImp", SendOption.Reliable);
 
-        foreach (var seer in Main.AllPlayerControls)
+        foreach (PlayerControl seer in Main.AllPlayerControls)
         {
             if (seer.IsModdedClient()) continue;
 
-            var seerIsAliveAndHasKillButton = seer.HasKillButton() && seer.IsAlive() && Options.CurrentGameMode == CustomGameMode.Standard;
+            bool seerIsAliveAndHasKillButton = seer.HasKillButton() && seer.IsAlive() && Options.CurrentGameMode == CustomGameMode.Standard;
 
             if (Options.CurrentGameMode is not (CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.HideAndSeek or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush))
             {
-                foreach (var target in Main.AllPlayerControls)
+                foreach (PlayerControl target in Main.AllPlayerControls)
                 {
                     if (seerIsAliveAndHasKillButton)
                     {
@@ -125,7 +125,7 @@ public static class AntiBlackout
             }
         }
 
-        sender.SendMessage(dispose: !hasValue);
+        sender.SendMessage(!hasValue);
     }
 
     public static void RestoreIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
@@ -170,9 +170,9 @@ public static class AntiBlackout
             writer.StartMessage(5);
             writer.Write(AmongUsClient.Instance.GameId);
 
-            bool hasValue = false;
+            var hasValue = false;
 
-            foreach (var playerinfo in GameData.Instance.AllPlayers)
+            foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
             {
                 try
                 {
@@ -236,15 +236,15 @@ public static class AntiBlackout
                     // skip host
                     if (seerId == 0) continue;
 
-                    var seer = seerId.GetPlayer();
-                    var target = targetId.GetPlayer();
+                    PlayerControl seer = seerId.GetPlayer();
+                    PlayerControl target = targetId.GetPlayer();
 
                     if (seer == null || target == null) continue;
                     if (seer.IsModdedClient()) continue;
 
-                    var isSelf = seerId == targetId;
-                    var isDead = target.Data.IsDead;
-                    var changedRoleType = roletype;
+                    bool isSelf = seerId == targetId;
+                    bool isDead = target.Data.IsDead;
+                    RoleTypes changedRoleType = roletype;
 
                     switch (isDead)
                     {
@@ -260,7 +260,7 @@ public static class AntiBlackout
                         }
                         case true:
                         {
-                            var seerIsKiller = seer.Is(Team.Impostor) || seer.HasDesyncRole();
+                            bool seerIsKiller = seer.Is(Team.Impostor) || seer.HasDesyncRole();
 
                             if (!seerIsKiller && target.Is(Team.Impostor)) changedRoleType = RoleTypes.ImpostorGhost;
                             else changedRoleType = RoleTypes.CrewmateGhost;
@@ -275,7 +275,7 @@ public static class AntiBlackout
                     hasValue = true;
                 }
 
-                foreach (var pc in selfExiled)
+                foreach (PlayerControl pc in selfExiled)
                 {
                     sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.Exiled);
                     sender.EndRpc();
@@ -301,7 +301,7 @@ public static class AntiBlackout
                 PlayerControl[] apc = Main.AllPlayerControls;
                 apc.DoIf(x => x.Is(CustomRoles.Killer), x => sender.RpcSetRole(x, RoleTypes.Impostor, x.OwnerId));
 
-                foreach (var pc in apc)
+                foreach (PlayerControl pc in apc)
                 {
                     if (!pc.Is(CustomRoles.Killer))
                     {
@@ -322,14 +322,14 @@ public static class AntiBlackout
             }
         }
 
-        sender.SendMessage(dispose: !hasValue);
+        sender.SendMessage(!hasValue);
         ResetAllCooldowns();
     }
 
     private static void ResetAllCooldowns()
     {
         var sender = CustomRpcSender.Create("AntiBlackout.ResetAllCooldowns", SendOption.Reliable);
-        
+
         foreach (PlayerControl seer in Main.AllPlayerControls)
         {
             try

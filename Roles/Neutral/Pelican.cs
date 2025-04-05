@@ -111,14 +111,16 @@ public class Pelican : RoleBase
 
     public static bool IsEaten(PlayerControl pc, byte id)
     {
-        return EatenList.TryGetValue(pc.PlayerId, out var list) && list.Contains(id);
+        return EatenList.TryGetValue(pc.PlayerId, out List<byte> list) && list.Contains(id);
     }
 
     public static bool IsEaten(byte id)
     {
         foreach (KeyValuePair<byte, List<byte>> el in EatenList)
+        {
             if (el.Value.Contains(id))
                 return true;
+        }
 
         return false;
     }

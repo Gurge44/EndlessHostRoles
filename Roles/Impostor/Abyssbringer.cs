@@ -191,10 +191,7 @@ public class Abyssbringer : RoleBase
                 Notify();
             }
 
-            void Notify()
-            {
-                Utils.NotifyRoles(SpecifySeer: abyssbringer, SpecifyTarget: abyssbringer);
-            }
+            void Notify() => Utils.NotifyRoles(SpecifySeer: abyssbringer, SpecifyTarget: abyssbringer);
         }
     }
 

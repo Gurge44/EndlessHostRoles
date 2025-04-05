@@ -177,13 +177,15 @@ public static class MushroomMixupSabotageSystemPatch
                 var sender = CustomRpcSender.Create("MushroomMixupSabotageSystemPatch.Postfix", SendOption.Reliable);
                 Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => sender.RpcResetAbilityCooldown(x));
                 sender.SendMessage();
-                
+
                 Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState());
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+            }
         }
     }
 }
@@ -253,8 +255,10 @@ public static class ElectricTaskInitializePatch
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
+            }
         }
 
         Logger.Info("Lights sabotage called", "ElectricTask");

@@ -76,7 +76,7 @@ public class Monarch : RoleBase
         {
             killer.RpcRemoveAbilityUse();
             target.RpcSetCustomRole(CustomRoles.Knighted);
-            
+
             var sender = CustomRpcSender.Create("Monarch.OnCheckMurder", SendOption.Reliable);
 
             sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")), setName: false);
@@ -87,9 +87,9 @@ public class Monarch : RoleBase
 
             sender.RpcGuardAndKill(target, killer);
             sender.RpcGuardAndKill(target, target);
-            
+
             sender.SendMessage();
-            
+
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 

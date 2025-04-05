@@ -84,13 +84,13 @@ public class Magistrate : RoleBase
         return false;
     }
 
-    static void UseAbility(PlayerControl pc)
+    private static void UseAbility(PlayerControl pc)
     {
         pc.RpcRemoveAbilityUse();
         CallCourtNextMeeting = true;
     }
 
-    enum AbilityTriggers
+    private enum AbilityTriggers
     {
         Vent,
         Pet,

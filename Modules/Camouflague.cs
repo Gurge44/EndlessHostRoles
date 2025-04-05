@@ -77,7 +77,8 @@ public static class Camouflage
 
     public static void SetPetForOutfitIfNecessary(NetworkedPlayerInfo.PlayerOutfit outfit)
     {
-        if (Options.UsePets.GetBool()) { outfit.PetId = PetsHelper.GetPetId(); }
+        if (Options.UsePets.GetBool())
+            outfit.PetId = PetsHelper.GetPetId();
     }
 
     private static bool ShouldCamouflage(bool alreadyCamouflaged)
@@ -128,7 +129,7 @@ public static class Camouflage
     private static IEnumerator UpdateCamouflageStatusAsync()
     {
         var sender = CustomRpcSender.Create("Camouflage.RpcSetSkin", SendOption.Reliable);
-        
+
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
@@ -143,7 +144,7 @@ public static class Camouflage
         }
 
         sender.SendMessage();
-        yield return Utils.NotifyEveryoneAsync(speed: 5);
+        yield return Utils.NotifyEveryoneAsync(5);
     }
 
     public static void RpcSetSkin(PlayerControl target, bool forceRevert = false, bool revertToDefault = false, bool gameEnd = false, bool revive = false, bool notCommsOrCamo = false, CustomRpcSender sender = null)

@@ -160,13 +160,10 @@ internal class Sentry : RoleBase
         if (players.Length == 0) players = noDataString;
         if (bodies.Length == 0) bodies = noDataString;
 
-        pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), roomName, players, bodies), ShowInfoDuration.GetInt(), overrideAll: fromDevice);
+        pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), roomName, players, bodies), ShowInfoDuration.GetInt(), fromDevice);
         return;
 
-        static string GetColoredNames(IEnumerable<byte> ids)
-        {
-            return ids.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
-        }
+        static string GetColoredNames(IEnumerable<byte> ids) => ids.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
     }
 
     private bool IsInMonitoredRoom(PlayerControl pc)
@@ -194,8 +191,10 @@ internal class Sentry : RoleBase
     public static void OnAnyoneMurder(PlayerControl target)
     {
         foreach (PlayerState state in Main.PlayerStates.Values)
+        {
             if (state.Role is Sentry st && st.IsInMonitoredRoom(target))
                 st.DeadBodiesInRoom.Add(target.PlayerId);
+        }
     }
 
     public static void OnAnyoneEnterVent(PlayerControl pc)

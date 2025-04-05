@@ -91,7 +91,7 @@ public class Curser : RoleBase
                     target.RpcRemoveAbilityUse();
                     break;
                 case 1:
-                    var addons = Options.GroupedAddons[AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target));
+                    IEnumerable<CustomRoles> addons = Options.GroupedAddons[AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target));
                     target.RpcSetCustomRole(addons.RandomElement());
                     break;
                 case 2:
@@ -123,14 +123,15 @@ public class Curser : RoleBase
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, vision);
             }
 
-            if (instance.LowerSpeedPlayers.Contains(playerId)) { Main.AllPlayerSpeed[playerId] = LowerSpeed.GetFloat(); }
+            if (instance.LowerSpeedPlayers.Contains(playerId))
+                Main.AllPlayerSpeed[playerId] = LowerSpeed.GetFloat();
         }
     }
 
     public void OnDeath()
     {
         LowerVisionPlayers.UnionWith(LowerSpeedPlayers);
-        var players = LowerVisionPlayers.ToValidPlayers().ToArray();
+        PlayerControl[] players = LowerVisionPlayers.ToValidPlayers().ToArray();
         LowerVisionPlayers.Clear();
         LowerSpeedPlayers.Clear();
         players.Do(x => x.MarkDirtySettings());

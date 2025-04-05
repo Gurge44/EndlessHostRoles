@@ -135,8 +135,10 @@ public static class Translator
         string str = GetString(s, langId);
 
         if (replacementDic != null)
+        {
             foreach (KeyValuePair<string, string> rd in replacementDic)
                 str = str.Replace(rd.Key, rd.Value);
+        }
 
         return str;
     }
@@ -225,8 +227,10 @@ public static class Translator
                 var sb = new StringBuilder();
 
                 foreach (string templateString in TranslateMaps.Keys)
+                {
                     if (!textStrings.Contains(templateString))
                         sb.Append($"{templateString}:\n");
+                }
 
                 using FileStream fileStream = new(path, FileMode.Append, FileAccess.Write);
                 using StreamWriter writer = new(fileStream);

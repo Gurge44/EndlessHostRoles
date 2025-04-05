@@ -108,7 +108,7 @@ public class Succubus : RoleBase
             killer.RpcRemoveAbilityUse();
 
             target.RpcSetCustomRole(CustomRoles.Charmed);
-            
+
             var sender = CustomRpcSender.Create("Succubus.OnCheckMurder", SendOption.Reliable);
 
             sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("SuccubusCharmedPlayer")));
@@ -117,7 +117,7 @@ public class Succubus : RoleBase
             sender.SetKillCooldown(killer);
             sender.RpcGuardAndKill(target, killer);
             sender.RpcGuardAndKill(target, target);
-            
+
             sender.SendMessage();
 
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);

@@ -61,9 +61,9 @@ public class Duellist : RoleBase
         {
             if (Main.KillTimers[duellist.PlayerId] < 1f) duellist.SetKillCooldown(1f); // Give the other player a chance to kill
 
-            if (DuelPair.TryGetValue(duellist.PlayerId, out var previousTargetId))
+            if (DuelPair.TryGetValue(duellist.PlayerId, out byte previousTargetId))
             {
-                var previousTarget = GetPlayerById(previousTargetId);
+                PlayerControl previousTarget = GetPlayerById(previousTargetId);
                 if (previousTarget != null) previousTarget.TPToRandomVent();
             }
 

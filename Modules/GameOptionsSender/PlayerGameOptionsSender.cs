@@ -100,8 +100,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (GameManager.Instance?.LogicComponents != null)
             {
                 foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
+                {
                     if (com.TryCast(out LogicOptions lo))
                         lo.SetGameOptions(opt);
+                }
             }
 
             GameOptionsManager.Instance.CurrentGameOptions = opt;

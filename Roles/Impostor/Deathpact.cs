@@ -229,8 +229,10 @@ public class Deathpact : RoleBase
         var arrows = string.Empty;
 
         foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+        {
             if (state.Value.Role is Deathpact { IsEnable: true } dp)
                 arrows = dp.PlayersInDeathpact.Where(a => a.PlayerId != seer.PlayerId).Select(otherPlayerInPact => TargetArrow.GetArrows(seer, otherPlayerInPact.PlayerId)).Aggregate(arrows, (current, arrow) => current + ColorString(GetRoleColor(CustomRoles.Crewmate), arrow));
+        }
 
         return arrows;
     }

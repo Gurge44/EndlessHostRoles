@@ -143,7 +143,7 @@ internal class Bomber : RoleBase
 
         float radius = IsNuker ? NukeRadius.GetFloat() : BomberRadius.GetFloat();
 
-        int murderCount = 0;
+        var murderCount = 0;
 
         foreach (PlayerControl tg in Main.AllPlayerControls)
         {

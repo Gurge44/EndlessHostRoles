@@ -69,7 +69,7 @@ internal static class HotPotato
 
     public static string GetSuffixText(byte id)
     {
-        if (!Main.PlayerStates.TryGetValue(id, out var state) || state.IsDead) return string.Empty;
+        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || state.IsDead) return string.Empty;
         return $"{(HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty)}{Translator.GetString("HotPotato_TimeLeftSuffix")}{HotPotatoState.TimeLeft}s";
     }
 

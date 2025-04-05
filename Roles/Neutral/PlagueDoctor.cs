@@ -280,8 +280,10 @@ public class PlagueDoctor : RoleBase
         var str = new StringBuilder(40);
 
         foreach (PlayerControl player in Main.AllAlivePlayerControls)
+        {
             if (!player.Is(CustomRoles.PlagueDoctor))
                 str.Append(GetInfectRateCharactor(player, pd));
+        }
 
         return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), str.ToString());
     }

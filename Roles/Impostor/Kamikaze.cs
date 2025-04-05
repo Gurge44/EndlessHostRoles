@@ -103,7 +103,7 @@ internal class Kamikaze : RoleBase
                     else
                     {
                         victim.SetRealKiller(kamikazePc);
-                        var state = Main.PlayerStates[victim.PlayerId];
+                        PlayerState state = Main.PlayerStates[victim.PlayerId];
                         state.IsDead = true;
                         state.deathReason = PlayerState.DeathReason.Kamikazed;
                         Medic.IsDead(victim);

@@ -107,7 +107,7 @@ public class PlayerState(byte playerId)
         try { Utils.RemovePlayerFromPreviousRoleData(Player); }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        var previousHasTasks = Utils.HasTasks(Player.Data, false);
+        bool previousHasTasks = Utils.HasTasks(Player.Data, false);
 
         countTypes = role.GetCountTypes();
 
@@ -486,8 +486,10 @@ public class TaskState
 
             // Update the player's task count for Task Managers
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
+            }
         }
 
         if (CompletedTasksCount >= AllTasksCount) return;

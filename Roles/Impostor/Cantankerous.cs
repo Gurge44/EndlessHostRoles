@@ -62,8 +62,10 @@ public class Cantankerous : RoleBase
         int value = PointsGainedPerEjection.GetInt();
 
         foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+        {
             if (state.Value.Role is Cantankerous)
                 Utils.GetPlayerById(state.Key).RpcIncreaseAbilityUseLimitBy(value);
+        }
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

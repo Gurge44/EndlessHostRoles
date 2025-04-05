@@ -128,7 +128,7 @@ internal static class EndGamePatch
                     Main.AllPlayerControls.Do(x => KingOfTheZones.PlayedFCs.Add(x.FriendCode));
                     break;
                 default:
-                    if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out var playedFCs))
+                    if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs))
                         playedFCs.UnionWith(Main.AllPlayerControls.Select(x => x.FriendCode));
 
                     break;
@@ -162,8 +162,10 @@ internal static class SetEverythingUpPatch
             Il2CppArrayBase<PoolablePlayer> pbs = __instance?.transform.GetComponentsInChildren<PoolablePlayer>();
 
             if (pbs != null)
+            {
                 foreach (PoolablePlayer pb in pbs)
                     pb.ToggleName(false);
+            }
 
             List<CachedPlayerData> list = EndGameResult.CachedWinners.ToArray().ToList();
 
@@ -522,7 +524,7 @@ internal static class SetEverythingUpPatch
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            var winCounts = Utils.GetWinCountsString();
+            string winCounts = Utils.GetWinCountsString();
 
             if (winCounts != string.Empty)
             {
@@ -543,7 +545,7 @@ internal static class SetEverythingUpPatch
         RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.7f);
         RoleSummary.text = sb.ToString();
 
-        var showInitially = Main.ShowResult;
+        bool showInitially = Main.ShowResult;
 
         ResultsToggleButton = new SimpleButton(
             __instance.transform,
@@ -553,7 +555,7 @@ internal static class SetEverythingUpPatch
             new(0, 255, 255, 255),
             () =>
             {
-                var setToActive = !RoleSummary.gameObject.activeSelf;
+                bool setToActive = !RoleSummary.gameObject.activeSelf;
                 RoleSummary.gameObject.SetActive(setToActive);
                 Main.ShowResult = setToActive;
                 ResultsToggleButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
@@ -561,7 +563,7 @@ internal static class SetEverythingUpPatch
             GetString(showInitially ? "HideResults" : "ShowResults"))
         {
             Scale = new(1.5f, 0.5f),
-            FontSize = 2f,
+            FontSize = 2f
         };
 
         return;

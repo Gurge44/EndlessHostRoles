@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 
 namespace EHR.Neutral;
 
@@ -66,8 +67,8 @@ public class Weatherman : RoleBase
     {
         LateTask.New(() =>
         {
-            var disaster = NaturalDisasters.GetAllDisasters().RandomElement();
-            var room = pc.GetPlainShipRoom();
+            Type disaster = NaturalDisasters.GetAllDisasters().RandomElement();
+            PlainShipRoom room = pc.GetPlainShipRoom();
             NaturalDisasters.FixedUpdatePatch.AddPreparingDisaster(pc.Pos(), disaster.Name, room == null ? null : room.RoomId);
         }, 3f, "Weatherman.SpawnRandomDisaster");
     }

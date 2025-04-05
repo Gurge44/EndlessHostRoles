@@ -25,10 +25,12 @@ public static class CollectionExtensions
     public static TKey GetKeyByValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
     {
         foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+        {
             if (pair.Value.Equals(value))
                 return pair.Key;
+        }
 
-        return default;
+        return default(TKey);
     }
 
     /// <summary>
@@ -66,7 +68,7 @@ public static class CollectionExtensions
     /// </returns>
     public static T RandomElement<T>(this IList<T> collection)
     {
-        if (collection.Count == 0) return default;
+        if (collection.Count == 0) return default(T);
 
         return collection[IRandom.Instance.Next(collection.Count)];
     }
@@ -144,8 +146,10 @@ public static class CollectionExtensions
             }
 
             foreach (T element in collection)
+            {
                 if (predicate(element))
                     action(element);
+            }
 
             return;
         }
@@ -197,8 +201,10 @@ public static class CollectionExtensions
     public static Dictionary<TKey, TValue> AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
     {
         foreach ((TKey key, TValue value) in other)
+        {
             if (overrideExistingKeys || !dictionary.ContainsKey(key))
                 dictionary[key] = value;
+        }
 
         return dictionary;
     }
@@ -241,7 +247,7 @@ public static class CollectionExtensions
                 }
             }
 
-            element = default;
+            element = default(T);
             return false;
         }
 
@@ -254,14 +260,21 @@ public static class CollectionExtensions
             }
         }
 
-        element = default;
+        element = default(T);
         return false;
+    }
+
+    public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    {
+        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+        players.Do(x => sender.Notify(x, text, time, overrideAll, log, setName));
+        sender.SendMessage();
     }
 
     #region ToValidPlayers
 
     /// <summary>
-    /// Converts a collection of player IDs to a collection of <see cref="PlayerControl" /> instances
+    ///     Converts a collection of player IDs to a collection of <see cref="PlayerControl" /> instances
     /// </summary>
     /// <param name="playerIds"></param>
     /// <returns></returns>
@@ -271,7 +284,7 @@ public static class CollectionExtensions
     }
 
     /// <summary>
-    /// Converts a list of player IDs to a list of <see cref="PlayerControl" /> instances
+    ///     Converts a list of player IDs to a list of <see cref="PlayerControl" /> instances
     /// </summary>
     /// <param name="playerIds"></param>
     /// <returns></returns>
@@ -450,13 +463,6 @@ public static class CollectionExtensions
     }
 
     #endregion
-
-    public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
-    {
-        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
-        players.Do(x => sender.Notify(x, text, time, overrideAll, log, setName));
-        sender.SendMessage();
-    }
 }
 
 public static class Loop

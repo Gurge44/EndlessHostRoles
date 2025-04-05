@@ -67,7 +67,7 @@ public static class EndGameManagerPatch
 }
 
 [HarmonyPatch(typeof(EndGameNavigation), nameof(EndGameNavigation.NextGame))]
-static class EndGameNavigationNextGamePatch
+internal static class EndGameNavigationNextGamePatch
 {
     public static void Postfix()
     {

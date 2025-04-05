@@ -184,10 +184,7 @@ public class CustomLogger
         Main.Instance.StartCoroutine(InactivityCheck());
     }
 
-    public static CustomLogger Instance
-    {
-        get { return PrivateInstance ??= new(); }
-    }
+    public static CustomLogger Instance => PrivateInstance ??= new();
 
     public static void ClearLog(bool check = true)
     {
@@ -206,11 +203,11 @@ public class CustomLogger
         if (message.Contains("<i>")) message += "</i>";
         if (message.Contains("<s>")) message += "</s>";
 
-        string logEntry = $"""
-                           <div class='log-entry {level.ToLower()}'>
-                               {message}
-                           </div>
-                           """;
+        var logEntry = $"""
+                        <div class='log-entry {level.ToLower()}'>
+                            {message}
+                        </div>
+                        """;
 
         File.AppendAllText(LOGFilePath, logEntry);
 

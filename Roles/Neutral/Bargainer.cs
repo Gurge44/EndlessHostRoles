@@ -116,9 +116,8 @@ internal class Bargainer : RoleBase
             MoneySettings[action] = (boolOpt, intOpt);
             continue;
 
-            int GetDefaultValue()
-            {
-                return action switch
+            int GetDefaultValue() =>
+                action switch
                 {
                     MoneyGainingAction.Kill => 30,
                     MoneyGainingAction.Sabotage => 10,
@@ -126,7 +125,6 @@ internal class Bargainer : RoleBase
 
                     _ => 0
                 };
-            }
         }
 
         foreach (Item item in Enum.GetValues<Item>())
@@ -144,9 +142,8 @@ internal class Bargainer : RoleBase
             ItemSettings[item] = (boolOpt, intOpt);
             continue;
 
-            int GetDefaultValue()
-            {
-                return item switch
+            int GetDefaultValue() =>
+                item switch
                 {
                     Item.EnergyDrink => 40,
                     Item.LensOfTruth => 60,
@@ -154,7 +151,6 @@ internal class Bargainer : RoleBase
 
                     _ => 0
                 };
-            }
 
             void SetupExtraSettings()
             {
@@ -196,14 +192,18 @@ internal class Bargainer : RoleBase
         Gains = [];
 
         foreach (KeyValuePair<MoneyGainingAction, (OptionItem Enabled, OptionItem Amount)> kvp in MoneySettings)
+        {
             if (kvp.Value.Enabled.GetBool())
                 Gains[kvp.Key] = kvp.Value.Amount.GetInt();
+        }
 
         Costs = [];
 
         foreach (KeyValuePair<Item, (OptionItem Enabled, OptionItem Cost)> kvp in ItemSettings)
+        {
             if (kvp.Value.Enabled.GetBool())
                 Costs[kvp.Key] = kvp.Value.Cost.GetInt();
+        }
 
         Costs[Item.None] = 0;
     }
@@ -364,9 +364,8 @@ internal class Bargainer : RoleBase
 
                 break;
 
-                static (int Duration, byte Target) GetData(Item item)
-                {
-                    return item switch
+                static (int Duration, byte Target) GetData(Item item) =>
+                    item switch
                     {
                         Item.EnergyDrink => (int.MaxValue, byte.MaxValue),
                         Item.LensOfTruth => (AlignmentVisibleValue, Main.AllAlivePlayerControls.RandomElement().PlayerId),
@@ -374,7 +373,6 @@ internal class Bargainer : RoleBase
 
                         _ => (0, byte.MaxValue)
                     };
-                }
             }
             case false when InShop:
             {

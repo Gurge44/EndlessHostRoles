@@ -174,7 +174,7 @@ public class Jackal : RoleBase
         sender.SetKillCooldown(killer, 3f);
         sender.RpcGuardAndKill(target, killer);
         sender.RpcGuardAndKill(target, target);
-        
+
         sender.SendMessage();
 
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);

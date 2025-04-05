@@ -40,7 +40,7 @@ internal class QuizMaster : RoleBase
         SystemTypes.HeliSabotage
     ];
 
-    public static ((string ColorString, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
+    public static ((string ColorString, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((string.Empty, null), string.Empty, default(SystemTypes), string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
 
     private Question CurrentQuestion;
     public byte QuizMasterId;
@@ -85,7 +85,7 @@ internal class QuizMaster : RoleBase
 
         QuizMasters = [];
 
-        Data = ((string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
+        Data = ((string.Empty, null), string.Empty, default(SystemTypes), string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
 
         AllColors = [];
 
@@ -194,7 +194,7 @@ internal class QuizMaster : RoleBase
             {
                 case 1 when Data.LastReportedPlayer.ColorString != string.Empty:
                 case 2 when Data.LastPlayerPressedButtonName != string.Empty:
-                case 3 when Data.LastSabotage != default:
+                case 3 when Data.LastSabotage != default(SystemTypes):
                 case 4 when Main.LastVotedPlayerInfo != null:
                 case 5 when Data.LastReporterName != string.Empty:
                 case 6 when Data.NumPlayersVotedLastMeeting != 0:
@@ -266,15 +266,9 @@ internal class QuizMaster : RoleBase
 
         return new(title, allAnswersList.ToArray(), correctIndex);
 
-        IEnumerable<string> GetTwoRandomNames(string except)
-        {
-            return Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
-        }
+        IEnumerable<string> GetTwoRandomNames(string except) => Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
 
-        IEnumerable<string> GetTwoRandomNumbers(params int[] nums)
-        {
-            return IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
-        }
+        IEnumerable<string> GetTwoRandomNumbers(params int[] nums) => IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
     }
 
     public override void OnReportDeadBody()

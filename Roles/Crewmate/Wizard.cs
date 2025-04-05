@@ -111,7 +111,7 @@ public class Wizard : RoleBase
         };
 
         PlayerBuffs = [];
-        SelectedBuff = default;
+        SelectedBuff = default(Buff);
         TaskMode = false;
         Count = 0;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
@@ -178,7 +178,7 @@ public class Wizard : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (SelectedBuff == Buff.KCD)
-            SelectedBuff = default;
+            SelectedBuff = default(Buff);
         else
             SelectedBuff++;
 
@@ -285,16 +285,14 @@ public class Wizard : RoleBase
 
         return string.Format(Translator.GetString("Wizard.SelectedBuff"), SelectedBuff, BuffValues[SelectedBuff], GetBuffFormat(SelectedBuff));
 
-        string GetBuffFormat(Buff buff)
-        {
-            return buff switch
+        string GetBuffFormat(Buff buff) =>
+            buff switch
             {
                 Buff.Speed => "x",
                 Buff.Vision => "x",
                 Buff.KCD => "s",
                 _ => throw new ArgumentOutOfRangeException(nameof(buff), buff, "Invalid buff")
             };
-        }
     }
 
     private enum Buff

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
@@ -113,7 +112,7 @@ public class CustomRpcSender
             else
                 throw new InvalidOperationException(errorMsg);
         }
-        
+
         Logger.Info($"\"{name}\" is finished (Length: {stream.Length})", "CustomRpcSender");
 
         if (!dispose)
@@ -343,12 +342,12 @@ public static class CustomRpcSenderExtensions
             .Write(true)
             .EndRpc();
     }
-    
+
     // From TOH: https://github.com/tukasa0001/TownOfHost
     public static void RpcSetName(this CustomRpcSender sender, PlayerControl player, string name, PlayerControl seer = null)
     {
         bool seerIsNull = seer == null;
-        var targetClientId = seerIsNull ? -1 : seer.GetClientId();
+        int targetClientId = seerIsNull ? -1 : seer.GetClientId();
 
         name = name.Replace("color=", string.Empty);
 
@@ -388,10 +387,10 @@ public static class CustomRpcSenderExtensions
         sender.AutoStartRpc(physics.NetId, (byte)RpcCalls.ExitVent, clientId);
         sender.WritePacked(ventId);
         sender.EndRpc();
-        
+
         return true;
     }
-    
+
     public static bool RpcGuardAndKill(this CustomRpcSender sender, PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
     {
         if (!AmongUsClient.Instance.AmHost)
@@ -406,12 +405,12 @@ public static class CustomRpcSenderExtensions
 
         if (target == null) target = killer;
 
-        bool returnValue = false;
+        var returnValue = false;
 
         // Check Observer
         if (!forObserver && !MeetingStates.FirstMeeting)
         {
-            foreach (var x in Main.AllPlayerControls)
+            foreach (PlayerControl x in Main.AllPlayerControls)
             {
                 if (x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true))
                     returnValue = true;
@@ -428,15 +427,15 @@ public static class CustomRpcSenderExtensions
             sender.WriteNetObject(target);
             sender.Write((int)MurderResultFlags.FailedProtected);
             sender.EndRpc();
-            
+
             returnValue = true;
         }
 
         if (!fromSetKCD) killer.AddKillTimerToDict(true);
-        
+
         return returnValue;
     }
-    
+
     public static bool SetKillCooldown(this CustomRpcSender sender, PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
     {
         if (player == null) return false;
@@ -463,7 +462,7 @@ public static class CustomRpcSenderExtensions
         else
             Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
 
-        bool returnValue = false;
+        var returnValue = false;
 
         if (player.Is(CustomRoles.Glitch) && Main.PlayerStates[player.PlayerId].Role is Glitch gc)
         {
@@ -486,11 +485,11 @@ public static class CustomRpcSenderExtensions
                 sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, player.GetClientId());
                 sender.Write(time);
                 sender.EndRpc();
-                
+
                 returnValue = true;
             }
 
-            foreach (var x in Main.AllPlayerControls)
+            foreach (PlayerControl x in Main.AllPlayerControls)
             {
                 if (x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true, true))
                     returnValue = true;
@@ -498,7 +497,7 @@ public static class CustomRpcSenderExtensions
         }
 
         if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur) player.ResetKillCooldown();
-        
+
         return returnValue;
     }
 
@@ -529,7 +528,7 @@ public static class CustomRpcSenderExtensions
         sender.WriteNetObject(target);
         sender.Write(0);
         sender.EndRpc();
-            
+
         return true;
     }
 
@@ -549,7 +548,7 @@ public static class CustomRpcSenderExtensions
         sender.EndRpc();
         FixedUpdatePatch.LoversSuicide(player.PlayerId);
     }
-    
+
     public static void Notify(this CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
     {
         if (!AmongUsClient.Instance.AmHost || pc == null) return;
@@ -601,7 +600,7 @@ public static class CustomRpcSenderExtensions
         }
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
-        
+
         sender.AutoStartRpc(nt.NetId, (byte)RpcCalls.SnapTo);
         sender.WriteVector2(location);
         sender.Write(newSid);

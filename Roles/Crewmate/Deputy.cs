@@ -91,10 +91,10 @@ public class Deputy : RoleBase
                     var sender = CustomRpcSender.Create("Deputy.OnCheckMurder", SendOption.Reliable);
                     sender.SetKillCooldown(target, DeputyHandcuffCDForTarget.GetFloat());
                     sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
-                    
+
                     if (target.IsModdedClient()) sender.RpcResetAbilityCooldown(target);
                     else sender.RpcGuardAndKill(target, target);
-                    
+
                     sender.SendMessage();
                 }
             }, DeputyHandcuffDelay.GetInt(), "DeputyHandcuffDelay");

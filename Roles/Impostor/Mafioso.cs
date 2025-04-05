@@ -126,8 +126,10 @@ public class Mafioso : RoleBase
         writer.Write(PreviouslyUsedVents.Count);
 
         if (PreviouslyUsedVents.Count > 0)
+        {
             foreach (int vent in PreviouslyUsedVents.ToArray())
                 writer.Write(vent);
+        }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -140,8 +142,10 @@ public class Mafioso : RoleBase
         int elements = reader.ReadInt32();
 
         if (elements > 0)
+        {
             for (var i = 0; i < elements; i++)
                 PreviouslyUsedVents.Add(reader.ReadInt32());
+        }
     }
 
     private void SendRPCSyncPistolCD()

@@ -138,7 +138,7 @@ public class CopyCat : RoleBase
             sender.SetKillCooldown(pc);
             sender.Notify(pc, string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
             sender.SendMessage();
-            
+
             pc.SyncSettings();
             return false;
         }

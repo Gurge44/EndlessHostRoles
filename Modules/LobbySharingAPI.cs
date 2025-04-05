@@ -19,31 +19,31 @@ public static class LobbySharingAPI
 
     private static void NotifyLobbyCreated()
     {
-        var gameId = AmongUsClient.Instance.GameId;
+        int gameId = AmongUsClient.Instance.GameId;
         if (gameId == 32) return;
 
-        var roomCode = GameCode.IntToGameName(gameId);
+        string roomCode = GameCode.IntToGameName(gameId);
         if (roomCode == LastRoomCode || roomCode.IsNullOrWhiteSpace() || string.IsNullOrEmpty(roomCode)) return;
         LastRoomCode = roomCode;
 
-        var modLanguage = Options.ModLanguage.GetValue();
-        var language = modLanguage == 0 ? Translator.GetUserTrueLang().ToString() : ((Options.ModLanguages)modLanguage).ToString();
+        int modLanguage = Options.ModLanguage.GetValue();
+        string language = modLanguage == 0 ? Translator.GetUserTrueLang().ToString() : ((Options.ModLanguages)modLanguage).ToString();
 
-        var serverName = Utils.GetRegionName();
-        var hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
+        string serverName = Utils.GetRegionName();
+        string hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
         Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, $"EHR v{Main.PluginDisplayVersion}", gameId, hostName));
     }
 
     private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName)
     {
-        var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
+        long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
-        UnityWebRequest request = new UnityWebRequest("https://gurge44.pythonanywhere.com/lobby_created", "POST")
+        var request = new UnityWebRequest("https://gurge44.pythonanywhere.com/lobby_created", "POST")
         {
             uploadHandler = new UploadHandlerRaw(jsonToSend),
             downloadHandler = new DownloadHandlerBuffer()
@@ -90,24 +90,21 @@ public static class LobbySharingAPI
         StartMessageEdit();
         return;
 
-        void StartMessageEdit()
-        {
-            Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' '), PlayerControl.AllPlayerControls.Count));
-        }
+        void StartMessageEdit() => Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' '), PlayerControl.AllPlayerControls.Count));
     }
 
     private static IEnumerator SendLobbyStatusChangedRequest(string roomCode, string newStatus, int players)
     {
         if (string.IsNullOrEmpty(Token)) yield break;
 
-        var timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
+        long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\",\"players\":\"{players}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
-        UnityWebRequest request = new UnityWebRequest("https://gurge44.pythonanywhere.com/update_status", "POST")
+        var request = new UnityWebRequest("https://gurge44.pythonanywhere.com/update_status", "POST")
         {
             uploadHandler = new UploadHandlerRaw(jsonToSend),
             downloadHandler = new DownloadHandlerBuffer()
@@ -139,7 +136,7 @@ public enum LobbyStatus
 }
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.ExitGame))]
-static class ExitGamePatch
+internal static class ExitGamePatch
 {
     public static void Prefix()
     {

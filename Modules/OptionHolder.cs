@@ -830,7 +830,10 @@ public static class Options
         _ => CustomGameMode.Standard
     };
 
-    public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode) => CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(customGameMode, out var option) && option.GetBool());
+    public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode)
+    {
+        return CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(customGameMode, out OptionItem option) && option.GetBool());
+    }
 
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize))]
     [HarmonyPostfix]
@@ -852,7 +855,7 @@ public static class Options
         GroupAddons();
         Achievements.LoadAllData();
         OptionShower.LastText = Translator.GetString("Loading");
-        
+
         if (AllCrewRolesHaveVanillaColor.GetBool())
         {
             List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => x.IsCrewmate()).ToList();
@@ -1007,7 +1010,7 @@ public static class Options
 
         #region RoleListMaker
 
-        int id = 19820;
+        var id = 19820;
 
         foreach (Team team in new[] { Team.Impostor, Team.Neutral, Team.Coven })
         {
@@ -1027,12 +1030,12 @@ public static class Options
                 _ => TabGroup.OtherRoles
             };
 
-            var minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), defaultNum.Min, tab)
+            OptionItem minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), defaultNum.Min, tab)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(team.GetColor());
 
-            var maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), defaultNum.Max, tab)
+            OptionItem maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), defaultNum.Max, tab)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(team.GetColor());
 
@@ -1042,7 +1045,7 @@ public static class Options
         MinNNKs = new IntegerOptionItem(id++, "MinNNKs", new(0, 15, 1), 0, TabGroup.NeutralRoles)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
-        
+
         MaxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(0, 15, 1), 2, TabGroup.NeutralRoles)
             .SetGameMode(CustomGameMode.Standard);
 
@@ -1309,10 +1312,7 @@ public static class Options
             yield return null;
         }
 
-        void Log()
-        {
-            Logger.Info(" " + RoleLoadingText, MainLoadingText);
-        }
+        void Log() => Logger.Info(" " + RoleLoadingText, MainLoadingText);
 
 
         LoadingPercentage = 60;
@@ -1446,7 +1446,7 @@ public static class Options
             .SetHeader(true);
 
         StoreCompletedAchievementsOnEHRDatabase = new BooleanOptionItem(19423, "StoreCompletedAchievementsOnEHRDatabase", true, TabGroup.SystemSettings);
-        
+
         AllCrewRolesHaveVanillaColor = new BooleanOptionItem(19424, "AllCrewRolesHaveVanillaColor", false, TabGroup.SystemSettings)
             .SetHeader(true);
 
@@ -2385,18 +2385,18 @@ public static class Options
         GuesserNumRestrictions = new BooleanOptionItem(19722, "GuesserNumRestrictions", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
-        int goId = 19723;
+        var goId = 19723;
 
         NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
         {
             Color teamColor = x.GetColor();
 
-            var min = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Min", new(1, 15, 1), 15, TabGroup.TaskSettings)
+            OptionItem min = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Min", new(1, 15, 1), 15, TabGroup.TaskSettings)
                 .SetParent(GuesserNumRestrictions)
                 .SetValueFormat(OptionFormat.Players)
                 .SetColor(teamColor);
 
-            var max = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Max", new(1, 15, 1), 15, TabGroup.TaskSettings)
+            OptionItem max = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Max", new(1, 15, 1), 15, TabGroup.TaskSettings)
                 .SetParent(GuesserNumRestrictions)
                 .SetValueFormat(OptionFormat.Players)
                 .SetColor(teamColor);

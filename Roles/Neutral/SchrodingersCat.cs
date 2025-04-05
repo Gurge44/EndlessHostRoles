@@ -39,7 +39,7 @@ internal class SchrodingersCat : RoleBase
         if (!StealsExactImpostorRole.GetBool() && (killerRole.IsImpostor() || killerRole.IsMadmate())) killerRole = CustomRoles.Refugee;
         if (killerRole == CustomRoles.Jackal) killerRole = CustomRoles.Sidekick;
         if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
-        
+
         var sender = CustomRpcSender.Create("SchrodingersCat.OnCheckMurderAsTarget", SendOption.Reliable);
 
         target.RpcSetCustomRole(killerRole);
@@ -51,7 +51,7 @@ internal class SchrodingersCat : RoleBase
         sender.Notify(target, string.Format(Translator.GetString("SchrodingersCat.Notify.RecruitedByKiller"), killer.GetRealName(), killerRole.ToColoredString()), setName: false);
 
         sender.SendMessage();
-        
+
         Utils.NotifyRoles(SpecifySeer: killer, ForceLoop: true);
         Utils.NotifyRoles(SpecifySeer: target, ForceLoop: true);
 

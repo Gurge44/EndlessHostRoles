@@ -15,11 +15,11 @@ internal class LateTask
 
     private LateTask(Action action, float time, string name, bool log, string callerData)
     {
-        this.Action = action;
+        Action = action;
         Timer = time;
-        this.Name = name;
-        this.LOG = log;
-        this.CallerData = callerData;
+        Name = name;
+        LOG = log;
+        CallerData = callerData;
         Tasks.Add(this);
         if (log && name is not "" and not "No Name Task") Logger.Info("\"" + name + "\" is created", "LateTask");
     }

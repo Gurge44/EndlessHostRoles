@@ -155,7 +155,7 @@ public static class Speedrun
             if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
             ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
         }
-        
+
         return allow;
     }
 

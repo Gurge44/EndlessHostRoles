@@ -137,7 +137,7 @@ internal class Bubble : RoleBase
 
             IEnumerable<PlayerControl> players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encasedPc.Pos());
 
-            int numDied = 0;
+            var numDied = 0;
 
             foreach (PlayerControl pc in players)
             {

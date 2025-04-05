@@ -23,14 +23,8 @@ public class Bard : RoleBase
     {
         BardCreations++;
 
-        try
-        {
-            name = ModUpdater.Get("https://v1.hitokoto.cn/?encode=text");
-        }
-        catch
-        {
-            name = Translator.GetString("ByBardGetFailed");
-        }
+        try { name = ModUpdater.Get("https://v1.hitokoto.cn/?encode=text"); }
+        catch { name = Translator.GetString("ByBardGetFailed"); }
 
         name += "\n\t\t——" + Translator.GetString("ByBard");
     }

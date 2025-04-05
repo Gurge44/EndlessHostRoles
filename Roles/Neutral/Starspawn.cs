@@ -10,15 +10,15 @@ public class Starspawn : RoleBase
     public static bool On;
     private static List<Starspawn> Instances = [];
 
-    public override bool IsEnable => On;
-
     private static OptionItem AbilityUseLimit;
     private static OptionItem AbilityCooldown;
 
-    public HashSet<byte> IsolatedPlayers = [];
+    public static bool IsDayBreak;
     public bool HasUsedDayBreak;
 
-    public static bool IsDayBreak;
+    public HashSet<byte> IsolatedPlayers = [];
+
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {

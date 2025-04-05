@@ -20,7 +20,7 @@ internal static class CreateOptionsPickerPatch
         public static void Postfix_Initialize(CreateGameMapPicker __instance)
         {
             if (SceneManager.GetActiveScene().name == "FindAGame") return;
-            
+
             const int dleksPos = 3;
 
             MapSelectButton[] AllMapButton = __instance.transform.GetComponentsInChildren<MapSelectButton>();
@@ -32,11 +32,13 @@ internal static class CreateOptionsPickerPatch
                 dlekS_ehT.transform.SetSiblingIndex(dleksPos + 2);
                 var dlekS_ehT_MapButton = dlekS_ehT.GetComponent<MapSelectButton>();
                 DleksButton = dlekS_ehT_MapButton;
-                foreach (var icon in dlekS_ehT_MapButton.MapIcon)
+
+                foreach (SpriteRenderer icon in dlekS_ehT_MapButton.MapIcon)
                 {
                     if (icon == null || icon.transform == null) continue;
                     icon.flipX = true;
                 }
+
                 dlekS_ehT_MapButton.Button.OnClick.RemoveAllListeners();
 
                 dlekS_ehT_MapButton.Button.OnClick.AddListener((Action)(() =>
@@ -92,6 +94,7 @@ internal static class CreateOptionsPickerPatch
                     __instance.SelectMap(0);
                     SetDleks = false;
                 }
+
                 return false;
             }
 

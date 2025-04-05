@@ -94,9 +94,9 @@ public class Gangster : RoleBase
             sender.SetKillCooldown(killer);
             sender.RpcGuardAndKill(target, killer);
             sender.RpcGuardAndKill(target, target);
-            
+
             sender.SendMessage();
-            
+
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 

@@ -90,7 +90,8 @@ internal static class OnGameJoinedPatch
                 else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType} (IsOnlineGame: {GameStates.IsOnlineGame})", "OnGameJoinedPatch");
             }, 5f, "NotifyLobbyCreated");
         }
-        else { LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client"); }
+        else
+            LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client");
     }
 }
 
@@ -114,8 +115,10 @@ internal static class OnPlayerJoinedPatch
     public static bool IsDisconnected(this ClientData client)
     {
         foreach (ClientData clientData in AmongUsClient.Instance.allClients)
+        {
             if (clientData.Id == client.Id)
                 return false;
+        }
 
         return true;
     }
@@ -503,7 +506,7 @@ internal static class SetColorPatch
             {
                 if (__instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
                 {
-                    var client = __instance.GetClient();
+                    ClientData client = __instance.GetClient();
 
                     if (client != null)
                     {

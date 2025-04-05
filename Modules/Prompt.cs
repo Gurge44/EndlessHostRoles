@@ -84,7 +84,7 @@ public static class Prompt
     }
 
     [HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.Hide))]
-    static class DialogueBoxHidePatch
+    private static class DialogueBoxHidePatch
     {
         public static void Prefix()
         {

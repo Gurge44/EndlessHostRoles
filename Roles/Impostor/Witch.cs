@@ -230,8 +230,10 @@ public class Witch : RoleBase
         if (!isMeeting) return string.Empty;
 
         foreach (byte id in PlayerIdList)
+        {
             if (Main.PlayerStates[id].Role is Witch { IsEnable: true } wc && wc.IsSpelled(target))
                 return Utils.ColorString(wc.IsHM ? Utils.GetRoleColor(CustomRoles.HexMaster) : Palette.ImpostorRed, "†");
+        }
 
         return string.Empty;
     }
@@ -268,8 +270,10 @@ public class Witch : RoleBase
         if (!AmongUsClient.Instance.AmHost) return;
 
         if (PlayerIdList.Contains(pc.PlayerId))
+        {
             if (NowSwitchTrigger is SwitchTrigger.Vent)
                 SwitchSpellMode(pc.PlayerId, false);
+        }
     }
 
     private enum SwitchTrigger

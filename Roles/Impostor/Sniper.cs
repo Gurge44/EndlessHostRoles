@@ -356,8 +356,10 @@ public class Sniper : RoleBase
             if (Main.PlayerStates[seerId].Role is not Sniper sp) return string.Empty;
 
             if (0.5f < sp.AimTime && (!AimAssistOneshot || sp.AimTime < 1.0f))
+            {
                 if (sp.GetSnipeTargets(Utils.GetPlayerById(seerId)).Count > 0)
                     return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "◎")}</size>";
+            }
         }
         else
         {

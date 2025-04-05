@@ -185,7 +185,7 @@ public class Romantic : RoleBase
         else if (!IsPartnerProtected)
         {
             IsPartnerProtected = true;
-            
+
             var sender = CustomRpcSender.Create("Romantic.OnCheckMurder - 1", SendOption.Reliable);
 
             RomanticPC.ResetKillCooldown();
@@ -194,7 +194,7 @@ public class Romantic : RoleBase
 
             sender.Notify(RomanticPC, GetString("RomanticProtectPartner"));
             sender.Notify(Partner, GetString("RomanticIsProtectingYou"));
-            
+
             sender.SendMessage();
 
             LateTask.New(() =>
@@ -211,7 +211,7 @@ public class Romantic : RoleBase
                 sender2.Notify(Partner, GetString("ProtectingOver"));
 
                 sender2.SetKillCooldown(RomanticPC);
-                
+
                 sender2.SendMessage();
             }, ProtectDuration.GetFloat(), "RomanticProtecting");
         }

@@ -50,7 +50,7 @@ public class Negotiator : RoleBase
         Instances.Add(this);
         NegotiatorId = playerId;
         TargetId = byte.MaxValue;
-        Penalty = default;
+        Penalty = default(NegotiationType);
         PermanentPenalties = [];
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
     }
@@ -102,7 +102,7 @@ public class Negotiator : RoleBase
                     break;
                 case NegotiationType.HarmfulAddon:
                     CustomRoles addon = Options.GroupedAddons[AddonTypes.Harmful].Shuffle().FirstOrDefault(x => CustomRolesHelper.CheckAddonConflict(x, target));
-                    if (addon != default) target.RpcSetCustomRole(addon);
+                    if (addon != default(CustomRoles)) target.RpcSetCustomRole(addon);
 
                     break;
                 case NegotiationType.LowVision:

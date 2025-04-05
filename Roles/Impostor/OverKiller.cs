@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Hazel;
-using InnerNet;
 
 namespace EHR.Impostor;
 
@@ -76,7 +74,7 @@ internal class OverKiller : RoleBase
                 IEnumerator SpawnFakeDeadBodies()
                 {
                     var sender = CustomRpcSender.Create("Butcher kill");
-                    
+
                     for (var i = 0; i < 26; i++)
                     {
                         Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));

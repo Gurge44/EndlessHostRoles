@@ -106,7 +106,7 @@ public class PotionMaster : Coven
         toRemove.ForEach(x =>
         {
             ShieldedPlayers.Remove(x);
-            var player = x.GetPlayer();
+            PlayerControl player = x.GetPlayer();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 2, x);
@@ -114,7 +114,7 @@ public class PotionMaster : Coven
 
         foreach (byte shieldedId in ShieldedPlayers.Keys)
         {
-            var player = shieldedId.GetPlayer();
+            PlayerControl player = shieldedId.GetPlayer();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
@@ -126,7 +126,10 @@ public class PotionMaster : Coven
         return seer.Is(Team.Coven) && RevealedPlayers.Contains(target.PlayerId);
     }
 
-    public static bool OnAnyoneCheckMurder(PlayerControl target) => !Instances.Any(x => x.ShieldedPlayers.ContainsKey(target.PlayerId));
+    public static bool OnAnyoneCheckMurder(PlayerControl target)
+    {
+        return !Instances.Any(x => x.ShieldedPlayers.ContainsKey(target.PlayerId));
+    }
 
     public void ReceiveRPC(MessageReader reader)
     {
@@ -145,7 +148,7 @@ public class PotionMaster : Coven
     {
         if (seer.PlayerId == target.PlayerId && seer.IsModdedClient() && !hud) return string.Empty;
         if (seer.PlayerId != target.PlayerId && seer.PlayerId != PotionMasterId) return string.Empty;
-        if (!ShieldedPlayers.TryGetValue(target.PlayerId, out var shieldExpireTS)) return string.Empty;
+        if (!ShieldedPlayers.TryGetValue(target.PlayerId, out long shieldExpireTS)) return string.Empty;
 
         return string.Format(Translator.GetString("PotionMaster.Suffix"), shieldExpireTS - Utils.TimeStamp, Main.CovenColor);
     }

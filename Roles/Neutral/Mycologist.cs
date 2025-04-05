@@ -96,8 +96,10 @@ internal class Mycologist : RoleBase
         writer.Write(InfectedPlayers.Count);
 
         if (InfectedPlayers.Count > 0)
+        {
             foreach (byte x in InfectedPlayers)
                 writer.Write(x);
+        }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

@@ -120,7 +120,8 @@ public class Swooper : RoleBase
     {
         try
         {
-            if (UsedRole == CustomRoles.Chameleon) { AURoleOptions.EngineerCooldown = Cooldown + 1f; }
+            if (UsedRole == CustomRoles.Chameleon)
+                AURoleOptions.EngineerCooldown = Cooldown + 1f;
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -169,7 +170,7 @@ public class Swooper : RoleBase
             if (!player.IsModdedClient() && UsedRole != CustomRoles.Chameleon)
             {
                 long cooldown = lastTime + (long)Cooldown - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, overrideAll: true);
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, true);
 
                 CD = (int)cooldown;
             }
@@ -194,12 +195,12 @@ public class Swooper : RoleBase
             {
                 case < 0:
                     lastTime = now;
-                    
+
                     var sender = CustomRpcSender.Create("RpcExitVentDesync", SendOption.Reliable);
-                    var ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                    var hasValue = Main.AllPlayerControls.Where(pc => player.PlayerId != pc.PlayerId).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
-                    sender.SendMessage(dispose: !hasValue);
-                    
+                    int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
+                    bool hasValue = Main.AllPlayerControls.Where(pc => player.PlayerId != pc.PlayerId).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
+                    sender.SendMessage(!hasValue);
+
                     player.Notify(GetString("SwooperInvisStateOut"));
                     InvisTime = -10;
                     SendRPC();
@@ -283,7 +284,7 @@ public class Swooper : RoleBase
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
         if (target.Is(CustomRoles.Bait)) return true;
         if (!IsInvis) return true;
-        if (!killer.RpcCheckAndMurder(target, check: true)) return false;
+        if (!killer.RpcCheckAndMurder(target, true)) return false;
 
         target.Suicide(PlayerState.DeathReason.Swooped, killer);
         killer.SetKillCooldown();

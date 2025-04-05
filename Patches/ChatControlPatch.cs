@@ -6,6 +6,7 @@ using EHR.Coven;
 using EHR.Impostor;
 using EHR.Patches;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using UnityEngine;
 
@@ -224,12 +225,12 @@ public static class ChatManager
 
         try
         {
-            var aapc = Main.AllAlivePlayerControls;
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
             if (aapc.Length == 0) return;
 
-            var filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
-            var chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
-            var writer = CustomRpcSender.Create("MessagesToSend", Hazel.SendOption.Reliable);
+            string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+            ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
 
             for (int i = clear ? 0 : filtered.Length; i < 20; i++)
             {
@@ -254,7 +255,7 @@ public static class ChatManager
                     SendRPC(writer, senderPlayer, senderMessage);
                 }
             }
-            
+
             ChatUpdatePatch.SendLastMessages(writer);
             writer.SendMessage();
         }
@@ -274,23 +275,23 @@ public static class ChatManager
 
     public static void ClearChatForSpecificPlayer(PlayerControl target)
     {
-        var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        PlayerControl sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (sender == null) return;
 
         Logger.Info($"Desync Clear Chat for {target.GetNameWithRole()}", "ChatManager");
 
         if (!target.IsLocalPlayer())
         {
-            var clientId = target.GetClientId();
+            int clientId = target.GetClientId();
             if (clientId == -1) return;
 
-            var writer = CustomRpcSender.Create("MessagesToSend", Hazel.SendOption.Reliable);
+            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
             Loop.Times(20, _ => SendRPC(writer, sender, Utils.EmptyMessage, clientId));
             writer.SendMessage();
             return;
         }
 
-        var chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+        ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
         Loop.Times(20, _ => chat.AddChat(sender, Utils.EmptyMessage));
     }
 }

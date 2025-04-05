@@ -104,7 +104,10 @@ public class Doomsayer : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
-    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(ImpostorVision.GetBool());
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        opt.SetVision(ImpostorVision.GetBool());
+    }
 
     public static void SendRPC(PlayerControl player)
     {

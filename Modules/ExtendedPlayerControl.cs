@@ -104,13 +104,14 @@ internal static class ExtendedPlayerControl
 
         return vents;
     }
-/*
-    public static void RpcSetVentInteraction(this PlayerControl player)
-    {
-        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
-        if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, player);
-    }
-*/
+
+    /*
+        public static void RpcSetVentInteraction(this PlayerControl player)
+        {
+            var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
+            if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, player);
+        }
+    */
     // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs - coded by Rabek009
     public static void SetChatVisible(this PlayerControl player, bool visible)
     {
@@ -159,12 +160,13 @@ internal static class ExtendedPlayerControl
         AmongUsClient.Instance.SendOrDisconnect(writer);
         writer.Recycle();
     }
-/*
-    public static void RpcExile(this PlayerControl player)
-    {
-        RPC.ExileAsync(player);
-    }
-*/
+
+    /*
+        public static void RpcExile(this PlayerControl player)
+        {
+            RPC.ExileAsync(player);
+        }
+    */
     public static ClientData GetClient(this PlayerControl player)
     {
         try { return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Character.PlayerId == player.PlayerId); }
@@ -232,52 +234,52 @@ internal static class ExtendedPlayerControl
         return state.countTypes;
     }
 
-/*
-    public static void RpcSetNameEx(this PlayerControl player, string name)
-    {
-        try
+    /*
+        public static void RpcSetNameEx(this PlayerControl player, string name)
         {
-            if (player == null)
+            try
             {
-                Logger.Warn("The player is null", "RpcSetNameEx");
-                return;
+                if (player == null)
+                {
+                    Logger.Warn("The player is null", "RpcSetNameEx");
+                    return;
+                }
+
+                foreach (PlayerControl seer in Main.AllPlayerControls)
+                {
+                    try { Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name; }
+                    catch { }
+                }
+
+                if (player.Data != null) Logger.Info($"Set: {player.Data.PlayerName} => {name} for Everyone", "RpcSetNameEx");
+
+                player.RpcSetName(name);
             }
-
-            foreach (PlayerControl seer in Main.AllPlayerControls)
-            {
-                try { Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name; }
-                catch { }
-            }
-
-            if (player.Data != null) Logger.Info($"Set: {player.Data.PlayerName} => {name} for Everyone", "RpcSetNameEx");
-
-            player.RpcSetName(name);
+            catch (Exception e) { ThrowException(e); }
         }
-        catch (Exception e) { ThrowException(e); }
-    }
 
-    public static void RpcSetNamePrivate(this PlayerControl player, string name, PlayerControl seer = null, bool force = false)
-    {
-        if (player == null || name == null || !AmongUsClient.Instance.AmHost) return;
+        public static void RpcSetNamePrivate(this PlayerControl player, string name, PlayerControl seer = null, bool force = false)
+        {
+            if (player == null || name == null || !AmongUsClient.Instance.AmHost) return;
 
-        if (seer == null) seer = player;
+            if (seer == null) seer = player;
 
-        if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name) return;
+            if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name) return;
 
-        Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-        Logger.Info($"Set: {player.Data?.PlayerName} => {name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
+            Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+            Logger.Info($"Set: {player.Data?.PlayerName} => {name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
 
-        if (seer == null || player == null) return;
+            if (seer == null || player == null) return;
 
-        int clientId = seer.GetClientId();
-        if (clientId == -1) return;
+            int clientId = seer.GetClientId();
+            if (clientId == -1) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
-        writer.Write(seer.Data.NetId);
-        writer.Write(name);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-*/
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
+            writer.Write(seer.Data.NetId);
+            writer.Write(name);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+    */
 
     // By TommyXL
     public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
@@ -316,7 +318,7 @@ internal static class ExtendedPlayerControl
             {
                 (byte, byte) key = (player.PlayerId, GetClientById(clientId).Character.PlayerId);
 
-                if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out var pair))
+                if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out (RoleTypes RoleType, CustomRoles CustomRole) pair))
                 {
                     pair.RoleType = role;
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = pair;
@@ -364,7 +366,7 @@ internal static class ExtendedPlayerControl
         sender.SyncGeneralOptions(player);
         sender.SendMessage();
 
-        if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out var name))
+        if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out string name))
             RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
 
         Camouflage.RpcSetSkin(player);
@@ -426,7 +428,7 @@ internal static class ExtendedPlayerControl
         CustomRoles newRoleVN = newCustomRole.GetVNRole();
         RoleTypes newRoleDY = newCustomRole.GetDYRole();
 
-        var writer = sender ?? CustomRpcSender.Create("RpcChangeRoleBasis", SendOption.Reliable);
+        CustomRpcSender writer = sender ?? CustomRpcSender.Create("RpcChangeRoleBasis", SendOption.Reliable);
 
         switch (oldRoleIsDesync, newRoleIsDesync)
         {
@@ -549,7 +551,7 @@ internal static class ExtendedPlayerControl
                 break;
             }
         }
-        
+
         if (sender == null) writer.SendMessage();
 
         if (loggerRoleMap)
@@ -603,25 +605,25 @@ internal static class ExtendedPlayerControl
     }
 
     // Next 8: https://github.com/0xDrMoe/TownofHost-Enhanced/blob/12487ce1aa7e4f5087f2300be452b5af7c04d1ff/Modules/ExtendedPlayerControl.cs#L239
-/*
-    public static void RpcEnterVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)
-    {
-        if (physics == null) return;
-
-        int clientId = seer.GetClientId();
-
-        if (AmongUsClient.Instance.ClientId == clientId)
+    /*
+        public static void RpcEnterVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)
         {
-            physics.StopAllCoroutines();
-            physics.StartCoroutine(physics.CoEnterVent(ventId));
-            return;
-        }
+            if (physics == null) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.EnterVent, SendOption.Reliable, clientId);
-        writer.WritePacked(ventId);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-*/
+            int clientId = seer.GetClientId();
+
+            if (AmongUsClient.Instance.ClientId == clientId)
+            {
+                physics.StopAllCoroutines();
+                physics.StartCoroutine(physics.CoEnterVent(ventId));
+                return;
+            }
+
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.EnterVent, SendOption.Reliable, clientId);
+            writer.WritePacked(ventId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+    */
     public static void RpcExitVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)
     {
         if (physics == null) return;
@@ -639,24 +641,25 @@ internal static class ExtendedPlayerControl
         writer.WritePacked(ventId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
-/*
-    public static void RpcBootFromVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)
-    {
-        if (physics == null) return;
 
-        int clientId = seer.GetClientId();
-
-        if (AmongUsClient.Instance.ClientId == clientId)
+    /*
+        public static void RpcBootFromVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)
         {
-            physics.BootFromVent(ventId);
-            return;
-        }
+            if (physics == null) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, clientId);
-        writer.WritePacked(ventId);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-*/
+            int clientId = seer.GetClientId();
+
+            if (AmongUsClient.Instance.ClientId == clientId)
+            {
+                physics.BootFromVent(ventId);
+                return;
+            }
+
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, clientId);
+            writer.WritePacked(ventId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+    */
     public static void RpcCheckVanishDesync(this PlayerControl player, PlayerControl seer)
     {
         int clientId = seer.GetClientId();
@@ -671,21 +674,22 @@ internal static class ExtendedPlayerControl
         messageWriter.Write(0); // not used, lol
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
     }
-/*
-    public static void RpcStartVanishDesync(this PlayerControl player, PlayerControl seer)
-    {
-        int clientId = seer.GetClientId();
 
-        if (AmongUsClient.Instance.ClientId == clientId)
+    /*
+        public static void RpcStartVanishDesync(this PlayerControl player, PlayerControl seer)
         {
-            player.SetRoleInvisibility(true, false, true);
-            return;
-        }
+            int clientId = seer.GetClientId();
 
-        MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartVanish, SendOption.None, clientId);
-        AmongUsClient.Instance.FinishRpcImmediately(msg);
-    }
-*/
+            if (AmongUsClient.Instance.ClientId == clientId)
+            {
+                player.SetRoleInvisibility(true, false, true);
+                return;
+            }
+
+            MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartVanish, SendOption.None, clientId);
+            AmongUsClient.Instance.FinishRpcImmediately(msg);
+        }
+    */
     public static void RpcCheckAppearDesync(this PlayerControl player, bool shouldAnimate, PlayerControl seer)
     {
         int clientId = seer.GetClientId();
@@ -715,15 +719,16 @@ internal static class ExtendedPlayerControl
         messageWriter.Write(shouldAnimate);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
     }
-/*
-    public static void RpcCheckAppear(this PlayerControl player, bool shouldAnimate)
-    {
-        player.CheckAppear(shouldAnimate);
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.CheckAppear, SendOption.None);
-        messageWriter.Write(shouldAnimate);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-    }
-*/
+
+    /*
+        public static void RpcCheckAppear(this PlayerControl player, bool shouldAnimate)
+        {
+            player.CheckAppear(shouldAnimate);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.CheckAppear, SendOption.None);
+            messageWriter.Write(shouldAnimate);
+            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        }
+    */
     public static bool HasDesyncRole(this PlayerControl player)
     {
         return player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsDesyncRole();
@@ -802,26 +807,26 @@ internal static class ExtendedPlayerControl
 
         if (!fromSetKCD) killer.AddKillTimerToDict(true);
     }
-    
-/*
-    public static void RpcSpecificVanish(this PlayerControl player, PlayerControl seer)
-    {
-        if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartVanish, SendOption.None, seer.GetClientId());
-        AmongUsClient.Instance.FinishRpcImmediately(msg);
-    }
+    /*
+        public static void RpcSpecificVanish(this PlayerControl player, PlayerControl seer)
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
 
-    public static void RpcSpecificAppear(this PlayerControl player, PlayerControl seer, bool shouldAnimate)
-    {
-        if (!AmongUsClient.Instance.AmHost) return;
+            MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartVanish, SendOption.None, seer.GetClientId());
+            AmongUsClient.Instance.FinishRpcImmediately(msg);
+        }
 
-        MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartAppear, SendOption.None, seer.GetClientId());
-        msg.Write(shouldAnimate);
-        AmongUsClient.Instance.FinishRpcImmediately(msg);
-    }
-*/
-    
+        public static void RpcSpecificAppear(this PlayerControl player, PlayerControl seer, bool shouldAnimate)
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartAppear, SendOption.None, seer.GetClientId());
+            msg.Write(shouldAnimate);
+            AmongUsClient.Instance.FinishRpcImmediately(msg);
+        }
+    */
+
     public static bool HasAbilityCD(this PlayerControl pc)
     {
         return Main.AbilityCD.ContainsKey(pc.PlayerId);
@@ -1569,7 +1574,7 @@ internal static class ExtendedPlayerControl
 
         if (target.PlayerId == Godfather.GodfatherTarget)
         {
-            var realKiller = Main.PlayerStates.TryGetValue(target.PlayerId, out var state) ? state.RealKiller.ID.GetPlayer() ?? killer : killer;
+            PlayerControl realKiller = Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState state) ? state.RealKiller.ID.GetPlayer() ?? killer : killer;
             realKiller.RpcSetCustomRole(CustomRoles.Refugee);
         }
 
@@ -1584,7 +1589,7 @@ internal static class ExtendedPlayerControl
         {
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.SyncSettings();
-            var newSkin = new NetworkedPlayerInfo.PlayerOutfit().Set(GetString("Dead"), 15, "", "", "", "", "");
+            NetworkedPlayerInfo.PlayerOutfit newSkin = new NetworkedPlayerInfo.PlayerOutfit().Set(GetString("Dead"), 15, "", "", "", "", "");
             RpcChangeSkin(target, newSkin);
 
             LateTask.New(() =>
@@ -1672,10 +1677,20 @@ internal static class ExtendedPlayerControl
         }
     }
 
-    public static bool UsesPetInsteadOfKill(this PlayerControl pc) => pc != null && !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().UsesPetInsteadOfKill();
+    public static bool UsesPetInsteadOfKill(this PlayerControl pc)
+    {
+        return pc != null && !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().UsesPetInsteadOfKill();
+    }
 
-    public static bool IsLocalPlayer(this PlayerControl pc) => pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
-    public static bool IsLocalPlayer(this NetworkedPlayerInfo npi) => npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
+    public static bool IsLocalPlayer(this PlayerControl pc)
+    {
+        return pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
+    }
+
+    public static bool IsLocalPlayer(this NetworkedPlayerInfo npi)
+    {
+        return npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
+    }
 
     public static bool IsModdedClient(this PlayerControl player)
     {
@@ -1694,8 +1709,10 @@ internal static class ExtendedPlayerControl
         player.Data.Role.GetPlayersInAbilityRangeSorted(rangePlayersIL, ignoreColliders);
 
         foreach (PlayerControl pc in rangePlayersIL)
+        {
             if (predicate(pc))
                 rangePlayers.Add(pc);
+        }
 
         return rangePlayers;
     }

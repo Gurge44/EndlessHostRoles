@@ -22,7 +22,7 @@ internal static class ShipFixedUpdatePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (Main.IsFixedCooldown && (Main.RefixCooldownDelay >= 0))
+        if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
             Main.RefixCooldownDelay -= Time.fixedDeltaTime;
         else if (!float.IsNaN(Main.RefixCooldownDelay))
         {
@@ -78,12 +78,12 @@ internal static class RepairSystemPatch
         [HarmonyArgument(2)] byte amount)
     {
         Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "RepairSystem");
-        if (RepairSender.Enabled && (AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame))
+        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
 
-        if ((!CustomGameMode.Standard.IsActiveOrIntegrated() || Options.DisableSabotage.GetBool()) && (systemType == SystemTypes.Sabotage)) return false;
+        if ((!CustomGameMode.Standard.IsActiveOrIntegrated() || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
         if (player.Is(CustomRoles.Fool) && systemType is SystemTypes.Comms or SystemTypes.Electrical) return false;
 
         switch (player.GetCustomRole())
@@ -104,7 +104,7 @@ internal static class RepairSystemPatch
 
         switch (systemType)
         {
-            case SystemTypes.Doors when player.Is(CustomRoles.Unlucky) && player.IsAlive() && (IRandom.Instance.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt()):
+            case SystemTypes.Doors when player.Is(CustomRoles.Unlucky) && player.IsAlive() && IRandom.Instance.Next(0, 100) < Options.UnluckySabotageSuicideChance.GetInt():
             {
                 player.Suicide();
                 return false;
@@ -113,9 +113,9 @@ internal static class RepairSystemPatch
             {
                 if (Main.NormalOptions.MapId == 4)
                 {
-                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && (Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f)) return false;
-                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && (Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f)) return false;
-                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && (Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f)) return false;
+                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
+                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
+                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
                 }
 
                 var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
@@ -314,7 +314,7 @@ internal static class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || (TaskState.InitialTotalTasks == 0) || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || !CustomGameMode.Standard.IsActiveOrIntegrated())
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || !CustomGameMode.Standard.IsActiveOrIntegrated())
         {
             __result = false;
             return false;
@@ -329,7 +329,7 @@ public static class HauntMenuMinigameSetFilterTextPatch
 {
     public static bool Prefix(HauntMenuMinigame __instance)
     {
-        if ((__instance.HauntTarget != null) && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
+        if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
         {
             byte id = __instance.HauntTarget.PlayerId;
             __instance.FilterText.text = Utils.GetDisplayRoleName(id) + Utils.GetProgressText(id);
@@ -457,7 +457,7 @@ internal static class ShipStatusSerializePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (initialState) return;
-        
+
         var cancel = false;
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
@@ -468,7 +468,7 @@ internal static class ShipStatusSerializePatch
 
         var hudOverrideSystem = __instance.Systems[SystemTypes.Comms].TryCast<HudOverrideSystemType>();
 
-        if ((Options.CurrentGameMode == CustomGameMode.Standard) && hudOverrideSystem is { IsDirty: true })
+        if (Options.CurrentGameMode == CustomGameMode.Standard && hudOverrideSystem is { IsDirty: true })
         {
             SerializeHudOverrideSystemV2(hudOverrideSystem);
             hudOverrideSystem.IsDirty = false;
@@ -476,7 +476,7 @@ internal static class ShipStatusSerializePatch
 
         var hqHudSystem = __instance.Systems[SystemTypes.Comms].TryCast<HqHudSystemType>();
 
-        if ((Options.CurrentGameMode == CustomGameMode.Standard) && hqHudSystem is { IsDirty: true })
+        if (Options.CurrentGameMode == CustomGameMode.Standard && hqHudSystem is { IsDirty: true })
         {
             SerializeHqHudSystemV2(hqHudSystem);
             hqHudSystem.IsDirty = false;
@@ -553,7 +553,7 @@ internal static class VentilationSystemDeterioratePatch
 
         foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
         {
-            if ((playerInfo != null) && !playerInfo.Disconnected)
+            if (playerInfo != null && !playerInfo.Disconnected)
                 AllPlayers.Add(playerInfo);
         }
 
@@ -620,7 +620,7 @@ internal static class VentilationSystemDeterioratePatch
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
             if (pc.AmOwner) continue;
-            if ((player != null) && (pc != player)) continue;
+            if (player != null && pc != player) continue;
 
             if (BlockVentInteraction(pc))
             {
@@ -635,7 +635,7 @@ internal static class VentilationSystemDeterioratePatch
 
                 foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
                 {
-                    if ((playerInfo != null) && !playerInfo.Disconnected)
+                    if (playerInfo != null && !playerInfo.Disconnected)
                         AllPlayers.Add(playerInfo);
                 }
 

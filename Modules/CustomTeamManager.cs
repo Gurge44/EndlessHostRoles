@@ -46,9 +46,9 @@ internal static class CustomTeamManager
             var guessEachOther = new BooleanOptionItem(id++, "CTA.GuessEachOther", false, tab);
             var arrows = new BooleanOptionItem(id++, "CTA.Arrows", true, tab);
             var maxPlayers = new IntegerOptionItem(id++, "CTA.MaxPlayersAssignedToTeam", new(1, 15, 1), 15, tab);
-            
+
             var teamPlayerCounts = new Dictionary<Team, IntegerOptionItem[]>();
-            
+
             foreach (Team teamType in Enum.GetValues<Team>()[1..])
             {
                 var min = new IntegerOptionItem(id++, "CTA.MinPlayers." + teamType, new(1, 15, 1), 1, tab);
@@ -89,11 +89,11 @@ internal static class CustomTeamManager
             {
                 foreach (byte id in players)
                 {
-                    if (Main.PlayerStates.TryGetValue(id, out var ps))
+                    if (Main.PlayerStates.TryGetValue(id, out PlayerState ps))
                         ps.countTypes = CountTypes.CustomTeam;
                 }
             }
-            
+
             if (!IsSettingEnabledForTeam(team, CTAOption.Arrows)) continue;
 
             foreach (byte player in players)
@@ -105,15 +105,15 @@ internal static class CustomTeamManager
                 }
             }
         }
-        
+
         return;
 
         static HashSet<byte> TakeAsManyAsSet(IEnumerable<byte> playerIds, CustomTeam customTeam)
         {
             try
             {
-                var options = CustomTeamOptions.First(x => x.Team.Equals(customTeam));
-                var grouped = playerIds.ToValidPlayers().GroupBy(x => x.GetTeam()).ToDictionary(x => x.Key, x => x.Shuffle());
+                CustomTeamOptionGroup options = CustomTeamOptions.First(x => x.Team.Equals(customTeam));
+                Dictionary<Team, List<PlayerControl>> grouped = playerIds.ToValidPlayers().GroupBy(x => x.GetTeam()).ToDictionary(x => x.Key, x => x.Shuffle());
 
                 foreach ((Team team, List<PlayerControl> players) in grouped)
                 {
@@ -122,10 +122,10 @@ internal static class CustomTeamManager
                         if (!options.TeamPlayerCounts.TryGetValue(team, out IntegerOptionItem[] counts) || counts.Length < 2)
                             continue;
 
-                        var num = IRandom.Instance.Next(counts[0].GetInt(), counts[1].GetInt() + 1);
+                        int num = IRandom.Instance.Next(counts[0].GetInt(), counts[1].GetInt() + 1);
                         if (players.Count <= num) continue;
 
-                        var selected = players.Take(num).Shuffle();
+                        List<PlayerControl> selected = players.Take(num).Shuffle();
                         players.Clear();
                         players.AddRange(selected);
                     }
@@ -187,8 +187,10 @@ internal static class CustomTeamManager
         if (!Main.PlayerStates.TryGetValue(id, out PlayerState state)) return null;
 
         foreach (CustomTeam team in EnabledCustomTeams)
+        {
             if (team.TeamMembers.Contains(state.MainRole))
                 return team;
+        }
 
         return null;
     }
@@ -258,6 +260,7 @@ internal static class CustomTeamManager
     internal class CustomTeamOptionGroup
     {
         public readonly List<OptionItem> AllOptions;
+
         public CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows, IntegerOptionItem maxPlayers, Dictionary<Team, IntegerOptionItem[]> teamPlayerCounts)
         {
             AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows, maxPlayers];
@@ -267,6 +270,7 @@ internal static class CustomTeamManager
             MaxPlayers = maxPlayers;
             TeamPlayerCounts = teamPlayerCounts;
         }
+
         public CustomTeam Team { get; }
 
         public BooleanOptionItem Enabled { get; }

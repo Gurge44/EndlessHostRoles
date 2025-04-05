@@ -60,7 +60,8 @@ public static class OptionsMenuBehaviourStartPatch
             }
         }
 
-        if (ShowFPS == null || ShowFPS.ToggleButton == null) { ShowFPS = ClientOptionItem.Create("ShowFPS", Main.ShowFps, __instance); }
+        if (ShowFPS == null || ShowFPS.ToggleButton == null)
+            ShowFPS = ClientOptionItem.Create("ShowFPS", Main.ShowFps, __instance);
 
         if (AutoStart == null || AutoStart.ToggleButton == null)
         {
@@ -159,7 +160,8 @@ public static class OptionsMenuBehaviourStartPatch
         if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null)
             ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
 
-        if (LobbyMusic == null || LobbyMusic.ToggleButton == null) { LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance); }
+        if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
+            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance);
 
         if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null) EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
 

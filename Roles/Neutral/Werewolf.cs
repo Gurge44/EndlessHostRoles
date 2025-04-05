@@ -141,7 +141,7 @@ public class Werewolf : RoleBase
             if (!player.IsModdedClient())
             {
                 long cooldown = lastTime + (long)RampageCD.GetFloat() - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, overrideAll: true);
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, true);
 
                 CD = (int)cooldown;
             }
@@ -255,7 +255,7 @@ public class Werewolf : RoleBase
     {
         if (Medic.ProtectList.Contains(target.PlayerId) || !IsRampaging) return false;
 
-        if (killer.RpcCheckAndMurder(target, check: true))
+        if (killer.RpcCheckAndMurder(target, true))
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Mauled;
 
         return true;

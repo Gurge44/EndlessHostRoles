@@ -231,10 +231,9 @@ internal static class CustomHnS
             result[lp] = CustomRoles.GM;
             PlayerRoles[lp.PlayerId] = (new Hider(), CustomRoles.GM);
         }
+
         foreach (byte spectator in ChatCommands.Spectators)
-        {
             PlayerRoles[spectator] = (new Hider(), CustomRoles.GM);
-        }
 
         LateTask.New(() => result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
 
@@ -332,17 +331,16 @@ internal static class CustomHnS
             : string.Empty;
 
         string GetColorFromDanger() // 0: Highest, 4: Lowest
-        {
-            return danger switch
-            {
-                0 => "#ff1313",
-                1 => "#ff6a00",
-                2 => "#ffaa00",
-                3 => "#ffea00",
-                4 => "#ffff00",
-                _ => "#ffffff"
-            };
-        }
+            =>
+                danger switch
+                {
+                    0 => "#ff1313",
+                    1 => "#ff6a00",
+                    2 => "#ffaa00",
+                    3 => "#ffea00",
+                    4 => "#ffff00",
+                    _ => "#ffffff"
+                };
     }
 
     public static string GetRoleInfoText(PlayerControl seer)
@@ -432,15 +430,9 @@ internal static class CustomHnS
             stateText = $"{name}{stateText}";
             return stateText;
 
-            CustomRoles GetRole()
-            {
-                return state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
-            }
+            CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
 
-            string GetTaskCount()
-            {
-                return CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
-            }
+            string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
         }
 
         static string GetTaskText()
@@ -472,7 +464,7 @@ internal static class CustomHnS
         if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor) return;
 
         killer.Kill(target);
-        
+
         if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
         ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 

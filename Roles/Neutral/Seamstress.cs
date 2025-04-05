@@ -11,12 +11,12 @@ public class Seamstress : RoleBase
     public static bool On;
     private static List<Seamstress> Instances = [];
 
-    public override bool IsEnable => On;
-
     private static OptionItem ShapeshiftCooldown;
 
     private byte SeamstressID;
     public (byte, byte) SewedPlayers;
+
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -47,7 +47,7 @@ public class Seamstress : RoleBase
         if (!firstIsSet && !secondIsSet) cd = ShapeshiftCooldown.GetFloat();
         else if (firstIsSet ^ secondIsSet) cd = 1f;
         else cd = 300f;
-        
+
         AURoleOptions.ShapeshifterCooldown = cd;
     }
 
@@ -55,7 +55,7 @@ public class Seamstress : RoleBase
     {
         bool firstIsSet = SewedPlayers.Item1 != byte.MaxValue;
         bool secondIsSet = SewedPlayers.Item2 != byte.MaxValue;
-        
+
         switch (firstIsSet)
         {
             case true when secondIsSet:
@@ -67,7 +67,7 @@ public class Seamstress : RoleBase
                 SewedPlayers.Item1 = target.PlayerId;
                 break;
         }
-        
+
         shapeshifter.SyncSettings();
         target.Notify(string.Format(Translator.GetString("SewedBySeamstress"), CustomRoles.Seamstress.ToColoredString()));
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
@@ -101,8 +101,8 @@ public class Seamstress : RoleBase
     {
         byte[] tuple = [SewedPlayers.Item1, SewedPlayers.Item2];
         if (tuple.All(x => x == byte.MaxValue)) return;
-        
-        var sewed = tuple.ToValidPlayers().ToList();
+
+        List<PlayerControl> sewed = tuple.ToValidPlayers().ToList();
 
         if (sewed.Count != 2 || sewed.Exists(x => !x.IsAlive()))
         {
@@ -110,8 +110,8 @@ public class Seamstress : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, SeamstressID, SewedPlayers.Item1, SewedPlayers.Item2);
             pc.SyncSettings();
             pc.RpcResetAbilityCooldown();
-            
-            if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out var alive))
+
+            if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out PlayerControl alive))
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: alive);
         }
     }

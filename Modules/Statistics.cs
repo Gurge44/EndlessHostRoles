@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EHR.AddOns.Common;
 using EHR.Crewmate;
@@ -18,9 +19,9 @@ public static class Statistics
     {
         if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || Main.AllPlayerControls.Length <= MinPlayers) return;
 
-        var lp = PlayerControl.LocalPlayer;
-        var role = lp.GetCustomRole();
-        var addons = lp.GetCustomSubRoles();
+        PlayerControl lp = PlayerControl.LocalPlayer;
+        CustomRoles role = lp.GetCustomRole();
+        List<CustomRoles> addons = lp.GetCustomSubRoles();
 
         try
         {
@@ -101,7 +102,7 @@ public static class Statistics
 
             switch (CustomWinnerHolder.WinnerTeam)
             {
-                case CustomWinner.None when Main.PlayerStates.Values.FindFirst(x => x.SubRoles.Contains(CustomRoles.Avanger), out var state) && state.GetRealKiller().GetPlayer().Is(CustomRoles.OverKiller):
+                case CustomWinner.None when Main.PlayerStates.Values.FindFirst(x => x.SubRoles.Contains(CustomRoles.Avanger), out PlayerState state) && state.GetRealKiller().GetPlayer().Is(CustomRoles.OverKiller):
                     Achievements.Type.FuriousAvenger.CompleteAfterGameEnd();
                     break;
                 case CustomWinner.Crewmate when won && Main.AllPlayerControls.Count(x => x.IsImpostor() || x.IsNeutralKiller()) >= 2 && MeetingStates.MeetingNum < 3:
@@ -139,7 +140,7 @@ public static class Statistics
                 case CustomRoles.Bargainer when won && Bargainer.PurchasedItems.Count >= 3:
                     Achievements.Type.P2W.CompleteAfterGameEnd();
                     break;
-                case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(lp.PlayerId, out var ltg) && Main.PlayerStates.TryGetValue(ltg, out var ltgState) && ltgState.IsDead && ltgState.MainRole.IsCrewmate() && !ltgState.SubRoles.Contains(CustomRoles.Bloodlust) && won && CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor:
+                case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(lp.PlayerId, out byte ltg) && Main.PlayerStates.TryGetValue(ltg, out PlayerState ltgState) && ltgState.IsDead && ltgState.MainRole.IsCrewmate() && !ltgState.SubRoles.Contains(CustomRoles.Bloodlust) && won && CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor:
                     Achievements.Type.LiarLiar.CompleteAfterGameEnd();
                     break;
             }
@@ -155,7 +156,7 @@ public static class Statistics
             if (gm == CustomGameMode.Standard) return;
 
             Main.NumWinsPerGM.TryAdd(gm, []);
-            Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), overrideExistingKeys: false);
+            Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), false);
             Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
 
             void Reset()
@@ -188,7 +189,7 @@ public static class Statistics
 
             if (amDictator) Achievements.Type.KimJongUnExperience.Complete();
 
-            bool lpHasVS = states.FindFirst(x => x.VoterId == lp.PlayerId, out var lpVS);
+            bool lpHasVS = states.FindFirst(x => x.VoterId == lp.PlayerId, out MeetingHud.VoterState lpVS);
 
             bool exiled = exiledPlayer != null && exiledPlayer.Object != null;
 
@@ -222,7 +223,7 @@ public static class Statistics
             {
                 if (GameStates.IsEnded) return;
 
-                var aapc = Main.AllAlivePlayerControls;
+                PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
                 if (aapc.Length == 2 && lp.IsAlive() && aapc.All(x => x.IsNeutralKiller() || x.IsImpostor()))
                     Achievements.Type.Duel.Complete();
@@ -272,7 +273,7 @@ public static class Statistics
 
                 if ((targetState.MainRole == CustomRoles.Romantic && Romantic.PartnerId == killer.PlayerId) ||
                     (targetState.SubRoles.Contains(CustomRoles.Lovers) && killer.Is(CustomRoles.Lovers)) ||
-                    (targetState.MainRole == CustomRoles.Lawyer && Lawyer.Target.TryGetValue(target.PlayerId, out var ltg) && ltg == killer.PlayerId) ||
+                    (targetState.MainRole == CustomRoles.Lawyer && Lawyer.Target.TryGetValue(target.PlayerId, out byte ltg) && ltg == killer.PlayerId) ||
                     (targetState.Role is Totocalcio tc && tc.BetPlayer == killer.PlayerId))
                     Achievements.Type.WhatHaveIDone.CompleteAfterGameEnd();
 

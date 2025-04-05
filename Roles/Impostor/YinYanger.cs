@@ -140,12 +140,12 @@ public class YinYanger : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.IsModdedClient() && !hud || meeting) return string.Empty;
+        if ((seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         if (Main.PlayerStates[seer.PlayerId].Role is YinYanger { IsEnable: true } yy)
         {
             if (seer.PlayerId == target.PlayerId) return yy.YinYangedPlayers.Count == 2 ? $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangModeNormal")}" : $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangMode")} ({yy.YinYangedPlayers.Count}/2)";
-            else if (yy.YinYangedPlayers.Contains(target.PlayerId)) return "\u262f";
+            if (yy.YinYangedPlayers.Contains(target.PlayerId)) return "\u262f";
         }
 
         return string.Empty;

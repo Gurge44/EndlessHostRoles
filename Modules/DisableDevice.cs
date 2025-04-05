@@ -130,14 +130,14 @@ internal static class DisableDevice
 
                     if (Main.NormalOptions.MapId is 1 or 5) // Mira HQ or The Fungle
                         sender.RpcDesyncRepairSystem(pc, SystemTypes.Comms, 17);
-                    
+
                     hasValue = true;
                 }
             }
             catch (Exception ex) { Logger.Exception(ex, "DisableDevice"); }
         }
-        
-        sender.SendMessage(dispose: !hasValue);
+
+        sender.SendMessage(!hasValue);
     }
 }
 

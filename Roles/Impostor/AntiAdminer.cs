@@ -148,7 +148,7 @@ internal class AntiAdminer : RoleBase
 
         Count = notify || ExtraAbilityStartTimeStamp > 0 ? 1 : 5;
 
-        var oldPlayersNearDevices = PlayersNearDevices.ToDictionary(x => x.Key, x => x.Value);
+        Dictionary<byte, HashSet<Device>> oldPlayersNearDevices = PlayersNearDevices.ToDictionary(x => x.Key, x => x.Value);
         PlayersNearDevices = [];
         bool Admin = false, Camera = false, DoorLog = false, Vital = false;
         float usableDistance = DisableDevice.UsableDistance;
@@ -285,7 +285,7 @@ internal class AntiAdminer : RoleBase
             IsCameraWatch = Camera;
         }
 
-        if (IsMonitor) notify |= oldPlayersNearDevices.Count != PlayersNearDevices.Count || oldPlayersNearDevices.Any(x => !PlayersNearDevices.TryGetValue(x.Key, out var c) || !x.Value.SetEquals(c));
+        if (IsMonitor) notify |= oldPlayersNearDevices.Count != PlayersNearDevices.Count || oldPlayersNearDevices.Any(x => !PlayersNearDevices.TryGetValue(x.Key, out HashSet<Device> c) || !x.Value.SetEquals(c));
 
         if (notify || change) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
 
@@ -295,7 +295,7 @@ internal class AntiAdminer : RoleBase
         {
             if (Main.PlayerStates[id].MainRole is CustomRoles.Monitor or CustomRoles.AntiAdminer) return;
 
-            if (!PlayersNearDevices.TryGetValue(id, out var devices))
+            if (!PlayersNearDevices.TryGetValue(id, out HashSet<Device> devices))
                 PlayersNearDevices[id] = [device];
             else devices.Add(device);
         }

@@ -39,8 +39,15 @@ internal class Asthmatic : IAddon
             .SetValueFormat(OptionFormat.Seconds);
     }
 
-    private static int RandomRedTime(char _) => IRandom.Instance.Next(MinRedTime, MaxRedTime);
-    private static int RandomGreenTime(char _) => IRandom.Instance.Next(MinGreenTime, MaxGreenTime);
+    private static int RandomRedTime(char _)
+    {
+        return IRandom.Instance.Next(MinRedTime, MaxRedTime);
+    }
+
+    private static int RandomGreenTime(char _)
+    {
+        return IRandom.Instance.Next(MinGreenTime, MaxGreenTime);
+    }
 
     public static void Init()
     {
@@ -62,8 +69,10 @@ internal class Asthmatic : IAddon
             long now = Utils.TimeStamp;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (pc.Is(CustomRoles.Asthmatic))
                     Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false, RandomRedTime, RandomGreenTime);
+            }
         }, 8f, "Add Asthmatic Timers");
     }
 

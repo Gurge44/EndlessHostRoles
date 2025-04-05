@@ -99,8 +99,10 @@ public class Damocles : IAddon
         writer.Write(pev.Count);
 
         if (pev.Count > 0)
+        {
             foreach (int vent in pev.ToArray())
                 writer.Write(vent);
+        }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -113,8 +115,10 @@ public class Damocles : IAddon
         int elements = reader.ReadInt32();
 
         if (elements > 0)
+        {
             for (var i = 0; i < elements; i++)
                 PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
+        }
     }
 
     public static void OnMurder(byte id)

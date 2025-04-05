@@ -41,7 +41,7 @@ internal static class CustomRoleSelector
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            if (GameModeRoles.TryGetValue(Options.CurrentGameMode, out var role))
+            if (GameModeRoles.TryGetValue(Options.CurrentGameMode, out CustomRoles role))
             {
                 AssignRoleToEveryone(role);
                 return;
@@ -51,9 +51,9 @@ internal static class CustomRoleSelector
 
             if (Options.CurrentGameMode == CustomGameMode.AllInOne)
             {
-                var prioritizedGameMode = AllInOneGameMode.GetPrioritizedGameModeForRoles();
+                CustomGameMode prioritizedGameMode = AllInOneGameMode.GetPrioritizedGameModeForRoles();
 
-                if (GameModeRoles.TryGetValue(prioritizedGameMode, out var allInOneRole))
+                if (GameModeRoles.TryGetValue(prioritizedGameMode, out CustomRoles allInOneRole))
                 {
                     AssignRoleToEveryone(allInOneRole);
                     return;
@@ -151,8 +151,8 @@ internal static class CustomRoleSelector
             else Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.LovingCrewmate, 100, 2));
         }
 
-        var covenLimits = Options.FactionMinMaxSettings[Team.Coven];
-        var numCovens = rd.Next(covenLimits.MinSetting.GetInt(), covenLimits.MaxSetting.GetInt() + 1);
+        (OptionItem MinSetting, OptionItem MaxSetting) covenLimits = Options.FactionMinMaxSettings[Team.Coven];
+        int numCovens = rd.Next(covenLimits.MinSetting.GetInt(), covenLimits.MaxSetting.GetInt() + 1);
 
         if (numCovens > 0 && !Main.SetRoles.ContainsValue(CustomRoles.CovenLeader) && !ChatCommands.DraftResult.ContainsValue(CustomRoles.CovenLeader))
         {
@@ -161,8 +161,8 @@ internal static class CustomRoleSelector
             readyRoleNum++;
         }
 
-        var neutralLimits = Options.FactionMinMaxSettings[Team.Neutral];
-        var numNeutrals = rd.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1);
+        (OptionItem MinSetting, OptionItem MaxSetting) neutralLimits = Options.FactionMinMaxSettings[Team.Neutral];
+        int numNeutrals = rd.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1);
 
         if (Roles[RoleAssignType.Impostor].Count == 0 && numNeutrals == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
         {
@@ -195,7 +195,7 @@ internal static class CustomRoleSelector
 
         try
         {
-            var impLimits = subCategoryLimits.Where(x => x.Key.GetTabFromOptionType() == TabGroup.ImpostorRoles).ToDictionary(x => x.Key, x => x.Value);
+            Dictionary<RoleOptionType, int> impLimits = subCategoryLimits.Where(x => x.Key.GetTabFromOptionType() == TabGroup.ImpostorRoles).ToDictionary(x => x.Key, x => x.Value);
 
             if (impLimits.Count > 0 && impLimits.Sum(x => x.Value) < optImpNum)
                 impLimits.Keys.Do(x => subCategoryLimits[x] = Options.RoleSubCategoryLimits[x][2].GetInt());
@@ -213,7 +213,7 @@ internal static class CustomRoleSelector
         Logger.Info($"Number of Non-Killing Neutral roles to select: {nnkLimit}", "NonKillingNeutralLimit");
         Logger.Info($"Number of Madmate roles to select: {madmateNum}", "MadmateLimit");
 
-        var allRoles = Roles.ToDictionary(x => x.Key, x => x.Value.ToList());
+        Dictionary<RoleAssignType, List<RoleAssignInfo>> allRoles = Roles.ToDictionary(x => x.Key, x => x.Value.ToList());
 
         Roles.Keys.ToArray().Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
 
@@ -225,21 +225,21 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Madmate].Select(x => x.Role.ToString())), "PreSelectedMadmateRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Coven].Select(x => x.Role.ToString())), "PreSelectedCovenRoles");
         Logger.Msg("===================================================", "PreSelectedRoles");
-        
+
         try
         {
-            int attempts = 0;
+            var attempts = 0;
             List<RoleAssignType> types = [RoleAssignType.NeutralKilling, RoleAssignType.NonKillingNeutral];
 
             while (Roles[RoleAssignType.NeutralKilling].Count + Roles[RoleAssignType.NonKillingNeutral].Count > numNeutrals)
             {
                 if (attempts++ > 100) break;
 
-                if (types.FindFirst(x => Roles[x].Count == 0, out var nullType)) types.Remove(nullType);
+                if (types.FindFirst(x => Roles[x].Count == 0, out RoleAssignType nullType)) types.Remove(nullType);
                 if (types.Count == 0) break;
                 RoleAssignType type = types.RandomElement();
 
-                var toRemove = Roles[type].RandomElement();
+                RoleAssignInfo toRemove = Roles[type].RandomElement();
                 Roles[type].Remove(toRemove);
 
                 Logger.Info($"Removed {toRemove.Role} from {type}", "CustomRoleSelector");
@@ -340,13 +340,17 @@ internal static class CustomRoleSelector
                 RoleAssignInfo item = Roles[RoleAssignType.Impostor][i];
 
                 if (item.SpawnChance == 100)
+                {
                     for (var j = 0; j < item.MaxCount - item.AssignedCount; j++)
                         AlwaysImpRoles.Add(item.Role);
+                }
                 else
                 {
                     for (var j = 0; j < item.SpawnChance / 5; j++)
+                    {
                         for (var k = 0; k < item.MaxCount - item.AssignedCount; k++)
                             ChanceImpRoles.Add(item.Role);
+                    }
                 }
             }
 
@@ -392,8 +396,10 @@ internal static class CustomRoleSelector
                     Imps = ImpRoleCounts;
 
                     if (info.AssignedCount >= info.MaxCount)
+                    {
                         while (ChanceImpRoles.Contains(selected))
                             ChanceImpRoles.Remove(selected);
+                    }
 
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                     if (readyImpNum >= optImpNum) break;
@@ -413,13 +419,17 @@ internal static class CustomRoleSelector
                     RoleAssignInfo item = Roles[RoleAssignType.NonKillingNeutral][i];
 
                     if (item.SpawnChance == 100)
+                    {
                         for (var j = 0; j < item.MaxCount - item.AssignedCount; j++)
                             AlwaysNNKRoles.Add(item.Role);
+                    }
                     else
                     {
                         for (var j = 0; j < item.SpawnChance / 5; j++)
+                        {
                             for (var k = 0; k < item.MaxCount - item.AssignedCount; k++)
                                 ChanceNNKRoles.Add(item.Role);
+                        }
                     }
                 }
 
@@ -465,8 +475,10 @@ internal static class CustomRoleSelector
                         NNKs = NNKRoleCounts;
 
                         if (info.AssignedCount >= info.MaxCount)
+                        {
                             while (ChanceNNKRoles.Contains(selected))
                                 ChanceNNKRoles.Remove(selected);
+                        }
 
                         if (readyRoleNum >= playerCount) goto EndOfAssign;
                         if (readyNonNeutralKillingNum >= nnkNum) break;
@@ -484,13 +496,17 @@ internal static class CustomRoleSelector
                     RoleAssignInfo item = Roles[RoleAssignType.NeutralKilling][i];
 
                     if (item.SpawnChance == 100)
+                    {
                         for (var j = 0; j < item.MaxCount - item.AssignedCount; j++)
                             AlwaysNKRoles.Add(item.Role);
+                    }
                     else
                     {
                         for (var j = 0; j < item.SpawnChance / 5; j++)
+                        {
                             for (var k = 0; k < item.MaxCount - item.AssignedCount; k++)
                                 ChanceNKRoles.Add(item.Role);
+                        }
                     }
                 }
 
@@ -536,8 +552,10 @@ internal static class CustomRoleSelector
                         NKs = NKRoleCounts;
 
                         if (info.AssignedCount >= info.MaxCount)
+                        {
                             while (ChanceNKRoles.Contains(selected))
                                 ChanceNKRoles.Remove(selected);
+                        }
 
                         if (readyRoleNum >= playerCount) goto EndOfAssign;
                         if (readyNeutralKillingNum >= nkNum) break;
@@ -556,13 +574,17 @@ internal static class CustomRoleSelector
                 RoleAssignInfo item = Roles[RoleAssignType.Madmate][i];
 
                 if (item.SpawnChance == 100)
+                {
                     for (var j = 0; j < item.MaxCount - item.AssignedCount; j++)
                         AlwaysMadmateRoles.Add(item.Role);
+                }
                 else
                 {
                     for (var j = 0; j < item.SpawnChance / 5; j++)
+                    {
                         for (var k = 0; k < item.MaxCount - item.AssignedCount; k++)
                             ChanceMadmateRoles.Add(item.Role);
+                    }
                 }
             }
 
@@ -608,8 +630,10 @@ internal static class CustomRoleSelector
                     Mads = MadRoleCounts;
 
                     if (info.AssignedCount >= info.MaxCount)
+                    {
                         while (ChanceMadmateRoles.Contains(selected))
                             ChanceMadmateRoles.Remove(selected);
+                    }
 
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                     if (readyMadmateNum >= madmateNum) break;
@@ -627,13 +651,17 @@ internal static class CustomRoleSelector
                 RoleAssignInfo item = Roles[RoleAssignType.Coven][i];
 
                 if (item.SpawnChance == 100)
+                {
                     for (var j = 0; j < item.MaxCount - item.AssignedCount; j++)
                         AlwaysCovenRoles.Add(item.Role);
+                }
                 else
                 {
                     for (var j = 0; j < item.SpawnChance / 5; j++)
+                    {
                         for (var k = 0; k < item.MaxCount - item.AssignedCount; k++)
                             ChanceCovenRoles.Add(item.Role);
+                    }
                 }
             }
 
@@ -679,8 +707,10 @@ internal static class CustomRoleSelector
                     Coven = CovenRoleCounts;
 
                     if (info.AssignedCount >= info.MaxCount)
+                    {
                         while (ChanceCovenRoles.Contains(selected))
                             ChanceCovenRoles.Remove(selected);
+                    }
 
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                     if (readyCovenNum >= numCovens) break;
@@ -690,7 +720,7 @@ internal static class CustomRoleSelector
 
         // Crewmate Roles
         {
-            int attempts = 0;
+            var attempts = 0;
 
             Crew:
 
@@ -704,13 +734,17 @@ internal static class CustomRoleSelector
                 RoleAssignInfo item = Roles[RoleAssignType.Crewmate][i];
 
                 if (item.SpawnChance == 100)
+                {
                     for (var j = 0; j < item.MaxCount - item.AssignedCount; j++)
                         AlwaysCrewRoles.Add(item.Role);
+                }
                 else
                 {
                     for (var j = 0; j < item.SpawnChance / 5; j++)
+                    {
                         for (var k = 0; k < item.MaxCount - item.AssignedCount; k++)
                             ChanceCrewRoles.Add(item.Role);
+                    }
                 }
             }
 
@@ -753,8 +787,10 @@ internal static class CustomRoleSelector
                     Crews = CrewRoleCounts;
 
                     if (info.AssignedCount >= info.MaxCount)
+                    {
                         while (ChanceCrewRoles.Contains(selected))
                             ChanceCrewRoles.Remove(selected);
+                    }
 
                     if (readyRoleNum >= playerCount) goto EndOfAssign;
                 }
@@ -788,7 +824,7 @@ internal static class CustomRoleSelector
         if (rd.Next(0, 100) < Sans.BardChance.GetInt() && FinalRolesList.Remove(CustomRoles.Sans)) FinalRolesList.Add(CustomRoles.Bard);
         if (rd.Next(0, 100) < Bomber.NukerChance.GetInt() && FinalRolesList.Remove(CustomRoles.Bomber)) FinalRolesList.Add(CustomRoles.Nuker);
 
-        RoleResult.AddRange(AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second), overrideExistingKeys: false);
+        RoleResult.AddRange(AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second), false);
         Logger.Info(string.Join(", ", RoleResult.Values.Select(x => x.ToString())), "RoleResults");
 
         if (RoleResult.Count < AllPlayers.Count) Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");
@@ -809,10 +845,7 @@ internal static class CustomRoleSelector
             }
         }
 
-        RoleAssignInfo GetAssignInfo(CustomRoles role)
-        {
-            return Roles.Values.FirstOrDefault(x => x.Any(y => y.Role == role))?.FirstOrDefault(x => x.Role == role);
-        }
+        RoleAssignInfo GetAssignInfo(CustomRoles role) => Roles.Values.FirstOrDefault(x => x.Any(y => y.Role == role))?.FirstOrDefault(x => x.Role == role);
 
         void ApplySubCategoryLimits(RoleAssignType type, Dictionary<RoleOptionType, int> dictionary) =>
             Roles[type] = Roles[type]
@@ -821,7 +854,7 @@ internal static class CustomRoleSelector
                 .DistinctBy(x => x.Role)
                 .Select(x => (
                     Info: x,
-                    Limit: dictionary.TryGetValue(x.OptionType, out var limit)
+                    Limit: dictionary.TryGetValue(x.OptionType, out int limit)
                         ? (Exists: true, Value: limit)
                         : (Exists: false, Value: 0)))
                 .GroupBy(x => x.Info.OptionType)

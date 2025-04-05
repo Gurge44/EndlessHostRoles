@@ -42,8 +42,10 @@ internal class Circumvent : IAddon
         LateTask.New(() =>
         {
             foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+            {
                 if (state.Value.SubRoles.Contains(CustomRoles.Circumvent))
                     Limits[state.Key] = Limit.GetInt();
+            }
         }, 3f, "Add Circumvents");
     }
 

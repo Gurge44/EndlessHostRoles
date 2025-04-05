@@ -34,24 +34,24 @@ public class MersenneTwister : IRandom
     ///     数値の上限を設定
     ///     これより下の値の一部は参考元のソースより拝借
     /// </summary>
-    private const Int32 N = 624;
+    private const int N = 624;
 
-    private const Int32 M = 397;
-    private const UInt32 MatrixA = 0x9908b0df;
-    private const UInt32 UpperMask = 0x80000000;
-    private const UInt32 LowerMask = 0x7fffffff;
-    private const UInt32 TemperingMaskB = 0x9d2c5680;
-    private const UInt32 TemperingMaskC = 0xefc60000;
-    private readonly UInt32[] _mag01 = [0x0, MatrixA];
+    private const int M = 397;
+    private const uint MatrixA = 0x9908b0df;
+    private const uint UpperMask = 0x80000000;
+    private const uint LowerMask = 0x7fffffff;
+    private const uint TemperingMaskB = 0x9d2c5680;
+    private const uint TemperingMaskC = 0xefc60000;
+    private readonly uint[] _mag01 = [0x0, MatrixA];
 
-    private readonly UInt32[] _mt = new UInt32[N];
-    private Int16 _mtItems;
+    private readonly uint[] _mt = new uint[N];
+    private short _mtItems;
 
-    public MersenneTwister() : this((Int32)DateTime.UtcNow.Ticks) { }
+    public MersenneTwister() : this((int)DateTime.UtcNow.Ticks) { }
 
-    public MersenneTwister(Int32 seed)
+    public MersenneTwister(int seed)
     {
-        Init((UInt32)seed);
+        Init((uint)seed);
     }
 
     public int Next(int minValue, int maxValue)
@@ -70,27 +70,27 @@ public class MersenneTwister : IRandom
         return Next(0, maxValue);
     }
 
-    private static UInt32 ShiftU(UInt32 y)
+    private static uint ShiftU(uint y)
     {
         return y >> 11;
     }
 
-    private static UInt32 ShiftS(UInt32 y)
+    private static uint ShiftS(uint y)
     {
         return y << 7;
     }
 
-    private static UInt32 ShiftT(UInt32 y)
+    private static uint ShiftT(uint y)
     {
         return y << 15;
     }
 
-    private static UInt32 ShiftL(UInt32 y)
+    private static uint ShiftL(uint y)
     {
         return y >> 18;
     }
 
-    private void Init(UInt32 seed)
+    private void Init(uint seed)
     {
         _mt[0] = seed & 0xffffffffU;
 
@@ -103,12 +103,12 @@ public class MersenneTwister : IRandom
 
     public uint Next()
     {
-        UInt32 y;
+        uint y;
 
         /* _mag01[x] = x * MatrixA  for x=0,1 */
         if (_mtItems >= N) /* generate N words at one time */
         {
-            Int16 kk = 0;
+            short kk = 0;
 
             for (; kk < N - M; ++kk)
             {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -99,7 +100,7 @@ internal class Spiritualist : RoleBase
 
             TargetArrow.Add(spiritualist, target.PlayerId);
 
-            var writer = CustomRpcSender.Create("SpiritualistSendMessage", Hazel.SendOption.Reliable);
+            var writer = CustomRpcSender.Create("SpiritualistSendMessage", SendOption.Reliable);
             writer.StartMessage(target.GetClientId());
 
             writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)

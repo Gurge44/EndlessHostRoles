@@ -253,16 +253,14 @@ public class Chef : RoleBase
 
         return string.Empty;
 
-        string GetEventString(PlayerEvent e)
-        {
-            return e switch
+        string GetEventString(PlayerEvent e) =>
+            e switch
             {
                 IncreasedSpeedEvent => Translator.GetString("ChefBoost.Speed"),
                 IncreasedVisionEvent => Translator.GetString("ChefBoost.Vision"),
                 ShieldEvent => Translator.GetString("ChefBoost.Shield"),
                 _ => string.Empty
             };
-        }
     }
 
     private abstract class PlayerEvent

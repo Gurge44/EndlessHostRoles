@@ -70,7 +70,7 @@ public class Auditor : RoleBase
         if (!Instances.Any(x => x.LoweredVisionPlayers.ContainsKey(id))) return;
 
         opt.SetVision(false);
-        var vision = LoweredVision.GetFloat();
+        float vision = LoweredVision.GetFloat();
         opt.SetFloat(FloatOptionNames.CrewLightMod, vision);
         opt.SetFloat(FloatOptionNames.ImpostorLightMod, vision);
     }
@@ -93,7 +93,7 @@ public class Auditor : RoleBase
             }
             case Modes.Smokebombing:
             {
-                var containsKey = LoweredVisionPlayers.ContainsKey(target.PlayerId);
+                bool containsKey = LoweredVisionPlayers.ContainsKey(target.PlayerId);
                 LoweredVisionPlayers[target.PlayerId] = Utils.TimeStamp + LoweredVisionDuration.GetInt();
                 if (!containsKey) target.MarkDirtySettings();
                 killer.SetKillCooldown(SmokebombCooldown.GetFloat());
@@ -138,7 +138,7 @@ public class Auditor : RoleBase
         return false;
     }
 
-    void SwitchMode(PlayerControl pc)
+    private void SwitchMode(PlayerControl pc)
     {
         Mode = Mode == Modes.Auditing ? Modes.Smokebombing : Modes.Auditing;
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -188,7 +188,7 @@ public class Auditor : RoleBase
         return string.Format(Translator.GetString($"Auditor.Suffix.{Mode}"), Translator.GetString($"OccultistActionSwitchMode.{AbilityTrigger}"));
     }
 
-    enum AbilityTriggers
+    private enum AbilityTriggers
     {
         Vent,
         Pet,
@@ -196,7 +196,7 @@ public class Auditor : RoleBase
         Vanish
     }
 
-    enum Modes
+    private enum Modes
     {
         Auditing,
         Smokebombing

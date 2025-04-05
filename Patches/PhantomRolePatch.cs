@@ -70,14 +70,14 @@ public static class PhantomRolePatch
                 return false;
             }
 
-            CustomRpcSender sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}");
+            var sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}");
             sender.StartMessage(phantom.GetClientId());
 
             sender.StartRpc(phantom.NetId, (byte)RpcCalls.SetRole)
                 .Write((ushort)RoleTypes.Phantom)
                 .Write(true)
                 .EndRpc();
-            
+
             sender.StartRpc(phantom.NetId, (byte)RpcCalls.ProtectPlayer)
                 .WriteNetObject(phantom)
                 .Write(0)
@@ -245,10 +245,7 @@ public static class PhantomRoleUseAbilityPatch
 
         if (__instance.Player.AmOwner && !__instance.Player.Data.IsDead && __instance.Player.moveable && !Minigame.Instance && !__instance.IsCoolingDown && !__instance.fading)
         {
-            bool RoleEffectAnimation(RoleEffectAnimation x)
-            {
-                return x.effectType == global::RoleEffectAnimation.EffectType.Vanish_Charge;
-            }
+            bool RoleEffectAnimation(RoleEffectAnimation x) => x.effectType == global::RoleEffectAnimation.EffectType.Vanish_Charge;
 
             if (!__instance.Player.currentRoleAnimations.Find((Func<RoleEffectAnimation, bool>)RoleEffectAnimation) && !__instance.Player.walkingToVent && !__instance.Player.inMovingPlat)
             {

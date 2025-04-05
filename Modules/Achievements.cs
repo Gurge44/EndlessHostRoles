@@ -109,11 +109,11 @@ public static class Achievements
         ItsJustAPrankBro // As Bomber, Kill half the lobby in 1 bomb
     }
 
-    const string SaveFilePath = "./EHR_DATA/Achievements.json";
+    private const string SaveFilePath = "./EHR_DATA/Achievements.json";
 
-    const string ApiBaseUrl = "https://gurge44.pythonanywhere.com/achievements";
-    const string ApiSaveEndpoint = $"{ApiBaseUrl}/save";
-    const string ApiLoadEndpoint = $"{ApiBaseUrl}/load";
+    private const string ApiBaseUrl = "https://gurge44.pythonanywhere.com/achievements";
+    private const string ApiSaveEndpoint = $"{ApiBaseUrl}/save";
+    private const string ApiLoadEndpoint = $"{ApiBaseUrl}/load";
 
     public static readonly HashSet<Type> WaitingAchievements = [];
     public static HashSet<Type> CompletedAchievements = [];
@@ -145,7 +145,7 @@ public static class Achievements
 
         IEnumerator CompleteAchievementAfterDelayAsync()
         {
-            float timer = 0f;
+            var timer = 0f;
 
             while (!GameStates.IsEnded && timer < delay)
             {
@@ -171,8 +171,8 @@ public static class Achievements
 
     private static void ShowAchievementCompletion(Type type)
     {
-        var title = Translator.GetString("AchievementCompletedTitle");
-        var description = Translator.GetString($"Achievement.{type}.Description");
+        string title = Translator.GetString("AchievementCompletedTitle");
+        string description = Translator.GetString($"Achievement.{type}.Description");
         var message = $"<b>{Translator.GetString($"Achievement.{type}")}</b>\n{description}";
 
         ChatBubbleShower.ShowChatBubbleInRound(message, title);
@@ -180,7 +180,7 @@ public static class Achievements
 
     private static void SaveAllData()
     {
-        var json = JsonSerializer.Serialize(CompletedAchievements);
+        string json = JsonSerializer.Serialize(CompletedAchievements);
         File.WriteAllText(SaveFilePath, json);
 
         if (!Options.StoreCompletedAchievementsOnEHRDatabase.GetBool()) return;
@@ -191,7 +191,7 @@ public static class Achievements
         {
             while (PlayerControl.LocalPlayer == null) yield return null;
 
-            var userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
+            string userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
 
             var data = new
             {
@@ -199,7 +199,7 @@ public static class Achievements
                 achievements = CompletedAchievements
             };
 
-            var payload = JsonSerializer.Serialize(data);
+            string payload = JsonSerializer.Serialize(data);
 
             var request = new UnityWebRequest(ApiSaveEndpoint, UnityWebRequest.kHttpVerbPOST)
             {
@@ -218,7 +218,7 @@ public static class Achievements
     {
         if (File.Exists(SaveFilePath))
         {
-            var json = File.ReadAllText(SaveFilePath);
+            string json = File.ReadAllText(SaveFilePath);
             CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
         }
         else if (Options.StoreCompletedAchievementsOnEHRDatabase.GetBool())
@@ -230,16 +230,17 @@ public static class Achievements
             {
                 while (PlayerControl.LocalPlayer == null) yield return null;
 
-                var userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
+                string userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
                 var url = $"{ApiLoadEndpoint}?userId={userId}";
 
-                var request = UnityWebRequest.Get(url);
+                UnityWebRequest request = UnityWebRequest.Get(url);
                 yield return request.SendWebRequest();
 
-                if (request.result != UnityWebRequest.Result.Success) { Logger.Error($"Error loading achievements: {request.error}", "Achievements.LoadAllData"); }
+                if (request.result != UnityWebRequest.Result.Success)
+                    Logger.Error($"Error loading achievements: {request.error}", "Achievements.LoadAllData");
                 else
                 {
-                    var json = request.downloadHandler.text;
+                    string json = request.downloadHandler.text;
                     CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
                     yield return File.WriteAllTextAsync(SaveFilePath, json);
                     Logger.Info("Achievements loaded successfully.", "Achievements.LoadAllData");

@@ -1,4 +1,6 @@
-﻿namespace EHR.Coven;
+﻿using System;
+
+namespace EHR.Coven;
 
 public class VoodooMaster : Coven
 {
@@ -53,7 +55,7 @@ public class VoodooMaster : Coven
         if (killer.GetAbilityUseLimit() > 0)
         {
             RoleBase roleBase = Main.PlayerStates[target.PlayerId].Role;
-            var type = roleBase.GetType();
+            Type type = roleBase.GetType();
 
             if (type.GetMethod("OnCheckMurder")?.DeclaringType == type) roleBase.OnCheckMurder(target, target);
             else if (type.GetMethod("OnPet")?.DeclaringType == type) roleBase.OnPet(target);

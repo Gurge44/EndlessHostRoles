@@ -69,7 +69,7 @@ public class Poache : Coven
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !KillDelays.FindFirst(x => x.ID == pc.PlayerId, out var killData) || Utils.TimeStamp < killData.KillTimeStamp) return;
+        if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !KillDelays.FindFirst(x => x.ID == pc.PlayerId, out (byte ID, long KillTimeStamp) killData) || Utils.TimeStamp < killData.KillTimeStamp) return;
 
         pc.Suicide(realKiller: PoacheId.GetPlayer());
         KillDelays.Remove(killData);

@@ -99,8 +99,10 @@ public class Hitman : RoleBase
     public static void CheckAndResetTargets()
     {
         foreach (byte id in PlayerIdList)
+        {
             if (Main.PlayerStates[id].Role is Hitman { IsEnable: true } hm)
                 hm.OnReportDeadBody();
+        }
     }
 
     public override void OnReportDeadBody()

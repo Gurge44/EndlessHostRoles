@@ -239,7 +239,7 @@ public class Medic : RoleBase
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             }
         }
-        
+
         sender.SendMessage();
 
         if (killer.IsLocalPlayer())
@@ -260,8 +260,10 @@ public class Medic : RoleBase
         if (notify)
         {
             foreach (byte id in PlayerIdList)
+            {
                 foreach (byte id2 in ProtectList)
                     Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: Utils.GetPlayerById(id2));
+            }
         }
     }
 

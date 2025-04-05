@@ -165,9 +165,8 @@ internal class Chemist : RoleBase
 
         return;
 
-        static int GetDefaultValue(Item item)
-        {
-            return item switch
+        static int GetDefaultValue(Item item) =>
+            item switch
             {
                 Item.Explosive => 1,
                 Item.Grenade => 1,
@@ -175,7 +174,6 @@ internal class Chemist : RoleBase
                 Item.MethylamineGas => 100,
                 _ => 0
             };
-        }
     }
 
     public override void Init()

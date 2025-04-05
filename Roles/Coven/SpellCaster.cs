@@ -116,7 +116,7 @@ public class SpellCaster : Coven
 
         LateTask.New(() =>
         {
-            var spellCasterStr = CustomRoles.SpellCaster.ToColoredString();
+            string spellCasterStr = CustomRoles.SpellCaster.ToColoredString();
 
             Utils.SendMessage(string.Format(Translator.GetString("SpellCaster.WinConditionMet"), spellCasterStr),
                 byte.MaxValue,

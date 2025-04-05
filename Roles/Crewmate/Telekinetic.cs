@@ -57,7 +57,7 @@ public class Telekinetic : RoleBase
     {
         On = true;
         TelekineticPC = Utils.GetPlayerById(playerId);
-        CurrentMode = default;
+        CurrentMode = default(Mode);
         Timer = 40;
     }
 

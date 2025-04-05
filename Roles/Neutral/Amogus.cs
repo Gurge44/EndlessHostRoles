@@ -216,7 +216,7 @@ public class Amogus : RoleBase
         return $"{base.GetProgressText(playerId, comms)} {string.Format(Translator.GetString("ExtraVotesPT"), ExtraVotes)}";
     }
 
-    enum Levels
+    private enum Levels
     {
         Amogus,
         Sugoma,

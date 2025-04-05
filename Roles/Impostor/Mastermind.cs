@@ -184,17 +184,17 @@ public class Mastermind : RoleBase
         }
 
         var sender = CustomRpcSender.Create("Mastermind.ForceKillForManipulatedPlayer", SendOption.Reliable);
-        
+
         const MurderResultFlags resultFlags = (MurderResultFlags)(8 | 1);
         if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, resultFlags);
         sender.AutoStartRpc(killer.NetId, 12);
         sender.WriteNetObject(target);
         sender.Write((int)resultFlags);
         sender.EndRpc();
-        
+
         sender.Notify(killer, GetString("MastermindTargetSurvived"));
         killer.RpcChangeRoleBasis(killer.GetCustomRole(), sender: sender);
-        
+
         sender.SendMessage();
 
         LateTask.New(() =>

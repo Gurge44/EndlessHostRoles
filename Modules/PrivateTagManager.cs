@@ -14,7 +14,7 @@ public static class PrivateTagManager
         Tags[friendcode] = tag;
         SaveTagsToFile();
     }
-    
+
     public static void DeleteTag(string friendcode)
     {
         Tags.Remove(friendcode);
@@ -23,20 +23,17 @@ public static class PrivateTagManager
 
     private static void SaveTagsToFile()
     {
-        try
-        {
-            File.WriteAllText(TagFile, string.Join("\n", Tags.Select(x => $"{x.Key}={x.Value}")));
-        }
+        try { File.WriteAllText(TagFile, string.Join("\n", Tags.Select(x => $"{x.Key}={x.Value}"))); }
         catch (Exception e) { Utils.ThrowException(e); }
     }
-    
+
     public static void LoadTagsFromFile()
     {
         try
         {
             if (!File.Exists(TagFile))
                 return;
-        
+
             Tags = File.ReadAllLines(TagFile)
                 .Select(x => x.Split('='))
                 .ToDictionary(x => x[0], x => x[1]);

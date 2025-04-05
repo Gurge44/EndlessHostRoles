@@ -80,7 +80,7 @@ public class RoomRusher : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 300f;
     }
 
-    void StartNewRound(bool initial = false, bool dontCount = false, bool afterMeeting = false)
+    private void StartNewRound(bool initial = false, bool dontCount = false, bool afterMeeting = false)
     {
         MapNames map = Main.CurrentMap;
 
@@ -110,7 +110,7 @@ public class RoomRusher : RoleBase
 
         bool involvesDecontamination = map switch
         {
-            MapNames.MiraHQ => (previous is SystemTypes.Laboratory or SystemTypes.Reactor) ^ (RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
+            MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
             _ => false
         };
@@ -215,8 +215,8 @@ public class RoomRusher : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        var s1 = Utils.ColorString(Won ? Color.green : Color.white, $" {CompletedNum}");
-        var s2 = Utils.ColorString(Won ? Color.white : Color.yellow, $"/{RoomsToWin.GetInt()}");
+        string s1 = Utils.ColorString(Won ? Color.green : Color.white, $" {CompletedNum}");
+        string s2 = Utils.ColorString(Won ? Color.white : Color.yellow, $"/{RoomsToWin.GetInt()}");
         return base.GetProgressText(playerId, comms) + s1 + s2;
     }
 

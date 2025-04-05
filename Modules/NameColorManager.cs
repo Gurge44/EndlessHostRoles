@@ -17,8 +17,10 @@ public static class NameColorManager
         if (!AmongUsClient.Instance.IsGameStarted) return name;
 
         if (!TryGetData(seer, target, out string colorCode))
+        {
             if (KnowTargetRoleColor(seer, target, isMeeting, out string color))
                 colorCode = color == "" ? target.GetRoleColorCode() : color;
+        }
 
         string openTag = "", closeTag = "";
 
@@ -106,7 +108,8 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Undead) && target.Is(CustomRoles.Undead)) color = Main.RoleColors[CustomRoles.Undead];
 
         // Ghost roles
-        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(target.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole) && seer.GetTeam() == ghostRole.Instance.Team) { color = ghostRole.Instance.Team.GetTextColor(); }
+        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(target.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole) && seer.GetTeam() == ghostRole.Instance.Team)
+            color = ghostRole.Instance.Team.GetTextColor();
 
         if (isMeeting && Haunter.AllHauntedPlayers.Contains(target.PlayerId)) color = Main.ImpostorColor;
 

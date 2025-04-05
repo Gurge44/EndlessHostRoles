@@ -28,7 +28,6 @@ public static class RoomRush
 
     public static readonly HashSet<string> HasPlayedFriendCodes = [];
     public static Dictionary<byte, int> VentLimit = [];
-    public static bool PointsSystem => WinByPointsInsteadOfDeaths.GetBool();
 
     private static HashSet<SystemTypes> AllRooms = [];
     private static SystemTypes RoomGoal;
@@ -131,6 +130,8 @@ public static class RoomRush
             [(SystemTypes.RecRoom, SystemTypes.Cafeteria)] = 2
         }
     };
+
+    public static bool PointsSystem => WinByPointsInsteadOfDeaths.GetBool();
 
     public static void SetupCustomOption()
     {
@@ -243,7 +244,7 @@ public static class RoomRush
 
         if (showTutorial)
         {
-            int readingTime = 4;
+            var readingTime = 4;
 
             StringBuilder sb = new(Translator.GetString("RR_Tutorial_Basics"));
             sb.AppendLine();
@@ -372,7 +373,7 @@ public static class RoomRush
 
         bool involvesDecontamination = map switch
         {
-            MapNames.MiraHQ => (previous is SystemTypes.Laboratory or SystemTypes.Reactor) ^ (RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
+            MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
             _ => false
         };
@@ -407,9 +408,26 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
         Utils.NotifyRoles();
-        
+
         if (WinByPointsInsteadOfDeaths.GetBool())
+        {
             Logger.Info($"Points: {string.Join(", ", Points.Select(x => $"{Main.AllPlayerNames[x.Key]}: {x.Value}"))}", "RoomRush");
+
+            if (Utils.DoRPC)
+            {
+                MessageWriter w = Utils.CreateRPC(CustomRPC.RoomRushDataSync);
+                w.WritePacked(3);
+                w.WritePacked(Points.Count);
+
+                foreach ((byte key, int value) in Points)
+                {
+                    w.Write(key);
+                    w.WritePacked(value);
+                }
+
+                Utils.EndRPC(w);
+            }
+        }
     }
 
     public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
@@ -434,7 +452,7 @@ public static class RoomRush
         color = done ? Color.white : Color.yellow;
         sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
 
-        if (WinByPointsInsteadOfDeaths.GetBool() && Points.TryGetValue(seer.PlayerId, out var points))
+        if (WinByPointsInsteadOfDeaths.GetBool() && Points.TryGetValue(seer.PlayerId, out int points))
         {
             sb.Append(string.Format(Translator.GetString("RR_Points"), points, PointsToWin.GetInt()));
 
@@ -465,11 +483,23 @@ public static class RoomRush
             case 1:
                 int ventLimit = VentTimes.GetInt();
                 VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
+                if (WinByPointsInsteadOfDeaths.GetBool()) Points = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => 0);
                 break;
             case 2:
                 int limit = reader.ReadPackedInt32();
                 byte id = reader.ReadByte();
                 VentLimit[id] = limit;
+                break;
+            case 3:
+                int count = reader.ReadPackedInt32();
+
+                for (var i = 0; i < count; i++)
+                {
+                    byte key = reader.ReadByte();
+                    int value = reader.ReadPackedInt32();
+                    Points[key] = value;
+                }
+
                 break;
         }
     }
@@ -560,7 +590,7 @@ public static class RoomRush
                 {
                     if (playersOutsideRoom.Length == lateAapc.Length)
                     {
-                        var roomPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
+                        Vector2 roomPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
                         playersOutsideRoom.Do(x => x.TP(roomPos));
                     }
                     else playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));

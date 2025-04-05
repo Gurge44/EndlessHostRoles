@@ -76,7 +76,7 @@ public class Silencer : RoleBase
                 LocalPlayerTotalSilences++;
                 if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();
 
-                if (target.Is(CustomRoles.Snitch) && Snitch.IsExposed.TryGetValue(target.PlayerId, out var exposed) && exposed)
+                if (target.Is(CustomRoles.Snitch) && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)
                     Achievements.Type.YouWontTellAnyone.Complete();
             }
         });
@@ -93,7 +93,7 @@ public class Silencer : RoleBase
                 LocalPlayerTotalSilences++;
                 if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();
 
-                if (target.Is(CustomRoles.Snitch) && Snitch.IsExposed.TryGetValue(target.PlayerId, out var exposed) && exposed)
+                if (target.Is(CustomRoles.Snitch) && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)
                     Achievements.Type.YouWontTellAnyone.Complete();
             }
         }

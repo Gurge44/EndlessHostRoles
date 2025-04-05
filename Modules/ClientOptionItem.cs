@@ -100,10 +100,7 @@ public class ClientOptionItem
 
             UpdateToggle();
         }
-        finally
-        {
-            NumOptions++;
-        }
+        finally { NumOptions++; }
     }
 
     public static ClientOptionItem Create(

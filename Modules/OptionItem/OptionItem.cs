@@ -41,8 +41,10 @@ public abstract class OptionItem
         else if (IsSingleValue)
             SingleValue = DefaultValue;
         else
+        {
             for (var i = 0; i < NumPresets; i++)
                 AllValues[i] = DefaultValue;
+        }
 
         if (FastOpts.TryAdd(id, this))
             Options.Add(this);
@@ -152,11 +154,13 @@ public abstract class OptionItem
     }
 
     /// <summary>
-    /// Register an event that will be called when the value of this option is updated.
+    ///     Register an event that will be called when the value of this option is updated.
     /// </summary>
-    /// <param name="handler">The event handler that has two arguments:
-    /// the first argument is the OptionItem instance that was updated,
-    /// the second one contains the old and the new value of the setting.</param>
+    /// <param name="handler">
+    ///     The event handler that has two arguments:
+    ///     the first argument is the OptionItem instance that was updated,
+    ///     the second one contains the old and the new value of the setting.
+    /// </param>
     /// <returns></returns>
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
     {
@@ -220,8 +224,8 @@ public abstract class OptionItem
 
     public bool IsCurrentlyHidden()
     {
-        var mode = EHR.Options.CurrentGameMode;
-        return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode && !(mode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(GameMode, out var option) && option.GetBool()));
+        CustomGameMode mode = EHR.Options.CurrentGameMode;
+        return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode && !(mode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(GameMode, out OptionItem option) && option.GetBool()));
     }
 
     private bool CheckHidden()
@@ -279,8 +283,10 @@ public abstract class OptionItem
         if (values.Length == AllValues.Length)
             AllValues = values;
         else
+        {
             for (var i = 0; i < values.Length; i++)
                 AllValues[i] = values[i];
+        }
     }
 
     public static OptionItem operator ++(OptionItem item)

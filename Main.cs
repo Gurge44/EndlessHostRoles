@@ -802,8 +802,8 @@ public class Main : BasePlugin
 
     public static IEnumerator GetRandomWord(Action<string> onComplete)
     {
-        string api = "https://random-word.ryanrk.com/api/en/word/random";
-        var request = UnityWebRequest.Get(api);
+        var api = "https://random-word.ryanrk.com/api/en/word/random";
+        UnityWebRequest request = UnityWebRequest.Get(api);
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)

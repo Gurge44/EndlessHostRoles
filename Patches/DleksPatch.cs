@@ -33,10 +33,7 @@ internal static class AllMapIconsPatch
             dleksIcon.NameImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
             __instance.AllMapIcons.Add(dleksIcon);
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 

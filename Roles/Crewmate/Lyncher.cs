@@ -72,10 +72,7 @@ public class Lyncher : RoleBase
 
         return;
 
-        void Action()
-        {
-            KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>());
-        }
+        void Action() => KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>());
     }
 
     public override void Remove(byte playerId)

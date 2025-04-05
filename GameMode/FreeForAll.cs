@@ -157,8 +157,10 @@ internal static class FreeForAll
             List<byte[]> teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle().Chunk(memberNum).ToList();
 
             for (var i = 0; i < teamMembers.Count; i++)
+            {
                 foreach (byte id in teamMembers[i])
                     PlayerTeams.Add(id, i);
+            }
         }
     }
 
@@ -176,7 +178,7 @@ internal static class FreeForAll
 
     public static string GetHudText()
     {
-        return $"{(RoundTime / 60):00}:{(RoundTime % 60):00}";
+        return $"{RoundTime / 60:00}:{RoundTime % 60:00}";
     }
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)

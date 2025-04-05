@@ -117,9 +117,9 @@ public class Stasis : RoleBase
 
         IEnumerator Countdown()
         {
-            var imps = AffectsOtherImpostors.GetBool() ? [pc] : Main.AllAlivePlayerControls.Where(x => x.Is(Team.Impostor)).ToArray();
+            PlayerControl[] imps = AffectsOtherImpostors.GetBool() ? [pc] : Main.AllAlivePlayerControls.Where(x => x.Is(Team.Impostor)).ToArray();
 
-            for (int i = 0; i < time; i++)
+            for (var i = 0; i < time; i++)
             {
                 // ReSharper disable once AccessToModifiedClosure
                 imps.NotifyPlayers($"<#00ffa5>{Translator.GetString("Stasis.TimeFrozenNotify")}</color> <#888888>-</color> {time - i}", overrideAll: true);
