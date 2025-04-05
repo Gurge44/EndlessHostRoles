@@ -5753,6 +5753,8 @@
   "DoomsayerGuessSameRoleAgainMsg": "你試著猜測與之前一樣的職業/附加職業",
   "DoYourTasksPlease": "請完成你的任務!",
   "OnlyShowPart": "僅顯示部分",
+  "CanVentBeforeNecronomicon": "Can Vent <#00a5ff>Before</color> Receiving The <#7b3fbb>Necronomicon</color>",
+  "CanVentAfterNecronomicon": "Can Vent <#00ffff>After</color> Receiving The <#7b3fbb>Necronomicon</color>",
   "YouReceivedTheNecronomicon": "You have received the <{0}>Necronomicon</color>! This grants you the ability to kill normally, and other abilities based on your role.",
   "PlayerReceivedTheNecronomicon": "<b>{0}</b> has received the <{1}>Necronomicon</color>!\\n<size=70%>Now, {2} Coven members have the Necronomicon: {3}</size>",
   "RegularCoven": "Coven Member",
