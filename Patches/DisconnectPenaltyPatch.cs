@@ -3,7 +3,7 @@ using HarmonyLib;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(PlayerBanData), nameof(PlayerBanData.banPoints), MethodType.Getter)]
+[HarmonyPatch(typeof(PlayerBanData), nameof(PlayerBanData.BanPoints), MethodType.Getter)]
 public static class DisconnectPenaltyPatch
 {
     public static bool Prefix(ref int __result)

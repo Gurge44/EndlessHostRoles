@@ -1205,13 +1205,6 @@ internal static class RPC
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void SendGameData(int clientId = -1)
-    {
-        foreach (NetworkedPlayerInfo innerNetObject in GameData.Instance.AllPlayers) innerNetObject.SetDirtyBit(uint.MaxValue);
-
-        AmongUsClient.Instance.SendAllStreamedObjects();
-    }
-
     public static void ShowPopUp(this PlayerControl pc, string msg)
     {
         if (!AmongUsClient.Instance.AmHost) return;
