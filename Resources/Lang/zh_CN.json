@@ -5753,6 +5753,8 @@
   "DoomsayerGuessSameRoleAgainMsg": "你试图猜测你之前猜过的同一个职业或附加职业！",
   "DoYourTasksPlease": "请完成你的任务！",
   "OnlyShowPart": "仅显示部分",
+  "CanVentBeforeNecronomicon": "Can Vent <#00a5ff>Before</color> Receiving The <#7b3fbb>Necronomicon</color>",
+  "CanVentAfterNecronomicon": "Can Vent <#00ffff>After</color> Receiving The <#7b3fbb>Necronomicon</color>",
   "YouReceivedTheNecronomicon": "您已经获得<{0}>死亡魔法</color>！这使得您有能力根据您的角色进行正常杀死和其他能力。",
   "PlayerReceivedTheNecronomicon": "<b>{0}</b>收到了<{1}>亡灵魔法</color>！\\n<size=70%>现在，{2}巫师阵营成员拥有了亡灵魔法：{1}</color>。巫师阵营成员拥有亡灵魔法： {3}</size>",
   "RegularCoven": "巫师阵营成员",
