@@ -52,12 +52,10 @@ namespace EHR
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
                 NetworkedPlayerInfoSerializePatch.IgnorePatchTimes = 2;
                 writer.StartMessage(1);
-
                 {
                     writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
                     PlayerControl.LocalPlayer.Data.Serialize(writer, false);
                 }
-
                 writer.EndMessage();
 
                 sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
@@ -72,13 +70,12 @@ namespace EHR
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = petId;
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = visorId;
                 writer.StartMessage(1);
-
                 {
                     writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
                     PlayerControl.LocalPlayer.Data.Serialize(writer, false);
                 }
-
                 writer.EndMessage();
+
                 sender.EndMessage();
                 sender.SendMessage();
             }, 0f);
@@ -156,7 +153,7 @@ namespace EHR
         {
             if (!AmongUsClient.Instance.AmHost) return;
 
-            var nt = playerControl.NetTransform;
+            CustomNetworkTransform nt = playerControl.NetTransform;
             if (nt == null) return;
 
             playerControl.Collider.enabled = false;
@@ -179,7 +176,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
-            if (GameStates.IsEnded || GameStates.CurrentServerType == GameStates.ServerType.ModdedWithoutCNOSupport || !AmongUsClient.Instance.AmHost) return;
+            if (GameStates.IsEnded || (GameStates.CurrentServerType == GameStates.ServerType.ModdedWithoutCNOSupport) || !AmongUsClient.Instance.AmHost) return;
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 254;
@@ -213,9 +210,12 @@ namespace EHR
 
                 msg.EndMessage();
             }
+
             AmongUsClient.Instance.SendOrDisconnect(msg);
             msg.Recycle();
-            if (PlayerControl.AllPlayerControls.Contains(playerControl)) PlayerControl.AllPlayerControls.Remove(playerControl);
+
+            if (PlayerControl.AllPlayerControls.Contains(playerControl))
+                PlayerControl.AllPlayerControls.Remove(playerControl);
 
             LateTask.New(() =>
             {
@@ -238,12 +238,10 @@ namespace EHR
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
                 NetworkedPlayerInfoSerializePatch.IgnorePatchTimes = 2;
                 writer.StartMessage(1);
-
                 {
                     writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
                     PlayerControl.LocalPlayer.Data.Serialize(writer, false);
                 }
-
                 writer.EndMessage();
 
                 sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
@@ -258,13 +256,12 @@ namespace EHR
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = petId;
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = visorId;
                 writer.StartMessage(1);
-
                 {
                     writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
                     PlayerControl.LocalPlayer.Data.Serialize(writer, false);
                 }
-
                 writer.EndMessage();
+
                 sender.EndMessage();
                 sender.SendMessage();
             }, 0.2f);
@@ -289,12 +286,10 @@ namespace EHR
                     MessageWriter writer = sender.stream;
                     sender.StartMessage(pc.GetClientId());
                     writer.StartMessage(1);
-
                     {
                         writer.WritePacked(playerControl.NetId);
                         writer.Write(pc.PlayerId);
                     }
-
                     writer.EndMessage();
 
                     sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
@@ -303,13 +298,12 @@ namespace EHR
                         .EndRpc();
 
                     writer.StartMessage(1);
-
                     {
                         writer.WritePacked(playerControl.NetId);
                         writer.Write((byte)254);
                     }
-
                     writer.EndMessage();
+
                     sender.EndMessage();
                     sender.SendMessage();
                 }, 0.1f);
@@ -317,7 +311,7 @@ namespace EHR
 
             LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.1f); // Fix for Host
             LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl), 0.4f); // Fix for Non-Host Modded
-            
+
             LateTask.New(() => RpcChangeSprite(sprite), 0.4f);
         }
 
