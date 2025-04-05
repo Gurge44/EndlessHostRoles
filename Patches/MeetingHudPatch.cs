@@ -936,13 +936,23 @@ internal static class MeetingHudStartPatch
             LateTask.New(() =>
             {
                 var sender = CustomRpcSender.Create("RpcSetNameEx on meeting start", SendOption.Reliable);
+
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
+                    string name = pc.GetRealName(true);
+
+                    foreach (PlayerControl seerPc in Main.AllPlayerControls)
+                    {
+                        try { Main.LastNotifyNames[(pc.PlayerId, seerPc.PlayerId)] = name; }
+                        catch { }
+                    }
+
                     sender.AutoStartRpc(pc.NetId, 6);
                     sender.Write(pc.Data.NetId);
-                    sender.Write(pc.GetRealName(true));
+                    sender.Write(name);
                     sender.EndRpc();
                 }
+
                 sender.SendMessage();
 
                 ChatUpdatePatch.DoBlockChat = false;
