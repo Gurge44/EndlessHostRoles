@@ -5753,6 +5753,8 @@
   "DoomsayerGuessSameRoleAgainMsg": "Вы попытались угадать роль или атрибут, который был вами угадан ранее",
   "DoYourTasksPlease": "Пожалуйста, делайте свои таски!",
   "OnlyShowPart": "Показывать только часть",
+  "CanVentBeforeNecronomicon": "Can Vent <#00a5ff>Before</color> Receiving The <#7b3fbb>Necronomicon</color>",
+  "CanVentAfterNecronomicon": "Can Vent <#00ffff>After</color> Receiving The <#7b3fbb>Necronomicon</color>",
   "YouReceivedTheNecronomicon": "Вы получили <{0}>Некрономикон</color>! Это даёт вам дополнительные способности (см. с помощью /m)",
   "PlayerReceivedTheNecronomicon": "<b>{0}</b> получил <{1}>Некрономикон</color>!\\n<size=70%>Сейчас, {2} Ковен(-а) имеют Некрономикон: {3}</size>",
   "RegularCoven": "Ковен",
