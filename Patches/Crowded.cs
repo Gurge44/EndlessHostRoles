@@ -63,7 +63,7 @@ internal static class Crowded
                 }));
 
                 Object.Destroy(firstButtonRenderer);
-                Il2CppSystem.Object lastButtonRenderer = __instance.MaxPlayerButtons[^1];
+                var lastButtonRenderer = __instance.MaxPlayerButtons[^1];
                 lastButtonRenderer.GetComponentInChildren<TextMeshPro>().text = "+"; // False error
                 lastButtonRenderer.enabled = false; // False error
                 var lastButtonButton = lastButtonRenderer.GetComponent<PassiveButton>(); // False error
