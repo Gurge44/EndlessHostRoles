@@ -2055,7 +2055,7 @@
   "DamoclesStartingTime": "開始時の時間",
   "Stressed": "ストレスを感じる",
   "StressedInfo": "すべてがあなたの寿命を変える",
-  "StressedInfoLong": "(<#ff1919>有害な</color> <#ff9ace>属性</color>):\\n<size=70%>ストレスを感じる属性は タスクの<#8cffff>クルーメイト</color>のみ獲得できます。\\nこの属性の所有者は 役割名の次に タイマーを持ち表示されます。\\nもしタイマーが切れると、所有者は死亡します。\\nタイマーは会議中に停止します。\\n以下は 何があなたのタイマーを増加させるか そして あなたの自殺タイマーを減らすかのリストです:\\n\\n<size=60%>[<color=#00ff00><b>+</b></color>] タスクを完了する\\n[<color=#00ff00><b>+</b></color>] 非-<#8cffff>クルーメイト</color>のプレイヤーが死亡する\\n[<color=#00ff00><b>+</b></color>] 会議を生き延びる\\n[<color=#00ff00><b>+</b></color>] 非-<#8cffff>クルーメイト</color>のプレイヤーが追放される\\n[<color=#00ff00><b>+</b></color>] サボタージュを修理する\\n[<color=#00ff00><b>+</b></color>] 死体の報告 または 会議を招集する\\n[<color=#ff0000><b>-</b></color>] <#8cffff>クルーメイト</color>が追放される</size></size>",
+  "StressedInfoLong": "(<#ffab1b>有害な</color> <#ff9ace>属性</color>):\\n<size=70%>ストレスを感じる属性は タスクの<#8cffff>クルーメイト</color>のみ獲得できます。\\nこの属性の所有者は 役割名の次に タイマーを持ち表示されます。\\nもしタイマーが切れると、所有者は死亡します。\\nタイマーは会議中に停止します。\\n以下は 何があなたのタイマーを増加させるか そして あなたの自殺タイマーを減らすかのリストです:\\n\\n<size=60%>[<color=#00ff00><b>+</b></color>] タスクを完了する\\n[<color=#00ff00><b>+</b></color>] 非-<#8cffff>クルーメイト</color>のプレイヤーが死亡する\\n[<color=#00ff00><b>+</b></color>] 会議を生き延びる\\n[<color=#00ff00><b>+</b></color>] 非-<#8cffff>クルーメイト</color>のプレイヤーが追放される\\n[<color=#00ff00><b>+</b></color>] サボタージュを修理する\\n[<color=#00ff00><b>+</b></color>] 死体の報告 または 会議を招集する\\n[<color=#ff0000><b>-</b></color>] <#8cffff>クルーメイト</color>が追放される</size></size>",
   "Prefix.Stressed": "ストレスを感じる",
   "StressedExtraTimeAfterTask": "各タスク完了後の得る時間",
   "StressedExtraTimeAfterImpostorDeath": "非-<#8cffff>クルーメイト</color>プレイヤーが 死んだときの得る時間",
