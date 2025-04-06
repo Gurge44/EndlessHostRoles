@@ -1529,7 +1529,7 @@
   "JesterCanUseButton": "Может созывать собрания",
   "MarioVentButtonText": "Вент",
   "Mario.NumVentsToWinOn.Skeld": "Кол-во прыжков в люк для победы на <color=#66a186>The Skeld</color>",
-  "Mario.NumVentsToWinOn.Mira": "Кол-во прыжков в люк для победы на <color=#e84b56>Mira HQ</color>",
+  "Mario.NumVentsToWinOn.MiraHQ": "Number of Vents to Win on Mira",
   "Mario.NumVentsToWinOn.Polus": "Кол-во прыжков в люк для победы на <color=#a167c0>Polus</color>",
   "Mario.NumVentsToWinOn.Dleks": "Кол-во прыжков в люк для победы на <color=#66a186>Dleks Eht</color>",
   "Mario.NumVentsToWinOn.Airship": "Кол-во прыжков в люк для победы на <color=#ed0007>Airship</color>",
