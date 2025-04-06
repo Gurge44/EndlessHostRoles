@@ -63,7 +63,7 @@ internal static class Crowded
                 }));
 
                 Object.Destroy(firstButtonRenderer);
-                var lastButtonRenderer = __instance.MaxPlayerButtons[^1];
+                var lastButtonRenderer = __instance.MaxPlayerButtons[^1]; // Must use 'var' here to avoid compiler errors
                 lastButtonRenderer.GetComponentInChildren<TextMeshPro>().text = "+"; // False error
                 lastButtonRenderer.enabled = false; // False error
                 var lastButtonButton = lastButtonRenderer.GetComponent<PassiveButton>(); // False error

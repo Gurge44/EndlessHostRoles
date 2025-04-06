@@ -1343,7 +1343,7 @@ public static class FixDarkThemeForSearchBar
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSyncSettings))]
-public class RpcSyncSettingsPatch
+public static class RpcSyncSettingsPatch
 {
     public static void Postfix()
     {

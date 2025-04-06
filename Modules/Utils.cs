@@ -1132,19 +1132,26 @@ public static class Utils
 
     public static void ShowActiveSettingsHelp(byte PlayerId = byte.MaxValue)
     {
-        SendMessage(GetString("CurrentActiveSettingsHelp") + ":", PlayerId);
+        var sender = CustomRpcSender.Create("ShowActiveSettingsHelp", SendOption.Reliable);
 
-        if (Options.DisableDevices.GetBool()) SendMessage(GetString("DisableDevicesInfo"), PlayerId);
-        if (Options.SyncButtonMode.GetBool()) SendMessage(GetString("SyncButtonModeInfo"), PlayerId);
-        if (Options.SabotageTimeControl.GetBool()) SendMessage(GetString("SabotageTimeControlInfo"), PlayerId);
-        if (Options.RandomMapsMode.GetBool()) SendMessage(GetString("RandomMapsModeInfo"), PlayerId);
+        SendMessage(GetString("CurrentActiveSettingsHelp") + ":", PlayerId, writer: sender, multiple: true);
 
-        if (Main.GM.Value) SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId);
+        if (Options.DisableDevices.GetBool()) SendMessage(GetString("DisableDevicesInfo"), PlayerId, writer: sender, multiple: true);
+        if (Options.SyncButtonMode.GetBool()) SendMessage(GetString("SyncButtonModeInfo"), PlayerId, writer: sender, multiple: true);
+        if (Options.SabotageTimeControl.GetBool()) SendMessage(GetString("SabotageTimeControlInfo"), PlayerId, writer: sender, multiple: true);
+        if (Options.RandomMapsMode.GetBool()) SendMessage(GetString("RandomMapsModeInfo"), PlayerId, writer: sender, multiple: true);
 
-        foreach (CustomRoles role in Enum.GetValues<CustomRoles>().Where(role => role.IsEnable() && !role.IsVanilla()))
-            SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId);
+        if (Main.GM.Value) SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId, writer: sender, multiple: true);
 
-        if (Options.NoGameEnd.GetBool()) SendMessage(GetString("NoGameEndInfo"), PlayerId);
+        foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
+        {
+            if (role.IsEnable() && !role.IsVanilla())
+                SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId, writer: sender, multiple: true);
+        }
+
+        if (Options.NoGameEnd.GetBool()) SendMessage(GetString("NoGameEndInfo"), PlayerId, writer: sender, multiple: true);
+
+        sender.SendMessage(dispose: sender.stream.Length == 0);
     }
 
     /// <summary>
@@ -1335,13 +1342,15 @@ public static class Utils
             }
         }
 
-        SendMessage($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GMRoles"));
-        SendMessage($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")));
-        SendMessage($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")));
-        SendMessage($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("NeutralRoles"));
-        SendMessage($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("CovenRoles"));
-        SendMessage($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GhostRoles"));
-        SendMessage($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("AddonRoles"));
+        var sender = CustomRpcSender.Create("ShowActiveRoles", SendOption.Reliable);
+        SendMessage($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GMRoles"), writer: sender, multiple: true);
+        SendMessage($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")), writer: sender, multiple: true);
+        SendMessage($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")), writer: sender, multiple: true);
+        SendMessage($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("NeutralRoles"), writer: sender, multiple: true);
+        SendMessage($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("CovenRoles"), writer: sender, multiple: true);
+        SendMessage($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GhostRoles"), writer: sender, multiple: true);
+        SendMessage($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("AddonRoles"), writer: sender, multiple: true);
+        sender.SendMessage(dispose: sender.stream.Length == 0);
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
@@ -1694,7 +1703,7 @@ public static class Utils
         catch (Exception e) { ThrowException(e); }
     }
 
-    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false)
+    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false)
     {
         PlayerControl receiver = GetPlayerById(sendTo, false);
         if (sendTo != byte.MaxValue && receiver == null) return;
@@ -1702,7 +1711,7 @@ public static class Utils
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            if (sendTo == PlayerControl.LocalPlayer.PlayerId)
+            if (sendTo == PlayerControl.LocalPlayer.PlayerId && !multiple)
             {
                 MessageWriter w = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestSendMessage);
                 w.Write(text);
@@ -1792,7 +1801,10 @@ public static class Utils
                     .Write(sender.Data.PlayerName)
                     .EndRpc();
 
-                writer.SendMessage();
+                if (multiple) writer.EndMessage();
+                else writer.SendMessage();
+
+                if (multiple) RestartMessageIfTooLong();
             }
 
             return;
@@ -1822,16 +1834,26 @@ public static class Utils
                     .Write(sender.Data.PlayerName)
                     .EndRpc();
 
-                writer.SendMessage();
+                if (multiple) writer.EndMessage();
+                else writer.SendMessage();
+
+                if (multiple) RestartMessageIfTooLong();
             }
-            else if (writer.stream.Length > 800)
+            else RestartMessageIfTooLong();
+
+            ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+        }
+
+        return;
+
+        void RestartMessageIfTooLong()
+        {
+            if (writer.stream.Length > 800)
             {
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("Utils.SendMessage", SendOption.Reliable);
                 writer.StartMessage(receiver.GetClientId());
             }
-
-            ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
         }
     }
 

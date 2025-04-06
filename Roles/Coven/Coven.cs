@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using Hazel;
 
 namespace EHR.Coven;
 
@@ -32,9 +33,11 @@ public abstract class Coven : RoleBase
 
         LateTask.New(() =>
         {
+            var sender = CustomRpcSender.Create("CovenGiveNecronomicon", SendOption.Reliable);
             string[] holders = Main.PlayerStates.Where(s => s.Value.Role is Coven { HasNecronomicon: true }).Select(s => s.Key.ColoredPlayerName()).ToArray();
-            Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Without(receiver.Key).Do(x => Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor, holders.Length, string.Join(", ", holders))));
-            Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor));
+            Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Without(receiver.Key).Do(x => Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor, holders.Length, string.Join(", ", holders)), writer: sender, multiple: true));
+            Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor), writer: sender, multiple: true);
+            sender.SendMessage(dispose: sender.stream.Length == 0);
         }, 12f, log: false);
     }
 

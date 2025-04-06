@@ -267,8 +267,22 @@ public static class CollectionExtensions
     public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
     {
         var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
-        players.Do(x => sender.Notify(x, text, time, overrideAll, log, setName));
-        sender.SendMessage();
+        var hasValue = false;
+
+        foreach (PlayerControl player in players)
+        {
+            sender.Notify(player, text, time, overrideAll, log, setName);
+            hasValue = true;
+
+            if (sender.stream.Length > 800)
+            {
+                sender.SendMessage();
+                sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+                hasValue = false;
+            }
+        }
+
+        sender.SendMessage(dispose: !hasValue);
     }
 
     #region ToValidPlayers

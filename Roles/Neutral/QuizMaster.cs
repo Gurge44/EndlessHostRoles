@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
+using Hazel;
 using static EHR.Options;
 
 namespace EHR.Neutral;
@@ -307,12 +308,14 @@ internal class QuizMaster : RoleBase
             }
             else if (index != -1)
             {
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"));
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"));
+                var sender = CustomRpcSender.Create("QuizMaster", SendOption.Reliable);
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"), writer: sender, multiple: true);
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), writer: sender, multiple: true);
 
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
                 Main.PlayerStates[Target].SetDead();
-                pc?.RpcExileV2();
+                if (pc != null) sender.RpcExileV2(pc);
+                sender.SendMessage(dispose: pc == null && sender.stream.Length == 0);
                 Utils.AfterPlayerDeathTasks(pc, true);
 
                 Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");

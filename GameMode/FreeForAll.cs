@@ -385,7 +385,7 @@ internal static class FreeForAll
     public static void UpdateLastChatMessage(string playerName, string message)
     {
         LatestChatMessage = string.Format(GetString("FFAChatMessageNotify"), playerName, message);
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls) pc.Notify(LatestChatMessage);
+        Main.AllAlivePlayerControls.NotifyPlayers(LatestChatMessage);
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]

@@ -314,9 +314,11 @@ internal static class ChatCommands
                 PlayerControl otherLover = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId);
                 string title = PlayerControl.LocalPlayer.GetRealName();
                 ChatUpdatePatch.LoversMessage = true;
-                Utils.SendMessage(text, otherLover.PlayerId, title);
-                Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
-                otherLover.Notify($"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
+                var sender = CustomRpcSender.Create("LoversMessage", SendOption.Reliable);
+                Utils.SendMessage(text, otherLover.PlayerId, title, writer: sender, multiple: true);
+                Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title, writer: sender, multiple: true);
+                sender.Notify(otherLover, $"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
+                sender.SendMessage();
                 LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
             }
 
@@ -908,9 +910,12 @@ internal static class ChatCommands
 
         int duration = args.Length < 3 || !int.TryParse(args[2], out int dur) ? 60 : dur;
         MutedPlayers[id] = (Utils.TimeStamp, duration);
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerMuted"), id.ColoredPlayerName(), duration));
-        Utils.SendMessage("\n", id, string.Format(GetString("YouMuted"), player.PlayerId.ColoredPlayerName(), duration));
-        if (!host) Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration));
+
+        var sender = CustomRpcSender.Create("MuteCommand", SendOption.Reliable);
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerMuted"), id.ColoredPlayerName(), duration), writer: sender, multiple: true);
+        Utils.SendMessage("\n", id, string.Format(GetString("YouMuted"), player.PlayerId.ColoredPlayerName(), duration), writer: sender, multiple: true);
+        if (!host) Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration), writer: sender, multiple: true);
+        sender.SendMessage(dispose: sender.stream.Length == 0);
     }
 
     private static void UnmuteCommand(PlayerControl player, string text, string[] args)
@@ -3090,9 +3095,11 @@ internal static class ChatCommands
                     {
                         string title = player.GetRealName();
                         ChatUpdatePatch.LoversMessage = true;
-                        Utils.SendMessage(text, otherLover.PlayerId, title);
-                        Utils.SendMessage(text, player.PlayerId, title);
-                        otherLover.Notify($"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
+                        var sender = CustomRpcSender.Create("LoversChat", SendOption.Reliable);
+                        Utils.SendMessage(text, otherLover.PlayerId, title, writer: sender, multiple: true);
+                        Utils.SendMessage(text, player.PlayerId, title, writer: sender, multiple: true);
+                        sender.Notify(otherLover, $"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
+                        sender.SendMessage();
                         LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
                     }, 0.2f, log: false);
                 }

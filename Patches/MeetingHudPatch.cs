@@ -667,7 +667,7 @@ internal static class MeetingHudStartPatch
 
         List<(string Message, byte TargetID, string Title)> msgToSend = [];
 
-        if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting)
+        if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
