@@ -1529,7 +1529,7 @@
   "JesterCanUseButton": "緊急会議を招集できる",
   "MarioVentButtonText": "ジャンプ",
   "Mario.NumVentsToWinOn.Skeld": "<#66a186>Skeld</color>で 勝利するベント数",
-  "Mario.NumVentsToWinOn.Mira": "<#e84b56>Mira</color>で 勝利するベント数",
+  "Mario.NumVentsToWinOn.MiraHQ": "Number of Vents to Win on Mira",
   "Mario.NumVentsToWinOn.Polus": "<#a167c0>Polus</color>で 勝利するベント数",
   "Mario.NumVentsToWinOn.Dleks": "<#66a186>Dleks</color>で 勝利するベント数",
   "Mario.NumVentsToWinOn.Airship": "<#ed0007>Airship</color>で 勝利するベント数",
