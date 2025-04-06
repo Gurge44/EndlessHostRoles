@@ -1529,7 +1529,7 @@
   "JesterCanUseButton": "可以召開緊急會議",
   "MarioVentButtonText": "跳躍",
   "Mario.NumVentsToWinOn.Skeld": "在Skeld上所需的跳管次數",
-  "Mario.NumVentsToWinOn.Mira": "在Mira上所需的跳管次數",
+  "Mario.NumVentsToWinOn.MiraHQ": "Number of Vents to Win on Mira",
   "Mario.NumVentsToWinOn.Polus": "在Polus上所需的跳管次數",
   "Mario.NumVentsToWinOn.Dleks": "在Dleks上所需的跳管次數",
   "Mario.NumVentsToWinOn.Airship": "在Airship上所需的跳管次數",
