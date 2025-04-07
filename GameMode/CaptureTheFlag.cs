@@ -295,6 +295,9 @@ public static class CaptureTheFlag
             NetworkedPlayerInfo.PlayerOutfit blueOutfit = BlueOutfit;
             NetworkedPlayerInfo.PlayerOutfit yellowOutfit = YellowOutfit;
 
+            var sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+            var hasValue = false;
+
             for (var i = 0; i < blueCount; i++)
             {
                 PlayerControl player = players.FirstOrDefault(p => p.Data.DefaultOutfit.ColorId == 1) ?? players.FirstOrDefault(x => x.Data.DefaultOutfit.ColorId != 5) ?? players.RandomElement();
@@ -303,7 +306,15 @@ public static class CaptureTheFlag
                 bluePlayers.Add(player.PlayerId);
                 blueOutfit.PlayerName = player.GetRealName();
                 blueOutfit.PetId = player.Data.DefaultOutfit.PetId;
-                Utils.RpcChangeSkin(player, blueOutfit);
+                Utils.RpcChangeSkin(player, blueOutfit, sender);
+                hasValue = true;
+
+                if (sender.stream.Length > 800)
+                {
+                    sender.SendMessage();
+                    sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+                    hasValue = false;
+                }
             }
 
             foreach (PlayerControl player in players)
@@ -312,8 +323,18 @@ public static class CaptureTheFlag
                 yellowPlayers.Add(player.PlayerId);
                 yellowOutfit.PlayerName = player.GetRealName();
                 yellowOutfit.PetId = player.Data.DefaultOutfit.PetId;
-                Utils.RpcChangeSkin(player, yellowOutfit);
+                Utils.RpcChangeSkin(player, yellowOutfit, sender);
+                hasValue = true;
+
+                if (sender.stream.Length > 800)
+                {
+                    sender.SendMessage();
+                    sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+                    hasValue = false;
+                }
             }
+
+            sender.SendMessage(dispose: !hasValue);
 
             // Create flags
             (Vector2 Position, string RoomName) blueFlagBase = BlueFlagBase;
@@ -327,8 +348,8 @@ public static class CaptureTheFlag
             TeamData[CTFTeam.Yellow] = new(CTFTeam.Yellow, yellowFlag, yellowPlayers, byte.MaxValue);
 
             // Teleport players to their respective bases
-            var sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
-            var hasValue = false;
+            sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+            hasValue = false;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {

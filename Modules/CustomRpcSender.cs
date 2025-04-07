@@ -25,7 +25,7 @@ public class CustomRpcSender
     }
 
     private readonly bool isUnsafe;
-    private readonly string name;
+    public readonly string name;
 
     private readonly OnSendDelegateType onSendDelegate;
     public readonly MessageWriter stream;

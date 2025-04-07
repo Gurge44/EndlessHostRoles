@@ -363,12 +363,13 @@ internal static class ExtendedPlayerControl
         player.ResetKillCooldown();
         sender.RpcResetAbilityCooldown(player);
         sender.SyncGeneralOptions(player);
-        sender.SendMessage();
 
         LateTask.New(() => player.SetKillCooldown(), 0.2f, log: false);
 
         if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out string name))
-            RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+            RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""), sender);
+
+        sender.SendMessage();
 
         Camouflage.RpcSetSkin(player);
 

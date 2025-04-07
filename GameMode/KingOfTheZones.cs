@@ -264,6 +264,9 @@ public static class KingOfTheZones
         int teams = NumTeams.GetInt();
         int zones = NumZones.GetInt();
 
+        var writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
+        var hasData = false;
+
         foreach ((byte id, KOTZTeam team) in PlayerTeams)
         {
             try
@@ -275,7 +278,8 @@ public static class KingOfTheZones
                 try
                 {
                     NetworkedPlayerInfo.PlayerOutfit skin = new NetworkedPlayerInfo.PlayerOutfit().Set(name, team.GetColorId(), "", "", "", "", "");
-                    Utils.RpcChangeSkin(player, skin);
+                    Utils.RpcChangeSkin(player, skin, writer);
+                    hasData = true;
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
 
@@ -287,13 +291,23 @@ public static class KingOfTheZones
                     notify = notify.Insert(0, tutorial + "\n\n");
                 }
 
-                player.Notify($"<#ffffff>{notify}</color>", 100f);
+                writer.Notify(player, $"<#ffffff>{notify}</color>", 100f);
                 Logger.Info($"{name} assigned to {team} team", "KOTZ");
+                hasData = true;
+
+                if (writer.stream.Length > 800)
+                {
+                    writer.SendMessage();
+                    writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
+                    hasData = false;
+                }
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
             yield return null;
         }
+
+        writer.SendMessage(dispose: !hasData);
 
         yield return new WaitForSeconds(showTutorial ? 11f : 2f);
         NameNotifyManager.Reset();

@@ -2714,7 +2714,7 @@ public static class Utils
         Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
     }
 
-    public static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
+    public static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null)
     {
         if (newOutfit.Compare(pc.Data.DefaultOutfit)) return;
 
@@ -2722,7 +2722,7 @@ public static class Utils
 
         if (newOutfit.Compare(pc.Data.DefaultOutfit)) return;
 
-        var sender = CustomRpcSender.Create($"Utils.RpcChangeSkin({pc.Data.PlayerName})", SendOption.Reliable);
+        var sender = writer ?? CustomRpcSender.Create($"Utils.RpcChangeSkin({pc.Data.PlayerName})", SendOption.Reliable);
 
         pc.SetName(newOutfit.PlayerName);
 
@@ -2780,7 +2780,7 @@ public static class Utils
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr))
             .EndRpc();
 
-        sender.SendMessage();
+        if (writer == null) sender.SendMessage();
     }
 
     public static string GetGameStateData(bool clairvoyant = false)
