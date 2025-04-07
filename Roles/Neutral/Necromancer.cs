@@ -99,11 +99,11 @@ internal class Necromancer : RoleBase
             sender.SetKillCooldown(killer);
 
             target.ResetKillCooldown();
-            sender.SetKillCooldown(target);
-
             sender.Notify(target, GetString("RecruitedToDeathknight"));
 
             sender.SendMessage();
+
+            LateTask.New(() => target.SetKillCooldown(), 0.2f, log: false);
 
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target);

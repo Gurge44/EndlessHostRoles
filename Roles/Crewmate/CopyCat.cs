@@ -135,11 +135,12 @@ public class CopyCat : RoleBase
             pc.RpcChangeRoleBasis(role, sender: sender);
             pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());
 
-            sender.SetKillCooldown(pc);
             sender.Notify(pc, string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
             sender.SendMessage();
 
             pc.SyncSettings();
+
+            LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
             return false;
         }
 

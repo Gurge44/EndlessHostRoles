@@ -80,9 +80,9 @@ public static class Speedrun
         var sender = CustomRpcSender.Create("Speedrun.OnTaskFinish", SendOption.Reliable);
         pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.NSerialKiller, sender: sender);
         sender.Notify(pc, Translator.GetString("Speedrun_CompletedTasks"));
-        sender.SetKillCooldown(pc, kcd);
         sender.SendMessage();
         pc.SyncSettings();
+        LateTask.New(() => pc.SetKillCooldown(kcd), 0.2f, log: false);
     }
 
     public static string GetTaskBarText()

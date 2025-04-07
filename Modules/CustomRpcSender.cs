@@ -337,6 +337,12 @@ public static class CustomRpcSenderExtensions
 {
     public static void RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1)
     {
+        if (AmongUsClient.Instance.ClientId == targetClientId)
+        {
+            player.SetRole(role);
+            return;
+        }
+
         sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetRole, targetClientId)
             .Write((ushort)role)
             .Write(true)
@@ -496,7 +502,11 @@ public static class CustomRpcSenderExtensions
             }
         }
 
-        if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur) player.ResetKillCooldown();
+        if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur)
+        {
+            player.ResetKillCooldown(sync: false);
+            LateTask.New(player.SyncSettings, 1f, log: false);
+        }
 
         return returnValue;
     }
@@ -564,7 +574,7 @@ public static class CustomRpcSenderExtensions
             notifies[text] = expireTS;
 
         NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
-        if (setName) Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [pc]);
+        if (setName) Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], []);
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
     }
 

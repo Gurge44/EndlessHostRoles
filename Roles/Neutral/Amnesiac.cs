@@ -214,13 +214,12 @@ public class Amnesiac : RoleBase
         sender.Notify(amnesiac, amneNotifyString);
         sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
 
-        sender.SetKillCooldown(amnesiac, 3f);
-
         sender.RpcGuardAndKill(target, amnesiac);
         sender.RpcGuardAndKill(target, target);
 
         sender.SendMessage();
 
+        LateTask.New(() => amnesiac.SetKillCooldown(3f), 0.2f, log: false);
         if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);
 
         if (!amnesiac.IsLocalPlayer()) return;
