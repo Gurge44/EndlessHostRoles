@@ -3310,7 +3310,7 @@ public static class Utils
                     break;
                 case CustomGameMode.RoomRush:
                     int time3 = RoomRush.GetSurvivalTime(id);
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({(RoomRush.PointsSystem ? RoomRush.GetPoints(id) : GetVitalText(id, true))})";
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? RoomRush.PointsSystem ? string.Empty : $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({(RoomRush.PointsSystem ? RoomRush.GetPoints(id) : GetVitalText(id, true))})";
                     break;
                 case CustomGameMode.CaptureTheFlag:
                     summary = $"{ColorString(Main.PlayerColors[id], name)}: {CaptureTheFlag.GetStatistics(id)}";
