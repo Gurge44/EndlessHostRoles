@@ -1857,9 +1857,10 @@ public static class Utils
         }
     }
 
-    public static void ApplySuffix(PlayerControl player)
+    public static bool ApplySuffix(PlayerControl player, out string name)
     {
-        if (!AmongUsClient.Instance.AmHost || player == null) return;
+        name = string.Empty;
+        if (!AmongUsClient.Instance.AmHost || player == null) return false;
 
         DevManager.TagInfo devUser = player.FriendCode.GetDevUser();
         bool mod = ChatCommands.IsPlayerModerator(player.FriendCode);
@@ -1867,12 +1868,12 @@ public static class Utils
         bool hasTag = devUser.HasTag();
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out string privateTag);
 
-        if (!player.AmOwner && !hasTag && !mod && !vip && !hasPrivateTag) return;
+        if (!player.AmOwner && !hasTag && !mod && !vip && !hasPrivateTag) return false;
 
-        string name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out string n) ? n : string.Empty;
+        if (!Main.AllPlayerNames.TryGetValue(player.PlayerId, out name)) return false;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
 
-        if (name == string.Empty) return;
+        if (name == string.Empty) return false;
 
         if (AmongUsClient.Instance.IsGameStarted)
         {
@@ -1881,7 +1882,7 @@ public static class Utils
         }
         else
         {
-            if (!GameStates.IsLobby) return;
+            if (!GameStates.IsLobby) return false;
 
             if (player.AmOwner)
             {
@@ -1936,9 +1937,8 @@ public static class Utils
                 };
             }
         }
-
-        if (name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default)
-            player.RpcSetName(name);
+        
+        return name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default;
     }
 
     public static Dictionary<string, int> GetAllPlayerLocationsCount()
@@ -2120,7 +2120,7 @@ public static class Utils
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static void NotifyRoles(bool ForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (CustomGameMode.Standard.IsActiveOrIntegrated() || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting))) return;
+        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (CustomGameMode.Standard.IsActiveOrIntegrated() || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
         PlayerControl[] apc = Main.AllPlayerControls;
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
@@ -2148,8 +2148,8 @@ public static class Utils
 
         string seers = seerList.Length == apc.Length ? "Everyone" : string.Join(", ", seerList.Select(x => x.GetRealName()));
         string targets = targetList.Length == apc.Length ? "Everyone" : string.Join(", ", targetList.Select(x => x.GetRealName()));
+        
         if (seers.Length == 0) seers = "\u2205";
-
         if (targets.Length == 0) targets = "\u2205";
 
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
@@ -2161,7 +2161,7 @@ public static class Utils
 
         try
         {
-            if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())))
+            if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby))
                 return;
 
             sender ??= CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
@@ -2182,13 +2182,6 @@ public static class Utils
                 SelfName = $"{selfTeamName}\r\n<size=150%>{seerRole.ToColoredString()}</size>{roleNameUp}";
 
                 sender.RpcSetName(seer, SelfName, seer);
-                return;
-            }
-
-            if (GameStates.IsLobby)
-            {
-                SelfName = seer.GetRealName();
-                sender.RpcSetName(seer, SelfName);
                 return;
             }
 

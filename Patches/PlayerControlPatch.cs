@@ -1530,7 +1530,8 @@ internal static class FixedUpdatePatch
                 }
             }
 
-            if (!Main.DoBlockNameChange && AmongUsClient.Instance.AmHost) ApplySuffix(__instance);
+            if (!Main.DoBlockNameChange && ApplySuffix(__instance, out var name))
+                player.RpcSetName(name);
         }
 
         Transform roleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");
