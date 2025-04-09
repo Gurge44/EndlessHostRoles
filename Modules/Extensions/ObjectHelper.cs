@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes;
 using UnityEngine;
@@ -54,10 +55,10 @@ public static unsafe class FastDestroyableSingleton<T> where T : MonoBehaviour
     static FastDestroyableSingleton()
     {
         FieldPtr = IL2CPP.GetIl2CppField(Il2CppClassPointerStore<DestroyableSingleton<T>>.NativeClassPtr, nameof(DestroyableSingleton<T>._instance));
-        var constructor = typeof(T).GetConstructor([typeof(IntPtr)]);
-        var ptr = Expression.Parameter(typeof(IntPtr));
-        var create = Expression.New(constructor!, ptr);
-        var lambda = Expression.Lambda<Func<IntPtr, T>>(create, ptr);
+        ConstructorInfo constructor = typeof(T).GetConstructor([typeof(IntPtr)]);
+        ParameterExpression ptr = Expression.Parameter(typeof(IntPtr));
+        NewExpression create = Expression.New(constructor!, ptr);
+        Expression<Func<IntPtr, T>> lambda = Expression.Lambda<Func<IntPtr, T>>(create, ptr);
         CreateObject = lambda.Compile();
     }
 
@@ -92,10 +93,10 @@ public static class Il2CppCastHelper
 
         static CastHelper()
         {
-            var constructor = typeof(T).GetConstructor([typeof(IntPtr)]);
-            var ptr = Expression.Parameter(typeof(IntPtr));
-            var create = Expression.New(constructor!, ptr);
-            var lambda = Expression.Lambda<Func<IntPtr, T>>(create, ptr);
+            ConstructorInfo constructor = typeof(T).GetConstructor([typeof(IntPtr)]);
+            ParameterExpression ptr = Expression.Parameter(typeof(IntPtr));
+            NewExpression create = Expression.New(constructor!, ptr);
+            Expression<Func<IntPtr, T>> lambda = Expression.Lambda<Func<IntPtr, T>>(create, ptr);
             Cast = lambda.Compile();
         }
     }

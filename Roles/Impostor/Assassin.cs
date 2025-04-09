@@ -77,7 +77,7 @@ internal class Assassin : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(MarkedPlayer);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -113,7 +113,7 @@ internal class Assassin : RoleBase
     public override bool CanUseKillButton(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive()) return false;
-        return CanKillAfterAssassinate || (!pc.IsShifted() && ((pc.Data.Role as PhantomRole) is null or { IsInvisible: false }));
+        return CanKillAfterAssassinate || (!pc.IsShifted() && (pc.Data.Role as PhantomRole) is null or { IsInvisible: false });
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -129,7 +129,7 @@ internal class Assassin : RoleBase
         SendRPC(killer.PlayerId);
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-        if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
+        if (killer.IsModdedClient()) killer.RpcResetAbilityCooldown();
 
         killer.SyncSettings();
         killer.RPCPlayCustomSound("Clothe");

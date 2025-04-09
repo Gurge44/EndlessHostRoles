@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -87,11 +88,14 @@ public class Deputy : RoleBase
             {
                 if (GameStates.IsInTask)
                 {
-                    target.SetKillCooldown(DeputyHandcuffCDForTarget.GetFloat());
-                    target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
-                    if (target.IsModClient()) target.RpcResetAbilityCooldown();
+                    var sender = CustomRpcSender.Create("Deputy.OnCheckMurder", SendOption.Reliable);
+                    sender.SetKillCooldown(target, DeputyHandcuffCDForTarget.GetFloat());
+                    sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
 
-                    if (!target.IsModClient()) target.RpcGuardAndKill(target);
+                    if (target.IsModdedClient()) sender.RpcResetAbilityCooldown(target);
+                    else sender.RpcGuardAndKill(target, target);
+
+                    sender.SendMessage();
                 }
             }, DeputyHandcuffDelay.GetInt(), "DeputyHandcuffDelay");
 

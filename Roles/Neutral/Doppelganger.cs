@@ -104,7 +104,7 @@ public class Doppelganger : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoppelgangerStealLimit, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoppelgangerStealLimit, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(TotalSteals[playerId]);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -146,7 +146,7 @@ public class Doppelganger : RoleBase
 
     private static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
     {
-        var sender = CustomRpcSender.Create($"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})");
+        var sender = CustomRpcSender.Create($"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})", SendOption.Reliable);
 
         pc.SetName(newOutfit.PlayerName);
 

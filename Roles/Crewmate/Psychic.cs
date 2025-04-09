@@ -69,7 +69,7 @@ public class Psychic : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPsychicRedList, SendOption.Reliable);
         writer.Write(PsychicId);
         writer.Write(RedPlayer.Count);
         foreach (byte pc in RedPlayer) writer.Write(pc);
@@ -110,7 +110,7 @@ public class Psychic : RoleBase
         List<PlayerControl> BadListPc = Main.AllAlivePlayerControls.Where(x =>
             (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || Framer.FramedPlayers.Contains(x.PlayerId) || Enchanter.EnchantedPlayers.Contains(x.PlayerId) || x.IsConverted() ||
             (x.GetCustomRole().GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CkshowEvil.GetBool()) ||
-            (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil && NEshowEvil.GetBool()) ||
+            (x.GetCustomRole().GetNeutralRoleCategory() is RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah && NEshowEvil.GetBool()) ||
             (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && NBshowEvil.GetBool())
         ).ToList();
 
@@ -122,8 +122,10 @@ public class Psychic : RoleBase
         var ENum = 1;
 
         for (var i = 1; i < CanSeeNum.GetInt(); i++)
+        {
             if (IRandom.Instance.Next(0, 100) < 18)
                 ENum++;
+        }
 
         int BNum = CanSeeNum.GetInt() - ENum;
         ENum = Math.Min(ENum, BadList.Count);

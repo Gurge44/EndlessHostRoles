@@ -58,7 +58,8 @@ public static class MeetingTimeManager
             BonusMeetingTime += TimeThief.TotalDecreasedMeetingTime();
         }
 
-        if (Timelord.On) { BonusMeetingTime += -Timelord.GetTotalStolenTime(); }
+        if (Timelord.On)
+            BonusMeetingTime += -Timelord.GetTotalStolenTime();
 
         if (TimeManager.PlayerIdList.Count > 0)
         {

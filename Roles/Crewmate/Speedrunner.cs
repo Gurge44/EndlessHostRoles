@@ -29,19 +29,19 @@ internal class Speedrunner : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(9170, TabGroup.CrewmateRoles, CustomRoles.Speedrunner, zeroOne: true);
+        SetupSingleRoleOptions(652500, TabGroup.CrewmateRoles, CustomRoles.Speedrunner, zeroOne: true);
 
-        SpeedrunnerNotifyKillers = new BooleanOptionItem(9178, "SpeedrunnerNotifyKillers", true, TabGroup.CrewmateRoles)
+        SpeedrunnerNotifyKillers = new BooleanOptionItem(652510, "SpeedrunnerNotifyKillers", true, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner]);
 
-        SpeedrunnerNotifyAtXTasksLeft = new IntegerOptionItem(9179, "SpeedrunnerNotifyAtXTasksLeft", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
+        SpeedrunnerNotifyAtXTasksLeft = new IntegerOptionItem(652511, "SpeedrunnerNotifyAtXTasksLeft", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner]);
 
-        SpeedrunnerSpeed = new FloatOptionItem(9177, "SpeedrunnerSpeed", new(0.1f, 3f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
+        SpeedrunnerSpeed = new FloatOptionItem(652512, "SpeedrunnerSpeed", new(0.1f, 3f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        OverrideTasksData.Create(9180, TabGroup.CrewmateRoles, CustomRoles.Speedrunner);
+        OverrideTasksData.Create(652513, TabGroup.CrewmateRoles, CustomRoles.Speedrunner);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -72,8 +72,10 @@ internal class Speedrunner : RoleBase
             LateTask.New(() =>
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
                     if (!pc.Is(Team.Crewmate))
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                }
             }, 0.1f, log: false);
         }
     }

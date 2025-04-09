@@ -1,4 +1,6 @@
-﻿namespace EHR.Impostor;
+﻿using Hazel;
+
+namespace EHR.Impostor;
 
 internal class SchrodingersCat : RoleBase
 {
@@ -38,13 +40,17 @@ internal class SchrodingersCat : RoleBase
         if (killerRole == CustomRoles.Jackal) killerRole = CustomRoles.Sidekick;
         if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
 
+        var sender = CustomRpcSender.Create("SchrodingersCat.OnCheckMurderAsTarget", SendOption.Reliable);
+
         target.RpcSetCustomRole(killerRole);
-        target.RpcChangeRoleBasis(killerRole);
+        target.RpcChangeRoleBasis(killerRole, sender: sender);
 
-        killer.SetKillCooldown(5f);
+        sender.SetKillCooldown(killer, 5f);
 
-        killer.Notify(string.Format(Translator.GetString("SchrodingersCat.Notify.KillerRecruited"), target.GetRealName(), CustomRoles.SchrodingersCat.ToColoredString()), 10f);
-        target.Notify(string.Format(Translator.GetString("SchrodingersCat.Notify.RecruitedByKiller"), killer.GetRealName(), killerRole.ToColoredString()));
+        sender.Notify(killer, string.Format(Translator.GetString("SchrodingersCat.Notify.KillerRecruited"), target.GetRealName(), CustomRoles.SchrodingersCat.ToColoredString()), 10f, setName: false);
+        sender.Notify(target, string.Format(Translator.GetString("SchrodingersCat.Notify.RecruitedByKiller"), killer.GetRealName(), killerRole.ToColoredString()), setName: false);
+
+        sender.SendMessage();
 
         Utils.NotifyRoles(SpecifySeer: killer, ForceLoop: true);
         Utils.NotifyRoles(SpecifySeer: target, ForceLoop: true);

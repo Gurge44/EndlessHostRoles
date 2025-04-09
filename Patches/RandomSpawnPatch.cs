@@ -104,6 +104,20 @@ internal abstract class RandomSpawn
         }
 
         protected abstract KeyValuePair<SystemTypes, Vector2> GetLocation();
+
+        public static SpawnMap GetSpawnMap()
+        {
+            return Main.CurrentMap switch
+            {
+                MapNames.Skeld => new SkeldSpawnMap(),
+                MapNames.MiraHQ => new MiraHQSpawnMap(),
+                MapNames.Polus => new PolusSpawnMap(),
+                MapNames.Dleks => new DleksSpawnMap(),
+                MapNames.Airship => new AirshipSpawnMap(),
+                MapNames.Fungle => new FungleSpawnMap(),
+                _ => throw new ArgumentOutOfRangeException(nameof(Main.CurrentMap), Main.CurrentMap, "Invalid map")
+            };
+        }
     }
 
     public class SkeldSpawnMap : SpawnMap

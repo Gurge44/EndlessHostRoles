@@ -201,7 +201,7 @@ public class Amogus : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != AmogusID || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != AmogusID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         var sb = new StringBuilder();
         if (AmogusFormEndTS != 0) sb.Append($"\u25a9 ({Utils.TimeStamp - AmogusFormEndTS}s)\n");
@@ -216,7 +216,7 @@ public class Amogus : RoleBase
         return $"{base.GetProgressText(playerId, comms)} {string.Format(Translator.GetString("ExtraVotesPT"), ExtraVotes)}";
     }
 
-    enum Levels
+    private enum Levels
     {
         Amogus,
         Sugoma,

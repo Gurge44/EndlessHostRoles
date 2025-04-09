@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
@@ -11,6 +12,8 @@ public class Dreamweaver : Coven
 
     private static OptionItem AbilityCooldown;
     private static OptionItem AbilityUseLimit;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     private byte DreamweaverId;
 
@@ -24,7 +27,9 @@ public class Dreamweaver : Coven
     {
         StartSetup(650080)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 10, 1), OptionFormat.Times);
+            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 10, 1), OptionFormat.Times)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, false);
     }
 
     public override void Init()
@@ -38,6 +43,11 @@ public class Dreamweaver : Coven
         InsanePlayers = [];
         DreamweaverId = playerId;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -71,14 +81,14 @@ public class Dreamweaver : Coven
     {
         if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !pc.Is(CustomRoles.Insane) || Main.KillTimers[pc.PlayerId] > 0f) return;
 
-        var pos = pc.Pos();
-        var nearbyPlayers = Utils.GetPlayersInRadius(1.5f, pos).Without(pc).ToArray();
+        Vector2 pos = pc.Pos();
+        PlayerControl[] nearbyPlayers = Utils.GetPlayersInRadius(1.5f, pos).Without(pc).ToArray();
         if (nearbyPlayers.Length == 0) return;
 
-        var nearestPlayer = nearbyPlayers.MinBy(x => Vector2.Distance(x.Pos(), pos));
+        PlayerControl nearestPlayer = nearbyPlayers.MinBy(x => Vector2.Distance(x.Pos(), pos));
 
         RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
-        var type = roleBase.GetType();
+        Type type = roleBase.GetType();
 
         if (type.GetMethod("OnCheckMurder")?.DeclaringType == type)
         {

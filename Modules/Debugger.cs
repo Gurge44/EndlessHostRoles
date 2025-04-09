@@ -175,17 +175,20 @@ public class CustomLogger
     private CustomLogger()
     {
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
+        else if (new FileInfo(LOGFilePath).Length > 2 * 1024 * 1024) // 2 MB
+        {
+            ClearLog(false);
+            Logger.SendInGame("The size of the log file exceeded 2 MB and was dumped.");
+        }
+
         Main.Instance.StartCoroutine(InactivityCheck());
     }
 
-    public static CustomLogger Instance
-    {
-        get { return PrivateInstance ??= new(); }
-    }
+    public static CustomLogger Instance => PrivateInstance ??= new();
 
-    public static void ClearLog()
+    public static void ClearLog(bool check = true)
     {
-        if (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0)
+        if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
             Utils.DumpLog(false);
 
         File.WriteAllText(LOGFilePath, HtmlHeader);
@@ -200,11 +203,11 @@ public class CustomLogger
         if (message.Contains("<i>")) message += "</i>";
         if (message.Contains("<s>")) message += "</s>";
 
-        string logEntry = $"""
-                           <div class='log-entry {level.ToLower()}'>
-                               {message}
-                           </div>
-                           """;
+        var logEntry = $"""
+                        <div class='log-entry {level.ToLower()}'>
+                            {message}
+                        </div>
+                        """;
 
         File.AppendAllText(LOGFilePath, logEntry);
 

@@ -64,7 +64,7 @@ public static class GameStartManagerPatch
                     __instance.HostViewButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
                     __instance.HostViewButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0f, 1f, 1f, 0.5f);
                 }
-                else 
+                else
                 {
                     __instance.ClientViewButton.activeTextColor = __instance.HostViewButton.inactiveTextColor = Color.black;
                     __instance.ClientViewButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
@@ -307,7 +307,8 @@ public static class GameStartManagerPatch
                 var canStartGame = true;
                 var mismatchedClientName = string.Empty;
 
-                string warningMessage = "";
+                var warningMessage = "";
+
                 if (AmongUsClient.Instance.AmHost)
                 {
                     foreach (ClientData client in AmongUsClient.Instance.allClients)
@@ -340,14 +341,14 @@ public static class GameStartManagerPatch
                             AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
                             SceneChanger.ChangeScene("MainMenu");
                         }
+
                         if (ExitTimer != 0)
                             warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(5 - ExitTimer).ToString()));
                     }
                 }
+
                 if (warningMessage == "")
-                {
                     warningText.gameObject.SetActive(false);
-                }
                 else
                 {
                     warningText.text = warningMessage;
@@ -357,7 +358,7 @@ public static class GameStartManagerPatch
                 __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
                 // Lobby timer
-                if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame || GameStates.CurrentServerType == GameStates.ServerType.Modded && GameStates.CurrentServerType == GameStates.ServerType.Custom) return;
+                if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame || GameStates.CurrentServerType != GameStates.ServerType.Vanilla) return;
 
                 float timer = Timer;
 

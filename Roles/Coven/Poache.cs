@@ -10,6 +10,8 @@ public class Poache : Coven
 
     private static OptionItem AbilityCooldown;
     private static OptionItem KillDelay;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     public static HashSet<byte> PoachedPlayers = [];
     private static List<(byte ID, long KillTimeStamp)> KillDelays = [];
@@ -24,7 +26,9 @@ public class Poache : Coven
     {
         StartSetup(650030)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref KillDelay, 3, new IntegerValueRule(1, 30, 1), OptionFormat.Seconds);
+            .AutoSetupOption(ref KillDelay, 3, new IntegerValueRule(1, 30, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, false);
     }
 
     public override void Init()
@@ -38,6 +42,11 @@ public class Poache : Coven
     {
         On = true;
         PoacheId = playerId;
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -60,7 +69,7 @@ public class Poache : Coven
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !KillDelays.FindFirst(x => x.ID == pc.PlayerId, out var killData) || Utils.TimeStamp < killData.KillTimeStamp) return;
+        if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !KillDelays.FindFirst(x => x.ID == pc.PlayerId, out (byte ID, long KillTimeStamp) killData) || Utils.TimeStamp < killData.KillTimeStamp) return;
 
         pc.Suicide(realKiller: PoacheId.GetPlayer());
         KillDelays.Remove(killData);

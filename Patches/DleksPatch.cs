@@ -27,23 +27,20 @@ internal static class AllMapIconsPatch
                 }
             }, AmongUsClient.Instance.AmHost ? 1f : 4f, "Set Skeld Icon For Dleks Map");
 
-            MapIconByName dleksIcon = Object.Instantiate(__instance, __instance.gameObject.transform).AllMapIcons[0];
+            MapIconByName dleksIcon = Object.Instantiate(__instance, __instance.gameObject.transform).AllMapIcons[0]; // False error
             dleksIcon.Name = MapNames.Dleks;
             dleksIcon.MapImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
             dleksIcon.NameImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
             __instance.AllMapIcons.Add(dleksIcon);
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 
-[HarmonyPatch(typeof(AmongUsClient._CoStartGameHost_d__32), nameof(AmongUsClient._CoStartGameHost_d__32.MoveNext))]
+[HarmonyPatch(typeof(AmongUsClient._CoStartGameHost_d__37), nameof(AmongUsClient._CoStartGameHost_d__37.MoveNext))]
 public static class DleksPatch
 {
-    public static bool Prefix(AmongUsClient._CoStartGameHost_d__32 __instance, ref bool __result)
+    public static bool Prefix(AmongUsClient._CoStartGameHost_d__37 __instance, ref bool __result)
     {
         if (__instance.__1__state != 0) return true;
 
@@ -60,7 +57,7 @@ public static class DleksPatch
 
         // removed dleks check as it's always false
         int num2 = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
-        __instance.__2__current = __instance.__4__this.ShipLoadingAsyncHandle = __instance.__4__this.ShipPrefabs[num2].InstantiateAsync();
+        __instance.__2__current = __instance.__4__this.ShipLoadingAsyncHandle = __instance.__4__this.ShipPrefabs[num2].InstantiateAsync(); // False error
         __instance.__1__state = 1;
 
         __result = true;

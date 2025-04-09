@@ -175,7 +175,6 @@ public class Abyssbringer : RoleBase
                     state.RealKiller = (DateTime.Now, AbyssbringerId);
                     state.SetDead();
 
-                    FixedUpdatePatch.LoversSuicide(nearestPlayer.PlayerId);
                     Utils.AfterPlayerDeathTasks(nearestPlayer);
 
                     if (despawnMode == DespawnMode.After1PlayerEaten) RemoveBlackHole();
@@ -192,10 +191,7 @@ public class Abyssbringer : RoleBase
                 Notify();
             }
 
-            void Notify()
-            {
-                Utils.NotifyRoles(SpecifySeer: abyssbringer, SpecifyTarget: abyssbringer);
-            }
+            void Notify() => Utils.NotifyRoles(SpecifySeer: abyssbringer, SpecifyTarget: abyssbringer);
         }
     }
 
@@ -220,7 +216,7 @@ public class Abyssbringer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || meeting || (seer.IsModClient() && !hud) || BlackHoles.Count == 0) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || meeting || (seer.IsModdedClient() && !hud) || BlackHoles.Count == 0) return string.Empty;
 
         return string.Format(Translator.GetString("Abyssbringer.Suffix"), BlackHoles.Count, string.Join('\n', BlackHoles.Select(x => GetBlackHoleFormatText(x.RoomName, x.PlayersConsumed))));
 

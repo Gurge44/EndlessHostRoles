@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -188,7 +189,7 @@ public class Amnesiac : RoleBase
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{RememberedRole}"));
                         break;
                     case Team.Coven:
-                        RememberedRole = targetRole == CustomRoles.CovenLeader ? Enum.GetValues<CustomRoles>().FindFirst(x => x.IsCoven() && !x.RoleExist(true), out var unusedCovenRole) ? unusedCovenRole : null : targetRole;
+                        RememberedRole = targetRole == CustomRoles.CovenLeader ? Enum.GetValues<CustomRoles>().FindFirst(x => x.IsCoven() && !x.RoleExist(true), out CustomRoles unusedCovenRole) ? unusedCovenRole : null : targetRole;
                         if (RememberedRole.HasValue) amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCoven"));
                         break;
                 }
@@ -203,19 +204,22 @@ public class Amnesiac : RoleBase
             return;
         }
 
+        var sender = CustomRpcSender.Create("Amnesiac.RememberRole", SendOption.Reliable);
+
         CustomRoles role = RememberedRole.Value;
 
         amnesiac.RpcSetCustomRole(role);
-        amnesiac.RpcChangeRoleBasis(role);
+        amnesiac.RpcChangeRoleBasis(role, sender: sender);
 
-        amnesiac.Notify(amneNotifyString);
-        target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
+        sender.Notify(amnesiac, amneNotifyString);
+        sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
 
-        amnesiac.SetKillCooldown(3f);
+        sender.RpcGuardAndKill(target, amnesiac);
+        sender.RpcGuardAndKill(target, target);
 
-        target.RpcGuardAndKill(amnesiac);
-        target.RpcGuardAndKill(target);
+        sender.SendMessage();
 
+        LateTask.New(() => amnesiac.SetKillCooldown(3f), 0.2f, log: false);
         if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);
 
         if (!amnesiac.IsLocalPlayer()) return;

@@ -135,7 +135,7 @@ internal static class SoloPVP
 
     private static string GetStatsForVanilla(PlayerControl pc)
     {
-        string finalText = string.Empty;
+        var finalText = string.Empty;
         if (pc.IsHost()) return finalText;
 
         finalText += "<size=90%>";
@@ -153,7 +153,7 @@ internal static class SoloPVP
 
         if (rank != 1)
         {
-            var first = Main.PlayerStates.Keys.MinBy(GetRankFromScore);
+            byte first = Main.PlayerStates.Keys.MinBy(GetRankFromScore);
             finalText += $"\n1. {first.ColoredPlayerName()} - {string.Format(Translator.GetString("KillCount").TrimStart(' '), KBScore.GetValueOrDefault(first, 0))}";
         }
 
@@ -189,7 +189,7 @@ internal static class SoloPVP
 
     public static string GetHudText()
     {
-        return $"{(RoundTime / 60):00}:{(RoundTime % 60):00}";
+        return $"{RoundTime / 60:00}:{RoundTime % 60:00}";
     }
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
@@ -215,7 +215,7 @@ internal static class SoloPVP
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-        if (!target.IsModClient() && !target.AmOwner) target.SetKillCooldown(0.01f);
+        if (!target.IsModdedClient() && !target.AmOwner) target.SetKillCooldown(0.01f);
 
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
@@ -234,23 +234,7 @@ internal static class SoloPVP
         pc.RpcGuardAndKill();
 
         if (pc.inVent) pc.MyPhysics.RpcBootFromVent(ShipStatus.Instance.AllVents.RandomElement().Id);
-        else PlayerRandomSpwan(pc);
-    }
-
-    private static void PlayerRandomSpwan(PlayerControl pc)
-    {
-        SpawnMap map = Main.CurrentMap switch
-        {
-            MapNames.Skeld => new SkeldSpawnMap(),
-            MapNames.Mira => new MiraHQSpawnMap(),
-            MapNames.Polus => new PolusSpawnMap(),
-            MapNames.Airship => new AirshipSpawnMap(),
-            MapNames.Fungle => new FungleSpawnMap(),
-            MapNames.Dleks => new DleksSpawnMap(),
-            _ => null
-        };
-
-        map?.RandomTeleport(pc);
+        else SpawnMap.GetSpawnMap().RandomTeleport(pc);
     }
 
     private static void OnPlayerDead(PlayerControl target)
@@ -271,7 +255,8 @@ internal static class SoloPVP
     private static void OnPlayerKill(PlayerControl killer)
     {
         killer.KillFlash();
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) PlayerControl.LocalPlayer.KillFlash();
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+        ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
         KBScore[killer.PlayerId]++;
 
@@ -317,7 +302,7 @@ internal static class SoloPVP
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private class FixedUpdatePatch
+    private static class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
 
@@ -330,26 +315,30 @@ internal static class SoloPVP
             bool soloAlive = __instance.SoloAlive();
             bool inVent = __instance.inVent;
 
-            switch (soloAlive)
+            try
             {
-                case false:
+                switch (soloAlive)
                 {
-                    if (inVent && KB_BootVentWhenDead.GetBool())
-                        __instance.MyPhysics.RpcExitVent(2);
+                    case false:
+                    {
+                        if (inVent && KB_BootVentWhenDead.GetBool())
+                            __instance.MyPhysics.RpcExitVent(2);
 
-                    Vector2 pos = Pelican.GetBlackRoomPS();
-                    float dis = Vector2.Distance(pos, __instance.Pos());
-                    if (dis > 1f) __instance.TP(pos);
-                    break;
-                }
-                case true when !inVent:
-                {
-                    Vector2 pos = Pelican.GetBlackRoomPS();
-                    float dis = Vector2.Distance(pos, __instance.Pos());
-                    if (dis < 1.1f) PlayerRandomSpwan(__instance);
-                    break;
+                        Vector2 pos = Pelican.GetBlackRoomPS();
+                        float dis = Vector2.Distance(pos, __instance.Pos());
+                        if (dis > 1f) __instance.TP(pos);
+                        break;
+                    }
+                    case true when !inVent:
+                    {
+                        Vector2 pos = Pelican.GetBlackRoomPS();
+                        float dis = Vector2.Distance(pos, __instance.Pos());
+                        if (dis < 1.1f) SpawnMap.GetSpawnMap().RandomTeleport(__instance);
+                        break;
+                    }
                 }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             long now = Utils.TimeStamp;
             if (LastCountdownTime[id] == now) return;
@@ -367,7 +356,7 @@ internal static class SoloPVP
                 if (BackCountdown[id] <= 0) OnPlayerBack(__instance);
             }
 
-            if (NameNotify.TryGetValue(id, out var nameNotify) && nameNotify.TimeStamp < now)
+            if (NameNotify.TryGetValue(id, out (string Text, long TimeStamp) nameNotify) && nameNotify.TimeStamp < now)
                 NameNotify.Remove(id);
 
             Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance);

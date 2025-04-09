@@ -64,10 +64,7 @@ public static class BanManager
                 EACList.Add(line);
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "BanManager");
-        }
+        catch (Exception ex) { Logger.Exception(ex, "BanManager"); }
     }
 
     private static string GetResourcesTxt(string path)
@@ -227,16 +224,15 @@ public static class BanManager
                 if (line == "") continue;
 
                 if (!OnlyCheckPuid)
+                {
                     if (line.Contains(code))
                         return true;
+                }
 
                 if (line.Contains(hashedpuid)) return true;
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Exception(ex, "CheckBanList");
-        }
+        catch (Exception ex) { Logger.Exception(ex, "CheckBanList"); }
 
         return false;
     }

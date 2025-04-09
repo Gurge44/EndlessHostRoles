@@ -27,7 +27,8 @@ public class BoolOptionBackupValue(BoolOptionNames name, bool value) : OptionBac
 {
     public override void Restore(IGameOptions option)
     {
-        if (OptionName != BoolOptionNames.GhostsDoTasks) option.SetBool(OptionName, Value);
+        if (OptionName is not BoolOptionNames.GhostsDoTasks and not BoolOptionNames.Roles)
+            option.SetBool(OptionName, Value);
     }
 }
 

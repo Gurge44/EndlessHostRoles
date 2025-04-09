@@ -26,7 +26,10 @@ internal static class HudManagerPatch
 
     public static string AchievementUnlockedText = string.Empty;
 
-    public static void ClearLowerInfoText() => LowerInfoText.text = string.Empty;
+    public static void ClearLowerInfoText()
+    {
+        LowerInfoText.text = string.Empty;
+    }
 
     public static bool Prefix(HudManager __instance)
     {
@@ -50,12 +53,16 @@ internal static class HudManagerPatch
             if (player == null) return;
 
             if (Input.GetKeyDown(KeyCode.LeftControl))
+            {
                 if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
                     player.Collider.offset = new(0f, 127f);
+            }
 
             if (Math.Abs(player.Collider.offset.y - 127f) < 0.1f)
+            {
                 if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
                     player.Collider.offset = new(0f, -0.3636f);
+            }
 
             if (__instance == null) return;
 
@@ -223,7 +230,7 @@ internal static class HudManagerPatch
                         case CustomRoles.CTFPlayer:
                             __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
                             break;
-                        case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ventLimit):
+                        case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ventLimit):
                             __instance.AbilityButton.SetUsesRemaining(ventLimit);
                             break;
                     }
@@ -312,7 +319,7 @@ internal static class HudManagerPatch
 
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
                         __instance.AbilityButton.SetEnabled();
-                    
+
                     if ((player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && !state.Role.CanUseSabotage(player))
                         __instance.SabotageButton.ToggleVisible(false);
                 }
@@ -467,6 +474,11 @@ internal static class SetHudActivePatch
             case CustomGameMode.RoomRush:
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 goto case CustomGameMode.HideAndSeek;
+            case CustomGameMode.KingOfTheZones:
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.SabotageButton?.ToggleVisible(false);
+                __instance.AbilityButton?.ToggleVisible(false);
+                break;
             case CustomGameMode.CaptureTheFlag:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -802,11 +814,21 @@ internal static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.RoomRush:
 
-                    finalText += Main.AllPlayerControls
-                        .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
-                        .OrderByDescending(x => x.alive)
-                        .ThenByDescending(x => x.time)
-                        .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+                    if (!RoomRush.PointsSystem)
+                    {
+                        finalText += Main.AllPlayerControls
+                            .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
+                            .OrderByDescending(x => x.alive)
+                            .ThenByDescending(x => x.time)
+                            .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+                    }
+                    else
+                    {
+                        finalText += Main.AllPlayerControls
+                            .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.Parse(RoomRush.GetPoints(x.PlayerId).Split('/')[0])))
+                            .OrderByDescending(x => x.points_int)
+                            .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {x.points_string}");
+                    }
 
                     finalText += "</size>";
                     break;
@@ -825,9 +847,9 @@ internal static class DialogueBoxShowPatch
     public static bool Prefix(DialogueBox __instance, [HarmonyArgument(0)] string dialogue)
     {
         __instance.target.text = dialogue;
-        if (Minigame.Instance != null) Minigame.Instance.Close();
 
-        if (Minigame.Instance != null) Minigame.Instance.Close();
+        if (Minigame.Instance) Minigame.Instance.Close();
+        if (Minigame.Instance) Minigame.Instance.Close();
 
         __instance.gameObject.SetActive(true);
         return false;

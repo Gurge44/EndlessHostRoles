@@ -1,4 +1,6 @@
-﻿namespace EHR.Coven;
+﻿using System;
+
+namespace EHR.Coven;
 
 public class VoodooMaster : Coven
 {
@@ -6,6 +8,8 @@ public class VoodooMaster : Coven
 
     private static OptionItem AbilityCooldown;
     private static OptionItem AbilityUseLimit;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
@@ -15,7 +19,9 @@ public class VoodooMaster : Coven
     {
         StartSetup(650050)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 10, 1), OptionFormat.Times);
+            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 10, 1), OptionFormat.Times)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
 
     public override void Init()
@@ -27,6 +33,11 @@ public class VoodooMaster : Coven
     {
         On = true;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -44,7 +55,7 @@ public class VoodooMaster : Coven
         if (killer.GetAbilityUseLimit() > 0)
         {
             RoleBase roleBase = Main.PlayerStates[target.PlayerId].Role;
-            var type = roleBase.GetType();
+            Type type = roleBase.GetType();
 
             if (type.GetMethod("OnCheckMurder")?.DeclaringType == type) roleBase.OnCheckMurder(target, target);
             else if (type.GetMethod("OnPet")?.DeclaringType == type) roleBase.OnPet(target);

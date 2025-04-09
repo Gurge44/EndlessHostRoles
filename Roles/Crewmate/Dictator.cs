@@ -6,7 +6,7 @@ internal class Dictator : RoleBase
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(9100, TabGroup.CrewmateRoles, CustomRoles.Dictator);
+        Options.SetupRoleOptions(652400, TabGroup.CrewmateRoles, CustomRoles.Dictator);
     }
 
     public override void Init() { }

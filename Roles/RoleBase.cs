@@ -180,7 +180,7 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     protected bool IsThisRole(byte id)
     {
-        var role = Main.PlayerStates.TryGetValue(id, out var state) ? state.MainRole : CustomRoles.NotAssigned;
+        CustomRoles role = Main.PlayerStates.TryGetValue(id, out PlayerState state) ? state.MainRole : CustomRoles.NotAssigned;
         return role == Enum.Parse<CustomRoles>(GetType().Name, true);
     }
 

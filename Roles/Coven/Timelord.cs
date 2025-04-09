@@ -8,6 +8,8 @@ public class Timelord : Coven
 
     private static OptionItem KillCooldown;
     private static OptionItem TimeStolenWithEachKill;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
@@ -17,7 +19,9 @@ public class Timelord : Coven
     {
         StartSetup(650110)
             .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref TimeStolenWithEachKill, 10, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds);
+            .AutoSetupOption(ref TimeStolenWithEachKill, 10, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
 
     public override void Init()
@@ -28,6 +32,11 @@ public class Timelord : Coven
     public override void Add(byte playerId)
     {
         On = true;
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -56,7 +65,10 @@ public class Timelord : Coven
 
     public override string GetProgressText(byte playerId, bool comms)
     {
+        string baseText = base.GetProgressText(playerId, comms);
+        if (!HasNecronomicon) return baseText;
+
         string stolen = Utils.ColorString(Team.Coven.GetColor().ShadeColor(0.25f), $" -{GetTotalStolenTime()}s");
-        return base.GetProgressText(playerId, comms) + stolen;
+        return baseText + stolen;
     }
 }

@@ -5,6 +5,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using Il2CppSystem.Collections.Generic;
 using UnityEngine;
 using static EHR.Translator;
@@ -108,6 +109,16 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("RRPlayerInfo");
                     break;
                 }
+                case CustomGameMode.KingOfTheZones:
+                {
+                    Color color = ColorUtility.TryParseHtmlString("#ff0000", out Color c) ? c : new(255, 255, 255, 255);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("KOTZPlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("KOTZPlayerInfo");
+                    break;
+                }
                 case CustomGameMode.AllInOne:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : new(255, 255, 255, 255);
@@ -133,7 +144,7 @@ internal static class SetUpRoleTextPatch
 
                     foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles)
                     {
-                        if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && (subRole == CustomRoles.Lovers)) continue;
+                        if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
 
                         __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                     }
@@ -208,17 +219,25 @@ internal static class SetUpRoleTextPatch
         sb.Append("------------Modded Settings------------\n");
 
         string disabledRoleStr = GetString("Rate0");
-        int i = 0;
+        var i = 0;
 
         foreach (OptionItem o in OptionItem.AllOptions)
         {
-            if (!o.IsCurrentlyHidden() && (o.Parent?.GetBool() ?? !o.GetString().Equals(disabledRoleStr)))
+            if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
                 sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
             if (i++ > 20)
             {
                 yield return null;
                 i = 0;
+            }
+
+            continue;
+
+            bool AllParentsEnabled(OptionItem oi)
+            {
+                if (oi.Parent == null) return true;
+                return oi.Parent.GetBool() && AllParentsEnabled(oi.Parent);
             }
         }
 
@@ -268,7 +287,7 @@ internal static class BeginCrewmatePatch
                     break;
             }
         }
-        else if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
+        else if (PlayerControl.LocalPlayer.IsMadmate())
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
@@ -287,7 +306,7 @@ internal static class BeginCrewmatePatch
             }
         }
 
-        if ((role == CustomRoles.LovingCrewmate) || PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
+        if (role == CustomRoles.LovingCrewmate || PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
@@ -317,7 +336,7 @@ internal static class BeginCrewmatePatch
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                if (FreeForAll.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && (team == ffaTeam))
+                if (FreeForAll.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && team == ffaTeam)
                     teamToDisplay.Add(pc);
             }
         }
@@ -339,68 +358,94 @@ internal static class BeginCrewmatePatch
             __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = GetString("SubText.Bloodlust");
         }
-        else if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
-        {
-            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
-            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
-            byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
-            __instance.ImpostorText.gameObject.SetActive(true);
-            __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), otherLoverId.ColoredPlayerName());
-        }
         else
         {
-            switch (role.GetCustomRoleTypes())
+            switch (role)
             {
-                case CustomRoleTypes.Impostor:
-                    __instance.TeamTitle.text = GetString("TeamImpostor");
-                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 25, 25, byte.MaxValue);
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor:
+                {
+                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
+                    byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
                     __instance.ImpostorText.gameObject.SetActive(true);
-                    __instance.ImpostorText.text = GetString("SubText.Impostor");
+                    __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), otherLoverId.ColoredPlayerName());
                     break;
-                case CustomRoleTypes.Crewmate:
-                    __instance.TeamTitle.text = GetString("TeamCrewmate");
+                }
+                case CustomRoles.DoubleAgent:
+                {
+                    __instance.TeamTitle.text = GetString("TeamImpostor");
                     __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(140, 255, 255, byte.MaxValue);
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                     __instance.ImpostorText.gameObject.SetActive(true);
                     __instance.ImpostorText.text = GetString("SubText.Crewmate");
                     break;
-                case CustomRoleTypes.Neutral:
+                }
+                default:
+                {
+                    switch (role.GetCustomRoleTypes())
+                    {
+                        case CustomRoleTypes.Impostor:
+                        {
+                            __instance.TeamTitle.text = GetString("TeamImpostor");
+                            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 25, 25, byte.MaxValue);
+                            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                            __instance.ImpostorText.gameObject.SetActive(true);
+                            __instance.ImpostorText.text = GetString("SubText.Impostor");
+                            break;
+                        }
+                        case CustomRoleTypes.Crewmate:
+                        {
+                            __instance.TeamTitle.text = GetString("TeamCrewmate");
+                            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(140, 255, 255, byte.MaxValue);
+                            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
+                            __instance.ImpostorText.gameObject.SetActive(true);
+                            __instance.ImpostorText.text = GetString("SubText.Crewmate");
+                            break;
+                        }
+                        case CustomRoleTypes.Neutral:
+                        {
+                            if (Options.UniqueNeutralRevealScreen.GetBool())
+                            {
+                                __instance.TeamTitle.text = GetString($"{role}");
+                                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+                                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                                __instance.ImpostorText.gameObject.SetActive(true);
+                                __instance.ImpostorText.text = GetString($"{role}Info");
+                            }
+                            else
+                            {
+                                __instance.TeamTitle.text = GetString("TeamNeutral");
+                                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 171, 27, byte.MaxValue);
+                                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                                __instance.ImpostorText.gameObject.SetActive(true);
+                                __instance.ImpostorText.text = GetString("SubText.Neutral");
+                            }
 
-                    if (Options.UniqueNeutralRevealScreen.GetBool())
-                    {
-                        __instance.TeamTitle.text = GetString($"{role}");
-                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
-                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
-                        __instance.ImpostorText.gameObject.SetActive(true);
-                        __instance.ImpostorText.text = GetString($"{role}Info");
+                            break;
+                        }
+
+                        case CustomRoleTypes.Coven:
+                        {
+                            __instance.TeamTitle.text = GetString("TeamCoven");
+                            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
+                            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
+                            __instance.ImpostorText.gameObject.SetActive(true);
+                            __instance.ImpostorText.text = GetString("SubText.Coven");
+                            break;
+                        }
                     }
-                    else
+
+                    if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Exists(x => x.IsLocalPlayer()))
                     {
-                        __instance.TeamTitle.text = GetString("TeamNeutral");
-                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 171, 27, byte.MaxValue);
-                        PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
+                        byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
                         __instance.ImpostorText.gameObject.SetActive(true);
-                        __instance.ImpostorText.text = GetString("SubText.Neutral");
+                        __instance.ImpostorText.DestroyTranslator();
+                        __instance.ImpostorText.text = string.Format(GetString("SubText.LovingCrewmate"), otherLoverId.ColoredPlayerName());
                     }
 
                     break;
-                case CustomRoleTypes.Coven:
-                    __instance.TeamTitle.text = GetString("TeamCoven");
-                    __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Team.Coven.GetColor();
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
-                    __instance.ImpostorText.gameObject.SetActive(true);
-                    __instance.ImpostorText.text = GetString("SubText.Coven");
-                    break;
-            }
-
-            if ((Main.LoversPlayers.Count == 2) && Main.LoversPlayers.Exists(x => x.IsLocalPlayer()))
-            {
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
-                byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
-                __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.DestroyTranslator();
-                __instance.ImpostorText.text = string.Format(GetString("SubText.LovingCrewmate"), otherLoverId.ColoredPlayerName());
+                }
             }
         }
 
@@ -422,7 +467,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.AntiAdminer or
                     CustomRoles.Monitor
                     => FastDestroyableSingleton<HudManager>.Instance.Chat.warningSound,
-                    
+
                 CustomRoles.GM or
                     CustomRoles.Snitch or
                     CustomRoles.Speedrunner or
@@ -448,7 +493,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Chameleon or
                     CustomRoles.Drainer or
                     CustomRoles.Swooper or
-                    CustomRoles.Wraith                  
+                    CustomRoles.Wraith
                     => PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound,
 
                 CustomRoles.Addict or
@@ -569,7 +614,7 @@ internal static class BeginCrewmatePatch
             {
                 if (team.RoleRevealScreenTitle != "*") __instance.TeamTitle.text = team.RoleRevealScreenTitle;
 
-                if ((team.RoleRevealScreenBackgroundColor != "*") && ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color bgColor)) __instance.TeamTitle.color = __instance.BackgroundBar.material.color = bgColor;
+                if (team.RoleRevealScreenBackgroundColor != "*" && ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color bgColor)) __instance.TeamTitle.color = __instance.BackgroundBar.material.color = bgColor;
 
                 __instance.ImpostorText.gameObject.SetActive(team.RoleRevealScreenSubtitle != "*");
                 __instance.ImpostorText.text = team.RoleRevealScreenSubtitle;
@@ -636,7 +681,7 @@ internal static class BeginCrewmatePatch
             {
                 __instance.TeamTitle.text = GetString("HideAndSeek");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(52, 94, 235, byte.MaxValue);
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("SubText.HideAndSeek");
                 break;
@@ -652,7 +697,7 @@ internal static class BeginCrewmatePatch
             }
             case CustomGameMode.NaturalDisasters:
             {
-                __instance.TeamTitle.text = "<size=70%>" + GetString("NDPlayer") + "</size>";
+                __instance.TeamTitle.text = $"<size=70%>{GetString("NDPlayer")}</size>";
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(3, 252, 74, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.GuardianAngel);
                 __instance.ImpostorText.gameObject.SetActive(true);
@@ -666,6 +711,15 @@ internal static class BeginCrewmatePatch
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("RRPlayerInfo");
+                break;
+            }
+            case CustomGameMode.KingOfTheZones:
+            {
+                __instance.TeamTitle.text = $"<size=70%>{GetString("KOTZPlayer")}</size>";
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 0, 0, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("KOTZPlayerInfo");
                 break;
             }
             case CustomGameMode.AllInOne:
@@ -823,16 +877,20 @@ internal static class IntroCutsceneDestroyPatch
                     {
                         LateTask.New(() =>
                         {
-                            foreach (PlayerControl pc in aapc)
-                                pc.SetKillCooldown(kcd - 2);
+                            var sender = CustomRpcSender.Create("Intro - FixKillCooldown", SendOption.Reliable);
+                            bool hasValue = aapc.Aggregate(false, (current, pc) => current || sender.SetKillCooldown(pc, kcd - 2));
+                            sender.SendMessage(!hasValue);
                         }, 2f, "FixKillCooldownTask");
                     }
                     else if (Options.FixFirstKillCooldown.GetBool())
                     {
                         LateTask.New(() =>
                         {
+                            var sender = CustomRpcSender.Create("Intro - FixKillCooldown", SendOption.Reliable);
+                            var hasValue = false;
                             aapc.Do(x => x.ResetKillCooldown(false));
-                            aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                            aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => hasValue |= sender.SetKillCooldown(pc, Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                            sender.SendMessage(!hasValue);
                         }, 2f, "FixKillCooldownTask");
                     }
                     else Utils.SyncAllSettings();
@@ -850,6 +908,7 @@ internal static class IntroCutsceneDestroyPatch
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             PlayerControl lp = PlayerControl.LocalPlayer;
+
             LateTask.New(() =>
             {
                 lp.RpcChangeRoleBasis(lp.GetCustomRole());
@@ -862,98 +921,127 @@ internal static class IntroCutsceneDestroyPatch
 
                 LateTask.New(() =>
                 {
+                    var sender = CustomRpcSender.Create("Pet Assign On Game Start", SendOption.Reliable);
+
                     foreach (PlayerControl pc in aapc)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
 
                         string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId);
+                        PetsHelper.SetPet(pc, petId, sender);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
+
+                    sender.SendMessage();
 
                     AntiBlackout.SendGameData();
                 }, 0.3f, "Grant Pet For Everyone");
 
-                try
+                LateTask.New(() =>
                 {
-                    LateTask.New(() =>
+                    var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
+                    sender.Notify(lp, GetString("GLHF"), 2f);
+
+                    var hasValue = false;
+
+                    foreach (PlayerControl pc in aapc)
                     {
+                        if (pc.IsHost()) continue; // Skip the host
+
                         try
                         {
-                            lp.Notify(GetString("GLHF"), 2f);
+                            if (AmongUsClient.Instance.AmClient)
+                                pc.Shapeshift(pc, false);
 
-                            foreach (PlayerControl pc in aapc)
-                            {
-                                if (pc.IsHost()) continue; // Skip the host
+                            sender.AutoStartRpc(pc.NetId, 46);
+                            sender.WriteNetObject(pc);
+                            sender.Write(false);
+                            sender.EndRpc();
 
-                                try
-                                {
-                                    pc.RpcShapeshift(pc, false);
-                                    pc.Notify(GetString("GLHF"), 2f);
-                                }
-                                catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
-                            }
+                            sender.Notify(pc, GetString("GLHF"), 2f);
+
+                            hasValue = true;
                         }
-                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift.foreachCycle"); }
-                    }, 0.4f, "Show Pet For Everyone");
-                }
-                catch { }
+                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
+
+                        if (sender.stream.Length > 800)
+                        {
+                            sender.SendMessage();
+                            sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
+                            hasValue = false;
+                        }
+                    }
+
+                    sender.SendMessage(!hasValue);
+                }, 0.4f, "Show Pet For Everyone");
 
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
-            if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
-                LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
-
-            float specExileDelay = CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool() ? 12.5f : 1f;
-
-            foreach (var player in Main.AllPlayerControls)
+            try
             {
-                if (player.Is(CustomRoles.GM))
-                {
-                    player.RpcExile();
-                    Main.PlayerStates[player.PlayerId].SetDead();
-                }
+                if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
+                    LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
             }
+            catch (Exception e) { Utils.ThrowException(e); }
 
-            foreach (byte spectator in ChatCommands.Spectators)
+            try
             {
-                LateTask.New(() =>
+                System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
+                if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
+
+                if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool())
+                    LateTask.New(SetSpectatorsDead, 12.5f, log: false);
+                else SetSpectatorsDead();
+
+                void SetSpectatorsDead()
+                {
+                    var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
+                    spectators.ForEach(sender.RpcExileV2);
+                    sender.SendMessage(spectators.Count == 0);
+                    spectators.ForEach(x =>
                     {
-                        spectator.GetPlayer().RpcExileV2();
-                        Main.PlayerStates[spectator].SetDead();
-                    }, specExileDelay, $"Set Spectator Dead ({spectator.ColoredPlayerName().RemoveHtmlTags()})");
-            }
-
-            if (Options.RandomSpawn.GetBool() && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
-            {
-                RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
-                {
-                    0 => new RandomSpawn.SkeldSpawnMap(),
-                    1 => new RandomSpawn.MiraHQSpawnMap(),
-                    2 => new RandomSpawn.PolusSpawnMap(),
-                    3 => new RandomSpawn.DleksSpawnMap(),
-                    5 => new RandomSpawn.FungleSpawnMap(),
-                    _ => null
-                };
-
-                if ((map != null) && AmongUsClient.Instance.AmHost) aapc.Do(map.RandomTeleport);
-            }
-
-            if (lp.HasDesyncRole())
-            {
-                lp.Data.Role.AffectedByLightAffectors = false;
-
-                foreach (PlayerControl target in Main.AllPlayerControls)
-                {
-                    // Set all players as killable players
-                    target.Data.Role.CanBeKilled = true;
-
-                    // When target is impostor, set name color as white
-                    target.cosmetics.SetNameColor(Color.white);
-                    target.Data.Role.NameColor = Color.white;
+                        Main.PlayerStates[x.PlayerId].SetDead();
+                        Utils.AfterPlayerDeathTasks(x);
+                    });
                 }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
+            {
+                var map = RandomSpawn.SpawnMap.GetSpawnMap();
+                aapc.Do(map.RandomTeleport);
+            }
+
+            try
+            {
+                if (lp.HasDesyncRole())
+                {
+                    lp.Data.Role.AffectedByLightAffectors = false;
+
+                    foreach (PlayerControl target in Main.AllPlayerControls)
+                    {
+                        try
+                        {
+                            // Set all players as killable players
+                            target.Data.Role.CanBeKilled = true;
+
+                            // When target is impostor, set name color as white
+                            target.cosmetics.SetNameColor(Color.white);
+                            target.Data.Role.NameColor = Color.white;
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
+                    }
+                }
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
+                Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
+
+            if (CustomGameMode.HotPotato.IsActiveOrIntegrated())
+                HotPotato.OnGameStart();
 
             Utils.CheckAndSetVentInteractions();
 

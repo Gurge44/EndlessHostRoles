@@ -97,7 +97,7 @@ public static class MainMenuManagerPatch
             if (ShowingPanel
                     ? TitleLogoPatch.RightPanel.transform.localPosition.x > TitleLogoPatch.RightPanelOp.x + 0.03f
                     : TitleLogoPatch.RightPanel.transform.localPosition.x < TitleLogoPatch.RightPanelOp.x + 9f
-               )
+                )
                 TitleLogoPatch.RightPanel.transform.localPosition = lerp1;
         }
 

@@ -231,10 +231,9 @@ internal static class CustomHnS
             result[lp] = CustomRoles.GM;
             PlayerRoles[lp.PlayerId] = (new Hider(), CustomRoles.GM);
         }
+
         foreach (byte spectator in ChatCommands.Spectators)
-        {
             PlayerRoles[spectator] = (new Hider(), CustomRoles.GM);
-        }
 
         LateTask.New(() => result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
 
@@ -332,17 +331,16 @@ internal static class CustomHnS
             : string.Empty;
 
         string GetColorFromDanger() // 0: Highest, 4: Lowest
-        {
-            return danger switch
-            {
-                0 => "#ff1313",
-                1 => "#ff6a00",
-                2 => "#ffaa00",
-                3 => "#ffea00",
-                4 => "#ffff00",
-                _ => "#ffffff"
-            };
-        }
+            =>
+                danger switch
+                {
+                    0 => "#ff1313",
+                    1 => "#ff6a00",
+                    2 => "#ffaa00",
+                    3 => "#ffea00",
+                    4 => "#ffff00",
+                    _ => "#ffffff"
+                };
     }
 
     public static string GetRoleInfoText(PlayerControl seer)
@@ -352,14 +350,14 @@ internal static class CustomHnS
 
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
-        reason = GameOverReason.ImpostorByKill;
+        reason = GameOverReason.ImpostorsByKill;
 
         PlayerControl[] alivePlayers = Main.AllAlivePlayerControls;
 
         // If there are 0 players alive, the game is over and only foxes win
         if (alivePlayers.Length == 0)
         {
-            reason = GameOverReason.HumansDisconnect;
+            reason = GameOverReason.CrewmateDisconnect;
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
             AddFoxesToWinners();
             return true;
@@ -368,7 +366,7 @@ internal static class CustomHnS
         // If there are no crew roles left, the game is over and only impostors win
         if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
         {
-            reason = GameOverReason.HideAndSeek_ByKills;
+            reason = GameOverReason.HideAndSeek_ImpostorsByKills;
             SetWinners(CustomWinner.Seeker, Team.Impostor);
             return true;
         }
@@ -376,7 +374,7 @@ internal static class CustomHnS
         // If time is up or there are no impostors in the game, the game is over and crewmates win
         if (TimeLeft <= 0 || PlayerRoles.Values.All(x => x.Interface.Team != Team.Impostor))
         {
-            reason = TimeLeft <= 0 ? GameOverReason.HideAndSeek_ByTimer : GameOverReason.ImpostorDisconnect;
+            reason = TimeLeft <= 0 ? GameOverReason.HideAndSeek_CrewmatesByTimer : GameOverReason.ImpostorDisconnect;
             SetWinners(CustomWinner.Hider, Team.Crewmate);
             return true;
         }
@@ -432,15 +430,9 @@ internal static class CustomHnS
             stateText = $"{name}{stateText}";
             return stateText;
 
-            CustomRoles GetRole()
-            {
-                return state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
-            }
+            CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
 
-            string GetTaskCount()
-            {
-                return CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
-            }
+            string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
         }
 
         static string GetTaskText()
@@ -472,6 +464,9 @@ internal static class CustomHnS
         if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor) return;
 
         killer.Kill(target);
+
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+        ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
         // If the Troll is killed, they win
         if (target.Is(CustomRoles.Troll))

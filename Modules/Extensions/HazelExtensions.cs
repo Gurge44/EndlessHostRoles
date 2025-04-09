@@ -1,5 +1,4 @@
-﻿using System;
-using Hazel;
+﻿using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -7,8 +6,6 @@ namespace EHR;
 public static class HazelExtensions
 {
     // -------------------------------------------------------------------------------------------------------------------------
-
-    public static SendOption SendOption => GameStates.CurrentServerType == GameStates.ServerType.Vanilla && DateTime.UtcNow.Month >= 4 ? SendOption.None : SendOption.Reliable;
 
     public static void Write(this MessageWriter writer, Vector2 vector)
     {

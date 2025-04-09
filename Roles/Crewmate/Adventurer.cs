@@ -213,7 +213,7 @@ internal class Adventurer : RoleBase
                     case Weapon.Wrench:
                         if (Utils.IsActive(SystemTypes.Electrical))
                         {
-                            var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.TryCast<SwitchSystem>();
+                            var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
 
                             if (switchSystem != null)
                             {
@@ -414,7 +414,7 @@ internal class Adventurer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.IsModClient() && !hud) return string.Empty;
+        if (seer.IsModdedClient() && !hud) return string.Empty;
 
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
 

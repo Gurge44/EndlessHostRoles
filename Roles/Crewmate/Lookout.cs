@@ -28,8 +28,10 @@ internal class Lookout : RoleBase
         var sb = new StringBuilder();
 
         for (var i = 0; i < aapc.Length; i++)
+        {
             if (i % 3 == 0)
                 sb.AppendLine();
+        }
 
         for (var i = 0; i < aapc.Length; i++)
         {

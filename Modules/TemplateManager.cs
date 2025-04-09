@@ -77,10 +77,7 @@ public static class TemplateManager
                     File.WriteAllText(TemplateFilePath, GetResourcesTxt($"EHR.Resources.Config.template.{fileName}.txt"));
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "TemplateManager");
-            }
+            catch (Exception ex) { Logger.Exception(ex, "TemplateManager"); }
         }
         else
         {
@@ -126,8 +123,10 @@ public static class TemplateManager
                 Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId);
         }
         else
+        {
             foreach (string x in sendList)
                 Utils.SendMessage(ApplyReplaceDictionary(x), playerId);
+        }
     }
 
     private static string ApplyReplaceDictionary(string text)

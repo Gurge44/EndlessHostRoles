@@ -216,7 +216,10 @@ public class Wasp : RoleBase
         return Instances.Any(x => x.MeetingKills.Contains(target)) ? Utils.ColorString(Palette.ImpostorRed, "\u25c0") : string.Empty;
     }
 
-    HashSet<byte> GetStungPlayers(byte[] exileIds) => WaspPC == null || !WaspPC.IsAlive() || Main.AfterMeetingDeathPlayers.ContainsKey(WaspPC.PlayerId) || exileIds.Any(x => x == WaspPC.PlayerId) ? [] : MeetingKills;
+    private HashSet<byte> GetStungPlayers(byte[] exileIds)
+    {
+        return WaspPC == null || !WaspPC.IsAlive() || Main.AfterMeetingDeathPlayers.ContainsKey(WaspPC.PlayerId) || exileIds.Any(x => x == WaspPC.PlayerId) ? [] : MeetingKills;
+    }
 
     public void ReceiveRPC(MessageReader reader)
     {
@@ -225,7 +228,7 @@ public class Wasp : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != WaspPC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting || SwarmModeEnd == 0) return string.Empty;
+        if (seer.PlayerId != WaspPC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || SwarmModeEnd == 0) return string.Empty;
         return string.Format(Translator.GetString("Wasp.SwarmModeSuffix"), SwarmModeEnd - Utils.TimeStamp);
     }
 }

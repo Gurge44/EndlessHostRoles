@@ -120,12 +120,14 @@ public class Agitater : RoleBase
         CurrentBombedPlayer = target.PlayerId;
         LastBombedPlayer = killer.PlayerId;
         CurrentBombedPlayerTime = Utils.TimeStamp;
-        killer.RpcGuardAndKill(killer);
-        killer.Notify(GetString("AgitaterPassNotify"));
-        target.Notify(GetString("AgitaterTargetNotify"));
+        var sender = CustomRpcSender.Create("Agitater.OnCheckMurder", SendOption.Reliable);
+        sender.RpcGuardAndKill(killer, killer);
+        sender.Notify(killer, GetString("AgitaterPassNotify"));
+        sender.Notify(target, GetString("AgitaterTargetNotify"));
         AgitaterHasBombed = true;
         killer.ResetKillCooldown();
-        killer.SetKillCooldown();
+        sender.SetKillCooldown(killer);
+        sender.SendMessage();
 
         LateTask.New(() =>
         {
@@ -196,7 +198,7 @@ public class Agitater : RoleBase
                 {
                     KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float KillRange = GameOptionsData.KillDistances[Mathf.Clamp(GameOptionsManager.Instance.currentNormalGameOptions.KillDistance, 0, 2)];
+                    float KillRange = NormalGameOptionsV09.KillDistances[Mathf.Clamp(GameOptionsManager.Instance.currentNormalGameOptions.KillDistance, 0, 2)];
                     if (min.Value <= KillRange && player.CanMove && target.CanMove) PassBomb(player, target);
                 }
             }
@@ -246,7 +248,7 @@ public class Agitater : RoleBase
 
     private void SendRPC(byte newbomb, byte oldbomb)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RpcPassBomb, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RpcPassBomb, SendOption.Reliable);
         writer.Write(AgitaterId);
         writer.Write(newbomb);
         writer.Write(oldbomb);

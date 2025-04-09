@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -90,19 +91,23 @@ internal class Necromancer : RoleBase
     {
         if (Deathknight.DeathknightId == byte.MaxValue && !target.Is(CustomRoles.Loyal) && !target.Is(CustomRoles.Curser) && !target.IsConverted())
         {
-            target.RpcChangeRoleBasis(CustomRoles.Deathknight);
+            var sender = CustomRpcSender.Create("Necromancer.OnCheckMurder", SendOption.Reliable);
+
+            target.RpcChangeRoleBasis(CustomRoles.Deathknight, sender: sender);
             target.RpcSetCustomRole(CustomRoles.Deathknight);
 
-            killer.SetKillCooldown();
+            sender.SetKillCooldown(killer);
+
+            target.ResetKillCooldown();
+            sender.Notify(target, GetString("RecruitedToDeathknight"));
+
+            sender.SendMessage();
+
+            LateTask.New(() => target.SetKillCooldown(), 0.2f, log: false);
 
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target);
-
             target.MarkDirtySettings();
-            target.ResetKillCooldown();
-            target.SetKillCooldown();
-
-            target.Notify(GetString("RecruitedToDeathknight"));
 
             new[] { CustomRoles.Damocles, CustomRoles.Stressed }.Do(x => Main.PlayerStates[target.PlayerId].RemoveSubRole(x));
 
@@ -213,15 +218,19 @@ internal class Deathknight : RoleBase
         {
             target.RpcSetCustomRole(CustomRoles.Undead);
 
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("DeathknightRecruitedPlayer")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("RecruitedByDeathknight")));
+            var sender = CustomRpcSender.Create("Deathknight.OnCheckMurder", SendOption.Reliable);
+
+            sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("DeathknightRecruitedPlayer")));
+            sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("RecruitedByDeathknight")));
+
+            sender.SetKillCooldown(killer);
+            sender.RpcGuardAndKill(target, killer);
+            sender.RpcGuardAndKill(target, target);
+
+            sender.SendMessage();
 
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
-
-            killer.SetKillCooldown();
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
 
             Logger.Info($"Recruit: {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Undead}", $"Assign {CustomRoles.Undead}");
 

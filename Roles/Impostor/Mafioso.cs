@@ -119,15 +119,17 @@ public class Mafioso : RoleBase
     {
         if (!IsEnable || !DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoData, SendOption.Reliable);
         writer.Write(MafiosoId);
         writer.Write(Tier);
         writer.Write(XP);
         writer.Write(PreviouslyUsedVents.Count);
 
         if (PreviouslyUsedVents.Count > 0)
+        {
             foreach (int vent in PreviouslyUsedVents.ToArray())
                 writer.Write(vent);
+        }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -140,15 +142,17 @@ public class Mafioso : RoleBase
         int elements = reader.ReadInt32();
 
         if (elements > 0)
+        {
             for (var i = 0; i < elements; i++)
                 PreviouslyUsedVents.Add(reader.ReadInt32());
+        }
     }
 
     private void SendRPCSyncPistolCD()
     {
         if (!IsEnable || !DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMafiosoPistolCD, SendOption.Reliable);
         writer.Write(MafiosoId);
         writer.Write(Pistol1CD);
         writer.Write(Pistol2CD);

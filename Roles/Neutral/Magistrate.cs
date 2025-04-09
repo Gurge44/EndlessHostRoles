@@ -24,6 +24,7 @@ public class Magistrate : RoleBase
     public override void Init()
     {
         On = false;
+        CallCourtNextMeeting = false;
     }
 
     public override void Add(byte playerId)
@@ -37,7 +38,7 @@ public class Magistrate : RoleBase
     public override void AfterMeetingTasks()
     {
         CallCourtNextMeeting = false;
-        Main.AllPlayerControls.Do(x => Camouflage.RpcSetSkin(x, NotCommsOrCamo: true));
+        Main.AllPlayerControls.Do(x => Camouflage.RpcSetSkin(x, notCommsOrCamo: true));
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -83,13 +84,13 @@ public class Magistrate : RoleBase
         return false;
     }
 
-    static void UseAbility(PlayerControl pc)
+    private static void UseAbility(PlayerControl pc)
     {
         pc.RpcRemoveAbilityUse();
         CallCourtNextMeeting = true;
     }
 
-    enum AbilityTriggers
+    private enum AbilityTriggers
     {
         Vent,
         Pet,

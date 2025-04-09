@@ -11,9 +11,9 @@ public class Hypocrite : RoleBase
     private static OptionItem NonImpGetsNotifyWhenLowTasks;
     private static OptionItem NotifyAtXTasksLeft;
 
-    public override bool IsEnable => On;
-
     private PlayerControl HypocritePC;
+
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -49,12 +49,14 @@ public class Hypocrite : RoleBase
         else if (NonImpGetsNotifyWhenLowTasks.GetBool() && completedTaskCount + 1 >= totalTaskCount - NotifyAtXTasksLeft.GetInt())
         {
             Logger.Info($"Hypocrite ({pc.GetNameWithRole()}) has {NotifyAtXTasksLeft.GetInt()} tasks left", "Hypocrite");
-            
+
             LateTask.New(() =>
             {
                 foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                {
                     if (!player.Is(Team.Impostor))
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                }
             }, 0.1f, log: false);
         }
     }

@@ -25,25 +25,25 @@ internal class TimeMaster : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupRoleOptions(8950, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
+        SetupRoleOptions(652100, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
 
-        TimeMasterRewindTimeLength = new IntegerOptionItem(8959, "TimeMasterRewindTimeLength", new(0, 10, 1), 15, TabGroup.CrewmateRoles)
+        TimeMasterRewindTimeLength = new IntegerOptionItem(652110, "TimeMasterRewindTimeLength", new(0, 10, 1), 15, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Seconds);
 
-        TimeMasterSkillCooldown = new FloatOptionItem(8960, "AbilityCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
+        TimeMasterSkillCooldown = new FloatOptionItem(652111, "AbilityCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Seconds);
 
-        TimeMasterMaxUses = new IntegerOptionItem(8962, "TimeMasterMaxUses", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
+        TimeMasterMaxUses = new IntegerOptionItem(652112, "TimeMasterMaxUses", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Times);
 
-        TimeMasterAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(8963, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
+        TimeMasterAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(652113, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Times);
 
-        TimeMasterAbilityChargesWhenFinishedTasks = new FloatOptionItem(8964, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        TimeMasterAbilityChargesWhenFinishedTasks = new FloatOptionItem(652114, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -122,7 +122,7 @@ internal class TimeMaster : RoleBase
 
                 foreach ((byte playerId, Vector2 pos) in track)
                 {
-                    var player = playerId.GetPlayer();
+                    PlayerControl player = playerId.GetPlayer();
                     if (player == null || !player.IsAlive()) continue;
 
                     player.TP(pos);
@@ -133,7 +133,7 @@ internal class TimeMaster : RoleBase
 
             foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
             {
-                if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out var ps)) continue;
+                if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out PlayerState ps)) continue;
 
                 if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
                 {

@@ -64,10 +64,7 @@ internal class Cloud
             //LOBBY_PORT = int.Parse(ar[1]);
             EAC_PORT = int.Parse(ar[2]);
         }
-        catch (Exception e)
-        {
-            Logger.Exception(e, "Cloud Init");
-        }
+        catch (Exception e) { Logger.Exception(e, "Cloud Init"); }
     }
 
     private static string GetResourcesTxt(string path)

@@ -9,6 +9,7 @@ using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
+using Hazel;
 using InnerNet;
 
 namespace EHR;
@@ -65,6 +66,7 @@ public class PlayerState(byte playerId)
         Echoed,
         Dragged,
         Mauled,
+        WipedOut,
 
         // Natural Disasters
         Meteor,
@@ -92,10 +94,9 @@ public class PlayerState(byte playerId)
 
     private int RoleChangeTimes = -1;
     public bool IsDead { get; set; }
-#pragma warning disable IDE1006 // Naming Styles
+
     // ReSharper disable once InconsistentNaming
     public DeathReason deathReason { get; set; } = DeathReason.etc;
-#pragma warning restore IDE1006 // Naming Styles
     public bool IsBlackOut { get; set; }
 
     public bool IsSuicide => deathReason == DeathReason.Suicide;
@@ -106,7 +107,7 @@ public class PlayerState(byte playerId)
         try { Utils.RemovePlayerFromPreviousRoleData(Player); }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        var previousHasTasks = Utils.HasTasks(Player.Data, false);
+        bool previousHasTasks = Utils.HasTasks(Player.Data, false);
 
         countTypes = role.GetCountTypes();
 
@@ -138,13 +139,20 @@ public class PlayerState(byte playerId)
 
         Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
+        if (Main.IntroDestroyed)
+        {
+            if (!previousHasTasks && Utils.HasTasks(Player.Data, false))
+            {
+                Player.RpcResetTasks();
+                if (!AmongUsClient.Instance.AmHost) LateTask.New(() => TaskState.Init(Player), 1f, log: false);
+            }
+        }
+
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (!Main.HasJustStarted)
+        if (Main.IntroDestroyed)
         {
             Player.ResetKillCooldown();
-            Utils.NotifyRoles(SpecifySeer: Player);
-            Utils.NotifyRoles(SpecifyTarget: Player);
 
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
@@ -168,15 +176,20 @@ public class PlayerState(byte playerId)
             if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                 Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 
-            if (Options.UsePets.GetBool()) PetsHelper.SetPet(Player, PetsHelper.GetPetId());
+            if (Options.UsePets.GetBool())
+            {
+                var sender = CustomRpcSender.Create("PlayerState.SetMainRole", SendOption.Reliable);
+                PetsHelper.SetPet(Player, PetsHelper.GetPetId(), sender);
+                sender.SendMessage();
+            }
 
-            var nowHasTasks = Utils.HasTasks(Player.Data, false);
-            if (!previousHasTasks && nowHasTasks) TaskState.Init(Player);
+            Utils.NotifyRoles(SpecifySeer: Player);
+            Utils.NotifyRoles(SpecifyTarget: Player);
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
-        if (Main.HasJustStarted || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+        if (!Main.IntroDestroyed || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
         RoleChangeTimes++;
         if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();
@@ -435,7 +448,7 @@ public class TaskState
                         sm.SendRPC();
                         break;
                     case CustomRoles.NiceHacker:
-                        if (!player.IsModClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId))
+                        if (!player.IsModdedClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId))
                             NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
                         else if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
 
@@ -473,8 +486,10 @@ public class TaskState
 
             // Update the player's task count for Task Managers
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
+            }
         }
 
         if (CompletedTasksCount >= AllTasksCount) return;
@@ -519,14 +534,15 @@ public static class GameStates
     public enum ServerType
     {
         Vanilla,
-        Modded,
+        ModdedWithCNOSupport,
+        ModdedWithoutCNOSupport,
         Niko,
         Custom
     }
 
     public static bool InGame;
     public static bool AlreadyDied;
-    public static bool IsModHost => PlayerControl.LocalPlayer.IsHost() || PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModClient());
+    public static bool IsModHost => PlayerControl.LocalPlayer.IsHost() || PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModdedClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
     public static bool IsEnded => GameEndChecker.Ended || AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;
@@ -552,7 +568,8 @@ public static class GameStates
             {
                 "Local Game" => ServerType.Custom,
                 "EU" or "NA" or "AS" => ServerType.Vanilla,
-                "MEU" or "MNA" or "MAS" => ServerType.Modded,
+                "MNA" => ServerType.ModdedWithoutCNOSupport,
+                "MEU" or "MAS" => ServerType.ModdedWithCNOSupport,
                 _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
             };
         }

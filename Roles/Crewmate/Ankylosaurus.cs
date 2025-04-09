@@ -8,13 +8,13 @@ public class Ankylosaurus : RoleBase
 {
     public static bool On;
 
-    public override bool IsEnable => On;
-
     private static OptionItem Speed;
     private static OptionItem Vision;
     private static OptionItem Lives;
 
     private int LivesLeft;
+
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -39,7 +39,7 @@ public class Ankylosaurus : RoleBase
     {
         Main.AllPlayerSpeed[playerId] = Speed.GetFloat();
 
-        var vision = Vision.GetFloat();
+        float vision = Vision.GetFloat();
         opt.SetFloat(FloatOptionNames.CrewLightMod, vision);
         opt.SetFloat(FloatOptionNames.ImpostorLightMod, vision);
     }

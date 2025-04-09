@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 
@@ -39,7 +40,7 @@ internal static class DisableDevice
     public static float UsableDistance => Main.CurrentMap switch
     {
         MapNames.Skeld => 1.8f,
-        MapNames.Mira => 2.4f,
+        MapNames.MiraHQ => 2.4f,
         MapNames.Polus => 1.8f,
         MapNames.Dleks => 1.5f,
         MapNames.Airship => 1.8f,
@@ -56,11 +57,14 @@ internal static class DisableDevice
 
         if (!DoDisable && !rogueForce) return;
 
+        var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable);
+        var hasValue = false;
+
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             try
             {
-                if (pc.IsModClient()) continue;
+                if (pc.IsModdedClient()) continue;
 
                 var doComms = false;
                 Vector2 PlayerPos = pc.Pos();
@@ -116,20 +120,24 @@ internal static class DisableDevice
                 if (doComms && !pc.inVent)
                 {
                     if (!DesyncComms.Contains(pc.PlayerId)) DesyncComms.Add(pc.PlayerId);
-
-                    pc.RpcDesyncRepairSystem(SystemTypes.Comms, 128);
+                    sender.RpcDesyncRepairSystem(pc, SystemTypes.Comms, 128);
+                    hasValue = true;
                 }
                 else if (!Utils.IsActive(SystemTypes.Comms) && DesyncComms.Contains(pc.PlayerId))
                 {
                     DesyncComms.Remove(pc.PlayerId);
-                    pc.RpcDesyncRepairSystem(SystemTypes.Comms, 16);
+                    sender.RpcDesyncRepairSystem(pc, SystemTypes.Comms, 16);
 
                     if (Main.NormalOptions.MapId is 1 or 5) // Mira HQ or The Fungle
-                        pc.RpcDesyncRepairSystem(SystemTypes.Comms, 17);
+                        sender.RpcDesyncRepairSystem(pc, SystemTypes.Comms, 17);
+
+                    hasValue = true;
                 }
             }
             catch (Exception ex) { Logger.Exception(ex, "DisableDevice"); }
         }
+
+        sender.SendMessage(!hasValue);
     }
 }
 

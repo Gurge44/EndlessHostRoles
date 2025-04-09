@@ -37,7 +37,7 @@ public static class HudSpritePatch
             if (player == null) return;
 
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
-            if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive() || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+            if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive() || Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.CaptureTheFlag) return;
 
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
             {
@@ -80,6 +80,11 @@ public static class HudSpritePatch
                     if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("abscond");
                     else newSabotageButton = CustomButton.Get("abscond");
 
+                    break;
+                }
+                case CustomRoles.Dreamweaver:
+                {
+                    newKillButton = CustomButton.Get("Dreamweave");
                     break;
                 }
                 case CustomRoles.Wizard:
@@ -130,6 +135,11 @@ public static class HudSpritePatch
                 case CustomRoles.Commander:
                 {
                     newAbilityButton = CustomButton.Get("Commander");
+                    break;
+                }
+                case CustomRoles.Cleaner:
+                {
+                    newReportButton = CustomButton.Get("Clean");
                     break;
                 }
                 case CustomRoles.Amnesiac:

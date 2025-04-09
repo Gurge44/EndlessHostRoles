@@ -122,7 +122,7 @@ public class Romantic : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncRomanticTarget, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncRomanticTarget, SendOption.Reliable);
         writer.Write(PartnerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -186,12 +186,16 @@ public class Romantic : RoleBase
         {
             IsPartnerProtected = true;
 
+            var sender = CustomRpcSender.Create("Romantic.OnCheckMurder - 1", SendOption.Reliable);
+
             RomanticPC.ResetKillCooldown();
-            RomanticPC.SetKillCooldown();
+            sender.SetKillCooldown(RomanticPC);
             RomanticPC.RPCPlayCustomSound("Shield");
 
-            RomanticPC.Notify(GetString("RomanticProtectPartner"));
-            Partner.Notify(GetString("RomanticIsProtectingYou"));
+            sender.Notify(RomanticPC, GetString("RomanticProtectPartner"));
+            sender.Notify(Partner, GetString("RomanticIsProtectingYou"));
+
+            sender.SendMessage();
 
             LateTask.New(() =>
             {
@@ -201,10 +205,14 @@ public class Romantic : RoleBase
 
                 if (!GameStates.IsInTask) return;
 
-                RomanticPC.Notify(GetString("ProtectingOver"));
-                Partner.Notify(GetString("ProtectingOver"));
+                var sender2 = CustomRpcSender.Create("Romantic.OnCheckMurder - 2", SendOption.Reliable);
 
-                RomanticPC.SetKillCooldown();
+                sender2.Notify(RomanticPC, GetString("ProtectingOver"));
+                sender2.Notify(Partner, GetString("ProtectingOver"));
+
+                sender2.SetKillCooldown(RomanticPC);
+
+                sender2.SendMessage();
             }, ProtectDuration.GetFloat(), "RomanticProtecting");
         }
 
@@ -393,7 +401,7 @@ public class VengefulRomantic : RoleBase
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncVengefulRomanticTarget, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncVengefulRomanticTarget, SendOption.Reliable);
         writer.Write(Target);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

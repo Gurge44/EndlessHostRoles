@@ -224,8 +224,10 @@ internal static class EffectExtenstions
                         foreach (KeyValuePair<Vector2, Vector2> rift1 in Rifts)
                         {
                             foreach (KeyValuePair<Vector2, Vector2> rift2 in Rifts)
+                            {
                                 if (rift1.Key != rift2.Key && Vector2.Distance(rift1.Key, rift2.Key) <= 4f)
                                     riftsToRemove.Add(rift2.Key);
+                            }
                         }
 
                         foreach (Vector2 rift in riftsToRemove) Rifts.Remove(rift);

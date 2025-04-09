@@ -10,7 +10,7 @@ public class LastImpostor : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupSingleRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor);
+        Options.SetupSingleRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor, zeroOne: true);
 
         Reduction = new FloatOptionItem(Id + 15, "SansReduceKillCooldown", new(5f, 95f, 5f), 20f, TabGroup.Addons)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.LastImpostor])

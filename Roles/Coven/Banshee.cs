@@ -13,6 +13,8 @@ public class Banshee : Coven
 
     private static OptionItem AbilityCooldown;
     private static OptionItem Radius;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     private byte BansheeId;
 
@@ -26,7 +28,9 @@ public class Banshee : Coven
     {
         StartSetup(650090)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref Radius, 3f, new FloatValueRule(0.25f, 10f, 0.25f), OptionFormat.Multiplier);
+            .AutoSetupOption(ref Radius, 3f, new FloatValueRule(0.25f, 10f, 0.25f), OptionFormat.Multiplier)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
 
     public override void Init()
@@ -48,10 +52,15 @@ public class Banshee : Coven
         Instances.Remove(this);
     }
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
+    }
+
     public override bool OnVanish(PlayerControl pc)
     {
-        var radius = Radius.GetFloat();
-        var pos = pc.Pos();
+        float radius = Radius.GetFloat();
+        Vector2 pos = pc.Pos();
         IEnumerable<PlayerControl> nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc);
 
         if (!HasNecronomicon) ScreechedPlayers = nearbyPlayers.Select(x => x.PlayerId).ToHashSet();
@@ -59,12 +68,15 @@ public class Banshee : Coven
 
         if (ScreechedPlayers.Count > 0)
         {
-            var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
-            w.Write(BansheeId);
-            w.WritePacked(1);
-            w.WritePacked(ScreechedPlayers.Count);
-            ScreechedPlayers.Do(x => w.Write(x));
-            Utils.EndRPC(w);
+            if (Utils.DoRPC)
+            {
+                MessageWriter w = Utils.CreateRPC(CustomRPC.SyncRoleData);
+                w.Write(BansheeId);
+                w.WritePacked(1);
+                w.WritePacked(ScreechedPlayers.Count);
+                ScreechedPlayers.Do(x => w.Write(x));
+                Utils.EndRPC(w);
+            }
 
             Utils.NotifyRoles(SpecifySeer: pc);
         }
@@ -101,7 +113,7 @@ public class Banshee : Coven
 
     public static void OnReceiveChat()
     {
-        var screechedPlayers = Instances.SelectMany(x => x.ScreechedPlayers).ToValidPlayers().ToHashSet();
+        HashSet<PlayerControl> screechedPlayers = Instances.SelectMany(x => x.ScreechedPlayers).ToValidPlayers().ToHashSet();
         if (screechedPlayers.Count == 0) return;
 
         LateTask.New(() => screechedPlayers.Do(ChatManager.ClearChatForSpecificPlayer), Utils.CalculatePingDelay());

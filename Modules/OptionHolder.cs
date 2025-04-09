@@ -28,7 +28,8 @@ public enum CustomGameMode
     CaptureTheFlag = 0x08,
     NaturalDisasters = 0x09,
     RoomRush = 0x0A,
-    AllInOne = 0x0B,
+    KingOfTheZones = 0x0B,
+    AllInOne = 0x0C,
     All = int.MaxValue
 }
 
@@ -75,6 +76,7 @@ public static class Options
         "CaptureTheFlag",
         "NaturalDisasters",
         "RoomRush",
+        "KingOfTheZones",
         "AllInOne"
     ];
 
@@ -230,6 +232,9 @@ public static class Options
     public static OptionItem LowLoadMode;
     public static OptionItem DeepLowLoad;
     public static OptionItem DisableVoteBan;
+
+    public static OptionItem MinNNKs;
+    public static OptionItem MaxNNKs;
 
     public static OptionItem CovenReceiveNecronomiconAfterNumMeetings;
     public static OptionItem CovenLeaderKillCooldown;
@@ -669,6 +674,7 @@ public static class Options
 
     public static OptionItem PostLobbyCodeToEHRWebsite;
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
+    public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
@@ -819,11 +825,15 @@ public static class Options
         7 => CustomGameMode.CaptureTheFlag,
         8 => CustomGameMode.NaturalDisasters,
         9 => CustomGameMode.RoomRush,
-        10 => CustomGameMode.AllInOne,
+        10 => CustomGameMode.KingOfTheZones,
+        11 => CustomGameMode.AllInOne,
         _ => CustomGameMode.Standard
     };
 
-    public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode) => CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(customGameMode, out var option) && option.GetBool());
+    public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode)
+    {
+        return CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(customGameMode, out OptionItem option) && option.GetBool());
+    }
 
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize))]
     [HarmonyPostfix]
@@ -844,6 +854,13 @@ public static class Options
         GroupOptions();
         GroupAddons();
         Achievements.LoadAllData();
+        OptionShower.LastText = Translator.GetString("Loading");
+
+        if (AllCrewRolesHaveVanillaColor.GetBool())
+        {
+            List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => x.IsCrewmate()).ToList();
+            toChange.ForEach(x => Main.RoleColors[x] = "#8cffff");
+        }
 
 #if DEBUG
         // Used for generating the table of roles for the README
@@ -993,7 +1010,7 @@ public static class Options
 
         #region RoleListMaker
 
-        int id = 19820;
+        var id = 19820;
 
         foreach (Team team in new[] { Team.Impostor, Team.Neutral, Team.Coven })
         {
@@ -1013,17 +1030,24 @@ public static class Options
                 _ => TabGroup.OtherRoles
             };
 
-            var minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), defaultNum.Min, tab)
+            OptionItem minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), defaultNum.Min, tab)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(team.GetColor());
 
-            var maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), defaultNum.Max, tab)
+            OptionItem maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), defaultNum.Max, tab)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(team.GetColor());
 
             FactionMinMaxSettings[team] = (minSetting, maxSetting);
         }
+
+        MinNNKs = new IntegerOptionItem(id++, "MinNNKs", new(0, 15, 1), 0, TabGroup.NeutralRoles)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true);
+
+        MaxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(0, 15, 1), 2, TabGroup.NeutralRoles)
+            .SetGameMode(CustomGameMode.Standard);
 
         HashSet<TabGroup> doneTabs = [];
 
@@ -1288,10 +1312,7 @@ public static class Options
             yield return null;
         }
 
-        void Log()
-        {
-            Logger.Info(" " + RoleLoadingText, MainLoadingText);
-        }
+        void Log() => Logger.Info(" " + RoleLoadingText, MainLoadingText);
 
 
         LoadingPercentage = 60;
@@ -1376,7 +1397,7 @@ public static class Options
         KickNotJoinedPlayersRegularly = new BooleanOptionItem(60295, "KickNotJoinedPlayersRegularly", true, TabGroup.SystemSettings)
             .SetColor(Color.yellow);
 
-        CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings)
+        CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 4, TabGroup.SystemSettings)
             .SetHeader(true);
 
         EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", false, TabGroup.SystemSettings)
@@ -1426,6 +1447,9 @@ public static class Options
 
         StoreCompletedAchievementsOnEHRDatabase = new BooleanOptionItem(19423, "StoreCompletedAchievementsOnEHRDatabase", true, TabGroup.SystemSettings);
 
+        AllCrewRolesHaveVanillaColor = new BooleanOptionItem(19424, "AllCrewRolesHaveVanillaColor", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .SetHeader(true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
@@ -1464,6 +1488,8 @@ public static class Options
         NaturalDisasters.SetupCustomOption();
         // Room Rush
         RoomRush.SetupCustomOption();
+        // King Of The Zones
+        KingOfTheZones.SetupCustomOption();
 
         yield return null;
 
@@ -2359,18 +2385,18 @@ public static class Options
         GuesserNumRestrictions = new BooleanOptionItem(19722, "GuesserNumRestrictions", false, TabGroup.TaskSettings)
             .SetParent(GuesserMode);
 
-        int goId = 19723;
+        var goId = 19723;
 
         NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
         {
             Color teamColor = x.GetColor();
 
-            var min = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Min", new(1, 15, 1), 15, TabGroup.TaskSettings)
+            OptionItem min = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Min", new(1, 15, 1), 15, TabGroup.TaskSettings)
                 .SetParent(GuesserNumRestrictions)
                 .SetValueFormat(OptionFormat.Players)
                 .SetColor(teamColor);
 
-            var max = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Max", new(1, 15, 1), 15, TabGroup.TaskSettings)
+            OptionItem max = new IntegerOptionItem(goId++, $"NumGuessersOn.{x}.Max", new(1, 15, 1), 15, TabGroup.TaskSettings)
                 .SetParent(GuesserNumRestrictions)
                 .SetValueFormat(OptionFormat.Players)
                 .SetColor(teamColor);
@@ -2681,7 +2707,7 @@ public static class Options
 
     public static OptionItem CreateVoteCancellingUseSetting(int id, CustomRoles role, TabGroup tab)
     {
-        return new BooleanOptionItem(id, "UseVoteCancellingAfterVote", false, tab)
+        return new BooleanOptionItem(id, "UseVoteCancellingAfterVote", true, tab)
             .SetParent(CustomRoleSpawnChances[role])
             .SetColor(Color.yellow);
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -115,7 +116,7 @@ public class Spiritcaller : RoleBase
 
             target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
-            var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
+            var writer = CustomRpcSender.Create("SpiritCallerSendMessage", SendOption.Reliable);
             writer.StartMessage(target.GetClientId());
 
             writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)

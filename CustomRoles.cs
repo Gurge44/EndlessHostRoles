@@ -109,6 +109,7 @@ public enum CustomRoles
     Warlock,
     Wasp,
     Wildling,
+    Wiper,
     Witch,
     YinYanger,
     Zombie,
@@ -420,6 +421,9 @@ public enum CustomRoles
 
     // Room Rush
     RRPlayer,
+
+    // King of the Zones
+    KOTZPlayer,
 
     // GM
     GM,

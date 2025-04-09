@@ -25,6 +25,11 @@ public class CovenLeader : Coven
         CovenLeaderId = playerId;
     }
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return pc.IsAlive();
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();
@@ -37,7 +42,7 @@ public class CovenLeader : Coven
 
     public override void SetKillCooldown(byte id)
     {
-        var kcd = Options.CovenLeaderKillCooldown.GetFloat();
+        float kcd = Options.CovenLeaderKillCooldown.GetFloat();
         Main.AllPlayerKillCooldown[id] = HasNecronomicon ? kcd / 2f : kcd;
     }
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace EHR.Patches;
 
@@ -11,13 +12,15 @@ internal static class CreateOptionsPickerPatch
     public static bool SetDleks;
     private static MapSelectButton DleksButton;
 
-    [HarmonyPatch(typeof(GameOptionsMapPicker))]
+    [HarmonyPatch]
     public static class GameOptionsMapPickerPatch
     {
-        [HarmonyPatch(nameof(GameOptionsMapPicker.Initialize))]
+        [HarmonyPatch(typeof(GameOptionsMapPicker), nameof(GameOptionsMapPicker.SetupMapButtons))]
         [HarmonyPostfix]
-        public static void Postfix_Initialize(GameOptionsMapPicker __instance)
+        public static void Postfix_Initialize(CreateGameMapPicker __instance)
         {
+            if (SceneManager.GetActiveScene().name == "FindAGame") return;
+
             const int dleksPos = 3;
 
             MapSelectButton[] AllMapButton = __instance.transform.GetComponentsInChildren<MapSelectButton>();
@@ -29,7 +32,13 @@ internal static class CreateOptionsPickerPatch
                 dlekS_ehT.transform.SetSiblingIndex(dleksPos + 2);
                 var dlekS_ehT_MapButton = dlekS_ehT.GetComponent<MapSelectButton>();
                 DleksButton = dlekS_ehT_MapButton;
-                dlekS_ehT_MapButton.MapIcon.transform.localScale = new(-1f, 1f, 1f);
+
+                foreach (SpriteRenderer icon in dlekS_ehT_MapButton.MapIcon)
+                {
+                    if (icon == null || icon.transform == null) continue;
+                    icon.flipX = true;
+                }
+
                 dlekS_ehT_MapButton.Button.OnClick.RemoveAllListeners();
 
                 dlekS_ehT_MapButton.Button.OnClick.AddListener((Action)(() =>
@@ -69,13 +78,27 @@ internal static class CreateOptionsPickerPatch
             }
         }
 
-        [HarmonyPatch(nameof(GameOptionsMapPicker.FixedUpdate))]
+        [HarmonyPatch(typeof(GameOptionsMapPicker), nameof(GameOptionsMapPicker.FixedUpdate))]
         [HarmonyPrefix]
         public static bool Prefix_FixedUpdate(GameOptionsMapPicker __instance)
         {
+            if (__instance == null) return true;
+            if (__instance.MapName == null) return false;
+
             if (DleksButton != null) SetDleks = __instance.selectedMapId == 3;
 
-            return __instance.selectedMapId != 3;
+            if (__instance.selectedMapId == 3)
+            {
+                if (SceneManager.GetActiveScene().name == "FindAGame")
+                {
+                    __instance.SelectMap(0);
+                    SetDleks = false;
+                }
+
+                return false;
+            }
+
+            return true;
         }
     }
 
@@ -138,7 +161,6 @@ internal static class CreateOptionsPickerPatch
 
             SwapIconOrButtonPositions(airhipIconInMenu, dleksIconInMenuCopy);
             SwapIconOrButtonPositions(fungleIconInMenu, airhipIconInMenu);
-
             SwapIconOrButtonPositions(airshipMenuButton, dleksMenuButtonCopy);
 
             // set flipped dleks map Icon/button

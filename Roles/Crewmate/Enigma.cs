@@ -414,8 +414,8 @@ public class Enigma : RoleBase
         public override string GetMessage(PlayerControl killer, bool showStageClue)
         {
             CustomRoles role = killer.GetCustomRole();
-            
-            string str = "EnigmaClueRole3";
+
+            var str = "EnigmaClueRole3";
             if (role.IsImpostor()) str = "EnigmaClueRole1";
             if (role.IsNeutral()) str = "EnigmaClueRole2";
             if (role.IsCoven()) str = "EnigmaClueRole4";

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
@@ -22,7 +21,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     private PlayerControl player = player;
 
     private static IGameOptions BasedGameOptions =>
-        Main.RealOptionsData.Restore(new NormalGameOptionsV08(new UnityLogger().CastFast<ILogger>()).CastFast<IGameOptions>());
+        Main.RealOptionsData.Restore(new NormalGameOptionsV09(new UnityLogger().CastFast<ILogger>()).CastFast<IGameOptions>());
 
     protected override bool IsDirty { get; set; }
 
@@ -45,6 +44,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (var index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
+
             if (allSender is PlayerGameOptionsSender sender)
                 sender.SetDirty();
         }
@@ -56,6 +56,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (var index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
+
             if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.HasDesyncRole() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId)))
                 sender.SetDirty();
         }
@@ -67,6 +68,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (var index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
+
             if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
                 sender.SetDirty();
         }
@@ -78,6 +80,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (var index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
+
             if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && sender.player.CanUseKillButton())
                 sender.SetDirty();
         }
@@ -97,8 +100,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (GameManager.Instance?.LogicComponents != null)
             {
                 foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
+                {
                     if (com.TryCast(out LogicOptions lo))
                         lo.SetGameOptions(opt);
+                }
             }
 
             GameOptionsManager.Instance.CurrentGameOptions = opt;
@@ -175,6 +180,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:
+                case CustomGameMode.KingOfTheZones:
                     SetMaxVision();
                     break;
                 case CustomGameMode.HideAndSeek:

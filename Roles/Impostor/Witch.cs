@@ -75,14 +75,14 @@ public class Witch : RoleBase
 
         if (doSpell)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, HazelExtensions.SendOption);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DoSpell, SendOption.Reliable);
             writer.Write(witchId);
             writer.Write(target);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillOrSpell, HazelExtensions.SendOption);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillOrSpell, SendOption.Reliable);
             writer.Write(witchId);
             writer.Write(spellMode);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -230,15 +230,17 @@ public class Witch : RoleBase
         if (!isMeeting) return string.Empty;
 
         foreach (byte id in PlayerIdList)
+        {
             if (Main.PlayerStates[id].Role is Witch { IsEnable: true } wc && wc.IsSpelled(target))
                 return Utils.ColorString(wc.IsHM ? Utils.GetRoleColor(CustomRoles.HexMaster) : Palette.ImpostorRed, "†");
+        }
 
         return string.Empty;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         var str = new StringBuilder();
 
@@ -268,8 +270,10 @@ public class Witch : RoleBase
         if (!AmongUsClient.Instance.AmHost) return;
 
         if (PlayerIdList.Contains(pc.PlayerId))
+        {
             if (NowSwitchTrigger is SwitchTrigger.Vent)
                 SwitchSpellMode(pc.PlayerId, false);
+        }
     }
 
     private enum SwitchTrigger

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using EHR.Crewmate;
 using EHR.Modules;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -182,10 +183,19 @@ public class Mastermind : RoleBase
             return false;
         }
 
-        killer.Kill(target);
+        var sender = CustomRpcSender.Create("Mastermind.ForceKillForManipulatedPlayer", SendOption.Reliable);
 
-        killer.Notify(GetString("MastermindTargetSurvived"));
-        killer.RpcChangeRoleBasis(killer.GetCustomRole());
+        const MurderResultFlags resultFlags = (MurderResultFlags)(8 | 1);
+        if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, resultFlags);
+        sender.AutoStartRpc(killer.NetId, 12);
+        sender.WriteNetObject(target);
+        sender.Write((int)resultFlags);
+        sender.EndRpc();
+
+        sender.Notify(killer, GetString("MastermindTargetSurvived"));
+        killer.RpcChangeRoleBasis(killer.GetCustomRole(), sender: sender);
+
+        sender.SendMessage();
 
         LateTask.New(() =>
         {

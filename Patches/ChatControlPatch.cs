@@ -6,6 +6,7 @@ using EHR.Coven;
 using EHR.Impostor;
 using EHR.Patches;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using UnityEngine;
 
@@ -161,6 +162,7 @@ public static class ChatManager
     public static void SendMessage(PlayerControl player, string message)
     {
         string playername = player.GetNameWithRole();
+        string originalMessage = message.Trim();
         message = message.ToLower().Trim();
 
         if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())) return;
@@ -196,9 +198,7 @@ public static class ChatManager
                 Logger.Info($"Command: {message}", "ChatManager");
                 break;
             case 3: // In Lobby & Evertything Else
-                var chatEntry = $"{player.PlayerId}: {message}";
-                ChatHistory.Add(chatEntry);
-                if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
+                AddChatHistory(player, originalMessage);
                 break;
         }
 
@@ -207,6 +207,13 @@ public static class ChatManager
 
         if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.InGame && operate != 1 && Banshee.On)
             Banshee.OnReceiveChat();
+    }
+
+    public static void AddChatHistory(PlayerControl player, string message)
+    {
+        var chatEntry = $"{player.PlayerId}: {message}";
+        ChatHistory.Add(chatEntry);
+        if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
     }
 
     public static void SendPreviousMessagesToAll(bool clear = false)
@@ -218,19 +225,18 @@ public static class ChatManager
 
         try
         {
-            int totalAlive = Main.AllAlivePlayerControls.Length;
-            if (totalAlive == 0) return;
-
-            PlayerControl[] x = Main.AllAlivePlayerControls;
-            var r = IRandom.Instance;
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            if (aapc.Length == 0) return;
 
             string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+            ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
 
             for (int i = clear ? 0 : filtered.Length; i < 20; i++)
             {
-                PlayerControl player = x[r.Next(0, totalAlive)];
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, Utils.EmptyMessage);
-                SendRPC(player, Utils.EmptyMessage);
+                PlayerControl player = aapc.RandomElement();
+                chat.AddChat(player, Utils.EmptyMessage);
+                SendRPC(writer, player, Utils.EmptyMessage);
             }
 
             if (!clear)
@@ -245,19 +251,19 @@ public static class ChatManager
                     PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
                     if (senderPlayer == null) continue;
 
-                    FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-                    SendRPC(senderPlayer, senderMessage);
+                    chat.AddChat(senderPlayer, senderMessage);
+                    SendRPC(writer, senderPlayer, senderMessage);
                 }
             }
 
-            ChatUpdatePatch.SendLastMessages();
+            ChatUpdatePatch.SendLastMessages(writer);
+            writer.SendMessage();
         }
         finally { ChatUpdatePatch.DoBlockChat = false; }
     }
 
-    private static void SendRPC(InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
+    private static void SendRPC(CustomRpcSender writer, InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
     {
-        var writer = CustomRpcSender.Create("MessagesToSend");
         writer.StartMessage(targetClientId);
 
         writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
@@ -265,25 +271,27 @@ public static class ChatManager
             .EndRpc();
 
         writer.EndMessage();
-        writer.SendMessage();
     }
 
     public static void ClearChatForSpecificPlayer(PlayerControl target)
     {
-        var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        PlayerControl sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (sender == null) return;
 
         Logger.Info($"Desync Clear Chat for {target.GetNameWithRole()}", "ChatManager");
 
         if (!target.IsLocalPlayer())
         {
-            var clientId = target.GetClientId();
+            int clientId = target.GetClientId();
             if (clientId == -1) return;
 
-            Loop.Times(20, _ => SendRPC(sender, Utils.EmptyMessage, clientId));
+            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+            Loop.Times(20, _ => SendRPC(writer, sender, Utils.EmptyMessage, clientId));
+            writer.SendMessage();
             return;
         }
 
-        Loop.Times(20, _ => FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, Utils.EmptyMessage));
+        ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+        Loop.Times(20, _ => chat.AddChat(sender, Utils.EmptyMessage));
     }
 }

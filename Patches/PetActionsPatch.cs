@@ -156,7 +156,7 @@ internal static class ExternalRpcPetPatch
 
             if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(pc, target)) goto Skip;
             if (!Starspawn.CheckInteraction(pc, target)) goto Skip;
-            
+
             Seamstress.OnAnyoneCheckMurder(pc, target);
 
             if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
@@ -184,7 +184,7 @@ internal static class ExternalRpcPetPatch
             PlayerControl tempTarget = target;
             target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
             Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
-            
+
             if (tempTarget.IsLocalPlayer())
             {
                 Detour.TotalRedirections++;
@@ -192,7 +192,7 @@ internal static class ExternalRpcPetPatch
             }
         }
 
-        if (target != null && Spirit.TryGetSwapTarget(target, out var newTarget))
+        if (target != null && Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
         {
             Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
             target = newTarget;

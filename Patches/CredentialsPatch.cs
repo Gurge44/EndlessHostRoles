@@ -17,7 +17,7 @@ internal static class PingTrackerUpdatePatch
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
-    private static List<float> LastFPS = [];
+    private static readonly List<float> LastFPS = [];
     private static int Delay => GameStates.IsInTask ? 8 : 1;
 
     private static void Postfix(PingTracker __instance)
@@ -36,7 +36,7 @@ internal static class PingTrackerUpdatePatch
 
         Sb.Clear();
 
-        if (GameStates.IsLobby) Sb.Append("\r\n");
+        Sb.Append(GameStates.IsLobby ? "\r\n<size=2>" : "<size=1.5>");
 
         Sb.Append(Main.CredentialsText);
 
@@ -51,14 +51,14 @@ internal static class PingTrackerUpdatePatch
             _ => "#ff4500"
         };
 
-        AppendSeparator();
+        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
         Sb.Append($"<color={color}>{ping} {GetString("PingText")}</color>");
         AppendSeparator();
         Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
 
         if (Main.ShowFps.Value)
         {
-            var fps = LastFPS.Average();
+            float fps = LastFPS.Average();
 
             Color fpscolor = fps switch
             {
@@ -68,13 +68,13 @@ internal static class PingTrackerUpdatePatch
             };
 
             AppendSeparator();
-            Sb.Append($"{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + ((int)fps))}");
+            Sb.Append($"{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + (int)fps)}");
         }
 
         if (GameStates.InGame) Sb.Append("\r\n.");
         return;
 
-        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "  -  ");
     }
 }
 
@@ -88,7 +88,7 @@ internal static class VersionShowerStartPatch
         string testBuildIndicator = Main.TestBuild ? " <#ff0000>TEST</color>" : string.Empty;
 #pragma warning restore CS0162 // Unreachable code detected
 
-        Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
+        Main.CredentialsText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
@@ -109,11 +109,11 @@ public static class UpdateFriendCodeUIPatch
 
     public static void Prefix()
     {
-        string credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2025";
+        var credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2025";
         credentialsText += "\t\t\t";
         credentialsText += $"<color={Main.ModColor}>{Main.ModName}</color> - {Main.PluginVersion}";
 
-        var friendCode = GameObject.Find("FriendCode");
+        GameObject friendCode = GameObject.Find("FriendCode");
 
         if (friendCode != null && VersionShower == null)
         {
@@ -127,7 +127,7 @@ public static class UpdateFriendCodeUIPatch
             tmp.SetText(credentialsText);
         }
 
-        var newRequest = GameObject.Find("NewRequest");
+        GameObject newRequest = GameObject.Find("NewRequest");
 
         if (newRequest != null)
         {
@@ -135,7 +135,7 @@ public static class UpdateFriendCodeUIPatch
             newRequest.transform.localScale = new(0.8f, 1f, 1f);
         }
 
-        var friendsButton = GameObject.Find("FriendsButton");
+        GameObject friendsButton = GameObject.Find("FriendsButton");
 
         if (friendsButton != null)
         {
@@ -146,18 +146,19 @@ public static class UpdateFriendCodeUIPatch
 }
 
 [HarmonyPatch(typeof(FriendsListUI), nameof(FriendsListUI.Open))]
-static class FriendsListUIOpenPatch
+internal static class FriendsListUIOpenPatch
 {
     public static bool Prefix(FriendsListUI __instance)
     {
         try
         {
-            if (__instance.gameObject.activeSelf || __instance.currentSceneName == "") { __instance.Close(); }
+            if (__instance.gameObject.activeSelf || __instance.currentSceneName == "")
+                __instance.Close();
             else
             {
                 FriendsListBar[] componentsInChildren = __instance.GetComponentsInChildren<FriendsListBar>(true);
 
-                for (int index = 0; index < componentsInChildren.Length; ++index)
+                for (var index = 0; index < componentsInChildren.Length; ++index)
                 {
                     if (componentsInChildren[index] != null)
                         Object.Destroy(componentsInChildren[index].gameObject);
@@ -167,7 +168,7 @@ static class FriendsListUIOpenPatch
                 __instance.currentSceneName = activeScene.name;
                 __instance.UpdateFriendCodeUI();
 
-                if (DestroyableSingleton<HudManager>.InstanceExists && FastDestroyableSingleton<HudManager>.Instance != null && FastDestroyableSingleton<HudManager>.Instance.Chat != null && FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening || ShipStatus.Instance != null)
+                if ((DestroyableSingleton<HudManager>.InstanceExists && FastDestroyableSingleton<HudManager>.Instance != null && FastDestroyableSingleton<HudManager>.Instance.Chat != null && FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance != null)
                     return false;
 
                 __instance.friendBars = new();
@@ -349,10 +350,7 @@ internal static class TitleLogoPatch
 
         return;
 
-        static void ResetParent(GameObject obj)
-        {
-            obj.transform.SetParent(LeftPanel.transform.parent);
-        }
+        static void ResetParent(GameObject obj) => obj.transform.SetParent(LeftPanel.transform.parent);
 
         void FormatButtonColor(PassiveButton button, Color inActiveColor, Color activeColor, Color inActiveTextColor, Color activeTextColor)
         {

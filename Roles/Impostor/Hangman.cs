@@ -85,6 +85,7 @@ public class Hangman : RoleBase
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.LossOfHead;
             target.RpcExileV2();
             Main.PlayerStates[target.PlayerId].SetDead();
+            Utils.AfterPlayerDeathTasks(target);
             target.SetRealKiller(killer);
             killer.SetKillCooldown(KCD.GetFloat());
             return false;

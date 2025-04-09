@@ -6,7 +6,7 @@ namespace EHR.Crewmate;
 
 public class Sheriff : RoleBase
 {
-    private const int Id = 8800;
+    private const int Id = 653000;
     private static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;

@@ -29,7 +29,7 @@ public static class PhantomRolePatch
         }
 
         __instance.SetRoleInvisibility(true);
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckVanish, HazelExtensions.SendOption, AmongUsClient.Instance.HostId);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckVanish, SendOption.Reliable, AmongUsClient.Instance.HostId);
         messageWriter.Write(maxDuration);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         return false;
@@ -45,7 +45,7 @@ public static class PhantomRolePatch
             return false;
         }
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckAppear, HazelExtensions.SendOption, AmongUsClient.Instance.HostId);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckAppear, SendOption.Reliable, AmongUsClient.Instance.HostId);
         messageWriter.Write(shouldAnimate);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         return false;
@@ -70,7 +70,7 @@ public static class PhantomRolePatch
                 return false;
             }
 
-            CustomRpcSender sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}");
+            var sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}");
             sender.StartMessage(phantom.GetClientId());
 
             sender.StartRpc(phantom.NetId, (byte)RpcCalls.SetRole)
@@ -78,41 +78,99 @@ public static class PhantomRolePatch
                 .Write(true)
                 .EndRpc();
 
+            sender.StartRpc(phantom.NetId, (byte)RpcCalls.ProtectPlayer)
+                .WriteNetObject(phantom)
+                .Write(0)
+                .EndRpc();
+
             sender.EndMessage();
             sender.SendMessage();
-
-            phantom.RpcResetAbilityCooldown();
 
             LateTask.New(() => phantom.SetKillCooldown(Math.Max(Main.KillTimers[phantom.PlayerId], 0.001f)), 0.2f);
 
             return false;
         }
 
+        var writer = CustomRpcSender.Create("PhantomRolePatch.CheckVanish_Prefix", SendOption.Reliable);
+        var hasValue = false;
+
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
             if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole()) continue;
 
-            phantom.RpcSetRoleDesync(RoleTypes.Phantom, target.GetClientId());
-            phantom.RpcCheckVanishDesync(target);
+            int clientId = target.GetClientId();
 
-            LateTask.New(() =>
-                {
-                    if (GameStates.IsMeeting || phantom == null) return;
+            if (AmongUsClient.Instance.ClientId == clientId)
+            {
+                phantom.SetRole(RoleTypes.Phantom);
+                phantom.CheckVanish();
+            }
+            else
+            {
+                writer.AutoStartRpc(phantom.NetId, (byte)RpcCalls.SetRole, clientId);
+                writer.Write((ushort)RoleTypes.Phantom);
+                writer.Write(true);
+                writer.EndRpc();
 
-                    string petId = phantom.Data.DefaultOutfit.PetId;
+                writer.AutoStartRpc(phantom.NetId, (byte)RpcCalls.CheckVanish, clientId);
+                writer.Write(0); // not used, lol
+                writer.EndRpc();
 
-                    if (petId != "")
-                    {
-                        PetsList[phantom.PlayerId] = petId;
-                        phantom.RpcSetPetDesync("", target);
-                    }
-
-                    phantom.RpcExileDesync(target);
-                }, 1.2f, $"Set Phantom invisible {target.PlayerId}");
+                hasValue = true;
+            }
         }
 
-        InvisibilityList.Add(phantom);
+        writer.SendMessage(dispose: !hasValue);
 
+        LateTask.New(() =>
+        {
+            var sender = CustomRpcSender.Create("PhantomRolePatch.CheckVanish_Prefix - LateTask", SendOption.Reliable);
+            var hasData = false;
+
+            foreach (PlayerControl target in Main.AllPlayerControls)
+            {
+                if (GameStates.IsMeeting || phantom == null) return;
+
+                int clientId = target.GetClientId();
+                string petId = phantom.Data.DefaultOutfit.PetId;
+
+                if (petId != "")
+                {
+                    PetsList[phantom.PlayerId] = petId;
+
+                    if (clientId != -1)
+                    {
+                        if (AmongUsClient.Instance.ClientId == clientId)
+                            phantom.SetPet("");
+                        else
+                        {
+                            phantom.Data.DefaultOutfit.PetSequenceId += 10;
+
+                            sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.SetPetStr, clientId);
+                            sender.Write("");
+                            sender.Write(phantom.GetNextRpcSequenceId(RpcCalls.SetPetStr));
+                            sender.EndRpc();
+
+                            hasData = true;
+                        }
+                    }
+                }
+
+                if (AmongUsClient.Instance.ClientId == clientId)
+                    phantom.Exiled();
+                else
+                {
+                    sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.Exiled, clientId);
+                    sender.EndRpc();
+
+                    hasData = true;
+                }
+            }
+
+            sender.SendMessage(dispose: !hasData);
+        }, 1.2f, "Set Phantom Invisible");
+
+        InvisibilityList.Add(phantom);
         return true;
     }
 
@@ -125,40 +183,92 @@ public static class PhantomRolePatch
         PlayerControl phantom = __instance;
         Logger.Info($"Player: {phantom.GetRealName()} => shouldAnimate {shouldAnimate}", "CheckAppear");
 
-        if (phantom.inVent) phantom.MyPhysics.RpcBootFromVent(Main.LastEnteredVent[phantom.PlayerId].Id);
+        var sender = CustomRpcSender.Create("PhantomRolePatch.CheckAppear_Prefix", SendOption.Reliable);
+        var hasValue = false;
+
+        if (phantom.inVent)
+        {
+            int ventId = Main.LastEnteredVent[phantom.PlayerId].Id;
+            if (AmongUsClient.Instance.AmClient) phantom.MyPhysics.BootFromVent(ventId);
+            sender.AutoStartRpc(phantom.MyPhysics.NetId, 34);
+            sender.WritePacked(ventId);
+            sender.EndRpc();
+            hasValue = true;
+        }
 
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
             if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole()) continue;
-
-            int clientId = target.GetClientId();
-
-            phantom.RpcSetRoleDesync(RoleTypes.Phantom, clientId);
-
-            LateTask.New(() =>
-                {
-                    if (target != null) phantom.RpcCheckAppearDesync(shouldAnimate, target);
-                }, 0.5f, $"Check Appear when vanish is over {target.PlayerId}");
-
-            LateTask.New(() =>
-                {
-                    if (GameStates.IsMeeting || phantom == null) return;
-
-                    InvisibilityList.Remove(phantom);
-                    phantom.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
-
-                    if (PetsList.TryGetValue(phantom.PlayerId, out string petId)) phantom.RpcSetPetDesync(petId, target);
-                }, 1.8f, $"Set Scientist when vanish is over {target.PlayerId}");
+            sender.RpcSetRole(phantom, RoleTypes.Phantom, target.GetClientId());
+            hasValue = true;
         }
-    }
 
-    [HarmonyPatch(nameof(PlayerControl.SetRoleInvisibility))]
-    [HarmonyPrefix]
-    private static void SetRoleInvisibility_Prefix(PlayerControl __instance, bool isActive, bool shouldAnimate, bool playFullAnimation)
-    {
-        if (!AmongUsClient.Instance.AmHost) return;
+        sender.SendMessage(dispose: !hasValue);
 
-        Logger.Info($"Player: {__instance.GetRealName()} => Is Active {isActive}, Animate:{shouldAnimate}, Full Animation:{playFullAnimation}", "SetRoleInvisibility");
+        LateTask.New(() =>
+        {
+            sender = CustomRpcSender.Create("PhantomRolePatch.CheckAppear_Prefix - LateTask 1", SendOption.Reliable);
+            hasValue = false;
+
+            foreach (PlayerControl target in Main.AllPlayerControls)
+            {
+                if (target != null)
+                {
+                    int clientId = target.GetClientId();
+
+                    if (AmongUsClient.Instance.ClientId == clientId)
+                        phantom.CheckAppear(shouldAnimate);
+                    else
+                    {
+                        sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.CheckAppear, clientId);
+                        sender.Write(shouldAnimate);
+                        sender.EndRpc();
+                        hasValue = true;
+                    }
+                }
+            }
+
+            sender.SendMessage(dispose: !hasValue);
+        }, 0.5f, "Check Appear when vanish is over");
+
+        LateTask.New(() =>
+        {
+            sender = CustomRpcSender.Create("PhantomRolePatch.CheckAppear_Prefix - LateTask 2", SendOption.Reliable);
+            hasValue = false;
+
+            foreach (PlayerControl target in Main.AllPlayerControls)
+            {
+                if (GameStates.IsMeeting || phantom == null) return;
+
+                InvisibilityList.Remove(phantom);
+                sender.RpcSetRole(phantom, RoleTypes.Scientist, target.GetClientId());
+                hasValue = true;
+
+                if (PetsList.TryGetValue(phantom.PlayerId, out string petId))
+                {
+                    int clientId = target.GetClientId();
+
+                    if (clientId != -1)
+                    {
+                        if (AmongUsClient.Instance.ClientId == clientId)
+                            phantom.SetPet(petId);
+                        else
+                        {
+                            phantom.Data.DefaultOutfit.PetSequenceId += 10;
+
+                            sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.SetPetStr, clientId);
+                            sender.Write(petId);
+                            sender.Write(phantom.GetNextRpcSequenceId(RpcCalls.SetPetStr));
+                            sender.EndRpc();
+
+                            hasValue = true;
+                        }
+                    }
+                }
+            }
+
+            sender.SendMessage(dispose: !hasValue);
+        }, 1.8f, "Set Scientist when vanish is over");
     }
 
     public static void OnReportDeadBody(PlayerControl seer, bool force)
@@ -181,47 +291,39 @@ public static class PhantomRolePatch
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static bool InValid(PlayerControl phantom, PlayerControl seer)
-    {
-        return seer.GetClientId() == -1 || phantom == null;
-    }
-
     private static IEnumerator CoRevertInvisible(PlayerControl phantom, PlayerControl seer, bool force)
     {
         // Set Scientist for meeting
         if (!force) yield return new WaitForSeconds(0.0001f);
 
-        if (InValid(phantom, seer)) yield break;
-
-        phantom?.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
+        if (seer.GetClientId() == -1 || phantom == null) yield break;
+        phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
 
         // Return Phantom in meeting
         yield return new WaitForSeconds(1f);
 
         {
-            if (InValid(phantom, seer)) yield break;
-
-            phantom?.RpcSetRoleDesync(RoleTypes.Phantom, seer.GetClientId());
+            if (seer.GetClientId() == -1 || phantom == null) yield break;
+            phantom.RpcSetRoleDesync(RoleTypes.Phantom, seer.GetClientId());
         }
 
         // Revert invis for phantom
         yield return new WaitForSeconds(1f);
 
         {
-            if (InValid(phantom, seer)) yield break;
-
-            phantom?.RpcStartAppearDesync(false, seer);
+            if (seer.GetClientId() == -1 || phantom == null) yield break;
+            phantom.RpcStartAppearDesync(false, seer);
         }
 
         // Set Scientist back
         yield return new WaitForSeconds(4f);
 
         {
-            if (InValid(phantom, seer)) yield break;
+            if (seer.GetClientId() == -1 || phantom == null) yield break;
+            phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
 
-            phantom?.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
-
-            if (phantom != null && PetsList.TryGetValue(phantom.PlayerId, out string petId)) phantom.RpcSetPetDesync(petId, seer);
+            if (PetsList.TryGetValue(phantom.PlayerId, out string petId))
+                phantom.RpcSetPetDesync(petId, seer);
         }
     }
 
@@ -242,10 +344,7 @@ public static class PhantomRoleUseAbilityPatch
 
         if (__instance.Player.AmOwner && !__instance.Player.Data.IsDead && __instance.Player.moveable && !Minigame.Instance && !__instance.IsCoolingDown && !__instance.fading)
         {
-            bool RoleEffectAnimation(RoleEffectAnimation x)
-            {
-                return x.effectType == global::RoleEffectAnimation.EffectType.Vanish_Charge;
-            }
+            bool RoleEffectAnimation(RoleEffectAnimation x) => x.effectType == global::RoleEffectAnimation.EffectType.Vanish_Charge;
 
             if (!__instance.Player.currentRoleAnimations.Find((Func<RoleEffectAnimation, bool>)RoleEffectAnimation) && !__instance.Player.walkingToVent && !__instance.Player.inMovingPlat)
             {

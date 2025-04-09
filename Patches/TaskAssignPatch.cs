@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -106,8 +105,10 @@ internal static class AddTasksFromListPatch
         List<NormalPlayerTask> disabledTasks = [];
 
         foreach (NormalPlayerTask task in unusedTasks)
+        {
             if ((DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool()) || IsTaskAlwaysDisabled(task.TaskType))
                 disabledTasks.Add(task);
+        }
 
         foreach (NormalPlayerTask task in disabledTasks)
         {
@@ -273,7 +274,7 @@ internal static class RpcSetTasksPatch
 
             PlayerTask GetTaskFromTaskType(TaskTypes type) => allTasks.FirstOrDefault(t => t.TaskType == type);
         }
-        catch (Exception e) { Utils.ThrowException(e); }
+        catch { }
 
         #endregion
     }

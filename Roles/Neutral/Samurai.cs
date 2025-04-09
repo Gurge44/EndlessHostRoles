@@ -103,8 +103,10 @@ internal class Samurai : RoleBase
             if (player == null || !player.IsAlive()) continue;
 
             if (kvp.Value + KillDelay.GetInt() <= now)
+            {
                 if (pc.RpcCheckAndMurder(player, true))
                     player.Suicide(realKiller: pc);
+            }
         }
 
         if (Target.Id == byte.MaxValue || !pc.IsAlive()) return;
@@ -112,7 +114,7 @@ internal class Samurai : RoleBase
         PlayerControl target = Utils.GetPlayerById(Target.Id);
         if (target == null) return;
 
-        if (Vector2.Distance(target.Pos(), pc.Pos()) > NormalGameOptionsV08.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f)
+        if (Vector2.Distance(target.Pos(), pc.Pos()) > NormalGameOptionsV09.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f)
         {
             Target = (byte.MaxValue, 0);
             pc.RpcCheckAndMurder(target);

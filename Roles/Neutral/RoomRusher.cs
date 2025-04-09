@@ -20,7 +20,7 @@ public class RoomRusher : RoleBase
     private static OptionItem RoomNameDisplay;
     private static OptionItem Arrow;
     private static OptionItem RoomsToWin;
-    
+
     private int CompletedNum;
     private long LastUpdate;
     private SystemTypes RoomGoal;
@@ -64,19 +64,11 @@ public class RoomRusher : RoleBase
             AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
             AllRooms.Remove(SystemTypes.Hallway);
             AllRooms.Remove(SystemTypes.Outside);
+            AllRooms.Remove(SystemTypes.Ventilation);
             AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
 
-            Map = Main.CurrentMap switch
-            {
-                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-                MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-                MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-                MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-                MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            
+            Map = RandomSpawn.SpawnMap.GetSpawnMap();
+
             StartNewRound(true);
         }, Main.CurrentMap == MapNames.Airship ? 22f : 14f);
     }
@@ -88,7 +80,7 @@ public class RoomRusher : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 300f;
     }
 
-    void StartNewRound(bool initial = false, bool dontCount = false, bool afterMeeting = false)
+    private void StartNewRound(bool initial = false, bool dontCount = false, bool afterMeeting = false)
     {
         MapNames map = Main.CurrentMap;
 
@@ -97,7 +89,7 @@ public class RoomRusher : RoleBase
             : map switch
             {
                 MapNames.Skeld => SystemTypes.Cafeteria,
-                MapNames.Mira => afterMeeting ? SystemTypes.Cafeteria : SystemTypes.Launchpad,
+                MapNames.MiraHQ => afterMeeting ? SystemTypes.Cafeteria : SystemTypes.Launchpad,
                 MapNames.Dleks => SystemTypes.Cafeteria,
                 MapNames.Polus => afterMeeting ? SystemTypes.Office : SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
@@ -118,7 +110,7 @@ public class RoomRusher : RoleBase
 
         bool involvesDecontamination = map switch
         {
-            MapNames.Mira => (previous is SystemTypes.Laboratory or SystemTypes.Reactor) ^ (RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
+            MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
             _ => false
         };
@@ -138,9 +130,6 @@ public class RoomRusher : RoleBase
 
         switch (map)
         {
-            case MapNames.Airship when RoomGoal == SystemTypes.Ventilation:
-                time = (int)(time * 0.7f);
-                break;
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
                 break;
@@ -226,8 +215,8 @@ public class RoomRusher : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        var s1 = Utils.ColorString(Won ? Color.green : Color.white, $" {CompletedNum}");
-        var s2 = Utils.ColorString(Won ? Color.white : Color.yellow, $"/{RoomsToWin.GetInt()}");
+        string s1 = Utils.ColorString(Won ? Color.green : Color.white, $" {CompletedNum}");
+        string s2 = Utils.ColorString(Won ? Color.white : Color.yellow, $"/{RoomsToWin.GetInt()}");
         return base.GetProgressText(playerId, comms) + s1 + s2;
     }
 
@@ -245,7 +234,7 @@ public class RoomRusher : RoleBase
         color = done ? Color.white : Color.yellow;
         sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
 
-        if (!CanVent || seer.IsModClient()) return sb.ToString().Trim();
+        if (!CanVent || seer.IsModdedClient()) return sb.ToString().Trim();
 
         sb.Append('\n');
         sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), VentsLeft));

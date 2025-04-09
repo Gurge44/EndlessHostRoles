@@ -100,10 +100,7 @@ internal class Blackmailer : RoleBase
                 x.VotedFor = bmVotedFor;
             });
         }
-        finally
-        {
-            CheckForEndVotingPatch.RunRoleCode = true;
-        }
+        finally { CheckForEndVotingPatch.RunRoleCode = true; }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

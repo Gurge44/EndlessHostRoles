@@ -85,7 +85,7 @@ public class Druid : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTrigger, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DruidAddTrigger, SendOption.Reliable);
         writer.Write(add);
         writer.Write(playerId);
         writer.Write(position.x);
@@ -193,7 +193,7 @@ public class Druid : RoleBase
     {
         if (hud) return GetHUDText(seer);
 
-        if (seer == null || seer.IsModClient() || seer.PlayerId != target.PlayerId || seer.PlayerId != DruidPC.PlayerId) return string.Empty;
+        if (seer == null || seer.IsModdedClient() || seer.PlayerId != target.PlayerId || seer.PlayerId != DruidPC.PlayerId) return string.Empty;
 
         if (Triggers.Count == 0) return string.Empty;
 

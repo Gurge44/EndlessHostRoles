@@ -52,7 +52,7 @@ public class Deadlined : IAddon
 
     public static string GetSuffix(PlayerControl seer, bool hud = false)
     {
-        if (!seer.Is(CustomRoles.Deadlined) || (seer.IsModClient() && !hud)) return string.Empty;
+        if (!seer.Is(CustomRoles.Deadlined) || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         if (DidTask.Contains(seer.PlayerId) || MeetingStates.FirstMeeting) return "<#00ff00>\u2713</color>";
 

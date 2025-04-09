@@ -53,7 +53,7 @@ public class NoteKiller : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(645950, single: true)
+        StartSetup(645950, true)
             .AutoSetupOption(ref AbilityCooldown, 15f, new FloatValueRule(0f, 90f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref MinLettersRevealed, 1, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
             .AutoSetupOption(ref MaxLettersRevealed, 4, new IntegerValueRule(1, Names.Max(x => x.Length), 1))
@@ -75,12 +75,12 @@ public class NoteKiller : RoleBase
 
         LateTask.New(() =>
         {
-            var names = Names.ToList();
+            List<string> names = Names.ToList();
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (pc.Is(CustomRoles.NoteKiller)) continue;
-                var name = names.RandomElement();
+                string name = names.RandomElement();
                 RealNames[pc.PlayerId] = name;
                 names.Remove(name);
                 Logger.Info($"{pc.GetRealName()}'s real name is {name}", "NoteKiller.Init");
@@ -118,15 +118,15 @@ public class NoteKiller : RoleBase
         Dictionary<byte, List<int>> revealedPositions = [];
         int numLettersRevealed = IRandom.Instance.Next(MinLettersRevealed.GetInt(), MaxLettersRevealed.GetInt() + 1);
 
-        for (int i = 0; i < numLettersRevealed; i++)
+        for (var i = 0; i < numLettersRevealed; i++)
         {
             foreach (KeyValuePair<byte, string> kvp in RealNames)
             {
-                var range = Enumerable.Range(0, Names.Max(x => x.Length) - 1);
-                var hasExceptions = revealedPositions.TryGetValue(kvp.Key, out var exceptions);
+                IEnumerable<int> range = Enumerable.Range(0, Names.Max(x => x.Length) - 1);
+                bool hasExceptions = revealedPositions.TryGetValue(kvp.Key, out List<int> exceptions);
                 if (hasExceptions) range = range.Except(exceptions);
 
-                var position = range.RandomElement();
+                int position = range.RandomElement();
 
                 if (!hasExceptions) revealedPositions[kvp.Key] = [position];
                 else exceptions.Add(position);
@@ -206,11 +206,11 @@ public class NoteKiller : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId == target.PlayerId && CustomRoles.NoteKiller.RoleExist() && seer.PlayerId != NoteKillerID && !meeting && RealNames.TryGetValue(seer.PlayerId, out var ownName))
+        if (seer.PlayerId == target.PlayerId && CustomRoles.NoteKiller.RoleExist() && seer.PlayerId != NoteKillerID && !meeting && RealNames.TryGetValue(seer.PlayerId, out string ownName))
             return MeetingStates.FirstMeeting ? string.Format(Translator.GetString("NoteKiller.OthersSelfSuffix"), CustomRoles.NoteKiller.ToColoredString(), ownName) : string.Format(Translator.GetString("NoteKiller.OthersSelfSuffixShort"), ownName);
 
         if (seer.PlayerId != NoteKillerID || meeting || ShowClueEndTimeStamp == 0 || ShownClues.Count == 0) return string.Empty;
-        if (ShownClues.TryGetValue(target.PlayerId, out var clue)) return clue;
+        if (ShownClues.TryGetValue(target.PlayerId, out string clue)) return clue;
         return seer.PlayerId == target.PlayerId ? $"\u25a9 ({ShowClueEndTimeStamp - Utils.TimeStamp}s)" : string.Empty;
     }
 }

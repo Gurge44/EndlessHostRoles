@@ -27,8 +27,10 @@ internal static class ControllerManagerUpdatePatch
                 if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
                 for (var i = 0; i < 9; i++)
+                {
                     if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
                         OptionShower.CurrentPage = i;
+                }
 
                 if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
                     GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
@@ -92,7 +94,7 @@ internal static class ControllerManagerUpdatePatch
             if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                GameManager.Instance.LogicFlow.CheckEndCriteria();
+                GameEndChecker.Prefix();
             }
 
             if (KeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsInGame)
@@ -170,6 +172,7 @@ internal static class ControllerManagerUpdatePatch
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
                 PlayerControl.LocalPlayer.RpcExileV2();
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
+                Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer);
                 Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
             }
 

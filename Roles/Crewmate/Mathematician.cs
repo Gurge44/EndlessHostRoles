@@ -42,10 +42,7 @@ internal class Mathematician : RoleBase
             ChatManager.SendPreviousMessagesToAll();
             LateTask.New(() => Utils.SendMessage(question, title: Translator.GetString("Mathematician")), 0.2f, log: false);
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void Reply(PlayerControl pc, string answerStr)
@@ -65,10 +62,7 @@ internal class Mathematician : RoleBase
                     Achievements.Type.TheBestInSchool.Complete();
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public override void OnReportDeadBody()

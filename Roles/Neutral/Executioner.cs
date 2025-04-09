@@ -67,7 +67,7 @@ public class Executioner : RoleBase
             try
             {
                 List<PlayerControl> targetList = [];
-                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetCoven.GetBool() || !target.Is(CustomRoleTypes.Coven) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
+                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || (!target.IsNeutralEvil() && !target.IsNeutralPariah()) where CanTargetCoven.GetBool() || !target.Is(CustomRoleTypes.Coven) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
                 targetList.AddRange(Main.AllPlayerControls.Where(x => x.IsCrewmate()));
                 if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool()) targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
 
@@ -100,7 +100,7 @@ public class Executioner : RoleBase
         switch (Progress)
         {
             case "SetTarget":
-                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetExecutionerTarget, HazelExtensions.SendOption);
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetExecutionerTarget, SendOption.Reliable);
                 writer.Write(executionerId);
                 writer.Write(targetId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -108,7 +108,7 @@ public class Executioner : RoleBase
             case "":
                 if (!AmongUsClient.Instance.AmHost) return;
 
-                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveExecutionerTarget, HazelExtensions.SendOption);
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveExecutionerTarget, SendOption.Reliable);
                 writer.Write(executionerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 break;

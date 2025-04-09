@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Hazel;
-using InnerNet;
 
 namespace EHR.Impostor;
 
@@ -75,29 +73,32 @@ internal class OverKiller : RoleBase
 
                 IEnumerator SpawnFakeDeadBodies()
                 {
+                    var sender = CustomRpcSender.Create("Butcher kill");
+
                     for (var i = 0; i < 26; i++)
                     {
                         Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
                         location += new Vector2(0, 0.3636f);
 
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetTransform.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-                        NetHelpers.WriteVector2(location, writer);
-                        writer.Write(target.NetTransform.lastSequenceId);
-                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        sender.AutoStartRpc(target.NetTransform.NetId, (byte)RpcCalls.SnapTo);
+                        sender.WriteVector2(location);
+                        sender.Write(target.NetTransform.lastSequenceId);
+                        sender.EndRpc();
 
                         target.NetTransform.SnapTo(location);
                         killer.MurderPlayer(target, ExtendedPlayerControl.ResultFlags);
 
-                        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None);
-                        messageWriter.WriteNetObject(target);
-                        messageWriter.Write((byte)ExtendedPlayerControl.ResultFlags);
-                        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+                        sender.AutoStartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer);
+                        sender.WriteNetObject(target);
+                        sender.Write((byte)ExtendedPlayerControl.ResultFlags);
+                        sender.EndRpc();
 
-                        if (i % 3 == 0) yield return null;
+                        if (i % 6 == 0) yield return null;
                     }
 
                     yield return null;
-                    killer.TP(originPos);
+                    sender.TP(killer, originPos);
+                    sender.SendMessage();
                 }
             }, 0.05f, "OverKiller Murder");
         }

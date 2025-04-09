@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Hazel;
 using static EHR.Translator;
 
 namespace EHR.Impostor;
@@ -83,16 +84,21 @@ public class Gangster : RoleBase
             killer.RpcRemoveAbilityUse();
             target.RpcSetCustomRole(convertedAddon);
 
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("GangsterSuccessfullyRecruited")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")));
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+            var sender = CustomRpcSender.Create("Gangster.OnCheckMurder", SendOption.Reliable);
+
+            sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("GangsterSuccessfullyRecruited")), setName: false);
+            sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")), setName: false);
 
             killer.ResetKillCooldown();
             killer.SyncSettings();
-            killer.SetKillCooldown();
-            target.RpcGuardAndKill(killer);
-            target.RpcGuardAndKill(target);
+            sender.SetKillCooldown(killer);
+            sender.RpcGuardAndKill(target, killer);
+            sender.RpcGuardAndKill(target, target);
+
+            sender.SendMessage();
+
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
             Logger.Info($"SetRole: {target?.Data?.PlayerName} = {target.GetCustomRole()} + {convertedAddon}", $"Assign {convertedAddon}");
             if (killer.GetAbilityUseLimit() <= 0) HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");

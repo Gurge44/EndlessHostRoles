@@ -12,7 +12,10 @@ using Random = UnityEngine.Random;
 namespace EHR;
 
 [SuppressMessage("ReSharper", "UnusedType.Local")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public static class NaturalDisasters
 {
     private const float Range = 1.5f;
@@ -39,8 +42,15 @@ public static class NaturalDisasters
         "ND_LimitReachedOptions.RemoveOldest"
     ];
 
-    public static List<Disaster> GetActiveDisasters() => ActiveDisasters;
-    public static List<Type> GetAllDisasters() => AllDisasters;
+    public static List<Disaster> GetActiveDisasters()
+    {
+        return ActiveDisasters;
+    }
+
+    public static List<Type> GetAllDisasters()
+    {
+        return AllDisasters;
+    }
 
     public static void SetupCustomOption()
     {
@@ -110,7 +120,7 @@ public static class NaturalDisasters
 
         if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return;
 
-        Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RoomLocations()?.Values;
+        Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values;
         if (rooms == null) return;
 
         float[] x = rooms.Select(r => r.x).ToArray();
@@ -183,20 +193,6 @@ public static class NaturalDisasters
         };
     }
 
-    private static Dictionary<SystemTypes, Vector2> RoomLocations()
-    {
-        return Main.CurrentMap switch
-        {
-            MapNames.Skeld => new RandomSpawn.SkeldSpawnMap().positions,
-            MapNames.Mira => new RandomSpawn.MiraHQSpawnMap().positions,
-            MapNames.Polus => new RandomSpawn.PolusSpawnMap().positions,
-            MapNames.Dleks => new RandomSpawn.DleksSpawnMap().positions,
-            MapNames.Airship => new RandomSpawn.AirshipSpawnMap().positions,
-            MapNames.Fungle => new RandomSpawn.FungleSpawnMap().positions,
-            _ => null
-        };
-    }
-
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class FixedUpdatePatch
     {
@@ -206,7 +202,7 @@ public static class NaturalDisasters
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || __instance.PlayerId == 255 || !__instance.IsHost()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
 
             UpdatePreparingDisasters();
 
@@ -264,7 +260,7 @@ public static class NaturalDisasters
                 if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
 
                 Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
-                KeyValuePair<SystemTypes, Vector2> roomKvp = RoomLocations().RandomElement();
+                KeyValuePair<SystemTypes, Vector2> roomKvp = RandomSpawn.SpawnMap.GetSpawnMap().Positions.RandomElement();
 
                 Vector2 position = disaster.Name switch
                 {
@@ -310,7 +306,10 @@ public static class NaturalDisasters
             }
         }
 
-        public static void AddPreparingDisaster(Vector2 position, string disasterName, SystemTypes? room) => PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disasterName), disasterName, room));
+        public static void AddPreparingDisaster(Vector2 position, string disasterName, SystemTypes? room)
+        {
+            PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disasterName), disasterName, room));
+        }
     }
 
     public abstract class Disaster
@@ -345,8 +344,10 @@ public static class NaturalDisasters
         protected void KillNearbyPlayers(PlayerState.DeathReason deathReason, float range = Range)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (Vector2.Distance(pc.Pos(), Position) <= range)
                     pc.Suicide(deathReason);
+            }
         }
     }
 
@@ -366,6 +367,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = DurationOpt.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_100;
@@ -460,6 +462,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = (int)((Phases - 1) * FlowStepDelay.GetFloat()) + DurationAfterFlowComplete.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_200;
@@ -486,7 +489,7 @@ public static class NaturalDisasters
             if (Timer >= FlowStepDelay.GetFloat())
             {
                 Timer = 0f;
-                Phase++;
+                if (Phase <= Phases) Phase++;
                 if (Phase > Phases) return;
 
                 string newSprite = Phase switch
@@ -500,7 +503,7 @@ public static class NaturalDisasters
                 NetObject.RpcChangeSprite(newSprite);
             }
 
-            float range = Range - ((Phases - Phase) * 0.4f);
+            float range = Range - ((Phases - Math.Min(4, Phase)) * 0.4f);
             KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
         }
     }
@@ -525,6 +528,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = DurationOpt.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_300;
@@ -565,7 +569,7 @@ public static class NaturalDisasters
                     case <= dragRange:
                         Vector2 direction = (Position - pos).normalized;
                         Vector2 newPosition = pos + (direction * 0.1f);
-                        pc.TP(newPosition, noCheckState: true);
+                        pc.TP(newPosition, true);
                         continue;
                 }
             }
@@ -626,6 +630,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = DurationOpt.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_400;
@@ -660,8 +665,10 @@ public static class NaturalDisasters
                 else
                 {
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                    {
                         if (Vector2.Distance(pc.Pos(), hit) <= Range / 2f)
                             pc.Suicide(PlayerState.DeathReason.Lightning);
+                    }
                 }
             }
         }
@@ -695,6 +702,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = DurationOpt.GetInt();
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_500;
@@ -728,8 +736,10 @@ public static class NaturalDisasters
             if (base.RemoveIfExpired())
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
                     if (AffectedPlayers.Remove(pc.PlayerId))
                         pc.MarkDirtySettings();
+                }
 
                 return true;
             }
@@ -776,6 +786,7 @@ public static class NaturalDisasters
         public override int Duration { get; set; } = int.MaxValue;
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void SetupOwnCustomOption()
         {
             const int id = 69_216_600;
@@ -882,8 +893,10 @@ public static class NaturalDisasters
 
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < Sinkholes.Count; i++)
+                {
                     if (Vector2.Distance(pos, Sinkholes[i].Position) <= Range)
                         pc.Suicide(PlayerState.DeathReason.Sunken);
+                }
             }
         }
 
@@ -911,8 +924,10 @@ public static class NaturalDisasters
             if (room == null) return;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (pc.GetPlainShipRoom() == room)
                     pc.Suicide(PlayerState.DeathReason.Collapsed);
+            }
 
             CollapsedRooms.Add(room);
             Utils.NotifyRoles();

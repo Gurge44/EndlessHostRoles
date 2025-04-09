@@ -35,14 +35,19 @@ public static class HostInfoPanelSetUpPatch
 {
     private static TextMeshPro HostText;
 
+    public static bool Prefix(HostInfoPanel __instance)
+    {
+        return GameStates.IsLobby && __instance.player.ColorId != byte.MaxValue;
+    }
+
     public static void Postfix(HostInfoPanel __instance)
     {
         try
         {
             if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
 
-            var name = AmongUsClient.Instance.GetHost().PlayerName;
-            var split = name.Split('\n');
+            string name = AmongUsClient.Instance.GetHost().PlayerName;
+            string[] split = name.Split('\n');
             name = Options.GetSuffixMode() == SuffixModes.None ? split[^1] : split[^2];
             if (name == string.Empty) return;
 
@@ -68,7 +73,7 @@ public static class LobbyPatch
 
 // https://github.com/SuperNewRoles/SuperNewRoles/blob/master/SuperNewRoles/Patches/LobbyBehaviourPatch.cs
 [HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
-static class LobbyBehaviourUpdatePatch
+internal static class LobbyBehaviourUpdatePatch
 {
     public static void Postfix(LobbyBehaviour __instance)
     {

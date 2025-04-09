@@ -100,16 +100,16 @@ public class FFF : RoleBase
             }
 
             if (
-                ((target.Is(CustomRoles.Madmate) || target.Is(CustomRoles.Gangster)) && CanKillMadmate.GetBool())
-                || ((target.Is(CustomRoles.Charmed) || target.Is(CustomRoles.Succubus)) && CanKillCharmed.GetBool())
-                || ((target.Is(CustomRoles.Undead) || target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight)) && CanKillUndead.GetBool())
-                || (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && CanKillLovers.GetBool())
-                || ((target.Is(CustomRoles.Romantic) || target.Is(CustomRoles.RuthlessRomantic) || target.Is(CustomRoles.VengefulRomantic)
-                     || Romantic.PartnerId == target.PlayerId) && CanKillLovers.GetBool())
-                || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Recruit)) && CanKillSidekicks.GetBool())
-                || (target.Is(CustomRoles.Egoist) && CanKillEgoists.GetBool())
-                || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
-            )
+                    ((target.Is(CustomRoles.Madmate) || target.Is(CustomRoles.Gangster)) && CanKillMadmate.GetBool())
+                    || ((target.Is(CustomRoles.Charmed) || target.Is(CustomRoles.Succubus)) && CanKillCharmed.GetBool())
+                    || ((target.Is(CustomRoles.Undead) || target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight)) && CanKillUndead.GetBool())
+                    || (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && CanKillLovers.GetBool())
+                    || ((target.Is(CustomRoles.Romantic) || target.Is(CustomRoles.RuthlessRomantic) || target.Is(CustomRoles.VengefulRomantic)
+                         || Romantic.PartnerId == target.PlayerId) && CanKillLovers.GetBool())
+                    || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Recruit)) && CanKillSidekicks.GetBool())
+                    || (target.Is(CustomRoles.Egoist) && CanKillEgoists.GetBool())
+                    || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
+                )
             {
                 if (killer.RpcCheckAndMurder(target)) IsWon = true;
 

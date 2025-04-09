@@ -67,7 +67,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-#### Over 400 roles and add-ons, 10 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+#### Over 400 roles and add-ons, 12 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
 ## List of Roles <span style="font-size: 12px;">(excluding Hide and Seek roles and vanilla roles)</span>
 
@@ -470,6 +470,7 @@ for your Among Us mod. We are committed to ensuring that your data privacy and s
 ------------------------------------------------------------------------------------------------------------
 
 #### 2. **Information Collected**
+
 When using this integration, we collect the following non-personal information:
 
 - **Lobby Code:** A six-letter code that uniquely identifies a game lobby.
@@ -490,6 +491,7 @@ Furthermore, the following information is collected to enhance the user experien
 ------------------------------------------------------------------------------------------------------------
 
 #### 3. **How Information is Used**
+
 The collected information is used solely for the following purposes:
 
 - To notify players about available lobbies via the designated Discord server.
@@ -530,11 +532,14 @@ When disabled, no lobby information will be collected or transmitted.
 ------------------------------------------------------------------------------------------------------------
 
 #### 7. **Changes to this Privacy Policy**
-We may update this Privacy Policy from time to time. Any changes will be communicated through an update in the mod or via the official EHR Discord channel.
+
+We may update this Privacy Policy from time to time. Any changes will be communicated through an update in the mod or
+via the official EHR Discord channel.
 
 ------------------------------------------------------------------------------------------------------------
 
 #### 8. **Contact Us**
+
 If you have any questions about this Privacy Policy or how your data is handled, please contact us at:
 
 **[The EHR Discord Server](https://discord.gg/m3ayxfumC8)**

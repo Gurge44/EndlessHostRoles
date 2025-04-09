@@ -76,12 +76,16 @@ public static class OptionSaver
         Dictionary<int, int[]> presetOptions = serializableOptionsData.PresetOptions;
 
         foreach ((int id, int value) in singleOptions)
+        {
             if (OptionItem.FastOptions.TryGetValue(id, out OptionItem optionItem))
                 optionItem.SetValue(value, doSave: false);
+        }
 
         foreach ((int id, int[] values) in presetOptions)
+        {
             if (OptionItem.FastOptions.TryGetValue(id, out OptionItem optionItem))
                 optionItem.SetAllValues(values);
+        }
     }
 
     public static void Save()

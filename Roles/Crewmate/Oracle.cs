@@ -85,7 +85,7 @@ public class Oracle : RoleBase
             return false;
         }
 
-        var team = target.GetTeam();
+        Team team = target.GetTeam();
 
         if (IRandom.Instance.Next(100) < FailChance.GetInt())
             team = Enum.GetValues<Team>().Without(team).RandomElement();

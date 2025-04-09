@@ -37,7 +37,7 @@ public class Sapper : RoleBase
         Radius = new FloatOptionItem(Id + 13, "SapperRadius", new(0f, 10f, 0.25f), 3f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
             .SetValueFormat(OptionFormat.Multiplier);
-        
+
         CanSabotage = new BooleanOptionItem(Id + 14, "CanSabotage", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sapper]);
     }

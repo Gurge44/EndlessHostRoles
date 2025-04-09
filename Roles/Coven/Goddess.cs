@@ -10,6 +10,8 @@ public class Goddess : Coven
 
     private static OptionItem AbilityCooldown;
     private static OptionItem AbilityDuration;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     private long AbilityEndTS;
 
@@ -24,7 +26,9 @@ public class Goddess : Coven
     {
         StartSetup(650060)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityDuration, 10, new IntegerValueRule(1, 60, 1), OptionFormat.Seconds);
+            .AutoSetupOption(ref AbilityDuration, 10, new IntegerValueRule(1, 60, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
 
     public override void Init()
@@ -38,6 +42,11 @@ public class Goddess : Coven
         AbilityEndTS = 0;
         LastNotifyTS = 0;
         GoddessId = playerId;
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -103,7 +112,7 @@ public class Goddess : Coven
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != GoddessId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting || AbilityEndTS == 0) return string.Empty;
+        if (seer.PlayerId != GoddessId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || AbilityEndTS == 0) return string.Empty;
         return string.Format(Translator.GetString("Goddess.Suffix"), AbilityEndTS - Utils.TimeStamp, Main.CovenColor);
     }
 }

@@ -131,8 +131,10 @@ public class Snitch : RoleBase
             TargetArrow.Add(snitchId, targetId);
 
             if (TargetList.Add(targetId))
+            {
                 if (CanGetColoredArrow)
                     TargetColorlist.Add(targetId, target.GetRoleColor());
+            }
 
             Utils.NotifyRoles(SpecifySeer: snitch, SpecifyTarget: target);
         }

@@ -20,9 +20,6 @@ public static class AddSteamID
                 ModUpdater.ShowPopup(GetString("AppIDAdded"), StringNames.Close, true);
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }

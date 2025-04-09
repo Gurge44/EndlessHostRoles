@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Neutral;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -128,7 +129,7 @@ public class Devourer : RoleBase
 
     private static void SetSkin(PlayerControl target, NetworkedPlayerInfo.PlayerOutfit outfit)
     {
-        var sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+        var sender = CustomRpcSender.Create($"Devourer.RpcSetSkin({target.Data.PlayerName})", SendOption.Reliable);
 
         target.SetColor(outfit.ColorId);
 

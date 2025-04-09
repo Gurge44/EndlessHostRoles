@@ -84,14 +84,14 @@ public class Damocles : IAddon
 
         if (pc.IsNonHostModClient()) SendRPC(id);
 
-        if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (!pc.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public static void SendRPC(byte playerId)
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(Timer[playerId]);
         writer.Write(LastUpdate[playerId].ToString());
@@ -99,8 +99,10 @@ public class Damocles : IAddon
         writer.Write(pev.Count);
 
         if (pev.Count > 0)
+        {
             foreach (int vent in pev.ToArray())
                 writer.Write(vent);
+        }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -113,8 +115,10 @@ public class Damocles : IAddon
         int elements = reader.ReadInt32();
 
         if (elements > 0)
+        {
             for (var i = 0; i < elements; i++)
                 PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
+        }
     }
 
     public static void OnMurder(byte id)

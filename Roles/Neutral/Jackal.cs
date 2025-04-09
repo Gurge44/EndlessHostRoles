@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -158,22 +159,26 @@ public class Jackal : RoleBase
     {
         if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target)) return true;
 
+        var sender = CustomRpcSender.Create("Jackal.OnCheckMurder", SendOption.Reliable);
+
         killer.RpcRemoveAbilityUse();
         target.RpcSetCustomRole(CustomRoles.Sidekick);
-        target.RpcChangeRoleBasis(CustomRoles.Sidekick);
+        target.RpcChangeRoleBasis(CustomRoles.Sidekick, sender: sender);
         SidekickId = target.PlayerId;
 
         Main.ResetCamPlayerList.Add(target.PlayerId);
 
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("GangsterSuccessfullyRecruited")));
-        target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")));
+        sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("GangsterSuccessfullyRecruited")), setName: false);
+        sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")), setName: false);
+
+        sender.SetKillCooldown(killer, 3f);
+        sender.RpcGuardAndKill(target, killer);
+        sender.RpcGuardAndKill(target, target);
+
+        sender.SendMessage();
 
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-
-        killer.SetKillCooldown(3f);
-        target.RpcGuardAndKill(killer);
-        target.RpcGuardAndKill(target);
 
         Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", $"Assign {CustomRoles.Sidekick}");
 

@@ -11,12 +11,12 @@ public class Spirit : RoleBase
     public static bool On;
     private static List<Spirit> Instances = [];
 
-    public override bool IsEnable => On;
-
     private static OptionItem ShapeshiftCooldown;
 
     private byte SpiritID;
     public (byte, byte) Targets;
+
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -43,12 +43,13 @@ public class Spirit : RoleBase
     {
         bool firstIsSet = Targets.Item1 != byte.MaxValue;
         bool secondIsSet = Targets.Item2 != byte.MaxValue;
-        
+
         float cd;
+
         if (firstIsSet ^ secondIsSet) cd = 1f;
         else if (firstIsSet) cd = 300f;
         else cd = ShapeshiftCooldown.GetFloat();
-        
+
         AURoleOptions.ShapeshifterCooldown = cd;
         AURoleOptions.ShapeshifterDuration = 1f;
     }
@@ -57,7 +58,7 @@ public class Spirit : RoleBase
     {
         bool firstIsSet = Targets.Item1 != byte.MaxValue;
         bool secondIsSet = Targets.Item2 != byte.MaxValue;
-        
+
         switch (firstIsSet)
         {
             case true when secondIsSet:
@@ -69,7 +70,7 @@ public class Spirit : RoleBase
                 Targets.Item1 = target.PlayerId;
                 break;
         }
-        
+
         shapeshifter.RpcRemoveAbilityUse();
         shapeshifter.SyncSettings();
         target.Notify(string.Format(Translator.GetString("SpiritTarget"), CustomRoles.Spirit.ToColoredString()));
@@ -93,15 +94,15 @@ public class Spirit : RoleBase
     public static bool TryGetSwapTarget(PlayerControl originalTarget, out PlayerControl newTarget)
     {
         newTarget = null;
-        
-        if (!Instances.FindFirst(x => x.Targets.Item1 == originalTarget.PlayerId || x.Targets.Item2 == originalTarget.PlayerId, out var spirit))
+
+        if (!Instances.FindFirst(x => x.Targets.Item1 == originalTarget.PlayerId || x.Targets.Item2 == originalTarget.PlayerId, out Spirit spirit))
             return false;
 
         if (spirit.Targets.Item1 == originalTarget.PlayerId)
             newTarget = spirit.Targets.Item2.GetPlayer();
         else if (spirit.Targets.Item2 == originalTarget.PlayerId)
             newTarget = spirit.Targets.Item1.GetPlayer();
-        
+
         return newTarget != null;
     }
 
@@ -109,8 +110,8 @@ public class Spirit : RoleBase
     {
         byte[] tuple = [Targets.Item1, Targets.Item2];
         if (tuple.All(x => x == byte.MaxValue)) return;
-        
-        var sewed = tuple.ToValidPlayers().ToList();
+
+        List<PlayerControl> sewed = tuple.ToValidPlayers().ToList();
 
         if (sewed.Count != 2 || sewed.Exists(x => !x.IsAlive()))
         {
@@ -118,16 +119,16 @@ public class Spirit : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, SpiritID, Targets.Item1, Targets.Item2);
             pc.SetAbilityUseLimit(2);
             pc.RpcResetAbilityCooldown();
-            
-            if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out var alive))
+
+            if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out PlayerControl alive))
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: alive);
         }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SpiritID || (seer.IsModClient() && !hud) || meeting) return string.Empty;
-        
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SpiritID || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+
         bool firstIsSet = Targets.Item1 != byte.MaxValue;
         bool secondIsSet = Targets.Item2 != byte.MaxValue;
 

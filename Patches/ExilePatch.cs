@@ -9,6 +9,7 @@ using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 
 namespace EHR.Patches;
 
@@ -80,6 +81,8 @@ internal static class ExileControllerWrapUpPatch
 
         NiceSwapper.OnExileFinish();
 
+        var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpPostfix", SendOption.Reliable);
+
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (pc.Is(CustomRoles.Warlock))
@@ -89,35 +92,28 @@ internal static class ExileControllerWrapUpPatch
             }
 
             pc.ResetKillCooldown(false);
-            pc.RpcResetAbilityCooldown();
+            sender.RpcResetAbilityCooldown(pc);
             PetsHelper.RpcRemovePet(pc);
         }
 
-        if (Options.RandomSpawn.GetBool())
-        {
-            RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
-            {
-                0 => new RandomSpawn.SkeldSpawnMap(),
-                1 => new RandomSpawn.MiraHQSpawnMap(),
-                2 => new RandomSpawn.PolusSpawnMap(),
-                3 => new RandomSpawn.DleksSpawnMap(),
-                5 => new RandomSpawn.FungleSpawnMap(),
-                _ => null
-            };
+        sender.SendMessage();
 
-            if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
+        if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
+        {
+            var map = RandomSpawn.SpawnMap.GetSpawnMap();
+            Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
 
         if (exiled == null) return;
-        var id = exiled.PlayerId;
+        byte id = exiled.PlayerId;
 
         LateTask.New(() =>
         {
             PlayerControl player = id.GetPlayer();
-            if (player != null) Utils.AfterPlayerDeathTasks(player, onMeeting: true);
+            if (player != null) Utils.AfterPlayerDeathTasks(player, true);
         }, 2.5f, "AfterPlayerDeathTasks For Exiled Player");
     }
 
@@ -126,7 +122,8 @@ internal static class ExileControllerWrapUpPatch
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)
         {
-            Utils.NotifyRoles();
+            try { Utils.NotifyRoles(); }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             LateTask.New(() =>
             {
@@ -140,6 +137,10 @@ internal static class ExileControllerWrapUpPatch
                 {
                     AntiBlackout.ResetAfterMeeting();
 
+                    var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer", SendOption.Reliable);
+                    Main.AfterMeetingDeathPlayers.Do(x => sender.RpcExileV2(x.Key.GetPlayer()));
+                    sender.SendMessage(Main.AfterMeetingDeathPlayers.Count == 0);
+
                     Main.AfterMeetingDeathPlayers.Do(x =>
                     {
                         PlayerControl player = Utils.GetPlayerById(x.Key);
@@ -147,7 +148,6 @@ internal static class ExileControllerWrapUpPatch
                         Logger.Info($"{player?.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
                         state.deathReason = x.Value;
                         state.SetDead();
-                        player?.RpcExileV2();
                         if (x.Value == PlayerState.DeathReason.Suicide) player?.SetRealKiller(player, true);
                         Utils.AfterPlayerDeathTasks(player);
                     });
@@ -156,7 +156,7 @@ internal static class ExileControllerWrapUpPatch
                     Utils.AfterMeetingTasks();
                     Utils.SyncAllSettings();
                     Utils.CheckAndSetVentInteractions();
-                    Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 5));
+                    Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(5));
                 }
             }, 2f, "AntiBlackout Reset & AfterMeetingTasks");
         }
@@ -169,26 +169,23 @@ internal static class ExileControllerWrapUpPatch
         if (!AmongUsClient.Instance.AmHost || (Lovers.IsChatActivated && Lovers.PrivateChat.GetBool())) return;
 
         bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
-        bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
+        bool ejectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
         Logger.Msg($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
 
-        if ((showRemainingKillers || appendEjectionNotify) && CustomGameMode.Standard.IsActiveOrIntegrated())
+        if ((showRemainingKillers || ejectionNotify) && CustomGameMode.Standard.IsActiveOrIntegrated())
         {
             string text = showRemainingKillers ? Utils.GetRemainingKillers(true) : string.Empty;
             text = $"<#ffffff>{text}</color>";
             var r = IRandom.Instance;
+            var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", SendOption.Reliable);
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                string finalText = text;
-
-                if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
-                    finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
-
-                if (!showRemainingKillers) finalText = finalText.TrimStart();
-
-                pc.Notify(finalText, r.Next(7, 13));
+                string finalText = ejectionNotify ? CheckForEndVotingPatch.EjectionText.Trim() : text;
+                sender.Notify(pc, finalText, r.Next(7, 13));
             }
+
+            sender.SendMessage();
         }
 
         LateTask.New(() => ChatManager.SendPreviousMessagesToAll(true), 3f, log: false);

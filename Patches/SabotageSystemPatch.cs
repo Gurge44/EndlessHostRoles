@@ -174,20 +174,18 @@ public static class MushroomMixupSabotageSystemPatch
             LateTask.New(() =>
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    // Reset Ability Cooldown To Default For Living Players
-                    if (pc.GetRoleTypes() != RoleTypes.Engineer)
-                        pc.RpcResetAbilityCooldown();
+                var sender = CustomRpcSender.Create("MushroomMixupSabotageSystemPatch.Postfix", SendOption.Reliable);
+                Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => sender.RpcResetAbilityCooldown(x));
+                sender.SendMessage();
 
-                    // Redo Unshift Trigger due to mushroom mixup breaking it
-                    pc.CheckAndSetUnshiftState();
-                }
+                Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState());
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+            }
         }
     }
 }
@@ -257,8 +255,10 @@ public static class ElectricTaskInitializePatch
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
+            }
         }
 
         Logger.Info("Lights sabotage called", "ElectricTask");
@@ -281,8 +281,18 @@ public static class ElectricTaskCompletePatch
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
+            {
+                CustomRoles role = pc.GetCustomRole();
+
+                if (role.NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
+
+                if (role == CustomRoles.Wiper)
+                {
+                    if (Options.UseUnshiftTrigger.GetBool() || Options.UsePhantomBasis.GetBool()) pc.RpcResetAbilityCooldown();
+                    else pc.AddAbilityCD();
+                }
+            }
         }
 
         Logger.Info("Lights sabotage fixed", "ElectricTask");

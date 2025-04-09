@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
 
@@ -12,12 +13,12 @@ internal class Mario : RoleBase
     public static Dictionary<byte, int> MarioVentCount = [];
 
     public static bool On;
-    public override bool IsEnable => On;
 
     private static OptionItem MarioVentCD;
 
     private static Dictionary<MapNames, OptionItem> MapWinCounts = [];
     private static int MarioVentNumWin;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -78,9 +79,11 @@ internal class Mario : RoleBase
         MarioVentCount.TryAdd(pc.PlayerId, 0);
         MarioVentCount[pc.PlayerId]++;
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        pc.RPCPlayCustomSound("MarioJump");
 
         if (AmongUsClient.Instance.AmHost && MarioVentCount[pc.PlayerId] >= MarioVentNumWin)
         {
+            pc.RPCPlayCustomSound("MarioCoin");
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }

@@ -408,25 +408,35 @@ public static class GameOptionsMenuPatch
         return baseGameSetting;
     }
 
+    // From MoreGamemodes, by Rabek009
     public static void ReloadUI(int index)
     {
         UIReloadTS = Utils.TimeStamp;
 
-        GameSettingMenu.Instance?.Close();
+        int tab = ModGameOptionsMenu.TabIndex;
+        if (GameSettingMenu.Instance == null) return;
+        GameSettingMenu.Instance.Close();
+        OptionsConsole optionsConsole = null;
+
+        foreach (OptionsConsole console in Object.FindObjectsOfType<OptionsConsole>())
+        {
+            if (console.HostOnly)
+                optionsConsole = console;
+        }
+
+        if (optionsConsole == null) return;
+
+        if (Camera.main != null)
+        {
+            GameObject gameObject = Object.Instantiate(optionsConsole.MenuPrefab, Camera.main.transform, false);
+            gameObject.transform.localPosition = optionsConsole.CustomPosition;
+        }
 
         LateTask.New(() =>
         {
-            if (GameStates.IsLobby) GameObject.Find("Host Buttons")?.transform.FindChild("Edit")?.GetComponent<PassiveButton>()?.ReceiveClickDown();
-        }, 0.1f, log: false);
-
-        LateTask.New(() =>
-        {
-            if (GameStates.IsLobby)
-            {
-                GameSettingMenu.Instance?.ChangeTab(index, Controller.currentTouchType == Controller.TouchType.Joystick);
-                ModGameOptionsMenu.TabIndex = index;
-            }
-        }, 0.38f, log: false);
+            if (GameSettingMenu.Instance == null) return;
+            GameSettingMenu.Instance.ChangeTab(tab, false);
+        }, 0.01f);
     }
 }
 
@@ -509,6 +519,9 @@ public static class NumberOptionPatch
                 __instance.ValidRange = new(0, Crowded.MaxImpostors);
                 __instance.Value = (float)Math.Round(__instance.Value, 2);
                 if (DebugModeManager.AmDebugger) __instance.ValidRange.min = 0;
+                break;
+            case StringNames.CapacityLabel:
+                __instance.ValidRange = new(4, 127);
                 break;
         }
 
@@ -746,10 +759,7 @@ public static class StringOptionPatch
 
         return $"    <size=2>{string.Join('/', teams.Select(GetColoredShortTeamName))}</size>";
 
-        string GetColoredShortTeamName(Team t)
-        {
-            return Utils.ColorString(t.GetColor(), Translator.GetString($"ShortTeamName.{t}").ToUpper());
-        }
+        string GetColoredShortTeamName(Team t) => Utils.ColorString(t.GetColor(), Translator.GetString($"ShortTeamName.{t}").ToUpper());
     }
 
     [HarmonyPatch(nameof(StringOption.UpdateValue))]
@@ -946,8 +956,10 @@ public class GameSettingMenuPatch
         }
 
         foreach (TabGroup tab in tabGroups)
+        {
             if (ModSettingsButtons.TryGetValue(tab, out PassiveButton button))
                 __instance.ControllerSelectable.Add(button);
+        }
 
         HiddenBySearch.Do(x => x.SetHidden(false));
         HiddenBySearch.Clear();
@@ -1199,12 +1211,16 @@ public class GameSettingMenuPatch
             TabGroup[] tabGroups = Enum.GetValues<TabGroup>();
 
             foreach (TabGroup tab in tabGroups)
+            {
                 if (ModSettingsTabs.TryGetValue(tab, out settingsTab) && settingsTab != null)
                     settingsTab.gameObject.SetActive(false);
+            }
 
             foreach (TabGroup tab in tabGroups)
+            {
                 if (ModSettingsButtons.TryGetValue(tab, out button) && button != null)
                     button.SelectButton(false);
+            }
         }
 
         if (tabNum < 3) return true;
@@ -1284,9 +1300,9 @@ public class GameSettingMenuPatch
         ModSettingsButtons = [];
         ModSettingsTabs = [];
 
-        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && GameStates.CurrentServerType == GameStates.ServerType.Modded && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
+        if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && GameStates.CurrentServerType == GameStates.ServerType.ModdedWithoutCNOSupport && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
             FastDestroyableSingleton<HudManager>.Instance.ShowPopUp(Translator.GetString("ModdedServerDoesntSupportCNOMessage"));
-        
+
         Main.Instance.StartCoroutine(OptionShower.GetText());
     }
 }
@@ -1327,7 +1343,7 @@ public static class FixDarkThemeForSearchBar
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSyncSettings))]
-public class RpcSyncSettingsPatch
+public static class RpcSyncSettingsPatch
 {
     public static void Postfix()
     {

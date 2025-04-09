@@ -12,16 +12,18 @@ internal class GameManagerSerializeFix
 
         for (var index = 0; index < __instance.LogicComponents.Count; ++index)
         {
-            GameLogicComponent logicComponent = __instance.LogicComponents[index];
+            GameLogicComponent logicComponent = __instance.LogicComponents[index]; // False error
 
             if (initialState || logicComponent.IsDirty)
             {
-                flag = true;
                 writer.StartMessage((byte)index);
                 bool hasBody = logicComponent.Serialize(writer, initialState);
 
                 if (hasBody)
+                {
+                    flag = true;
                     writer.EndMessage();
+                }
                 else
                     writer.CancelMessage();
 

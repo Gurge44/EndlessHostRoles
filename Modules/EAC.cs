@@ -72,7 +72,7 @@ internal static class EAC
 
                     break;
                 case RpcCalls.ReportDeadBody:
-                    var targetId = sr.ReadByte();
+                    byte targetId = sr.ReadByte();
 
                     if (GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost())
                     {
@@ -117,7 +117,7 @@ internal static class EAC
 
                     break;
                 case RpcCalls.SendQuickChat:
-                    QuickChatPhraseType quickChatPhraseType = (QuickChatPhraseType)sr.ReadByte();
+                    var quickChatPhraseType = (QuickChatPhraseType)sr.ReadByte();
 
                     switch (quickChatPhraseType)
                     {
@@ -170,7 +170,7 @@ internal static class EAC
                     }
 
                     break;
-                case RpcCalls.SetColor when !pc.IsHost() && (!pc.IsModClient() || !Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
+                case RpcCalls.SetColor when !pc.IsModdedClient() && (!Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
                     Report(pc, "Directly SetColor");
                     HandleCheat(pc, "Directly SetColor");
                     Logger.Fatal($"Directly SetColor【{pc.GetClientId()}:{pc.GetRealName()}】has been rejected", "EAC");
@@ -214,7 +214,7 @@ internal static class EAC
                 case RpcCalls.Shapeshift when !pc.IsHost():
                 {
                     Report(pc, "Directly Shapeshift");
-                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, HazelExtensions.SendOption);
+                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
                     swriter.WriteNetObject(pc);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);
@@ -227,18 +227,13 @@ internal static class EAC
                 {
                     string sreason = "Direct Phantom RPCs " + rpc;
                     Report(pc, sreason);
-                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, HazelExtensions.SendOption);
+                    MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, SendOption.Reliable);
                     swriter.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(swriter);
                     HandleCheat(pc, sreason);
                     Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()} {sreason}, rejected", "EAC");
                     return true;
                 }
-                case RpcCalls.SendChatNote:
-                    Report(pc, "Directly Send ChatNote");
-                    HandleCheat(pc, "Directly Send ChatNote");
-                    Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly sent ChatNote, which has been rejected", "EAC");
-                    return true;
                 case RpcCalls.CompleteTask when GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost() && !(Main.CurrentMap == MapNames.Airship && ExileController.Instance):
                     Report(pc, "Complete Task in Meeting");
                     HandleCheat(pc, "Complete Task in Meeting");
@@ -275,8 +270,8 @@ internal static class EAC
 
                         if (aumid == pc.PlayerId)
                         {
-                            Report(pc, "AUM RPC");
-                            HandleCheat(pc, "AUM RPC");
+                            Report(pc, "AUM RPC (Hack)");
+                            HandleCheat(pc, "AUM RPC (Hack)");
                             Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sent AUM RPC, rejected", "EAC");
                             return true;
                         }
@@ -287,8 +282,8 @@ internal static class EAC
                 case unchecked((byte)420): // 164 Sicko
                     if (sr.BytesRemaining == 0)
                     {
-                        Report(pc, "Sicko RPC");
-                        HandleCheat(pc, "Sicko RPC");
+                        Report(pc, "Sicko RPC (Hack against host-only mods, like EHR)");
+                        HandleCheat(pc, "Sicko RPC (Hack against host-only mods, like EHR)");
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sent Sicko RPC, rejected", "EAC");
                         return true;
                     }
@@ -461,15 +456,9 @@ internal static class EAC
 
         return false;
 
-        bool HasLadder(int ladderId)
-        {
-            return ShipStatus.Instance.Ladders.Any(l => l.Id == ladderId);
-        }
+        bool HasLadder(int ladderId) => ShipStatus.Instance.Ladders.Any(l => l.Id == ladderId);
 
-        bool HasVent(int ventId)
-        {
-            return ShipStatus.Instance.AllVents.Any(v => v.Id == ventId);
-        }
+        bool HasVent(int ventId) => ShipStatus.Instance.AllVents.Any(v => v.Id == ventId);
     }
 
     internal static void Report(PlayerControl pc, string reason)
@@ -538,7 +527,7 @@ internal static class EAC
 
     internal static bool CheckInvalidSabotage(SystemTypes systemType, PlayerControl player, byte amount)
     {
-        if (player.IsModClient() || !AmongUsClient.Instance.AmHost) return false;
+        if (player.IsModdedClient() || !AmongUsClient.Instance.AmHost) return false;
 
         if (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Discussion)
         {
@@ -778,7 +767,7 @@ internal static class CheckInvalidMovementPatch
 
     public static void Postfix(PlayerControl __instance)
     {
-        if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255 || !__instance.IsAlive() || __instance.inVent) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId >= 254 || !__instance.IsAlive() || __instance.inVent) return;
 
         Vector2 pos = __instance.Pos();
         long now = Utils.TimeStamp;

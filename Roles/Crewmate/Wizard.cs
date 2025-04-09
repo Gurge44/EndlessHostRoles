@@ -111,7 +111,7 @@ public class Wizard : RoleBase
         };
 
         PlayerBuffs = [];
-        SelectedBuff = default;
+        SelectedBuff = default(Buff);
         TaskMode = false;
         Count = 0;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
@@ -178,7 +178,7 @@ public class Wizard : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (SelectedBuff == Buff.KCD)
-            SelectedBuff = default;
+            SelectedBuff = default(Buff);
         else
             SelectedBuff++;
 
@@ -240,7 +240,7 @@ public class Wizard : RoleBase
                 TaskMode = false;
                 break;
             case false when !pc.IsAlive():
-                pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId());
+                pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId(), true);
                 TaskMode = true;
                 break;
             case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():
@@ -281,20 +281,18 @@ public class Wizard : RoleBase
 
         if (PlayerBuffs.TryGetValue(target.PlayerId, out Dictionary<Buff, float> buffs)) return string.Join('\n', buffs.Select(x => $"{Translator.GetString($"Wizard.Buff.{x.Key}")}: {Math.Round(x.Value, 1):N1}{GetBuffFormat(x.Key)}"));
 
-        if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         return string.Format(Translator.GetString("Wizard.SelectedBuff"), SelectedBuff, BuffValues[SelectedBuff], GetBuffFormat(SelectedBuff));
 
-        string GetBuffFormat(Buff buff)
-        {
-            return buff switch
+        string GetBuffFormat(Buff buff) =>
+            buff switch
             {
                 Buff.Speed => "x",
                 Buff.Vision => "x",
                 Buff.KCD => "s",
                 _ => throw new ArgumentOutOfRangeException(nameof(buff), buff, "Invalid buff")
             };
-        }
     }
 
     private enum Buff

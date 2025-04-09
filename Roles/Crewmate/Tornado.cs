@@ -57,17 +57,7 @@ internal class Tornado : RoleBase
 
         try
         {
-            Map = Main.CurrentMap switch
-            {
-                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap(),
-                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap(),
-                MapNames.Polus => new RandomSpawn.PolusSpawnMap(),
-                MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
-                MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
-                MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-                _ => throw new ArgumentOutOfRangeException(Main.CurrentMap.ToString(), "Unsupported Map")
-            };
-
+            Map = RandomSpawn.SpawnMap.GetSpawnMap();
             CanUseMap = true;
         }
         catch (ArgumentOutOfRangeException)
@@ -93,7 +83,7 @@ internal class Tornado : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AddTornado, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AddTornado, SendOption.Reliable);
         writer.Write(add);
         writer.Write(pos.x);
         writer.Write(pos.y);
@@ -179,7 +169,7 @@ internal class Tornado : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || !IsEnable || (seer.IsModClient() && !hud) || seer.PlayerId != TornadoPC.PlayerId) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || !IsEnable || (seer.IsModdedClient() && !hud) || seer.PlayerId != TornadoPC.PlayerId) return string.Empty;
 
         return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.RoomName)} {GetFormattedVectorText(x.Key.Location)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
     }

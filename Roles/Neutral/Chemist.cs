@@ -165,9 +165,8 @@ internal class Chemist : RoleBase
 
         return;
 
-        static int GetDefaultValue(Item item)
-        {
-            return item switch
+        static int GetDefaultValue(Item item) =>
+            item switch
             {
                 Item.Explosive => 1,
                 Item.Grenade => 1,
@@ -175,7 +174,6 @@ internal class Chemist : RoleBase
                 Item.MethylamineGas => 100,
                 _ => 0
             };
-        }
     }
 
     public override void Init()
@@ -592,7 +590,7 @@ internal class Chemist : RoleBase
         if (Main.PlayerStates[seer.PlayerId].Role is not Chemist cm) return string.Empty;
 
         bool self = seer.PlayerId == target.PlayerId;
-        if (self && seer.IsModClient() && !hud) return string.Empty;
+        if (self && seer.IsModdedClient() && !hud) return string.Empty;
 
         StringBuilder sb = new StringBuilder().Append("<size=80%>");
 

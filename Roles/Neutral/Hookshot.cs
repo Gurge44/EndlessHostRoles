@@ -77,7 +77,7 @@ internal class Hookshot : RoleBase
     {
         if (!IsEnable || !DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, SendOption.Reliable);
         writer.Write(HookshotId);
         writer.Write(ToTargetTP);
         writer.Write(MarkedPlayerId);

@@ -35,8 +35,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "5.3.2";
-    public const string PluginDisplayVersion = "5.3.2";
+    public const string PluginVersion = "5.4.0";
+    public const string PluginDisplayVersion = "5.4.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -51,7 +51,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2024.8.13";
+    public const string SupportedAUVersion = "2025.3.25";
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
@@ -66,7 +66,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, PlayerState> PlayerStates = [];
     public static Dictionary<byte, string> AllPlayerNames = [];
     public static Dictionary<int, string> AllClientRealNames = [];
-    public static Dictionary<(byte, byte), string> LastNotifyNames;
+    public static Dictionary<(byte, byte), string> LastNotifyNames = [];
     public static Dictionary<byte, Color32> PlayerColors = [];
     public static Dictionary<byte, PlayerState.DeathReason> AfterMeetingDeathPlayers = [];
     public static Dictionary<CustomRoles, string> RoleColors;
@@ -112,6 +112,17 @@ public class Main : BasePlugin
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;
 
+    public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
+    {
+        [CustomGameMode.SoloKombat] = [],
+        [CustomGameMode.FFA] = [],
+        [CustomGameMode.HotPotato] = [],
+        [CustomGameMode.HideAndSeek] = [],
+        [CustomGameMode.Speedrun] = [],
+        [CustomGameMode.CaptureTheFlag] = [],
+        [CustomGameMode.NaturalDisasters] = []
+    };
+
     public static readonly Dictionary<CustomGameMode, Dictionary<string, int>> NumWinsPerGM = [];
     public static HashSet<byte> DiedThisRound = [];
     public static List<PlayerControl> LoversPlayers = [];
@@ -144,7 +155,7 @@ public class Main : BasePlugin
 
     private Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
+    public static NormalGameOptionsV09 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }
@@ -197,7 +208,7 @@ public class Main : BasePlugin
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || pc.PlayerId == 255) continue;
+                if (pc == null || pc.PlayerId >= 254) continue;
 
                 result[i++] = pc;
             }
@@ -219,7 +230,7 @@ public class Main : BasePlugin
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || pc.PlayerId == 255 || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
 
                 result[i++] = pc;
             }
@@ -271,7 +282,7 @@ public class Main : BasePlugin
         Logger.Disable("NotifyRoles");
         Logger.Disable("SwitchSystem");
         Logger.Disable("ModNews");
-        Logger.Disable("CustomRpcSender");
+        //Logger.Disable("CustomRpcSender");
 
         if (!DebugModeManager.AmDebugger)
         {
@@ -280,7 +291,7 @@ public class Main : BasePlugin
             // Logger.Disable("SendRPC");
             Logger.Disable("SetRole");
             Logger.Disable("Info.Role");
-            Logger.Disable("TaskState.Init");
+            //Logger.Disable("TaskState.Init");
             Logger.Disable("RpcSetNamePrivate");
             Logger.Disable("SetName");
             Logger.Disable("PlayerControl.RpcSetRole");
@@ -304,7 +315,7 @@ public class Main : BasePlugin
         Preset10 = Config.Bind("Preset Name Options", "Preset10", "Preset_10");
         WebhookUrl = Config.Bind("Other", "WebhookURL", "none");
         BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
-        MessageWait = Config.Bind("Other", "MessageWait", 0);
+        MessageWait = Config.Bind("Other", "MessageWait", 1);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 
@@ -591,7 +602,6 @@ public class Main : BasePlugin
                 { CustomRoles.Shy, "#9582f5" },
                 { CustomRoles.Blocked, "#B7A627" },
                 { CustomRoles.Aide, "#ff1919" },
-                { CustomRoles.Underdog, "#ff1919" },
                 { CustomRoles.Anchor, "#6B4CE4" },
                 { CustomRoles.Fragile, "#debe66" },
                 { CustomRoles.Allergic, "#e3bd56" },
@@ -663,6 +673,7 @@ public class Main : BasePlugin
                 { CustomRoles.Antidote, "#FF9876" },
                 { CustomRoles.Swift, "#ff1919" },
                 { CustomRoles.Mare, "#ff1919" },
+                { CustomRoles.Underdog, "#ff1919" },
 
                 // SoloKombat
                 { CustomRoles.KB_Normal, "#f55252" },
@@ -680,6 +691,8 @@ public class Main : BasePlugin
                 { CustomRoles.NDPlayer, "#03fc4a" },
                 // Room Rush
                 { CustomRoles.RRPlayer, "#ffab1b" },
+                // King of the Zones
+                { CustomRoles.KOTZPlayer, "#ff0000" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -731,9 +744,9 @@ public class Main : BasePlugin
         ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
 
-        NormalGameOptionsV08.RecommendedImpostors = NormalGameOptionsV08.MaxImpostors = Enumerable.Repeat(127, 127).ToArray();
-        NormalGameOptionsV08.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
-        HideNSeekGameOptionsV08.MinPlayers = Enumerable.Repeat(4, 127).ToArray();
+        NormalGameOptionsV09.RecommendedImpostors = NormalGameOptionsV09.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
+        NormalGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
+        HideNSeekGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
 
         CustomLogger.ClearLog();
 
@@ -789,8 +802,8 @@ public class Main : BasePlugin
 
     public static IEnumerator GetRandomWord(Action<string> onComplete)
     {
-        string api = "https://random-word.ryanrk.com/api/en/word/random";
-        var request = UnityWebRequest.Get(api);
+        var api = "https://random-word.ryanrk.com/api/en/word/random";
+        UnityWebRequest request = UnityWebRequest.Get(api);
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)

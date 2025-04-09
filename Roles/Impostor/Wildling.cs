@@ -125,7 +125,7 @@ public class Wildling : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBkTimer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBkTimer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(TimeStamp.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);

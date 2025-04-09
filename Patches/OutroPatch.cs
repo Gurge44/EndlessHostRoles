@@ -67,7 +67,7 @@ internal static class EndGamePatch
 
             byte killerId = value.GetRealKiller();
             bool gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-            bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.AllInOne;
+            bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.AllInOne;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -124,6 +124,14 @@ internal static class EndGamePatch
                 case CustomGameMode.RoomRush:
                     Main.AllPlayerControls.Do(x => RoomRush.HasPlayedFriendCodes.Add(x.FriendCode));
                     break;
+                case CustomGameMode.KingOfTheZones:
+                    Main.AllPlayerControls.Do(x => KingOfTheZones.PlayedFCs.Add(x.FriendCode));
+                    break;
+                default:
+                    if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs))
+                        playedFCs.UnionWith(Main.AllPlayerControls.Select(x => x.FriendCode));
+
+                    break;
             }
         }
     }
@@ -154,8 +162,10 @@ internal static class SetEverythingUpPatch
             Il2CppArrayBase<PoolablePlayer> pbs = __instance?.transform.GetComponentsInChildren<PoolablePlayer>();
 
             if (pbs != null)
+            {
                 foreach (PoolablePlayer pb in pbs)
                     pb.ToggleName(false);
+            }
 
             List<CachedPlayerData> list = EndGameResult.CachedWinners.ToArray().ToList();
 
@@ -287,6 +297,14 @@ internal static class SetEverythingUpPatch
                 WinnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
             }
+            case CustomGameMode.KingOfTheZones:
+            {
+                (Color Color, string Team) winnerData = KingOfTheZones.WinnerData;
+                __instance.BackgroundBar.material.color = winnerData.Color;
+                WinnerText.text = winnerData.Team;
+                WinnerText.color = winnerData.Color;
+                goto EndOfText;
+            }
             case CustomGameMode.AllInOne:
             {
                 byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
@@ -383,7 +401,7 @@ internal static class SetEverythingUpPatch
             if (addWinnerRole == CustomRoles.Sidekick) continue;
 
             Color color = additionalWinners == AdditionalWinners.AliveNeutrals ? Team.Neutral.GetColor() : Utils.GetRoleColor(addWinnerRole);
-            AdditionalWinnerText += "\n" + Utils.ColorString(color, GetAdditionalWinnerRoleName(addWinnerRole));
+            AdditionalWinnerText += "\n" + Utils.ColorString(color, GetAdditionalWinnerRoleName(additionalWinners == AdditionalWinners.AliveNeutrals ? additionalWinners.ToString() : addWinnerRole.ToString()));
         }
 
         Skip:
@@ -479,7 +497,14 @@ internal static class SetEverythingUpPatch
             }
             case CustomGameMode.RoomRush:
             {
-                IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(RoomRush.GetSurvivalTime);
+                IOrderedEnumerable<byte> list = RoomRush.PointsSystem ? cloneRoles.OrderByDescending(x => int.Parse(RoomRush.GetPoints(x).Split('/')[0])) : cloneRoles.OrderByDescending(RoomRush.GetSurvivalTime);
+                foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
+
+                break;
+            }
+            case CustomGameMode.KingOfTheZones:
+            {
+                IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(KingOfTheZones.GetZoneTime);
                 foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                 break;
@@ -499,7 +524,7 @@ internal static class SetEverythingUpPatch
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            var winCounts = Utils.GetWinCountsString();
+            string winCounts = Utils.GetWinCountsString();
 
             if (winCounts != string.Empty)
             {
@@ -520,7 +545,7 @@ internal static class SetEverythingUpPatch
         RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.7f);
         RoleSummary.text = sb.ToString();
 
-        var showInitially = Main.ShowResult;
+        bool showInitially = Main.ShowResult;
 
         ResultsToggleButton = new SimpleButton(
             __instance.transform,
@@ -530,7 +555,7 @@ internal static class SetEverythingUpPatch
             new(0, 255, 255, 255),
             () =>
             {
-                var setToActive = !RoleSummary.gameObject.activeSelf;
+                bool setToActive = !RoleSummary.gameObject.activeSelf;
                 RoleSummary.gameObject.SetActive(setToActive);
                 Main.ShowResult = setToActive;
                 ResultsToggleButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
@@ -538,15 +563,16 @@ internal static class SetEverythingUpPatch
             GetString(showInitially ? "HideResults" : "ShowResults"))
         {
             Scale = new(1.5f, 0.5f),
-            FontSize = 2f,
+            FontSize = 2f
         };
 
         return;
 
-        static string GetAdditionalWinnerRoleName(CustomRoles role)
+        static string GetAdditionalWinnerRoleName(string role)
         {
             string name = GetString($"AdditionalWinnerRoleText.{role}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("AdditionalWinnerRoleText.Default"), GetString($"{role}"));
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID"))
+                name = string.Format(GetString("AdditionalWinnerRoleText.Default"), GetString(role));
 
             return name;
         }
@@ -554,7 +580,8 @@ internal static class SetEverythingUpPatch
         static string GetWinnerRoleName(CustomRoles role)
         {
             string name = GetString($"WinnerRoleText.{role}");
-            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("WinnerRoleText.Default"), GetString($"{role}"));
+            if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID"))
+                name = string.Format(GetString("WinnerRoleText.Default"), GetString($"{role}"));
 
             return name;
         }

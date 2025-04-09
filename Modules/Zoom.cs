@@ -33,8 +33,10 @@ public static class Zoom
                     case < 0:
                     {
                         if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
+                        {
                             if (Camera.main.orthographicSize < 18.0f)
                                 SetZoomSize(true);
+                        }
 
                         break;
                     }

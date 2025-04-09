@@ -33,7 +33,7 @@ internal static class GhostRolesManager
 
         IGhostRole instance = CreateGhostRoleInstance(suitableRole);
         pc.RpcSetCustomRole(suitableRole);
-        pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
+        pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId(), true);
         instance.OnAssign(pc);
         Main.ResetCamPlayerList.Add(pc.PlayerId);
         AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
@@ -60,7 +60,7 @@ internal static class GhostRolesManager
     {
         if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole)) return;
 
-        if (!first && pc.IsModClient()) return;
+        if (!first && pc.IsModdedClient()) return;
 
         CustomRoles role = ghostRole.Role;
         (string Split, string Message) info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));
@@ -82,10 +82,7 @@ internal static class GhostRolesManager
 
             return (ApplyFormat(message), ApplyFormat(baseMessage));
 
-            string ApplyFormat(string m)
-            {
-                return Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
-            }
+            string ApplyFormat(string m) => Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
         }
     }
 
@@ -114,15 +111,13 @@ internal static class GhostRolesManager
                 _ => suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole)
             };
 
-            bool IsPartnerPickedRole()
-            {
-                return Main.PlayerStates[pc.PlayerId].Role switch
+            bool IsPartnerPickedRole() =>
+                Main.PlayerStates[pc.PlayerId].Role switch
                 {
                     Romantic when Romantic.HasPickedPartner => true,
                     Totocalcio tc when tc.BetPlayer != byte.MaxValue => true,
                     _ => false
                 };
-            }
         }
         catch (Exception e)
         {

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -76,10 +77,12 @@ public static class Speedrun
         CanKill.Add(pc.PlayerId);
         int kcd = KillCooldown.GetInt();
         Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
-        pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.NSerialKiller);
-        pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
+        var sender = CustomRpcSender.Create("Speedrun.OnTaskFinish", SendOption.Reliable);
+        pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.NSerialKiller, sender: sender);
+        sender.Notify(pc, Translator.GetString("Speedrun_CompletedTasks"));
+        sender.SendMessage();
         pc.SyncSettings();
-        pc.SetKillCooldown(kcd);
+        LateTask.New(() => pc.SetKillCooldown(kcd), 0.2f, log: false);
     }
 
     public static string GetTaskBarText()
@@ -119,7 +122,7 @@ public static class Speedrun
             if (player != null)
             {
                 CustomWinnerHolder.WinnerIds = [player.PlayerId];
-                reason = GameOverReason.HumansByTask;
+                reason = GameOverReason.CrewmatesByTask;
                 return true;
             }
         }
@@ -128,15 +131,15 @@ public static class Speedrun
         {
             case 1:
                 CustomWinnerHolder.WinnerIds = [aapc[0].PlayerId];
-                reason = GameOverReason.ImpostorByKill;
+                reason = GameOverReason.ImpostorsByKill;
                 return true;
             case 0:
                 CustomWinnerHolder.WinnerIds = [];
-                reason = GameOverReason.HumansDisconnect;
+                reason = GameOverReason.CrewmateDisconnect;
                 return true;
         }
 
-        reason = GameOverReason.ImpostorByKill;
+        reason = GameOverReason.ImpostorsByKill;
         KeyCode[] keys = [KeyCode.LeftShift, KeyCode.L, KeyCode.Return];
         return keys.Any(Input.GetKeyDown) && keys.All(Input.GetKey);
     }
@@ -145,7 +148,15 @@ public static class Speedrun
     {
         if (!CanKill.Contains(killer.PlayerId)) return false;
 
-        return CanKill.Contains(target.PlayerId) || KillersCanKillTaskingPlayers.GetBool();
+        bool allow = CanKill.Contains(target.PlayerId) || KillersCanKillTaskingPlayers.GetBool();
+
+        if (allow)
+        {
+            if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+            ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
+        }
+
+        return allow;
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -156,7 +167,7 @@ public static class Speedrun
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId == 255) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId >= 254) return;
 
             if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
             {

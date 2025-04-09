@@ -68,9 +68,9 @@ public class NiceHacker : RoleBase
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModClient());
+        PlayerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModdedClient());
 
-        if (!GetPlayerById(playerId).IsModClient())
+        if (!GetPlayerById(playerId).IsModdedClient())
             UseLimit.Add(playerId, UseLimitOpt.GetInt());
         else
             UseLimitSeconds.Add(playerId, UseLimitOpt.GetInt() * ModdedClientAbilityUseSecondsMultiplier.GetInt());
@@ -93,7 +93,7 @@ public class NiceHacker : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(secondsLeft);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -123,7 +123,7 @@ public class NiceHacker : RoleBase
     {
         if (pc == null) return;
 
-        if (pc.IsModClient() || !UseLimit.ContainsKey(pc.PlayerId)) return;
+        if (pc.IsModdedClient() || !UseLimit.ContainsKey(pc.PlayerId)) return;
 
         if (UseLimit[pc.PlayerId] >= 1)
         {
@@ -150,7 +150,7 @@ public class NiceHacker : RoleBase
 
             if (LastUpdate[pc.PlayerId] + 5 < TimeStamp)
             {
-                if (pc.IsModClient())
+                if (pc.IsModdedClient())
                     UseLimitSeconds[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat() * ModdedClientAbilityUseSecondsMultiplier.GetInt();
                 else
                     UseLimit[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat();

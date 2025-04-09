@@ -70,7 +70,7 @@ public static class AFKDetector
             switch (data.CurrentPhase)
             {
                 case Data.Phase.Detection:
-                    if (!pc.IsModClient()) NumAFK++;
+                    if (!pc.IsModdedClient()) NumAFK++;
 
                     data.CurrentPhase = Data.Phase.Warning;
                     data.Timer = 15f;

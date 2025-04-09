@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -119,7 +120,8 @@ public class Swooper : RoleBase
     {
         try
         {
-            if (UsedRole == CustomRoles.Chameleon) { AURoleOptions.EngineerCooldown = Cooldown + 1f; }
+            if (UsedRole == CustomRoles.Chameleon)
+                AURoleOptions.EngineerCooldown = Cooldown + 1f;
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -133,7 +135,7 @@ public class Swooper : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, SendOption.Reliable);
         writer.Write(SwooperId);
         writer.Write(InvisTime.ToString());
         writer.Write(lastTime.ToString());
@@ -165,10 +167,10 @@ public class Swooper : RoleBase
 
         if (lastTime != -10)
         {
-            if (!player.IsModClient() && UsedRole != CustomRoles.Chameleon)
+            if (!player.IsModdedClient() && UsedRole != CustomRoles.Chameleon)
             {
                 long cooldown = lastTime + (long)Cooldown - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, overrideAll: true);
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, true);
 
                 CD = (int)cooldown;
             }
@@ -176,7 +178,7 @@ public class Swooper : RoleBase
             if (lastTime + (long)Cooldown < now)
             {
                 lastTime = -10;
-                if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"), 10f);
+                if (!player.IsModdedClient()) player.Notify(GetString("SwooperCanVent"), 10f);
 
                 SendRPC();
                 CD = 0;
@@ -193,13 +195,18 @@ public class Swooper : RoleBase
             {
                 case < 0:
                     lastTime = now;
-                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId, x));
+
+                    var sender = CustomRpcSender.Create("RpcExitVentDesync", SendOption.Reliable);
+                    int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
+                    bool hasValue = Main.AllPlayerControls.Where(pc => player.PlayerId != pc.PlayerId).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
+                    sender.SendMessage(!hasValue);
+
                     player.Notify(GetString("SwooperInvisStateOut"));
                     InvisTime = -10;
                     SendRPC();
                     refresh = true;
                     break;
-                case <= 10 when !player.IsModClient():
+                case <= 10 when !player.IsModdedClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
@@ -277,7 +284,7 @@ public class Swooper : RoleBase
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
         if (target.Is(CustomRoles.Bait)) return true;
         if (!IsInvis) return true;
-        if (!killer.RpcCheckAndMurder(target, check: true)) return false;
+        if (!killer.RpcCheckAndMurder(target, true)) return false;
 
         target.Suicide(PlayerState.DeathReason.Swooped, killer);
         killer.SetKillCooldown();

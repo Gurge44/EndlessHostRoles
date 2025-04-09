@@ -98,7 +98,9 @@ public class Tremor : RoleBase
 
         if (wasDoom != IsDoom)
         {
-            Main.AllAlivePlayerControls.Do(x => x.Notify(Translator.GetString("Tremor.DoomNotify")));
+            var sender = CustomRpcSender.Create("Tremor.DoomNotify", SendOption.Reliable);
+            Main.AllAlivePlayerControls.Do(x => sender.Notify(x, Translator.GetString("Tremor.DoomNotify")));
+            sender.SendMessage();
             DoomTimer = DoomTime.GetInt();
         }
 
@@ -153,7 +155,7 @@ public class Tremor : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != TremorId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != TremorId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         Color color = IsDoom ? Color.yellow : Color.cyan;
         string text = IsDoom ? DoomTimer.ToString() : Timer.ToString();

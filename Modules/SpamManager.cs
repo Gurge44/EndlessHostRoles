@@ -51,10 +51,7 @@ public static class SpamManager
                     File.WriteAllText(BANEDWORDS_FILE_PATH, GetResourcesTxt($"EHR.Resources.Config.BanWords.{fileName}.txt"));
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "SpamManager");
-            }
+            catch (Exception ex) { Logger.Exception(ex, "SpamManager"); }
         }
     }
 
@@ -75,8 +72,10 @@ public static class SpamManager
         List<string> sendList = [];
 
         while ((text = sr.ReadLine()) != null)
+        {
             if (text.Length > 1 && text != "")
                 sendList.Add(text.Replace("\\n", "\n").ToLower());
+        }
 
         return sendList;
     }
@@ -137,8 +136,10 @@ public static class SpamManager
             if (kick || !GameStates.IsInGame)
                 Utils.SendMessage(msg);
             else
+            {
                 foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => x.IsAlive() == player.IsAlive()).ToArray())
                     Utils.SendMessage(msg, pc.PlayerId);
+            }
         }
 
         if (kick) AmongUsClient.Instance.KickPlayer(player.GetClientId(), Options.AutoKickStopWordsAsBan.GetBool());

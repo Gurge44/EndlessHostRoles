@@ -103,7 +103,7 @@ public class Alchemist : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistPotion, SendOption.Reliable);
         writer.Write(AlchemistId);
         writer.Write(IsProtected);
         writer.Write(PotionID);
@@ -244,7 +244,7 @@ public class Alchemist : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable);
         writer.Write(AlchemistId);
         writer.Write(InvisTime.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -301,13 +301,17 @@ public class Alchemist : RoleBase
             switch (remainTime)
             {
                 case < 0:
-                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId, x));
+                    var sender = CustomRpcSender.Create("RpcExitVentDesync", SendOption.Reliable);
+                    int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
+                    bool hasValue = Main.AllPlayerControls.Where(pc => player.PlayerId != pc.PlayerId).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
+                    sender.SendMessage(!hasValue);
+
                     player.Notify(GetString("SwooperInvisStateOut"));
                     SendRPC();
                     refresh = true;
                     InvisTime = -10;
                     break;
-                case <= 10 when !player.IsModClient():
+                case <= 10 when !player.IsModdedClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
@@ -367,7 +371,7 @@ public class Alchemist : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || Utils.GetPlayerById(playerId).IsModClient()) return string.Empty;
+        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || Utils.GetPlayerById(playerId).IsModdedClient()) return string.Empty;
 
         var str = new StringBuilder();
 

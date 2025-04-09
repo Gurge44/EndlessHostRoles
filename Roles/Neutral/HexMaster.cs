@@ -7,7 +7,7 @@ namespace EHR.Neutral;
 public class HexMaster : RoleBase
 {
     private const int Id = 11900;
-    
+
     public static OptionItem ModeSwitchAction;
     private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;

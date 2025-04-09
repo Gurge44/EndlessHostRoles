@@ -72,12 +72,24 @@ public static class NameNotifyManager
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify, HazelExtensions.SendOption);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(text);
         writer.Write(expireTS.ToString());
         writer.Write(overrideAll);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public static void SendRPC(CustomRpcSender sender, byte playerId, string text, long expireTS, bool overrideAll)
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify);
+        sender.Write(playerId);
+        sender.Write(text);
+        sender.Write(expireTS.ToString());
+        sender.Write(overrideAll);
+        sender.EndRpc();
     }
 
     public static void ReceiveRPC(MessageReader reader)

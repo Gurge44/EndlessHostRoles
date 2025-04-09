@@ -6,12 +6,12 @@ namespace EHR.Impostor;
 internal class Escapee : RoleBase
 {
     public static bool On;
-    public override bool IsEnable => On;
-    
+
     public static OptionItem EscapeeSSCD;
     public static OptionItem CanVent;
-    
+
     public Vector2? EscapeeLocation;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -20,7 +20,7 @@ internal class Escapee : RoleBase
         EscapeeSSCD = new FloatOptionItem(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapee])
             .SetValueFormat(OptionFormat.Seconds);
-        
+
         CanVent = new BooleanOptionItem(3612, "CanVent", false, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapee]);
     }

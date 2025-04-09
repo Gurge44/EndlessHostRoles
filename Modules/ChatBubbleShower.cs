@@ -69,11 +69,11 @@ public static class ChatBubbleShower
             {
                 const string color1 = "#00FFA5";
                 const string color2 = "#00A5FF";
-                bool isColor1 = true;
+                var isColor1 = true;
 
-                for (int i = 0; i < 4; i++)
+                for (var i = 0; i < 4; i++)
                 {
-                    var color = isColor1 ? color1 : color2;
+                    string color = isColor1 ? color1 : color2;
                     isColor1 = !isColor1;
                     var text = $"<color={color}><b>{title}</b></color>\n<size=80%>{message}</size>";
                     HudManagerPatch.AchievementUnlockedText = text;
@@ -84,14 +84,11 @@ public static class ChatBubbleShower
                 HudManagerPatch.AchievementUnlockedText = string.Empty;
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     /// <summary>
-    /// Displays a chat bubble with a message and a title during the round for the local player.
+    ///     Displays a chat bubble with a message and a title during the round for the local player.
     /// </summary>
     /// <param name="message">The message to display in the chat bubble.</param>
     /// <param name="title">The title of the chat bubble.</param>

@@ -127,13 +127,13 @@ internal class Grenadier : RoleBase
             {
                 MadGrenadierBlinding.Remove(pc.PlayerId);
                 MadGrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
-                Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
+                Main.AllPlayerControls.Where(x => x.IsModdedClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
             }
             else
             {
                 GrenadierBlinding.Remove(pc.PlayerId);
                 GrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
-                Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.IsImpostor() || (x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
+                Main.AllPlayerControls.Where(x => x.IsModdedClient()).Where(x => x.IsImpostor() || (x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
             }
 
             pc.RPCPlayCustomSound("FlashBang");

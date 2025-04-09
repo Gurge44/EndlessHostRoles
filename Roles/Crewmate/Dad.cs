@@ -91,7 +91,7 @@ public class Dad : RoleBase
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Percent);
 
-        StartingAlcohol = new IntegerOptionItem(++id, "Dad.StartingAlcohol", new(0, 100, 1), 20, tab)
+        StartingAlcohol = new IntegerOptionItem(++id, "Dad.StartingAlcohol", new(0, 100, 1), 25, tab)
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Percent);
 
@@ -104,15 +104,15 @@ public class Dad : RoleBase
         AlcoholCost = new IntegerOptionItem(++id, "Dad.AlcoholCost", new(0, 100, 1), 10, tab)
             .SetParent(parent);
 
-        SuperVisionDuration = new IntegerOptionItem(++id, "Dad.SuperVisionDuration", new(1, 90, 1), 20, tab)
+        SuperVisionDuration = new IntegerOptionItem(++id, "Dad.SuperVisionDuration", new(1, 90, 1), 40, tab)
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Seconds);
 
-        GivingDrinkRange = new FloatOptionItem(++id, "Dad.GivingDrinkRange", new(0.5f, 10f, 0.5f), 4f, tab)
+        GivingDrinkRange = new FloatOptionItem(++id, "Dad.GivingDrinkRange", new(0.5f, 10f, 0.5f), 6f, tab)
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Multiplier);
 
-        DrunkRoleIncorrectChance = new IntegerOptionItem(++id, "Dad.DrunkRoleIncorrectChance", new(0, 100, 1), 50, tab)
+        DrunkRoleIncorrectChance = new IntegerOptionItem(++id, "Dad.DrunkRoleIncorrectChance", new(0, 100, 1), 10, tab)
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Percent);
 
@@ -237,38 +237,38 @@ public class Dad : RoleBase
 
         switch (SelectedAbility)
         {
-            case Ability.GoForMilk when Alcohol >= 0:
+            case Ability.GoForMilk:
                 LateTask.New(() => physics.RpcExitVent(ventId), 1f, log: false);
-                LateTask.New(() => physics.myPlayer.TP(Pelican.GetBlackRoomPS()), 1.5f, log: false);
-                Main.AllAlivePlayerControls.Do(x => x.Notify(Translator.GetString("Dad.GoForMilkNotify"), 10f));
+                LateTask.New(() => physics.myPlayer.TP(Pelican.GetBlackRoomPS()), 2f, log: false);
+                Main.AllAlivePlayerControls.NotifyPlayers(Translator.GetString("Dad.GoForMilkNotify"), 10f);
                 UsingAbilities.Add(SelectedAbility);
                 break;
-            case Ability.SuperVision when Alcohol >= 5:
+            case Ability.SuperVision:
                 SuperVisionTS = Utils.TimeStamp;
                 UsingAbilities.Add(SelectedAbility);
                 physics.myPlayer.MarkDirtySettings();
                 break;
-            case Ability.Sniffing when Alcohol >= 10:
+            case Ability.Sniffing:
                 AllDeadBodies.Do(x => LocateArrow.Add(DadId, x));
                 Arrows = LocateArrow.GetArrows(physics.myPlayer);
                 LocateArrow.RemoveAllTarget(DadId);
                 Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
                 Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 2, Arrows);
                 break;
-            case Ability.Sleep when Alcohol >= 15:
+            case Ability.Sleep:
                 Main.AllPlayerSpeed[DadId] = Main.MinSpeed;
                 UsingAbilities.Add(SelectedAbility);
                 physics.myPlayer.MarkDirtySettings();
                 break;
-            case Ability.Rage when Alcohol >= 20:
+            case Ability.Rage:
                 UsingAbilities.Add(SelectedAbility);
                 break;
-            case Ability.GiveDrink when Alcohol >= 25:
+            case Ability.GiveDrink:
                 Vector2 pos = physics.myPlayer.Pos();
                 DrunkPlayers = Main.AllAlivePlayerControls.Without(physics.myPlayer).Where(x => Vector2.Distance(x.Pos(), pos) <= GivingDrinkRange.GetFloat()).Select(x => x.PlayerId).ToList();
                 Utils.NotifyRoles(SpecifySeer: physics.myPlayer);
                 break;
-            case Ability.BecomeGodOfAlcohol when Alcohol >= 40:
+            case Ability.BecomeGodOfAlcohol:
                 Alcohol = 1;
                 UsingAbilities.Add(SelectedAbility);
                 break;
@@ -322,19 +322,17 @@ public class Dad : RoleBase
         bool notify = Vector2.Distance(pc.Pos(), Shop.transform.position) < 2f;
 
         long now = Utils.TimeStamp;
+        long elapsed = now - LastUpdate;
 
-        if (now - LastUpdate < NormalAlcoholDecreaseFrequency.GetInt())
+        if (elapsed < NormalAlcoholDecreaseFrequency.GetInt())
         {
             if (notify) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-
             return;
         }
 
-        LastUpdate = now;
-
         if (UsingAbilities.Contains(Ability.GoForMilk))
         {
-            MilkTimer--;
+            MilkTimer -= elapsed;
 
             if (MilkTimer <= 0)
             {
@@ -344,6 +342,8 @@ public class Dad : RoleBase
             }
         }
 
+        LastUpdate = now;
+
         if (UsingAbilities.Contains(Ability.SuperVision) && SuperVisionTS + SuperVisionDuration.GetInt() <= now)
         {
             UsingAbilities.Remove(Ability.SuperVision);
@@ -351,7 +351,7 @@ public class Dad : RoleBase
             pc.MarkDirtySettings();
         }
 
-        if (UsingAbilities.Contains(Ability.Sleep)) return;
+        if (UsingAbilities.Contains(Ability.Sleep) || UsingAbilities.Contains(Ability.GoForMilk)) return;
 
         if (UsingAbilities.Contains(Ability.BecomeGodOfAlcohol))
             Alcohol += NormalAlcoholDecreaseValue.GetInt();
@@ -404,7 +404,8 @@ public class Dad : RoleBase
     {
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
-        if (force || Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (force || Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt())
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
         Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 3, Alcohol);
     }
@@ -428,7 +429,7 @@ public class Dad : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || meeting || (seer.IsModClient() && !hud)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         var sb = new StringBuilder();
 
@@ -441,7 +442,6 @@ public class Dad : RoleBase
         if (Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt())
         {
             if (sb.Length > 0) sb.Append('\n');
-
             sb.Append(string.Format(Translator.GetString("Dad.LowAlcoholSuffix"), Alcohol));
         }
 
@@ -454,14 +454,14 @@ public class Dad : RoleBase
 
         if (sb.Length > 0) sb.Append("\n\n<size=70%>");
 
+        sb.Append(string.Format(Translator.GetString("Dad.ShopLocation"), Shop.name));
+        sb.Append('\n');
         sb.Append(string.Format(Translator.GetString("Dad.SelectedAbilitySuffix"), Translator.GetString($"Dad.Ability.{SelectedAbility}")));
         sb.Append('\n');
         sb.Append(Translator.GetString($"Dad.{SelectedAbility}.Description"));
-        sb.Append('\n');
-        sb.Append(string.Format(Translator.GetString("Dad.ShopLocation"), Shop.name));
         sb.Append("</size>");
 
-        return sb.ToString();
+        return sb.ToString().Trim();
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

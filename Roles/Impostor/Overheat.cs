@@ -30,11 +30,11 @@ public class Overheat : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Percent);
 
-        OverheatChanceIncreaseFrequency = new FloatOptionItem(id + 3, "Overheat.ChanceIncreaseFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.ImpostorRoles)
+        OverheatChanceIncreaseFrequency = new FloatOptionItem(id + 3, "Overheat.ChanceIncreaseFrequency", new(0.5f, 30f, 0.5f), 10f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Seconds);
 
-        OverheatRollChanceFrequency = new FloatOptionItem(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 3f, TabGroup.ImpostorRoles)
+        OverheatRollChanceFrequency = new FloatOptionItem(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 8f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -149,7 +149,7 @@ public class Overheat : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (Main.PlayerStates[seer.PlayerId].Role is not Overheat oh) return string.Empty;
-
+        if (seer.IsModdedClient() && !hud) return string.Empty;
         if (seer.PlayerId != target.PlayerId) return string.Empty;
 
         Color color = GetTemperatureColor(oh.Temperature);

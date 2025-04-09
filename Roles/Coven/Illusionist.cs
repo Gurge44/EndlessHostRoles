@@ -12,6 +12,8 @@ public class Illusionist : Coven
     private static OptionItem AbilityCooldown;
     private static OptionItem ShapeshiftAnimation;
     private static OptionItem UnmorphPrevious;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     private HashSet<byte> ForceMorhpedPlayers = [];
     public byte SampledPlayerId;
@@ -25,7 +27,9 @@ public class Illusionist : Coven
         StartSetup(650100)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref ShapeshiftAnimation, false)
-            .AutoSetupOption(ref UnmorphPrevious, false);
+            .AutoSetupOption(ref UnmorphPrevious, false)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
 
     public override void Init()
@@ -40,6 +44,11 @@ public class Illusionist : Coven
         ForceMorhpedPlayers = [];
     }
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();
@@ -52,8 +61,8 @@ public class Illusionist : Coven
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (HasNecronomicon && SampledPlayerId == target.PlayerId)
-            return true;
+        if (SampledPlayerId == target.PlayerId)
+            return HasNecronomicon;
 
         SampledPlayerId = target.PlayerId;
         Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 1, target.PlayerId);
@@ -70,7 +79,7 @@ public class Illusionist : Coven
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        var sampledPlayer = SampledPlayerId.GetPlayer();
+        PlayerControl sampledPlayer = SampledPlayerId.GetPlayer();
         if (sampledPlayer == null) return false;
 
         bool shouldAnimate = ShapeshiftAnimation.GetBool();

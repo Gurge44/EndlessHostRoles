@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
+using Hazel;
 using static EHR.Options;
 
 namespace EHR.Neutral;
@@ -40,7 +41,7 @@ internal class QuizMaster : RoleBase
         SystemTypes.HeliSabotage
     ];
 
-    public static ((string ColorString, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
+    public static ((string ColorString, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((string.Empty, null), string.Empty, default(SystemTypes), string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
 
     private Question CurrentQuestion;
     public byte QuizMasterId;
@@ -85,7 +86,7 @@ internal class QuizMaster : RoleBase
 
         QuizMasters = [];
 
-        Data = ((string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
+        Data = ((string.Empty, null), string.Empty, default(SystemTypes), string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
 
         AllColors = [];
 
@@ -194,7 +195,7 @@ internal class QuizMaster : RoleBase
             {
                 case 1 when Data.LastReportedPlayer.ColorString != string.Empty:
                 case 2 when Data.LastPlayerPressedButtonName != string.Empty:
-                case 3 when Data.LastSabotage != default:
+                case 3 when Data.LastSabotage != default(SystemTypes):
                 case 4 when Main.LastVotedPlayerInfo != null:
                 case 5 when Data.LastReporterName != string.Empty:
                 case 6 when Data.NumPlayersVotedLastMeeting != 0:
@@ -266,15 +267,9 @@ internal class QuizMaster : RoleBase
 
         return new(title, allAnswersList.ToArray(), correctIndex);
 
-        IEnumerable<string> GetTwoRandomNames(string except)
-        {
-            return Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
-        }
+        IEnumerable<string> GetTwoRandomNames(string except) => Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
 
-        IEnumerable<string> GetTwoRandomNumbers(params int[] nums)
-        {
-            return IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
-        }
+        IEnumerable<string> GetTwoRandomNumbers(params int[] nums) => IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
     }
 
     public override void OnReportDeadBody()
@@ -300,7 +295,8 @@ internal class QuizMaster : RoleBase
         {
             index = answer[0] - 'A';
 
-            string name = Utils.GetPlayerById(Target)?.GetNameWithRole();
+            PlayerControl pc = Utils.GetPlayerById(Target);
+            string name = pc?.GetNameWithRole();
             if (index != -1) Logger.Info($"Player {name} answered {CurrentQuestion.Answers[index]}", "QuizMaster");
 
             if (CurrentQuestion.CorrectAnswerIndex == index)
@@ -312,12 +308,15 @@ internal class QuizMaster : RoleBase
             }
             else if (index != -1)
             {
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"));
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"));
+                var sender = CustomRpcSender.Create("QuizMaster", SendOption.Reliable);
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"), writer: sender, multiple: true);
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), writer: sender, multiple: true);
 
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
                 Main.PlayerStates[Target].SetDead();
-                Utils.GetPlayerById(Target).RpcExileV2();
+                if (pc != null) sender.RpcExileV2(pc);
+                sender.SendMessage(dispose: pc == null && sender.stream.Length == 0);
+                Utils.AfterPlayerDeathTasks(pc, true);
 
                 Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");
             }
