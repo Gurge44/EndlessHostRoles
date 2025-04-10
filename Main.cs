@@ -693,6 +693,8 @@ public class Main : BasePlugin
                 { CustomRoles.RRPlayer, "#ffab1b" },
                 // King of the Zones
                 { CustomRoles.KOTZPlayer, "#ff0000" },
+                // Quiz
+                { CustomRoles.QuizPlayer, "#CF2472" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },

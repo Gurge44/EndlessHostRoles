@@ -181,6 +181,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:
                 case CustomGameMode.KingOfTheZones:
+                case CustomGameMode.Quiz:
                     SetMaxVision();
                     break;
                 case CustomGameMode.HideAndSeek:

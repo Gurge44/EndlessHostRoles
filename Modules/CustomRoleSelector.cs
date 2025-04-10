@@ -30,7 +30,8 @@ internal static class CustomRoleSelector
         { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },
         { CustomGameMode.NaturalDisasters, CustomRoles.NDPlayer },
         { CustomGameMode.RoomRush, CustomRoles.RRPlayer },
-        { CustomGameMode.KingOfTheZones, CustomRoles.KOTZPlayer }
+        { CustomGameMode.KingOfTheZones, CustomRoles.KOTZPlayer },
+        { CustomGameMode.Quiz, CustomRoles.QuizPlayer }
     };
 
     public static void SelectCustomRoles()

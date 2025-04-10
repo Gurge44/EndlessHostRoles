@@ -119,6 +119,16 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("KOTZPlayerInfo");
                     break;
                 }
+                case CustomGameMode.Quiz:
+                {
+                    Color color = Utils.GetRoleColor(CustomRoles.QuizMaster);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("QuizPlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("QuizPlayerInfo");
+                    break;
+                }
                 case CustomGameMode.AllInOne:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : new(255, 255, 255, 255);
@@ -699,7 +709,7 @@ internal static class BeginCrewmatePatch
             {
                 __instance.TeamTitle.text = $"<size=70%>{GetString("NDPlayer")}</size>";
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(3, 252, 74, byte.MaxValue);
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.GuardianAngel);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Scientist);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("NDPlayerInfo");
                 break;
@@ -722,6 +732,15 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("KOTZPlayerInfo");
                 break;
             }
+            case CustomGameMode.Quiz:
+            {
+                __instance.TeamTitle.text = GetString("QuizPlayer");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.QuizMaster);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Phantom);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("QuizPlayerInfo");
+                break;
+            }
             case CustomGameMode.AllInOne:
             {
                 __instance.TeamTitle.text = GetString("AllInOne");
@@ -732,24 +751,6 @@ internal static class BeginCrewmatePatch
                 break;
             }
         }
-
-        // if (Input.GetKey(KeyCode.RightShift))
-        // {
-        //     __instance.TeamTitle.text = "明天就跑路啦";
-        //     __instance.ImpostorText.gameObject.SetActive(true);
-        //     __instance.ImpostorText.text = "嘿嘿嘿嘿嘿嘿";
-        //     __instance.TeamTitle.color = Color.cyan;
-        //     StartFadeIntro(__instance, Color.cyan, Color.yellow);
-        // }
-        //
-        // if (Input.GetKey(KeyCode.RightControl))
-        // {
-        //     __instance.TeamTitle.text = "警告";
-        //     __instance.ImpostorText.gameObject.SetActive(true);
-        //     __instance.ImpostorText.text = "请远离无知的玩家";
-        //     __instance.TeamTitle.color = Color.magenta;
-        //     StartFadeIntro(__instance, Color.magenta, Color.magenta);
-        // }
 
         return;
 
@@ -768,28 +769,6 @@ internal static class BeginCrewmatePatch
     {
         return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType)?.IntroSound;
     }
-
-    /*
-        private static async void StartFadeIntro(IntroCutscene __instance, Color start, Color end)
-        {
-            await Task.Delay(1000);
-            int milliseconds = 0;
-            while (true)
-            {
-                await Task.Delay(20);
-                milliseconds += 20;
-                float time = milliseconds / (float)500;
-                Color LerpingColor = Color.Lerp(start, end, time);
-                if (__instance == null || milliseconds > 500)
-                {
-                    Logger.Info("ループを終了します", "StartFadeIntro");
-                    break;
-                }
-
-                __instance.BackgroundBar.material.color = LerpingColor;
-            }
-        }
-    */
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
@@ -1042,6 +1021,9 @@ internal static class IntroCutsceneDestroyPatch
 
             if (CustomGameMode.HotPotato.IsActiveOrIntegrated())
                 HotPotato.OnGameStart();
+
+            if (CustomGameMode.Quiz.IsActiveOrIntegrated())
+                Main.Instance.StartCoroutine(Quiz.OnGameStart());
 
             Utils.CheckAndSetVentInteractions();
 

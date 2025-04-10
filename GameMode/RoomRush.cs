@@ -229,7 +229,7 @@ public static class RoomRush
 
         Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
-        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 22f : 14f);
+        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 18f : 14f);
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
@@ -317,9 +317,8 @@ public static class RoomRush
 
         for (var i = 3; i > 0; i--)
         {
-            int time = i;
             NameNotifyManager.Reset();
-            aapc.NotifyPlayers(string.Format(Translator.GetString("RR_ReadyQM"), time));
+            aapc.NotifyPlayers(string.Format(Translator.GetString("RR_ReadyQM"), i));
             yield return new WaitForSeconds(1f);
         }
 
@@ -535,8 +534,6 @@ public static class RoomRush
             {
                 PlainShipRoom room = pc.GetPlainShipRoom();
 
-                bool notAllInOne = Options.CurrentGameMode != CustomGameMode.AllInOne;
-
                 if (pc.IsAlive() && !pc.inMovingPlat && !pc.inVent && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
                 {
                     Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
@@ -547,7 +544,7 @@ public static class RoomRush
 
                     int timeLeft = TimeWhenFirstTwoPlayersEnterRoom.GetInt();
 
-                    if (DonePlayers.Count == 2 && timeLeft < TimeLeft && (notAllInOne || !DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool()))
+                    if (DonePlayers.Count == 2 && timeLeft < TimeLeft && !DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool())
                     {
                         Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
                         TimeLeft = timeLeft;
@@ -557,7 +554,7 @@ public static class RoomRush
                             Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
                     }
 
-                    if (DonePlayers.Count == aapc.Length - 1 && (notAllInOne || !DontKillLastPlayer.GetBool()))
+                    if (DonePlayers.Count == aapc.Length - 1 && !DontKillLastPlayer.GetBool())
                     {
                         PlayerControl last = aapc.First(x => !DonePlayers.Contains(x.PlayerId));
                         Logger.Info($"All players entered the correct room except one, killing the last player ({last.GetRealName()})", "RoomRush");
@@ -570,7 +567,7 @@ public static class RoomRush
                         return;
                     }
                 }
-                else if ((room == null || room.RoomId != RoomGoal) && (notAllInOne || !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool()) && DonePlayers.Remove(pc.PlayerId) && WinByPointsInsteadOfDeaths.GetBool())
+                else if ((room == null || room.RoomId != RoomGoal) && !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool() && DonePlayers.Remove(pc.PlayerId) && WinByPointsInsteadOfDeaths.GetBool())
                     Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count;
             }
 

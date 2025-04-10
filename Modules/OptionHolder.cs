@@ -29,7 +29,8 @@ public enum CustomGameMode
     NaturalDisasters = 0x09,
     RoomRush = 0x0A,
     KingOfTheZones = 0x0B,
-    AllInOne = 0x0C,
+    Quiz = 0x0C,
+    AllInOne = 0x0D,
     All = int.MaxValue
 }
 
@@ -77,6 +78,7 @@ public static class Options
         "NaturalDisasters",
         "RoomRush",
         "KingOfTheZones",
+        "Quiz",
         "AllInOne"
     ];
 
@@ -826,7 +828,8 @@ public static class Options
         8 => CustomGameMode.NaturalDisasters,
         9 => CustomGameMode.RoomRush,
         10 => CustomGameMode.KingOfTheZones,
-        11 => CustomGameMode.AllInOne,
+        11 => CustomGameMode.Quiz,
+        12 => CustomGameMode.AllInOne,
         _ => CustomGameMode.Standard
     };
 
@@ -1490,6 +1493,8 @@ public static class Options
         RoomRush.SetupCustomOption();
         // King Of The Zones
         KingOfTheZones.SetupCustomOption();
+        // Quiz
+        Quiz.SetupCustomOption();
 
         yield return null;
 

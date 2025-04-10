@@ -460,6 +460,7 @@ internal static class SetHudActivePatch
 
         switch (Options.CurrentGameMode)
         {
+            case CustomGameMode.Quiz:
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
@@ -837,7 +838,8 @@ internal static class TaskPanelBehaviourPatch
             __instance.taskText.text = finalText;
         }
 
-        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame) __instance.taskText.text = RepairSender.GetText();
+        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+            __instance.taskText.text = RepairSender.GetText();
     }
 }
 

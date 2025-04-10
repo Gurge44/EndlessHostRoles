@@ -933,6 +933,9 @@ internal static class StartGameHostPatch
                     case CustomGameMode.KingOfTheZones:
                         KingOfTheZones.Init();
                         break;
+                    case CustomGameMode.Quiz:
+                        Quiz.Init();
+                        break;
                 }
             });
 
@@ -984,6 +987,9 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.KingOfTheZones:
                     GameEndChecker.SetPredicateToKingOfTheZones();
+                    break;
+                case CustomGameMode.Quiz:
+                    GameEndChecker.SetPredicateToQuiz();
                     break;
                 case CustomGameMode.AllInOne:
                     GameEndChecker.SetPredicateToAllInOne();

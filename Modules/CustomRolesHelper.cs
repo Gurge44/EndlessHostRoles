@@ -63,7 +63,8 @@ internal static class CustomRolesHelper
             CustomRoles.CTFPlayer or
             CustomRoles.NDPlayer or
             CustomRoles.RRPlayer or
-            CustomRoles.KOTZPlayer;
+            CustomRoles.KOTZPlayer or
+            CustomRoles.QuizPlayer;
     }
 
     public static RoleBase GetRoleClass(this CustomRoles role)
@@ -375,6 +376,8 @@ internal static class CustomRolesHelper
             CustomRoles.NDPlayer => CustomRoles.Crewmate,
             // Room Rush
             CustomRoles.RRPlayer => CustomRoles.Crewmate,
+            // Quiz
+            CustomRoles.QuizPlayer => CustomRoles.Crewmate,
 
             _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate
         };

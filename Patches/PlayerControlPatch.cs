@@ -238,6 +238,7 @@ internal static class CheckMurderPatch
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
+            case CustomGameMode.Quiz when !Quiz.CanKill(killer.PlayerId):
                 return false;
             case CustomGameMode.AllInOne:
                 if (killer.Is(CustomRoles.Killer)) killer.Kill(target);
@@ -1293,7 +1294,7 @@ internal static class FixedUpdatePatch
                 GhostRolesManager.AssignGhostRole(__instance);
         }
 
-        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && !CustomGameMode.RoomRush.IsActiveOrIntegrated())
+        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && !CustomGameMode.RoomRush.IsActiveOrIntegrated() && !CustomGameMode.Quiz.IsActiveOrIntegrated())
         {
             int buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
             DeadBufferTime.TryAdd(id, buffer);
@@ -1799,6 +1800,9 @@ internal static class FixedUpdatePatch
                     case CustomGameMode.KingOfTheZones when self:
                         Suffix.Append(KingOfTheZones.GetSuffix(seer));
                         break;
+                    case CustomGameMode.Quiz when self:
+                        Suffix.Append(Quiz.GetSuffix(seer));
+                        break;
                     case CustomGameMode.AllInOne:
                         if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
                         if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
@@ -2050,6 +2054,7 @@ internal static class CoEnterVentPatch
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.KingOfTheZones:
+            case CustomGameMode.Quiz:
                 LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:
