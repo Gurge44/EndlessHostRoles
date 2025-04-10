@@ -315,7 +315,7 @@ public class Main : BasePlugin
         Preset10 = Config.Bind("Preset Name Options", "Preset10", "Preset_10");
         WebhookUrl = Config.Bind("Other", "WebhookURL", "none");
         BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
-        MessageWait = Config.Bind("Other", "MessageWait", 1);
+        MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 

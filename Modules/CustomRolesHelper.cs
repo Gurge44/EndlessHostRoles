@@ -1401,7 +1401,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Crewmate_Chaos => Utils.GetRoleColor(CustomRoles.Tornado),
             RoleOptionType.Neutral_Benign => Utils.GetRoleColor(CustomRoles.Chameleon),
             RoleOptionType.Neutral_Evil => Utils.GetRoleColor(CustomRoles.Mario),
-            RoleOptionType.Neutral_Pariah => Utils.GetRoleColor(CustomRoles.Wraith),
+            RoleOptionType.Neutral_Pariah => ColorUtility.TryParseHtmlString("#a10e49", out var c) ? c : Color.magenta,
             RoleOptionType.Neutral_Killing => Palette.ImpostorRed,
             RoleOptionType.Coven_Miscellaneous => Utils.GetRoleColor(CustomRoles.CovenLeader),
             _ => Utils.GetRoleColor(CustomRoles.SwordsMan)
