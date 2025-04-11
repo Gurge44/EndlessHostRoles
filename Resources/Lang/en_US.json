@@ -4908,8 +4908,7 @@
   "KOTZPlayerInfoLong": "CONTROL ZONES TO WIN",
   "Quiz": "QUIZ",
   "ModeQuiz": "Gamemode: Quiz",
-  "ModeDescribe.Quiz": "",
-  // TODO: Add description
+  "ModeDescribe.Quiz": "In the Quiz game mode, you must answer questions correctly to survive. There are various difficulties with varying time limits. Each question has 5 answer choices: A, B, C, D, E. Each choice has a room name next to the answer. To pick an answer, you must enter the room corresponding to the answer. If you answer correctly, you survive. If you don't answer enough questions correctly, you eventually die or compete in a Free For All (FFA) match with the other players who got the questions wrong.",
   "Quiz.Tutorial.Basics": "The current game mode is <#CF2472>Quiz</color>.\\n<size=90%>You'll get questions, each with 5 choices: A, B, C, D, E.\\nYou must answer the questions correctly within the time limit\\nby entering the room corresponding to the correct answer.\\nThe rooms on this map are:\\n{0}</size>",
   "Quiz.Tutorial.TestRound": "<size=90%>We'll play a test round to show you how it works.</size>",
   "Quiz.Tutorial.OnWrongAnswer": "<size=90>If you answer <#ff0000>incorrectly</color>, your fate will depend on\\nhow many players failed to answer correctly besides you.\\n- If you're the only one to answer incorrectly, you die instantly.\\n- If everyone answered incorrectly, nothing will happen.\\n- In every other scenario, the players who've answered incorrectly are\\nput in a Free For All (FFA) match, where the last one standing gets to survive,\\nunless more than 1 player survives to the end of the time limit, in which case, every survivor dies.</size>",

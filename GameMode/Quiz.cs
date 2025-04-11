@@ -96,7 +96,7 @@ public static class Quiz
     {
         var id = 69_220_001;
         var color = Utils.GetRoleColor(CustomRoles.QuizMaster);
-        const CustomGameMode gameMode = CustomGameMode.KingOfTheZones;
+        const CustomGameMode gameMode = CustomGameMode.Quiz;
 
         FFAEventLength = new IntegerOptionItem(id++, "Quiz.Settings.FFAEventLength", new(5, 120, 1), 30, TabGroup.GameSettings)
             .SetValueFormat(OptionFormat.Seconds)
