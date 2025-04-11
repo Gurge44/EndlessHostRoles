@@ -4923,6 +4923,7 @@
   "Quiz.Notify.IncorrectFFA": "<#ff4444>Luckily, you're not alone to get this question wrong!\\nYou will participate in a Free For All (FFA) event against the others who failed.\\nKill everyone else and be the last one alive to get a second chance!\\nBe sure to do this within the time limit, or all of you will die!</color>",
   "Quiz.Notify.CorrectFFA": "<#00ffff>More than 1 player failed this question!\\nYou get to spectate them fighting in a Free For All (FFA) match to survive!",
   "Quiz.Notify.FFAOngoing": "<size=80%><#ffff00><u>Kill everyone</u> and survive</color>\\nHint: Someone is in {0}\\n<#ffa500>{1}</color></size>",
+  "Quiz.EndResults.CorrectAnswerNum": "Correct Answers: ",
   "Quiz.Questions.Test.0": "Which map are we on?",
   "Quiz.Questions.Test.0.Answer.A": "The Skeld / dlekS ehT",
   "Quiz.Questions.Test.0.Answer.B": "Mira HQ",

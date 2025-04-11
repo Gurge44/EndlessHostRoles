@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -72,6 +73,7 @@ public static class Quiz
         }
     };
 
+    private static Dictionary<byte, Dictionary<Difficulty, int>> NumCorrectAnswers;
     private static List<List<byte>> HistoricDyingPlayers;
     private static List<byte> DyingPlayers;
     private static long QuestionTimeLimitEndTS;
@@ -83,7 +85,7 @@ public static class Quiz
     private static bool NoSuffix;
 
     private static OptionItem FFAEventLength;
-    private static Dictionary<Difficulty, (OptionItem Rounds, OptionItem QuestionsAsked, OptionItem CorrectRequirement, OptionItem TimeLimit)> Settings = [];
+    private static readonly Dictionary<Difficulty, (OptionItem Rounds, OptionItem QuestionsAsked, OptionItem CorrectRequirement, OptionItem TimeLimit)> Settings = [];
 
     static Quiz()
     {
@@ -127,8 +129,24 @@ public static class Quiz
     }
 
     public static string GetStatistics(byte id)
-    public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
+    {
+        if (!NumCorrectAnswers.TryGetValue(id, out var data)) return string.Empty;
+        string str = string.Join(" | ", data.Select(x => $"{x.Key.ToString()[0]}-{x.Value}"));
+        return GetString("Quiz.EndResults.CorrectAnswerNum") + str;
+    }
+
+    public static bool KnowTargetRoleColor(PlayerControl target, ref string color)
+    {
+        if (NoSuffix || FFAEndTS != 0 || QuestionTimeLimitEndTS != 0) return false;
+
+        color = DyingPlayers.Contains(target.PlayerId) ? "#ff0000" : "#00ff00";
+        return true;
+    }
+
     public static bool CanKill(byte id)
+    {
+        return FFAEndTS != 0 && DyingPlayers.Contains(id) && StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(id, id)].RoleType == RoleTypes.Impostor && !Main.PlayerStates[id].IsDead;
+    }
 
     public static string GetSuffix(PlayerControl seer)
     {
@@ -184,6 +202,7 @@ public static class Quiz
 
     public static void Init()
     {
+        NumCorrectAnswers = [];
         HistoricDyingPlayers = [];
         DyingPlayers = [];
         QuestionTimeLimitEndTS = 0;
@@ -193,6 +212,16 @@ public static class Quiz
         QuestionsAsked = 0;
         FFAEndTS = 0;
         NoSuffix = true;
+
+        foreach (byte id in Main.PlayerStates.Keys)
+        {
+            NumCorrectAnswers[id] = new()
+            {
+                [Difficulty.Easy] = 0,
+                [Difficulty.Medium] = 0,
+                [Difficulty.Hard] = 0
+            };
+        }
     }
 
     public static IEnumerator OnGameStart()
@@ -271,9 +300,12 @@ public static class Quiz
         }
 
         NoSuffix = false;
-        QuestionTimeLimitEndTS = Utils.TimeStamp + Settings[CurrentDifficulty].TimeLimit.GetInt();
+        int time = Settings[CurrentDifficulty].TimeLimit.GetInt();
         int questionIndex = GetRandomQuestionIndex();
         CurrentQuestion = GetQuestion(questionIndex);
+        time += CurrentQuestion.Question.Length / 15;
+        time += CurrentQuestion.Answers.Sum(x => x.Length / 10);
+        QuestionTimeLimitEndTS = Utils.TimeStamp + time;
     }
 
     private static int GetRandomQuestionIndex()
@@ -315,6 +347,7 @@ public static class Quiz
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
         DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
+        NumCorrectAnswers.ExceptBy(DyingPlayers, x => x.Key).Do(x => x.Value[CurrentDifficulty]++);
         HistoricDyingPlayers.Add(DyingPlayers);
         Utils.NotifyRoles();
 
