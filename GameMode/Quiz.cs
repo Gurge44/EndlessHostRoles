@@ -194,9 +194,11 @@ public static class Quiz
             string color = wasWrong ? "#FF0000" : "#00FF00";
             string str = string.Format(GetString("Quiz.Notify.CorrectAnswer"), color, correctAnswerLetter, correctAnswer, correctRoom);
 
-            if (CurrentDifficulty > Difficulty.Test)
+            if (CurrentDifficulty > Difficulty.Test && Settings[CurrentDifficulty].QuestionsAsked.GetInt() <= QuestionsAsked)
             {
-                str += "\n" + DyingPlayers.Count switch
+                int correctRequirement = Settings[CurrentDifficulty].CorrectRequirement.GetInt();
+                var dyingPlayers = HistoricDyingPlayers.Flatten().GroupBy(x => x).Where(x => x.Count() < correctRequirement).Flatten().ToList();
+                str += "\n" + dyingPlayers.Count switch
                 {
                     0 => GetString("Quiz.Notify.AllCorrect"),
                     var x when x == Main.AllAlivePlayerControls.Length => GetString("Quiz.Notify.AllWrong"),
