@@ -82,6 +82,7 @@ public static class Quiz
     private static int Rounds;
     private static int QuestionsAsked;
     private static long FFAEndTS;
+    private static bool AllowKills;
     private static bool NoSuffix;
 
     private static OptionItem FFAEventLength;
@@ -144,9 +145,9 @@ public static class Quiz
         return true;
     }
 
-    public static bool CanKill(byte id)
+    public static bool CanKill()
     {
-        return FFAEndTS != 0 && DyingPlayers.Contains(id) && StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(id, id)].RoleType == RoleTypes.Impostor && !Main.PlayerStates[id].IsDead;
+        return FFAEndTS != 0 && AllowKills;
     }
 
     public static string GetSuffix(PlayerControl seer)
@@ -226,6 +227,7 @@ public static class Quiz
         Rounds = 0;
         QuestionsAsked = 0;
         FFAEndTS = 0;
+        AllowKills = false;
         NoSuffix = true;
 
         foreach (byte id in Main.PlayerStates.Keys)
@@ -401,11 +403,13 @@ public static class Quiz
                 yield break;
             default:
                 yield return new WaitForSeconds(3f);
+                AllowKills = true;
                 FFAEndTS = Utils.TimeStamp + FFAEventLength.GetInt();
                 var spectators = aapc.ExceptBy(dyingPlayers, x => x.PlayerId).ToArray();
                 var sender = CustomRpcSender.Create("Quiz.FFA-Event-RpcExileV2", SendOption.Reliable);
                 spectators.Do(sender.RpcExileV2);
                 sender.SendMessage();
+                Main.PlayerStates.Values.IntersectBy(spectators.Select(x => x.PlayerId), x => x.Player.PlayerId).Do(x => x.SetDead());
                 var stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
                 stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.NSerialKiller));
 
@@ -418,6 +422,7 @@ public static class Quiz
                     if (stillLiving.Count <= 1) break;
                 }
 
+                AllowKills = false;
                 spectators.Do(x => x.RpcRevive());
 
                 switch (stillLiving.Count)
