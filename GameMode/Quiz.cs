@@ -179,10 +179,10 @@ public static class Quiz
 
                 string question = CurrentQuestion.Question;
                 
-                if (question.Length > 50)
+                for (var i = 50; i < question.Length; i += 50)
                 {
-                    string question1 = question;
-                    question = string.Join('\n', Enumerable.Range(0, question.Length / 50).Select(i => question1.Substring(i * 50, Math.Min(50, question1.Length - i * 50))));
+                    int index = question.LastIndexOf(' ', i);
+                    if (index != -1) question = question.Insert(index + 1, "\n");
                 }
 
                 return $"<#ffff44>{question}</color>\n{answers}<#CF2472>{QuestionTimeLimitEndTS - Utils.TimeStamp}</color>";
@@ -366,7 +366,7 @@ public static class Quiz
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
         DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
         NumCorrectAnswers.ExceptBy(DyingPlayers, x => x.Key).Do(x => x.Value[CurrentDifficulty]++);
-        HistoricDyingPlayers.Add(DyingPlayers);
+        HistoricDyingPlayers.Add(DyingPlayers.Count == aapc.Length ? [] : DyingPlayers);
         Utils.NotifyRoles();
 
         yield return new WaitForSeconds(7f);
