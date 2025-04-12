@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -147,13 +146,13 @@ public static class Quiz
 
     public static bool CanKill()
     {
-        return FFAEndTS != 0 && AllowKills;
+        return AllowKills;
     }
 
     public static string GetSuffix(PlayerControl seer)
     {
         if (NoSuffix) return string.Empty;
-        
+
         bool wasWrong = DyingPlayers.Contains(seer.PlayerId);
 
         if (FFAEndTS == 0)
@@ -179,7 +178,7 @@ public static class Quiz
                 }
 
                 string question = CurrentQuestion.Question;
-                
+
                 for (var i = 50; i < question.Length; i += 50)
                 {
                     int index = question.LastIndexOf(' ', i);
@@ -197,8 +196,8 @@ public static class Quiz
 
             if (CurrentDifficulty > Difficulty.Test && Settings[CurrentDifficulty].QuestionsAsked.GetInt() <= QuestionsAsked)
             {
-                int correctRequirement = Settings[CurrentDifficulty].CorrectRequirement.GetInt();
-                var dyingPlayers = HistoricDyingPlayers.Flatten().GroupBy(x => x).Where(x => x.Count() < correctRequirement).Flatten().ToList();
+                int maxIncorrect = Settings[CurrentDifficulty].QuestionsAsked.GetInt() - Settings[CurrentDifficulty].CorrectRequirement.GetInt();
+                var dyingPlayers = HistoricDyingPlayers.Flatten().GroupBy(x => x).Where(x => x.Count() > maxIncorrect).Flatten().Distinct().ToList();
                 str += "\n" + dyingPlayers.Count switch
                 {
                     0 => GetString("Quiz.Notify.AllCorrect"),
@@ -210,6 +209,8 @@ public static class Quiz
 
             return str;
         }
+
+        if (!AllowKills) return string.Empty;
 
         var ffaTimeLeft = FFAEndTS - Utils.TimeStamp;
         var rndRoom = Main.AllAlivePlayerControls.Without(seer).Select(x => x.GetPlainShipRoom()).Where(x => x != null).Select(x => x.RoomId).Distinct().Without(SystemTypes.Hallway).RandomElement();
@@ -261,13 +262,14 @@ public static class Quiz
             NameNotifyManager.Reset();
 
             NoSuffix = false;
-            TestRound();
+            CurrentDifficulty = Difficulty.Test;
+            QuestionTimeLimitEndTS = Utils.TimeStamp + 30;
+            CurrentQuestion = GetQuestion(0);
 
             while (QuestionTimeLimitEndTS != 0)
             {
                 yield return new WaitForSeconds(1f);
                 if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
-                Logger.Info("Waiting for test round to end", "debug");
             }
 
             yield return new WaitForSeconds(3f);
@@ -284,17 +286,7 @@ public static class Quiz
             NameNotifyManager.Reset();
         }
 
-        yield return NewQuestion(increaseDifficulty: showTutorial);
-    }
-
-    private static void TestRound()
-    {
-        CurrentDifficulty = Difficulty.Test;
-        QuestionTimeLimitEndTS = Utils.TimeStamp + 30;
-        CurrentQuestion = GetQuestion(0);
-        
-        Logger.Warn("Test round started", "debug");
-        Logger.Warn("Question: " + CurrentQuestion.Question + " - Answers: " + string.Join(", ", CurrentQuestion.Answers) + " - Correct Answer: " + CurrentQuestion.CorrectAnswerIndex, "debug");
+        yield return NewQuestion(increaseDifficulty: showTutorial, newRound: true);
     }
 
     private static IEnumerator NewQuestion(bool increaseDifficulty = true, bool newRound = false)
@@ -328,6 +320,9 @@ public static class Quiz
         time += CurrentQuestion.Answers.Sum(x => x.Length / 15);
         if (Main.CurrentMap is MapNames.Skeld or MapNames.Dleks) time -= 3;
         QuestionTimeLimitEndTS = Utils.TimeStamp + time;
+
+        Logger.Info($"New question: {CurrentQuestion.Question} | {string.Join(", ", CurrentQuestion.Answers)} | {CurrentQuestion.CorrectAnswerIndex}", "Quiz");
+        Logger.Info($"Time limit: {time}", "Quiz");
     }
 
     private static int GetRandomQuestionIndex()
@@ -384,10 +379,44 @@ public static class Quiz
             yield break;
         }
 
+        var correctRequirement = settings.CorrectRequirement.GetInt();
+
+        Dictionary<byte, (int Num, bool Enough)> correctCounts = [];
+
+        foreach ((byte id, Dictionary<Difficulty, int> dictionary) in NumCorrectAnswers)
+        {
+            int correctAnswers = dictionary[CurrentDifficulty];
+            bool enough = correctAnswers >= correctRequirement;
+            correctCounts[id] = (correctAnswers, enough);
+        }
+
+        var sender = CustomRpcSender.Create("Quiz.NumCorrectAnswerNotify", SendOption.Reliable);
+        var hasValue = false;
+
+        foreach ((byte id, (int num, bool enough)) in correctCounts)
+        {
+            var pc = id.GetPlayer();
+            if (pc == null) continue;
+            var color = enough ? Color.green : Color.red;
+            sender.Notify(pc, string.Format(Utils.ColorString(color, GetString("Quiz.Notify.CorrectAnswerNum")), num, QuestionsAsked, correctRequirement));
+            hasValue = true;
+
+            if (sender.stream.Length > 800)
+            {
+                sender.SendMessage();
+                sender = CustomRpcSender.Create("Quiz.NumCorrectAnswerNotify", SendOption.Reliable);
+                hasValue = false;
+            }
+        }
+
+        sender.SendMessage(dispose: !hasValue);
+        yield return new WaitForSeconds(3f);
+
+        List<byte> dyingPlayers = correctCounts.Where(x => !x.Value.Enough).Select(x => x.Key).ToList();
+        Logger.Info($"Round {Rounds + 1} of {CurrentDifficulty} difficulty ended. Dying players: {dyingPlayers.Count} | {string.Join(", ", dyingPlayers.Select(x => Main.AllPlayerNames[x]))}", "Quiz");
+
         Rounds++;
         QuestionsAsked = 0;
-        var correctRequirement = settings.CorrectRequirement.GetInt();
-        var dyingPlayers = HistoricDyingPlayers.Flatten().GroupBy(x => x).Where(x => x.Count() < correctRequirement).Flatten().ToList();
         HistoricDyingPlayers = [];
 
         switch (dyingPlayers.Count)
@@ -406,7 +435,7 @@ public static class Quiz
                 AllowKills = true;
                 FFAEndTS = Utils.TimeStamp + FFAEventLength.GetInt();
                 var spectators = aapc.ExceptBy(dyingPlayers, x => x.PlayerId).ToArray();
-                var sender = CustomRpcSender.Create("Quiz.FFA-Event-RpcExileV2", SendOption.Reliable);
+                sender = CustomRpcSender.Create("Quiz.FFA-Event-RpcExileV2", SendOption.Reliable);
                 spectators.Do(sender.RpcExileV2);
                 sender.SendMessage();
                 Main.PlayerStates.Values.IntersectBy(spectators.Select(x => x.PlayerId), x => x.Player.PlayerId).Do(x => x.SetDead());
@@ -418,7 +447,7 @@ public static class Quiz
                     yield return new WaitForSeconds(1f);
                     if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
                     Utils.NotifyRoles();
-                    stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
+                    stillLiving.RemoveAll(x => x == null || !x.IsAlive());
                     if (stillLiving.Count <= 1) break;
                 }
 
@@ -470,15 +499,15 @@ public static class Quiz
 
             if (QuestionTimeLimitEndTS != 0)
             {
-                Logger.Info("Ongoing question", "debug");
                 if (QuestionTimeLimitEndTS <= now)
                 {
+                    Logger.Info("Question timer ended", "Quiz");
+
                     if (CurrentDifficulty == Difficulty.Test)
                     {
                         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
                         DyingPlayers = Main.AllAlivePlayerControls.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
                         QuestionTimeLimitEndTS = 0;
-                        Logger.Warn("End of test round", "debug");
                     }
                     else
                         Main.Instance.StartCoroutine(EndQuestion());

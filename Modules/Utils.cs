@@ -1940,7 +1940,7 @@ public static class Utils
                 };
             }
         }
-        
+
         return name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default;
     }
 
@@ -2151,7 +2151,7 @@ public static class Utils
 
         string seers = seerList.Length == apc.Length ? "Everyone" : string.Join(", ", seerList.Select(x => x.GetRealName()));
         string targets = targetList.Length == apc.Length ? "Everyone" : string.Join(", ", targetList.Select(x => x.GetRealName()));
-        
+
         if (seers.Length == 0) seers = "\u2205";
         if (targets.Length == 0) targets = "\u2205";
 
@@ -2408,6 +2408,8 @@ public static class Utils
 
             if (!GameStates.IsLobby)
             {
+                if (Options.CurrentGameMode == CustomGameMode.Quiz) SelfName = string.Empty;
+
                 if (NameNotifyManager.GetNameNotify(seer, out string name) && name.Length > 0) SelfName = name;
 
                 switch (Options.CurrentGameMode)

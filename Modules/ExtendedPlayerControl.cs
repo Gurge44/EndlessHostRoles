@@ -1250,6 +1250,8 @@ internal static class ExtendedPlayerControl
             CustomRoles.Potato => false,
             // Speedrun
             CustomRoles.Runner => Speedrun.CanKill.Contains(pc.PlayerId),
+            // Quiz
+            CustomRoles.QuizPlayer => Quiz.CanKill(),
             // Hide And Seek
             CustomRoles.Seeker => true,
             CustomRoles.Hider => false,
@@ -1297,7 +1299,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseSabotage(this PlayerControl pc)
     {
-        if (!pc.IsAlive() || pc.inVent || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
+        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
         return Main.PlayerStates.TryGetValue(pc.PlayerId, out PlayerState state) && state.Role.CanUseSabotage(pc);
     }
 

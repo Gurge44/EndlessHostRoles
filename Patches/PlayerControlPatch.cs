@@ -238,10 +238,12 @@ internal static class CheckMurderPatch
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
-            case CustomGameMode.Quiz when !Quiz.CanKill():
+            case CustomGameMode.Quiz:
+                if (Quiz.CanKill()) killer.Kill(target);
                 return false;
             case CustomGameMode.AllInOne:
-                if (killer.Is(CustomRoles.Killer)) killer.Kill(target);
+                if (killer.Is(CustomRoles.Killer) || (CustomGameMode.Quiz.IsActiveOrIntegrated() && Quiz.CanKill()))
+                    killer.Kill(target);
 
                 if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
                     KingOfTheZones.OnCheckMurder(killer, target);
@@ -1636,6 +1638,9 @@ internal static class FixedUpdatePatch
                     {
                         case CustomGameMode.SoloKombat:
                             SoloPVP.GetNameNotify(target, ref realName);
+                            break;
+                        case CustomGameMode.Quiz when self:
+                            realName = string.Empty;
                             break;
                     }
 
