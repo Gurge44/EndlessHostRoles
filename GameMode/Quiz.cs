@@ -72,13 +72,13 @@ public static class Quiz
         }
     };
 
-    private static Dictionary<byte, Dictionary<Difficulty, int>> NumCorrectAnswers;
+    private static Dictionary<byte, Dictionary<Difficulty, int[]>> NumCorrectAnswers;
     private static List<List<byte>> HistoricDyingPlayers;
     private static List<byte> DyingPlayers;
     private static long QuestionTimeLimitEndTS;
     private static (string Question, List<string> Answers, int CorrectAnswerIndex) CurrentQuestion;
     private static Difficulty CurrentDifficulty;
-    private static int Rounds;
+    private static int Round;
     private static int QuestionsAsked;
     private static long FFAEndTS;
     private static bool AllowKills;
@@ -132,7 +132,7 @@ public static class Quiz
     public static string GetStatistics(byte id)
     {
         if (!NumCorrectAnswers.TryGetValue(id, out var data)) return string.Empty;
-        string str = string.Join(" | ", data.Select(x => $"{x.Key.ToString()[0]}-{x.Value}"));
+        string str = string.Join(" | ", data.Select(x => $"{x.Key.ToString()[0]}-{x.Value.Sum()}"));
         return GetString("Quiz.EndResults.CorrectAnswerNum") + str;
     }
 
@@ -201,7 +201,7 @@ public static class Quiz
                 str += "\n" + dyingPlayers.Count switch
                 {
                     0 => GetString("Quiz.Notify.AllCorrect"),
-                    var x when x == Main.AllAlivePlayerControls.Length => GetString("Quiz.Notify.AllWrong"),
+                    var x when x == Main.AllAlivePlayerControls.Length => GetString("Quiz.Notify.AllDie"),
                     1 => wasWrong ? GetString("Quiz.Notify.OnlyYouWrong") : GetString("Quiz.Notify.OneWrong"),
                     _ => wasWrong ? GetString("Quiz.Notify.IncorrectFFA") : GetString("Quiz.Notify.CorrectFFA")
                 };
@@ -225,7 +225,7 @@ public static class Quiz
         QuestionTimeLimitEndTS = 0;
         CurrentQuestion = (string.Empty, [], 0);
         CurrentDifficulty = Difficulty.Easy;
-        Rounds = 0;
+        Round = 0;
         QuestionsAsked = 0;
         FFAEndTS = 0;
         AllowKills = false;
@@ -235,9 +235,9 @@ public static class Quiz
         {
             NumCorrectAnswers[id] = new()
             {
-                [Difficulty.Easy] = 0,
-                [Difficulty.Medium] = 0,
-                [Difficulty.Hard] = 0
+                [Difficulty.Easy] = [0, 0, 0],
+                [Difficulty.Medium] = [0, 0, 0],
+                [Difficulty.Hard] = [0, 0, 0]
             };
         }
     }
@@ -293,7 +293,7 @@ public static class Quiz
     {
         if (increaseDifficulty && CurrentDifficulty != Difficulty.Hard)
         {
-            Rounds = 0;
+            Round = 0;
             CurrentDifficulty++;
             NoSuffix = true;
             var settings = Settings[CurrentDifficulty];
@@ -306,7 +306,7 @@ public static class Quiz
         if (newRound)
         {
             NoSuffix = true;
-            Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextRound"), Rounds + 1));
+            Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextRound"), Round + 1));
             yield return new WaitForSeconds(3f);
             if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
             NameNotifyManager.Reset();
@@ -364,11 +364,14 @@ public static class Quiz
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
         DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
-        NumCorrectAnswers.ExceptBy(DyingPlayers, x => x.Key).Do(x => x.Value[CurrentDifficulty]++);
-        HistoricDyingPlayers.Add(DyingPlayers.Count == aapc.Length ? [] : DyingPlayers);
-        Utils.NotifyRoles();
+        NumCorrectAnswers.ExceptBy(DyingPlayers, x => x.Key).Do(x => x.Value[CurrentDifficulty][Round]++);
+        bool everyoneWasWrong = DyingPlayers.Count == aapc.Length;
+        HistoricDyingPlayers.Add(everyoneWasWrong ? [] : DyingPlayers);
+        
+        if (everyoneWasWrong) aapc.NotifyPlayers(GetString("Quiz.Notify.AllWrong"));
+        else Utils.NotifyRoles();
 
-        yield return new WaitForSeconds(7f);
+        yield return new WaitForSeconds(everyoneWasWrong ? 11f : 7f);
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
 
         var settings = Settings[CurrentDifficulty];
@@ -383,9 +386,9 @@ public static class Quiz
 
         Dictionary<byte, (int Num, bool Enough)> correctCounts = [];
 
-        foreach ((byte id, Dictionary<Difficulty, int> dictionary) in NumCorrectAnswers)
+        foreach ((byte id, Dictionary<Difficulty, int[]> dictionary) in NumCorrectAnswers)
         {
-            int correctAnswers = dictionary[CurrentDifficulty];
+            int correctAnswers = dictionary[CurrentDifficulty][Round];
             bool enough = correctAnswers >= correctRequirement;
             correctCounts[id] = (correctAnswers, enough);
         }
@@ -411,11 +414,12 @@ public static class Quiz
 
         sender.SendMessage(dispose: !hasValue);
         yield return new WaitForSeconds(3f);
+        NameNotifyManager.Reset();
 
         List<byte> dyingPlayers = correctCounts.Where(x => !x.Value.Enough).Select(x => x.Key).ToList();
-        Logger.Info($"Round {Rounds + 1} of {CurrentDifficulty} difficulty ended. Dying players: {dyingPlayers.Count} | {string.Join(", ", dyingPlayers.Select(x => Main.AllPlayerNames[x]))}", "Quiz");
+        Logger.Info($"Round {Round + 1} of {CurrentDifficulty} difficulty ended. Dying players: {dyingPlayers.Count} | {string.Join(", ", dyingPlayers.Select(x => Main.AllPlayerNames[x]))}", "Quiz");
 
-        Rounds++;
+        Round++;
         QuestionsAsked = 0;
         HistoricDyingPlayers = [];
 
@@ -423,12 +427,12 @@ public static class Quiz
         {
             case 0:
             case var x when x == aapc.Length:
-                yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Rounds, newRound: true);
+                yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Round, newRound: true);
                 yield break;
             case 1:
                 var pc = dyingPlayers[0].GetPlayer();
                 if (pc != null) pc.Suicide();
-                yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Rounds, newRound: true);
+                yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Round, newRound: true);
                 yield break;
             default:
                 yield return new WaitForSeconds(3f);
@@ -470,7 +474,7 @@ public static class Quiz
                 if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
 
                 FFAEndTS = 0;
-                yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Rounds, newRound: true);
+                yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Round, newRound: true);
                 yield break;
         }
     }
