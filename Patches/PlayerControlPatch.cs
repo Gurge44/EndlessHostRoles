@@ -1639,6 +1639,9 @@ internal static class FixedUpdatePatch
                         case CustomGameMode.SoloKombat:
                             SoloPVP.GetNameNotify(target, ref realName);
                             break;
+                        case CustomGameMode.Quiz when self:
+                            realName = string.Empty;
+                            break;
                     }
 
                     if (Deathpact.IsInActiveDeathpact(seer)) realName = Deathpact.GetDeathpactString(seer);

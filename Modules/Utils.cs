@@ -2408,6 +2408,8 @@ public static class Utils
 
             if (!GameStates.IsLobby)
             {
+                if (Options.CurrentGameMode == CustomGameMode.Quiz) SelfName = string.Empty;
+
                 if (NameNotifyManager.GetNameNotify(seer, out string name) && name.Length > 0) SelfName = name;
 
                 switch (Options.CurrentGameMode)
