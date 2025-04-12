@@ -4926,7 +4926,7 @@
   "Quiz.Tutorial.OnWrongAnswer": "<size=90%>If you answer <#ff0000>incorrectly</color>, you will most likely die.</size>",
   "Quiz.Tutorial.OnCorrectAnswer": "<size=90%>If you answer <#00ff00>correctly</color>, you get to survive\\n(and potentially spectate others during the FFA).</size>",
   "Quiz.Notify.NextStage": "--------------------\\nStage {0}\\n--------------------\\n<size=90%>{1} Rounds\\n{2} Questions\\n{3}/{4} Answers Must Be Correct\\n{5}s To Answer Each Question</size>",
-  "Quiz.Notify.NextRound": "<size=150%><#ffff00>Round {0}</color></size>\\n<size=90%>Answer <#ffff00>{1}</color> questions correctly to survive</size>",
+  "Quiz.Notify.NextRound": "<size=150%><#ffff00>Round {0}</color></size>",
   "Quiz.Notify.CorrectAnswer": "<{0}>The correct answer was:\\n{1} - {2} ({3})",
   "Quiz.Notify.AllCorrect": "<#00ffa5>Everyone found all correct answers!</color>",
   "Quiz.Notify.AllWrong": "<#ffff00><u>Everyone</u> would die, so no one will die!</color>",
