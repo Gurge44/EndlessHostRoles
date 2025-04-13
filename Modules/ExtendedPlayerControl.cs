@@ -1589,7 +1589,7 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
-            var sender = CustomRpcSender.Create("Send Noisemaker Alerts", SendOption.Reliable);
+            var sender = CustomRpcSender.Create("Send Noisemaker Alerts & Kill", SendOption.Reliable);
             Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies, x => sender.RpcSetRole(target, RoleTypes.Noisemaker, x.Player.GetClientId()));
 
             const MurderResultFlags resultFlags = (MurderResultFlags)(8 | 1);

@@ -953,7 +953,7 @@ internal static class GameEndChecker
 
             switch (appc.Length)
             {
-                case 1:
+                case 1 when !Quiz.CanKill():
                     PlayerControl winner = appc[0];
                     Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "Quiz");
                     WinnerIds = [winner.PlayerId];

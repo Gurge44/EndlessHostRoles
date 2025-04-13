@@ -1152,7 +1152,7 @@ public static class Utils
 
         if (Options.NoGameEnd.GetBool()) SendMessage(GetString("NoGameEndInfo"), PlayerId, writer: sender, multiple: true);
 
-        sender.SendMessage(dispose: sender.stream.Length == 0);
+        sender.SendMessage(dispose: sender.stream.Length <= 3);
     }
 
     /// <summary>
@@ -1351,7 +1351,7 @@ public static class Utils
         SendMessage($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("CovenRoles"), writer: sender, multiple: true);
         SendMessage($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GhostRoles"), writer: sender, multiple: true);
         SendMessage($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("AddonRoles"), writer: sender, multiple: true);
-        sender.SendMessage(dispose: sender.stream.Length == 0);
+        sender.SendMessage(dispose: sender.stream.Length <= 3);
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)

@@ -915,7 +915,7 @@ internal static class ChatCommands
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerMuted"), id.ColoredPlayerName(), duration), writer: sender, multiple: true);
         Utils.SendMessage("\n", id, string.Format(GetString("YouMuted"), player.PlayerId.ColoredPlayerName(), duration), writer: sender, multiple: true);
         if (!host) Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration), writer: sender, multiple: true);
-        sender.SendMessage(dispose: sender.stream.Length == 0);
+        sender.SendMessage(dispose: sender.stream.Length <= 3);
     }
 
     private static void UnmuteCommand(PlayerControl player, string text, string[] args)

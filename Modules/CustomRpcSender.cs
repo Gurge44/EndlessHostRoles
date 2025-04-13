@@ -113,7 +113,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        Logger.Info($"\"{name}\" is finished (Length: {stream.Length})", "CustomRpcSender");
+        Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose})", "CustomRpcSender");
 
         if (!dispose)
         {
