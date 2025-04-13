@@ -447,7 +447,7 @@ internal static class SetHudActivePatch
 
     public static void Postfix(HudManager __instance, [HarmonyArgument(2)] bool isActive)
     {
-        __instance?.ReportButton?.ToggleVisible(!GameStates.IsLobby && isActive);
+        if (GameStates.IsLobby || !isActive) __instance?.ReportButton?.ToggleVisible(false);
 
         if (__instance == null)
         {
@@ -460,6 +460,9 @@ internal static class SetHudActivePatch
 
         switch (Options.CurrentGameMode)
         {
+            case CustomGameMode.Quiz:
+                __instance.KillButton.ToggleVisible(Quiz.CanKill());
+                goto case CustomGameMode.MoveAndStop;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
@@ -837,7 +840,8 @@ internal static class TaskPanelBehaviourPatch
             __instance.taskText.text = finalText;
         }
 
-        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame) __instance.taskText.text = RepairSender.GetText();
+        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+            __instance.taskText.text = RepairSender.GetText();
     }
 }
 

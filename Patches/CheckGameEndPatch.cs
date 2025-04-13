@@ -467,6 +467,11 @@ internal static class GameEndChecker
         Predicate = new KingOfTheZonesGameEndPredicate();
     }
 
+    public static void SetPredicateToQuiz()
+    {
+        Predicate = new QuizGameEndPredicate();
+    }
+
     public static void SetPredicateToAllInOne()
     {
         Predicate = new AllInOneGameEndPredicate();
@@ -929,6 +934,38 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return KingOfTheZones.CheckForGameEnd(out reason);
+        }
+    }
+
+    private class QuizGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+
+            PlayerControl[] appc = Main.AllAlivePlayerControls;
+
+            switch (appc.Length)
+            {
+                case 1 when !Quiz.CanKill():
+                    PlayerControl winner = appc[0];
+                    Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "Quiz");
+                    WinnerIds = [winner.PlayerId];
+                    Main.DoBlockNameChange = true;
+                    return true;
+                case 0:
+                    ResetAndSetWinner(CustomWinner.None);
+                    Logger.Warn("No players alive. Force ending the game", "Quiz");
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 

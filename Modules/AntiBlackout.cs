@@ -90,7 +90,7 @@ public static class AntiBlackout
 
             bool seerIsAliveAndHasKillButton = seer.HasKillButton() && seer.IsAlive() && Options.CurrentGameMode == CustomGameMode.Standard;
 
-            if (Options.CurrentGameMode is not (CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.HideAndSeek or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush))
+            if (Options.CurrentGameMode is not (CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.HideAndSeek or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz))
             {
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {

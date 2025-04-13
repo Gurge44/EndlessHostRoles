@@ -67,7 +67,7 @@ internal static class EndGamePatch
 
             byte killerId = value.GetRealKiller();
             bool gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-            bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.AllInOne;
+            bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.AllInOne;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -126,6 +126,9 @@ internal static class EndGamePatch
                     break;
                 case CustomGameMode.KingOfTheZones:
                     Main.AllPlayerControls.Do(x => KingOfTheZones.PlayedFCs.Add(x.FriendCode));
+                    break;
+                case CustomGameMode.Quiz:
+                    Main.AllPlayerControls.Do(x => Quiz.HasPlayedFriendCodes.Add(x.FriendCode));
                     break;
                 default:
                     if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs))
@@ -303,6 +306,14 @@ internal static class SetEverythingUpPatch
                 __instance.BackgroundBar.material.color = winnerData.Color;
                 WinnerText.text = winnerData.Team;
                 WinnerText.color = winnerData.Color;
+                goto EndOfText;
+            }
+            case CustomGameMode.Quiz:
+            {
+                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.QuizMaster);
+                WinnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                WinnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
             }
             case CustomGameMode.AllInOne:
@@ -509,13 +520,24 @@ internal static class SetEverythingUpPatch
 
                 break;
             }
+            case CustomGameMode.Quiz:
+            {
+                foreach (byte id in cloneRoles.Where(EndGamePatch.SummaryText.ContainsKey))
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
+
+                break;
+            }
             default:
             {
                 foreach (byte id in cloneRoles)
                 {
-                    if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
+                    try
+                    {
+                        if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
 
-                    sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
+                        sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
+                    }
+                    catch { }
                 }
 
                 break;

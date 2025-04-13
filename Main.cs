@@ -35,9 +35,9 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "5.4.0";
-    public const string PluginDisplayVersion = "5.4.0";
-    public const bool TestBuild = false;
+    public const string PluginVersion = "5.5.0";
+    public const string PluginDisplayVersion = "5.5.0";
+    public const bool TestBuild = true;
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
@@ -693,6 +693,8 @@ public class Main : BasePlugin
                 { CustomRoles.RRPlayer, "#ffab1b" },
                 // King of the Zones
                 { CustomRoles.KOTZPlayer, "#ff0000" },
+                // Quiz
+                { CustomRoles.QuizPlayer, "#CF2472" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },

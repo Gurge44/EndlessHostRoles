@@ -315,7 +315,7 @@ internal class QuizMaster : RoleBase
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
                 Main.PlayerStates[Target].SetDead();
                 if (pc != null) sender.RpcExileV2(pc);
-                sender.SendMessage(dispose: pc == null && sender.stream.Length == 0);
+                sender.SendMessage(dispose: pc == null && sender.stream.Length <= 3);
                 Utils.AfterPlayerDeathTasks(pc, true);
 
                 Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");

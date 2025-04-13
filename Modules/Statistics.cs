@@ -29,6 +29,17 @@ public static class Statistics
 
             CustomGameMode gm = Options.CurrentGameMode;
 
+            if (gm != CustomGameMode.Standard)
+            {
+                try
+                {
+                    Main.NumWinsPerGM.TryAdd(gm, []);
+                    Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), false);
+                    Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+            }
+
             switch (gm)
             {
                 case CustomGameMode.FFA when won:
@@ -151,13 +162,6 @@ public static class Statistics
             if (correctGuesses >= 2) Achievements.Type.BeginnerGuesser.CompleteAfterGameEnd();
             if (correctGuesses >= 4) Achievements.Type.GuessMaster.CompleteAfterGameEnd();
             if (correctGuesses >= 6) Achievements.Type.BestGuesserAward.CompleteAfterGameEnd();
-
-
-            if (gm == CustomGameMode.Standard) return;
-
-            Main.NumWinsPerGM.TryAdd(gm, []);
-            Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), false);
-            Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
 
             void Reset()
             {

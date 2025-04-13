@@ -46,7 +46,7 @@ public class CustomRpcSender
         this.name = name;
         this.isUnsafe = isUnsafe;
         currentRpcTarget = -2;
-        onSendDelegate = () => Logger.Info($"{this.name}'s onSendDelegate =>", "CustomRpcSender");
+        onSendDelegate = () => { };
 
         currentState = State.Ready;
         Logger.Info($"\"{name}\" is ready", "CustomRpcSender");
@@ -113,7 +113,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        Logger.Info($"\"{name}\" is finished (Length: {stream.Length})", "CustomRpcSender");
+        Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose})", "CustomRpcSender");
 
         if (!dispose)
         {

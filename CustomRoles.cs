@@ -425,6 +425,9 @@ public enum CustomRoles
     // King of the Zones
     KOTZPlayer,
 
+    // Quiz
+    QuizPlayer,
+
     // GM
     GM,
 

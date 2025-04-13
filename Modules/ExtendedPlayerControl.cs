@@ -1065,7 +1065,7 @@ internal static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.AllInOne ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.AllInOne ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -1223,6 +1223,8 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
+            case CustomGameMode.Quiz:
+                return Quiz.CanKill();
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
                 return true;
@@ -1248,6 +1250,8 @@ internal static class ExtendedPlayerControl
             CustomRoles.Potato => false,
             // Speedrun
             CustomRoles.Runner => Speedrun.CanKill.Contains(pc.PlayerId),
+            // Quiz
+            CustomRoles.QuizPlayer => Quiz.CanKill(),
             // Hide And Seek
             CustomRoles.Seeker => true,
             CustomRoles.Hider => false,
@@ -1282,6 +1286,7 @@ internal static class ExtendedPlayerControl
             CustomGameMode.CaptureTheFlag => false,
             CustomGameMode.NaturalDisasters => false,
             CustomGameMode.RoomRush => false,
+            CustomGameMode.Quiz => false,
             CustomGameMode.AllInOne => false,
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
@@ -1294,7 +1299,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseSabotage(this PlayerControl pc)
     {
-        if (!pc.IsAlive() || pc.inVent || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
+        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
         return Main.PlayerStates.TryGetValue(pc.PlayerId, out PlayerState state) && state.Role.CanUseSabotage(pc);
     }
 
@@ -1584,7 +1589,7 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
-            var sender = CustomRpcSender.Create("Send Noisemaker Alerts", SendOption.Reliable);
+            var sender = CustomRpcSender.Create("Send Noisemaker Alerts & Kill", SendOption.Reliable);
             Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies, x => sender.RpcSetRole(target, RoleTypes.Noisemaker, x.Player.GetClientId()));
 
             const MurderResultFlags resultFlags = (MurderResultFlags)(8 | 1);

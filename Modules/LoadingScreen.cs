@@ -54,7 +54,7 @@ internal static class LoadingScreen
 
         string text = Translator.GetString($"LoadingHint.{index}");
         text = text.Insert(0, joke ? "<color=#ffff00>" : "<color=#00ffa5>");
-        text = text.Insert(text.IndexOf('\n'), "</color><#ffffff>");
+        if (text.Contains('\n')) text = text.Insert(text.IndexOf('\n'), "</color><#ffffff>");
         text += "</color>";
         Hint = text;
     }
