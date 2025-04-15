@@ -9,6 +9,8 @@ using HarmonyLib;
 using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using Type = Il2CppSystem.Type;
+// ReSharper disable PossibleLossOfFraction
 
 namespace EHR;
 // Credit: https://github.com/Yumenopai/TownOfHost_Y
@@ -167,10 +169,6 @@ public static class GameOptionsMenuPatch
                             break;
                     }
                 }
-
-                optionBehaviour.SetClickMask(__instance.ButtonClickMask);
-                optionBehaviour.SetUpFromData(baseGameSetting, 20);
-                ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour, index);
 
                 optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
                 optionBehaviour.SetClickMask(__instance.ButtonClickMask);
@@ -721,8 +719,24 @@ public static class StringOptionPatch
                     try { infoLong = CustomHnS.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
                     catch { infoLong = str; }
 
+                    GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(true);
+                    GameSettingMenuPatch.GMButtons.ForEach(x => x.gameObject.SetActive(false));
+                    
                     var info = $"{value.ToColoredString()}: {infoLong}";
                     GameSettingMenu.Instance.MenuDescriptionText.text = info;
+                    
+                    LateTask.New(() =>
+                    {
+                        GameObject gameObject = GameObject.Find("PlayerOptionsMenu(Clone)");
+
+                        if (gameObject != null)
+                        {
+                            Transform findChild = gameObject.transform.FindChild("What Is This?");
+                            if (findChild != null) findChild.gameObject.SetActive(false);
+                        }
+                        
+                        GameSettingMenuPatch.GMButtons.ForEach(x => x.gameObject.SetActive(true));
+                    }, 15f, log: false);
                 }
             }
         }));
@@ -871,8 +885,10 @@ public static class StringOptionPatch
 }
 
 [HarmonyPatch(typeof(GameSettingMenu))]
-public class GameSettingMenuPatch
+public static class GameSettingMenuPatch
 {
+    public static System.Collections.Generic.List<GameObject> GMButtons = [];
+    
     private static readonly Vector3 ButtonPositionLeft = new(-3.9f, -0.4f, 0f);
     private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.4f, 0f);
 
@@ -1051,13 +1067,13 @@ public class GameSettingMenuPatch
         plus.transform.localPosition = new(-0.4f, -3.37f, -4f);
 
 
+        GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(false);
+        
         var gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
         gameSettingsLabel.DestroyTranslator();
-        string gameModeText = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
-        if (gameModeText.Length >= 15) gameModeText = $"<size=70%>{gameModeText}</size>";
-
-        gameSettingsLabel.text = gameModeText;
-
+        gameSettingsLabel.text = $"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n";
+        gameSettingsLabel.transform.localPosition += new Vector3(0f, 0.1f, 0f);
+        
         if (russian)
         {
             gameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
@@ -1066,32 +1082,56 @@ public class GameSettingMenuPatch
 
         Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
 
-        GameObject gmCycler = Object.Instantiate(gMinus, gameSettingsLabel.transform, true);
+        CustomGameMode[] gms = Enum.GetValues<CustomGameMode>().SkipLast(1).ToArray();
+        int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Length / 5f));
 
-        gmCycler.transform.localScale = new(0.25f, 0.7f, 1f);
-        gmCycler.transform.localPosition = new(gameSettingsLabelPos.x + 0.8f, gameSettingsLabelPos.y - 2.9f, gameSettingsLabelPos.z);
-        var gmTmp = gmCycler.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
-        gmTmp.alignment = TextAlignmentOptions.Center;
-        gmTmp.DestroyTranslator();
-        gmTmp.text = "\u21c4";
-        gmTmp.color = Color.white;
-        float Offset2 = !russian ? 3.35f : 3.65f;
-        gmTmp.transform.localPosition = new(gameSettingsLabelPos.x + Offset2, gameSettingsLabelPos.y - 1.52f, gameSettingsLabelPos.z);
-        gmTmp.transform.localScale = new(4f, 1.5f, 1f);
-
-        var cycle = gmCycler.GetComponent<PassiveButton>();
-        cycle.OnClick.RemoveAllListeners();
-
-        cycle.OnClick.AddListener((Action)(() =>
+        System.Collections.Generic.Dictionary<CustomGameMode, Color> gmColors = new()
         {
-            if (GameModeBehaviour == null) __instance.ChangeTab(4, false);
+            [CustomGameMode.Standard] = Color.white,
+            [CustomGameMode.SoloKombat] = ColorUtility.TryParseHtmlString("#f55252", out var c) ? c : Color.white,
+            [CustomGameMode.FFA] = Color.cyan,
+            [CustomGameMode.MoveAndStop] = ColorUtility.TryParseHtmlString("#00ffa5", out c) ? c : Color.white,
+            [CustomGameMode.HotPotato] = ColorUtility.TryParseHtmlString("#e8cd46", out c) ? c : Color.white,
+            [CustomGameMode.HideAndSeek] = ColorUtility.TryParseHtmlString("#345eeb", out c) ? c : Color.white,
+            [CustomGameMode.Speedrun] = Utils.GetRoleColor(CustomRoles.Speedrunner),
+            [CustomGameMode.CaptureTheFlag] = ColorUtility.TryParseHtmlString("#1313c2", out c) ? c : Color.white,
+            [CustomGameMode.NaturalDisasters] = ColorUtility.TryParseHtmlString("#03fc4a", out c) ? c : Color.white,
+            [CustomGameMode.RoomRush] = Team.Neutral.GetColor(),
+            [CustomGameMode.KingOfTheZones] = Color.red,
+            [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
+            [CustomGameMode.AllInOne] = ColorUtility.TryParseHtmlString("#f542ad", out c) ? c : Color.white
+        };
 
-            GameModeBehaviour.Increase();
-        }));
+        GMButtons = [];
 
-        float offset = !russian ? 1.15f : 2.25f;
-        cycle.activeTextColor = cycle.inactiveTextColor = cycle.disabledTextColor = cycle.selectedTextColor = Color.white;
-        cycle.transform.localPosition = new(offset, 0.08f, 1f);
+        for (var index = 0; index < gms.Length; index++)
+        {
+            CustomGameMode gm = gms[index];
+            
+            var gmButton = Object.Instantiate(gMinus, gameSettingsLabel.transform, true);
+            gmButton.transform.localPosition = new Vector3((((index / 7) - ((totalCols - 1) / 2f)) * 1.4f) + 0.86f, gameSettingsLabelPos.y - 1.9f - (0.22f * (index % 7)), -1f);
+
+            gmButton.transform.localScale = new(0.4f, 0.3f, 1f);
+            var gmButtonTmp = gmButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+            gmButtonTmp.alignment = TextAlignmentOptions.Center;
+            gmButtonTmp.DestroyTranslator();
+            gmButtonTmp.text = Translator.GetString(gm.ToString()).ToUpper();
+            gmButtonTmp.color = gmColors[gm];
+            gmButtonTmp.transform.localPosition = new(gameSettingsLabelPos.x + (!russian ? 3.35f : 3.65f), gameSettingsLabelPos.y - 1.62f, gameSettingsLabelPos.z);
+            gmButtonTmp.transform.localScale = new(1f, 1f, 1f);
+
+            var gmPassiveButton = gmButton.GetComponent<PassiveButton>();
+            gmPassiveButton.OnClick.RemoveAllListeners();
+            gmPassiveButton.OnClick.AddListener((Action)(() =>
+            {
+                Options.GameMode.SetValue((int)gm - 1);
+                GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
+                LateTask.New(() => GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(false), 0.02f);
+            }));
+            gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = gmColors[gm];
+            
+            GMButtons.Add(gmButton);
+        }
 
 
         FreeChatInputField freeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
