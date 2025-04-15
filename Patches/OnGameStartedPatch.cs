@@ -301,7 +301,7 @@ internal static class ChangeRoleSettings
                     string msg = GetString("Error.InvalidColor");
                     Logger.SendInGame(msg);
                     msg += "\n" + string.Join(",", invalidColor);
-                    Utils.SendMessage(msg);
+                    Utils.SendMessage(msg, sendOption: SendOption.None);
                     Logger.Error(msg, "CoStartGame");
                 }
             }

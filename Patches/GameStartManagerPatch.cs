@@ -7,6 +7,7 @@ using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using TMPro;
 using UnityEngine;
@@ -174,7 +175,7 @@ public static class GameStartManagerPatch
                                 Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
                                 string msg = GetString("Error.InvalidColor");
                                 msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
-                                Utils.SendMessage(msg);
+                                Utils.SendMessage(msg, sendOption: SendOption.None);
                             }
 
                             if (Options.RandomMapsMode.GetBool())
@@ -430,7 +431,7 @@ public static class GameStartRandomMap
             Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
             string msg = GetString("Error.InvalidColor");
             msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
-            Utils.SendMessage(msg);
+            Utils.SendMessage(msg, sendOption: SendOption.None);
             return false;
         }
 

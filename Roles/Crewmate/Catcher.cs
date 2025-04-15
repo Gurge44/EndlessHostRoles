@@ -158,7 +158,7 @@ public class Catcher : RoleBase
                 Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.CaughtRoles") + roles);
             }
             else
-                Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.NotEnoughCaughtRoles"));
+                Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.NotEnoughCaughtRoles"), sendOption: SendOption.None);
 
             CaughtRoles = [];
         }, 10f, "Send Catcher Caught Roles");

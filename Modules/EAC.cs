@@ -502,16 +502,13 @@ internal static class EAC
                 Utils.SendMessage(string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text), PlayerControl.LocalPlayer.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC")));
                 break;
             case 3:
-                foreach (PlayerControl player in Main.AllPlayerControls)
-                {
-                    if (player.PlayerId != pc?.Data?.PlayerId)
-                    {
-                        string message = string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text);
-                        string title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC"));
-                        Utils.SendMessage(message, player.PlayerId, title);
-                    }
-                }
-
+                (
+                    from player in Main.AllPlayerControls
+                    where player.PlayerId != pc?.Data?.PlayerId
+                    let message = string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text)
+                    let title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC"))
+                    select new Message(message, player.PlayerId, title)
+                ).SendMultipleMessages(SendOption.None);
                 break;
             case 4:
                 string hashedPuid = pc.GetClient().GetHashedPuid();

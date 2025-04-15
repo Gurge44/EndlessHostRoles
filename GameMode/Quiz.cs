@@ -192,6 +192,9 @@ public static class Quiz
             string correctRoom = GetString(UsedRooms[Main.CurrentMap][correctAnswerLetter].ToString());
             string color = wasWrong ? "#FF0000" : "#00FF00";
             string str = string.Format(GetString("Quiz.Notify.CorrectAnswer"), color, correctAnswerLetter, correctAnswer, correctRoom);
+            
+            int numPlayers = Main.AllAlivePlayerControls.Length;
+            if (DyingPlayers.Count == numPlayers) str += "\n" + GetString("Quiz.Notify.AllWrong");
 
             if (CurrentDifficulty > Difficulty.Test && Settings[CurrentDifficulty].QuestionsAsked.GetInt() <= QuestionsAsked)
             {
@@ -204,7 +207,7 @@ public static class Quiz
                 str += "\n" + NumCorrectAnswers.Count(x => x.Value[CurrentDifficulty][Round] < requiredCorrect) switch
                 {
                     0 => GetString("Quiz.Notify.AllCorrect"),
-                    var x when x == Main.AllAlivePlayerControls.Length => GetString("Quiz.Notify.AllDie"),
+                    var x when x == numPlayers => GetString("Quiz.Notify.AllDie"),
                     1 => failed ? GetString("Quiz.Notify.OnlyYouWrong") : GetString("Quiz.Notify.OneWrong"),
                     _ => failed ? GetString("Quiz.Notify.IncorrectFFA") : GetString("Quiz.Notify.CorrectFFA")
                 };
@@ -233,8 +236,16 @@ public static class Quiz
         AllowKills = false;
         NoSuffix = true;
 
-        Dictionary<Difficulty, int[]> sample = Enum.GetValues<Difficulty>()[1..].ToDictionary(x => x, x => Enumerable.Repeat(0, Settings[x].Rounds.GetInt()).ToArray());
-        NumCorrectAnswers = Main.PlayerStates.Keys.ToDictionary(x => x, _ => sample);
+        foreach (PlayerControl pc in Main.AllPlayerControls)
+        {
+            NumCorrectAnswers[pc.PlayerId] = new Dictionary<Difficulty, int[]>
+            {
+                [Difficulty.Test] = new int[1],
+                [Difficulty.Easy] = new int[Settings[Difficulty.Easy].Rounds.GetInt()],
+                [Difficulty.Medium] = new int[Settings[Difficulty.Medium].Rounds.GetInt()],
+                [Difficulty.Hard] = new int[100] // Surely there won't be more than 100 hard rounds, right?
+            };
+        }
     }
 
     public static IEnumerator OnGameStart()
@@ -300,8 +311,6 @@ public static class Quiz
 
         if (newRound)
         {
-            if (CurrentDifficulty == Difficulty.Hard) NumCorrectAnswers.Values.Do(x => x[Difficulty.Hard][Round + 1] = 0);
-
             NoSuffix = true;
             Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextRound"), Round + 1));
             yield return new WaitForSeconds(3f);
@@ -361,17 +370,13 @@ public static class Quiz
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
         DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
-        NumCorrectAnswers.ExceptBy(DyingPlayers, x => x.Key).Do(x => x.Value[CurrentDifficulty][Round]++);
         bool everyoneWasWrong = DyingPlayers.Count == aapc.Length;
-        Logger.Info($"Players who got the question wrong: {string.Join(", ", DyingPlayers.Select(x => Main.AllPlayerNames[x]))}", "Quiz");
+        if (!everyoneWasWrong) NumCorrectAnswers.DoIf(x => !DyingPlayers.Contains(x.Key), x => x.Value[CurrentDifficulty][Round]++);
+        Logger.Info($"{(everyoneWasWrong ? "Everyone" : "Players who")} got the question wrong: {string.Join(", ", DyingPlayers.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, $"Someone (ID {x})")))}", "Quiz");
+        Logger.Info($"Number of correct answers for everyone currently: {string.Join(", ", NumCorrectAnswers.Select(x => $"{Main.AllPlayerNames.GetValueOrDefault(x.Key, string.Empty)}: {x.Value[CurrentDifficulty][Round]}"))}", "Quiz");
 
-        if (everyoneWasWrong)
-        {
-            aapc.NotifyPlayers(GetString("Quiz.Notify.AllWrong"));
-            QuestionsAsked--;
-        }
-        else
-            Utils.NotifyRoles();
+        if (everyoneWasWrong) QuestionsAsked--;
+        else Utils.NotifyRoles();
 
         yield return new WaitForSeconds(everyoneWasWrong ? 11f : 7f);
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;

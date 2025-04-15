@@ -1133,26 +1133,36 @@ public static class Utils
 
     public static void ShowActiveSettingsHelp(byte PlayerId = byte.MaxValue)
     {
-        var sender = CustomRpcSender.Create("ShowActiveSettingsHelp", SendOption.Reliable);
+        // var sender = CustomRpcSender.Create("ShowActiveSettingsHelp", SendOption.Reliable);
+        //
+        // SendMessage(GetString("CurrentActiveSettingsHelp") + ":", PlayerId, writer: sender, multiple: true);
+        //
+        // if (Options.DisableDevices.GetBool()) SendMessage(GetString("DisableDevicesInfo"), PlayerId, writer: sender, multiple: true);
+        // if (Options.SyncButtonMode.GetBool()) SendMessage(GetString("SyncButtonModeInfo"), PlayerId, writer: sender, multiple: true);
+        // if (Options.SabotageTimeControl.GetBool()) SendMessage(GetString("SabotageTimeControlInfo"), PlayerId, writer: sender, multiple: true);
+        // if (Options.RandomMapsMode.GetBool()) SendMessage(GetString("RandomMapsModeInfo"), PlayerId, writer: sender, multiple: true);
+        //
+        // if (Main.GM.Value) SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId, writer: sender, multiple: true);
+        //
+        // foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
+        // {
+        //     if (role.IsEnable() && !role.IsVanilla())
+        //         SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId, writer: sender, multiple: true);
+        // }
+        //
+        // if (Options.NoGameEnd.GetBool()) SendMessage(GetString("NoGameEndInfo"), PlayerId, writer: sender, multiple: true);
+        //
+        // sender.SendMessage(dispose: sender.stream.Length <= 3);
 
-        SendMessage(GetString("CurrentActiveSettingsHelp") + ":", PlayerId, writer: sender, multiple: true);
-
-        if (Options.DisableDevices.GetBool()) SendMessage(GetString("DisableDevicesInfo"), PlayerId, writer: sender, multiple: true);
-        if (Options.SyncButtonMode.GetBool()) SendMessage(GetString("SyncButtonModeInfo"), PlayerId, writer: sender, multiple: true);
-        if (Options.SabotageTimeControl.GetBool()) SendMessage(GetString("SabotageTimeControlInfo"), PlayerId, writer: sender, multiple: true);
-        if (Options.RandomMapsMode.GetBool()) SendMessage(GetString("RandomMapsModeInfo"), PlayerId, writer: sender, multiple: true);
-
-        if (Main.GM.Value) SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId, writer: sender, multiple: true);
-
-        foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
-        {
-            if (role.IsEnable() && !role.IsVanilla())
-                SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId, writer: sender, multiple: true);
-        }
-
-        if (Options.NoGameEnd.GetBool()) SendMessage(GetString("NoGameEndInfo"), PlayerId, writer: sender, multiple: true);
-
-        sender.SendMessage(dispose: sender.stream.Length <= 3);
+        List<Message> messages = [new(GetString("CurrentActiveSettingsHelp") + ":", PlayerId)];
+        if (Options.DisableDevices.GetBool()) messages.Add(new(GetString("DisableDevicesInfo"), PlayerId));
+        if (Options.SyncButtonMode.GetBool()) messages.Add(new(GetString("SyncButtonModeInfo"), PlayerId));
+        if (Options.SabotageTimeControl.GetBool()) messages.Add(new(GetString("SabotageTimeControlInfo"), PlayerId));
+        if (Options.RandomMapsMode.GetBool()) messages.Add(new(GetString("RandomMapsModeInfo"), PlayerId));
+        if (Main.GM.Value) messages.Add(new(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId));
+        messages.AddRange(from role in Enum.GetValues<CustomRoles>() where role.IsEnable() && !role.IsVanilla() select new Message(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId));
+        if (Options.NoGameEnd.GetBool()) messages.Add(new(GetString("NoGameEndInfo"), PlayerId));
+        messages.SendMultipleMessages();
     }
 
     /// <summary>
@@ -1170,13 +1180,13 @@ public static class Utils
     {
         if (Options.HideGameSettings.GetBool() && PlayerId != byte.MaxValue)
         {
-            SendMessage(GetString("Message.HideGameSettings"), PlayerId);
+            SendMessage(GetString("Message.HideGameSettings"), PlayerId, sendOption: SendOption.None);
             return;
         }
 
         if (Options.DIYGameSettings.GetBool())
         {
-            SendMessage(GetString("Message.NowOverrideText"), PlayerId);
+            SendMessage(GetString("Message.NowOverrideText"), PlayerId, sendOption: SendOption.None);
             return;
         }
 
@@ -1200,13 +1210,13 @@ public static class Utils
     {
         if (Options.HideGameSettings.GetBool() && PlayerId != byte.MaxValue)
         {
-            SendMessage(GetString("Message.HideGameSettings"), PlayerId);
+            SendMessage(GetString("Message.HideGameSettings"), PlayerId, sendOption: SendOption.None);
             return;
         }
 
         if (Options.DIYGameSettings.GetBool())
         {
-            SendMessage(GetString("Message.NowOverrideText"), PlayerId);
+            SendMessage(GetString("Message.NowOverrideText"), PlayerId, sendOption: SendOption.None);
             return;
         }
 
@@ -1302,7 +1312,7 @@ public static class Utils
     {
         if (Options.HideGameSettings.GetBool() && PlayerId != byte.MaxValue)
         {
-            SendMessage(GetString("Message.HideGameSettings"), PlayerId);
+            SendMessage(GetString("Message.HideGameSettings"), PlayerId, sendOption: SendOption.None);
             return;
         }
 
@@ -1343,15 +1353,15 @@ public static class Utils
             }
         }
 
-        var sender = CustomRpcSender.Create("ShowActiveRoles", SendOption.Reliable);
-        SendMessage($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GMRoles"), writer: sender, multiple: true);
-        SendMessage($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")), writer: sender, multiple: true);
-        SendMessage($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")), writer: sender, multiple: true);
-        SendMessage($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("NeutralRoles"), writer: sender, multiple: true);
-        SendMessage($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("CovenRoles"), writer: sender, multiple: true);
-        SendMessage($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GhostRoles"), writer: sender, multiple: true);
-        SendMessage($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("AddonRoles"), writer: sender, multiple: true);
-        sender.SendMessage(dispose: sender.stream.Length <= 3);
+        new List<Message> {
+            new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GMRoles")),
+            new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
+            new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
+            new($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("NeutralRoles")),
+            new($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("CovenRoles")),
+            new($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GhostRoles")),
+            new($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("AddonRoles"))
+        }.SendMultipleMessages();
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
@@ -1387,7 +1397,7 @@ public static class Utils
     {
         if (AmongUsClient.Instance.IsGameStarted)
         {
-            SendMessage(GetString("CantUse.lastroles"), playerId);
+            SendMessage(GetString("CantUse.lastroles"), playerId, sendOption: SendOption.None);
             return;
         }
 
@@ -1494,7 +1504,7 @@ public static class Utils
     {
         if (GameStates.IsInGame)
         {
-            SendMessage(GetString("CantUse.killlog"), playerId);
+            SendMessage(GetString("CantUse.killlog"), playerId, sendOption: SendOption.None);
             return;
         }
 
@@ -1505,7 +1515,7 @@ public static class Utils
     {
         if (GameStates.IsInGame)
         {
-            SendMessage(GetString("CantUse.lastresult"), playerId);
+            SendMessage(GetString("CantUse.lastresult"), playerId, sendOption: SendOption.None);
             return;
         }
 
@@ -1519,12 +1529,7 @@ public static class Utils
 
     public static void ShowLastAddOns(byte playerId = byte.MaxValue)
     {
-        if (GameStates.IsInGame)
-        {
-            SendMessage(GetString("CantUse.lastresult"), playerId);
-            return;
-        }
-
+        if (GameStates.IsInGame) return;
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
         string result = Main.LastAddOns.Values.Join(delimiter: "\n");
@@ -1705,7 +1710,14 @@ public static class Utils
         catch (Exception e) { ThrowException(e); }
     }
 
-    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false)
+    public static void SendMultipleMessages(this IEnumerable<Message> messages, SendOption sendOption = SendOption.Reliable)
+    {
+        var sender = CustomRpcSender.Create("Utils.SendMultipleMessages", sendOption);
+        messages.Do(x => SendMessage(x.Text, x.SendTo, x.Title, writer: sender, multiple: true, sendOption: sendOption));
+        sender.SendMessage(dispose: sender.stream.Length <= 3);
+    }
+
+    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable)
     {
         PlayerControl receiver = GetPlayerById(sendTo, false);
         if (sendTo != byte.MaxValue && receiver == null) return;
@@ -1753,7 +1765,7 @@ public static class Utils
 
         if (sendTo != byte.MaxValue)
         {
-            writer ??= CustomRpcSender.Create("Utils.SendMessage", SendOption.Reliable);
+            writer ??= CustomRpcSender.Create("Utils.SendMessage", sendOption);
             if (writer.CurrentState == CustomRpcSender.State.Ready) writer.StartMessage(receiver.GetClientId());
 
             if (!noSplit)
@@ -1781,9 +1793,9 @@ public static class Utils
                 }
 
                 if (shortenedText.Length >= sizeLimit)
-                    shortenedText.Chunk(sizeLimit).Do(x => SendMessage(new(x), sendTo, title, true, writer));
+                    shortenedText.Chunk(sizeLimit).Do(x => SendMessage(new(x), sendTo, title, true, writer, sendOption: sendOption));
                 else
-                    SendMessage(shortenedText, sendTo, title, true, writer);
+                    SendMessage(shortenedText, sendTo, title, true, writer, sendOption: sendOption);
 
                 string sentText = shortenedText;
                 shortenedText = line + "\n";
@@ -1795,7 +1807,7 @@ public static class Utils
                 }
             }
 
-            if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, true, writer, true);
+            if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, true, writer, true, sendOption: sendOption);
             else if (writer != null && sendTo != byte.MaxValue && writer.CurrentState == CustomRpcSender.State.InRootMessage)
             {
                 writer.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
@@ -1853,7 +1865,7 @@ public static class Utils
             if (writer.stream.Length > 800)
             {
                 writer.SendMessage();
-                writer = CustomRpcSender.Create("Utils.SendMessage", SendOption.Reliable);
+                writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);
                 writer.StartMessage(receiver.GetClientId());
             }
         }
@@ -3058,14 +3070,11 @@ public static class Utils
                 case CustomRoles.CyberStar when !disconnect:
                     if (onMeeting)
                     {
-                        foreach (PlayerControl pc in Main.AllPlayerControls)
-                        {
-                            if ((!Options.ImpKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsImpostor())
-                                || (!Options.NeutralKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsNeutral()))
-                                continue;
-
-                            SendMessage(string.Format(GetString("CyberStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")));
-                        }
+                        (
+                            from pc in Main.AllPlayerControls
+                            where (Options.ImpKnowCyberStarDead.GetBool() || !pc.GetCustomRole().IsImpostor()) && (Options.NeutralKnowCyberStarDead.GetBool() || !pc.GetCustomRole().IsNeutral())
+                            select new Message(string.Format(GetString("CyberStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")))
+                        ).SendMultipleMessages();
                     }
                     else
                     {
@@ -3657,4 +3666,11 @@ public static class Utils
         float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f);
         return minTime;
     }
+}
+
+public class Message(string text, byte sendTo = byte.MaxValue, string title = "")
+{
+    public string Text { get; } = text;
+    public byte SendTo { get; } = sendTo;
+    public string Title { get; } = title;
 }
