@@ -436,8 +436,7 @@ public static class Quiz
                 spectators.Do(x => x.RpcRevive());
                 AllowKills = false;
 
-                var spawnMap = RandomSpawn.SpawnMap.GetSpawnMap();
-                var location = spawnMap.Positions.IntersectBy(UsedRooms[Main.CurrentMap].Values, x => x.Key).RandomElement().Value;
+                var location = RandomSpawn.SpawnMap.GetSpawnMap().Positions.IntersectBy(UsedRooms[Main.CurrentMap].Values, x => x.Key).RandomElement().Value;
                 sender = CustomRpcSender.Create("Quiz.FFA-Event-TP", SendOption.Reliable);
                 spectators.Do(x => sender.TP(x, location));
                 sender.SendMessage();
