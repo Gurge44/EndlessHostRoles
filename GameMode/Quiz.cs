@@ -353,6 +353,7 @@ public static class Quiz
         {
             MapNames map = Main.CurrentMap;
             if (map == MapNames.Dleks) map = MapNames.Skeld;
+            if (map > MapNames.Dleks) map--;
             correctAnswer = answers[(char)((int)map + 65)];
         }
         else
@@ -401,15 +402,16 @@ public static class Quiz
         switch (dyingPlayers.Count)
         {
             case 0:
-            case var x when x == aapc.Length:
-                if (dyingPlayers.Count != 0) Round--;
                 yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Round, newRound: true);
                 yield break;
             case 1:
                 var pc = dyingPlayers[0].GetPlayer();
                 if (pc != null) pc.Suicide();
-                yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Round, newRound: true);
-                yield break;
+                goto case 0;
+            case var x when x == aapc.Length:
+                Round--;
+                NumCorrectAnswers.Values.Do(d => d[CurrentDifficulty][Round] = 0);
+                goto case 0;
             default:
                 yield return new WaitForSeconds(3f);
                 AllowKills = true;
@@ -434,7 +436,8 @@ public static class Quiz
                 spectators.Do(x => x.RpcRevive());
                 AllowKills = false;
 
-                var location = RandomSpawn.SpawnMap.GetSpawnMap().Positions[correctRoom];
+                var spawnMap = RandomSpawn.SpawnMap.GetSpawnMap();
+                var location = spawnMap.Positions.IntersectBy(UsedRooms[Main.CurrentMap].Values, x => x.Key).RandomElement().Value;
                 sender = CustomRpcSender.Create("Quiz.FFA-Event-TP", SendOption.Reliable);
                 spectators.Do(x => sender.TP(x, location));
                 sender.SendMessage();
@@ -451,7 +454,7 @@ public static class Quiz
                         break;
                 }
 
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSeconds(3f);
                 if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
 
                 FFAEndTS = 0;

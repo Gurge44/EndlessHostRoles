@@ -309,8 +309,8 @@ internal class QuizMaster : RoleBase
             else if (index != -1)
             {
                 var sender = CustomRpcSender.Create("QuizMaster", SendOption.Reliable);
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"), writer: sender, multiple: true);
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), writer: sender, multiple: true);
+                sender = Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"), writer: sender, multiple: true);
+                sender = Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), writer: sender, multiple: true);
 
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
                 Main.PlayerStates[Target].SetDead();

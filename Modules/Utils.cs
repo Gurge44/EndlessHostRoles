@@ -1131,37 +1131,16 @@ public static class Utils
         catch { return string.Empty; }
     }
 
-    public static void ShowActiveSettingsHelp(byte PlayerId = byte.MaxValue)
+    public static void ShowActiveSettingsHelp(byte playerId = byte.MaxValue)
     {
-        // var sender = CustomRpcSender.Create("ShowActiveSettingsHelp", SendOption.Reliable);
-        //
-        // SendMessage(GetString("CurrentActiveSettingsHelp") + ":", PlayerId, writer: sender, multiple: true);
-        //
-        // if (Options.DisableDevices.GetBool()) SendMessage(GetString("DisableDevicesInfo"), PlayerId, writer: sender, multiple: true);
-        // if (Options.SyncButtonMode.GetBool()) SendMessage(GetString("SyncButtonModeInfo"), PlayerId, writer: sender, multiple: true);
-        // if (Options.SabotageTimeControl.GetBool()) SendMessage(GetString("SabotageTimeControlInfo"), PlayerId, writer: sender, multiple: true);
-        // if (Options.RandomMapsMode.GetBool()) SendMessage(GetString("RandomMapsModeInfo"), PlayerId, writer: sender, multiple: true);
-        //
-        // if (Main.GM.Value) SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId, writer: sender, multiple: true);
-        //
-        // foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
-        // {
-        //     if (role.IsEnable() && !role.IsVanilla())
-        //         SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId, writer: sender, multiple: true);
-        // }
-        //
-        // if (Options.NoGameEnd.GetBool()) SendMessage(GetString("NoGameEndInfo"), PlayerId, writer: sender, multiple: true);
-        //
-        // sender.SendMessage(dispose: sender.stream.Length <= 3);
-
-        List<Message> messages = [new(GetString("CurrentActiveSettingsHelp") + ":", PlayerId)];
-        if (Options.DisableDevices.GetBool()) messages.Add(new(GetString("DisableDevicesInfo"), PlayerId));
-        if (Options.SyncButtonMode.GetBool()) messages.Add(new(GetString("SyncButtonModeInfo"), PlayerId));
-        if (Options.SabotageTimeControl.GetBool()) messages.Add(new(GetString("SabotageTimeControlInfo"), PlayerId));
-        if (Options.RandomMapsMode.GetBool()) messages.Add(new(GetString("RandomMapsModeInfo"), PlayerId));
-        if (Main.GM.Value) messages.Add(new(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId));
-        messages.AddRange(from role in Enum.GetValues<CustomRoles>() where role.IsEnable() && !role.IsVanilla() select new Message(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), PlayerId));
-        if (Options.NoGameEnd.GetBool()) messages.Add(new(GetString("NoGameEndInfo"), PlayerId));
+        List<Message> messages = [new(GetString("CurrentActiveSettingsHelp") + ":", playerId)];
+        if (Options.DisableDevices.GetBool()) messages.Add(new(GetString("DisableDevicesInfo"), playerId));
+        if (Options.SyncButtonMode.GetBool()) messages.Add(new(GetString("SyncButtonModeInfo"), playerId));
+        if (Options.SabotageTimeControl.GetBool()) messages.Add(new(GetString("SabotageTimeControlInfo"), playerId));
+        if (Options.RandomMapsMode.GetBool()) messages.Add(new(GetString("RandomMapsModeInfo"), playerId));
+        if (Main.GM.Value) messages.Add(new(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), playerId));
+        messages.AddRange(from role in Enum.GetValues<CustomRoles>() where role.IsEnable() && !role.IsVanilla() select new Message(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), playerId));
+        if (Options.NoGameEnd.GetBool()) messages.Add(new(GetString("NoGameEndInfo"), playerId));
         messages.SendMultipleMessages();
     }
 
@@ -1713,15 +1692,15 @@ public static class Utils
     public static void SendMultipleMessages(this IEnumerable<Message> messages, SendOption sendOption = SendOption.Reliable)
     {
         var sender = CustomRpcSender.Create("Utils.SendMultipleMessages", sendOption);
-        messages.Do(x => SendMessage(x.Text, x.SendTo, x.Title, writer: sender, multiple: true, sendOption: sendOption));
+        sender = messages.Aggregate(sender, (current, message) => SendMessage(message.Text, message.SendTo, message.Title, writer: current, multiple: true, sendOption: sendOption));
         sender.SendMessage(dispose: sender.stream.Length <= 3);
     }
 
-    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable)
+    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable)
     {
         PlayerControl receiver = GetPlayerById(sendTo, false);
-        if (sendTo != byte.MaxValue && receiver == null) return;
-        if (title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return;
+        if (sendTo != byte.MaxValue && receiver == null) return writer;
+        if (title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
 
         if (!AmongUsClient.Instance.AmHost)
         {
@@ -1735,7 +1714,7 @@ public static class Utils
                 w.EndMessage();
             }
 
-            return;
+            return writer;
         }
 
         if (title == "") title = "<color=#8b32a8>" + GetString("DefaultSystemMessageTitle") + "</color>";
@@ -1760,7 +1739,7 @@ public static class Utils
             FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
             sender.SetName(name);
             ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
-            return;
+            return writer;
         }
 
         if (sendTo != byte.MaxValue)
@@ -1821,7 +1800,7 @@ public static class Utils
                 if (multiple) RestartMessageIfTooLong();
             }
 
-            return;
+            return writer;
         }
 
         try
@@ -1858,7 +1837,7 @@ public static class Utils
             ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
         }
 
-        return;
+        return writer;
 
         void RestartMessageIfTooLong()
         {

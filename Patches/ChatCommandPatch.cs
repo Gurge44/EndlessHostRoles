@@ -315,8 +315,8 @@ internal static class ChatCommands
                 string title = PlayerControl.LocalPlayer.GetRealName();
                 ChatUpdatePatch.LoversMessage = true;
                 var sender = CustomRpcSender.Create("LoversMessage", SendOption.Reliable);
-                Utils.SendMessage(text, otherLover.PlayerId, title, writer: sender, multiple: true);
-                Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title, writer: sender, multiple: true);
+                sender = Utils.SendMessage(text, otherLover.PlayerId, title, writer: sender, multiple: true);
+                sender = Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title, writer: sender, multiple: true);
                 sender.Notify(otherLover, $"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
                 sender.SendMessage();
                 LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
@@ -3103,8 +3103,8 @@ internal static class ChatCommands
                         string title = player.GetRealName();
                         ChatUpdatePatch.LoversMessage = true;
                         var sender = CustomRpcSender.Create("LoversChat", SendOption.Reliable);
-                        Utils.SendMessage(text, otherLover.PlayerId, title, writer: sender, multiple: true);
-                        Utils.SendMessage(text, player.PlayerId, title, writer: sender, multiple: true);
+                        sender = Utils.SendMessage(text, otherLover.PlayerId, title, writer: sender, multiple: true);
+                        sender = Utils.SendMessage(text, player.PlayerId, title, writer: sender, multiple: true);
                         sender.Notify(otherLover, $"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
                         sender.SendMessage();
                         LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
@@ -3181,7 +3181,7 @@ internal static class ChatUpdatePatch
             player.SetName(name);
         }
 
-        CustomRpcSender writer = sender ?? CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+        CustomRpcSender writer = sender ?? CustomRpcSender.Create("ChatUpdatePatch.SendMessage", SendOption.Reliable);
         writer.StartMessage(clientId);
 
         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)

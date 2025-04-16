@@ -103,7 +103,7 @@ public class CustomRpcSender
     {
         if (currentState == State.InRootMessage) EndMessage();
 
-        if (currentState != State.Ready)
+        if (currentState != State.Ready && !dispose)
         {
             var errorMsg = $"Tried to send RPC but State is not Ready (in: \"{name}\")";
 

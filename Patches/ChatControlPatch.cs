@@ -230,7 +230,7 @@ public static class ChatManager
 
             string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
             ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
-            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+            var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
 
             for (int i = clear ? 0 : filtered.Length; i < 20; i++)
             {
@@ -285,7 +285,7 @@ public static class ChatManager
             int clientId = target.GetClientId();
             if (clientId == -1) return;
 
-            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+            var writer = CustomRpcSender.Create("ClearChatForSpecificPlayer", SendOption.Reliable);
             Loop.Times(20, _ => SendRPC(writer, sender, Utils.EmptyMessage, clientId));
             writer.SendMessage();
             return;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
 using Hazel;
@@ -20,6 +21,7 @@ public abstract class Coven : RoleBase
 
     protected virtual void OnReceiveNecronomicon() { }
 
+    [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
     private static void GiveNecronomicon()
     {
         Dictionary<byte, PlayerState> psDict = Main.PlayerStates.Where(x => x.Value.Role is Coven { HasNecronomicon: false } coven && coven.NecronomiconReceivePriority != NecronomiconReceivePriorities.Never).ToDictionary(x => x.Key, x => x.Value);
@@ -35,8 +37,8 @@ public abstract class Coven : RoleBase
         {
             var sender = CustomRpcSender.Create("CovenGiveNecronomicon", SendOption.Reliable);
             string[] holders = Main.PlayerStates.Where(s => s.Value.Role is Coven { HasNecronomicon: true }).Select(s => s.Key.ColoredPlayerName()).ToArray();
-            Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Without(receiver.Key).Do(x => Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor, holders.Length, string.Join(", ", holders)), writer: sender, multiple: true));
-            Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor), writer: sender, multiple: true);
+            Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Without(receiver.Key).Do(x => sender = Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor, holders.Length, string.Join(", ", holders)), writer: sender, multiple: true));
+            sender = Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor), writer: sender, multiple: true);
             sender.SendMessage(dispose: sender.stream.Length <= 3);
         }, 12f, log: false);
     }
