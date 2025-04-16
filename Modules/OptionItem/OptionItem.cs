@@ -224,11 +224,6 @@ public abstract class OptionItem
 
     public bool IsCurrentlyHidden()
     {
-        return CheckHidden();
-    }
-
-    private bool CheckHidden()
-    {
         int lastParent = Id;
 
         for (var i = 0; i < 5; i++)
