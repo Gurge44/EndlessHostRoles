@@ -622,4 +622,16 @@ public static class CustomRpcSenderExtensions
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
         return true;
     }
+    
+    public static bool TPToRandomVent(this CustomRpcSender sender, PlayerControl pc, bool log = true)
+    {
+        Vent vent = ShipStatus.Instance.AllVents.RandomElement();
+        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
+        return sender.TP(pc, new(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
+    }
+
+    public static void NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target)
+    {
+        Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target]);
+    }
 }

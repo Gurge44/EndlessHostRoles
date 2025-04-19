@@ -922,7 +922,7 @@ internal static class StartGameHostPatch
                         CustomHnS.StartSeekerBlindTime();
                         break;
                     case CustomGameMode.CaptureTheFlag:
-                        CaptureTheFlag.OnGameStart();
+                        CaptureTheFlag.Init();
                         break;
                     case CustomGameMode.NaturalDisasters:
                         NaturalDisasters.OnGameStart();
