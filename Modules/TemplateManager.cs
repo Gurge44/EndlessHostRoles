@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using UnityEngine;
 using static EHR.Translator;
@@ -120,12 +121,16 @@ public static class TemplateManager
             if (playerId == 0xff)
                 HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")));
             else
-                Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId);
+                Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId, sendOption: SendOption.None);
         }
         else
         {
+            List<Message> messages = [];
+            
             foreach (string x in sendList)
-                Utils.SendMessage(ApplyReplaceDictionary(x), playerId);
+                messages.Add(new Message(ApplyReplaceDictionary(x), playerId));
+            
+            messages.SendMultipleMessages();
         }
     }
 

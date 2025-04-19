@@ -331,12 +331,11 @@ internal static class GameEndChecker
         catch (Exception e) { ThrowException(e); }
 
         string msg = GetString("NotifyGameEnding");
-        PlayerControl sender = Main.AllAlivePlayerControls.FirstOrDefault();
-        if (sender == null) sender = PlayerControl.LocalPlayer;
 
-        Main.AllPlayerControls.DoIf(
-            x => x.GetClient() != null && !x.Data.Disconnected,
-            x => ChatUpdatePatch.SendMessage(sender, "\n", x.PlayerId, msg));
+        Main.AllPlayerControls
+            .Where(x => x.GetClient() != null && !x.Data.Disconnected)
+            .Select(x => new Message("\n", x.PlayerId, msg))
+            .SendMultipleMessages();
 
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         var self = AmongUsClient.Instance;

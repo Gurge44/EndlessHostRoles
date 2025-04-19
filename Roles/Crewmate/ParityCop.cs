@@ -4,6 +4,7 @@ using System.Linq;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -131,7 +132,7 @@ public class ParityCop : RoleBase
 
         if (!pc.IsAlive())
         {
-            Utils.SendMessage(GetString("ParityCopDead"), pc.PlayerId);
+            Utils.SendMessage(GetString("ParityCopDead"), pc.PlayerId, sendOption: SendOption.None);
             return true;
         }
 

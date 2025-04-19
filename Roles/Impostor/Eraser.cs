@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Hazel;
 using static EHR.Translator;
 
 namespace EHR.Impostor;
@@ -110,7 +111,7 @@ internal class Eraser : RoleBase
 
         if (target.PlayerId == player.PlayerId)
         {
-            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Eraser), GetString("EraserEraseMsgTitle")));
+            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Eraser), GetString("EraserEraseMsgTitle")), sendOption: SendOption.None);
             return false;
         }
 

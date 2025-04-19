@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -81,7 +82,7 @@ public class Oracle : RoleBase
 
         if (player.PlayerId == target.PlayerId)
         {
-            Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
+            Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")), sendOption: SendOption.None);
             return false;
         }
 

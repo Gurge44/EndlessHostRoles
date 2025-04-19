@@ -665,10 +665,12 @@ internal static class MeetingHudStartPatch
 
         CheckForEndVotingPatch.RunRoleCode = true;
 
-        List<(string Message, byte TargetID, string Title)> msgToSend = [];
+        List<Message> msgToSend = [];
 
         if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting && Options.CurrentGameMode == CustomGameMode.Standard)
         {
+            List<Message> roleDescMsgs = [];
+            
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (pc.IsModdedClient()) continue;
@@ -699,15 +701,19 @@ internal static class MeetingHudStartPatch
                     sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
                 }
 
-                if (settings.Length > 0) AddMsg("\n", pc.PlayerId, settings.ToString());
+                if (settings.Length > 0) roleDescMsgs.Add(new("\n", pc.PlayerId, settings.ToString()));
 
-                AddMsg(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString());
+                roleDescMsgs.Add(new(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString()));
             }
+            
+            LateTask.New(() => roleDescMsgs.SendMultipleMessages(SendOption.None), 6f, "Send Role Descriptions Round 1");
         }
 
-        if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) AddMsg(string.Format(GetString("Message.MadmateSelfVoteModeNotify"), GetString("MadmateSpawnMode.SelfVote")));
+        if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting)
+            AddMsg(string.Format(GetString("Message.MadmateSelfVoteModeNotify"), GetString("MadmateSpawnMode.SelfVote")));
 
-        if (CustomRoles.God.RoleExist() && God.NotifyGodAlive.GetBool()) AddMsg(GetString("GodNoticeAlive"), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.God), GetString("GodAliveTitle")));
+        if (CustomRoles.God.RoleExist() && God.NotifyGodAlive.GetBool())
+            AddMsg(GetString("GodNoticeAlive"), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.God), GetString("GodAliveTitle")));
 
         if (MeetingStates.FirstMeeting && CustomRoles.Workaholic.RoleExist() && Workaholic.WorkaholicGiveAdviceAlive.GetBool() && !Workaholic.WorkaholicCannotWinAtDeath.GetBool() /* && !Options.GhostIgnoreTasks.GetBool()*/)
         {
@@ -789,7 +795,7 @@ internal static class MeetingHudStartPatch
             }
         }
 
-        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)), 6f, "Meeting Start Notify");
+        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 6f, "Meeting Start Notify");
 
         Main.CyberStarDead.Clear();
         Express.SpeedNormal.Clear();
@@ -801,7 +807,7 @@ internal static class MeetingHudStartPatch
         Enigma.MsgToSend.Clear();
         return;
 
-        void AddMsg(string text, byte sendTo = 255, string title = "") => msgToSend.Add((text, sendTo, title));
+        void AddMsg(string text, byte sendTo = 255, string title = "") => msgToSend.Add(new(text, sendTo, title));
     }
 
     public static void Prefix( /*MeetingHud __instance*/)

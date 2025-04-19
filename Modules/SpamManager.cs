@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Hazel;
 using static EHR.Translator;
 
 namespace EHR;
@@ -103,7 +104,7 @@ public static class SpamManager
                     kick = true;
                 }
 
-                if (msg != string.Empty && msg != "") Utils.SendMessage(msg);
+                if (msg != string.Empty && msg != "") Utils.SendMessage(msg, sendOption: SendOption.None);
 
                 if (kick) AmongUsClient.Instance.KickPlayer(player.GetClientId(), Options.AutoKickStartAsBan.GetBool());
 
@@ -134,11 +135,11 @@ public static class SpamManager
         if (msg != string.Empty && msg != "")
         {
             if (kick || !GameStates.IsInGame)
-                Utils.SendMessage(msg);
+                Utils.SendMessage(msg, sendOption: SendOption.None);
             else
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => x.IsAlive() == player.IsAlive()).ToArray())
-                    Utils.SendMessage(msg, pc.PlayerId);
+                    Utils.SendMessage(msg, pc.PlayerId, sendOption: SendOption.None);
             }
         }
 

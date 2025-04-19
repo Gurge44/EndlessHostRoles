@@ -104,7 +104,7 @@ public class Judge : RoleBase
 
         if (!pc.IsAlive())
         {
-            Utils.SendMessage(GetString("JudgeDead"), pc.PlayerId);
+            Utils.SendMessage(GetString("JudgeDead"), pc.PlayerId, sendOption: SendOption.None);
             return true;
         }
 
@@ -121,7 +121,7 @@ public class Judge : RoleBase
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
                 {
-                    Utils.SendMessage(error, pc.PlayerId);
+                    Utils.SendMessage(error, pc.PlayerId, sendOption: SendOption.None);
                     return true;
                 }
 
@@ -165,7 +165,7 @@ public class Judge : RoleBase
                     if (pc.PlayerId == target.PlayerId)
                     {
                         if (!isUI)
-                            Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
+                            Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")), sendOption: SendOption.None);
                         else
                             pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoTrialSelf"));
 

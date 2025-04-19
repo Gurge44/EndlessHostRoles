@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(ServerDropdown), nameof(ServerDropdown.FillServerOptions))]
-public static class FixNotAllServersShowingPatch
+public static class ServerDropdownPatch
 {
     public static bool Prefix(ServerDropdown __instance)
     {

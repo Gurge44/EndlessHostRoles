@@ -224,12 +224,6 @@ public abstract class OptionItem
 
     public bool IsCurrentlyHidden()
     {
-        CustomGameMode mode = EHR.Options.CurrentGameMode;
-        return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode && !(mode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(GameMode, out OptionItem option) && option.GetBool()));
-    }
-
-    private bool CheckHidden()
-    {
         int lastParent = Id;
 
         for (var i = 0; i < 5; i++)
@@ -238,7 +232,13 @@ public abstract class OptionItem
             lastParent = AllOptions.First(x => x.Id == lastParent).Parent.Id;
         }
 
-        return IsHidden || Parent?.IsHidden == true || AllOptions.First(x => x.Id == lastParent).IsHidden;
+        return Hidden(this) || (Parent != null && Hidden(Parent)) || Hidden(AllOptions.First(x => x.Id == lastParent));
+
+        static bool Hidden(OptionItem oi)
+        {
+            CustomGameMode mode = EHR.Options.CurrentGameMode;
+            return oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode && !(mode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(oi.GameMode, out OptionItem option) && option.GetBool()));
+        }
     }
 
     protected string ApplyFormat(string value)

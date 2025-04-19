@@ -74,7 +74,7 @@ internal class Mafia : RoleBase
         if (MafiaCanKillNum.GetInt() < 1)
         {
             if (!isUI)
-                Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId);
+                Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId, sendOption: SendOption.None);
             else
                 pc.ShowPopUp(GetString("MafiaKillDisable"));
 
@@ -83,7 +83,7 @@ internal class Mafia : RoleBase
 
         if (!pc.Data.IsDead)
         {
-            Utils.SendMessage(GetString("MafiaAliveKill"), pc.PlayerId);
+            Utils.SendMessage(GetString("MafiaAliveKill"), pc.PlayerId, sendOption: SendOption.None);
             return true;
         }
 
@@ -119,7 +119,7 @@ internal class Mafia : RoleBase
         catch
         {
             if (!isUI)
-                Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId);
+                Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId, sendOption: SendOption.None);
             else
                 pc.ShowPopUp(GetString("MafiaKillDead"));
 
@@ -129,7 +129,7 @@ internal class Mafia : RoleBase
         if (target == null || target.Data.IsDead)
         {
             if (!isUI)
-                Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId);
+                Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId, sendOption: SendOption.None);
             else
                 pc.ShowPopUp(GetString("MafiaKillDead"));
 
@@ -146,7 +146,7 @@ internal class Mafia : RoleBase
             return true;
         }
 
-        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 复仇了 {target.GetNameWithRole().RemoveHtmlTags()}", "Mafia");
+        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} revenged {target.GetNameWithRole().RemoveHtmlTags()}", "Mafia");
 
         string Name = target.GetRealName();
 

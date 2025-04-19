@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Hazel;
 using static EHR.Translator;
 
 namespace EHR.Crewmate;
@@ -58,7 +59,7 @@ internal class NiceEraser : RoleBase
 
         if (target.PlayerId == player.PlayerId)
         {
-            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")));
+            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")), sendOption: SendOption.None);
             return false;
         }
 

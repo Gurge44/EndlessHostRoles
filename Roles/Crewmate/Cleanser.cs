@@ -98,7 +98,7 @@ public class Cleanser : RoleBase
 
         if (target.PlayerId == voter.PlayerId)
         {
-            Utils.SendMessage(GetString("CleanserRemoveSelf"), voter.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")));
+            Utils.SendMessage(GetString("CleanserRemoveSelf"), voter.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")), sendOption: SendOption.None);
             return false;
         }
 
@@ -108,7 +108,7 @@ public class Cleanser : RoleBase
         CleanserTarget = target.PlayerId;
         Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} cleansed {target.GetNameWithRole().RemoveHtmlTags()}", "Cleansed");
         CleansedPlayers.Add(target.PlayerId);
-        Utils.SendMessage(string.Format(GetString("CleanserRemovedRole"), target.GetRealName()), voter.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")));
+        Utils.SendMessage(string.Format(GetString("CleanserRemovedRole"), target.GetRealName()), voter.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")), sendOption: SendOption.None);
         SendRPC(voter.PlayerId);
 
         Main.DontCancelVoteList.Add(voter.PlayerId);

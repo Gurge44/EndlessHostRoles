@@ -89,8 +89,7 @@ public class NiceSwapper : RoleBase
             {
                 if (!pc.IsAlive())
                 {
-                    if (!isUI) Utils.SendMessage(GetString("SwapDead"), pc.PlayerId);
-
+                    if (!isUI) Utils.SendMessage(GetString("SwapDead"), pc.PlayerId, sendOption: SendOption.None);
                     pc.ShowPopUp(GetString("SwapDead"));
                     return true;
                 }
