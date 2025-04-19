@@ -440,6 +440,12 @@ internal static class ChatCommands
 
     private static void GameModePollCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(GameModePollCommand), text);
+            return;
+        }
+        
         string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {GetString("GameModePoll.KeepCurrent").Replace(' ', '_')} {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
