@@ -44,7 +44,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
     public string Arguments => arguments;
     public string Description => description;
     public string[] ArgsDescriptions => argsDescriptions ?? [];
-    private UsageLevels UsageLevel => usageLevel;
+    public UsageLevels UsageLevel => usageLevel;
     private UsageTimes UsageTime => usageTime;
     public Action<PlayerControl, string, string[]> Action => action;
     public bool IsCanceled => isCanceled;
@@ -68,7 +68,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
         {
             case UsageLevels.Host when !pc.IsHost():
             case UsageLevels.Modded when !pc.IsModdedClient():
-            case UsageLevels.HostOrModerator when !pc.IsHost() && !ChatCommands.IsPlayerModerator(pc.FriendCode):
+            case UsageLevels.HostOrModerator when !pc.IsHost() && (AmongUsClient.Instance.AmHost && !ChatCommands.IsPlayerModerator(pc.FriendCode)):
                 return false;
         }
 
@@ -152,7 +152,7 @@ internal static class ChatCommands
             new(["target", "цель", "腹语者标记", "alvo"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, true, [GetString("CommandArgs.Target.Id")]),
             new(["chat", "сообщение", "腹语者发送消息"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, true, [GetString("CommandArgs.Chat.Message")]),
             new(["check", "проверить", "检查", "veificar"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
-            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id")]),
+            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanCommand, true, false, [GetString("CommandArgs.Ban.Id")]),
             new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
@@ -337,7 +337,17 @@ internal static class ChatCommands
             __instance.freeChatField.textArea.Clear();
             __instance.freeChatField.textArea.SetText(cancelVal);
         }
-        else ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        else
+        {
+            if (GameStates.IsLobby)
+            {
+                Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
+                Utils.SendMessage(text, title: name);
+                canceled = true;
+            }
+
+            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        }
 
         if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Gamer))
             Achievements.Type.WhatTheHell.Complete();
@@ -846,14 +856,14 @@ internal static class ChatCommands
             for (var index = 0; index < 3; index++)
             {
                 List<Message> messages = [];
-                
+
                 foreach ((byte id, List<CustomRoles> roles) in DraftRoles)
                 {
                     IEnumerable<string> roleList = roles.Select((x, i) => $"{i + 1}. {x.ToColoredString()}");
                     string msg = string.Format(GetString(index == 0 ? "DraftStart" : "DraftResend"), string.Join('\n', roleList));
                     messages.Add(new Message(msg, id, GetString("DraftTitle")));
                 }
-                
+
                 messages.SendMultipleMessages(index == 0 ? SendOption.Reliable : SendOption.None);
 
                 yield return new WaitForSeconds(20f);
@@ -1143,13 +1153,13 @@ internal static class ChatCommands
         {
             if (PollVotes.Count == 0) yield break;
 
-            bool playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
+            bool notEveryoneVoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
 
             var resendTimer = 0f;
 
-            while (playervoted && PollTimer > 0f)
+            while ((notEveryoneVoted || gmPoll) && PollTimer > 0f)
             {
-                playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
+                notEveryoneVoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
 
@@ -1183,11 +1193,8 @@ internal static class ChatCommands
 
             if (winners.Length == 1 && gmPoll)
             {
-                int modeIndex = winners[0].Key - 65;
-                StringOption gmOption = GameSettingMenuPatch.GameModeBehaviour;
-                gmOption.Value = modeIndex;
-                gmOption.UpdateValue();
-                gmOption.OnValueChanged?.Invoke(gmOption);
+                int winnerIndex = winners[0].Key - 65;
+                if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex - 1);
             }
         }
 
@@ -1528,11 +1535,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void BanKickCommand(PlayerControl player, string text, string[] args)
+    private static void BanCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(BanKickCommand), text);
+            RequestCommandProcessingFromHost(nameof(BanCommand), text);
             return;
         }
 

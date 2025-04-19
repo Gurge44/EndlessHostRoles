@@ -178,14 +178,23 @@ internal static class ExileControllerWrapUpPatch
             text = $"<#ffffff>{text}</color>";
             var r = IRandom.Instance;
             var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", SendOption.Reliable);
+            var hasValue = false;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 string finalText = ejectionNotify ? CheckForEndVotingPatch.EjectionText.Trim() : text;
                 sender.Notify(pc, finalText, r.Next(7, 13));
+                hasValue = true;
+
+                if (sender.stream.Length > 800)
+                {
+                    sender.SendMessage();
+                    sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", SendOption.Reliable);
+                    hasValue = false;
+                }
             }
 
-            sender.SendMessage();
+            sender.SendMessage(dispose: !hasValue);
         }
 
         LateTask.New(() => ChatManager.SendPreviousMessagesToAll(true), 3f, log: false);

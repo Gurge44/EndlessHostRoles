@@ -536,6 +536,9 @@ internal static class RPCHandlerPatch
                 PlayerControl player = reader.ReadByte().GetPlayer();
                 string text = reader.ReadString();
 
+                var modCommands = ChatCommands.AllCommands.Where(x => x.UsageLevel == Command.UsageLevels.HostOrModerator).Select(x => x.CommandForms[0]).Select(x => $"{char.ToUpper(x[0])}{x[1..]}Command").ToList();
+                if (modCommands.Contains(methodName) && !ChatCommands.IsPlayerModerator(player.FriendCode)) break;
+
                 const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
                 typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [player, text, text.Split(' ')]);
                 Logger.Info($"Invoke Command: {methodName} ({player?.Data?.PlayerName}, {text})", "RequestCommandProcessing");

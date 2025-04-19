@@ -47,7 +47,7 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || pc.IsNeutralKiller());
+        return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Bloodlust) || pc.GetCustomRole().IsNK());
     }
 
     public virtual bool CanUseImpostorVentButton(PlayerControl pc)

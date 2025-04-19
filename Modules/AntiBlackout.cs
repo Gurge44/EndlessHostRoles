@@ -12,7 +12,6 @@ namespace EHR;
 
 public static class AntiBlackout
 {
-    public static int ExilePlayerId = -1;
     public static bool SkipTasks;
     private static Dictionary<byte, (bool IsDead, bool Disconnected)> IsDeadCache = [];
     private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
@@ -354,7 +353,6 @@ public static class AntiBlackout
     public static void ResetAfterMeeting()
     {
         SkipTasks = false;
-        ExilePlayerId = -1;
         ResetAllCooldowns();
     }
 
@@ -364,7 +362,6 @@ public static class AntiBlackout
         IsDeadCache ??= [];
         IsDeadCache.Clear();
         IsCached = false;
-        ExilePlayerId = -1;
         SkipTasks = false;
     }
 }

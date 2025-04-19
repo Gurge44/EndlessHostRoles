@@ -210,7 +210,7 @@ public static class Statistics
             {
                 PlayerControl voteTarget = lpVS.VotedForId.GetPlayer();
 
-                if (!voteTarget.IsCrewmate() && !voteTarget.IsConverted())
+                if (voteTarget != null && !voteTarget.IsCrewmate() && !voteTarget.IsConverted())
                     OnlyVotingForKillersAsCrew = false;
             }
 

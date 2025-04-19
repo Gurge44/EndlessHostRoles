@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -58,6 +59,7 @@ internal class TimeMaster : RoleBase
     public override void Init()
     {
         On = false;
+        Rewinding = false;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -108,28 +110,48 @@ internal class TimeMaster : RoleBase
             ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
             string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
+            var sender = CustomRpcSender.Create("TimeMaster.Rewind", SendOption.Reliable);
+            var hasValue = false;
 
             foreach (PlayerControl player in Main.AllPlayerControls)
             {
                 player.ReactorFlash(flashDuration: length * delay);
-                player.Notify(notify, Math.Max(length * delay, 4f));
+                sender.Notify(player, notify, Math.Max(length * delay, 4f));
                 player.MarkDirtySettings();
+                hasValue = true;
+
+                if (sender.stream.Length > 800)
+                {
+                    sender.SendMessage();
+                    sender = CustomRpcSender.Create("TimeMaster.Rewind", SendOption.Reliable);
+                    hasValue = false;
+                }
             }
+
+            sender.SendMessage(dispose: !hasValue);
 
             for (long i = now - 1; i >= now - length; i--)
             {
                 if (!BackTrack.TryGetValue(i, out Dictionary<byte, Vector2> track)) continue;
+
+                sender = CustomRpcSender.Create("TimeMaster.Rewind - 2", SendOption.Reliable);
+                hasValue = false;
 
                 foreach ((byte playerId, Vector2 pos) in track)
                 {
                     PlayerControl player = playerId.GetPlayer();
                     if (player == null || !player.IsAlive()) continue;
 
-                    player.TP(pos);
+                    hasValue |= sender.TP(player, pos);
                 }
+
+                sender.SendMessage(dispose: !hasValue);
 
                 yield return new WaitForSeconds(delay);
             }
+
+            sender = CustomRpcSender.Create("TimeMaster.Rewind - 3", SendOption.Reliable);
+            hasValue = false;
 
             foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
             {
@@ -138,16 +160,31 @@ internal class TimeMaster : RoleBase
                 if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
                 {
                     ps.Player.RpcRevive();
-                    ps.Player.TP(deadBody.TruePosition);
-                    ps.Player.Notify(Translator.GetString("RevivedByTimeMaster"), 15f);
+                    sender.TP(ps.Player, deadBody.TruePosition);
+                    sender.Notify(ps.Player, Translator.GetString("RevivedByTimeMaster"), 15f);
+                    hasValue = true;
+
+                    if (sender.stream.Length > 800)
+                    {
+                        sender.SendMessage();
+                        sender = CustomRpcSender.Create("TimeMaster.Rewind - 3", SendOption.Reliable);
+                        hasValue = false;
+                    }
                 }
             }
+
+            sender.SendMessage(dispose: !hasValue);
 
             Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Utils.MarkEveryoneDirtySettings();
         }
         finally { Rewinding = false; }
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        Rewinding = false;
     }
 
     public override void OnFixedUpdate(PlayerControl player)
