@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
@@ -72,13 +73,15 @@ public class CustomRpcSender
     public CustomRpcSender AutoStartRpc(
         uint targetNetId,
         byte callId,
-        int targetClientId = -1)
+        int targetClientId = -1,
+        [CallerFilePath] string callerPath = "",
+        [CallerLineNumber] int callerLine = 0)
     {
         if (targetClientId == -2) targetClientId = -1;
 
         if (currentState is not State.Ready and not State.InRootMessage)
         {
-            var errorMsg = $"Tried to start RPC automatically, but State is not Ready or InRootMessage (in: \"{name}\")";
+            var errorMsg = $"Tried to start RPC automatically, but State is not Ready or InRootMessage (in: \"{name}\", state: {currentState}) (called from {callerPath}:{callerLine})";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -105,7 +108,7 @@ public class CustomRpcSender
 
         if (currentState != State.Ready && !dispose)
         {
-            var errorMsg = $"Tried to send RPC but State is not Ready (in: \"{name}\")";
+            var errorMsg = $"Tried to send RPC but State is not Ready (in: \"{name}\", state: {currentState})";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
