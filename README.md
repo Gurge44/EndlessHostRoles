@@ -41,7 +41,6 @@ Share the download link with your friends: [bit.ly/downloadehr](https://bit.ly/d
 
 <br>
 
-[![GitHub license](https://badgen.net/github/license/Gurge44/EndlessHostRoles)](https://github.com/Gurge44/EndlessHostRoles/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/Gurge44/EndlessHostRoles.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
 [![GitHub latest commit](https://badgen.net/github/last-commit/Gurge44/EndlessHostRoles)](https://GitHub.com/Gurge44/EndlessHostRoles/commit/)
 [![Github all releases](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
@@ -246,7 +245,7 @@ Source language: English
 - You can also press TAB to autocomplete commands.
 - Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
   features.
-- EHR has 10 unique custom game modes, which can be played with any number of players, some even alone.
+- EHR has 12 unique custom game modes, which can be played with any number of players, some even alone.
 - You can make lobbies with more than 15 players on modded servers, just type /cs players 100 - for example - to set the
   player limit to 100.
 - I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as

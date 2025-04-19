@@ -152,7 +152,7 @@ internal static class ChatCommands
             new(["target", "цель", "腹语者标记", "alvo"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, true, [GetString("CommandArgs.Target.Id")]),
             new(["chat", "сообщение", "腹语者发送消息"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, true, [GetString("CommandArgs.Chat.Message")]),
             new(["check", "проверить", "检查", "veificar"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
-            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanCommand, true, false, [GetString("CommandArgs.Ban.Id")]),
+            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id")]),
             new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
@@ -364,13 +364,14 @@ internal static class ChatCommands
         }
     }
 
-    private static void RequestCommandProcessingFromHost(string methodName, string text)
+    private static void RequestCommandProcessingFromHost(string methodName, string text, bool modCommand = false)
     {
         PlayerControl pc = PlayerControl.LocalPlayer;
         MessageWriter w = AmongUsClient.Instance.StartRpc(pc.NetId, (byte)CustomRPC.RequestCommandProcessing);
         w.Write(methodName);
         w.Write(pc.PlayerId);
         w.Write(text);
+        w.Write(modCommand);
         w.EndMessage();
     }
 
@@ -914,7 +915,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(MuteCommand), text);
+            RequestCommandProcessingFromHost(nameof(MuteCommand), text, true);
             return;
         }
 
@@ -1110,7 +1111,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(PollCommand), text);
+            RequestCommandProcessingFromHost(nameof(PollCommand), text, true);
             return;
         }
 
@@ -1535,11 +1536,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void BanCommand(PlayerControl player, string text, string[] args)
+    private static void BanKickCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(BanCommand), text);
+            RequestCommandProcessingFromHost(nameof(BanKickCommand), text, true);
             return;
         }
 
@@ -1753,7 +1754,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(SayCommand), text);
+            RequestCommandProcessingFromHost(nameof(SayCommand), text, true);
             return;
         }
 
