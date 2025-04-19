@@ -342,8 +342,10 @@ internal static class ChatCommands
             if (GameStates.IsLobby)
             {
                 Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
-                Utils.SendMessage(text, title: name);
+                Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name);
                 canceled = true;
+                __instance.freeChatField.textArea.Clear();
+                __instance.freeChatField.textArea.SetText(string.Empty);
             }
 
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
