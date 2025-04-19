@@ -149,7 +149,7 @@ internal static class TextBoxTMPSetTextPatch
             }
 
             string inputForm = input.TrimStart('/');
-            string text = "/" + (exactMatch ? inputForm : command.CommandForms.Where(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
+            string text = "/" + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
 
             var additionalInfo = string.Empty;

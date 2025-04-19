@@ -535,6 +535,9 @@ internal static class RPCHandlerPatch
                 string methodName = reader.ReadString();
                 PlayerControl player = reader.ReadByte().GetPlayer();
                 string text = reader.ReadString();
+                bool modCommand = reader.ReadBoolean();
+
+                if (modCommand && !ChatCommands.IsPlayerModerator(player.FriendCode)) break;
 
                 const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
                 typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [player, text, text.Split(' ')]);

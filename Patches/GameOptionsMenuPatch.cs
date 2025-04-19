@@ -9,7 +9,7 @@ using HarmonyLib;
 using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using Type = Il2CppSystem.Type;
+
 // ReSharper disable PossibleLossOfFraction
 
 namespace EHR;
@@ -721,10 +721,10 @@ public static class StringOptionPatch
 
                     GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(true);
                     GameSettingMenuPatch.GMButtons.ForEach(x => x.gameObject.SetActive(false));
-                    
+
                     var info = $"{value.ToColoredString()}: {infoLong}";
                     GameSettingMenu.Instance.MenuDescriptionText.text = info;
-                    
+
                     LateTask.New(() =>
                     {
                         GameObject gameObject = GameObject.Find("PlayerOptionsMenu(Clone)");
@@ -734,7 +734,7 @@ public static class StringOptionPatch
                             Transform findChild = gameObject.transform.FindChild("What Is This?");
                             if (findChild != null) findChild.gameObject.SetActive(false);
                         }
-                        
+
                         GameSettingMenuPatch.GMButtons.ForEach(x => x.gameObject.SetActive(true));
                     }, 15f, log: false);
                 }
@@ -888,7 +888,7 @@ public static class StringOptionPatch
 public static class GameSettingMenuPatch
 {
     public static System.Collections.Generic.List<GameObject> GMButtons = [];
-    
+
     private static readonly Vector3 ButtonPositionLeft = new(-3.9f, -0.4f, 0f);
     private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.4f, 0f);
 
@@ -1068,12 +1068,12 @@ public static class GameSettingMenuPatch
 
 
         GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(false);
-        
+
         var gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
         gameSettingsLabel.DestroyTranslator();
         gameSettingsLabel.text = $"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n";
         gameSettingsLabel.transform.localPosition += new Vector3(0f, 0.1f, 0f);
-        
+
         if (russian)
         {
             gameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
@@ -1107,7 +1107,7 @@ public static class GameSettingMenuPatch
         for (var index = 0; index < gms.Length; index++)
         {
             CustomGameMode gm = gms[index];
-            
+
             var gmButton = Object.Instantiate(gMinus, gameSettingsLabel.transform, true);
             gmButton.transform.localPosition = new Vector3((((index / 7) - ((totalCols - 1) / 2f)) * 1.4f) + 0.86f, gameSettingsLabelPos.y - 1.9f - (0.22f * (index % 7)), -1f);
 
@@ -1129,7 +1129,7 @@ public static class GameSettingMenuPatch
                 LateTask.New(() => GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(false), 0.02f);
             }));
             gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = gmColors[gm];
-            
+
             GMButtons.Add(gmButton);
         }
 
@@ -1336,9 +1336,11 @@ public static class GameSettingMenuPatch
     {
         foreach (PassiveButton button in ModSettingsButtons.Values) Object.Destroy(button);
         foreach (GameOptionsMenu tab in ModSettingsTabs.Values) Object.Destroy(tab);
+        foreach (GameObject button in GMButtons) Object.Destroy(button);
 
         ModSettingsButtons = [];
         ModSettingsTabs = [];
+        GMButtons = [];
 
         if ((CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) && GameStates.CurrentServerType == GameStates.ServerType.ModdedWithoutCNOSupport && GameOptionsMenuPatch.UIReloadTS + 1 < Utils.TimeStamp)
             FastDestroyableSingleton<HudManager>.Instance.ShowPopUp(Translator.GetString("ModdedServerDoesntSupportCNOMessage"));

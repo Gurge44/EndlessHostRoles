@@ -44,7 +44,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
     public string Arguments => arguments;
     public string Description => description;
     public string[] ArgsDescriptions => argsDescriptions ?? [];
-    private UsageLevels UsageLevel => usageLevel;
+    public UsageLevels UsageLevel => usageLevel;
     private UsageTimes UsageTime => usageTime;
     public Action<PlayerControl, string, string[]> Action => action;
     public bool IsCanceled => isCanceled;
@@ -68,7 +68,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
         {
             case UsageLevels.Host when !pc.IsHost():
             case UsageLevels.Modded when !pc.IsModdedClient():
-            case UsageLevels.HostOrModerator when !pc.IsHost() && !ChatCommands.IsPlayerModerator(pc.FriendCode):
+            case UsageLevels.HostOrModerator when !pc.IsHost() && (AmongUsClient.Instance.AmHost && !ChatCommands.IsPlayerModerator(pc.FriendCode)):
                 return false;
         }
 
@@ -190,7 +190,7 @@ internal static class ChatCommands
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
             new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
-            new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
+            new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
             new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
             new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
@@ -337,7 +337,19 @@ internal static class ChatCommands
             __instance.freeChatField.textArea.Clear();
             __instance.freeChatField.textArea.SetText(cancelVal);
         }
-        else ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        else
+        {
+            if (GameStates.IsLobby)
+            {
+                Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
+                Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name);
+                canceled = true;
+                __instance.freeChatField.textArea.Clear();
+                __instance.freeChatField.textArea.SetText(string.Empty);
+            }
+
+            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        }
 
         if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Gamer))
             Achievements.Type.WhatTheHell.Complete();
@@ -354,13 +366,14 @@ internal static class ChatCommands
         }
     }
 
-    private static void RequestCommandProcessingFromHost(string methodName, string text)
+    private static void RequestCommandProcessingFromHost(string methodName, string text, bool modCommand = false)
     {
         PlayerControl pc = PlayerControl.LocalPlayer;
         MessageWriter w = AmongUsClient.Instance.StartRpc(pc.NetId, (byte)CustomRPC.RequestCommandProcessing);
         w.Write(methodName);
         w.Write(pc.PlayerId);
         w.Write(text);
+        w.Write(modCommand);
         w.EndMessage();
     }
 
@@ -440,6 +453,12 @@ internal static class ChatCommands
 
     private static void GameModePollCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(GameModePollCommand), text, true);
+            return;
+        }
+
         string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {GetString("GameModePoll.KeepCurrent").Replace(' ', '_')} {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
@@ -846,14 +865,14 @@ internal static class ChatCommands
             for (var index = 0; index < 3; index++)
             {
                 List<Message> messages = [];
-                
+
                 foreach ((byte id, List<CustomRoles> roles) in DraftRoles)
                 {
                     IEnumerable<string> roleList = roles.Select((x, i) => $"{i + 1}. {x.ToColoredString()}");
                     string msg = string.Format(GetString(index == 0 ? "DraftStart" : "DraftResend"), string.Join('\n', roleList));
                     messages.Add(new Message(msg, id, GetString("DraftTitle")));
                 }
-                
+
                 messages.SendMultipleMessages(index == 0 ? SendOption.Reliable : SendOption.None);
 
                 yield return new WaitForSeconds(20f);
@@ -904,7 +923,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(MuteCommand), text);
+            RequestCommandProcessingFromHost(nameof(MuteCommand), text, true);
             return;
         }
 
@@ -1100,7 +1119,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(PollCommand), text);
+            RequestCommandProcessingFromHost(nameof(PollCommand), text, true);
             return;
         }
 
@@ -1143,13 +1162,13 @@ internal static class ChatCommands
         {
             if (PollVotes.Count == 0) yield break;
 
-            bool playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
+            bool notEveryoneVoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
 
             var resendTimer = 0f;
 
-            while (playervoted && PollTimer > 0f)
+            while ((notEveryoneVoted || gmPoll) && PollTimer > 0f)
             {
-                playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
+                notEveryoneVoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
 
@@ -1183,11 +1202,8 @@ internal static class ChatCommands
 
             if (winners.Length == 1 && gmPoll)
             {
-                int modeIndex = winners[0].Key - 65;
-                StringOption gmOption = GameSettingMenuPatch.GameModeBehaviour;
-                gmOption.Value = modeIndex;
-                gmOption.UpdateValue();
-                gmOption.OnValueChanged?.Invoke(gmOption);
+                int winnerIndex = winners[0].Key - 65;
+                if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex - 1);
             }
         }
 
@@ -1532,7 +1548,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(BanKickCommand), text);
+            RequestCommandProcessingFromHost(nameof(BanKickCommand), text, true);
             return;
         }
 
@@ -1746,7 +1762,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(SayCommand), text);
+            RequestCommandProcessingFromHost(nameof(SayCommand), text, true);
             return;
         }
 

@@ -1332,7 +1332,8 @@ public static class Utils
             }
         }
 
-        new List<Message> {
+        new List<Message>
+        {
             new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, GetString("GMRoles")),
             new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
             new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
@@ -1742,14 +1743,15 @@ public static class Utils
             return writer;
         }
 
+        int targetClientId = receiver.GetClientId();
+
         if (sendTo != byte.MaxValue)
         {
             writer ??= CustomRpcSender.Create("Utils.SendMessage", sendOption);
-            if (writer.CurrentState == CustomRpcSender.State.Ready) writer.StartMessage(receiver.GetClientId());
 
             if (!noSplit)
             {
-                writer.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
+                writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
                     .Write(sender.Data.NetId)
                     .Write(title)
                     .EndRpc();
@@ -1789,7 +1791,7 @@ public static class Utils
             if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, true, writer, true, sendOption: sendOption);
             else if (writer != null && sendTo != byte.MaxValue && writer.CurrentState == CustomRpcSender.State.InRootMessage)
             {
-                writer.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
+                writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
                     .Write(sender.Data.NetId)
                     .Write(sender.Data.PlayerName)
                     .EndRpc();
@@ -1816,13 +1818,13 @@ public static class Utils
         if (sendTo == byte.MaxValue) Main.MessagesToSend.Add((text, sendTo, title));
         else
         {
-            writer.StartRpc(sender.NetId, (byte)RpcCalls.SendChat)
+            writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SendChat, targetClientId)
                 .Write(text)
                 .EndRpc();
 
             if ((noSplit && final) || !noSplit)
             {
-                writer.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
+                writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
                     .Write(sender.Data.NetId)
                     .Write(sender.Data.PlayerName)
                     .EndRpc();
@@ -1845,7 +1847,6 @@ public static class Utils
             {
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);
-                writer.StartMessage(receiver.GetClientId());
             }
         }
     }
@@ -2423,6 +2424,26 @@ public static class Utils
 
             sender.RpcSetName(seer, SelfName, seer);
 
+            bool onlySelfNameUpdateRequired = Options.CurrentGameMode switch
+            {
+                CustomGameMode.Standard => false,
+                CustomGameMode.SoloKombat => false,
+                CustomGameMode.FFA => !FreeForAll.FFATeamMode.GetBool(),
+                CustomGameMode.MoveAndStop => true,
+                CustomGameMode.HotPotato => false,
+                CustomGameMode.HideAndSeek => false,
+                CustomGameMode.Speedrun => false,
+                CustomGameMode.CaptureTheFlag => true,
+                CustomGameMode.NaturalDisasters => true,
+                CustomGameMode.RoomRush => true,
+                CustomGameMode.KingOfTheZones => true,
+                CustomGameMode.Quiz => true,
+                CustomGameMode.AllInOne => false,
+                _ => false
+            };
+
+            if (onlySelfNameUpdateRequired) return;
+
             // Run the second loop only when necessary, such as when seer is dead
             if (seer.Data.IsDead || !seer.IsAlive() || noCache || camouflageIsForMeeting || mushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || forceLoop || seerList.Length == 1 || targetList.Length == 1)
             {
@@ -2963,7 +2984,9 @@ public static class Utils
             else
             {
                 TaskState taskState = pc.GetTaskState();
-                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks) pc.Notify(GetString("DoYourTasksPlease"), 8f);
+
+                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks)
+                    pc.Notify(GetString("DoYourTasksPlease"), 8f);
 
                 GhostRolesManager.NotifyAboutGhostRole(pc);
             }

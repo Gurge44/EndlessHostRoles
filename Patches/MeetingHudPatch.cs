@@ -78,7 +78,6 @@ internal static class CheckForEndVotingPatch
 
                     voteTarget.SetRealKiller(pc);
                     Main.LastVotedPlayerInfo = voteTarget.Data;
-                    AntiBlackout.ExilePlayerId = voteTarget.PlayerId;
 
                     if (Main.LastVotedPlayerInfo != null)
                         ConfirmEjections(Main.LastVotedPlayerInfo, false);
@@ -326,13 +325,8 @@ internal static class CheckForEndVotingPatch
             exiledPlayer?.Object.SetRealKiller(null);
 
             Main.LastVotedPlayerInfo = exiledPlayer;
-            AntiBlackout.ExilePlayerId = exileId;
 
-            if (Main.LastVotedPlayerInfo != null)
-            {
-                AntiBlackout.ExilePlayerId = exileId;
-                ConfirmEjections(Main.LastVotedPlayerInfo, braked);
-            }
+            if (Main.LastVotedPlayerInfo != null) { ConfirmEjections(Main.LastVotedPlayerInfo, braked); }
 
             __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
 
@@ -364,7 +358,7 @@ internal static class CheckForEndVotingPatch
 
         string realName = exiledPlayer.Object.GetRealName(true);
 
-        PlayerControl player = Utils.GetPlayerById(exiledPlayer.PlayerId);
+        PlayerControl player = exiledPlayer.Object;
         CustomRoles crole = exiledPlayer.GetCustomRole();
         string coloredRole = Utils.GetDisplayRoleName(exileId, true, true);
 
@@ -670,7 +664,7 @@ internal static class MeetingHudStartPatch
         if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             List<Message> roleDescMsgs = [];
-            
+
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (pc.IsModdedClient()) continue;
@@ -705,7 +699,7 @@ internal static class MeetingHudStartPatch
 
                 roleDescMsgs.Add(new(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString()));
             }
-            
+
             LateTask.New(() => roleDescMsgs.SendMultipleMessages(SendOption.None), 6f, "Send Role Descriptions Round 1");
         }
 
