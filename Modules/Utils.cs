@@ -1700,93 +1700,132 @@ public static class Utils
 
     public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable)
     {
-        PlayerControl receiver = GetPlayerById(sendTo, false);
-        if (sendTo != byte.MaxValue && receiver == null || title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
-
-        if (!AmongUsClient.Instance.AmHost)
+        try
         {
-            if (sendTo == PlayerControl.LocalPlayer.PlayerId && !multiple)
+            PlayerControl receiver = GetPlayerById(sendTo, false);
+            if (sendTo != byte.MaxValue && receiver == null || title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
+
+            if (!AmongUsClient.Instance.AmHost)
             {
-                MessageWriter w = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestSendMessage);
-                w.Write(text);
-                w.Write(sendTo);
-                w.Write(title);
-                w.Write(noSplit);
-                w.EndMessage();
-            }
-
-            return writer;
-        }
-
-        if (title == "") title = "<color=#8b32a8>" + GetString("DefaultSystemMessageTitle") + "</color>";
-
-        if (title.Count(x => x == '\u2605') == 2 && !title.Contains('\n'))
-        {
-            if (title.Contains('<') && title.Contains('>') && title.Contains('#'))
-                title = $"{title[..(title.IndexOf('>') + 1)]}\u27a1{title.Replace("\u2605", "")[..(title.LastIndexOf('<') - 2)]}\u2b05";
-            else
-                title = "\u27a1" + title.Replace("\u2605", "") + "\u2b05";
-        }
-
-        text = text.Replace("color=", string.Empty);
-        title = title.Replace("color=", string.Empty);
-
-        PlayerControl sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-
-        if (sendTo != byte.MaxValue && receiver.IsLocalPlayer())
-        {
-            string name = sender.Data.PlayerName;
-            sender.SetName(title);
-            FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
-            sender.SetName(name);
-            ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
-            return writer;
-        }
-
-        int targetClientId = sendTo == byte.MaxValue ? -1 : receiver.GetClientId();
-
-        writer ??= CustomRpcSender.Create("Utils.SendMessage", sendOption);
-
-        if (!noSplit)
-        {
-            writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
-                .Write(sender.Data.NetId)
-                .Write(title)
-                .EndRpc();
-        }
-
-        const int sizeLimit = 600;
-
-        if (text.Length >= sizeLimit && !noSplit)
-        {
-            string[] lines = text.Split('\n');
-            var shortenedText = string.Empty;
-
-            foreach (string line in lines)
-            {
-                if (shortenedText.Length + line.Length < sizeLimit)
+                if (sendTo == PlayerControl.LocalPlayer.PlayerId && !multiple)
                 {
-                    shortenedText += line + "\n";
-                    continue;
+                    MessageWriter w = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestSendMessage);
+                    w.Write(text);
+                    w.Write(sendTo);
+                    w.Write(title);
+                    w.Write(noSplit);
+                    w.EndMessage();
                 }
 
-                if (shortenedText.Length >= sizeLimit)
-                    shortenedText.Chunk(sizeLimit).Do(x => SendMessage(new(x), sendTo, title, true, writer, sendOption: sendOption));
+                return writer;
+            }
+
+            if (title == "") title = "<color=#8b32a8>" + GetString("DefaultSystemMessageTitle") + "</color>";
+
+            if (title.Count(x => x == '\u2605') == 2 && !title.Contains('\n'))
+            {
+                if (title.Contains('<') && title.Contains('>') && title.Contains('#'))
+                    title = $"{title[..(title.IndexOf('>') + 1)]}\u27a1{title.Replace("\u2605", "")[..(title.LastIndexOf('<') - 2)]}\u2b05";
                 else
-                    SendMessage(shortenedText, sendTo, title, true, writer, sendOption: sendOption);
-
-                string sentText = shortenedText;
-                shortenedText = line + "\n";
-
-                if (Regex.Matches(sentText, "<size").Count > Regex.Matches(sentText, "</size>").Count)
-                {
-                    string sizeTag = Regex.Matches(sentText, @"<size=\d+\.?\d*%?>")[^1].Value;
-                    shortenedText = sizeTag + shortenedText;
-                }
+                    title = "\u27a1" + title.Replace("\u2605", "") + "\u2b05";
             }
 
-            if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, true, writer, true, sendOption: sendOption);
-            else
+            text = text.Replace("color=", string.Empty);
+            title = title.Replace("color=", string.Empty);
+
+            PlayerControl sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+
+            if (sendTo != byte.MaxValue && receiver.IsLocalPlayer())
+            {
+                string name = sender.Data.PlayerName;
+                sender.SetName(title);
+                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
+                sender.SetName(name);
+                ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+                return writer;
+            }
+
+            int targetClientId = sendTo == byte.MaxValue ? -1 : receiver.GetClientId();
+
+            writer ??= CustomRpcSender.Create("Utils.SendMessage", sendOption);
+
+            if (!noSplit)
+            {
+                writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
+                    .Write(sender.Data.NetId)
+                    .Write(title)
+                    .EndRpc();
+            }
+
+            const int sizeLimit = 600;
+
+            if (text.Length >= sizeLimit && !noSplit)
+            {
+                string[] lines = text.Split('\n');
+                var shortenedText = string.Empty;
+
+                foreach (string line in lines)
+                {
+                    if (shortenedText.Length + line.Length < sizeLimit)
+                    {
+                        shortenedText += line + "\n";
+                        continue;
+                    }
+
+                    writer = shortenedText.Length >= sizeLimit
+                        ? shortenedText.Chunk(sizeLimit).Aggregate(writer, (current, chunk) => SendMessage(new(chunk), sendTo, title, true, current, sendOption: sendOption))
+                        : SendMessage(shortenedText, sendTo, title, true, writer, sendOption: sendOption);
+
+                    string sentText = shortenedText;
+                    shortenedText = line + "\n";
+
+                    if (Regex.Matches(sentText, "<size").Count > Regex.Matches(sentText, "</size>").Count)
+                    {
+                        string sizeTag = Regex.Matches(sentText, @"<size=\d+\.?\d*%?>")[^1].Value;
+                        shortenedText = sizeTag + shortenedText;
+                    }
+                }
+
+                if (shortenedText.Length > 0) writer = SendMessage(shortenedText, sendTo, title, true, writer, true, sendOption: sendOption);
+                else
+                {
+                    writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
+                        .Write(sender.Data.NetId)
+                        .Write(sender.Data.PlayerName)
+                        .EndRpc();
+
+                    if (multiple) writer.EndMessage();
+                    else writer.SendMessage();
+
+                    if (multiple) RestartMessageIfTooLong();
+                }
+
+                return writer;
+            }
+
+            try
+            {
+                string pureText = text.RemoveHtmlTags();
+                string pureTitle = title.RemoveHtmlTags();
+                Logger.Info($" Message: {pureText[..(pureText.Length <= 300 ? pureText.Length : 300)]} - To: {(sendTo == byte.MaxValue ? "Everyone" : $"{GetPlayerById(sendTo)?.GetRealName()}")} - Title: {pureTitle[..(pureTitle.Length <= 300 ? pureTitle.Length : 300)]}", "SendMessage");
+            }
+            catch { Logger.Info(" Message sent", "SendMessage"); }
+
+            text = text.RemoveHtmlTagsTemplate();
+
+            writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SendChat, targetClientId)
+                .Write(text)
+                .EndRpc();
+
+            if (sendTo == byte.MaxValue)
+            {
+                string name = sender.Data.PlayerName;
+                sender.SetName(title);
+                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
+                sender.SetName(name);
+            }
+
+            if ((noSplit && final) || !noSplit)
             {
                 writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
                     .Write(sender.Data.NetId)
@@ -1798,40 +1837,11 @@ public static class Utils
 
                 if (multiple) RestartMessageIfTooLong();
             }
-
-            return writer;
+            else
+                RestartMessageIfTooLong();
         }
-
-        try
-        {
-            string pureText = text.RemoveHtmlTags();
-            string pureTitle = title.RemoveHtmlTags();
-            Logger.Info($" Message: {pureText[..(pureText.Length <= 300 ? pureText.Length : 300)]} - To: {(sendTo == byte.MaxValue ? "Everyone" : $"{GetPlayerById(sendTo)?.GetRealName()}")} - Title: {pureTitle[..(pureTitle.Length <= 300 ? pureTitle.Length : 300)]}", "SendMessage");
-        }
-        catch { Logger.Info(" Message sent", "SendMessage"); }
-
-        text = text.RemoveHtmlTagsTemplate();
-
-        writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SendChat, targetClientId)
-            .Write(text)
-            .EndRpc();
-
-        if ((noSplit && final) || !noSplit)
-        {
-            writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
-                .Write(sender.Data.NetId)
-                .Write(sender.Data.PlayerName)
-                .EndRpc();
-
-            if (multiple) writer.EndMessage();
-            else writer.SendMessage();
-
-            if (multiple) RestartMessageIfTooLong();
-        }
-        else
-            RestartMessageIfTooLong();
-
-        ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+        catch (Exception e) { ThrowException(e); }
+        finally { ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp)); }
 
         return writer;
 

@@ -341,8 +341,11 @@ internal static class ChatCommands
         {
             if (GameStates.IsLobby && AmongUsClient.Instance.AmHost)
             {
-                Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
+                if (!Main.AllPlayerNames.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out string name))
+                    Utils.ApplySuffix(PlayerControl.LocalPlayer, out name);
+                
                 Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name);
+                
                 canceled = true;
                 __instance.freeChatField.textArea.Clear();
                 __instance.freeChatField.textArea.SetText(string.Empty);
