@@ -239,10 +239,10 @@ internal static class CheckMurderPatch
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
             case CustomGameMode.Quiz:
-                if (Quiz.CanKill()) killer.Kill(target);
+                if (Quiz.AllowKills) killer.Kill(target);
                 return false;
             case CustomGameMode.AllInOne:
-                if (killer.Is(CustomRoles.Killer) || (CustomGameMode.Quiz.IsActiveOrIntegrated() && Quiz.CanKill()))
+                if (killer.Is(CustomRoles.Killer) || (CustomGameMode.Quiz.IsActiveOrIntegrated() && Quiz.AllowKills))
                     killer.Kill(target);
 
                 if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using EHR.Modules;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -80,8 +81,9 @@ public static class Quiz
     private static int Round;
     private static int QuestionsAsked;
     private static long FFAEndTS;
-    private static bool AllowKills;
     private static bool NoSuffix;
+
+    public static bool AllowKills;
 
     private static OptionItem FFAEventLength;
     private static readonly Dictionary<Difficulty, (OptionItem Rounds, OptionItem QuestionsAsked, OptionItem CorrectRequirement, OptionItem TimeLimit)> Settings = [];
@@ -143,11 +145,6 @@ public static class Quiz
         return true;
     }
 
-    public static bool CanKill()
-    {
-        return AllowKills;
-    }
-
     public static string GetSuffix(PlayerControl seer)
     {
         if (NoSuffix) return string.Empty;
@@ -192,7 +189,7 @@ public static class Quiz
             string correctRoom = GetString(UsedRooms[Main.CurrentMap][correctAnswerLetter].ToString());
             string color = wasWrong ? "#FF0000" : "#00FF00";
             string str = string.Format(GetString("Quiz.Notify.CorrectAnswer"), color, correctAnswerLetter, correctAnswer, correctRoom);
-            
+
             int numPlayers = Main.AllAlivePlayerControls.Length;
             if (DyingPlayers.Count == numPlayers) str += "\n" + GetString("Quiz.Notify.AllWrong");
 
@@ -240,7 +237,6 @@ public static class Quiz
         {
             NumCorrectAnswers[pc.PlayerId] = new Dictionary<Difficulty, int[]>
             {
-                [Difficulty.Test] = new int[1],
                 [Difficulty.Easy] = new int[Settings[Difficulty.Easy].Rounds.GetInt()],
                 [Difficulty.Medium] = new int[Settings[Difficulty.Medium].Rounds.GetInt()],
                 [Difficulty.Hard] = new int[100] // Surely there won't be more than 100 hard rounds, right?
@@ -311,6 +307,8 @@ public static class Quiz
 
         if (newRound)
         {
+            if (CurrentDifficulty == Difficulty.Hard && Round >= 100) NumCorrectAnswers.Values.Do(x => x[CurrentDifficulty][Round] = 0);
+
             NoSuffix = true;
             Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextRound"), Round + 1));
             yield return new WaitForSeconds(3f);
@@ -423,6 +421,7 @@ public static class Quiz
                 Main.PlayerStates.Values.IntersectBy(spectators.Select(x => x.PlayerId), x => x.Player.PlayerId).Do(x => x.SetDead());
                 var stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
                 stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.NSerialKiller));
+                Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 
                 while (Utils.TimeStamp < FFAEndTS)
                 {
@@ -435,6 +434,7 @@ public static class Quiz
 
                 spectators.Do(x => x.RpcRevive());
                 AllowKills = false;
+                Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 
                 var location = RandomSpawn.SpawnMap.GetSpawnMap().Positions.IntersectBy(UsedRooms[Main.CurrentMap].Values, x => x.Key).RandomElement().Value;
                 sender = CustomRpcSender.Create("Quiz.FFA-Event-TP", SendOption.Reliable);

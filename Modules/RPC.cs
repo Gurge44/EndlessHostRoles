@@ -146,7 +146,8 @@ public enum CustomRPC
 
     // Game Modes
     RoomRushDataSync,
-    FFAKill
+    FFAKill,
+    QuizSync
 }
 
 public enum Sounds
@@ -1128,6 +1129,11 @@ internal static class RPCHandlerPatch
                 if (!killer.IsAlive() || !target.IsAlive() || AntiBlackout.SkipTasks || target.inMovingPlat || target.onLadder || target.inVent || MeetingHud.Instance) break;
 
                 FreeForAll.OnPlayerAttack(killer, target);
+                break;
+            }
+            case CustomRPC.QuizSync:
+            {
+                Quiz.AllowKills = reader.ReadBoolean();
                 break;
             }
         }

@@ -74,7 +74,7 @@ public static class TemplateManager
                     else
                         fileName = "English";
 
-                    Logger.Warn($"创建新的 Template 文件：{fileName}", "TemplateManager");
+                    Logger.Warn($"Creating new template file: {fileName}", "TemplateManager");
                     File.WriteAllText(TemplateFilePath, GetResourcesTxt($"EHR.Resources.Config.template.{fileName}.txt"));
                 }
             }
@@ -97,7 +97,7 @@ public static class TemplateManager
         return reader.ReadToEnd();
     }
 
-    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false)
+    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, SendOption sendOption = SendOption.Reliable)
     {
         CreateIfNotExists();
         using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
@@ -126,11 +126,11 @@ public static class TemplateManager
         else
         {
             List<Message> messages = [];
-            
+
             foreach (string x in sendList)
                 messages.Add(new Message(ApplyReplaceDictionary(x), playerId));
-            
-            messages.SendMultipleMessages();
+
+            messages.SendMultipleMessages(sendOption);
         }
     }
 

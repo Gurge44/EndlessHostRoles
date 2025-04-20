@@ -461,7 +461,7 @@ internal static class SetHudActivePatch
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.Quiz:
-                __instance.KillButton.ToggleVisible(Quiz.CanKill());
+                __instance.KillButton.ToggleVisible(Quiz.AllowKills);
                 goto case CustomGameMode.MoveAndStop;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:

@@ -927,8 +927,8 @@ internal static class MeetingHudStartPatch
                 Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
             }
 
-            TemplateManager.SendTemplate("OnMeeting", noErr: true);
-            if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
+            TemplateManager.SendTemplate("OnMeeting", noErr: true, sendOption: SendOption.None);
+            if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, sendOption: SendOption.None);
 
             NotifyRoleSkillOnMeetingStart();
 

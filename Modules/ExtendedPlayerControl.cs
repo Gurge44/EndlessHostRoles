@@ -1224,7 +1224,7 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.Quiz:
-                return Quiz.CanKill();
+                return Quiz.AllowKills;
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
                 return true;
@@ -1251,7 +1251,7 @@ internal static class ExtendedPlayerControl
             // Speedrun
             CustomRoles.Runner => Speedrun.CanKill.Contains(pc.PlayerId),
             // Quiz
-            CustomRoles.QuizPlayer => Quiz.CanKill(),
+            CustomRoles.QuizPlayer => Quiz.AllowKills,
             // Hide And Seek
             CustomRoles.Seeker => true,
             CustomRoles.Hider => false,
