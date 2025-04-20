@@ -1786,7 +1786,7 @@ public static class Utils
             }
 
             if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, true, writer, true, sendOption: sendOption);
-            else if (writer is { CurrentState: CustomRpcSender.State.InRootMessage })
+            else
             {
                 writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
                     .Write(sender.Data.NetId)

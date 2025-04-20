@@ -339,7 +339,7 @@ internal static class ChatCommands
         }
         else
         {
-            if (GameStates.IsLobby)
+            if (GameStates.IsLobby && AmongUsClient.Instance.AmHost)
             {
                 Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
                 Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name);

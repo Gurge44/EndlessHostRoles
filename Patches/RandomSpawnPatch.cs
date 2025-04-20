@@ -96,11 +96,15 @@ internal abstract class RandomSpawn
     {
         public abstract Dictionary<SystemTypes, Vector2> Positions { get; }
 
-        public virtual void RandomTeleport(PlayerControl player)
+        public virtual bool RandomTeleport(PlayerControl player, CustomRpcSender sender = null)
         {
             KeyValuePair<SystemTypes, Vector2> spawn = GetLocation();
             Logger.Info($"{player.Data.PlayerName} => {Translator.GetString(spawn.Key.ToString())} {spawn.Value}", "RandomSpawn");
-            player.TP(spawn.Value, true, false);
+            
+            if (sender == null) player.TP(spawn.Value, true, false);
+            else return sender.TP(player, spawn.Value, true, false);
+
+            return true;
         }
 
         protected abstract KeyValuePair<SystemTypes, Vector2> GetLocation();

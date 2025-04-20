@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
@@ -72,13 +73,15 @@ public class CustomRpcSender
     public CustomRpcSender AutoStartRpc(
         uint targetNetId,
         byte callId,
-        int targetClientId = -1)
+        int targetClientId = -1,
+        [CallerFilePath] string callerPath = "",
+        [CallerLineNumber] int callerLine = 0)
     {
         if (targetClientId == -2) targetClientId = -1;
 
         if (currentState is not State.Ready and not State.InRootMessage)
         {
-            var errorMsg = $"Tried to start RPC automatically, but State is not Ready or InRootMessage (in: \"{name}\")";
+            var errorMsg = $"Tried to start RPC automatically, but State is not Ready or InRootMessage (in: \"{name}\", state: {currentState}) (called from {callerPath}:{callerLine})";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -105,7 +108,7 @@ public class CustomRpcSender
 
         if (currentState != State.Ready && !dispose)
         {
-            var errorMsg = $"Tried to send RPC but State is not Ready (in: \"{name}\")";
+            var errorMsg = $"Tried to send RPC but State is not Ready (in: \"{name}\", state: {currentState})";
 
             if (isUnsafe)
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
@@ -621,5 +624,17 @@ public static class CustomRpcSenderExtensions
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
         return true;
+    }
+    
+    public static bool TPToRandomVent(this CustomRpcSender sender, PlayerControl pc, bool log = true)
+    {
+        Vent vent = ShipStatus.Instance.AllVents.RandomElement();
+        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
+        return sender.TP(pc, new(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
+    }
+
+    public static void NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target)
+    {
+        Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target]);
     }
 }

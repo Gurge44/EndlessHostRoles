@@ -28,7 +28,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
         get
         {
             if (MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.HiddenTimers)
-                return "<font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\"><size=130%><#ffffff>--</color></size></font>";
+                return "--";
 
             bool hidden = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed);
             string result = hidden ? Utils.ColorString(Color.clear, "--") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
@@ -36,7 +36,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
             if (Timer is <= 19 and >= 10 && !hidden) result = $" {result}";
             if (Timer % 10 == 1 && !hidden) result = result.Insert(result.Length - 9, " ");
 
-            return $"<font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\"><size=130%>{result}</size></font>";
+            return result;
         }
     }
 
@@ -94,6 +94,7 @@ internal class MoveAndStopPlayerData(Counter[] counters, float positionX, float 
 
         var arrowRow = $"{LeftCounter.ColoredArrow}   {MiddleCounter.ColoredArrow}   {RightCounter.ColoredArrow}";
         var counterRow = $"{leftTimer}  {middleTimer}  {rightTimer}";
+        counterRow = $"<font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\"><size=130%>{counterRow}</size></font>";
 
         return $"{counterRow}\n{arrowRow}";
     }
@@ -190,13 +191,12 @@ internal static class MoveAndStop
 
     private static int StartingGreenTime(PlayerControl pc)
     {
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 60;
+        if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 40;
         bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode);
 
-        var time = 37;
+        var time = 10;
         if (tutorial) time += 10;
-        if (Main.CurrentMap is MapNames.Airship or MapNames.Fungle) time += 5;
-        if (Main.CurrentMap == MapNames.Airship) time += 7;
+        if (Main.CurrentMap == MapNames.Airship) time += 5;
         return time;
     }
 
@@ -247,9 +247,9 @@ internal static class MoveAndStop
         return $"MoveAndStop_{direction}Counter{(red ? "Red" : "Green")}{(min ? "Min" : "Max")}";
     }
 
-    private static OptionItem CreateSetting(int Id, string direction, bool red, bool min)
+    private static OptionItem CreateSetting(int id, string direction, bool red, bool min)
     {
-        return new IntegerOptionItem(Id, CounterSettingString(direction, red, min), CounterValueRule, min ? DefaultMinValue : DefaultMaxValue, TabGroup.GameSettings)
+        return new IntegerOptionItem(id, CounterSettingString(direction, red, min), CounterValueRule, min ? DefaultMinValue : DefaultMaxValue, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
@@ -262,9 +262,9 @@ internal static class MoveAndStop
             .AddReplacement(new("Middle", Utils.ColorString(Color.white, "Middle")));
     }
 
-    private static OptionItem CreateExtraTimeSetting(int Id, string mapName, int defaultValue)
+    private static OptionItem CreateExtraTimeSetting(int id, string mapName, int defaultValue)
     {
-        return new IntegerOptionItem(Id, $"MoveAndStop_ExtraGreenTimeOn{mapName}", ExtraTimeValue, defaultValue, TabGroup.GameSettings)
+        return new IntegerOptionItem(id, $"MoveAndStop_ExtraGreenTimeOn{mapName}", ExtraTimeValue, defaultValue, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
@@ -344,10 +344,15 @@ internal static class MoveAndStop
         FixedUpdatePatch.LastSuffix = [];
         FixedUpdatePatch.Limit = [];
         AllPlayerTimers = [];
-        RoundTime = GameTime.GetInt() + 8;
+        RoundTime = GameTime.GetInt() + 14;
 
         FixedUpdatePatch.DoChecks = false;
-        LateTask.New(() => FixedUpdatePatch.DoChecks = true, 10f, log: false);
+    }
+
+    public static void OnGameStart()
+    {
+        RoundTime = GameTime.GetInt();
+        FixedUpdatePatch.DoChecks = true;
 
         long now = Utils.TimeStamp;
 
@@ -415,7 +420,7 @@ internal static class MoveAndStop
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameStates.IsInTask || !CustomGameMode.MoveAndStop.IsActiveOrIntegrated() || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || __instance.PlayerId >= 254) return;
+            if (!GameStates.IsInTask || !CustomGameMode.MoveAndStop.IsActiveOrIntegrated() || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || !Main.IntroDestroyed || __instance.PlayerId >= 254) return;
 
             PlayerControl pc = __instance;
             long now = Utils.TimeStamp;
@@ -563,28 +568,17 @@ internal static class MoveAndStop
 
                 data.UpdateCounters();
 
-                if (IsEventActive && Event.Type == Events.FrozenTimers)
-                {
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    goto NoSuffix;
-                }
-
-                string suffix = GetSuffixText(pc);
-
-                if (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-
-                LastSuffix[pc.PlayerId] = suffix;
+                LastSuffix[pc.PlayerId] = GetSuffixText(pc);
 
                 bool IsCounterRed(Counter counter) => counter.IsRed && (pc.IsHost() || counter.Timer != counter.TotalRedTime);
             }
-
-            NoSuffix:
 
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
             RoundTime--;
+            
+            Utils.NotifyRoles();
         }
     }
 }

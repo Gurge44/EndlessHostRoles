@@ -101,7 +101,9 @@ internal static class ExileControllerWrapUpPatch
         if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
         {
             var map = RandomSpawn.SpawnMap.GetSpawnMap();
-            Main.AllAlivePlayerControls.Do(map.RandomTeleport);
+            sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpPostfix - 2", SendOption.Reliable);
+            var hasValue = Main.AllAlivePlayerControls.Aggregate(false, (current, player) => current || map.RandomTeleport(player, sender));
+            sender.SendMessage(dispose: !hasValue);
         }
 
         FallFromLadder.Reset();

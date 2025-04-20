@@ -990,7 +990,9 @@ internal static class IntroCutsceneDestroyPatch
             if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
             {
                 var map = RandomSpawn.SpawnMap.GetSpawnMap();
-                aapc.Do(map.RandomTeleport);
+                var sender = CustomRpcSender.Create("IntroPatch - RandomSpawns TP", SendOption.Reliable);
+                var hasValue = aapc.Aggregate(false, (current, player) => current || map.RandomTeleport(player, sender));
+                sender.SendMessage(dispose: !hasValue);
             }
 
             try
@@ -1024,6 +1026,12 @@ internal static class IntroCutsceneDestroyPatch
 
             if (CustomGameMode.Quiz.IsActiveOrIntegrated())
                 Main.Instance.StartCoroutine(Quiz.OnGameStart());
+            
+            if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
+                MoveAndStop.OnGameStart();
+            
+            if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
+                CaptureTheFlag.OnGameStart();
 
             Utils.CheckAndSetVentInteractions();
 
