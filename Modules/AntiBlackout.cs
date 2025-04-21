@@ -272,6 +272,7 @@ public static class AntiBlackout
 
                     sender.RpcSetRole(target, changedRoleType, seer.OwnerId);
                     hasValue = true;
+                    RestartMessageIfTooLong();
                 }
 
                 foreach (PlayerControl pc in selfExiled)
@@ -279,6 +280,7 @@ public static class AntiBlackout
                     sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.Exiled);
                     sender.EndRpc();
                     hasValue = true;
+                    RestartMessageIfTooLong();
 
                     if (pc.PlayerId == CheckForEndVotingPatch.TempExiledPlayer?.PlayerId)
                     {
@@ -286,6 +288,7 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
+                        RestartMessageIfTooLong();
 
                         pc.ReactorFlash(0.2f);
                     }
@@ -293,16 +296,19 @@ public static class AntiBlackout
 
                 break;
             }
-            case CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones:
+            default:
             {
                 sender.RpcSetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate);
+                RestartMessageIfTooLong();
 
-                PlayerControl[] apc = Main.AllPlayerControls;
-                apc.DoIf(x => x.Is(CustomRoles.Killer), x => sender.RpcSetRole(x, RoleTypes.Impostor, x.OwnerId));
-
-                foreach (PlayerControl pc in apc)
+                foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    if (!pc.Is(CustomRoles.Killer))
+                    if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones)
+                    {
+                        sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId);
+                        RestartMessageIfTooLong();
+                    }
+                    else
                     {
                         if (pc.IsModdedClient())
                             continue;
@@ -311,6 +317,7 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
+                        RestartMessageIfTooLong();
 
                         pc.ReactorFlash(0.2f);
                     }
@@ -323,6 +330,17 @@ public static class AntiBlackout
 
         sender.SendMessage(!hasValue);
         ResetAllCooldowns();
+        return;
+
+        void RestartMessageIfTooLong()
+        {
+            if (sender.stream.Length > 800)
+            {
+                sender.SendMessage();
+                sender = CustomRpcSender.Create("AntiBlackout.SetRealPlayerRoles", SendOption.Reliable);
+                hasValue = false;
+            }
+        }
     }
 
     private static void ResetAllCooldowns()

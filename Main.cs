@@ -765,6 +765,7 @@ public class Main : BasePlugin
             ConsoleManager.CreateConsole();
 
         Logger.Msg("========= EHR loaded! =========", "Plugin Load");
+        Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
     }
 
     public static void LoadRoleClasses()

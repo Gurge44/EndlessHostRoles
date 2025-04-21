@@ -118,7 +118,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length > 1500 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
+        if (stream.Length > 1400 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
         else Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose}, sendOption: {sendOption})", "CustomRpcSender");
 
         if (!dispose)
@@ -579,7 +579,7 @@ public static class CustomRpcSenderExtensions
         else
             notifies[text] = expireTS;
 
-        NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
+        if (pc.IsNonHostModClient()) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
         if (setName) Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], []);
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
     }

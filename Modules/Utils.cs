@@ -1730,6 +1730,8 @@ public static class Utils
                     title = "\u27a1" + title.Replace("\u2605", "") + "\u2b05";
             }
 
+            text = text.RemoveHtmlTagsTemplate();
+
             text = text.Replace("color=", string.Empty);
             title = title.Replace("color=", string.Empty);
 
@@ -1747,33 +1749,113 @@ public static class Utils
 
             int targetClientId = sendTo == byte.MaxValue ? -1 : receiver.GetClientId();
 
-            writer ??= CustomRpcSender.Create("Utils.SendMessage", sendOption);
+            if (writer == null || writer.CurrentState == CustomRpcSender.State.Finished)
+                writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);
+
+            const int fullRpcSizeLimit = 1400;
+            const int textRpcSizeLimit = fullRpcSizeLimit / 2;
+            const int titleRpcSizeLimit = fullRpcSizeLimit / 2 - 4;
+            int textRpcSize = text.Length * 2;
+            int titleRpcSize = title.Length * 2 + 4;
+            int resetNameRpcSize = sender.Data.PlayerName.Length * 2 + 4;
+            int fullRpcSize = textRpcSize + titleRpcSize + resetNameRpcSize;
 
             if (!noSplit)
             {
-                writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
-                    .Write(sender.Data.NetId)
-                    .Write(title)
-                    .EndRpc();
+                if (titleRpcSize <= titleRpcSizeLimit && fullRpcSize <= fullRpcSizeLimit)
+                {
+                    writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
+                        .Write(sender.Data.NetId)
+                        .Write(title)
+                        .EndRpc();
+                }
+                else
+                {
+                    string[] lines = title.Split('\n');
+                    var shortenedTitle = string.Empty;
+
+                    foreach (string line in lines)
+                    {
+                        if (shortenedTitle.Length * 2 + line.Length * 2 + 8 + resetNameRpcSize < titleRpcSizeLimit)
+                        {
+                            shortenedTitle += line + "\n";
+                            continue;
+                        }
+
+                        if (shortenedTitle.Length * 2 >= titleRpcSizeLimit - 4 - resetNameRpcSize)
+                        {
+                            foreach (char[] chars in shortenedTitle.Chunk(titleRpcSizeLimit - 4 - resetNameRpcSize))
+                                writer = SendTempTitleMessage(new string(chars));
+                        }
+                        else
+                            writer = SendTempTitleMessage(shortenedTitle);
+
+                        string sentText = shortenedTitle;
+                        shortenedTitle = line + "\n";
+
+                        if (Regex.Matches(sentText, "<size").Count > Regex.Matches(sentText, "</size>").Count)
+                        {
+                            string sizeTag = Regex.Matches(sentText, @"<size=\d+\.?\d*%?>")[^1].Value;
+                            shortenedTitle = sizeTag + shortenedTitle;
+                        }
+                    }
+
+                    if (shortenedTitle.Length > 0)
+                        writer = SendTempTitleMessage(shortenedTitle);
+
+                    title = ".";
+
+                    if (writer.CurrentState == CustomRpcSender.State.Finished)
+                        writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);
+
+                    writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
+                        .Write(sender.Data.NetId)
+                        .Write(title)
+                        .EndRpc();
+
+                    CustomRpcSender SendTempTitleMessage(string tempTitle)
+                    {
+                        if (writer.CurrentState == CustomRpcSender.State.Finished)
+                            writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);
+
+                        writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
+                            .Write(sender.Data.NetId)
+                            .Write(tempTitle)
+                            .EndRpc();
+
+                        writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SendChat, targetClientId)
+                            .Write("\n")
+                            .EndRpc();
+
+                        writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
+                            .Write(sender.Data.NetId)
+                            .Write(sender.Data.PlayerName)
+                            .EndRpc();
+
+                        writer.SendMessage();
+
+                        ChatUpdatePatch.LastMessages.Add(("\n", sendTo, tempTitle, TimeStamp));
+
+                        return writer;
+                    }
+                }
             }
 
-            const int sizeLimit = 600;
-
-            if (text.Length >= sizeLimit && !noSplit)
+            if (textRpcSize >= textRpcSizeLimit && !noSplit)
             {
                 string[] lines = text.Split('\n');
                 var shortenedText = string.Empty;
 
                 foreach (string line in lines)
                 {
-                    if (shortenedText.Length + line.Length < sizeLimit)
+                    if (shortenedText.Length * 2 + line.Length * 2 + 4 < textRpcSizeLimit)
                     {
                         shortenedText += line + "\n";
                         continue;
                     }
 
-                    writer = shortenedText.Length >= sizeLimit
-                        ? shortenedText.Chunk(sizeLimit).Aggregate(writer, (current, chunk) => SendMessage(new(chunk), sendTo, title, true, current, sendOption: sendOption))
+                    writer = shortenedText.Length * 2 >= textRpcSizeLimit
+                        ? shortenedText.Chunk(textRpcSizeLimit).Aggregate(writer, (current, chunk) => SendMessage(new(chunk), sendTo, title, true, current, sendOption: sendOption))
                         : SendMessage(shortenedText, sendTo, title, true, writer, sendOption: sendOption);
 
                     string sentText = shortenedText;
@@ -1811,8 +1893,6 @@ public static class Utils
             }
             catch { Logger.Info(" Message sent", "SendMessage"); }
 
-            text = text.RemoveHtmlTagsTemplate();
-
             writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SendChat, targetClientId)
                 .Write(text)
                 .EndRpc();
@@ -1841,7 +1921,8 @@ public static class Utils
                 RestartMessageIfTooLong();
         }
         catch (Exception e) { ThrowException(e); }
-        finally { ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp)); }
+
+        ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
 
         return writer;
 

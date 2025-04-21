@@ -461,16 +461,34 @@ public static class KingOfTheZones
     {
         if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId) || new[] { killer, target }.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
 
-        int cd = TagCooldown.GetInt();
         var sender = CustomRpcSender.Create("KOTZ.OnCheckMurder", SendOption.Reliable);
-        sender.SetKillCooldown(killer, ZoneDomination.ContainsValue(PlayerTeams[killer.PlayerId]) ? cd * 1.5f : cd);
-        sender.SetKillCooldown(target, ZoneDomination.ContainsValue(PlayerTeams[target.PlayerId]) ? cd * 1.5f : cd);
+        sender.SetKillCooldown(killer, GetKillCooldown(killer));
+        sender.SetKillCooldown(target, GetKillCooldown(target));
 
         RespawnTimes[target.PlayerId] = Utils.TimeStamp + RespawnTime.GetInt() + 1;
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         target.MarkDirtySettings();
         sender.TP(target, Pelican.GetBlackRoomPS());
         sender.SendMessage();
+        return;
+
+        static float GetKillCooldown(PlayerControl player)
+        {
+            float cd = TagCooldown.GetInt();
+            if (!PlayerTeams.TryGetValue(player.PlayerId, out KOTZTeam playerTeam)) return cd;
+
+            if (ZoneDomination.ContainsValue(playerTeam))
+                cd *= 1.5f;
+
+            Dictionary<KOTZTeam, byte[]> teamPlayers = PlayerTeams.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(g => g.Key).ToArray());
+            int maxTeamSize = teamPlayers.Values.Max(x => x.Length);
+            int teamSize = teamPlayers[playerTeam].Length;
+
+            if (maxTeamSize > teamSize)
+                cd /= 2f;
+
+            return cd;
+        }
     }
 
     public static string GetSuffix(PlayerControl seer)
