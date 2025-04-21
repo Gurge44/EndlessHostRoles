@@ -9,6 +9,7 @@ namespace EHR;
 public static class NameNotifyManager
 {
     public static Dictionary<byte, Dictionary<string, long>> Notifies = [];
+    private static long LastUpdate;
 
     public static void Reset()
     {
@@ -34,7 +35,7 @@ public static class NameNotifyManager
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
     }
 
-    public static void OnFixedUpdate(PlayerControl player)
+    public static void OnFixedUpdate()
     {
         if (!GameStates.IsInTask)
         {
@@ -42,21 +43,40 @@ public static class NameNotifyManager
             return;
         }
 
-        var removed = false;
+        long now = Utils.TimeStamp;
+        if (now == LastUpdate) return;
+        LastUpdate = now;
 
-        if (Notifies.TryGetValue(player.PlayerId, out Dictionary<string, long> notifies))
+        List<byte> toNotify = [];
+
+        foreach ((byte id, Dictionary<string, long> notifies) in Notifies)
         {
-            foreach (KeyValuePair<string, long> notify in notifies.ToArray())
-            {
-                if (notify.Value <= Utils.TimeStamp)
-                {
-                    notifies.Remove(notify.Key);
-                    removed = true;
-                }
-            }
+            List<string> toRemove = [];
+
+            notifies.DoIf(x => x.Value <= now, x => toRemove.Add(x.Key));
+
+            toRemove.ForEach(x => notifies.Remove(x));
+            if (toRemove.Count > 0) toNotify.Add(id);
         }
 
-        if (removed) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        var sender = CustomRpcSender.Create("NameNotifyManager.OnFixedUpdate", SendOption.Reliable);
+        var hasValue = false;
+
+        toNotify.ToValidPlayers().ForEach(x =>
+        {
+            hasValue |= sender.NotifyRolesSpecific(x, x);
+
+            if (sender.stream.Length > 800)
+            {
+                sender.SendMessage();
+                sender = CustomRpcSender.Create("NameNotifyManager.OnFixedUpdate", SendOption.Reliable);
+                hasValue = false;
+            }
+        });
+
+        sender.SendMessage(dispose: !hasValue);
     }
 
     public static bool GetNameNotify(PlayerControl player, out string name)

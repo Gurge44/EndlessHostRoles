@@ -26,9 +26,10 @@ public class CustomRpcSender
     }
 
     private readonly bool isUnsafe;
-    public readonly string name;
+    private readonly string name;
 
     private readonly OnSendDelegateType onSendDelegate;
+    private readonly SendOption sendOption;
     public readonly MessageWriter stream;
 
     // 0~: targetClientId (GameDataTo)
@@ -46,6 +47,7 @@ public class CustomRpcSender
 
         this.name = name;
         this.isUnsafe = isUnsafe;
+        this.sendOption = sendOption;
         currentRpcTarget = -2;
         onSendDelegate = () => { };
 
@@ -116,7 +118,8 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose})", "CustomRpcSender");
+        if (stream.Length > 1500 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
+        else Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose}, sendOption: {sendOption})", "CustomRpcSender");
 
         if (!dispose)
         {
@@ -625,7 +628,7 @@ public static class CustomRpcSenderExtensions
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
         return true;
     }
-    
+
     public static bool TPToRandomVent(this CustomRpcSender sender, PlayerControl pc, bool log = true)
     {
         Vent vent = ShipStatus.Instance.AllVents.RandomElement();
@@ -633,8 +636,10 @@ public static class CustomRpcSenderExtensions
         return sender.TP(pc, new(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
     }
 
-    public static void NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target)
+    public static bool NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target)
     {
+        if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
         Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target]);
+        return true;
     }
 }

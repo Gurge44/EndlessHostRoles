@@ -1364,13 +1364,11 @@ internal static class FixedUpdatePatch
             Zoom.OnFixedUpdate();
             TextBoxTMPSetTextPatch.Update();
 
-            if (lowLoad && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
-                NotifyRoles();
+            if (!lowLoad) NameNotifyManager.OnFixedUpdate();
         }
 
         if (!lowLoad)
         {
-            NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
 
@@ -1378,6 +1376,9 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
                 AFKDetector.OnFixedUpdate(player);
+
+                if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
+                    NotifyRoles();
             }
 
             if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId)) Logger.Info($"Cleared ReportDeadBodyRPC Count for {player.GetRealName().RemoveHtmlTags()}", "FixedUpdatePatch");
@@ -1387,7 +1388,7 @@ internal static class FixedUpdatePatch
         {
             if (GameStates.IsLobby && ((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic) AmongUsClient.Instance.ChangeGamePublic(false);
 
-            // Kick low level people
+            // Kick low-level people
             if (!lowLoad && GameSettingMenuPatch.LastPresetChange + 5 < TimeStamp && GameStates.IsLobby && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
                 (player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt()) ||
                 player.Data.FriendCode == string.Empty

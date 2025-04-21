@@ -2444,6 +2444,8 @@ public static class Utils
                 if (!forMeeting) selfName += "\r\n";
             }
 
+            selfName = selfName.Trim().Replace("color=", "").Replace("<#ffffff><#ffffff>", "<#ffffff>");
+
             sender.RpcSetName(seer, selfName, seer);
 
             bool onlySelfNameUpdateRequired = Options.CurrentGameMode switch

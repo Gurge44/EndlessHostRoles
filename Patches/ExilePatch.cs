@@ -177,9 +177,8 @@ internal static class ExileControllerWrapUpPatch
         if ((showRemainingKillers || ejectionNotify) && CustomGameMode.Standard.IsActiveOrIntegrated())
         {
             string text = showRemainingKillers ? Utils.GetRemainingKillers(true) : string.Empty;
-            text = $"<#ffffff>{text}</color>";
             var r = IRandom.Instance;
-            var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", SendOption.Reliable);
+            var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
             var hasValue = false;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -191,7 +190,7 @@ internal static class ExileControllerWrapUpPatch
                 if (sender.stream.Length > 800)
                 {
                     sender.SendMessage();
-                    sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", SendOption.Reliable);
+                    sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
                     hasValue = false;
                 }
             }

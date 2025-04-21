@@ -894,7 +894,7 @@ internal static class IntroCutsceneDestroyPatch
                 lp.RpcResetAbilityCooldown();
             }, 1f, log: false);
 
-            if (Options.UsePets.GetBool())
+            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.AllInOne)
             {
                 Main.ProcessShapeshifts = false;
 
@@ -1026,10 +1026,10 @@ internal static class IntroCutsceneDestroyPatch
 
             if (CustomGameMode.Quiz.IsActiveOrIntegrated())
                 Main.Instance.StartCoroutine(Quiz.OnGameStart());
-            
+
             if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
                 MoveAndStop.OnGameStart();
-            
+
             if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
                 CaptureTheFlag.OnGameStart();
 
