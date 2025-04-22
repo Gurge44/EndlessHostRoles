@@ -302,7 +302,7 @@ internal static class BeginCrewmatePatch
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
             __instance.BeginImpostor(teamToDisplay);
-            __instance.overlayHandle.color = Palette.ImpostorRed;
+            __instance.BackgroundBar.material.color = Palette.ImpostorRed;
             return false;
         }
         else if (role.IsCoven())
@@ -782,7 +782,7 @@ internal static class BeginImpostorPatch
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
-            __instance.overlayHandle.color = Palette.ImpostorRed;
+            __instance.BackgroundBar.material.color = Palette.ImpostorRed;
             return true;
         }
 
@@ -793,7 +793,7 @@ internal static class BeginImpostorPatch
             foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
 
             __instance.BeginCrewmate(yourTeam);
-            __instance.overlayHandle.color = Palette.CrewmateBlue;
+            __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
             return false;
         }
 
@@ -804,7 +804,7 @@ internal static class BeginImpostorPatch
             foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
 
             __instance.BeginCrewmate(yourTeam);
-            __instance.overlayHandle.color = new Color32(255, 171, 27, byte.MaxValue);
+            __instance.BackgroundBar.material.color = new Color32(255, 171, 27, byte.MaxValue);
             return false;
         }
 
@@ -818,7 +818,11 @@ internal static class BeginImpostorPatch
     }
 }
 
+#if ANDROID
+[HarmonyPatch(typeof(HudManager), nameof(HudManager.OnGameStart))]
+#else
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
+#endif
 internal static class IntroCutsceneDestroyPatch
 {
     public static void Postfix( /*IntroCutscene __instance*/)
