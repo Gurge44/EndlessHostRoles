@@ -67,7 +67,7 @@ public static class GameStartManagerPatch
                 }
                 else
                 {
-                    __instance.ClientViewButton.activeTextColor = __instance.HostViewButton.inactiveTextColor = Color.black;
+                    __instance.ClientViewButton.activeTextColor = __instance.ClientViewButton.inactiveTextColor = Color.black;
                     __instance.ClientViewButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
                     __instance.ClientViewButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
                     __instance.ClientViewButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0f, 1f, 1f, 0.5f);
