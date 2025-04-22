@@ -4844,7 +4844,7 @@
   "RR_Tutorial_LastDeath": "<size=90%>もし あなたが 最後に 正しい部屋に到達したとき、あなたは死にます。</size>",
   "RR_Tutorial_DontMoveOutOfRoom": "<size=90%>あなたが 正しい部屋に到達した後、そこから 移動しないでください！</size>",
   "RR_Tutorial_Venting": "<size=90%>各プレイヤーは <#ffff44>{0}</color> 回の 通気口ができます。</size>",
-  "RR_Tutorial_PointsSystem": "<size=90%>あなたが 正しい部屋に到達したとき、あなたは ポイントが得られます。\\nもっと早く あなたが底に着くと、より多くのポイントが あなたに得られます。</size>",
+  "RR_Tutorial_PointsSystem": "<size=90%>あなたが 正しい部屋に到達したとき、あなたは ポイントが得られます。\\nもっと早く あなたが そこに着くと、より多くのポイントが あなたに得られます。</size>",
   "RR_Tutorial_TimeLimitLastPoints": "<size=90%>もし あなたが 最後 または 正しい部屋に 到達しなかったとき\\n制限時間以内に部屋へ、あなたは テレポートを受けます\\nそれを されたプレイヤーは どのポイントも得られません。</size>",
   "RR_Tutorial_PointsToWin": "<size=90%>最初のプレイヤーが <#ffff44>{0}</color> ポイントに 到達することで勝利します。</size>",
   "RR_VentsRemaining": "<size=80%>残り 通気口の使用: {0}</size>",
