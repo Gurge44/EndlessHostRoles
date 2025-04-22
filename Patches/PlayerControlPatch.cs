@@ -1547,7 +1547,7 @@ internal static class FixedUpdatePatch
             {
                 if (!__instance.IsHost())
                 {
-                    if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
+                    if (Main.ShowModdedClientText.Value && Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
                     {
                         if (Main.ForkId != ver.forkId)
                             __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>{ver.forkId}</size>\n{__instance.name}</color>";
