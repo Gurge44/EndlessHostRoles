@@ -19,9 +19,9 @@ public class CustomRpcSender
     public enum State
     {
         BeforeInit = 0, // Cannot do anything before initialization
-        Ready, // Ready to send StartMessage and SendMessage can be executed
-        InRootMessage, // State between StartMessage and EndMessage StartRpc and EndMessage can be executed
-        InRpc, // State between StartRpc and EndRpc Write and EndRpc can be executed
+        Ready, // Ready to send - StartMessage and SendMessage can be executed
+        InRootMessage, // State between StartMessage and EndMessage - StartRpc and EndMessage can be executed
+        InRpc, // State between StartRpc and EndRpc - Write and EndRpc can be executed
         Finished // Nothing can be done after sending
     }
 
@@ -118,7 +118,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length > 1400 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
+        if (stream.Length > 1450 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
         else Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose}, sendOption: {sendOption})", "CustomRpcSender");
 
         if (!dispose)
@@ -483,8 +483,9 @@ public static class CustomRpcSenderExtensions
         }
         else if (forceAnime || !player.IsModdedClient() || !Options.DisableShieldAnimations.GetBool())
         {
-            player.SyncSettings();
-            returnValue |= sender.RpcGuardAndKill(player, target, fromSetKCD: true);
+            sender.SyncSettings(player);
+            sender.RpcGuardAndKill(player, target, fromSetKCD: true);
+            returnValue = true;
         }
         else
         {
@@ -641,5 +642,49 @@ public static class CustomRpcSenderExtensions
         if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
         Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target]);
         return true;
+    }
+
+    public static void SyncSettings(this CustomRpcSender sender, PlayerControl player)
+    {
+        var optionsender = GameOptionsSender.AllSenders.OfType<PlayerGameOptionsSender>().FirstOrDefault(x => x.player.PlayerId == player.PlayerId);
+        if (optionsender == null) return;
+
+        var options = optionsender.BuildGameOptions();
+
+        if (player.AmOwner)
+        {
+            foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
+            {
+                if (com.TryCast(out LogicOptions lo))
+                    lo.SetGameOptions(options);
+            }
+
+            GameOptionsManager.Instance.CurrentGameOptions = options;
+            return;
+        }
+
+        var logicOptions = GameManager.Instance.LogicOptions;
+        var id = GameManager.Instance.LogicComponents.IndexOf(logicOptions);
+
+        if (sender.CurrentState == CustomRpcSender.State.InRootMessage) sender.EndMessage();
+
+        var writer = sender.stream;
+
+        writer.StartMessage(6);
+        {
+            writer.Write(AmongUsClient.Instance.GameId);
+            writer.WritePacked(player.OwnerId);
+            writer.StartMessage(1);
+            {
+                sender.WritePacked(GameManager.Instance.NetId);
+                writer.StartMessage((byte)id);
+                {
+                    writer.WriteBytesAndSize(logicOptions.gameOptionsFactory.ToBytes(options, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+                }
+                writer.EndMessage();
+            }
+            writer.EndMessage();
+        }
+        writer.EndMessage();
     }
 }

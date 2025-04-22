@@ -195,6 +195,7 @@ internal static class ChatCommands
             new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
             new(["daybreak", "db", "дейбрейк", "破晓"], "", GetString("CommandDescription.DayBreak"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DayBreakCommand, true, true),
+            new(["fix", "blackscreenfix", "fixblackscreen", "ф", "исправить", "修复"], "{id}", GetString("CommandDescription.Fix"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InGame, FixCommand, true, false, [GetString("CommandArgs.Fix.Id")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -343,9 +344,9 @@ internal static class ChatCommands
             {
                 if (!Main.AllPlayerNames.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out string name))
                     Utils.ApplySuffix(PlayerControl.LocalPlayer, out name);
-                
+
                 Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name);
-                
+
                 canceled = true;
                 __instance.freeChatField.textArea.Clear();
                 __instance.freeChatField.textArea.SetText(string.Empty);
@@ -381,6 +382,22 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void FixCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(FixCommand), text, true);
+            return;
+        }
+
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte id)) return;
+
+        var pc = id.GetPlayer();
+        if (pc == null) return;
+
+        pc.FixBlackScreen();
+    }
 
     private static void DayBreakCommand(PlayerControl player, string text, string[] args)
     {

@@ -1521,5 +1521,38 @@ internal static class StartGameHostPatch
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
+
+        public static void ResetRoleMapMidGame()
+        {
+            RoleMap.Clear();
+
+            Dictionary<byte, PlayerState>.ValueCollection states = Main.PlayerStates.Values;
+
+            foreach (PlayerState targetState in states)
+            {
+                CustomRoles targetMainRole = targetState.MainRole;
+                RoleTypes selfRoleTypes = targetMainRole.GetRoleTypes();
+
+                foreach (PlayerState seerState in states)
+                {
+                    byte seerID = seerState.Player.PlayerId;
+                    byte targetID = targetState.Player.PlayerId;
+
+                    if (seerID == targetID || selfRoleTypes is RoleTypes.Noisemaker)
+                    {
+                        RoleMap[(seerID, targetID)] = (selfRoleTypes, targetMainRole);
+                        continue;
+                    }
+
+                    CustomRoles seerMainRole = seerState.MainRole;
+
+                    RoleMap[(seerID, targetID)] = seerState.Player.HasDesyncRole()
+                        ? (RoleTypes.Scientist, targetMainRole)
+                        : (seerMainRole.IsImpostor() && targetMainRole.IsImpostor())
+                            ? (selfRoleTypes, seerMainRole)
+                            : (RoleTypes.Crewmate, seerMainRole);
+                }
+            }
+        }
     }
 }

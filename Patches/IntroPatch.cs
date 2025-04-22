@@ -837,16 +837,29 @@ internal static class IntroCutsceneDestroyPatch
         {
             if (Main.NormalOptions.MapId != 4)
             {
+                var writer = CustomRpcSender.Create("IntroPatch - SyncSettings", SendOption.Reliable);
+                var hasData = false;
+
                 foreach (PlayerControl pc in aapc)
                 {
-                    pc.SyncSettings();
-                    pc.RpcResetAbilityCooldown();
+                    writer.SyncSettings(pc);
+                    writer.RpcResetAbilityCooldown(pc);
+                    hasData = true;
 
                     if (pc.GetCustomRole().UsesPetInsteadOfKill())
                         pc.AddAbilityCD(10);
                     else
                         pc.AddAbilityCD(false);
+
+                    if (writer.stream.Length > 800)
+                    {
+                        writer.SendMessage();
+                        writer = CustomRpcSender.Create("IntroPatch - SyncSettings", SendOption.Reliable);
+                        hasData = false;
+                    }
                 }
+
+                writer.SendMessage(!hasData);
 
                 if (CustomGameMode.Standard.IsActiveOrIntegrated())
                 {

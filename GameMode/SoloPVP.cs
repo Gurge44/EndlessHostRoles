@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
@@ -18,7 +19,6 @@ internal static class SoloPVP
     public static Dictionary<byte, float> PlayerATK = [];
     public static Dictionary<byte, float> PlayerDF = [];
 
-    private static Dictionary<byte, float> OriginalSpeed = [];
     public static Dictionary<byte, int> KBScore = [];
     public static int RoundTime;
 
@@ -75,10 +75,6 @@ internal static class SoloPVP
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
-
-        KB_BootVentWhenDead = new BooleanOptionItem(66_233_009, "KB_BootVentWhenDead", true, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.SoloKombat)
-            .SetColor(new Color32(245, 82, 82, byte.MaxValue));
     }
 
     public static void Init()
@@ -93,7 +89,6 @@ internal static class SoloPVP
 
         LastHurt = [];
         LastCountdownTime = [];
-        OriginalSpeed = [];
         BackCountdown = [];
         KBScore = [];
         RoundTime = KB_GameTime.GetInt() + 8;
@@ -121,16 +116,16 @@ internal static class SoloPVP
     private static Color32 GetHealthColor(PlayerControl pc)
     {
         var x = (int)(PlayerHP[pc.PlayerId] / PlayerHPMax[pc.PlayerId] * 10 * 50);
-        var R = 255;
-        var G = 255;
-        var B = 0;
+        var r = 255;
+        var g = 255;
+        var b = 0;
 
         if (x > 255)
-            R -= x - 255;
+            r -= x - 255;
         else
-            G = x;
+            g = x;
 
-        return new((byte)R, (byte)G, (byte)B, byte.MaxValue);
+        return new((byte)r, (byte)g, (byte)b, byte.MaxValue);
     }
 
     private static string GetStatsForVanilla(PlayerControl pc)
@@ -227,7 +222,7 @@ internal static class SoloPVP
         PlayerHP[pc.PlayerId] = PlayerHPMax[pc.PlayerId];
 
         LastHurt[pc.PlayerId] = Utils.TimeStamp;
-        Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed[pc.PlayerId];
+        Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         pc.MarkDirtySettings();
 
         RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
@@ -239,15 +234,22 @@ internal static class SoloPVP
 
     private static void OnPlayerDead(PlayerControl target)
     {
-        OriginalSpeed.Remove(target.PlayerId);
-        OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
-
         target.MyPhysics.RpcCancelPet();
         PetsHelper.RpcRemovePet(target);
 
-        target.TP(Pelican.GetBlackRoomPS());
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         target.MarkDirtySettings();
+
+        if (target.walkingToVent || target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+        {
+            LateTask.New(() =>
+            {
+                target.MyPhysics.RpcExitVent(Main.LastEnteredVent.TryGetValue(target.PlayerId, out var vent) ? vent.Id : 2);
+                LateTask.New(() => target.TP(Pelican.GetBlackRoomPS()), 0.6f, log: false);
+            }, 1f, log: false);
+        }
+        else
+            target.TP(Pelican.GetBlackRoomPS());
 
         BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
     }
@@ -317,23 +319,19 @@ internal static class SoloPVP
 
             try
             {
+                Vector2 pos = Pelican.GetBlackRoomPS();
+                float dis = Vector2.Distance(pos, __instance.Pos());
+
                 switch (soloAlive)
                 {
-                    case false:
+                    case false when !inVent && !__instance.walkingToVent && !__instance.MyPhysics.Animations.IsPlayingEnterVentAnimation() && dis > 1f:
                     {
-                        if (inVent && KB_BootVentWhenDead.GetBool())
-                            __instance.MyPhysics.RpcExitVent(2);
-
-                        Vector2 pos = Pelican.GetBlackRoomPS();
-                        float dis = Vector2.Distance(pos, __instance.Pos());
-                        if (dis > 1f) __instance.TP(pos);
+                        __instance.TP(pos);
                         break;
                     }
-                    case true when !inVent:
+                    case true when !inVent && dis < 1.1f:
                     {
-                        Vector2 pos = Pelican.GetBlackRoomPS();
-                        float dis = Vector2.Distance(pos, __instance.Pos());
-                        if (dis < 1.1f) SpawnMap.GetSpawnMap().RandomTeleport(__instance);
+                        SpawnMap.GetSpawnMap().RandomTeleport(__instance);
                         break;
                     }
                 }
@@ -359,13 +357,13 @@ internal static class SoloPVP
             if (NameNotify.TryGetValue(id, out (string Text, long TimeStamp) nameNotify) && nameNotify.TimeStamp < now)
                 NameNotify.Remove(id);
 
-            Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance);
-
 
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
             RoundTime--;
+
+            Utils.NotifyRoles();
         }
     }
 
@@ -380,6 +378,5 @@ internal static class SoloPVP
     private static OptionItem KB_ResurrectionWaitingTime;
     private static OptionItem KB_KillBonusMultiplier;
 
-    private static OptionItem KB_BootVentWhenDead;
     // ReSharper restore InconsistentNaming
 }

@@ -1350,11 +1350,11 @@ internal static class FixedUpdatePatch
 
         try
         {
-            if (__instance.AmOwner && inTask && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead)))
+            if (__instance.AmOwner && inTask && __instance.CanUseKillButton() && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) && !__instance.Data.IsDead)))
             {
                 List<PlayerControl> players = __instance.GetPlayersInAbilityRangeSorted();
                 PlayerControl closest = players.Count == 0 ? null : players[0];
-                HudManager.Instance.KillButton.SetTarget(closest);
+                FastDestroyableSingleton<HudManager>.Instance.KillButton.SetTarget(closest);
             }
         }
         catch { }

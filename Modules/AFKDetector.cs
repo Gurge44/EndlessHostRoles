@@ -48,11 +48,13 @@ public static class AFKDetector
             LastPosition = pc.Pos(),
             Timer = 10f + (pc.Is(CustomRoles.Truant) ? Options.TruantWaitingTime.GetFloat() : 0f)
         };
+
+        ShieldedPlayers.Remove(pc.PlayerId);
     }
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (!EnableDetector.GetBool() || !GameStates.IsInTask || Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out Data data)) return;
+        if (!EnableDetector.GetBool() || !GameStates.IsInTask || ExileController.Instance /*|| Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt()*/ || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out Data data)) return;
 
         if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f)
         {
@@ -71,9 +73,9 @@ public static class AFKDetector
             {
                 case Data.Phase.Detection:
                     if (!pc.IsModdedClient()) NumAFK++;
-
                     data.CurrentPhase = Data.Phase.Warning;
                     data.Timer = 15f;
+                    pc.FixBlackScreen();
                     break;
                 case Data.Phase.Warning:
                     data.CurrentPhase = Data.Phase.Consequence;
@@ -88,14 +90,17 @@ public static class AFKDetector
             }
         }
 
-        if (data.CurrentPhase == Data.Phase.Warning && lastTimer != currentTimer) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (data.CurrentPhase == Data.Phase.Warning && lastTimer != currentTimer)
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target)
     {
-        if (seer.PlayerId == target.PlayerId && seer.IsAlive() && PlayerData.TryGetValue(seer.PlayerId, out Data seerData) && seerData.CurrentPhase > Data.Phase.Detection) return seerData.CurrentPhase == Data.Phase.Warning ? string.Format(Translator.GetString("AFKWarning"), (int)Math.Round(seerData.Timer)) : Translator.GetString("AFKSuffix");
+        if (seer.PlayerId == target.PlayerId && seer.IsAlive() && PlayerData.TryGetValue(seer.PlayerId, out Data seerData) && seerData.CurrentPhase > Data.Phase.Detection)
+            return seerData.CurrentPhase == Data.Phase.Warning ? string.Format(Translator.GetString("AFKWarning"), (int)Math.Round(seerData.Timer)) : Translator.GetString("AFKSuffix");
 
-        if (target.IsAlive() && PlayerData.TryGetValue(target.PlayerId, out Data targetData) && targetData.CurrentPhase > Data.Phase.Detection) return Translator.GetString("AFKSuffix");
+        if (target.IsAlive() && PlayerData.TryGetValue(target.PlayerId, out Data targetData) && targetData.CurrentPhase > Data.Phase.Detection)
+            return Translator.GetString("AFKSuffix");
 
         return string.Empty;
     }

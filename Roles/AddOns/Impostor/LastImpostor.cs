@@ -1,3 +1,5 @@
+using Hazel;
+
 namespace EHR.AddOns.Impostor;
 
 public class LastImpostor : IAddon
@@ -56,13 +58,17 @@ public class LastImpostor : IAddon
                 pc.RpcSetCustomRole(CustomRoles.LastImpostor);
                 Add(pc.PlayerId);
                 SetKillCooldown();
-                pc.SyncSettings();
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+
+                var sender = CustomRpcSender.Create("LastImpostor", SendOption.Reliable);
+                sender.SyncSettings(pc);
+                sender.NotifyRolesSpecific(pc, pc);
 
                 if (Main.KillTimers.TryGetValue(pc.PlayerId, out float timer) &&
                     Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float cd) &&
                     timer > cd)
-                    pc.SetKillCooldown();
+                    sender.SetKillCooldown(pc);
+
+                sender.SendMessage();
 
                 break;
             }

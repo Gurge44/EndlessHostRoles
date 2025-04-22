@@ -522,3 +522,29 @@ internal static class SetColorPatch
         Main.PlayerColors[__instance.PlayerId] = Palette.PlayerColors[bodyColor];
     }
 }
+
+// Next 2: from https://github.com/EnhancedNetwork/TownofHost-Enhanced/blob/main/Patches/LobbyPatch.cs
+
+[HarmonyPatch(typeof(PlayerMaterial), nameof(PlayerMaterial.SetColors), typeof(int), typeof(Material))]
+static class PlayerMaterialPatch
+{
+    public static void Prefix([HarmonyArgument(0)] ref int colorId)
+    {
+        if (colorId < 0 || colorId >= Palette.PlayerColors.Length)
+            colorId = 0;
+    }
+}
+
+[HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.Init))]
+static class NetworkedPlayerInfoInitPatch
+{
+    public static void Postfix(NetworkedPlayerInfo __instance)
+    {
+        foreach (var outfit in __instance.Outfits)
+        {
+            if (outfit.Value != null)
+                if (outfit.Value.ColorId < 0 || outfit.Value.ColorId >= Palette.PlayerColors.Length)
+                    outfit.Value.ColorId = 0;
+        }
+    }
+}

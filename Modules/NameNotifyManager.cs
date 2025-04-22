@@ -59,7 +59,7 @@ public static class NameNotifyManager
             if (toRemove.Count > 0) toNotify.Add(id);
         }
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (toNotify.Count == 0 || !AmongUsClient.Instance.AmHost) return;
 
         var sender = CustomRpcSender.Create("NameNotifyManager.OnFixedUpdate", SendOption.Reliable);
         var hasValue = false;

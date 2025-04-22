@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -452,6 +453,9 @@ public static class Quiz
                         stillLiving.ForEach(x => x.Suicide());
                         break;
                 }
+
+                Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+                Utils.MarkEveryoneDirtySettings();
 
                 yield return new WaitForSeconds(3f);
                 if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;

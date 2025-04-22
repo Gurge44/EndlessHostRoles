@@ -18,7 +18,7 @@ namespace EHR.Modules;
 
 public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
-    private PlayerControl player = player;
+    public PlayerControl player = player;
 
     private static IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV09(new UnityLogger().CastFast<ILogger>()).CastFast<IGameOptions>());
@@ -136,7 +136,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         AllSenders.Remove(sender);
     }
 
-    protected override IGameOptions BuildGameOptions()
+    public override IGameOptions BuildGameOptions()
     {
         try
         {

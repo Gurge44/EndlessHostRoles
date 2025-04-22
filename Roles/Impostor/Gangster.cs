@@ -90,15 +90,15 @@ public class Gangster : RoleBase
             sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")), setName: false);
 
             killer.ResetKillCooldown();
-            killer.SyncSettings();
+            sender.SyncSettings(killer);
             sender.SetKillCooldown(killer);
             sender.RpcGuardAndKill(target, killer);
             sender.RpcGuardAndKill(target, target);
 
-            sender.SendMessage();
+            sender.NotifyRolesSpecific(killer, target);
+            sender.NotifyRolesSpecific(target, killer);
 
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+            sender.SendMessage();
 
             Logger.Info($"SetRole: {target?.Data?.PlayerName} = {target.GetCustomRole()} + {convertedAddon}", $"Assign {convertedAddon}");
             if (killer.GetAbilityUseLimit() <= 0) HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");

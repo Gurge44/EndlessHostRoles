@@ -214,14 +214,17 @@ public class Wizard : RoleBase
         else
             buffs[SelectedBuff] = value;
 
-        target.SyncSettings();
-        killer.SetKillCooldown();
+        var sender = CustomRpcSender.Create("Wizard", SendOption.Reliable);
+
+        sender.SyncSettings(target);
+        sender.SetKillCooldown(killer);
         killer.RpcRemoveAbilityUse();
 
-        killer.Notify(string.Format(Translator.GetString("Wizard.BuffGivenNotify"), target.PlayerId.ColoredPlayerName(), Translator.GetString($"Wizard.Buff.{SelectedBuff}"), Math.Round(value, 1)));
+        sender.Notify(killer, string.Format(Translator.GetString("Wizard.BuffGivenNotify"), target.PlayerId.ColoredPlayerName(), Translator.GetString($"Wizard.Buff.{SelectedBuff}"), Math.Round(value, 1)));
         Utils.SendRPC(CustomRPC.SyncRoleData, 3, target.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+        sender.NotifyRolesSpecific(killer, target);
 
+        sender.SendMessage();
         return false;
     }
 

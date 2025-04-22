@@ -87,6 +87,7 @@ public static class AntiBlackout
         {
             if (seer.IsModdedClient()) continue;
 
+            RoleTypes selfRoleType = seer.GetRoleTypes();
             bool seerIsAliveAndHasKillButton = seer.HasKillButton() && seer.IsAlive() && Options.CurrentGameMode == CustomGameMode.Standard;
 
             if (Options.CurrentGameMode is not (CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.HideAndSeek or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz))
@@ -94,26 +95,11 @@ public static class AntiBlackout
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {
                     if (seerIsAliveAndHasKillButton)
-                    {
-                        if (target.PlayerId != seer.PlayerId)
-                        {
-                            sender.RpcSetRole(target, RoleTypes.Crewmate, seer.GetClientId());
-                            hasValue = true;
-                        }
-                    }
+                        sender.RpcSetRole(target, target.PlayerId != seer.PlayerId ? RoleTypes.Crewmate : selfRoleType, seer.GetClientId());
                     else
-                    {
-                        if (target.PlayerId == dummyImp.PlayerId)
-                        {
-                            sender.RpcSetRole(target, RoleTypes.Impostor, seer.GetClientId());
-                            hasValue = true;
-                        }
-                        else
-                        {
-                            sender.RpcSetRole(target, RoleTypes.Crewmate, seer.GetClientId());
-                            hasValue = true;
-                        }
-                    }
+                        sender.RpcSetRole(target, target.PlayerId == dummyImp.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, seer.GetClientId());
+
+                    hasValue = true;
                 }
             }
             else
@@ -230,16 +216,14 @@ public static class AntiBlackout
         {
             case CustomGameMode.Standard:
             {
+                StartGameHostPatch.RpcSetRoleReplacer.ResetRoleMapMidGame();
+
                 foreach (((byte seerId, byte targetId), (RoleTypes roletype, _)) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap)
                 {
-                    // skip host
-                    if (seerId == 0) continue;
-
                     PlayerControl seer = seerId.GetPlayer();
                     PlayerControl target = targetId.GetPlayer();
 
                     if (seer == null || target == null) continue;
-                    if (seer.IsModdedClient()) continue;
 
                     bool isSelf = seerId == targetId;
                     bool isDead = target.Data.IsDead;
@@ -259,15 +243,17 @@ public static class AntiBlackout
                         }
                         case true:
                         {
-                            bool seerIsKiller = seer.Is(Team.Impostor) || seer.HasDesyncRole();
-
-                            if (!seerIsKiller && target.Is(Team.Impostor)) changedRoleType = RoleTypes.ImpostorGhost;
-                            else changedRoleType = RoleTypes.CrewmateGhost;
-
+                            changedRoleType = roletype is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost;
                             break;
                         }
                         case false when isSelf && seer.HasKillButton():
                             continue;
+                    }
+
+                    if (seer.AmOwner)
+                    {
+                        target.SetRole(changedRoleType);
+                        continue;
                     }
 
                     sender.RpcSetRole(target, changedRoleType, seer.OwnerId);
@@ -282,7 +268,7 @@ public static class AntiBlackout
                     hasValue = true;
                     RestartMessageIfTooLong();
 
-                    if (pc.PlayerId == CheckForEndVotingPatch.TempExiledPlayer?.PlayerId)
+                    if (!pc.IsModdedClient() && pc.PlayerId == CheckForEndVotingPatch.TempExiledPlayer?.PlayerId)
                     {
                         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.MurderPlayer, pc.OwnerId);
                         sender.WriteNetObject(pc);

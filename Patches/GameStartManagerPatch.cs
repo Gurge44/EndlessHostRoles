@@ -197,7 +197,8 @@ public static class GameStartManagerPatch
                                 AURoleOptions.ShapeshifterCooldown = 0f;
                                 AURoleOptions.ImpostorsCanSeeProtect = false;
 
-                                PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+                                GameManager.Instance.LogicOptions.SetDirty();
+                                OptionItem.SyncAllOptions();
                             }
 
                             RPC.RpcVersionCheck();
@@ -455,7 +456,8 @@ public static class GameStartRandomMap
             AURoleOptions.ShapeshifterCooldown = 0f;
         }
 
-        PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+        GameManager.Instance.LogicOptions.SetDirty();
+        OptionItem.SyncAllOptions();
 
         __instance.ReallyBegin(false);
         return false;
@@ -519,7 +521,8 @@ internal static class ResetStartStatePatch
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
         {
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
-            PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+            GameManager.Instance.LogicOptions.SetDirty();
+            OptionItem.SyncAllOptions();
         }
     }
 }

@@ -90,7 +90,7 @@ public abstract class GameOptionsSender
         catch (Exception ex) { Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray"); }
     }
 
-    protected abstract IGameOptions BuildGameOptions();
+    public abstract IGameOptions BuildGameOptions();
 
     protected virtual bool AmValid()
     {
