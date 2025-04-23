@@ -15,6 +15,7 @@ public static class AFKDetector
     public static readonly Dictionary<byte, Data> PlayerData = [];
     public static readonly HashSet<byte> ExemptedPlayers = [];
     public static readonly HashSet<byte> ShieldedPlayers = [];
+    public static readonly HashSet<byte> TempIgnoredPlayers = [];
     public static int NumAFK;
 
     public static void SetupCustomOption()
@@ -50,13 +51,14 @@ public static class AFKDetector
         };
 
         ShieldedPlayers.Remove(pc.PlayerId);
+        TempIgnoredPlayers.Remove(pc.PlayerId);
     }
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (!EnableDetector.GetBool() || !GameStates.IsInTask || ExileController.Instance /*|| Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt()*/ || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out Data data)) return;
+        if (!EnableDetector.GetBool() || !GameStates.IsInTask || ExileController.Instance || Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out Data data)) return;
 
-        if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f)
+        if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f && !TempIgnoredPlayers.Contains(pc.PlayerId))
         {
             PlayerData.Remove(pc.PlayerId);
             ShieldedPlayers.Remove(pc.PlayerId);
@@ -67,26 +69,31 @@ public static class AFKDetector
         data.Timer -= Time.fixedDeltaTime;
         var currentTimer = (int)Math.Round(data.Timer);
 
-        if (data.Timer <= 0f)
+        if (!data.Counted && data.CurrentPhase == Data.Phase.Warning && data.Timer <= 5f && !pc.IsModdedClient())
         {
-            switch (data.CurrentPhase)
-            {
-                case Data.Phase.Detection:
-                    if (!pc.IsModdedClient()) NumAFK++;
-                    data.CurrentPhase = Data.Phase.Warning;
-                    data.Timer = 15f;
-                    pc.FixBlackScreen();
-                    break;
-                case Data.Phase.Warning:
-                    data.CurrentPhase = Data.Phase.Consequence;
-                    HandleConsequence(pc, (Consequence)ConsequenceOption.GetInt());
-                    break;
-            }
+            NumAFK++;
+            data.Counted = true;
 
             if (Main.AllAlivePlayerControls.Length / 2 <= NumAFK)
             {
                 Logger.SendInGame(Translator.GetString("AFKTooMany"));
                 PlayerData.Clear();
+            }
+        }
+
+        if (data.Timer <= 0f)
+        {
+            switch (data.CurrentPhase)
+            {
+                case Data.Phase.Detection:
+                    data.CurrentPhase = Data.Phase.Warning;
+                    data.Timer = 15f;
+                    if (pc.IsAlive()) pc.FixBlackScreen();
+                    break;
+                case Data.Phase.Warning:
+                    data.CurrentPhase = Data.Phase.Consequence;
+                    HandleConsequence(pc, (Consequence)ConsequenceOption.GetInt());
+                    break;
             }
         }
 
@@ -148,5 +155,6 @@ public static class AFKDetector
         public Vector2 LastPosition { get; init; }
         public float Timer { get; set; }
         public Phase CurrentPhase { get; set; }
+        public bool Counted { get; set; }
     }
 }

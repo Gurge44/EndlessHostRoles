@@ -25,6 +25,34 @@ internal static class ExtendedPlayerControl
 {
     public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
 
+    /*
+    public static void ResetPlayerCam(this PlayerControl pc, float delay = 0f)
+    {
+        if (pc == null || !AmongUsClient.Instance.AmHost || pc.AmOwner) return;
+
+        SystemTypes systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        {
+            MapNames.Polus => SystemTypes.Laboratory,
+            MapNames.Airship => SystemTypes.HeliSabotage,
+            _ => SystemTypes.Reactor
+        };
+
+        LateTask.New(() => pc.RpcDesyncRepairSystem(systemtypes, 128), 0f + delay, "Reactor Desync");
+
+        LateTask.New(() => pc.RpcSpecificMurderPlayer(), 0.2f + delay, "Murder To Reset Cam");
+
+        LateTask.New(() =>
+        {
+            pc.RpcDesyncRepairSystem(systemtypes, 16);
+
+            if (Main.NormalOptions.MapId == 4) // Airship only
+                pc.RpcDesyncRepairSystem(systemtypes, 17);
+        }, 0.4f + delay, "Fix Desync Reactor");
+    }
+    */
+
+    private static readonly HashSet<byte> BlackScreenWaitingPlayers = [];
+
     public static void SetRole(this PlayerControl player, RoleTypes role, bool canOverride = true)
     {
         player.StartCoroutine(player.CoSetRole(role, canOverride));
@@ -996,39 +1024,15 @@ internal static class ExtendedPlayerControl
         return Utils.GetRoleColor(player.GetCustomRole());
     }
 
-    /*
-    public static void ResetPlayerCam(this PlayerControl pc, float delay = 0f)
-    {
-        if (pc == null || !AmongUsClient.Instance.AmHost || pc.AmOwner) return;
-
-        SystemTypes systemtypes = (MapNames)Main.NormalOptions.MapId switch
-        {
-            MapNames.Polus => SystemTypes.Laboratory,
-            MapNames.Airship => SystemTypes.HeliSabotage,
-            _ => SystemTypes.Reactor
-        };
-
-        LateTask.New(() => pc.RpcDesyncRepairSystem(systemtypes, 128), 0f + delay, "Reactor Desync");
-
-        LateTask.New(() => pc.RpcSpecificMurderPlayer(), 0.2f + delay, "Murder To Reset Cam");
-
-        LateTask.New(() =>
-        {
-            pc.RpcDesyncRepairSystem(systemtypes, 16);
-
-            if (Main.NormalOptions.MapId == 4) // Airship only
-                pc.RpcDesyncRepairSystem(systemtypes, 17);
-        }, 0.4f + delay, "Fix Desync Reactor");
-    }
-    */
-
     public static void FixBlackScreen(this PlayerControl pc)
     {
         if (pc == null || !AmongUsClient.Instance.AmHost || pc.IsModdedClient()) return;
 
         if (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || pc.inVent || pc.inMovingPlat || pc.onLadder || !Main.AllPlayerControls.FindFirst(x => !x.IsAlive(), out var dummyGhost))
         {
-            Main.Instance.StartCoroutine(Wait());
+            if (BlackScreenWaitingPlayers.Add(pc.PlayerId))
+                Main.Instance.StartCoroutine(Wait());
+
             return;
 
             IEnumerator Wait()
@@ -1038,13 +1042,15 @@ internal static class ExtendedPlayerControl
                 while (GameStates.InGame && !GameStates.IsEnded && (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || Main.AllPlayerControls.All(x => x.IsAlive())))
                     yield return null;
 
-                if (GameStates.InGame || GameStates.IsEnded)
+                if (!GameStates.InGame || GameStates.IsEnded)
                 {
                     Logger.Msg($"During the waiting, the game ended, so the black screen fix will not be executed for {pc.GetNameWithRole()}", "FixBlackScreen");
+                    BlackScreenWaitingPlayers.Remove(pc.PlayerId);
                     yield break;
                 }
 
                 Logger.Msg($"Now that the conditions are met, fixing black screen for {pc.GetNameWithRole()}", "FixBlackScreen");
+                BlackScreenWaitingPlayers.Remove(pc.PlayerId);
                 pc.FixBlackScreen();
             }
         }
@@ -1061,13 +1067,16 @@ internal static class ExtendedPlayerControl
         sender.RpcDesyncRepairSystem(pc, systemtype, 128);
 
         int targetClientId = pc.GetClientId();
+        var ghostPos = dummyGhost.Pos();
+        var pcPos = pc.Pos();
+        var timer = Math.Max(Main.KillTimers[pc.PlayerId], 0.1f);
 
         if (pc.IsAlive())
         {
             CheckInvalidMovementPatch.ExemptedPlayers.UnionWith([pc.PlayerId, dummyGhost.PlayerId]);
+            AFKDetector.TempIgnoredPlayers.UnionWith([pc.PlayerId, dummyGhost.PlayerId]);
 
             var murderPos = Pelican.GetBlackRoomPS();
-            var pcPos = pc.Pos();
 
             dummyGhost.NetTransform.SnapTo(murderPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
             dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
@@ -1083,8 +1092,6 @@ internal static class ExtendedPlayerControl
             sender.WriteNetObject(dummyGhost);
             sender.Write((int)MurderResultFlags.Succeeded);
             sender.EndRpc();
-
-            LateTask.New(() => pc.TP(pcPos), 0.4f, log: false);
         }
         else
         {
@@ -1099,8 +1106,27 @@ internal static class ExtendedPlayerControl
         LateTask.New(() =>
         {
             sender = CustomRpcSender.Create($"Fix Black Screen For {pc.GetNameWithRole()} (2)", SendOption.Reliable);
+
             sender.RpcDesyncRepairSystem(pc, systemtype, 16);
             if (systemtype == SystemTypes.HeliSabotage) sender.RpcDesyncRepairSystem(pc, systemtype, 17);
+
+            if (pc.IsAlive())
+            {
+                sender.TP(pc, pcPos);
+
+                dummyGhost.NetTransform.SnapTo(ghostPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
+                dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
+
+                sender.AutoStartRpc(dummyGhost.NetTransform.NetId, (byte)RpcCalls.SnapTo);
+                sender.WriteVector2(ghostPos);
+                sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
+                sender.EndRpc();
+
+                sender.SetKillCooldown(pc, timer);
+
+                LateTask.New(() => AFKDetector.TempIgnoredPlayers.ExceptWith([pc.PlayerId, dummyGhost.PlayerId]), 1f, log: false);
+            }
+
             sender.SendMessage();
         }, 0.4f, log: false);
     }
@@ -1205,7 +1231,7 @@ internal static class ExtendedPlayerControl
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         target.scannerCount = cnt;
     }
-*/
+    */
     public static bool HasKillButton(this PlayerControl pc)
     {
         CustomRoles role = pc.GetCustomRole();

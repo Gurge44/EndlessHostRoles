@@ -156,6 +156,13 @@ internal static class SoloPVP
         return $"<#ffffff>{finalText}</color>";
     }
 
+    public static string GetSummaryStatistics(byte id)
+    {
+        int rank = GetRankFromScore(id);
+        int score = KBScore.GetValueOrDefault(id, 0);
+        return string.Format(Translator.GetString("SoloPVP.Summary"), rank, score);
+    }
+
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
         if (!CustomGameMode.SoloKombat.IsActiveOrIntegrated() || player == null) return;

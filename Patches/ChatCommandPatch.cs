@@ -397,6 +397,9 @@ internal static class ChatCommands
         if (pc == null) return;
 
         pc.FixBlackScreen();
+
+        if (Main.AllPlayerControls.All(x => x.IsAlive()))
+            Logger.SendInGame(GetString("FixBlackScreenWaitForDead"));
     }
 
     private static void DayBreakCommand(PlayerControl player, string text, string[] args)
@@ -1788,7 +1791,7 @@ internal static class ChatCommands
 
         if (!player.IsHost() && !IsPlayerModerator(player.FriendCode)) return;
 
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+        if (!player.IsModdedClient()) ChatManager.SendPreviousMessagesToAll();
         if (args.Length > 1) Utils.SendMessage(args[1..].Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
     }
 

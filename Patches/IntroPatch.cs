@@ -818,11 +818,7 @@ internal static class BeginImpostorPatch
     }
 }
 
-#if ANDROID
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.OnGameStart))]
-#else
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
-#endif
 internal static class IntroCutsceneDestroyPatch
 {
     public static void Postfix( /*IntroCutscene __instance*/)
@@ -1054,7 +1050,7 @@ internal static class IntroCutsceneDestroyPatch
 
             if (AFKDetector.ActivateOnStart.GetBool()) LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
 
-            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
+            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, "NotifyEveryoneAsync On Game Start");
         }
         else
         {

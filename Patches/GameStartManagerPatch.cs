@@ -223,7 +223,9 @@ public static class GameStartManagerPatch
             try { instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId); }
             catch (Exception e)
             {
-                ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
+                if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length)
+                    ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
+
                 Utils.ThrowException(e);
             }
 
@@ -565,5 +567,14 @@ public static class GameStartManagerBeginPatch
             AmongUsClient.Instance.KickNotJoinedPlayers();
             return false;
         }
+    }
+}
+
+[HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.FinallyBegin))]
+public static class GameStartManagerFinallyBeginPatch
+{
+    public static void Prefix(GameStartManager __instance)
+    {
+        SoundManager.Instance.StopSound(__instance.gameStartSound);
     }
 }

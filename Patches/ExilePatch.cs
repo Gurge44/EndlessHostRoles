@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using AmongUs.Data;
 using EHR.AddOns.Common;
@@ -15,6 +14,8 @@ namespace EHR.Patches;
 
 internal static class ExileControllerWrapUpPatch
 {
+    public static NetworkedPlayerInfo AntiBlackout_LastExiled;
+
     private static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
         var DecidedWinner = false;
@@ -122,45 +123,53 @@ internal static class ExileControllerWrapUpPatch
     private static void WrapUpFinalizer()
     {
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
+
         if (AmongUsClient.Instance.AmHost)
         {
-            try { Utils.NotifyRoles(); }
-            catch (Exception e) { Utils.ThrowException(e); }
-
             LateTask.New(() =>
             {
+                if (GameStates.IsEnded) return;
+
                 AntiBlackout.SendGameData();
                 AntiBlackout.SetRealPlayerRoles();
-            }, 0.7f, "Restore IsDead Task");
+            }, Options.CurrentGameMode == CustomGameMode.Standard ? 0.5f : 1.4f, "Restore IsDead Task");
+
+            LateTask.New(AntiBlackout.ResetAfterMeeting, 0.6f, "ResetAfterMeeting");
 
             LateTask.New(() =>
             {
-                if (!GameStates.IsEnded)
+                if (GameStates.IsEnded) return;
+
+                var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer", SendOption.Reliable);
+                Main.AfterMeetingDeathPlayers.Do(x => sender.RpcExileV2(x.Key.GetPlayer()));
+                sender.SendMessage(Main.AfterMeetingDeathPlayers.Count == 0);
+
+                foreach ((byte id, PlayerState.DeathReason deathReason) in Main.AfterMeetingDeathPlayers)
                 {
-                    AntiBlackout.ResetAfterMeeting();
+                    var player = id.GetPlayer();
+                    var state = Main.PlayerStates[id];
 
-                    var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer", SendOption.Reliable);
-                    Main.AfterMeetingDeathPlayers.Do(x => sender.RpcExileV2(x.Key.GetPlayer()));
-                    sender.SendMessage(Main.AfterMeetingDeathPlayers.Count == 0);
+                    Logger.Info($"{Main.AllPlayerNames[id]} ({state.MainRole}) died with {deathReason}", "AfterMeetingDeath");
 
-                    Main.AfterMeetingDeathPlayers.Do(x =>
-                    {
-                        PlayerControl player = Utils.GetPlayerById(x.Key);
-                        PlayerState state = Main.PlayerStates[x.Key];
-                        Logger.Info($"{player?.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
-                        state.deathReason = x.Value;
-                        state.SetDead();
-                        if (x.Value == PlayerState.DeathReason.Suicide) player?.SetRealKiller(player, true);
-                        Utils.AfterPlayerDeathTasks(player);
-                    });
+                    state.deathReason = deathReason;
+                    state.SetDead();
 
-                    Main.AfterMeetingDeathPlayers.Clear();
-                    Utils.AfterMeetingTasks();
-                    Utils.SyncAllSettings();
-                    Utils.CheckAndSetVentInteractions();
-                    Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(5));
+                    if (player == null) continue;
+
+                    if (deathReason == PlayerState.DeathReason.Suicide)
+                        player.SetRealKiller(player, true);
+
+                    Utils.AfterPlayerDeathTasks(player);
                 }
-            }, 2f, "AntiBlackout Reset & AfterMeetingTasks");
+
+                Main.AfterMeetingDeathPlayers.Clear();
+
+                Utils.AfterMeetingTasks();
+                Utils.SyncAllSettings();
+                Utils.CheckAndSetVentInteractions();
+
+                Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 5));
+            }, 1f, "AfterMeetingDeathPlayers Task");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
@@ -183,7 +192,7 @@ internal static class ExileControllerWrapUpPatch
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                string finalText = ejectionNotify ? CheckForEndVotingPatch.EjectionText.Trim() : text;
+                string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
                 sender.Notify(pc, finalText, r.Next(7, 13));
                 hasValue = true;
 

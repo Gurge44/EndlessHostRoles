@@ -464,7 +464,7 @@ public static class CustomRpcSenderExtensions
             if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Refugee and not CustomRoles.Sidekick) return false;
         }
 
-        if (!player.CanUseKillButton()) return false;
+        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks) return false;
 
         player.AddKillTimerToDict(CD: time);
         if (target == null) target = player;
@@ -676,7 +676,7 @@ public static class CustomRpcSenderExtensions
             writer.WritePacked(player.OwnerId);
             writer.StartMessage(1);
             {
-                sender.WritePacked(GameManager.Instance.NetId);
+                writer.WritePacked(GameManager.Instance.NetId);
                 writer.StartMessage((byte)id);
                 {
                     writer.WriteBytesAndSize(logicOptions.gameOptionsFactory.ToBytes(options, AprilFoolsMode.IsAprilFoolsModeToggledOn));

@@ -1375,9 +1375,8 @@ internal static class FixedUpdatePatch
             if (AmongUsClient.Instance.AmHost)
             {
                 Camouflage.OnFixedUpdate(player);
-                AFKDetector.OnFixedUpdate(player);
 
-                if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
+                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
                     NotifyRoles();
             }
 
@@ -1386,6 +1385,9 @@ internal static class FixedUpdatePatch
 
         if (AmongUsClient.Instance.AmHost)
         {
+            AFKDetector.OnFixedUpdate(player);
+
+
             if (GameStates.IsLobby && ((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic) AmongUsClient.Instance.ChangeGamePublic(false);
 
             // Kick low-level people

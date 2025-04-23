@@ -1730,12 +1730,10 @@ public static class Utils
                     title = "\u27a1" + title.Replace("\u2605", "") + "\u2b05";
             }
 
-            text = text.RemoveHtmlTagsTemplate();
-
             text = text.Replace("color=", string.Empty);
             title = title.Replace("color=", string.Empty);
 
-            PlayerControl sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+            PlayerControl sender = GameStates.IsLobby ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
 
             if (sendTo != byte.MaxValue && receiver.IsLocalPlayer())
             {
@@ -1915,8 +1913,12 @@ public static class Utils
             }
             catch { Logger.Info(" Message sent", "SendMessage"); }
 
-            if (noSplit && !text.EndsWith('\n')) text += "\n.";
-            if (noSplit) text = text.TrimStart('\n');
+            if (noSplit)
+            {
+                text = text.TrimStart('\n');
+                if (!text.EndsWith('\n')) text += "\n";
+                text += "‎";
+            }
 
             if (writer.CurrentState == CustomRpcSender.State.Ready)
             {
@@ -2559,6 +2561,8 @@ public static class Utils
             }
 
             selfName = selfName.Trim().Replace("color=", "").Replace("<#ffffff><#ffffff>", "<#ffffff>");
+            if (selfName.EndsWith("</size>")) selfName = selfName.Remove(selfName.Length - 7);
+            if (selfName.EndsWith("</color>")) selfName = selfName.Remove(selfName.Length - 8);
 
             sender.RpcSetName(seer, selfName, seer);
 
@@ -2802,6 +2806,10 @@ public static class Utils
 
                             var targetName = $"{targetRoleText}{targetPlayerName}{targetDeathReason}{TargetMark}";
                             targetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{TargetSuffix}";
+
+                            targetName = targetName.Trim().Replace("color=", "").Replace("<#ffffff><#ffffff>", "<#ffffff>");
+                            if (targetName.EndsWith("</size>")) targetName = targetName.Remove(targetName.Length - 7);
+                            if (targetName.EndsWith("</color>")) targetName = targetName.Remove(targetName.Length - 8);
 
                             sender.RpcSetName(target, targetName, seer);
                         }
@@ -3076,6 +3084,8 @@ public static class Utils
         AFKDetector.PlayerData.Clear();
 
         Camouflage.CheckCamouflage();
+
+        AntiBlackout.AfterMeetingTasks();
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
@@ -3441,8 +3451,7 @@ public static class Utils
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.SoloKombat:
-                    summary = TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? $"{GetProgressText(id)}\t<pos=22%>{ColorString(Main.PlayerColors[id], name)}</pos>" : $"{ColorString(Main.PlayerColors[id], name)}<pos=30%>{GetProgressText(id)}</pos>";
-                    if (GetProgressText(id).Trim() == string.Empty) return string.Empty;
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - {SoloPVP.GetSummaryStatistics(id)}";
                     break;
                 case CustomGameMode.FFA:
                     summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, true)}";
@@ -3561,11 +3570,6 @@ public static class Utils
         sb.Append(notify ? "</color>" : string.Empty);
 
         return sb.ToString();
-    }
-
-    private static string RemoveHtmlTagsTemplate(this string str)
-    {
-        return Regex.Replace(str, string.Empty, string.Empty);
     }
 
     public static string RemoveHtmlTags(this string str)
