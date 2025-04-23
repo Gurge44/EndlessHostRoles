@@ -88,7 +88,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, float> AllPlayerKillCooldown = [];
     public static Dictionary<byte, Vent> LastEnteredVent = [];
     public static Dictionary<byte, Vector2> LastEnteredVentLocation = [];
-    public static readonly List<(string Message, byte ReceiverID, string Title)> MessagesToSend = [];
     public static bool IsChatCommand;
     public static bool DoBlockNameChange;
     public static int UpdateTime;

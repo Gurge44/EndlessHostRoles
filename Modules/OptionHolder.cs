@@ -677,6 +677,7 @@ public static class Options
     public static OptionItem PostLobbyCodeToEHRWebsite;
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
     public static OptionItem AllCrewRolesHaveVanillaColor;
+    public static OptionItem MessageRpcSizeLimit;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
@@ -1451,6 +1452,9 @@ public static class Options
         StoreCompletedAchievementsOnEHRDatabase = new BooleanOptionItem(19423, "StoreCompletedAchievementsOnEHRDatabase", true, TabGroup.SystemSettings);
 
         AllCrewRolesHaveVanillaColor = new BooleanOptionItem(19424, "AllCrewRolesHaveVanillaColor", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+        
+        MessageRpcSizeLimit = new IntegerOptionItem(19425, "MessageRpcSizeLimit", new(500, 100000, 100), 1400, TabGroup.SystemSettings)
             .SetHeader(true);
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)

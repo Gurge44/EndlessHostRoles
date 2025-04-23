@@ -345,7 +345,7 @@ internal static class ChatCommands
                 if (!Main.AllPlayerNames.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out string name))
                     Utils.ApplySuffix(PlayerControl.LocalPlayer, out name);
 
-                Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name);
+                Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name, addtoHistory: false);
 
                 canceled = true;
                 __instance.freeChatField.textArea.Clear();
@@ -1791,7 +1791,6 @@ internal static class ChatCommands
 
         if (!player.IsHost() && !IsPlayerModerator(player.FriendCode)) return;
 
-        if (!player.IsModdedClient()) ChatManager.SendPreviousMessagesToAll();
         if (args.Length > 1) Utils.SendMessage(args[1..].Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
     }
 
@@ -3182,32 +3181,18 @@ internal static class ChatUpdatePatch
         }
 
         LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
-
-        if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].ReceiverID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage) || DoBlockChat) return;
-
-        PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-        if (player == null) return;
-
-        (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
-        Main.MessagesToSend.RemoveAt(0);
-
-        SendMessage(player, msg, sendTo, title);
-
-        __instance.timeSinceLastMessage = 0f;
-
-        LastMessages.Add((msg, sendTo, title, Utils.TimeStamp));
     }
 
     internal static void SendLastMessages(CustomRpcSender sender)
     {
-        PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        PlayerControl player = GameStates.IsLobby ? Main.AllPlayerControls.Without(PlayerControl.LocalPlayer).RandomElement() : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return;
 
         foreach ((string msg, byte sendTo, string title, _) in LastMessages)
             SendMessage(player, msg, sendTo, title, sender);
     }
 
-    internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title, CustomRpcSender sender = null)
+    private static void SendMessage(PlayerControl player, string msg, byte sendTo, string title, CustomRpcSender sender = null)
     {
         int clientId = sendTo == byte.MaxValue ? -1 : Utils.GetPlayerById(sendTo).GetClientId();
 

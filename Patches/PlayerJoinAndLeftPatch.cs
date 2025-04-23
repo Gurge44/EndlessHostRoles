@@ -268,7 +268,6 @@ internal static class OnPlayerLeftPatch
                 Main.SayStartTimes.Remove(__instance.ClientId);
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
                 Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
-                Logger.Info($"{Main.MessagesToSend.RemoveAll(x => x.ReceiverID != byte.MaxValue && x.ReceiverID == data?.Character.PlayerId)} sending messages were canceled", "OnPlayerLeftPatchPostfix");
 
                 if (data != null && data.Character != null)
                 {
