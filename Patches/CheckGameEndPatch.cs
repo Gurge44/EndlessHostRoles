@@ -505,6 +505,8 @@ internal static class GameEndChecker
                 return true;
             }
 
+            if (Main.AllAlivePlayerControls.Any(x => x.GetCountTypes() == CountTypes.CustomTeam)) return false;
+
             int sheriffCount = AlivePlayersCount(CountTypes.Sheriff);
 
             int Imp = AlivePlayersCount(CountTypes.Impostor);

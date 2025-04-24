@@ -924,11 +924,7 @@ public static class Options
 
             foreach (Command command in ChatCommands.AllCommands)
             {
-                string form = command.CommandForms
-                    .Where(f => f.All(char.IsAscii))
-                    .OrderBy(f => f.Length)
-                    .FirstOrDefault() ?? "";
-
+                string forms = command.CommandForms.TakeWhile(x => x.All(char.IsAscii)).Join(x => $"/{x}", "<br>");
                 string description = command.Description;
 
                 string argumentsMarkdown = "";
@@ -972,7 +968,7 @@ public static class Options
 
                 string hidden = command.AlwaysHidden ? ":heavy_check_mark:" : ":x:";
 
-                sb.AppendLine($"| /{form} | {description} | {argumentsMarkdown} | {usageLevel} | {usageTime} | {hidden} |");
+                sb.AppendLine($"| {forms} | {description} | {argumentsMarkdown} | {usageLevel} | {usageTime} | {hidden} |");
             }
 
             sb.AppendLine("| | | | | | |");
