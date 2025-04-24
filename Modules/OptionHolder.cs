@@ -919,8 +919,8 @@ public static class Options
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine("| Command | Description | Arguments | Usage Level | Usage Time | Canceled | Hidden |");
-            sb.AppendLine("|---------|-------------|-----------|-------------|------------|----------|--------|");
+            sb.AppendLine("| Command | Description | Arguments | Usage Level | Usage Time | Hidden |");
+            sb.AppendLine("|---------|-------------|-----------|-------------|------------|--------|");
 
             foreach (Command command in ChatCommands.AllCommands)
             {
@@ -943,8 +943,8 @@ public static class Options
                         string argName = arg.Trim('{', '}').Trim('[', ']');
                         bool required = arg.StartsWith("{") && arg.EndsWith("}");
                         string argDesc = command.ArgsDescriptions[i];
-                        string type = required ? "REQUIRED" : "OPTIONAL";
-                        argumentsMarkdown += $"**{argName}** ({type}) – {argDesc}<br>";
+                        string type = required ? "&#x1F538;" : "&#x1F539;";
+                        argumentsMarkdown += $"{type} **{argName}** – {argDesc}<br>";
                     }
                 }
                 else
@@ -970,14 +970,13 @@ public static class Options
                     _ => string.Empty
                 };
 
-                string canceled = command.IsCanceled ? "✅" : "❌";
-                string hidden = command.AlwaysHidden ? "✅" : "❌";
+                string hidden = command.AlwaysHidden ? ":heavy_check_mark:" : ":x:";
 
-                sb.AppendLine($"| /{form} | {description} | {argumentsMarkdown} | {usageLevel} | {usageTime} | {canceled} | {hidden} |");
+                sb.AppendLine($"| /{form} | {description} | {argumentsMarkdown} | {usageLevel} | {usageTime} | {hidden} |");
             }
 
-            sb.AppendLine("| | | | | | | |");
-            sb.Append($"| {ChatCommands.AllCommands.Count} | | | | | | |");
+            sb.AppendLine("| | | | | | |");
+            sb.Append($"| {ChatCommands.AllCommands.Count} | | | | | |");
 
             const string path = "./commands.txt";
             if (!File.Exists(path)) File.Create(path).Close();
@@ -1525,7 +1524,7 @@ public static class Options
 
         AllCrewRolesHaveVanillaColor = new BooleanOptionItem(19424, "AllCrewRolesHaveVanillaColor", false, TabGroup.SystemSettings)
             .SetHeader(true);
-        
+
         MessageRpcSizeLimit = new IntegerOptionItem(19425, "MessageRpcSizeLimit", new(500, 100000, 100), 1400, TabGroup.SystemSettings)
             .SetHeader(true);
 

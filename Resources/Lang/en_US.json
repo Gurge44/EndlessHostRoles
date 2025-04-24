@@ -2415,7 +2415,7 @@
   "CommandDescription.Draft": "Choose a role in the draft",
   "CommandDescription.ReadyCheck": "Start a ready check (check who is AFK) (results displayed after 30s)",
   "CommandDescription.Ready": "Mark yourself as ready",
-  "CommandDescription.EnableAllRoles": "Enables all roles and add-ons (⚠ freezes the game for a few seconds ⚠)",
+  "CommandDescription.EnableAllRoles": "Enables all roles and add-ons",
   "CommandDescription.Achievements": "See which achievements you have unlocked and which you haven't",
   "CommandDescription.DeathNote": "Guess someone's real name as the Note Killer.",
   "CommandDescription.Whisper": "Whisper a message to a player.",
