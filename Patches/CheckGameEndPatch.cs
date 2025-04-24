@@ -276,15 +276,7 @@ internal static class GameEndChecker
                         .Where(x => x.Team != null)
                         .GroupBy(x => x.Team)
                         .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId))
-                        .Do(x =>
-                        {
-                            bool canWin = CustomTeamManager.IsSettingEnabledForTeam(x.Key, CTAOption.WinWithOriginalTeam);
-
-                            if (!canWin)
-                                WinnerIds.ExceptWith(x.Value);
-                            else
-                                WinnerIds.UnionWith(x.Value);
-                        });
+                        .DoIf(x => !CustomTeamManager.IsSettingEnabledForTeam(x.Key, CTAOption.WinWithOriginalTeam), x => WinnerIds.ExceptWith(x.Value));
                 }
 
                 if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.TrueForAll(x => x.IsAlive()) && reason != GameOverReason.CrewmatesByTask)
