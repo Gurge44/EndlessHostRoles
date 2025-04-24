@@ -859,7 +859,7 @@ internal static class ExtendedPlayerControl
             if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Refugee and not CustomRoles.Sidekick) return;
         }
 
-        if (!player.CanUseKillButton()) return;
+        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks) return;
 
         player.AddKillTimerToDict(CD: time);
         if (target == null) target = player;

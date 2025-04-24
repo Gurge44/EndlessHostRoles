@@ -45,7 +45,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
     public string Description => description;
     public string[] ArgsDescriptions => argsDescriptions ?? [];
     public UsageLevels UsageLevel => usageLevel;
-    private UsageTimes UsageTime => usageTime;
+    public UsageTimes UsageTime => usageTime;
     public Action<PlayerControl, string, string[]> Action => action;
     public bool IsCanceled => isCanceled;
     public bool AlwaysHidden => alwaysHidden;
@@ -58,7 +58,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
         return CommandForms.Any(text.Split(' ')[0].Equals);
     }
 
-    public bool CanUseCommand(PlayerControl pc, bool checkTime = true)
+    public bool CanUseCommand(PlayerControl pc, bool checkTime = true, bool sendErrorMessage = false)
     {
         if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always && !Lovers.PrivateChat.GetBool()) return true;
 
@@ -69,6 +69,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
             case UsageLevels.Host when !pc.IsHost():
             case UsageLevels.Modded when !pc.IsModdedClient():
             case UsageLevels.HostOrModerator when !pc.IsHost() && (AmongUsClient.Instance.AmHost && !ChatCommands.IsPlayerModerator(pc.FriendCode)):
+                if (sendErrorMessage) Utils.SendMessage("\n", pc.PlayerId, GetString($"Commands.NoAccess.Level.{UsageLevel}"));
                 return false;
         }
 
@@ -81,6 +82,7 @@ internal class Command(string[] commandForms, string arguments, string descripti
             case UsageTimes.InMeeting when !GameStates.IsMeeting:
             case UsageTimes.AfterDeath when pc.IsAlive():
             case UsageTimes.AfterDeathOrLobby when pc.IsAlive() && !GameStates.IsLobby:
+                if (sendErrorMessage) Utils.SendMessage("\n", pc.PlayerId, GetString($"Commands.NoAccess.Time.{UsageTime}"));
                 return false;
         }
 
@@ -98,7 +100,7 @@ internal static class ChatCommands
     private static readonly Dictionary<char, int> PollVotes = [];
     private static readonly Dictionary<char, string> PollAnswers = [];
     private static readonly List<byte> PollVoted = [];
-    private static float PollTimer = 60f;
+    private static float PollTimer = 45f;
 
     public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration)> MutedPlayers = [];
 
@@ -291,11 +293,8 @@ internal static class ChatCommands
                 Logger.Info($" Recognized command: {text}", "ChatCommand");
                 Main.IsChatCommand = true;
 
-                if (!command.CanUseCommand(PlayerControl.LocalPlayer))
-                {
-                    Utils.SendMessage(GetString("Commands.NoAccess"), PlayerControl.LocalPlayer.PlayerId);
+                if (!command.CanUseCommand(PlayerControl.LocalPlayer, sendErrorMessage: true))
                     goto Canceled;
-                }
 
                 command.Action(PlayerControl.LocalPlayer, text, args);
                 if (command.IsCanceled) goto Canceled;
@@ -1283,12 +1282,6 @@ internal static class ChatCommands
 
     private static void DumpCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(DumpCommand), text);
-            return;
-        }
-
         Utils.DumpLog();
     }
 
@@ -2742,14 +2735,8 @@ internal static class ChatCommands
 
     private static void VersionCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(VersionCommand), text);
-            return;
-        }
-
-        string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: ({Main.AllPlayerNames[kvp.Key]}) {kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
-        if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
+        string versionText = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: ({Main.AllPlayerNames[kvp.Key]}) {kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
+        if (versionText != string.Empty) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + versionText);
     }
 
     private static void LTCommand(PlayerControl player, string text, string[] args)
@@ -3106,9 +3093,8 @@ internal static class ChatCommands
                 Logger.Info($" Recognized command: {text}", "ReceiveChat");
                 commandEntered = true;
 
-                if (!command.CanUseCommand(player))
+                if (!command.CanUseCommand(player, sendErrorMessage: true))
                 {
-                    Utils.SendMessage(GetString("Commands.NoAccess"), player.PlayerId);
                     canceled = true;
                     break;
                 }
