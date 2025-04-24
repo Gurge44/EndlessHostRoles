@@ -635,7 +635,7 @@ internal static class ChatCommands
             string scrambled = new(word.ToLower().ToCharArray().Shuffle());
             CurrentAnagram = word;
             byte sendTo = GameStates.InGame && !player.IsAlive() ? player.PlayerId : byte.MaxValue;
-            Utils.SendMessage(string.Format(GetString("Anagram"), scrambled), sendTo, GetString("AnagramTitle"));
+            Utils.SendMessage(string.Format(GetString("Anagram"), scrambled, word[0]), sendTo, GetString("AnagramTitle"));
         }
     }
 

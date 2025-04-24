@@ -2560,7 +2560,7 @@
   "WhisperDisabled": "<#ff0000>X</color> The /whisper command is disabled in this lobby.",
   "EightBallDisabled": "<#ff0000>X</color> The /8ball command is disabled in this lobby.",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} has guessed the anagram correctly (<b>{1}</b>)!",
-  "Anagram": "The scrambled word is <b>{0}</b>! Guess the original word!",
+  "Anagram": "The scrambled word is <b>{0}</b>! Guess the original word! (Hint: It starts with the letter <b>{1}</b>!)",
   "AnagramTitle": "<#888888>➡ ANAGRAM ⬅</color>",
   "ThankYouForUsingEHR": "Thank you for using EHR!",
   "GMRoles": "<color=#ff5b70>【 ★ Roles ★ 】</color>",
