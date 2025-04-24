@@ -118,7 +118,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length > 1450 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
+        if (stream.Length >= 1500 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
         else Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose}, sendOption: {sendOption})", "CustomRpcSender");
 
         if (!dispose)

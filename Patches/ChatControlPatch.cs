@@ -264,13 +264,9 @@ public static class ChatManager
 
     private static void SendRPC(CustomRpcSender writer, InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
     {
-        writer.StartMessage(targetClientId);
-
-        writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
+        writer.AutoStartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat, targetClientId)
             .Write(senderMessage)
             .EndRpc();
-
-        writer.EndMessage();
     }
 
     public static void ClearChatForSpecificPlayer(PlayerControl target)

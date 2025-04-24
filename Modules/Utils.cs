@@ -1698,7 +1698,7 @@ public static class Utils
         sender.SendMessage(dispose: sender.stream.Length <= 3);
     }
 
-    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable)
+    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable, bool addtoHistory = true)
     {
         try
         {
@@ -1733,7 +1733,7 @@ public static class Utils
             text = text.Replace("color=", string.Empty);
             title = title.Replace("color=", string.Empty);
 
-            PlayerControl sender = GameStates.IsLobby ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+            PlayerControl sender = !addtoHistory ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
 
             if (sendTo != byte.MaxValue && receiver.IsLocalPlayer())
             {
@@ -1750,7 +1750,7 @@ public static class Utils
                 }
                 catch { Logger.Info(" Message sent", "SendMessage"); }
 
-                ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+                if (addtoHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
                 return writer;
             }
 
@@ -1759,7 +1759,7 @@ public static class Utils
             if (writer == null || writer.CurrentState == CustomRpcSender.State.Finished)
                 writer = CustomRpcSender.Create("Utils.SendMessage(1)", sendOption);
 
-            const int fullRpcSizeLimit = 1400;
+            int fullRpcSizeLimit = Options.MessageRpcSizeLimit.GetInt();
             int textRpcSize = text.Length * 2;
             int titleRpcSize = title.Length * 2 + 4;
             int resetNameRpcSize = sender.Data.PlayerName.Length * 2 + 4;
@@ -1779,6 +1779,14 @@ public static class Utils
                 else
                 {
                     titleRpcSizeLimit = (fullRpcSizeLimit - 8 - resetNameRpcSize) * 2;
+
+                    if (titleRpcSizeLimit - 4 < 1)
+                    {
+                        Logger.SendInGame(GetString("MessageTooLong"));
+                        if (!multiple) writer.SendMessage(dispose: true);
+                        return writer;
+                    }
+                    
                     string[] lines = title.Split('\n');
                     var shortenedTitle = string.Empty;
 
@@ -1851,8 +1859,7 @@ public static class Utils
                         }
                         catch { Logger.Info(" Message sent", "SendMessage"); }
 
-                        ChatUpdatePatch.LastMessages.Add(("\n", sendTo, tempTitle, TimeStamp));
-
+                        if (addtoHistory) ChatUpdatePatch.LastMessages.Add(("\n", sendTo, tempTitle, TimeStamp));
                         return writer;
                     }
                 }
@@ -1860,6 +1867,13 @@ public static class Utils
 
             titleRpcSize = title.Length * 2 + 4;
             int textRpcSizeLimit = fullRpcSizeLimit - titleRpcSize - resetNameRpcSize;
+
+            if (textRpcSizeLimit < 1 && textRpcSize >= textRpcSizeLimit && !noSplit)
+            {
+                Logger.SendInGame(GetString("MessageTooLong"));
+                if (!multiple) writer.SendMessage(dispose: true);
+                return writer;
+            }
 
             if (textRpcSize >= textRpcSizeLimit && !noSplit)
             {
@@ -1957,8 +1971,7 @@ public static class Utils
         }
         catch (Exception e) { ThrowException(e); }
 
-        ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
-
+        if (addtoHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
         return writer;
 
         void RestartMessageIfTooLong()
