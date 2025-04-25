@@ -198,6 +198,7 @@ internal static class ChatCommands
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
             new(["daybreak", "db", "дейбрейк", "破晓"], "", GetString("CommandDescription.DayBreak"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DayBreakCommand, true, true),
             new(["fix", "blackscreenfix", "fixblackscreen", "ф", "исправить", "修复"], "{id}", GetString("CommandDescription.Fix"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InGame, FixCommand, true, false, [GetString("CommandArgs.Fix.Id")]),
+            new(["xor", "异或命令"], "{role} {role}", GetString("CommandDescription.XOR"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, XORCommand, true, false, [GetString("CommandArgs.XOR.Role"), GetString("CommandArgs.XOR.Role")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -381,6 +382,32 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void XORCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 3 || !GetRoleByName(args[1], out CustomRoles role1) || !GetRoleByName(args[2], out CustomRoles role2)) return;
+
+        if (Main.XORRoles.Remove((role1, role2)) || Main.XORRoles.Remove((role2, role1)))
+        {
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("XORRemoved"), role1.ToColoredString(), role2.ToColoredString()));
+            return;
+        }
+
+        if (role1 == role2)
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("XORSameRole"));
+            return;
+        }
+
+        if (role1.IsAdditionRole() || role2.IsAdditionRole())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("XORAdditionRole"));
+            return;
+        }
+
+        Main.XORRoles.Add((role1, role2));
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("XORAdded"), role1.ToColoredString(), role2.ToColoredString()));
+    }
 
     private static void FixCommand(PlayerControl player, string text, string[] args)
     {

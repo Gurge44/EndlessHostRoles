@@ -466,7 +466,7 @@ public static class CustomRpcSenderExtensions
 
         if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks) return false;
 
-        player.AddKillTimerToDict(CD: time);
+        player.AddKillTimerToDict(cd: time);
         if (target == null) target = player;
 
         if (time >= 0f)

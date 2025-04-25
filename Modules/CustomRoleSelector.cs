@@ -93,10 +93,20 @@ internal static class CustomRoleSelector
         (bool Spawning, bool OneIsImp) LoversData = (Lovers.LegacyLovers.GetBool(), rd.Next(100) < Lovers.LovingImpostorSpawnChance.GetInt());
         LoversData.Spawning &= rd.Next(100) < Options.CustomAdtRoleSpawnRate[CustomRoles.Lovers].GetInt();
 
+        HashSet<CustomRoles> xorBannedRoles = [];
+
+        foreach ((CustomRoles, CustomRoles) xor in Main.XORRoles)
+        {
+            bool first = rd.Next(2) == 0;
+            xorBannedRoles.Add(first ? xor.Item1 : xor.Item2);
+        }
+
+        if (Main.XORRoles.Count > 0) Logger.Info($"Roles banned by XOR combinations: {string.Join(", ", xorBannedRoles)}", "CustomRoleSelector");
+
         foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || CustomHnS.AllHnSRoles.Contains(role)) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
 
             switch (role)
             {

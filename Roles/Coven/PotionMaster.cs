@@ -103,20 +103,50 @@ public class PotionMaster : Coven
         long now = Utils.TimeStamp;
         List<byte> toRemove = ShieldedPlayers.Where(x => now >= x.Value).Select(x => x.Key).ToList();
 
+        var sender = CustomRpcSender.Create("PotionMaster.OnFixedUpdate", SendOption.Reliable);
+        var hasValue = false;
+
         toRemove.ForEach(x =>
         {
             ShieldedPlayers.Remove(x);
             PlayerControl player = x.GetPlayer();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
-            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+
+            sender.NotifyRolesSpecific(pc, player);
+            sender = RestartMessageIfTooLong();
+
+            sender.NotifyRolesSpecific(player, player);
+            hasValue = true;
+            sender = RestartMessageIfTooLong();
+
             Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 2, x);
         });
 
         foreach (byte shieldedId in ShieldedPlayers.Keys)
         {
             PlayerControl player = shieldedId.GetPlayer();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
-            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+
+            sender.NotifyRolesSpecific(pc, player);
+            hasValue = true;
+            sender = RestartMessageIfTooLong();
+
+            sender.NotifyRolesSpecific(player, player);
+            hasValue = true;
+            sender = RestartMessageIfTooLong();
+        }
+
+        sender.SendMessage(dispose: !hasValue);
+        return;
+
+        CustomRpcSender RestartMessageIfTooLong()
+        {
+            if (sender.stream.Length > 800)
+            {
+                sender.SendMessage();
+                sender = CustomRpcSender.Create("PotionMaster.OnFixedUpdate", SendOption.Reliable);
+                hasValue = false;
+            }
+
+            return sender;
         }
     }
 

@@ -893,6 +893,7 @@ internal static class IntroCutsceneDestroyPatch
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.FFA when FreeForAll.FFAChatDuringGame.GetBool():
+                case CustomGameMode.Quiz when Quiz.Chat:
                     Utils.SetChatVisibleForAll();
                     break;
             }

@@ -318,4 +318,9 @@ public class SabotageMaster : RoleBase
         sm.UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
         sm.SendRPC();
     }
+
+    public override bool CanUseVent(PlayerControl pc, int ventId)
+    {
+        return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || CanVent.GetBool();
+    }
 }

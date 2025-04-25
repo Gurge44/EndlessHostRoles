@@ -835,6 +835,13 @@ internal static class TaskPanelBehaviourPatch
 
                     finalText += "</size>";
                     break;
+
+                case CustomGameMode.Quiz when AmongUsClient.Instance.AmHost:
+
+                    finalText += "\r\n\r\n\r\n<size=70%>";
+                    finalText += Quiz.GetTaskBarText();
+                    finalText += "</size>";
+                    break;
             }
 
             __instance.taskText.text = finalText;
