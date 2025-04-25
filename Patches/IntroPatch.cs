@@ -1005,9 +1005,7 @@ internal static class IntroCutsceneDestroyPatch
                 System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
                 if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
 
-                if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool())
-                    LateTask.New(SetSpectatorsDead, 12.5f, log: false);
-                if (CustomGameMode.Quiz.IsActiveOrIntegrated() && Quiz.Chat)
+                if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool() || CustomGameMode.Quiz.IsActiveOrIntegrated() && Quiz.Chat)
                     LateTask.New(SetSpectatorsDead, 12.5f, log: false);
                 else SetSpectatorsDead();
 
