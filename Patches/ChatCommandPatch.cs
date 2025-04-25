@@ -386,14 +386,6 @@ internal static class ChatCommands
 
     private static void ChemistInfoCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(ChemistInfoCommand), text);
-            return;
-        }
-
-        if (!player.IsLocalPlayer() && GameStates.IsMeeting && player.IsAlive()) ChatManager.SendPreviousMessagesToAll();
-
         Utils.SendMessage(Chemist.GetProcessesInfo(), player.PlayerId, CustomRoles.Chemist.ToColoredString());
     }
 
