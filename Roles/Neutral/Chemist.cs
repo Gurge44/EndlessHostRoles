@@ -30,6 +30,16 @@ internal class Chemist : RoleBase
     private static OptionItem GrenadeExplodeDelay;
     private static OptionItem GrenadeExplodeRadius;
 
+    private static readonly Dictionary<MapNames, SystemTypes> HottestRoom = new()
+    {
+        [MapNames.Skeld] = SystemTypes.Reactor,
+        [MapNames.MiraHQ] = SystemTypes.Reactor,
+        [MapNames.Polus] = SystemTypes.Dropship,
+        [MapNames.Dleks] = SystemTypes.Reactor,
+        [MapNames.Airship] = SystemTypes.GapRoom,
+        [MapNames.Fungle] = SystemTypes.Reactor
+    };
+
     private static readonly Dictionary<Factory, Dictionary<string, (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results)>> Processes = new()
     {
         [Factory.None] = [],
@@ -96,7 +106,6 @@ internal class Chemist : RoleBase
 
     private Dictionary<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> AcidPlayers;
     private HashSet<byte> BombedBodies;
-
     public PlayerControl ChemistPC;
     private Factory CurrentFactory;
     private Dictionary<byte, long> Grenades;
@@ -144,14 +153,14 @@ internal class Chemist : RoleBase
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times));
 
-        AcidPlayersDie = new StringOptionItem(++id, "Chemist.AcidPlayersDie", Enum.GetNames<AcidPlayersDieOptions>(), 0, tab)
+        AcidPlayersDie = new StringOptionItem(++id, "Chemist.AcidPlayersDie", Enum.GetNames<AcidPlayersDieOptions>(), 1, tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
 
-        AcidPlayersDieAfterTime = new IntegerOptionItem(++id, "Chemist.AcidPlayersDieAfterTime", new(1, 60, 1), 15, tab)
+        AcidPlayersDieAfterTime = new IntegerOptionItem(++id, "Chemist.AcidPlayersDieAfterTime", new(1, 60, 1), 30, tab)
             .SetParent(AcidPlayersDie)
             .SetValueFormat(OptionFormat.Seconds);
 
-        BlindDuration = new IntegerOptionItem(++id, "Chemist.BlindDuration", new(1, 60, 1), 10, tab)
+        BlindDuration = new IntegerOptionItem(++id, "Chemist.BlindDuration", new(1, 60, 1), 60, tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -159,7 +168,7 @@ internal class Chemist : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
             .SetValueFormat(OptionFormat.Seconds);
 
-        GrenadeExplodeRadius = new FloatOptionItem(++id, "Chemist.GrenadeExplodeRadius", new(0.25f, 10f, 0.25f), 4f, tab)
+        GrenadeExplodeRadius = new FloatOptionItem(++id, "Chemist.GrenadeExplodeRadius", new(0.25f, 10f, 0.25f), 8f, tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
             .SetValueFormat(OptionFormat.Multiplier);
 
@@ -237,7 +246,6 @@ internal class Chemist : RoleBase
     {
         opt.SetVision(HasImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
-
         if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
     }
 
@@ -245,7 +253,7 @@ internal class Chemist : RoleBase
     {
         return item switch
         {
-            Item.Air or Item.Coal or Item.IronOre or Item.Water => ItemType.BasicResource,
+            Item.Air or Item.Coal or Item.IronOre or Item.Water or Item.ThermalWater => ItemType.BasicResource,
             Item.Explosive or Item.Grenade or Item.SulfuricAcid or Item.MethylamineGas => ItemType.FinalProduct,
             _ => ItemType.IntermediateProduct
         };
@@ -367,7 +375,7 @@ internal class Chemist : RoleBase
         {
             Main.AllAlivePlayerControls
                 .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
-                .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && Vector2.Distance(x.Pos(), pos) < 1.5f)
+                .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && Vector2.Distance(x.Pos(), pos) < 2.5f)
                 .Do(x => acidPlayers.OtherAcidPlayers.Add(x.PlayerId));
         }
 
@@ -445,7 +453,9 @@ internal class Chemist : RoleBase
             if (force || kvp.Value.TimeStamp + AcidPlayersDieAfterTime.GetInt() <= Utils.TimeStamp)
             {
                 PlayerControl srcPlayer = Utils.GetPlayerById(kvp.Key);
-                if (srcPlayer != null && srcPlayer.IsAlive() && ChemistPC.RpcCheckAndMurder(srcPlayer, true)) srcPlayer.Suicide(realKiller: ChemistPC);
+
+                if (srcPlayer != null && srcPlayer.IsAlive() && ChemistPC.RpcCheckAndMurder(srcPlayer, true))
+                    srcPlayer.Suicide(realKiller: ChemistPC);
 
                 foreach (byte id in kvp.Value.OtherAcidPlayers)
                 {
@@ -479,6 +489,12 @@ internal class Chemist : RoleBase
         Factory beforeFactory = CurrentFactory;
         PlainShipRoom room = pc.GetPlainShipRoom();
 
+        if (ItemCounts[Item.ThermalWater] < 50 && room != null && room.RoomId == HottestRoom[Main.CurrentMap])
+        {
+            ItemCounts[Item.ThermalWater]++;
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)Item.ThermalWater, 1);
+        }
+
         if (room != null)
         {
             CurrentFactory = FactoryLocations.GetValueOrDefault(Translator.GetString($"{room.RoomId}"));
@@ -496,7 +512,8 @@ internal class Chemist : RoleBase
             }
         }
 
-        if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime) CheckAndKillAcidPlayers();
+        if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
+            CheckAndKillAcidPlayers();
 
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
@@ -585,9 +602,7 @@ internal class Chemist : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (Main.PlayerStates[seer.PlayerId].Role is not Chemist cm) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || ChemistPC.PlayerId != seer.PlayerId) return string.Empty;
 
         bool self = seer.PlayerId == target.PlayerId;
         if (self && seer.IsModdedClient() && !hud) return string.Empty;
@@ -596,7 +611,7 @@ internal class Chemist : RoleBase
 
         if (self)
         {
-            Dictionary<ItemType, Dictionary<Item, int>> grouped = cm.ItemCounts
+            Dictionary<ItemType, Dictionary<Item, int>> grouped = ItemCounts
                 .Where(x => x.Value > 0)
                 .GroupBy(x => GetItemType(x.Key))
                 .OrderBy(x => (int)x.Key)
@@ -614,9 +629,9 @@ internal class Chemist : RoleBase
                 sb.AppendLine();
             }
 
-            if (cm.SelectedProcess == string.Empty) return sb.ToString().TrimEnd();
+            if (SelectedProcess == string.Empty) return sb.ToString().TrimEnd();
 
-            (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[cm.CurrentFactory][cm.SelectedProcess];
+            (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[CurrentFactory][SelectedProcess];
 
             Func<(int Count, Item Item), string> selector = x => $"{x.Count} {Utils.ColorString(GetItemColor(x.Item), $"{GetChemicalForm(x.Item)}")}";
             sb.Append(string.Join(", ", Ingredients.Select(selector)));
@@ -629,7 +644,7 @@ internal class Chemist : RoleBase
             int time = AcidPlayersDieAfterTime.GetInt();
             long now = Utils.TimeStamp;
 
-            foreach (KeyValuePair<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> kvp in cm.AcidPlayers)
+            foreach (KeyValuePair<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> kvp in AcidPlayers)
             {
                 if (kvp.Key == target.PlayerId || kvp.Value.OtherAcidPlayers.Contains(target.PlayerId))
                 {
@@ -640,6 +655,56 @@ internal class Chemist : RoleBase
         }
 
         return sb.Append("</size>").ToString();
+    }
+
+    public static string GetProcessesInfo()
+    {
+        var sb = new StringBuilder();
+
+        foreach ((Factory factory, Dictionary<string, (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results)> processes) in Processes)
+        {
+            string factoryName = factory.ToString();
+            factoryName = string.Concat(factoryName.Select(c => char.IsUpper(c) ? " " + c : c.ToString())).Trim();
+
+            sb.Append("<b>");
+            sb.Append("<u>");
+            sb.Append(factoryName);
+            if (FactoryLocations.ContainsValue(factory)) sb.Append($" ({FactoryLocations.GetKeyByValue(factory)})");
+            sb.Append(':');
+            sb.Append("</u>");
+            sb.Append("</b>");
+
+            sb.AppendLine();
+            sb.AppendLine();
+
+            foreach ((string process, (List<(int Count, Item Item)> ingredients, List<(int Count, Item Item)> results)) in processes)
+            {
+                sb.Append("<i>");
+                sb.Append(process);
+                sb.Append(':');
+                sb.Append("</i>");
+                sb.AppendLine();
+
+                foreach ((int count, Item item) in ingredients)
+                {
+                    sb.Append($"{count} {Utils.ColorString(GetItemColor(item), $"{GetChemicalForm(item)}")}");
+                    sb.AppendLine();
+                }
+
+                sb.Append('➡');
+                if (results.Count > 1) sb.AppendLine();
+
+                foreach ((int count, Item item) in results)
+                {
+                    sb.Append($"{count} {Utils.ColorString(GetItemColor(item), $"{GetChemicalForm(item)}")}");
+                    sb.AppendLine();
+                }
+
+                sb.AppendLine();
+            }
+        }
+
+        return sb.ToString();
     }
 
     private enum AcidPlayersDieOptions
