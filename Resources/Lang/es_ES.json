@@ -2432,6 +2432,7 @@
   "CommandDescription.DraftDescription": "View the description of one of the roles you got in the draft.",
   "CommandDescription.Fix": "Fixes the black screen bug for a specific player.",
   "CommandDescription.XOR": "Specify 2 roles that will never spawn in the same game.",
+  "CommandDescription.ChemistInfo": "Show all processes available for the Chemist role.",
   "CommandArgs.ChangeSetting.Name": "El nombre de la configuración al cambiar (dejar en blanco para ver todas las configuraciones)",
   "CommandArgs.ChangeSetting.UnknownValue": "(dejar en blanco para ver que poner aquí)",
   "CommandArgs.Rename.Name": "Tu nuevo nombre",
