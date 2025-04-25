@@ -384,6 +384,24 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void ForgeCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ForgeCommand), text);
+            return;
+        }
+
+        if (!player.IsAlive() || !player.Is(CustomRoles.Forger) || player.GetAbilityUseLimit() < 1) return;
+        if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte targetId, out CustomRoles forgeRole, out _)) return;
+
+        Forger.Forges[targetId] = forgeRole;
+
+        player.RpcRemoveAbilityUse();
+    }
+
     private static void ChemistInfoCommand(PlayerControl player, string text, string[] args)
     {
         Utils.SendMessage(Chemist.GetProcessesInfo(), player.PlayerId, CustomRoles.Chemist.ToColoredString());

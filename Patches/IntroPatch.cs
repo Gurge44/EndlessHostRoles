@@ -466,7 +466,8 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Bomber or
                     CustomRoles.Nuker or
                     CustomRoles.Sapper or
-                    CustomRoles.Terrorist
+                    CustomRoles.Terrorist or
+                    CustomRoles.Battery
                     => ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Dictator or

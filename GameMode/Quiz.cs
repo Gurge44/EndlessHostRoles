@@ -499,7 +499,7 @@ public static class Quiz
 
     public static string GetTaskBarText()
     {
-        var correctAnswers = string.Join('\n', NumCorrectAnswers.Select(x => $"{x.Key.ColoredPlayerName()}: {x.Value.Select(k => $"{k.Key.ToString()[0]}-{k.Value.Sum()}")}"));
+        var correctAnswers = string.Join('\n', NumCorrectAnswers.Select(x => $"{x.Key.ColoredPlayerName()}: {string.Join(' ', x.Value.Select(k => $"{k.Key.ToString()[0]}-{k.Value.Sum()}"))}"));
         return string.Format(GetString("Quiz.TaskBarText"), CurrentDifficulty, Round + 1, QuestionsAsked + 1, correctAnswers);
     }
 
