@@ -2432,6 +2432,7 @@
   "CommandDescription.DraftDescription": "View the description of one of the roles you got in the draft.",
   "CommandDescription.Fix": "Fixes the black screen bug for a specific player.",
   "CommandDescription.XOR": "Specify 2 roles that will never spawn in the same game.",
+  "CommandDescription.ChemistInfo": "Show all processes available for the Chemist role.",
   "CommandArgs.ChangeSetting.Name": "要變更的設定名稱 (留空以查看所有設定)",
   "CommandArgs.ChangeSetting.UnknownValue": "(留空以查看此處放置的內容)",
   "CommandArgs.Rename.Name": "你的新名字",
