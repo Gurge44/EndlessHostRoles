@@ -486,6 +486,9 @@ public static class Utils
         if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && targetMainRole == CustomRoles.Agent && CustomHnS.PlayerRoles[seerId].Interface.Team != Team.Impostor)
             targetMainRole = CustomRoles.Hider;
 
+        if (GameStates.IsMeeting || ExileController.Instance || targetState.IsDead)
+            Forger.Forges.TryGetValue(targetId, out targetMainRole);
+
         if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles.TryGetValue(targetId, out CustomRoles shownRole))
             targetMainRole = shownRole;
 
@@ -807,6 +810,7 @@ public static class Utils
             case CustomRoles.NecroGuesser:
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
+            case CustomRoles.Dealer:
             case CustomRoles.Auditor:
             case CustomRoles.Magistrate:
             case CustomRoles.Seamstress:
@@ -1786,7 +1790,7 @@ public static class Utils
                         if (!multiple) writer.SendMessage(dispose: true);
                         return writer;
                     }
-                    
+
                     string[] lines = title.Split('\n');
                     var shortenedTitle = string.Empty;
 
@@ -2628,38 +2632,31 @@ public static class Utils
 
                             switch (seerRole)
                             {
-                                case CustomRoles.PlagueBearer:
-                                    if (PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId))
-                                    {
-                                        TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
-                                        PlagueBearer.SendRPC(seer, target);
-                                    }
-
+                                case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId):
+                                    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
+                                    PlagueBearer.SendRPC(seer, target);
                                     break;
                                 case CustomRoles.Arsonist:
                                     if (seer.IsDousedPlayer(target))
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
 
-                                    else if (Arsonist.ArsonistTimer.TryGetValue(seer.PlayerId, out (PlayerControl Player, float Timer) arKvp) && arKvp.Player == target) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
+                                    else if (Arsonist.ArsonistTimer.TryGetValue(seer.PlayerId, out (PlayerControl Player, float Timer) arKvp) && arKvp.Player == target)
+                                        TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
 
                                     break;
                                 case CustomRoles.Revolutionist:
                                     if (seer.IsDrawPlayer(target)) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
-
-                                    if (Revolutionist.RevolutionistTimer.TryGetValue(seer.PlayerId, out (PlayerControl Player, float Timer) arKvp1) && arKvp1.Player == target) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
-
+                                    if (Revolutionist.RevolutionistTimer.TryGetValue(seer.PlayerId, out (PlayerControl Player, float Timer) arKvp1) && arKvp1.Player == target)
+                                        TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
                                     break;
-                                case CustomRoles.Farseer:
-                                    if (Farseer.FarseerTimer.TryGetValue(seer.PlayerId, out (PlayerControl PLAYER, float TIMER) arKvp2) && arKvp2.PLAYER == target) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
-
+                                case CustomRoles.Farseer when Farseer.FarseerTimer.TryGetValue(seer.PlayerId, out (PlayerControl PLAYER, float TIMER) arKvp2) && arKvp2.PLAYER == target:
+                                    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
                                     break;
-                                case CustomRoles.Analyst:
-                                    if ((Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
-
+                                case CustomRoles.Analyst when (Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId:
+                                    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
                                     break;
-                                case CustomRoles.Samurai: // Same as Analyst
-                                    if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId) TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
-
+                                case CustomRoles.Samurai when (Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId:
+                                    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
                                     break;
                                 case CustomRoles.Puppeteer when Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId):
                                     TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
@@ -3533,6 +3530,18 @@ public static class Utils
             if (impShow && pc.Is(Team.Impostor)) impnum++;
             else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
             else if (covenShow && pc.Is(Team.Coven)) covenNum++;
+        }
+
+        foreach (byte id in Forger.Forges.Keys)
+        {
+            if (excludeId != byte.MaxValue && id == excludeId) continue;
+
+            var pc = id.GetPlayer();
+            if (pc == null || (!ExileController.Instance && pc.IsAlive())) continue;
+
+            if (impShow && pc.Is(Team.Impostor)) impnum--;
+            else if (nkShow && pc.IsNeutralKiller()) neutralnum--;
+            else if (covenShow && pc.Is(Team.Coven)) covenNum--;
         }
 
         impShow &= impnum > 0;

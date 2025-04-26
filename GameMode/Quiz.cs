@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -83,16 +82,18 @@ public static class Quiz
     private static int QuestionsAsked;
     private static long FFAEndTS;
     private static bool NoSuffix;
-
     public static bool AllowKills;
 
     private static OptionItem FFAEventLength;
     private static readonly Dictionary<Difficulty, (OptionItem Rounds, OptionItem QuestionsAsked, OptionItem CorrectRequirement, OptionItem TimeLimit)> Settings = [];
+    private static OptionItem ChatDuringGame;
 
     static Quiz()
     {
         UsedRooms[MapNames.Dleks] = UsedRooms[MapNames.Skeld];
     }
+
+    public static bool Chat => ChatDuringGame.GetBool();
 
     public static void SetupCustomOption()
     {
@@ -115,6 +116,7 @@ public static class Quiz
                 .SetGameMode(gameMode);
 
             var questionsAsked = new IntegerOptionItem(id++, $"Quiz.Settings.QuestionsAsked.{difficulty}", new(1, 50, 1), 3, TabGroup.GameSettings)
+                .SetHeader(difficulty == Difficulty.Hard)
                 .SetColor(color)
                 .SetGameMode(gameMode);
 
@@ -129,6 +131,11 @@ public static class Quiz
 
             Settings[difficulty] = (rounds, questionsAsked, correctRequirement, timeLimit);
         }
+
+        ChatDuringGame = new BooleanOptionItem(id, "Quiz.Settings.ChatDuringGame", false, TabGroup.GameSettings)
+            .SetHeader(true)
+            .SetColor(color)
+            .SetGameMode(gameMode);
     }
 
     public static string GetStatistics(byte id)
@@ -150,7 +157,9 @@ public static class Quiz
     {
         if (NoSuffix) return string.Empty;
 
-        bool wasWrong = DyingPlayers.Contains(seer.PlayerId);
+        int requiredCorrect;
+        int gotCorrect;
+        bool failed;
 
         if (FFAEndTS == 0)
         {
@@ -188,17 +197,17 @@ public static class Quiz
             string correctAnswer = CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex];
             char correctAnswerLetter = (char)('A' + CurrentQuestion.CorrectAnswerIndex);
             string correctRoom = GetString(UsedRooms[Main.CurrentMap][correctAnswerLetter].ToString());
-            string color = wasWrong ? "#FF0000" : "#00FF00";
+            string color = DyingPlayers.Contains(seer.PlayerId) ? "#FF0000" : "#00FF00";
             string str = string.Format(GetString("Quiz.Notify.CorrectAnswer"), color, correctAnswerLetter, correctAnswer, correctRoom);
 
             int numPlayers = Main.AllAlivePlayerControls.Length;
-            if (DyingPlayers.Count == numPlayers) str += "\n" + GetString("Quiz.Notify.AllWrong");
+            if (DyingPlayers.Count == numPlayers) str += "\n" + GetString(numPlayers <= 3 ? "Quiz.Notify.AllWrongShort" : "Quiz.Notify.AllWrong");
 
             if (CurrentDifficulty > Difficulty.Test && Settings[CurrentDifficulty].QuestionsAsked.GetInt() <= QuestionsAsked)
             {
-                int requiredCorrect = Settings[CurrentDifficulty].CorrectRequirement.GetInt();
-                int gotCorrect = NumCorrectAnswers[seer.PlayerId][CurrentDifficulty][Round];
-                bool failed = gotCorrect < requiredCorrect;
+                requiredCorrect = Settings[CurrentDifficulty].CorrectRequirement.GetInt();
+                gotCorrect = NumCorrectAnswers[seer.PlayerId][CurrentDifficulty][Round];
+                failed = gotCorrect < requiredCorrect;
 
                 if (seer.IsAlive()) str += "\n\n" + string.Format(Utils.ColorString(failed ? Color.red : Color.green, GetString("Quiz.Notify.CorrectAnswerNum")), gotCorrect, QuestionsAsked, requiredCorrect);
 
@@ -216,9 +225,13 @@ public static class Quiz
 
         if (!AllowKills) return string.Empty;
 
+        requiredCorrect = Settings[CurrentDifficulty].CorrectRequirement.GetInt();
+        gotCorrect = NumCorrectAnswers[seer.PlayerId][CurrentDifficulty][Round];
+        failed = gotCorrect < requiredCorrect;
+
         var ffaTimeLeft = FFAEndTS - Utils.TimeStamp;
-        var rndRoom = Main.AllAlivePlayerControls.Without(seer).Select(x => x.GetPlainShipRoom()).Where(x => x != null).Select(x => x.RoomId).Distinct().Without(SystemTypes.Hallway).RandomElement();
-        return string.Format(GetString(wasWrong ? "Quiz.Notify.FFAOngoing" : "Quiz.Notify.FFASpectating"), GetString(rndRoom.ToString()), ffaTimeLeft);
+        var rooms = Main.AllAlivePlayerControls.Without(seer).Select(x => x.GetPlainShipRoom()).Where(x => x != null).Select(x => x.RoomId).Distinct().Without(SystemTypes.Hallway).Select(x => GetString(x.ToString())).Join();
+        return string.Format(GetString(failed ? "Quiz.Notify.FFAOngoing" : "Quiz.Notify.FFASpectating"), rooms, ffaTimeLeft);
     }
 
     public static void Init()
@@ -247,6 +260,8 @@ public static class Quiz
 
     public static IEnumerator OnGameStart()
     {
+        if (Chat) yield return new WaitForSeconds(11f);
+
         NoSuffix = true;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 2;
@@ -285,9 +300,17 @@ public static class Quiz
 
             aapc.NotifyPlayers(GetString("Quiz.Tutorial.OnCorrectAnswer"));
             yield return new WaitForSeconds(2f);
-            if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
-            NameNotifyManager.Reset();
         }
+        else
+        {
+            NoSuffix = true;
+            var settings = Settings[CurrentDifficulty];
+            Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextStage"), (int)CurrentDifficulty, settings.Rounds.GetInt(), settings.QuestionsAsked.GetInt(), settings.CorrectRequirement.GetInt(), settings.QuestionsAsked.GetInt(), settings.TimeLimit.GetInt()), 8f);
+            yield return new WaitForSeconds(6f);
+        }
+
+        if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
+        NameNotifyManager.Reset();
 
         yield return NewQuestion(increaseDifficulty: showTutorial, newRound: true);
     }
@@ -301,7 +324,7 @@ public static class Quiz
             NoSuffix = true;
             var settings = Settings[CurrentDifficulty];
             Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextStage"), (int)CurrentDifficulty, settings.Rounds.GetInt(), settings.QuestionsAsked.GetInt(), settings.CorrectRequirement.GetInt(), settings.QuestionsAsked.GetInt(), settings.TimeLimit.GetInt()), 8f);
-            yield return new WaitForSeconds(7f);
+            yield return new WaitForSeconds(6f);
             if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
             NameNotifyManager.Reset();
         }
@@ -371,14 +394,14 @@ public static class Quiz
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
         DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
         bool everyoneWasWrong = DyingPlayers.Count == aapc.Length;
-        if (!everyoneWasWrong) NumCorrectAnswers.DoIf(x => !DyingPlayers.Contains(x.Key), x => x.Value[CurrentDifficulty][Round]++);
+        if (!everyoneWasWrong) NumCorrectAnswers.IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key).DoIf(x => !DyingPlayers.Contains(x.Key), x => x.Value[CurrentDifficulty][Round]++);
         Logger.Info($"{(everyoneWasWrong ? "Everyone" : "Players who")} got the question wrong: {string.Join(", ", DyingPlayers.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, $"Someone (ID {x})")))}", "Quiz");
         Logger.Info($"Number of correct answers for everyone currently: {string.Join(", ", NumCorrectAnswers.Select(x => $"{Main.AllPlayerNames.GetValueOrDefault(x.Key, string.Empty)}: {x.Value[CurrentDifficulty][Round]}"))}", "Quiz");
 
         if (everyoneWasWrong) QuestionsAsked--;
         else Utils.NotifyRoles();
 
-        yield return new WaitForSeconds(everyoneWasWrong ? 11f : 7f);
+        yield return new WaitForSeconds(everyoneWasWrong ? aapc.Length <= 3 ? 4f : 8f : 5f);
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
 
         var settings = Settings[CurrentDifficulty];
@@ -389,7 +412,7 @@ public static class Quiz
             yield break;
         }
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
 
         var correctRequirement = settings.CorrectRequirement.GetInt();
         List<byte> dyingPlayers = NumCorrectAnswers.Where(x => x.Value[CurrentDifficulty][Round] < correctRequirement).Select(x => x.Key).ToList();
@@ -412,7 +435,7 @@ public static class Quiz
                 NumCorrectAnswers.Values.Do(d => d[CurrentDifficulty][Round] = 0);
                 goto case 0;
             default:
-                yield return new WaitForSeconds(3f);
+                yield return new WaitForSeconds(2f);
                 AllowKills = true;
                 FFAEndTS = Utils.TimeStamp + FFAEventLength.GetInt();
                 var spectators = aapc.ExceptBy(dyingPlayers, x => x.PlayerId).ToArray();
@@ -439,8 +462,6 @@ public static class Quiz
 
                 var location = RandomSpawn.SpawnMap.GetSpawnMap().Positions.IntersectBy(UsedRooms[Main.CurrentMap].Values, x => x.Key).RandomElement().Value;
                 sender = CustomRpcSender.Create("Quiz.FFA-Event-TP", SendOption.Reliable);
-                spectators.Do(x => sender.TP(x, location));
-                sender.SendMessage();
 
                 switch (stillLiving.Count)
                 {
@@ -448,22 +469,38 @@ public static class Quiz
                         break;
                     case 1:
                         stillLiving[0].RpcChangeRoleBasis(CustomRoles.QuizPlayer);
+                        if (!Chat) sender.TP(stillLiving[0], location);
                         break;
                     default:
                         stillLiving.ForEach(x => x.Suicide());
                         break;
                 }
 
-                Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-                Utils.MarkEveryoneDirtySettings();
+                yield return new WaitForSeconds(1f);
 
-                yield return new WaitForSeconds(3f);
+                if (Chat)
+                {
+                    Utils.SetChatVisibleForAll();
+                    yield return new WaitForSeconds(11f);
+                    sender.TP(stillLiving[0], location);
+                }
+
+                spectators.Do(x => sender.TP(x, location));
+                sender.SendMessage();
+
+                yield return new WaitForSeconds(2f);
                 if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
 
                 FFAEndTS = 0;
                 yield return NewQuestion(increaseDifficulty: settings.Rounds.GetInt() <= Round, newRound: true);
                 yield break;
         }
+    }
+
+    public static string GetTaskBarText()
+    {
+        var correctAnswers = string.Join('\n', NumCorrectAnswers.Select(x => $"{x.Key.ColoredPlayerName()}: {string.Join(' ', x.Value.Select(k => $"{k.Key.ToString()[0]}-{k.Value.Sum()}"))}"));
+        return string.Format(GetString("Quiz.TaskBarText"), CurrentDifficulty, Round + 1, QuestionsAsked + 1, correctAnswers);
     }
 
     enum Difficulty

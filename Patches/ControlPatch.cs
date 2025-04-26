@@ -97,6 +97,9 @@ internal static class ControllerManagerUpdatePatch
                 GameEndChecker.Prefix();
             }
 
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift, KeyCode.LeftControl) && GameStates.IsInGame)
+                Utils.SetChatVisibleForAll();
+
             if (KeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsInGame)
             {
                 if (GameStates.IsMeeting)

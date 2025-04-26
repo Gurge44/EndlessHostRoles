@@ -902,12 +902,79 @@ public static class Options
                 var a = grouped[3].ElementAtOrDefault(i);
                 var add = Translator.GetString(a.ToString());
                 if (a == default) add = string.Empty;
-                sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {coven,17} | {add,17} |");
+                sb.AppendLine($"| {crew} | {imp} | {neu} | {coven} | {add} |");
             }
 
-            sb.Append($"| {grouped[2].Length,17} | {grouped[0].Length,17} | {grouped[1].Length,17} | {grouped[5].Length,17} | {grouped[3].Length,17} |");
+            sb.AppendLine("| | | | | |");
+            sb.Append($"| {grouped[2].Length} | {grouped[0].Length} | {grouped[1].Length} | {grouped[5].Length} | {grouped[3].Length} |");
 
             const string path = "./roles.txt";
+            if (!File.Exists(path)) File.Create(path).Close();
+            File.WriteAllText(path, sb.ToString());
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        // Used for generating the chat command table for the README
+        try
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine("| Command | Description | Arguments | Usage Level | Usage Time | Hidden |");
+            sb.AppendLine("|---------|-------------|-----------|-------------|------------|--------|");
+
+            foreach (Command command in ChatCommands.AllCommands)
+            {
+                string forms = command.CommandForms.TakeWhile(x => x.All(char.IsAscii)).Join(x => $"/{x}", "<br>");
+                string description = command.Description;
+
+                string argumentsMarkdown = "";
+
+                if (!string.IsNullOrWhiteSpace(command.Arguments) && command.Arguments.Length > 0)
+                {
+                    string[] args = command.Arguments.Split(' ');
+
+                    for (int i = 0; i < args.Length; i++)
+                    {
+                        string arg = args[i];
+                        string argName = arg.Trim('{', '}').Trim('[', ']');
+                        bool required = arg.StartsWith("{") && arg.EndsWith("}");
+                        string argDesc = command.ArgsDescriptions[i];
+                        string type = required ? "&#x1F538;" : "&#x1F539;";
+                        argumentsMarkdown += $"{type} **{argName}** – {argDesc}<br>";
+                    }
+                }
+                else
+                    argumentsMarkdown = "–";
+
+                string usageLevel = command.UsageLevel switch
+                {
+                    Command.UsageLevels.Everyone => "Everyone",
+                    Command.UsageLevels.Modded => "Modded Clients",
+                    Command.UsageLevels.Host => "Host",
+                    Command.UsageLevels.HostOrModerator => "Host And Moderators",
+                    _ => string.Empty
+                };
+
+                string usageTime = command.UsageTime switch
+                {
+                    Command.UsageTimes.Always => "Always",
+                    Command.UsageTimes.InLobby => "In Lobby",
+                    Command.UsageTimes.InGame => "In Game",
+                    Command.UsageTimes.InMeeting => "In Meetings",
+                    Command.UsageTimes.AfterDeath => "After Death",
+                    Command.UsageTimes.AfterDeathOrLobby => "After Death And In Lobby",
+                    _ => string.Empty
+                };
+
+                string hidden = command.AlwaysHidden ? ":heavy_check_mark:" : ":x:";
+
+                sb.AppendLine($"| {forms} | {description} | {argumentsMarkdown} | {usageLevel} | {usageTime} | {hidden} |");
+            }
+
+            sb.AppendLine("| | | | | | |");
+            sb.Append($"| {ChatCommands.AllCommands.Count} | | | | | |");
+
+            const string path = "./commands.txt";
             if (!File.Exists(path)) File.Create(path).Close();
             File.WriteAllText(path, sb.ToString());
         }
@@ -1453,7 +1520,7 @@ public static class Options
 
         AllCrewRolesHaveVanillaColor = new BooleanOptionItem(19424, "AllCrewRolesHaveVanillaColor", false, TabGroup.SystemSettings)
             .SetHeader(true);
-        
+
         MessageRpcSizeLimit = new IntegerOptionItem(19425, "MessageRpcSizeLimit", new(500, 100000, 100), 1400, TabGroup.SystemSettings)
             .SetHeader(true);
 

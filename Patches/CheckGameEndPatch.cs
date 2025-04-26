@@ -206,6 +206,7 @@ internal static class GameEndChecker
                         case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps1) && (WinnerRoles.Contains(ps1.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps1.SubRoles.Contains(CustomRoles.Bloodlust)))):
                         case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps2) && (WinnerRoles.Contains(ps2.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps2.SubRoles.Contains(CustomRoles.Bloodlust))))):
                         case CustomRoles.Postman when (roleBase as Postman).IsFinished:
+                        case CustomRoles.Dealer when (roleBase as Dealer).IsWon:
                         case CustomRoles.Impartial when (roleBase as Impartial).IsWon:
                         case CustomRoles.Tank when (roleBase as Tank).IsWon:
                         case CustomRoles.Technician when (roleBase as Technician).IsWon:
@@ -276,15 +277,7 @@ internal static class GameEndChecker
                         .Where(x => x.Team != null)
                         .GroupBy(x => x.Team)
                         .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId))
-                        .Do(x =>
-                        {
-                            bool canWin = CustomTeamManager.IsSettingEnabledForTeam(x.Key, CTAOption.WinWithOriginalTeam);
-
-                            if (!canWin)
-                                WinnerIds.ExceptWith(x.Value);
-                            else
-                                WinnerIds.UnionWith(x.Value);
-                        });
+                        .DoIf(x => !CustomTeamManager.IsSettingEnabledForTeam(x.Key, CTAOption.WinWithOriginalTeam), x => WinnerIds.ExceptWith(x.Value));
                 }
 
                 if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.TrueForAll(x => x.IsAlive()) && reason != GameOverReason.CrewmatesByTask)
@@ -504,6 +497,8 @@ internal static class GameEndChecker
                 WinnerIds.UnionWith(Main.LoversPlayers.ConvertAll(x => x.PlayerId));
                 return true;
             }
+
+            if (Main.AllAlivePlayerControls.Any(x => x.GetCountTypes() == CountTypes.CustomTeam)) return false;
 
             int sheriffCount = AlivePlayersCount(CountTypes.Sheriff);
 

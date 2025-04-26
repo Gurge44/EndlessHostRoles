@@ -143,6 +143,7 @@ internal static class CustomRolesHelper
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Occultist => CustomRoles.Impostor,
             CustomRoles.Wiper => CustomRoles.Impostor,
+            CustomRoles.Forger => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
             CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Wasp => CustomRoles.Impostor,
@@ -252,6 +253,7 @@ internal static class CustomRolesHelper
             CustomRoles.Convener => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Mathematician => CustomRoles.Crewmate,
             CustomRoles.Nightmare => CustomRoles.Crewmate,
+            CustomRoles.Battery => CustomRoles.Crewmate,
             CustomRoles.CameraMan => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Spy => CustomRoles.Crewmate,
             CustomRoles.Ricochet => CustomRoles.Crewmate,
@@ -486,6 +488,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Curser => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
+            CustomRoles.Dealer => RoleTypes.Impostor,
             CustomRoles.Auditor => RoleTypes.Impostor,
             CustomRoles.Seamstress => RoleTypes.Shapeshifter,
             CustomRoles.Spirit => RoleTypes.Shapeshifter,
@@ -670,6 +673,7 @@ internal static class CustomRolesHelper
             CustomRoles.Inhibitor or
             CustomRoles.Wiper or
             CustomRoles.Kidnapper or
+            CustomRoles.Forger or
             CustomRoles.Stasis or
             CustomRoles.Occultist or
             CustomRoles.Wasp or
@@ -1452,6 +1456,7 @@ internal static class CustomRolesHelper
             CustomRoles.Lawyer => RoleOptionType.Neutral_Benign,
             CustomRoles.Amnesiac => RoleOptionType.Neutral_Benign,
             CustomRoles.Postman => RoleOptionType.Neutral_Benign,
+            CustomRoles.Dealer => RoleOptionType.Neutral_Benign,
             CustomRoles.RoomRusher => RoleOptionType.Neutral_Benign,
             CustomRoles.SchrodingersCat => RoleOptionType.Neutral_Benign,
             CustomRoles.Predator => RoleOptionType.Neutral_Benign,
@@ -1561,6 +1566,7 @@ internal static class CustomRolesHelper
             CustomRoles.Duellist => RoleOptionType.Impostor_Concealing,
             CustomRoles.Echo => RoleOptionType.Impostor_Concealing,
             CustomRoles.Escapee => RoleOptionType.Impostor_Concealing,
+            CustomRoles.Forger => RoleOptionType.Impostor_Concealing,
             CustomRoles.Hangman => RoleOptionType.Impostor_Concealing,
             CustomRoles.Kidnapper => RoleOptionType.Impostor_Concealing,
             CustomRoles.BallLightning => RoleOptionType.Impostor_Concealing,
@@ -1679,6 +1685,7 @@ internal static class CustomRolesHelper
             CustomRoles.Altruist => RoleOptionType.Crewmate_Support,
             CustomRoles.Autocrat => RoleOptionType.Crewmate_Support,
             CustomRoles.Bane => RoleOptionType.Crewmate_Support,
+            CustomRoles.Battery => RoleOptionType.Crewmate_Support,
             CustomRoles.Beacon => RoleOptionType.Crewmate_Support,
             CustomRoles.Benefactor => RoleOptionType.Crewmate_Support,
             CustomRoles.Bodyguard => RoleOptionType.Crewmate_Support,

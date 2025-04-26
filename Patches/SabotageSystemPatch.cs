@@ -317,16 +317,15 @@ public static class SabotageSystemTypeRepairDamagePatch
     {
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
 
+        SystemTypes systemTypes;
+        {
+            MessageReader newReader = MessageReader.Get(msgReader);
+            systemTypes = (SystemTypes)newReader.ReadByte();
+            newReader.Recycle();
+        }
+
         if (Options.DisableSabotage.GetBool())
         {
-            SystemTypes systemTypes;
-
-            {
-                MessageReader newReader = MessageReader.Get(msgReader);
-                systemTypes = (SystemTypes)newReader.ReadByte();
-                newReader.Recycle();
-            }
-
             switch (systemTypes)
             {
                 case SystemTypes.Hallway:
@@ -362,6 +361,12 @@ public static class SabotageSystemTypeRepairDamagePatch
 
                     break;
             }
+        }
+
+        if (CustomRoles.Battery.RoleExist() && systemTypes == SystemTypes.Electrical)
+        {
+            player.Notify(string.Format(Translator.GetString("BatteryNotify"), CustomRoles.Battery.ToColoredString()), 10f);
+            return false;
         }
 
         if (SecurityGuard.BlockSabo.Count > 0) return false;

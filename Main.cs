@@ -74,6 +74,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
     public static readonly Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> AlwaysSpawnTogetherCombos = [];
     public static readonly Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> NeverSpawnTogetherCombos = [];
+    public static readonly List<(CustomRoles, CustomRoles)> XORRoles = [];
     public static Dictionary<byte, string> LastAddOns = [];
     public static List<RoleBase> AllRoleClasses;
     public static float RefixCooldownDelay;
@@ -407,6 +408,7 @@ public class Main : BasePlugin
                 { CustomRoles.Telekinetic, "#d6c618" },
                 { CustomRoles.Doppelganger, "#f6f4a3" },
                 { CustomRoles.Nightmare, "#1e1247" },
+                { CustomRoles.Battery, "#00ffff" },
                 { CustomRoles.Altruist, "#300000" },
                 { CustomRoles.Bane, "#745da3" },
                 { CustomRoles.Benefactor, "#4aeaff" },
@@ -416,6 +418,7 @@ public class Main : BasePlugin
                 { CustomRoles.Aid, "#D7BDE2" },
                 { CustomRoles.DonutDelivery, "#a46efa" },
                 { CustomRoles.Analyst, "#33ddff" },
+                { CustomRoles.Dealer, "#f57242" },
                 { CustomRoles.Escort, "#ff94e6" },
                 { CustomRoles.Spy, "#34495E" },
                 { CustomRoles.Doormaster, "#7FB3D5" },

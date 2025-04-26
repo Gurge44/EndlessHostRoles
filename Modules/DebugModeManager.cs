@@ -5,7 +5,7 @@ public static class DebugModeManager
     public static OptionItem EnableDebugMode;
     public static bool AmDebugger { get; private set; }
 #if DEBUG
-        true;
+        = true;
 #else
 #endif
 
