@@ -149,8 +149,6 @@ internal static class InnerNetObjectSerializePatch
 [HarmonyPatch(typeof(InnerNetClient))]
 public static class InnerNetClientPatch
 {
-    private static byte Timer;
-
     [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData))]
     [HarmonyPrefix]
     public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
