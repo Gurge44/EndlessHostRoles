@@ -3243,23 +3243,21 @@ internal static class ChatUpdatePatch
         }
 
         CustomRpcSender writer = sender ?? CustomRpcSender.Create("ChatUpdatePatch.SendMessage", SendOption.Reliable);
-        writer.StartMessage(clientId);
 
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        writer.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(title)
             .EndRpc();
 
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+        writer.AutoStartRpc(player.NetId, (byte)RpcCalls.SendChat, clientId)
             .Write(msg)
             .EndRpc();
 
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        writer.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(player.Data.PlayerName)
             .EndRpc();
 
-        writer.EndMessage();
         if (sender == null) writer.SendMessage();
     }
 }

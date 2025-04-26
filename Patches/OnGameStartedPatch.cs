@@ -1176,12 +1176,6 @@ internal static class StartGameHostPatch
     {
         try
         {
-            MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
-            stream.StartMessage(5);
-            stream.Write(AmongUsClient.Instance.GameId);
-
-            var hasValue = false;
-
             foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
             {
                 try
@@ -1201,34 +1195,10 @@ internal static class StartGameHostPatch
                         playerInfo.IsDead = data;
                     }
 
-                    stream.StartMessage(1);
-
-                    {
-                        stream.WritePacked(playerInfo.NetId);
-                        playerInfo.Serialize(stream, false);
-                    }
-
-                    stream.EndMessage();
-                    hasValue = true;
-
-                    if (stream.Length > 800)
-                    {
-                        stream.EndMessage();
-                        AmongUsClient.Instance.SendOrDisconnect(stream);
-                        stream.Recycle();
-                        stream = MessageWriter.Get(SendOption.Reliable);
-                        hasValue = false;
-                        stream.StartMessage(5);
-                        stream.Write(AmongUsClient.Instance.GameId);
-                    }
+                    playerInfo.MarkDirty();
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
-
-            stream.EndMessage();
-
-            if (hasValue) AmongUsClient.Instance.SendOrDisconnect(stream);
-            stream.Recycle();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

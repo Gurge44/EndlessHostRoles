@@ -1914,10 +1914,8 @@ public static class Utils
                         .Write(sender.Data.PlayerName)
                         .EndRpc();
 
-                    if (multiple) writer.EndMessage();
-                    else writer.SendMessage();
-
-                    if (multiple) RestartMessageIfTooLong();
+                    if (!multiple) writer.SendMessage();
+                    else RestartMessageIfTooLong();
                 }
 
                 return writer;
@@ -1965,10 +1963,8 @@ public static class Utils
                     .Write(sender.Data.PlayerName)
                     .EndRpc();
 
-                if (multiple) writer.EndMessage();
-                else writer.SendMessage();
-
-                if (multiple) RestartMessageIfTooLong();
+                if (!multiple) writer.SendMessage();
+                else RestartMessageIfTooLong();
             }
             else
                 RestartMessageIfTooLong();
@@ -2254,9 +2250,6 @@ public static class Utils
                 if (count++ % speed == 0) yield return null;
             }
 
-            if (sender?.CurrentState == CustomRpcSender.State.InRootMessage)
-                sender.EndMessage();
-
             if (sender?.stream.Length >= 800)
             {
                 sender.SendMessage();
@@ -2281,9 +2274,6 @@ public static class Utils
         foreach (PlayerControl seer in seerList)
         {
             WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList);
-
-            if (sender?.CurrentState == CustomRpcSender.State.InRootMessage)
-                sender.EndMessage();
 
             if (sender?.stream.Length >= 800)
             {
@@ -2315,7 +2305,6 @@ public static class Utils
                 return;
 
             sender ??= CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
-            if (sender.CurrentState == CustomRpcSender.State.Ready) sender.StartMessage(seer.GetClientId());
 
             // During the intro scene, set the team name for non-modded clients and skip the rest.
             string selfName;

@@ -143,48 +143,8 @@ public static class AntiBlackout
     {
         Logger.Info($"SendGameData is called from {callerMethodName}");
 
-        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
-        try
-        {
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
-
-            var hasValue = false;
-
-            foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
-            {
-                try
-                {
-                    writer.StartMessage(1); //0x01 Data
-                    {
-                        writer.WritePacked(playerinfo.NetId);
-                        playerinfo.Serialize(writer, false);
-                    }
-                    writer.EndMessage();
-                    hasValue = true;
-
-                    if (writer.Length > 800)
-                    {
-                        writer.EndMessage();
-                        AmongUsClient.Instance.SendOrDisconnect(writer);
-                        writer.Recycle();
-                        writer = MessageWriter.Get(SendOption.Reliable);
-                        hasValue = false;
-                        writer.StartMessage(5);
-                        writer.Write(AmongUsClient.Instance.GameId);
-                    }
-                }
-                catch (Exception e) { Utils.ThrowException(e); }
-            }
-
-            writer.EndMessage();
-
-            if (hasValue) AmongUsClient.Instance.SendOrDisconnect(writer);
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-
-        writer.Recycle();
+        foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+            playerInfo.MarkDirty();
     }
 
     public static void OnDisconnect(NetworkedPlayerInfo player)

@@ -188,31 +188,31 @@ namespace EHR
             msg.Write(AmongUsClient.Instance.GameId);
             AmongUsClient.Instance.WriteSpawnMessage(playerControl, -2, SpawnFlags.None, msg);
             msg.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(msg);
+            msg.Recycle();
 
             if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             {
-                msg.StartMessage(6);
-                msg.Write(AmongUsClient.Instance.GameId);
-                msg.WritePacked(int.MaxValue);
-
+                MessageWriter msg2 = MessageWriter.Get(SendOption.Reliable);
+                msg2.StartMessage(6);
+                msg2.Write(AmongUsClient.Instance.GameId);
+                msg2.WritePacked(int.MaxValue);
                 for (uint i = 1; i <= 3; ++i)
                 {
-                    msg.StartMessage(4);
-                    msg.WritePacked(2U);
-                    msg.WritePacked(-2);
-                    msg.Write((byte)SpawnFlags.None);
-                    msg.WritePacked(1);
-                    msg.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
-                    msg.StartMessage(1);
-                    msg.EndMessage();
-                    msg.EndMessage();
+                    msg2.StartMessage(4);
+                    msg2.WritePacked(2U);
+                    msg2.WritePacked(-2);
+                    msg2.Write((byte)SpawnFlags.None);
+                    msg2.WritePacked(1);
+                    msg2.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
+                    msg2.StartMessage(1);
+                    msg2.EndMessage();
+                    msg2.EndMessage();
                 }
-
-                msg.EndMessage();
+                msg2.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(msg2);
+                msg2.Recycle();
             }
-
-            AmongUsClient.Instance.SendOrDisconnect(msg);
-            msg.Recycle();
 
             if (PlayerControl.AllPlayerControls.Contains(playerControl))
                 PlayerControl.AllPlayerControls.Remove(playerControl);

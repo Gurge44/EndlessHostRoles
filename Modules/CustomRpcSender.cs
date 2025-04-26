@@ -668,6 +668,12 @@ public static class CustomRpcSenderExtensions
 
     public static void SyncSettings(this CustomRpcSender sender, PlayerControl player)
     {
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        {
+            player.SyncSettings();
+            return;
+        }
+        
         var optionsender = GameOptionsSender.AllSenders.OfType<PlayerGameOptionsSender>().FirstOrDefault(x => x.player.PlayerId == player.PlayerId);
         if (optionsender == null) return;
 

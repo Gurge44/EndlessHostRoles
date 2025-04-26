@@ -986,19 +986,19 @@ internal static class ExtendedPlayerControl
 
             var murderPos = Pelican.GetBlackRoomPS();
 
+            sender.TP(pc, murderPos);
+
+            sender.AutoStartRpc(pc.NetId, 12, targetClientId);
+            sender.WriteNetObject(dummyGhost);
+            sender.Write((int)MurderResultFlags.Succeeded);
+            sender.EndRpc();
+
             dummyGhost.NetTransform.SnapTo(murderPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
             dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
 
             sender.AutoStartRpc(dummyGhost.NetTransform.NetId, (byte)RpcCalls.SnapTo);
             sender.WriteVector2(murderPos);
             sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
-            sender.EndRpc();
-
-            sender.TP(pc, murderPos);
-
-            sender.AutoStartRpc(pc.NetId, 12, targetClientId);
-            sender.WriteNetObject(dummyGhost);
-            sender.Write((int)MurderResultFlags.Succeeded);
             sender.EndRpc();
         }
         else
@@ -1022,6 +1022,8 @@ internal static class ExtendedPlayerControl
             {
                 sender.TP(pc, pcPos);
 
+                sender.SetKillCooldown(pc, timer);
+
                 dummyGhost.NetTransform.SnapTo(ghostPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
                 dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
 
@@ -1029,8 +1031,6 @@ internal static class ExtendedPlayerControl
                 sender.WriteVector2(ghostPos);
                 sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
                 sender.EndRpc();
-
-                sender.SetKillCooldown(pc, timer);
 
                 LateTask.New(() => AFKDetector.TempIgnoredPlayers.ExceptWith([pc.PlayerId, dummyGhost.PlayerId]), 1f, log: false);
             }
