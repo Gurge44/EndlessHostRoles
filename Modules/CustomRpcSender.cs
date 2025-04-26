@@ -30,7 +30,9 @@ public class CustomRpcSender
 
     private readonly OnSendDelegateType onSendDelegate;
     private readonly SendOption sendOption;
-    public readonly MessageWriter stream;
+    public MessageWriter stream;
+
+    private readonly List<MessageWriter> doneStreams = [];
 
     // 0~: targetClientId (GameDataTo)
     // -1: All players (GameData)
@@ -94,7 +96,8 @@ public class CustomRpcSender
         if (currentRpcTarget != targetClientId)
         {
             // StartMessage processing
-            if (currentState == State.InRootMessage) EndMessage();
+            if (currentState == State.InRootMessage)
+                EndMessage(startNew: GameStates.CurrentServerType == GameStates.ServerType.Vanilla || stream.Length > 800);
 
             StartMessage(targetClientId);
         }
@@ -123,6 +126,19 @@ public class CustomRpcSender
 
         if (!dispose)
         {
+            if (doneStreams.Count > 0)
+            {
+                doneStreams.ForEach(x =>
+                {
+                    if (x.Length >= 1500 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
+                    
+                    AmongUsClient.Instance.SendOrDisconnect(x);
+                    x.Recycle();
+                });
+                
+                doneStreams.Clear();
+            }
+            
             AmongUsClient.Instance.SendOrDisconnect(stream);
             onSendDelegate();
         }
@@ -183,7 +199,7 @@ public class CustomRpcSender
         return this;
     }
 
-    public CustomRpcSender EndMessage()
+    public CustomRpcSender EndMessage(bool startNew = false)
     {
         if (currentState != State.InRootMessage)
         {
@@ -196,6 +212,12 @@ public class CustomRpcSender
         }
 
         stream.EndMessage();
+
+        if (startNew)
+        {
+            doneStreams.Add(stream);
+            stream = MessageWriter.Get(sendOption);
+        }
 
         currentRpcTarget = -2;
         currentState = State.Ready;
