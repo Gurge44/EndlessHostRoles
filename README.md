@@ -68,7 +68,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 #### Over 400 roles and add-ons, 12 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
-## List of Roles <span style="font-size: 12px;">(excluding Hide and Seek roles and vanilla roles)</span>
+## List of Roles <span style="font-size: 12px;">(excluding Custom Hide and Seek roles and vanilla roles)</span>
 
 | Crewmates         | Impostors       | Neutrals          | Coven         | Add-ons        |
 |-------------------|-----------------|-------------------|---------------|----------------|
