@@ -9,6 +9,7 @@ using EHR.Modules;
 using EHR.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Il2CppSystem.Linq.Expressions.Interpreter;
 using InnerNet;
 using UnityEngine;
 
@@ -25,11 +26,12 @@ public class CustomRpcSender
         Finished // Nothing can be done after sending
     }
 
+    private readonly bool log;
     private readonly bool isUnsafe;
-    private readonly string name;
+    public readonly string name;
 
     private readonly OnSendDelegateType onSendDelegate;
-    private readonly SendOption sendOption;
+    public readonly SendOption sendOption;
     public MessageWriter stream;
 
     private readonly List<MessageWriter> doneStreams = [];
@@ -43,18 +45,19 @@ public class CustomRpcSender
 
     private CustomRpcSender() { }
 
-    public CustomRpcSender(string name, SendOption sendOption, bool isUnsafe)
+    public CustomRpcSender(string name, SendOption sendOption, bool isUnsafe, bool log)
     {
         stream = MessageWriter.Get(sendOption);
 
         this.name = name;
         this.isUnsafe = isUnsafe;
         this.sendOption = sendOption;
+        this.log = log;
         currentRpcTarget = -2;
         onSendDelegate = () => { };
 
         currentState = State.Ready;
-        Logger.Info($"\"{name}\" is ready", "CustomRpcSender");
+        if (log) Logger.Info($"\"{name}\" is ready", "CustomRpcSender");
     }
 
     public State CurrentState
@@ -69,9 +72,9 @@ public class CustomRpcSender
         }
     }
 
-    public static CustomRpcSender Create(string name = "No Name Sender", SendOption sendOption = SendOption.None, bool isUnsafe = false)
+    public static CustomRpcSender Create(string name = "No Name Sender", SendOption sendOption = SendOption.None, bool isUnsafe = false, bool log = true)
     {
-        return new(name, sendOption, isUnsafe);
+        return new(name, sendOption, isUnsafe, log);
     }
 
     public CustomRpcSender AutoStartRpc(
@@ -122,7 +125,7 @@ public class CustomRpcSender
         }
 
         if (stream.Length >= 1500 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
-        else Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose}, sendOption: {sendOption})", "CustomRpcSender");
+        else if (log || stream.Length > 3) Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose}, sendOption: {sendOption})", "CustomRpcSender");
 
         if (!dispose)
         {
@@ -505,9 +508,8 @@ public static class CustomRpcSenderExtensions
         }
         else if (forceAnime || !player.IsModdedClient() || !Options.DisableShieldAnimations.GetBool())
         {
-            sender.SyncSettings(player);
-            sender.RpcGuardAndKill(player, target, fromSetKCD: true);
-            returnValue = true;
+            returnValue |= sender.SyncSettings(player);
+            returnValue |= sender.RpcGuardAndKill(player, target, fromSetKCD: true);
         }
         else
         {
@@ -588,10 +590,10 @@ public static class CustomRpcSenderExtensions
         FixedUpdatePatch.LoversSuicide(player.PlayerId);
     }
 
-    public static void Notify(this CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    public static bool Notify(this CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
     {
-        if (!AmongUsClient.Instance.AmHost || pc == null) return;
-        if (!GameStates.IsInTask) return;
+        if (!AmongUsClient.Instance.AmHost || pc == null) return false;
+        if (!GameStates.IsInTask) return false;
         if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
         if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
 
@@ -601,10 +603,14 @@ public static class CustomRpcSenderExtensions
             NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
         else
             notifies[text] = expireTS;
+        
+        bool returnValue = pc.IsNonHostModClient();
 
-        if (pc.IsNonHostModClient()) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
-        if (setName) Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], []);
+        if (returnValue) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
+        if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+
+        return returnValue;
     }
 
     public static bool TP(this CustomRpcSender sender, PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
@@ -662,20 +668,19 @@ public static class CustomRpcSenderExtensions
     public static bool NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target)
     {
         if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
-        Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target]);
-        return true;
+        return Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out bool senderWasCleared) && !senderWasCleared;
     }
 
-    public static void SyncSettings(this CustomRpcSender sender, PlayerControl player)
+    public static bool SyncSettings(this CustomRpcSender sender, PlayerControl player)
     {
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
         {
             player.SyncSettings();
-            return;
+            return false;
         }
         
         var optionsender = GameOptionsSender.AllSenders.OfType<PlayerGameOptionsSender>().FirstOrDefault(x => x.player.PlayerId == player.PlayerId);
-        if (optionsender == null) return;
+        if (optionsender == null) return false;
 
         var options = optionsender.BuildGameOptions();
 
@@ -688,7 +693,7 @@ public static class CustomRpcSenderExtensions
             }
 
             GameOptionsManager.Instance.CurrentGameOptions = options;
-            return;
+            return false;
         }
 
         var logicOptions = GameManager.Instance.LogicOptions;
@@ -714,5 +719,7 @@ public static class CustomRpcSenderExtensions
             writer.EndMessage();
         }
         writer.EndMessage();
+
+        return true;
     }
 }

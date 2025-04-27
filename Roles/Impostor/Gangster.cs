@@ -85,20 +85,21 @@ public class Gangster : RoleBase
             target.RpcSetCustomRole(convertedAddon);
 
             var sender = CustomRpcSender.Create("Gangster.OnCheckMurder", SendOption.Reliable);
+            var hasValue = false;
 
-            sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("GangsterSuccessfullyRecruited")), setName: false);
-            sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")), setName: false);
+            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("GangsterSuccessfullyRecruited")), setName: false);
+            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")), setName: false);
 
             killer.ResetKillCooldown();
-            sender.SyncSettings(killer);
-            sender.SetKillCooldown(killer);
-            sender.RpcGuardAndKill(target, killer);
-            sender.RpcGuardAndKill(target, target);
+            hasValue |= sender.SyncSettings(killer);
+            hasValue |= sender.SetKillCooldown(killer);
+            hasValue |= sender.RpcGuardAndKill(target, killer);
+            hasValue |= sender.RpcGuardAndKill(target, target);
 
-            sender.NotifyRolesSpecific(killer, target);
-            sender.NotifyRolesSpecific(target, killer);
+            hasValue |= sender.NotifyRolesSpecific(killer, target);
+            hasValue |= sender.NotifyRolesSpecific(target, killer);
 
-            sender.SendMessage();
+            sender.SendMessage(!hasValue);
 
             Logger.Info($"SetRole: {target?.Data?.PlayerName} = {target.GetCustomRole()} + {convertedAddon}", $"Assign {convertedAddon}");
             if (killer.GetAbilityUseLimit() <= 0) HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");

@@ -130,15 +130,16 @@ public class CopyCat : RoleBase
             TempLimit = pc.GetAbilityUseLimit();
 
             var sender = CustomRpcSender.Create("Copycat.OnCheckMurder", SendOption.Reliable);
+            var hasValue = false;
 
             pc.RpcSetCustomRole(role);
-            pc.RpcChangeRoleBasis(role, sender: sender);
+            hasValue |= pc.RpcChangeRoleBasis(role, sender: sender);
             pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());
 
-            sender.Notify(pc, string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
-            sender.SyncSettings(pc);
+            hasValue |= sender.Notify(pc, string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
+            hasValue |= sender.SyncSettings(pc);
 
-            sender.SendMessage();
+            sender.SendMessage(!hasValue);
 
             LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
             return false;

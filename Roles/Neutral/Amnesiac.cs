@@ -205,19 +205,20 @@ public class Amnesiac : RoleBase
         }
 
         var sender = CustomRpcSender.Create("Amnesiac.RememberRole", SendOption.Reliable);
+        var hasValue = false;
 
         CustomRoles role = RememberedRole.Value;
 
         amnesiac.RpcSetCustomRole(role);
-        amnesiac.RpcChangeRoleBasis(role, sender: sender);
+        hasValue |= amnesiac.RpcChangeRoleBasis(role, sender: sender);
 
-        sender.Notify(amnesiac, amneNotifyString);
-        sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
+        hasValue |= sender.Notify(amnesiac, amneNotifyString);
+        hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
 
-        sender.RpcGuardAndKill(target, amnesiac);
-        sender.RpcGuardAndKill(target, target);
+        hasValue |= sender.RpcGuardAndKill(target, amnesiac);
+        hasValue |= sender.RpcGuardAndKill(target, target);
 
-        sender.SendMessage();
+        sender.SendMessage(!hasValue);
 
         LateTask.New(() => amnesiac.SetKillCooldown(3f), 0.2f, log: false);
         if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);

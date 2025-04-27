@@ -278,8 +278,7 @@ public static class KingOfTheZones
                 try
                 {
                     NetworkedPlayerInfo.PlayerOutfit skin = new NetworkedPlayerInfo.PlayerOutfit().Set(name, team.GetColorId(), "", "", "", "", "");
-                    Utils.RpcChangeSkin(player, skin, writer);
-                    hasData = true;
+                    hasData |= Utils.RpcChangeSkin(player, skin, writer);
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
 
@@ -291,9 +290,8 @@ public static class KingOfTheZones
                     notify = notify.Insert(0, tutorial + "\n\n");
                 }
 
-                writer.Notify(player, $"<#ffffff>{notify}</color>", 100f);
+                hasData |= writer.Notify(player, $"<#ffffff>{notify}</color>", 100f);
                 Logger.Info($"{name} assigned to {team} team", "KOTZ");
-                hasData = true;
 
                 if (writer.stream.Length > 800)
                 {

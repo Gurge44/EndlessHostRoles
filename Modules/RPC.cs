@@ -254,7 +254,6 @@ internal static class RPCHandlerPatch
                 if (Options.EndWhenPlayerBug.GetBool())
                 {
                     Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): {reader.ReadString()} - Error, terminate the game according to settings", "Anti-blackout");
-                    ChatUpdatePatch.DoBlockChat = true;
                     Main.OverrideWelcomeMsg = string.Format(GetString("RpcAntiBlackOutNotifyInLobby"), __instance?.Data?.PlayerName, GetString("EndWhenPlayerBug"));
                     LateTask.New(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutEndGame"), __instance?.Data?.PlayerName) /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
 
@@ -265,7 +264,7 @@ internal static class RPCHandlerPatch
                         RPC.ForceEndGame(CustomWinner.Error);
                     }, 5.5f, "Anti-Black End Game");
 
-                    LateTask.New(() => ChatUpdatePatch.DoBlockChat = false, 6f, log: false);
+                    LateTask.New(() => { }, 6f, log: false);
                 }
                 else if (GameStates.IsOnlineGame)
                 {
@@ -1191,6 +1190,9 @@ internal static class RPC
     public static void PlaySoundRPC(byte PlayerID, Sounds sound)
     {
         if (AmongUsClient.Instance.AmHost) PlaySound(PlayerID, sound);
+        
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && Options.CurrentGameMode != CustomGameMode.Standard)
+            return; // Spamming this may disconnect the host
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, SendOption.Reliable);
         writer.Write(PlayerID);
@@ -1237,13 +1239,6 @@ internal static class RPC
         }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ExileAsync(PlayerControl player)
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-        player.Exiled();
     }
 
     public static void RpcVersionCheck()

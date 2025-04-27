@@ -1283,7 +1283,7 @@ internal static class StartGameHostPatch
                 {
                     try
                     {
-                        Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false)
+                        Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false, true)
                             .StartMessage(pc.GetClientId());
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
@@ -1494,35 +1494,47 @@ internal static class StartGameHostPatch
 
         public static void ResetRoleMapMidGame()
         {
-            RoleMap.Clear();
-
-            Dictionary<byte, PlayerState>.ValueCollection states = Main.PlayerStates.Values;
-
-            foreach (PlayerState targetState in states)
+            try
             {
-                CustomRoles targetMainRole = targetState.MainRole;
-                RoleTypes selfRoleTypes = targetMainRole.GetRoleTypes();
+                RoleMap.Clear();
 
-                foreach (PlayerState seerState in states)
+                Dictionary<byte, PlayerState>.ValueCollection states = Main.PlayerStates.Values;
+
+                foreach (PlayerState targetState in states)
                 {
-                    byte seerID = seerState.Player.PlayerId;
-                    byte targetID = targetState.Player.PlayerId;
-
-                    if (seerID == targetID || selfRoleTypes is RoleTypes.Noisemaker)
+                    try
                     {
-                        RoleMap[(seerID, targetID)] = (selfRoleTypes, targetMainRole);
-                        continue;
+                        CustomRoles targetMainRole = targetState.MainRole;
+                        RoleTypes selfRoleTypes = targetState.Player.GetRoleTypes();
+
+                        foreach (PlayerState seerState in states)
+                        {
+                            try
+                            {
+                                byte seerID = seerState.Player.PlayerId;
+                                byte targetID = targetState.Player.PlayerId;
+
+                                if (seerID == targetID || selfRoleTypes is RoleTypes.Noisemaker)
+                                {
+                                    RoleMap[(seerID, targetID)] = (selfRoleTypes, targetMainRole);
+                                    continue;
+                                }
+
+                                CustomRoles seerMainRole = seerState.MainRole;
+
+                                RoleMap[(seerID, targetID)] = seerState.Player.HasDesyncRole()
+                                    ? (RoleTypes.Scientist, targetMainRole)
+                                    : (seerState.Player.IsImpostor() && targetState.Player.IsImpostor())
+                                        ? (selfRoleTypes, seerMainRole)
+                                        : (RoleTypes.Crewmate, seerMainRole);
+                            }
+                            catch (Exception e) { Utils.ThrowException(e); }
+                        }
                     }
-
-                    CustomRoles seerMainRole = seerState.MainRole;
-
-                    RoleMap[(seerID, targetID)] = seerState.Player.HasDesyncRole()
-                        ? (RoleTypes.Scientist, targetMainRole)
-                        : (seerMainRole.IsImpostor() && targetMainRole.IsImpostor())
-                            ? (selfRoleTypes, seerMainRole)
-                            : (RoleTypes.Crewmate, seerMainRole);
+                    catch (Exception e) { Utils.ThrowException(e); }
                 }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
     }
 }

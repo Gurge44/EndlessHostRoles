@@ -193,8 +193,7 @@ internal static class ExileControllerWrapUpPatch
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
-                sender.Notify(pc, finalText, r.Next(7, 13));
-                hasValue = true;
+                hasValue |= sender.Notify(pc, finalText, r.Next(7, 13));
 
                 if (sender.stream.Length > 800)
                 {

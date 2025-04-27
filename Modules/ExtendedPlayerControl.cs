@@ -321,9 +321,9 @@ internal static class ExtendedPlayerControl
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
-    public static void RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, CustomRpcSender sender = null)
+    public static bool RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, CustomRpcSender sender = null)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return false;
 
         if (AntiBlackout.SkipTasks || ExileController.Instance)
         {
@@ -333,14 +333,14 @@ internal static class ExtendedPlayerControl
             string callerClassName = callerMethod?.DeclaringType?.FullName;
             Logger.Warn($"{callerClassName}.{callerMethodName} tried to change the role basis of {player.GetNameWithRole()} during anti-blackout processing or ejection screen showing, delaying the code to run after these tasks are complete", "RpcChangeRoleBasis");
             Main.Instance.StartCoroutine(DelayBasisChange());
-            return;
+            return false;
 
             IEnumerator DelayBasisChange()
             {
                 while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
                 yield return new WaitForSeconds(1f);
                 Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
-                player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap, sender);
+                player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
             }
         }
 
@@ -515,6 +515,8 @@ internal static class ExtendedPlayerControl
         Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
 
         Main.ChangedRole = true;
+
+        return true;
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/Utils.cs

@@ -35,7 +35,6 @@ internal static class OnGameJoinedPatch
         RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
 
-        ChatUpdatePatch.DoBlockChat = false;
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
 
@@ -293,7 +292,6 @@ internal static class OnPlayerLeftPatch
         finally
         {
             if (!GameStates.IsLobby && GameStates.IsInTask && !ExileController.Instance) Utils.NotifyRoles(ForceLoop: true);
-            ChatUpdatePatch.DoBlockChat = false;
         }
     }
 }

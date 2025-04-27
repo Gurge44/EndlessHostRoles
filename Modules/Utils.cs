@@ -80,7 +80,6 @@ public static class Utils
         if (AmongUsClient.Instance.AmHost)
         {
             Logger.Fatal($"{text} error, triggering anti-black screen measures", "Anti-Blackout");
-            ChatUpdatePatch.DoBlockChat = true;
             Main.OverrideWelcomeMsg = GetString("AntiBlackOutNotifyInLobby");
             LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
 
@@ -91,7 +90,7 @@ public static class Utils
                 RPC.ForceEndGame(CustomWinner.Error);
             }, 5.5f, "Anti-Black End Game");
 
-            LateTask.New(() => ChatUpdatePatch.DoBlockChat = false, 6f, log: false);
+            LateTask.New(() => { }, 6f, log: false);
         }
         else
         {
@@ -310,7 +309,6 @@ public static class Utils
             if (targetRole == CustomRoles.CyberStar)
             {
                 if (!Options.ImpKnowCyberStarDead.GetBool() && seer.GetCustomRole().IsImpostor()) continue;
-
                 if (!Options.NeutralKnowCyberStarDead.GetBool() && seer.GetCustomRole().IsNeutral()) continue;
 
                 seer.KillFlash();
@@ -2239,25 +2237,28 @@ public static class Utils
         var count = 0;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
-        CustomRpcSender sender = null;
+        var sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", SendOption.Reliable);
+        var hasValue = false;
 
         foreach (PlayerControl seer in aapc)
         {
             foreach (PlayerControl target in aapc)
             {
                 if (GameStates.IsMeeting) yield break;
-                WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target]);
+                hasValue |= WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target], out bool senderWasCleared);
+                hasValue &= !senderWasCleared;
                 if (count++ % speed == 0) yield return null;
             }
 
-            if (sender?.stream.Length >= 800)
+            if (sender.stream.Length >= 800)
             {
                 sender.SendMessage();
-                sender = null;
+                sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", SendOption.Reliable);
+                hasValue = false;
             }
         }
 
-        sender?.SendMessage();
+        sender.SendMessage(dispose: !hasValue);
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -2269,20 +2270,23 @@ public static class Utils
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
         PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
 
-        CustomRpcSender sender = null;
+        var sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
+        var hasValue = false;
 
         foreach (PlayerControl seer in seerList)
         {
-            WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList);
-
-            if (sender?.stream.Length >= 800)
+            hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared);
+            hasValue &= !senderWasCleared;
+            
+            if (sender.stream.Length >= 800)
             {
-                sender?.SendMessage();
-                sender = null;
+                sender.SendMessage();
+                sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
+                hasValue = false;
             }
         }
 
-        sender?.SendMessage();
+        sender.SendMessage(dispose: !hasValue);
 
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
@@ -2295,14 +2299,16 @@ public static class Utils
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
     }
 
-    public static void WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, PlayerControl[] seerList, PlayerControl[] targetList)
+    public static bool WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, PlayerControl[] seerList, PlayerControl[] targetList, out bool senderWasCleared)
     {
         long now = TimeStamp;
+        var hasValue = false;
+        senderWasCleared = false;
 
         try
         {
             if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby))
-                return;
+                return false;
 
             sender ??= CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
 
@@ -2321,20 +2327,20 @@ public static class Utils
                 selfName = $"{selfTeamName}\r\n<size=150%>{seerRole.ToColoredString()}</size>{roleNameUp}";
 
                 sender.RpcSetName(seer, selfName, seer);
-                return;
+                return true;
             }
 
             if (seer.Is(CustomRoles.Car) && !forMeeting)
             {
                 sender.RpcSetName(seer, Car.Name);
-                return;
+                return true;
             }
 
             if (forMeeting && Magistrate.CallCourtNextMeeting)
             {
                 selfName = seer.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
                 sender.RpcSetName(seer, selfName);
-                return;
+                return true;
             }
 
             var fontSize = "1.7";
@@ -2571,6 +2577,7 @@ public static class Utils
             if (selfName.EndsWith("</color>")) selfName = selfName.Remove(selfName.Length - 8);
 
             sender.RpcSetName(seer, selfName, seer);
+            hasValue = true;
 
             bool onlySelfNameUpdateRequired = Options.CurrentGameMode switch
             {
@@ -2584,7 +2591,7 @@ public static class Utils
                 _ => false
             };
 
-            if (onlySelfNameUpdateRequired) return;
+            if (onlySelfNameUpdateRequired) return true;
 
             // Run the second loop only when necessary, such as when the seer is dead
             if (seer.Data.IsDead || !seer.IsAlive() || noCache || camouflageIsForMeeting || mushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || forceLoop || seerList.Length == 1 || targetList.Length == 1)
@@ -2811,6 +2818,16 @@ public static class Utils
                             if (targetName.EndsWith("</color>")) targetName = targetName.Remove(targetName.Length - 8);
 
                             sender.RpcSetName(target, targetName, seer);
+                            hasValue = true;
+                            senderWasCleared = false;
+
+                            if (sender.stream.Length > 800)
+                            {
+                                sender.SendMessage();
+                                sender = CustomRpcSender.Create(sender.name, sender.sendOption);
+                                hasValue = false;
+                                senderWasCleared = true;
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -2838,6 +2855,8 @@ public static class Utils
             else
                 Logger.Error($"Error for {seer.GetNameWithRole()}: {ex}", "NR");
         }
+
+        return hasValue;
     }
 
     public static void MarkEveryoneDirtySettings()
@@ -2866,13 +2885,13 @@ public static class Utils
         Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
     }
 
-    public static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null)
+    public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null)
     {
-        if (newOutfit.Compare(pc.Data.DefaultOutfit)) return;
+        if (newOutfit.Compare(pc.Data.DefaultOutfit)) return false;
 
         Camouflage.SetPetForOutfitIfNecessary(newOutfit);
 
-        if (newOutfit.Compare(pc.Data.DefaultOutfit)) return;
+        if (newOutfit.Compare(pc.Data.DefaultOutfit)) return false;
 
         var sender = writer ?? CustomRpcSender.Create($"Utils.RpcChangeSkin({pc.Data.PlayerName})", SendOption.Reliable);
 
@@ -2933,6 +2952,8 @@ public static class Utils
             .EndRpc();
 
         if (writer == null) sender.SendMessage();
+
+        return true;
     }
 
     public static string GetGameStateData(bool clairvoyant = false)
@@ -3179,6 +3200,8 @@ public static class Utils
 
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)
     {
+        PlayerControl targetRealKiller = target.GetRealKiller();
+
         try
         {
             if (!onMeeting) Main.DiedThisRound.Add(target.PlayerId);
@@ -3208,7 +3231,7 @@ public static class Utils
                     Lawyer.SendRPC(target.PlayerId);
                     break;
                 case CustomRoles.PlagueDoctor when !disconnect && !onMeeting:
-                    PlagueDoctor.OnPDdeath(target.GetRealKiller(), target);
+                    PlagueDoctor.OnPDdeath(targetRealKiller, target);
                     break;
                 case CustomRoles.CyberStar when !disconnect:
                     if (onMeeting)
@@ -3248,7 +3271,7 @@ public static class Utils
             if (!disconnect && !onMeeting) Randomizer.OnAnyoneDeath(target);
             if (Executioner.Target.ContainsValue(target.PlayerId)) Executioner.ChangeRoleByTarget(target);
             if (Lawyer.Target.ContainsValue(target.PlayerId)) Lawyer.ChangeRoleByTarget(target);
-            if (!disconnect && !onMeeting && target.Is(CustomRoles.Stained)) Stained.OnDeath(target, target.GetRealKiller());
+            if (!disconnect && !onMeeting && target.Is(CustomRoles.Stained)) Stained.OnDeath(target, targetRealKiller);
             if (!disconnect && target.Is(CustomRoles.Spurt)) Spurt.DeathTask(target);
 
             Postman.CheckAndResetTargets(target, !onMeeting && !disconnect);
@@ -3263,9 +3286,9 @@ public static class Utils
                 Scout.OnPlayerDeath(target);
                 Dad.OnAnyoneDeath(target);
                 Crewmate.Sentry.OnAnyoneMurder(target);
-                Soothsayer.OnAnyoneDeath(target.GetRealKiller());
+                Soothsayer.OnAnyoneDeath(targetRealKiller);
 
-                TargetDies(target.GetRealKiller(), target);
+                TargetDies(targetRealKiller, target);
             }
 
             if (!onMeeting)
@@ -3293,8 +3316,8 @@ public static class Utils
 
         if (target == null || (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive()) || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-        PlayerControl killer = target.GetRealKiller();
-        if (killer != null) target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString())}</color>", 10f);
+        if (targetRealKiller != null)
+            target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), targetRealKiller.PlayerId.ColoredPlayerName(), (targetRealKiller.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + targetRealKiller.GetCustomRole().ToColoredString())}</color>", 10f);
     }
 
     public static void CountAlivePlayers(bool sendLog = false)

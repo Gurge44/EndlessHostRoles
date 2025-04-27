@@ -309,7 +309,7 @@ internal static class ChatCommands
 
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
 
-        if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
+        if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
             {
@@ -3162,7 +3162,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && (player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
+        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && (player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             ChatManager.SendPreviousMessagesToAll(true);
             canceled = true;
@@ -3201,9 +3201,7 @@ internal static class ChatCommands
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal static class ChatUpdatePatch
 {
-    public static bool DoBlockChat;
     public static bool LoversMessage;
-
     public static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
 
     public static void Postfix(ChatController __instance)

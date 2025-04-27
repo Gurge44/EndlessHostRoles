@@ -220,7 +220,6 @@ public static class ChatManager
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        ChatUpdatePatch.DoBlockChat = true;
         Logger.Info($" clear: {clear}", "ChatManager.SendPreviousMessagesToAll");
 
         try
@@ -259,7 +258,7 @@ public static class ChatManager
             ChatUpdatePatch.SendLastMessages(writer);
             writer.SendMessage();
         }
-        finally { ChatUpdatePatch.DoBlockChat = false; }
+        finally { }
     }
 
     private static void SendRPC(CustomRpcSender writer, InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
