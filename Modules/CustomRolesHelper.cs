@@ -1169,7 +1169,6 @@ internal static class CustomRolesHelper
     public static RoleTypes GetRoleTypes(this CustomRoles role)
     {
         if (Enum.TryParse(role.GetVNRole(true).ToString().Replace("EHR", ""), true, out RoleTypes type)) return type;
-
         return role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate;
     }
 

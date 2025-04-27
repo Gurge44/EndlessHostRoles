@@ -2242,7 +2242,7 @@ public static class Utils
                 if (GameStates.IsMeeting) yield break;
                 var sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", SendOption.Reliable, log: false);
                 var hasValue = WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target], out bool senderWasCleared) && !senderWasCleared;
-                sender.SendMessage(!hasValue);
+                sender.SendMessage(!hasValue || sender.stream.Length <= 3);
                 if (count++ % speed == 0) yield return null;
             }
         }
@@ -2263,8 +2263,8 @@ public static class Utils
         foreach (PlayerControl seer in seerList)
         {
             hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared);
-            hasValue &= !senderWasCleared;
-            
+            if (senderWasCleared) hasValue = false;
+
             if (sender.stream.Length >= 800)
             {
                 sender.SendMessage();
@@ -2273,7 +2273,7 @@ public static class Utils
             }
         }
 
-        sender.SendMessage(dispose: !hasValue);
+        sender.SendMessage(dispose: !hasValue || sender.stream.Length <= 3);
 
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
