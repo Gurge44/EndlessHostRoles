@@ -270,7 +270,7 @@ public static class ChatManager
             }
         }
 
-        hasValue |= ChatUpdatePatch.SendLastMessages(writer);
+        hasValue |= ChatUpdatePatch.SendLastMessages(ref writer);
         writer.SendMessage(!hasValue);
     }
 

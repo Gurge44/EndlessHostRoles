@@ -3218,18 +3218,20 @@ internal static class ChatUpdatePatch
         LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
     }
 
-    internal static bool SendLastMessages(CustomRpcSender sender)
+    internal static bool SendLastMessages(ref CustomRpcSender sender)
     {
         PlayerControl player = GameStates.IsLobby ? Main.AllPlayerControls.Without(PlayerControl.LocalPlayer).RandomElement() : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return false;
 
-        foreach ((string msg, byte sendTo, string title, _) in LastMessages)
-            SendMessage(player, msg, sendTo, title, sender);
+        bool wasCleared = false;
 
-        return LastMessages.Count > 0;
+        foreach ((string msg, byte sendTo, string title, _) in LastMessages)
+            wasCleared = SendMessage(player, msg, sendTo, title, ref sender);
+
+        return LastMessages.Count > 0 && !wasCleared;
     }
 
-    private static void SendMessage(PlayerControl player, string msg, byte sendTo, string title, CustomRpcSender sender = null)
+    private static bool SendMessage(PlayerControl player, string msg, byte sendTo, string title, ref CustomRpcSender sender)
     {
         int clientId = sendTo == byte.MaxValue ? -1 : Utils.GetPlayerById(sendTo).GetClientId();
 
@@ -3242,23 +3244,28 @@ internal static class ChatUpdatePatch
             player.SetName(name);
         }
 
-        CustomRpcSender writer = sender ?? CustomRpcSender.Create("ChatUpdatePatch.SendMessage", SendOption.Reliable);
-
-        writer.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(title)
             .EndRpc();
 
-        writer.AutoStartRpc(player.NetId, (byte)RpcCalls.SendChat, clientId)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SendChat, clientId)
             .Write(msg)
             .EndRpc();
 
-        writer.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(player.Data.PlayerName)
             .EndRpc();
 
-        if (sender == null) writer.SendMessage();
+        if (sender.stream.Length > 800)
+        {
+            sender.SendMessage();
+            sender = CustomRpcSender.Create(sender.name, sender.sendOption);
+            return true;
+        }
+
+        return false;
     }
 }
 
