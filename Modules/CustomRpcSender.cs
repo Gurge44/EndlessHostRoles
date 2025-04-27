@@ -134,6 +134,7 @@ public class CustomRpcSender
                 doneStreams.ForEach(x =>
                 {
                     if (x.Length >= 1500 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
+                    else if (log || x.Length > 3) Logger.Info($"\"{name}\" is finished (Part {doneStreams.IndexOf(x) + 2}) (Length: {x.Length}, dispose: {false}, sendOption: {sendOption})", "CustomRpcSender");
                     
                     AmongUsClient.Instance.SendOrDisconnect(x);
                     x.Recycle();
@@ -220,6 +221,7 @@ public class CustomRpcSender
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);
+            Logger.Info($"\"{name}\" is ready for new message", "CustomRpcSender");
         }
 
         currentRpcTarget = -2;
