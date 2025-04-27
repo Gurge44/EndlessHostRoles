@@ -4906,7 +4906,7 @@
   "KOTZ.Notify.Tutorial.Tagging": "<size=90%>プレイヤーに キルボタンを使用して 他の人に干渉できます (クールダウン: <#ffff44>{0}</color>s)、\\n彼を <#ffff44>{1}</color>s間 マップの外側にテレポートします。</size>",
   "KOTZ.Notify.Tutorial.ZonesMoving.AllAtOnce": "<size=90%><#ffff44>{0}</color>sごとに、すべてのゾーンが 別の部屋へ移動します。\\n(部屋の名前は タイマーの横によって示されます。)</size>",
   "KOTZ.Notify.Tutorial.ZonesMoving.Separately": "<size=90%><#ffff44>{0}</color>sごとに、1つのゾーンが 別の部屋へ移動します。\\n(部屋の名前は タイマーの横によって示されます。)</size>",
-  "KOTZ.Notify.Tutorial.ZonesMoving.Downtime": "<size=90%>ゾーンが移動した後、それは <#ffff44>{0}</color>s間 中立に留まり、\\nその中で チームは 過半数を占めることができないことを意味します。\\n(グレーのタイマーによって締めされます。)</size>",
+  "KOTZ.Notify.Tutorial.ZonesMoving.Downtime": "<size=90%>ゾーンが移動した後、それは <#ffff44>{0}</color>s間 中立に留まり、\\nその中で チームは 過半数を占めることができないことを意味します。\\n(グレーのタイマーによって示されます。)</size>",
   "KOTZ.SuffixHelp.Zones.Single": "<size=80%>ゾーン: </size>",
   "KOTZ.SuffixHelp.Zones.Plural": "<size=80%>ゾーン: </size>",
   "KOTZ.SuffixHelp.Points": "<size=80%>ポイント: </size>",
