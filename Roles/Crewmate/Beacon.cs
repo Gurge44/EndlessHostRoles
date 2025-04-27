@@ -66,13 +66,14 @@ internal class Beacon : RoleBase
         float radius = Radius.GetFloat();
         bool beaconNearby = Beacons.Any(x => Vector2.Distance(x.Pos(), pos) <= radius);
         bool affectedPlayer = AffectedPlayers.Contains(pc.PlayerId);
+        bool lightsOff = Utils.IsActive(SystemTypes.Electrical);
 
         switch (affectedPlayer)
         {
             case true when !beaconNearby:
             {
                 AffectedPlayers.Remove(pc.PlayerId);
-                if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
+                if (lightsOff) pc.MarkDirtySettings();
 
                 LastChange[pc.PlayerId] = now;
                 break;
@@ -80,11 +81,11 @@ internal class Beacon : RoleBase
             case false when beaconNearby:
             {
                 AffectedPlayers.Add(pc.PlayerId);
-                if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
+                if (lightsOff) pc.MarkDirtySettings();
 
                 LastChange[pc.PlayerId] = now;
 
-                if (pc.IsLocalPlayer())
+                if (pc.IsLocalPlayer() && lightsOff)
                     Achievements.Type.ALightInTheShadows.CompleteAfterGameEnd();
 
                 break;
