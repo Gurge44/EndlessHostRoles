@@ -228,12 +228,21 @@ public static class ChatManager
         string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
         ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
         var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+        var hasValue = false;
 
         for (int i = clear ? 0 : filtered.Length; i < 20; i++)
         {
             PlayerControl player = aapc.RandomElement();
             chat.AddChat(player, Utils.EmptyMessage);
             SendRPC(writer, player, Utils.EmptyMessage);
+            hasValue = true;
+
+            if (writer.stream.Length > 800)
+            {
+                writer.SendMessage();
+                writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+                hasValue = false;
+            }
         }
 
         if (!clear)
@@ -250,11 +259,19 @@ public static class ChatManager
 
                 chat.AddChat(senderPlayer, senderMessage);
                 SendRPC(writer, senderPlayer, senderMessage);
+                hasValue = true;
+                
+                if (writer.stream.Length > 800)
+                {
+                    writer.SendMessage();
+                    writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+                    hasValue = false;
+                }
             }
         }
 
-        ChatUpdatePatch.SendLastMessages(writer);
-        writer.SendMessage();
+        hasValue |= ChatUpdatePatch.SendLastMessages(writer);
+        writer.SendMessage(!hasValue);
     }
 
     private static void SendRPC(CustomRpcSender writer, InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)

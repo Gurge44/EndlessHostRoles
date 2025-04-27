@@ -3218,13 +3218,15 @@ internal static class ChatUpdatePatch
         LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
     }
 
-    internal static void SendLastMessages(CustomRpcSender sender)
+    internal static bool SendLastMessages(CustomRpcSender sender)
     {
         PlayerControl player = GameStates.IsLobby ? Main.AllPlayerControls.Without(PlayerControl.LocalPlayer).RandomElement() : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-        if (player == null) return;
+        if (player == null) return false;
 
         foreach ((string msg, byte sendTo, string title, _) in LastMessages)
             SendMessage(player, msg, sendTo, title, sender);
+
+        return LastMessages.Count > 0;
     }
 
     private static void SendMessage(PlayerControl player, string msg, byte sendTo, string title, CustomRpcSender sender = null)
