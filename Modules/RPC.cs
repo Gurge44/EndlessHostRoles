@@ -263,8 +263,6 @@ internal static class RPCHandlerPatch
                         GameManager.Instance.LogicFlow.CheckEndCriteria();
                         RPC.ForceEndGame(CustomWinner.Error);
                     }, 5.5f, "Anti-Black End Game");
-
-                    LateTask.New(() => { }, 6f, log: false);
                 }
                 else if (GameStates.IsOnlineGame)
                 {
