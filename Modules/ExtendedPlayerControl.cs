@@ -321,9 +321,9 @@ internal static class ExtendedPlayerControl
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
-    public static void RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, CustomRpcSender sender = null)
+    public static bool RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, CustomRpcSender sender = null)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return false;
 
         if (AntiBlackout.SkipTasks || ExileController.Instance)
         {
@@ -333,14 +333,14 @@ internal static class ExtendedPlayerControl
             string callerClassName = callerMethod?.DeclaringType?.FullName;
             Logger.Warn($"{callerClassName}.{callerMethodName} tried to change the role basis of {player.GetNameWithRole()} during anti-blackout processing or ejection screen showing, delaying the code to run after these tasks are complete", "RpcChangeRoleBasis");
             Main.Instance.StartCoroutine(DelayBasisChange());
-            return;
+            return false;
 
             IEnumerator DelayBasisChange()
             {
                 while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
                 yield return new WaitForSeconds(1f);
                 Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
-                player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap, sender);
+                player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
             }
         }
 
@@ -515,6 +515,8 @@ internal static class ExtendedPlayerControl
         Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
 
         Main.ChangedRole = true;
+
+        return true;
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/Utils.cs
@@ -986,19 +988,19 @@ internal static class ExtendedPlayerControl
 
             var murderPos = Pelican.GetBlackRoomPS();
 
+            sender.TP(pc, murderPos);
+
+            sender.AutoStartRpc(pc.NetId, 12, targetClientId);
+            sender.WriteNetObject(dummyGhost);
+            sender.Write((int)MurderResultFlags.Succeeded);
+            sender.EndRpc();
+
             dummyGhost.NetTransform.SnapTo(murderPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
             dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
 
             sender.AutoStartRpc(dummyGhost.NetTransform.NetId, (byte)RpcCalls.SnapTo);
             sender.WriteVector2(murderPos);
             sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
-            sender.EndRpc();
-
-            sender.TP(pc, murderPos);
-
-            sender.AutoStartRpc(pc.NetId, 12, targetClientId);
-            sender.WriteNetObject(dummyGhost);
-            sender.Write((int)MurderResultFlags.Succeeded);
             sender.EndRpc();
         }
         else
@@ -1022,6 +1024,8 @@ internal static class ExtendedPlayerControl
             {
                 sender.TP(pc, pcPos);
 
+                sender.SetKillCooldown(pc, timer);
+
                 dummyGhost.NetTransform.SnapTo(ghostPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
                 dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
 
@@ -1029,8 +1033,6 @@ internal static class ExtendedPlayerControl
                 sender.WriteVector2(ghostPos);
                 sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
                 sender.EndRpc();
-
-                sender.SetKillCooldown(pc, timer);
 
                 LateTask.New(() => AFKDetector.TempIgnoredPlayers.ExceptWith([pc.PlayerId, dummyGhost.PlayerId]), 1f, log: false);
             }

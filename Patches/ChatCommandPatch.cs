@@ -309,7 +309,7 @@ internal static class ChatCommands
 
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
 
-        if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
+        if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
             {
@@ -3162,7 +3162,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && (player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
+        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && (player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             ChatManager.SendPreviousMessagesToAll(true);
             canceled = true;
@@ -3201,9 +3201,7 @@ internal static class ChatCommands
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal static class ChatUpdatePatch
 {
-    public static bool DoBlockChat;
     public static bool LoversMessage;
-
     public static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
 
     public static void Postfix(ChatController __instance)
@@ -3220,16 +3218,20 @@ internal static class ChatUpdatePatch
         LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
     }
 
-    internal static void SendLastMessages(CustomRpcSender sender)
+    internal static bool SendLastMessages(ref CustomRpcSender sender)
     {
         PlayerControl player = GameStates.IsLobby ? Main.AllPlayerControls.Without(PlayerControl.LocalPlayer).RandomElement() : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-        if (player == null) return;
+        if (player == null) return false;
+
+        bool wasCleared = false;
 
         foreach ((string msg, byte sendTo, string title, _) in LastMessages)
-            SendMessage(player, msg, sendTo, title, sender);
+            wasCleared = SendMessage(player, msg, sendTo, title, ref sender);
+
+        return LastMessages.Count > 0 && !wasCleared;
     }
 
-    private static void SendMessage(PlayerControl player, string msg, byte sendTo, string title, CustomRpcSender sender = null)
+    private static bool SendMessage(PlayerControl player, string msg, byte sendTo, string title, ref CustomRpcSender sender)
     {
         int clientId = sendTo == byte.MaxValue ? -1 : Utils.GetPlayerById(sendTo).GetClientId();
 
@@ -3242,25 +3244,28 @@ internal static class ChatUpdatePatch
             player.SetName(name);
         }
 
-        CustomRpcSender writer = sender ?? CustomRpcSender.Create("ChatUpdatePatch.SendMessage", SendOption.Reliable);
-        writer.StartMessage(clientId);
-
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(title)
             .EndRpc();
 
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SendChat, clientId)
             .Write(msg)
             .EndRpc();
 
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(player.Data.PlayerName)
             .EndRpc();
 
-        writer.EndMessage();
-        if (sender == null) writer.SendMessage();
+        if (sender.stream.Length > 800)
+        {
+            sender.SendMessage();
+            sender = CustomRpcSender.Create(sender.name, sender.sendOption);
+            return true;
+        }
+
+        return false;
     }
 }
 

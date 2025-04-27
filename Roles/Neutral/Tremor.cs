@@ -98,9 +98,7 @@ public class Tremor : RoleBase
 
         if (wasDoom != IsDoom)
         {
-            var sender = CustomRpcSender.Create("Tremor.DoomNotify", SendOption.Reliable);
-            Main.AllAlivePlayerControls.Do(x => sender.Notify(x, Translator.GetString("Tremor.DoomNotify")));
-            sender.SendMessage();
+            Main.AllAlivePlayerControls.NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
             DoomTimer = DoomTime.GetInt();
         }
 
@@ -117,11 +115,10 @@ public class Tremor : RoleBase
             Vector2 pos = pc.Pos();
 
             Main.AllAlivePlayerControls
-                .Where(x => x.PlayerId != pc.PlayerId && Vector2.Distance(pos, x.Pos()) <= 1.5f)
+                .Where(x => x.PlayerId != pc.PlayerId && Vector2.Distance(pos, x.Pos()) <= 2.5f)
                 .Do(pc.Kill);
 
             if (LastUpdate == Utils.TimeStamp) return;
-
             LastUpdate = Utils.TimeStamp;
 
             DoomTimer--;

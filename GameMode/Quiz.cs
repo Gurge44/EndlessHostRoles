@@ -484,6 +484,11 @@ public static class Quiz
                     yield return new WaitForSeconds(11f);
                     sender.TP(stillLiving[0], location);
                 }
+                else if (stillLiving.Count == 1)
+                {
+                    CheckInvalidMovementPatch.ExemptedPlayers.Add(stillLiving[0].PlayerId);
+                    CheckInvalidMovementPatch.LastPosition[stillLiving[0].PlayerId] = location;
+                }
 
                 spectators.Do(x => sender.TP(x, location));
                 sender.SendMessage();

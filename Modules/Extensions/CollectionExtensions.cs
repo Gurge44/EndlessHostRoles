@@ -271,8 +271,7 @@ public static class CollectionExtensions
 
         foreach (PlayerControl player in players)
         {
-            sender.Notify(player, text, time, overrideAll, log, setName);
-            hasValue = true;
+            hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
 
             if (sender.stream.Length > 800)
             {

@@ -201,23 +201,24 @@ public class Medic : RoleBase
         if (!ProtectList.Contains(target.PlayerId)) return false;
 
         var sender = CustomRpcSender.Create("Medic.OnAnyoneCheckMurder", SendOption.Reliable);
-        sender.SetKillCooldown(killer, ResetCooldown.GetFloat());
-
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+        var hasValue = false;
+        
+        hasValue |= sender.SetKillCooldown(killer, ResetCooldown.GetFloat());
+        hasValue |= sender.NotifyRolesSpecific(target, killer);
 
         switch (KnowShieldBroken.GetInt())
         {
             case 0:
-                sender.RpcGuardAndKill(target, target);
-                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
-                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
+                hasValue |= sender.RpcGuardAndKill(target, target);
+                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => hasValue |= sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
+                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => hasValue |= sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
                 break;
             case 1:
-                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
+                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => hasValue |= sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
                 break;
             case 2:
-                sender.RpcGuardAndKill(target, target);
-                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
+                hasValue |= sender.RpcGuardAndKill(target, target);
+                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => hasValue |= sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
                 break;
         }
 
@@ -231,16 +232,17 @@ public class Medic : RoleBase
                 sender.Write(ProtectList.Count);
                 ProtectList.Do(x => sender.Write(x));
                 sender.EndRpc();
+                hasValue = true;
             }
 
             if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.Immediately)
             {
                 TempMarkProtectedList.Remove(target.PlayerId);
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                hasValue |= sender.NotifyRolesSpecific(killer, target);
             }
         }
 
-        sender.SendMessage();
+        sender.SendMessage(!hasValue);
 
         if (killer.IsLocalPlayer())
         {

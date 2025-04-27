@@ -934,9 +934,7 @@ internal static class IntroCutsceneDestroyPatch
                 LateTask.New(() =>
                 {
                     var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                    sender.Notify(lp, GetString("GLHF"), 2f);
-
-                    var hasValue = false;
+                    var hasValue = sender.Notify(lp, GetString("GLHF"), 2f);
 
                     foreach (PlayerControl pc in aapc)
                     {

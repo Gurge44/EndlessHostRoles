@@ -862,7 +862,7 @@ public static class Options
 
         if (AllCrewRolesHaveVanillaColor.GetBool())
         {
-            List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => x.IsCrewmate()).ToList();
+            List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => !x.IsAdditionRole() && x.IsCrewmate() && !x.IsForOtherGameMode()).ToList();
             toChange.ForEach(x => Main.RoleColors[x] = "#8cffff");
         }
 

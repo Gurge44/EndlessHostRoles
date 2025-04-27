@@ -810,7 +810,6 @@ internal static class MeetingHudStartPatch
     public static void Prefix( /*MeetingHud __instance*/)
     {
         Logger.Info("------------Meeting Start------------", "Phase");
-        ChatUpdatePatch.DoBlockChat = true;
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
         Main.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
         MeetingStates.MeetingCalled = true;
@@ -956,8 +955,6 @@ internal static class MeetingHudStartPatch
                 }
 
                 sender.SendMessage();
-
-                ChatUpdatePatch.DoBlockChat = false;
             }, 3f, "SetName To Chat");
         }
 

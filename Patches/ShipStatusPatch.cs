@@ -493,12 +493,10 @@ internal static class ShipStatusSerializePatch
 
     private static void SerializeHudOverrideSystemV2(HudOverrideSystemType __instance)
     {
-        var doSend = false;
-        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
             if (pc.IsRoleBlocked()) continue;
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(6);
             writer.Write(AmongUsClient.Instance.GameId);
             writer.WritePacked(pc.GetClientId());
@@ -509,21 +507,17 @@ internal static class ShipStatusSerializePatch
             writer.EndMessage();
             writer.EndMessage();
             writer.EndMessage();
-            doSend = true;
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
         }
-
-        if (doSend) AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
     }
 
     private static void SerializeHqHudSystemV2(HqHudSystemType __instance)
     {
-        var doSend = false;
-        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
             if (Main.AllPlayerSpeed.TryGetValue(pc.PlayerId, out float speed) && Mathf.Approximately(speed, Main.MinSpeed)) continue;
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(6);
             writer.Write(AmongUsClient.Instance.GameId);
             writer.WritePacked(pc.GetClientId());
@@ -534,11 +528,9 @@ internal static class ShipStatusSerializePatch
             writer.EndMessage();
             writer.EndMessage();
             writer.EndMessage();
-            doSend = true;
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
         }
-
-        if (doSend) AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
     }
 }
 
@@ -557,8 +549,6 @@ internal static class VentilationSystemDeterioratePatch
                 AllPlayers.Add(playerInfo);
         }
 
-        var doSend = false;
-        MessageWriter writer = MessageWriter.Get();
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
@@ -566,6 +556,7 @@ internal static class VentilationSystemDeterioratePatch
             {
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
                 if (AllPlayers.Count >= vents) continue;
+                MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
                 writer.WritePacked(pc.GetClientId());
@@ -599,12 +590,11 @@ internal static class VentilationSystemDeterioratePatch
                 writer.EndMessage();
                 writer.EndMessage();
                 writer.EndMessage();
-                doSend = true;
+
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
             }
         }
-
-        if (doSend) AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
     }
 
     public static bool BlockVentInteraction(PlayerControl pc)
@@ -614,14 +604,13 @@ internal static class VentilationSystemDeterioratePatch
 
     public static void SerializeV2(VentilationSystem __instance, PlayerControl player = null)
     {
-        var doSend = false;
-        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
             if (pc.AmOwner) continue;
             if (player != null && pc != player) continue;
 
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            
             if (BlockVentInteraction(pc))
             {
                 writer.StartMessage(6);
@@ -681,11 +670,9 @@ internal static class VentilationSystemDeterioratePatch
                 writer.EndMessage();
                 writer.EndMessage();
             }
-
-            doSend = true;
+            
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
         }
-
-        if (doSend) AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
     }
 }

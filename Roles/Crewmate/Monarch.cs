@@ -78,20 +78,21 @@ public class Monarch : RoleBase
             target.RpcSetCustomRole(CustomRoles.Knighted);
 
             var sender = CustomRpcSender.Create("Monarch.OnCheckMurder", SendOption.Reliable);
+            var hasValue = false;
 
-            sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")), setName: false);
-            sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("KnightedByMonarch")), setName: false);
+            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")), setName: false);
+            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("KnightedByMonarch")), setName: false);
 
             killer.ResetKillCooldown();
-            sender.SetKillCooldown(killer);
+            hasValue |= sender.SetKillCooldown(killer);
 
-            sender.RpcGuardAndKill(target, killer);
-            sender.RpcGuardAndKill(target, target);
+            hasValue |= sender.RpcGuardAndKill(target, killer);
+            hasValue |= sender.RpcGuardAndKill(target, target);
 
-            sender.SendMessage();
+            hasValue |= sender.NotifyRolesSpecific(killer, target);
+            hasValue |= sender.NotifyRolesSpecific(target, killer);
 
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+            sender.SendMessage(!hasValue);
 
             Logger.Info("SetRole:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Knighted, "Assign " + CustomRoles.Knighted);
             return false;

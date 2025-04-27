@@ -175,10 +175,10 @@ public class CustomLogger
     private CustomLogger()
     {
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
-        else if (new FileInfo(LOGFilePath).Length > 2 * 1024 * 1024) // 2 MB
+        else if (new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
         {
             ClearLog(false);
-            Logger.SendInGame("The size of the log file exceeded 2 MB and was dumped.");
+            Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped.");
         }
 
         Main.Instance.StartCoroutine(InactivityCheck());

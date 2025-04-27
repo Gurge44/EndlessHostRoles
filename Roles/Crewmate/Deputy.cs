@@ -89,13 +89,14 @@ public class Deputy : RoleBase
                 if (GameStates.IsInTask)
                 {
                     var sender = CustomRpcSender.Create("Deputy.OnCheckMurder", SendOption.Reliable);
-                    sender.SetKillCooldown(target, DeputyHandcuffCDForTarget.GetFloat());
-                    sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
+                    var hasValue = false;
+                    hasValue |= sender.SetKillCooldown(target, DeputyHandcuffCDForTarget.GetFloat());
+                    hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
 
-                    if (target.IsModdedClient()) sender.RpcResetAbilityCooldown(target);
-                    else sender.RpcGuardAndKill(target, target);
+                    if (target.IsModdedClient()) hasValue |= sender.RpcResetAbilityCooldown(target);
+                    else hasValue |= sender.RpcGuardAndKill(target, target);
 
-                    sender.SendMessage();
+                    sender.SendMessage(!hasValue);
                 }
             }, DeputyHandcuffDelay.GetInt(), "DeputyHandcuffDelay");
 

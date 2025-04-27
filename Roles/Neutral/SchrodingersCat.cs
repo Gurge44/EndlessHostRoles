@@ -41,16 +41,17 @@ internal class SchrodingersCat : RoleBase
         if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
 
         var sender = CustomRpcSender.Create("SchrodingersCat.OnCheckMurderAsTarget", SendOption.Reliable);
+        var hasValue = false;
 
         target.RpcSetCustomRole(killerRole);
-        target.RpcChangeRoleBasis(killerRole, sender: sender);
+        hasValue |= target.RpcChangeRoleBasis(killerRole, sender: sender);
 
-        sender.SetKillCooldown(killer, 5f);
+        hasValue |= sender.SetKillCooldown(killer, 5f);
 
-        sender.Notify(killer, string.Format(Translator.GetString("SchrodingersCat.Notify.KillerRecruited"), target.GetRealName(), CustomRoles.SchrodingersCat.ToColoredString()), 10f, setName: false);
-        sender.Notify(target, string.Format(Translator.GetString("SchrodingersCat.Notify.RecruitedByKiller"), killer.GetRealName(), killerRole.ToColoredString()), setName: false);
+        hasValue |= sender.Notify(killer, string.Format(Translator.GetString("SchrodingersCat.Notify.KillerRecruited"), target.GetRealName(), CustomRoles.SchrodingersCat.ToColoredString()), 10f, setName: false);
+        hasValue |= sender.Notify(target, string.Format(Translator.GetString("SchrodingersCat.Notify.RecruitedByKiller"), killer.GetRealName(), killerRole.ToColoredString()), setName: false);
 
-        sender.SendMessage();
+        sender.SendMessage(!hasValue);
 
         Utils.NotifyRoles(SpecifySeer: killer, ForceLoop: true);
         Utils.NotifyRoles(SpecifySeer: target, ForceLoop: true);

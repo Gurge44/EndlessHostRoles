@@ -110,18 +110,19 @@ public class Succubus : RoleBase
             target.RpcSetCustomRole(CustomRoles.Charmed);
 
             var sender = CustomRpcSender.Create("Succubus.OnCheckMurder", SendOption.Reliable);
+            var hasValue = false;
 
-            sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("SuccubusCharmedPlayer")));
-            sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("CharmedBySuccubus")));
+            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("SuccubusCharmedPlayer")));
+            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("CharmedBySuccubus")));
 
-            sender.SetKillCooldown(killer);
-            sender.RpcGuardAndKill(target, killer);
-            sender.RpcGuardAndKill(target, target);
+            hasValue |= sender.SetKillCooldown(killer);
+            hasValue |= sender.RpcGuardAndKill(target, killer);
+            hasValue |= sender.RpcGuardAndKill(target, target);
+            
+            hasValue |= sender.NotifyRolesSpecific(killer, target);
+            hasValue |= sender.NotifyRolesSpecific(target, killer);
 
-            sender.SendMessage();
-
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
+            sender.SendMessage(!hasValue);
 
             Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Charmed, "Assign " + CustomRoles.Charmed);
 

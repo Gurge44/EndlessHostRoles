@@ -5,6 +5,7 @@
       <list>
         <option value="$PROJECT_DIR$/bin/Release/net8.0-windows/win-x64/publish" />
         <option value="$PROJECT_DIR$/publish" />
+        <option value="$PROJECT_DIR$/bin/Debug/net8.0-windows/win-x64/publish" />
       </list>
     </option>
   </component>

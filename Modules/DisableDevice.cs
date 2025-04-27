@@ -57,7 +57,7 @@ internal static class DisableDevice
 
         if (!DoDisable && !rogueForce) return;
 
-        var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable);
+        var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
         var hasValue = false;
 
         foreach (PlayerControl pc in Main.AllPlayerControls)

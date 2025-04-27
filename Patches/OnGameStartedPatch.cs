@@ -1176,12 +1176,6 @@ internal static class StartGameHostPatch
     {
         try
         {
-            MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
-            stream.StartMessage(5);
-            stream.Write(AmongUsClient.Instance.GameId);
-
-            var hasValue = false;
-
             foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
             {
                 try
@@ -1201,34 +1195,10 @@ internal static class StartGameHostPatch
                         playerInfo.IsDead = data;
                     }
 
-                    stream.StartMessage(1);
-
-                    {
-                        stream.WritePacked(playerInfo.NetId);
-                        playerInfo.Serialize(stream, false);
-                    }
-
-                    stream.EndMessage();
-                    hasValue = true;
-
-                    if (stream.Length > 800)
-                    {
-                        stream.EndMessage();
-                        AmongUsClient.Instance.SendOrDisconnect(stream);
-                        stream.Recycle();
-                        stream = MessageWriter.Get(SendOption.Reliable);
-                        hasValue = false;
-                        stream.StartMessage(5);
-                        stream.Write(AmongUsClient.Instance.GameId);
-                    }
+                    playerInfo.MarkDirty();
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
-
-            stream.EndMessage();
-
-            if (hasValue) AmongUsClient.Instance.SendOrDisconnect(stream);
-            stream.Recycle();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -1313,7 +1283,7 @@ internal static class StartGameHostPatch
                 {
                     try
                     {
-                        Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false)
+                        Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false, true)
                             .StartMessage(pc.GetClientId());
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
@@ -1524,35 +1494,47 @@ internal static class StartGameHostPatch
 
         public static void ResetRoleMapMidGame()
         {
-            RoleMap.Clear();
-
-            Dictionary<byte, PlayerState>.ValueCollection states = Main.PlayerStates.Values;
-
-            foreach (PlayerState targetState in states)
+            try
             {
-                CustomRoles targetMainRole = targetState.MainRole;
-                RoleTypes selfRoleTypes = targetMainRole.GetRoleTypes();
+                RoleMap.Clear();
 
-                foreach (PlayerState seerState in states)
+                Dictionary<byte, PlayerState>.ValueCollection states = Main.PlayerStates.Values;
+
+                foreach (PlayerState targetState in states)
                 {
-                    byte seerID = seerState.Player.PlayerId;
-                    byte targetID = targetState.Player.PlayerId;
-
-                    if (seerID == targetID || selfRoleTypes is RoleTypes.Noisemaker)
+                    try
                     {
-                        RoleMap[(seerID, targetID)] = (selfRoleTypes, targetMainRole);
-                        continue;
+                        CustomRoles targetMainRole = targetState.MainRole;
+                        RoleTypes selfRoleTypes = targetState.Player.GetRoleTypes();
+
+                        foreach (PlayerState seerState in states)
+                        {
+                            try
+                            {
+                                byte seerID = seerState.Player.PlayerId;
+                                byte targetID = targetState.Player.PlayerId;
+
+                                if (seerID == targetID || selfRoleTypes is RoleTypes.Noisemaker)
+                                {
+                                    RoleMap[(seerID, targetID)] = (selfRoleTypes, targetMainRole);
+                                    continue;
+                                }
+
+                                CustomRoles seerMainRole = seerState.MainRole;
+
+                                RoleMap[(seerID, targetID)] = seerState.Player.HasDesyncRole()
+                                    ? (RoleTypes.Scientist, targetMainRole)
+                                    : (seerState.Player.IsImpostor() && targetState.Player.IsImpostor())
+                                        ? (selfRoleTypes, seerMainRole)
+                                        : (RoleTypes.Crewmate, seerMainRole);
+                            }
+                            catch (Exception e) { Utils.ThrowException(e); }
+                        }
                     }
-
-                    CustomRoles seerMainRole = seerState.MainRole;
-
-                    RoleMap[(seerID, targetID)] = seerState.Player.HasDesyncRole()
-                        ? (RoleTypes.Scientist, targetMainRole)
-                        : (seerMainRole.IsImpostor() && targetMainRole.IsImpostor())
-                            ? (selfRoleTypes, seerMainRole)
-                            : (RoleTypes.Crewmate, seerMainRole);
+                    catch (Exception e) { Utils.ThrowException(e); }
                 }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
     }
 }

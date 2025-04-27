@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using AmongUs.Data;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
@@ -148,8 +149,6 @@ internal static class InnerNetObjectSerializePatch
 [HarmonyPatch(typeof(InnerNetClient))]
 public static class InnerNetClientPatch
 {
-    private static byte Timer;
-
     [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData))]
     [HarmonyPrefix]
     public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
@@ -213,9 +212,17 @@ public static class InnerNetClientPatch
             {
                 InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
 
-                if (innerNetObject && innerNetObject is not NetworkedPlayerInfo && innerNetObject.IsDirty && (innerNetObject.AmOwner || (innerNetObject.OwnerId == -2 && __instance.AmHost)))
+                if (innerNetObject && innerNetObject.IsDirty && (innerNetObject.AmOwner || (innerNetObject.OwnerId == -2 && __instance.AmHost)))
                 {
                     MessageWriter messageWriter = __instance.Streams[(int)innerNetObject.sendMode];
+                    if (messageWriter.Length > 800)
+                    {
+                        messageWriter.EndMessage();
+                        __instance.SendOrDisconnect(messageWriter);
+                        messageWriter.Clear(innerNetObject.sendMode);
+                        messageWriter.StartMessage(5);
+                        messageWriter.Write(__instance.GameId);
+                    }
                     messageWriter.StartMessage(1);
                     messageWriter.WritePacked(innerNetObject.NetId);
 
@@ -311,54 +318,6 @@ public static class InnerNetClientPatch
         if (!__instance.AmHost)
             Debug.LogError("Tried to spawn while not host: " + netObjParent?.ToString());
     }
-
-    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
-    [HarmonyPostfix]
-    public static void FixedUpdatePostfix(InnerNetClient __instance)
-    {
-        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return;
-        if (!__instance.AmHost || __instance.Streams == null) return;
-
-        if (Timer == 0)
-        {
-            Timer = 1;
-            return;
-        }
-
-        NetworkedPlayerInfo player = GameData.Instance.AllPlayers.ToArray().FirstOrDefault(x => x.IsDirty);
-
-        if (player != null)
-        {
-            Timer = 0;
-            MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
-            messageWriter.StartMessage(5);
-            messageWriter.Write(__instance.GameId);
-            messageWriter.StartMessage(1);
-            messageWriter.WritePacked(player.NetId);
-
-            try
-            {
-                if (player.Serialize(messageWriter, false))
-                    messageWriter.EndMessage();
-                else
-                {
-                    messageWriter.Recycle();
-                    player.ClearDirtyBits();
-                    return;
-                }
-
-                messageWriter.EndMessage();
-                __instance.SendOrDisconnect(messageWriter);
-                messageWriter.Recycle();
-            }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "FixedUpdatePostfix");
-                messageWriter.CancelMessage();
-                player.ClearDirtyBits();
-            }
-        }
-    }
 }
 
 [HarmonyPatch(typeof(GameData), nameof(GameData.DirtyAllData))]
@@ -435,6 +394,68 @@ internal static class NetworkedPlayerInfoSerializePatch
         if (!initialState) __instance.ClearDirtyBits();
         __result = true;
         return false;
+    }
+}
+
+// Next 4: https://github.com/Rabek009/MoreGamemodes/blob/master/Patches/ClientPatch.cs
+
+[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CheckOnlinePermissions))]
+static class CheckOnlinePermissionsPatch
+{
+    public static void Prefix()
+    {
+        DataManager.Player.Ban.banPoints = 0f;
+    }
+}
+ 
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpc))]
+static class StartRpcPatch
+{
+    public static void Prefix(InnerNetClient __instance, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option)
+    {
+        MessageWriter writer = __instance.Streams[(int)option];
+        if (writer.Length > 800)
+        {
+            writer.EndMessage();
+            __instance.SendOrDisconnect(writer);
+            writer.Clear(option);
+            writer.StartMessage(5);
+            writer.Write(__instance.GameId);
+        }
+    }
+}
+ 
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
+static class SpawnPatch
+{
+    public static void Prefix(InnerNetClient __instance)
+    {
+        MessageWriter writer = __instance.Streams[1];
+        if (writer.Length > 800)
+        {
+            writer.EndMessage();
+            __instance.SendOrDisconnect(writer);
+            writer.Clear(SendOption.Reliable);
+            writer.StartMessage(5);
+            writer.Write(__instance.GameId);
+        }
+    }
+}
+ 
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Despawn))]
+static class DespawnPatch
+{
+    public static void Prefix(InnerNetClient __instance)
+    {
+        MessageWriter writer = __instance.Streams[1];
+        if (writer.Length > 800)
+        {
+            writer.EndMessage();
+            __instance.SendOrDisconnect(writer);
+            writer.Clear(SendOption.Reliable);
+            writer.StartMessage(5);
+            writer.Write(__instance.GameId);
+        }
     }
 }
 
