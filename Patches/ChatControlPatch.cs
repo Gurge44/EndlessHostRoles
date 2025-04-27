@@ -222,43 +222,39 @@ public static class ChatManager
 
         Logger.Info($" clear: {clear}", "ChatManager.SendPreviousMessagesToAll");
 
-        try
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        if (aapc.Length == 0) return;
+
+        string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+        ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+        var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+
+        for (int i = clear ? 0 : filtered.Length; i < 20; i++)
         {
-            PlayerControl[] aapc = Main.AllAlivePlayerControls;
-            if (aapc.Length == 0) return;
-
-            string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
-            ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
-            var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
-
-            for (int i = clear ? 0 : filtered.Length; i < 20; i++)
-            {
-                PlayerControl player = aapc.RandomElement();
-                chat.AddChat(player, Utils.EmptyMessage);
-                SendRPC(writer, player, Utils.EmptyMessage);
-            }
-
-            if (!clear)
-            {
-                foreach (string str in filtered)
-                {
-                    string[] entryParts = str.Split(':');
-                    string senderId = entryParts[0].Trim();
-                    string senderMessage = entryParts[1].Trim();
-                    for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
-
-                    PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
-                    if (senderPlayer == null) continue;
-
-                    chat.AddChat(senderPlayer, senderMessage);
-                    SendRPC(writer, senderPlayer, senderMessage);
-                }
-            }
-
-            ChatUpdatePatch.SendLastMessages(writer);
-            writer.SendMessage();
+            PlayerControl player = aapc.RandomElement();
+            chat.AddChat(player, Utils.EmptyMessage);
+            SendRPC(writer, player, Utils.EmptyMessage);
         }
-        finally { }
+
+        if (!clear)
+        {
+            foreach (string str in filtered)
+            {
+                string[] entryParts = str.Split(':');
+                string senderId = entryParts[0].Trim();
+                string senderMessage = entryParts[1].Trim();
+                for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
+
+                PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
+                if (senderPlayer == null) continue;
+
+                chat.AddChat(senderPlayer, senderMessage);
+                SendRPC(writer, senderPlayer, senderMessage);
+            }
+        }
+
+        ChatUpdatePatch.SendLastMessages(writer);
+        writer.SendMessage();
     }
 
     private static void SendRPC(CustomRpcSender writer, InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
