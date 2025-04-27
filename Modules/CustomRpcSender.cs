@@ -368,9 +368,9 @@ public class CustomRpcSender
 
 public static class CustomRpcSenderExtensions
 {
-    public static void RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1)
+    public static void RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true)
     {
-        if (AmongUsClient.Instance.ClientId == targetClientId)
+        if (AmongUsClient.Instance.ClientId == targetClientId && noRpcForSelf)
         {
             player.SetRole(role);
             return;

@@ -482,8 +482,8 @@ public static class Utils
         if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && targetMainRole == CustomRoles.Agent && CustomHnS.PlayerRoles[seerId].Interface.Team != Team.Impostor)
             targetMainRole = CustomRoles.Hider;
 
-        if (GameStates.IsMeeting || ExileController.Instance || targetState.IsDead)
-            Forger.Forges.TryGetValue(targetId, out targetMainRole);
+        if ((GameStates.IsMeeting || ExileController.Instance || targetState.IsDead) && Forger.Forges.TryGetValue(targetId, out var forgedRole))
+            targetMainRole = forgedRole;
 
         if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles.TryGetValue(targetId, out CustomRoles shownRole))
             targetMainRole = shownRole;
@@ -2235,28 +2235,17 @@ public static class Utils
         var count = 0;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
-        var sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", SendOption.Reliable);
-        var hasValue = false;
-
         foreach (PlayerControl seer in aapc)
         {
             foreach (PlayerControl target in aapc)
             {
                 if (GameStates.IsMeeting) yield break;
-                hasValue |= WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target], out bool senderWasCleared);
-                hasValue &= !senderWasCleared;
+                var sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", SendOption.Reliable, log: false);
+                var hasValue = WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target], out bool senderWasCleared) && !senderWasCleared;
+                sender.SendMessage(!hasValue);
                 if (count++ % speed == 0) yield return null;
             }
-
-            if (sender.stream.Length >= 800)
-            {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", SendOption.Reliable);
-                hasValue = false;
-            }
         }
-
-        sender.SendMessage(dispose: !hasValue);
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

@@ -53,12 +53,12 @@ public static class AntiBlackout
 
             if (Options.CurrentGameMode is CustomGameMode.Speedrun or CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones)
             {
-                sender.RpcSetRole(seer, RoleTypes.Impostor, seer.OwnerId);
+                sender.RpcSetRole(seer, RoleTypes.Impostor, seer.OwnerId, noRpcForSelf: true);
 
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {
                     if (target.PlayerId != seer.PlayerId)
-                        sender.RpcSetRole(target, RoleTypes.Crewmate, seer.OwnerId);
+                        sender.RpcSetRole(target, RoleTypes.Crewmate, seer.OwnerId, noRpcForSelf: true);
                 }
 
                 hasValue = true;
@@ -72,9 +72,9 @@ public static class AntiBlackout
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {
                     if (seerIsAliveAndHasKillButton)
-                        sender.RpcSetRole(target, target.PlayerId != seer.PlayerId ? RoleTypes.Crewmate : selfRoleType, seer.GetClientId());
+                        sender.RpcSetRole(target, target.PlayerId != seer.PlayerId ? RoleTypes.Crewmate : selfRoleType, seer.GetClientId(), noRpcForSelf: true);
                     else
-                        sender.RpcSetRole(target, target.PlayerId == dummyImp.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, seer.GetClientId());
+                        sender.RpcSetRole(target, target.PlayerId == dummyImp.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, seer.GetClientId(), noRpcForSelf: true);
 
                     hasValue = true;
                     RestartMessageIfTooLong();
@@ -229,7 +229,7 @@ public static class AntiBlackout
                         continue;
                     }
 
-                    sender.RpcSetRole(target, changedRoleType, seer.OwnerId);
+                    sender.RpcSetRole(target, changedRoleType, seer.OwnerId, noRpcForSelf: true);
                     hasValue = true;
                     RestartMessageIfTooLong();
                 }
@@ -259,7 +259,7 @@ public static class AntiBlackout
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    sender.RpcSetRole(pc, RoleTypes.Crewmate, pc.OwnerId);
+                    sender.RpcSetRole(pc, RoleTypes.Crewmate, pc.OwnerId, noRpcForSelf: true);
                     RestartMessageIfTooLong();
 
                     if (pc.IsModdedClient()) continue;
@@ -282,13 +282,13 @@ public static class AntiBlackout
             }
             case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones:
             {
-                sender.RpcSetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate);
+                sender.RpcSetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate, noRpcForSelf: true);
                 RestartMessageIfTooLong();
 
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     if (pc.IsAlive())
-                        sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId);
+                        sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId, noRpcForSelf: true);
                     else
                     {
                         if (pc.IsModdedClient()) continue;
