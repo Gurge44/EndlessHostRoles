@@ -240,7 +240,7 @@ public static class AntiBlackout
                     sender.EndRpc();
                     hasValue = true;
 
-                    if (!pc.IsModdedClient() && pc.PlayerId == ExileControllerWrapUpPatch.AntiBlackout_LastExiled?.PlayerId)
+                    if (!pc.IsModdedClient() && pc.PlayerId == ExileControllerWrapUpPatch.LastExiled?.PlayerId)
                     {
                         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.MurderPlayer, pc.OwnerId);
                         sender.WriteNetObject(pc);

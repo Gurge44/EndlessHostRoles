@@ -50,7 +50,12 @@ public class Safeguard : RoleBase
     {
         if (!pc.IsAlive()) return;
 
-        if (completedTaskCount + 1 >= MinTasks.GetInt()) Timer += ShieldDuration.GetFloat();
+        if (completedTaskCount + 1 >= MinTasks.GetInt())
+        {
+            bool zero = !Shielded;
+            Timer += ShieldDuration.GetFloat();
+            if (zero) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
@@ -60,7 +65,12 @@ public class Safeguard : RoleBase
         if (Shielded)
         {
             Timer -= Time.fixedDeltaTime;
-            if (Timer <= 0) Timer = 0;
+
+            if (Timer <= 0)
+            {
+                Timer = 0;
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
         }
     }
 
@@ -72,7 +82,6 @@ public class Safeguard : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != SafeguardId || meeting || (seer.IsModdedClient() && !hud) || !Shielded) return string.Empty;
-
         return seer.IsHost() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(Timer)) : Translator.GetString("SafeguardSuffix");
     }
 }

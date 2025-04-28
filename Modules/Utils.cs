@@ -3075,20 +3075,12 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
-        bool loversChat = Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive());
-
-        if (loversChat && Lovers.PrivateChatForLoversOnly.GetBool())
-            Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
-        else if (!Lovers.IsChatActivated && loversChat && !GameStates.IsEnded && CustomGameMode.Standard.IsActiveOrIntegrated())
+        if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
         {
-            LateTask.New(SetChatVisibleForAll, 0.5f, log: false);
-            Lovers.IsChatActivated = true;
-            return;
+            Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
+            GameEndChecker.Prefix();
         }
 
-        if (loversChat) GameEndChecker.Prefix();
-
-        Lovers.IsChatActivated = false;
         AFKDetector.NumAFK = 0;
         AFKDetector.PlayerData.Clear();
 
@@ -3691,11 +3683,7 @@ public static class Utils
     public static void SetChatVisibleForAll()
     {
         if (!GameStates.IsInGame) return;
-
-        MeetingHud.Instance = Object.Instantiate(HudManager.Instance.MeetingPrefab);
-        MeetingHud.Instance.ServerStart(PlayerControl.LocalPlayer.PlayerId);
-        AmongUsClient.Instance.Spawn(MeetingHud.Instance);
-        MeetingHud.Instance.RpcClose();
+        Main.AllAlivePlayerControls.Do(x => x.SetChatVisible(true));
     }
 
     public static bool TryCast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase

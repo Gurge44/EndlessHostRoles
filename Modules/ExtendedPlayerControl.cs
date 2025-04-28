@@ -117,8 +117,8 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        bool isDead = player.Data.IsDead;
-        MessageWriter writer = MessageWriter.Get();
+        bool dead = player.Data.IsDead;
+        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
         writer.StartMessage(6);
         writer.Write(AmongUsClient.Instance.GameId);
         writer.WritePacked(player.GetClientId());
@@ -143,7 +143,7 @@ internal static class ExtendedPlayerControl
         writer.WritePacked(netIdCnt);
         writer.Write((byte)RpcCalls.CloseMeeting);
         writer.EndMessage();
-        player.Data.IsDead = isDead;
+        player.Data.IsDead = dead;
         writer.StartMessage(1);
         writer.WritePacked(player.Data.NetId);
         player.Data.Serialize(writer, true);

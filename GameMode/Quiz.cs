@@ -260,7 +260,7 @@ public static class Quiz
 
     public static IEnumerator OnGameStart()
     {
-        if (Chat) yield return new WaitForSeconds(11f);
+        if (Chat) yield return new WaitForSeconds(1f);
 
         NoSuffix = true;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -401,7 +401,7 @@ public static class Quiz
         if (everyoneWasWrong) QuestionsAsked--;
         else Utils.NotifyRoles();
 
-        yield return new WaitForSeconds(everyoneWasWrong ? aapc.Length <= 3 ? 4f : 8f : 5f);
+        yield return new WaitForSeconds(everyoneWasWrong ? aapc.Length <= 3 ? 4f : 6f : 3f);
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
 
         var settings = Settings[CurrentDifficulty];
@@ -481,7 +481,7 @@ public static class Quiz
                 if (Chat)
                 {
                     Utils.SetChatVisibleForAll();
-                    yield return new WaitForSeconds(11f);
+                    yield return new WaitForSeconds(1f);
                     sender.TP(stillLiving[0], location);
                 }
                 else if (stillLiving.Count == 1)
