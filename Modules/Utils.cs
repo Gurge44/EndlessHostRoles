@@ -899,6 +899,7 @@ public static class Utils
             case CustomRoles.Phantasm:
                 if (forRecompute) hasTasks = false;
                 break;
+            case CustomRoles.Pawn:
             case CustomRoles.Cherokious:
             case CustomRoles.Crewpostor:
             case CustomRoles.Hypocrite:
@@ -1121,6 +1122,7 @@ public static class Utils
                     CustomRoles.Hypocrite => Color.red,
                     CustomRoles.Crewpostor => Color.red,
                     CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
+                    CustomRoles.Pawn => GetRoleColor(CustomRoles.Pawn),
                     _ => normalColor
                 };
             }
@@ -3444,6 +3446,7 @@ public static class Utils
                         CustomRoles.Hypocrite => Color.red,
                         CustomRoles.Crewpostor => Color.red,
                         CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
+                        CustomRoles.Pawn => GetRoleColor(CustomRoles.Cherokious),
                         _ => normalColor
                     };
                 }

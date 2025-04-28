@@ -51,6 +51,8 @@ internal static class TargetArrow
     /// <param name="target"></param>
     public static void Add(byte seer, byte target)
     {
+        if (Main.PlayerStates.TryGetValue(seer, out var state) && state.SubRoles.Contains(CustomRoles.Blind)) return;
+        
         ArrowInfo arrowInfo = new(seer, target);
 
         if (!TargetArrows.Any(a => a.Key.Equals(arrowInfo)))

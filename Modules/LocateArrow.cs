@@ -51,6 +51,8 @@ internal static class LocateArrow
     /// <param name="locate"></param>
     public static void Add(byte seer, Vector3 locate)
     {
+        if (Main.PlayerStates.TryGetValue(seer, out var state) && state.SubRoles.Contains(CustomRoles.Blind)) return;
+
         ArrowInfo arrowInfo = new(seer, locate);
 
         if (!LocateArrows.Any(a => a.Key.Equals(arrowInfo)))
