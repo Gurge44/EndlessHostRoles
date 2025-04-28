@@ -1482,7 +1482,7 @@
   "LegacyLovers": "旧<color=#ff9ace>ラバーズ</color>",
   "LovingImpostorSpawnChance": "<color=#ff9ace>ラビング</color> <#ff1919>インポスター</color>の出現確率",
   "LIRoleForOtherImps": "他の<#ff1919>インポスター</color>からは <#ff9ace>ラビング</color> <#ff1919>インポスター</color>として見れる",
-  "PrivateChat": "Enable Private Chat for <color=#ff9ace>Lovers</color>",
+  "PrivateChat": "<color=#ff9ace>ラバーズ</color>の プライベートチャットを有効にする",
   "GuessAbility": "推測者は <color=#ff9ace>ラバーズ</color>を推測できる",
   "AddonCanBeGuessed": "この属性を推測できる",
   "ConvertedAddonCanBeGuessed": "{role}を推測できる",
