@@ -205,7 +205,7 @@ internal static class ExileControllerWrapUpPatch
             sender.SendMessage(dispose: !hasValue);
         }
 
-        LateTask.New(() => ChatManager.SendPreviousMessagesToAll(true), 3f, log: false);
+        LateTask.New(ChatManager.ClearChat, 3f, log: false);
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

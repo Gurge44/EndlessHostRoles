@@ -1090,7 +1090,7 @@ internal static class ReportDeadBodyPatch
 
         Main.AllAlivePlayerControls.DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos());
 
-        if (Lovers.PrivateChat.GetBool()) ChatManager.SendPreviousMessagesToAll(true);
+        if (Lovers.PrivateChat.GetBool()) ChatManager.ClearChat();
 
         if (target == null)
         {
