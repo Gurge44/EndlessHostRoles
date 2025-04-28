@@ -394,13 +394,12 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsAlive() || !player.Is(CustomRoles.Pawn) || !player.AllTasksCompleted()) return;
+        if (!player.IsAlive() || !player.Is(CustomRoles.Pawn) || !Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
         if (args.Length < 2 || !GetRoleByName(string.Join(' ', args[1..]), out var role) || role.GetMode() == 0) return;
 
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
-        player.RpcSetCustomRole(role);
-        player.RpcChangeRoleBasis(role);
+        ((Pawn)state.Role).ChosenRole = role;
     }
 
     private static void ForgeCommand(PlayerControl player, string text, string[] args)
