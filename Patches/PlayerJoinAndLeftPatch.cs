@@ -35,7 +35,6 @@ internal static class OnGameJoinedPatch
         RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
 
-        ChatUpdatePatch.DoBlockChat = false;
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
 
@@ -154,7 +153,7 @@ internal static class OnPlayerJoinedPatch
             catch { }
         }, 4f, "green bean kick late task", false);
 
-        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
+        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame && GameStates.CurrentServerType is not GameStates.ServerType.ModdedWithCNOSupport and not GameStates.ServerType.ModdedWithoutCNOSupport)
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid())) BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
 
@@ -177,7 +176,7 @@ internal static class OnPlayerJoinedPatch
             Logger.SendInGame("They were probably hacking tbh");
         }
 
-        if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
+        if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType is not GameStates.ServerType.ModdedWithCNOSupport and not GameStates.ServerType.ModdedWithoutCNOSupport)
         {
             AmongUsClient.Instance.KickPlayer(client.Id, true);
             Logger.Info($"Blocked Player {client.PlayerName}({client.FriendCode}) has been banned.", "BAN");
@@ -293,7 +292,6 @@ internal static class OnPlayerLeftPatch
         finally
         {
             if (!GameStates.IsLobby && GameStates.IsInTask && !ExileController.Instance) Utils.NotifyRoles(ForceLoop: true);
-            ChatUpdatePatch.DoBlockChat = false;
         }
     }
 }

@@ -40,7 +40,7 @@ internal class Disco : IAddon
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || pc.IsShifted() || Camouflage.IsCamouflage || pc.inVent || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || pc.walkingToVent || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.inMovingPlat) return;
+        if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc.IsShifted() || Camouflage.IsCamouflage || pc.inVent || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || pc.walkingToVent || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.inMovingPlat) return;
 
         long now = Utils.TimeStamp;
         if (LastChange.TryGetValue(pc.PlayerId, out long change) && change + DiscoChangeInterval.GetInt() > now) return;

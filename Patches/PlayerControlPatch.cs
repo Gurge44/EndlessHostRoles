@@ -698,11 +698,14 @@ internal static class MurderPlayerPatch
 
         Chef.SpitOutFood(killer);
 
-        if (CustomGameMode.Speedrun.IsActiveOrIntegrated()) Speedrun.ResetTimer(killer);
+        if (CustomGameMode.Speedrun.IsActiveOrIntegrated())
+            Speedrun.ResetTimer(killer);
 
-        if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId) killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
+        if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
+            killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
 
-        if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId) killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
+        if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId)
+            killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
 
         if (killer.Is(CustomRoles.Deadlined)) Deadlined.SetDone(killer);
 

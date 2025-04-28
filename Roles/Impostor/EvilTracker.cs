@@ -118,6 +118,7 @@ public class EvilTracker : RoleBase
         if (!CanSeeKillFlash) return false;
 
         PlayerControl realKiller = target.GetRealKiller() ?? killer;
+        if (realKiller == null) return false;
         return realKiller.Is(CustomRoleTypes.Impostor) && realKiller != target;
     }
 

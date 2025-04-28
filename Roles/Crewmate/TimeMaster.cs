@@ -116,9 +116,8 @@ internal class TimeMaster : RoleBase
             foreach (PlayerControl player in Main.AllPlayerControls)
             {
                 player.ReactorFlash(flashDuration: length * delay);
-                sender.Notify(player, notify, Math.Max(length * delay, 4f));
+                hasValue |= sender.Notify(player, notify, Math.Max(length * delay, 4f));
                 player.MarkDirtySettings();
-                hasValue = true;
 
                 if (sender.stream.Length > 800)
                 {
@@ -160,9 +159,8 @@ internal class TimeMaster : RoleBase
                 if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
                 {
                     ps.Player.RpcRevive();
-                    sender.TP(ps.Player, deadBody.TruePosition);
-                    sender.Notify(ps.Player, Translator.GetString("RevivedByTimeMaster"), 15f);
-                    hasValue = true;
+                    hasValue |= sender.TP(ps.Player, deadBody.TruePosition);
+                    hasValue |= sender.Notify(ps.Player, Translator.GetString("RevivedByTimeMaster"), 15f);
 
                     if (sender.stream.Length > 800)
                     {

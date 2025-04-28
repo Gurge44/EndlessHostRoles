@@ -316,6 +316,7 @@ public enum CustomRoles
     NoteKiller,
     Opportunist,
     Patroller,
+    Pawn,
     Pelican,
     Pestilence,
     Phantasm,
@@ -451,6 +452,7 @@ public enum CustomRoles
     Bait,
     Trapper, // Beartrap
     Bewilder,
+    Blind,
     Blocked,
     Bloodlust,
     Bloodmoon, // Ghost role

@@ -862,7 +862,7 @@ public static class Options
 
         if (AllCrewRolesHaveVanillaColor.GetBool())
         {
-            List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => x.IsCrewmate()).ToList();
+            List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => !x.IsAdditionRole() && x.IsCrewmate() && !x.IsForOtherGameMode()).ToList();
             toChange.ForEach(x => Main.RoleColors[x] = "#8cffff");
         }
 
@@ -948,21 +948,21 @@ public static class Options
 
                 string usageLevel = command.UsageLevel switch
                 {
-                    Command.UsageLevels.Everyone => "Everyone",
-                    Command.UsageLevels.Modded => "Modded Clients",
-                    Command.UsageLevels.Host => "Host",
-                    Command.UsageLevels.HostOrModerator => "Host And Moderators",
+                    Command.UsageLevels.Everyone => ":purple_circle: Everyone",
+                    Command.UsageLevels.Modded => ":green_circle: Modded Clients",
+                    Command.UsageLevels.Host => ":yellow_circle: Host",
+                    Command.UsageLevels.HostOrModerator => ":red_circle: Host And Moderators",
                     _ => string.Empty
                 };
 
                 string usageTime = command.UsageTime switch
                 {
-                    Command.UsageTimes.Always => "Always",
-                    Command.UsageTimes.InLobby => "In Lobby",
-                    Command.UsageTimes.InGame => "In Game",
-                    Command.UsageTimes.InMeeting => "In Meetings",
-                    Command.UsageTimes.AfterDeath => "After Death",
-                    Command.UsageTimes.AfterDeathOrLobby => "After Death And In Lobby",
+                    Command.UsageTimes.Always => ":purple_square: Always",
+                    Command.UsageTimes.InLobby => ":green_square: In Lobby",
+                    Command.UsageTimes.InGame => ":white_large_square: In Game",
+                    Command.UsageTimes.InMeeting => ":yellow_square: In Meetings",
+                    Command.UsageTimes.AfterDeath => ":red_square: After Death",
+                    Command.UsageTimes.AfterDeathOrLobby => ":brown_square: After Death And In Lobby",
                     _ => string.Empty
                 };
 

@@ -78,7 +78,7 @@ internal static class CheckForEndVotingPatch
 
                     voteTarget.SetRealKiller(pc);
                     Main.LastVotedPlayerInfo = voteTarget.Data;
-                    ExileControllerWrapUpPatch.AntiBlackout_LastExiled = voteTarget.Data;
+                    ExileControllerWrapUpPatch.LastExiled = voteTarget.Data;
 
                     if (Main.LastVotedPlayerInfo != null)
                         ConfirmEjections(Main.LastVotedPlayerInfo, false);
@@ -326,7 +326,7 @@ internal static class CheckForEndVotingPatch
             exiledPlayer?.Object.SetRealKiller(null);
 
             Main.LastVotedPlayerInfo = exiledPlayer;
-            ExileControllerWrapUpPatch.AntiBlackout_LastExiled = exiledPlayer;
+            ExileControllerWrapUpPatch.LastExiled = exiledPlayer;
 
             if (Main.LastVotedPlayerInfo != null)
                 ConfirmEjections(Main.LastVotedPlayerInfo, braked);
@@ -810,7 +810,6 @@ internal static class MeetingHudStartPatch
     public static void Prefix( /*MeetingHud __instance*/)
     {
         Logger.Info("------------Meeting Start------------", "Phase");
-        ChatUpdatePatch.DoBlockChat = true;
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
         Main.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
         MeetingStates.MeetingCalled = true;
@@ -956,8 +955,6 @@ internal static class MeetingHudStartPatch
                 }
 
                 sender.SendMessage();
-
-                ChatUpdatePatch.DoBlockChat = false;
             }, 3f, "SetName To Chat");
         }
 

@@ -568,7 +568,8 @@ internal static class MoveAndStop
 
                 data.UpdateCounters();
 
-                LastSuffix[pc.PlayerId] = GetSuffixText(pc);
+                if (!IsEventActive || Event.Type != Events.FrozenTimers)
+                    LastSuffix[pc.PlayerId] = GetSuffixText(pc);
 
                 bool IsCounterRed(Counter counter) => counter.IsRed && (pc.IsHost() || counter.Timer != counter.TotalRedTime);
             }
@@ -577,7 +578,7 @@ internal static class MoveAndStop
             LastFixedUpdate = now;
 
             RoundTime--;
-            
+
             Utils.NotifyRoles();
         }
     }

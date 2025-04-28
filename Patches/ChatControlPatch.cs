@@ -220,46 +220,58 @@ public static class ChatManager
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        ChatUpdatePatch.DoBlockChat = true;
         Logger.Info($" clear: {clear}", "ChatManager.SendPreviousMessagesToAll");
 
-        try
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        if (aapc.Length == 0) return;
+
+        string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+        ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+        var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+        var hasValue = false;
+
+        for (int i = clear ? 0 : filtered.Length; i < 20; i++)
         {
-            PlayerControl[] aapc = Main.AllAlivePlayerControls;
-            if (aapc.Length == 0) return;
+            PlayerControl player = aapc.RandomElement();
+            chat.AddChat(player, Utils.EmptyMessage);
+            SendRPC(writer, player, Utils.EmptyMessage);
+            hasValue = true;
 
-            string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
-            ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
-            var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
-
-            for (int i = clear ? 0 : filtered.Length; i < 20; i++)
+            if (writer.stream.Length > 800)
             {
-                PlayerControl player = aapc.RandomElement();
-                chat.AddChat(player, Utils.EmptyMessage);
-                SendRPC(writer, player, Utils.EmptyMessage);
+                writer.SendMessage();
+                writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+                hasValue = false;
             }
+        }
 
-            if (!clear)
+        if (!clear)
+        {
+            foreach (string str in filtered)
             {
-                foreach (string str in filtered)
+                string[] entryParts = str.Split(':');
+                string senderId = entryParts[0].Trim();
+                string senderMessage = entryParts[1].Trim();
+                for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
+
+                PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
+                if (senderPlayer == null) continue;
+
+                chat.AddChat(senderPlayer, senderMessage);
+                SendRPC(writer, senderPlayer, senderMessage);
+                hasValue = true;
+                
+                if (writer.stream.Length > 800)
                 {
-                    string[] entryParts = str.Split(':');
-                    string senderId = entryParts[0].Trim();
-                    string senderMessage = entryParts[1].Trim();
-                    for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
-
-                    PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
-                    if (senderPlayer == null) continue;
-
-                    chat.AddChat(senderPlayer, senderMessage);
-                    SendRPC(writer, senderPlayer, senderMessage);
+                    writer.SendMessage();
+                    writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+                    hasValue = false;
                 }
             }
-
-            ChatUpdatePatch.SendLastMessages(writer);
-            writer.SendMessage();
         }
-        finally { ChatUpdatePatch.DoBlockChat = false; }
+
+        hasValue |= ChatUpdatePatch.SendLastMessages(ref writer);
+        writer.SendMessage(!hasValue);
     }
 
     private static void SendRPC(CustomRpcSender writer, InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)

@@ -60,22 +60,26 @@ internal class Predator : RoleBase
 
             for (var i = 0; i < NumOfRolesToKill.GetInt(); i++)
             {
-                int index = r.Next(allRoles.Count);
-                CustomRoles role = allRoles[index];
-                allRoles.RemoveAt(index);
-
-                if (role.Is(Team.Impostor))
+                try
                 {
-                    if (impRoles >= MaxImpRolePicks.GetInt())
+                    int index = r.Next(allRoles.Count);
+                    CustomRoles role = allRoles[index];
+                    allRoles.RemoveAt(index);
+
+                    if (role.Is(Team.Impostor))
                     {
-                        i--;
-                        continue;
+                        if (impRoles >= MaxImpRolePicks.GetInt())
+                        {
+                            i--;
+                            continue;
+                        }
+
+                        impRoles++;
                     }
 
-                    impRoles++;
+                    RolesToKill.Add(role);
                 }
-
-                RolesToKill.Add(role);
+                catch (Exception e) { Utils.ThrowException(e); }
             }
 
             Logger.Info($"Predator Roles: {RolesToKill.Join()}", "Predator");

@@ -955,9 +955,7 @@ internal static class IntroCutsceneDestroyPatch
                 LateTask.New(() =>
                 {
                     var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                    sender.Notify(lp, GetString("GLHF"), 2f);
-
-                    var hasValue = false;
+                    var hasValue = sender.Notify(lp, GetString("GLHF"), 2f);
 
                     foreach (PlayerControl pc in aapc)
                     {
@@ -1005,21 +1003,15 @@ internal static class IntroCutsceneDestroyPatch
                 System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
                 if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
 
-                if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool() || CustomGameMode.Quiz.IsActiveOrIntegrated() && Quiz.Chat)
-                    LateTask.New(SetSpectatorsDead, 12.5f, log: false);
-                else SetSpectatorsDead();
+                var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
+                spectators.ForEach(sender.RpcExileV2);
+                sender.SendMessage(spectators.Count == 0);
+                spectators.ForEach(x =>
 
-                void SetSpectatorsDead()
                 {
-                    var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
-                    spectators.ForEach(sender.RpcExileV2);
-                    sender.SendMessage(spectators.Count == 0);
-                    spectators.ForEach(x =>
-                    {
-                        Main.PlayerStates[x.PlayerId].SetDead();
-                        Utils.AfterPlayerDeathTasks(x);
-                    });
-                }
+                    Main.PlayerStates[x.PlayerId].SetDead();
+                    Utils.AfterPlayerDeathTasks(x);
+                });
             }
             catch (Exception e) { Utils.ThrowException(e); }
 

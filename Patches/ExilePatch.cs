@@ -1,6 +1,5 @@
 using System.Linq;
 using AmongUs.Data;
-using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
 using EHR.Crewmate;
@@ -14,11 +13,11 @@ namespace EHR.Patches;
 
 internal static class ExileControllerWrapUpPatch
 {
-    public static NetworkedPlayerInfo AntiBlackout_LastExiled;
+    public static NetworkedPlayerInfo LastExiled;
 
     private static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
-        var DecidedWinner = false;
+        var decidedWinner = false;
         if (!AmongUsClient.Instance.AmHost) return;
 
         AntiBlackout.RestoreIsDead(false);
@@ -41,7 +40,7 @@ internal static class ExileControllerWrapUpPatch
                         .Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
                         .Do(x => CustomWinnerHolder.WinnerIds.Add(x.PlayerId));
 
-                    DecidedWinner = true;
+                    decidedWinner = true;
                 }
             }
 
@@ -61,16 +60,16 @@ internal static class ExileControllerWrapUpPatch
 
             if (role == CustomRoles.Jester)
             {
-                if (DecidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
+                if (decidedWinner) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
                 else CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
 
                 CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
-                DecidedWinner = true;
+                decidedWinner = true;
             }
 
-            if (Executioner.CheckExileTarget(exiled)) DecidedWinner = true;
+            if (Executioner.CheckExileTarget(exiled)) decidedWinner = true;
 
-            if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) DecidedWinner = false;
+            if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) decidedWinner = false;
 
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist)
                 Main.PlayerStates[exiled.PlayerId].SetDead();
@@ -177,7 +176,7 @@ internal static class ExileControllerWrapUpPatch
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
 
-        if (!AmongUsClient.Instance.AmHost || (Lovers.IsChatActivated && Lovers.PrivateChat.GetBool())) return;
+        if (!AmongUsClient.Instance.AmHost) return;
 
         bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
         bool ejectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
@@ -193,8 +192,7 @@ internal static class ExileControllerWrapUpPatch
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
-                sender.Notify(pc, finalText, r.Next(7, 13));
-                hasValue = true;
+                hasValue |= sender.Notify(pc, finalText, r.Next(7, 13));
 
                 if (sender.stream.Length > 800)
                 {

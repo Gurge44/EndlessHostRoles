@@ -160,25 +160,26 @@ public class Jackal : RoleBase
         if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target)) return true;
 
         var sender = CustomRpcSender.Create("Jackal.OnCheckMurder", SendOption.Reliable);
+        var hasValue = false;
 
         killer.RpcRemoveAbilityUse();
         target.RpcSetCustomRole(CustomRoles.Sidekick);
-        target.RpcChangeRoleBasis(CustomRoles.Sidekick, sender: sender);
+        hasValue |= target.RpcChangeRoleBasis(CustomRoles.Sidekick, sender: sender);
         SidekickId = target.PlayerId;
 
         Main.ResetCamPlayerList.Add(target.PlayerId);
 
-        sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("GangsterSuccessfullyRecruited")), setName: false);
-        sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")), setName: false);
+        hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("GangsterSuccessfullyRecruited")), setName: false);
+        hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")), setName: false);
 
-        sender.SetKillCooldown(killer, 3f);
-        sender.RpcGuardAndKill(target, killer);
-        sender.RpcGuardAndKill(target, target);
+        hasValue |= sender.SetKillCooldown(killer, 3f);
+        hasValue |= sender.RpcGuardAndKill(target, killer);
+        hasValue |= sender.RpcGuardAndKill(target, target);
 
-        sender.SendMessage();
+        hasValue |= sender.NotifyRolesSpecific(killer, target);
+        hasValue |= sender.NotifyRolesSpecific(target, killer);
 
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
+        sender.SendMessage(!hasValue);
 
         Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", $"Assign {CustomRoles.Sidekick}");
 

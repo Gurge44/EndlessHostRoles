@@ -133,7 +133,7 @@ internal static class SoloPVP
         var finalText = string.Empty;
         if (pc.IsHost()) return finalText;
 
-        finalText += "<size=90%>";
+        finalText += "\n<size=90%>";
         finalText += GetHudText();
         finalText += "</size>\n";
 

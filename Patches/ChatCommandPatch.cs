@@ -200,7 +200,9 @@ internal static class ChatCommands
             new(["fix", "blackscreenfix", "fixblackscreen", "ф", "исправить", "修复"], "{id}", GetString("CommandDescription.Fix"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InGame, FixCommand, true, false, [GetString("CommandArgs.Fix.Id")]),
             new(["xor", "异或命令"], "{role} {role}", GetString("CommandDescription.XOR"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, XORCommand, true, false, [GetString("CommandArgs.XOR.Role"), GetString("CommandArgs.XOR.Role")]),
             new(["ci", "chemistinfo", "химик", "化学家"], "", GetString("CommandDescription.ChemistInfo"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ChemistInfoCommand, true, false),
-
+            new(["forge"], "{id} {role}", GetString("CommandDescription.Forge"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ForgeCommand, true, true, [GetString("CommandArgs.Forge.Id"), GetString("CommandArgs.Forge.Role")]),
+            new(["choose", "pick", "выбрать", "选择", "escolher"], "{role}", GetString("CommandDescription.Choose"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChooseCommand, true, true, [GetString("CommandArgs.Choose.Role")]),
+            
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
@@ -309,7 +311,7 @@ internal static class ChatCommands
 
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
 
-        if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
+        if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
             {
@@ -384,6 +386,23 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void ChooseCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ChooseCommand), text);
+            return;
+        }
+        
+        if (!player.IsAlive() || !player.Is(CustomRoles.Pawn) || !player.AllTasksCompleted()) return;
+        if (args.Length < 2 || !GetRoleByName(string.Join(' ', args[1..]), out var role) || role.GetMode() == 0) return;
+        
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+        
+        player.RpcSetCustomRole(role);
+        player.RpcChangeRoleBasis(role);
+    }
+    
     private static void ForgeCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
@@ -397,6 +416,8 @@ internal static class ChatCommands
         if (!player.IsAlive() || !player.Is(CustomRoles.Forger) || player.GetAbilityUseLimit() < 1) return;
         if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte targetId, out CustomRoles forgeRole, out _)) return;
 
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+        
         Forger.Forges[targetId] = forgeRole;
 
         player.RpcRemoveAbilityUse();
@@ -3162,7 +3183,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && (player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
+        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && (player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             ChatManager.SendPreviousMessagesToAll(true);
             canceled = true;
@@ -3201,9 +3222,7 @@ internal static class ChatCommands
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal static class ChatUpdatePatch
 {
-    public static bool DoBlockChat;
     public static bool LoversMessage;
-
     public static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
 
     public static void Postfix(ChatController __instance)
@@ -3220,16 +3239,20 @@ internal static class ChatUpdatePatch
         LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
     }
 
-    internal static void SendLastMessages(CustomRpcSender sender)
+    internal static bool SendLastMessages(ref CustomRpcSender sender)
     {
         PlayerControl player = GameStates.IsLobby ? Main.AllPlayerControls.Without(PlayerControl.LocalPlayer).RandomElement() : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-        if (player == null) return;
+        if (player == null) return false;
+
+        bool wasCleared = false;
 
         foreach ((string msg, byte sendTo, string title, _) in LastMessages)
-            SendMessage(player, msg, sendTo, title, sender);
+            wasCleared = SendMessage(player, msg, sendTo, title, ref sender);
+
+        return LastMessages.Count > 0 && !wasCleared;
     }
 
-    private static void SendMessage(PlayerControl player, string msg, byte sendTo, string title, CustomRpcSender sender = null)
+    private static bool SendMessage(PlayerControl player, string msg, byte sendTo, string title, ref CustomRpcSender sender)
     {
         int clientId = sendTo == byte.MaxValue ? -1 : Utils.GetPlayerById(sendTo).GetClientId();
 
@@ -3242,25 +3265,28 @@ internal static class ChatUpdatePatch
             player.SetName(name);
         }
 
-        CustomRpcSender writer = sender ?? CustomRpcSender.Create("ChatUpdatePatch.SendMessage", SendOption.Reliable);
-        writer.StartMessage(clientId);
-
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(title)
             .EndRpc();
 
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SendChat, clientId)
             .Write(msg)
             .EndRpc();
 
-        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(player.Data.PlayerName)
             .EndRpc();
 
-        writer.EndMessage();
-        if (sender == null) writer.SendMessage();
+        if (sender.stream.Length > 800)
+        {
+            sender.SendMessage();
+            sender = CustomRpcSender.Create(sender.name, sender.sendOption);
+            return true;
+        }
+
+        return false;
     }
 }
 
