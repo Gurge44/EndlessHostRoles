@@ -9,7 +9,6 @@ using EHR.Modules;
 using EHR.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem.Linq.Expressions.Interpreter;
 using InnerNet;
 using UnityEngine;
 
@@ -26,15 +25,14 @@ public class CustomRpcSender
         Finished // Nothing can be done after sending
     }
 
-    private readonly bool log;
+    private readonly List<MessageWriter> doneStreams = [];
     private readonly bool isUnsafe;
+
+    private readonly bool log;
     public readonly string name;
 
     private readonly OnSendDelegateType onSendDelegate;
     public readonly SendOption sendOption;
-    public MessageWriter stream;
-
-    private readonly List<MessageWriter> doneStreams = [];
 
     // 0~: targetClientId (GameDataTo)
     // -1: All players (GameData)
@@ -42,6 +40,7 @@ public class CustomRpcSender
     private int currentRpcTarget;
 
     private State currentState = State.BeforeInit;
+    public MessageWriter stream;
 
     private CustomRpcSender() { }
 
@@ -131,18 +130,22 @@ public class CustomRpcSender
         {
             if (doneStreams.Count > 0)
             {
+                var sb = new StringBuilder();
+
                 doneStreams.ForEach(x =>
                 {
                     if (x.Length >= 1500 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
-                    else if (log || x.Length > 3) Logger.Info($"\"{name}\" is finished (Part {doneStreams.IndexOf(x) + 2}) (Length: {x.Length}, dispose: {false}, sendOption: {sendOption})", "CustomRpcSender");
-                    
+                    else if (log || x.Length > 3) sb.Append($" + Part {doneStreams.IndexOf(x) + 2} (Length: {x.Length})");
+
                     AmongUsClient.Instance.SendOrDisconnect(x);
                     x.Recycle();
                 });
-                
+
+                Logger.Info(sb.ToString(), "CustomRpcSender");
+
                 doneStreams.Clear();
             }
-            
+
             AmongUsClient.Instance.SendOrDisconnect(stream);
             onSendDelegate();
         }
@@ -221,7 +224,6 @@ public class CustomRpcSender
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);
-            Logger.Info($"\"{name}\" is ready for new message", "CustomRpcSender");
         }
 
         currentRpcTarget = -2;
@@ -605,7 +607,7 @@ public static class CustomRpcSenderExtensions
             NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
         else
             notifies[text] = expireTS;
-        
+
         bool returnValue = pc.IsNonHostModClient();
 
         if (returnValue) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
@@ -680,7 +682,7 @@ public static class CustomRpcSenderExtensions
             player.SyncSettings();
             return false;
         }
-        
+
         var optionsender = GameOptionsSender.AllSenders.OfType<PlayerGameOptionsSender>().FirstOrDefault(x => x.player.PlayerId == player.PlayerId);
         if (optionsender == null) return false;
 

@@ -144,6 +144,14 @@ public static class BanManager
     {
         if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool() || player == null) return;
 
+        if (TempBanWhiteList.Contains(player.GetHashedPuid()))
+        {
+            AmongUsClient.Instance.KickPlayer(player.Id, true);
+            Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
+        }
+
+        if (GameStates.CurrentServerType is GameStates.ServerType.ModdedWithCNOSupport or GameStates.ServerType.ModdedWithoutCNOSupport) return;
+
         string friendcode = player.FriendCode.Replace(':', '#');
 
         if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
@@ -188,12 +196,6 @@ public static class BanManager
             Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
             Logger.Info($"{player.PlayerName} is on the EAC ban list", "BAN");
             return;
-        }
-
-        if (TempBanWhiteList.Contains(player.GetHashedPuid()))
-        {
-            AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
         }
     }
 
