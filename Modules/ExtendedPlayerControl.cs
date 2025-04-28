@@ -1529,7 +1529,7 @@ internal static class ExtendedPlayerControl
         void DoKill()
         {
             var sender = CustomRpcSender.Create("Send Noisemaker Alerts & Kill", SendOption.Reliable);
-            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies, x => sender.RpcSetRole(target, RoleTypes.Noisemaker, x.Player.GetClientId()));
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies && !x.SubRoles.Contains(CustomRoles.Blind), x => sender.RpcSetRole(target, RoleTypes.Noisemaker, x.Player.GetClientId()));
 
             if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, MurderResultFlags.Succeeded);
             sender.AutoStartRpc(killer.NetId, 12);

@@ -279,7 +279,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     break;
             }
 
-            if (state.Role.SeesArrowsToDeadBodies)
+            if (state.Role.SeesArrowsToDeadBodies && !player.Is(CustomRoles.Blind))
             {
                 AURoleOptions.NoisemakerImpostorAlert = true;
                 AURoleOptions.NoisemakerAlertDuration = 300f;
