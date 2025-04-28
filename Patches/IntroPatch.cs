@@ -1007,7 +1007,6 @@ internal static class IntroCutsceneDestroyPatch
                 spectators.ForEach(sender.RpcExileV2);
                 sender.SendMessage(spectators.Count == 0);
                 spectators.ForEach(x =>
-
                 {
                     Main.PlayerStates[x.PlayerId].SetDead();
                     Utils.AfterPlayerDeathTasks(x);
