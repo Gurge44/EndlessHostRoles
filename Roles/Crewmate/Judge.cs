@@ -97,7 +97,7 @@ public class Judge : RoleBase
 
         if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id"))
             operate = 1;
-        else if (CheckCommand(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审", false))
+        else if (CheckCommand(ref msg, "jj|tl|trial|审判|判|审", false))
             operate = 2;
         else
             return false;
