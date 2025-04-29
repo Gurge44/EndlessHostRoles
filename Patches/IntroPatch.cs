@@ -783,6 +783,27 @@ internal static class BeginImpostorPatch
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
+
+            if (role != CustomRoles.Parasite) // Parasite and Impostor doesnt know each other
+            {
+                // Crewpostor is counted as Madmate but should be a Impostor
+                if (Options.MadmateKnowWhosImp.GetBool() || role != CustomRoles.Madmate)
+                {
+                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsImpostor() && x.PlayerId != PlayerControl.LocalPlayer.PlayerId))
+                    {
+                        yourTeam.Add(pc);
+                    }
+                }
+                // Crewpostor is counted as Madmate but should be a Impostor
+                if (Options.MadmateKnowWhosMadmate.GetBool() || role != CustomRoles.Madmate && Options.ImpKnowWhosMadmate.GetBool())
+                {
+                    foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Madmate) && x.PlayerId != PlayerControl.LocalPlayer.PlayerId))
+                    {
+                        yourTeam.Add(pc);
+                    }
+                }
+            }
+            
             __instance.BackgroundBar.material.color = Palette.ImpostorRed;
             return true;
         }
