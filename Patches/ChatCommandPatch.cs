@@ -178,7 +178,7 @@ internal static class ChatCommands
             new(["negotiation", "neg", "наказание", "谈判方式", "negociar", "negociação"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, false, [GetString("CommandArgs.Negotiation.Number")]),
             new(["mute", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, false, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
             new(["unmute", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, false, [GetString("CommandArgs.Unmute.Id")]),
-            new(["draftstart", "ds", "драфтстарт", "启用草稿", "todosescolhem-iniciar"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DraftStartCommand, true, false),
+            new(["draftstart", "ds", "драфтстарт", "启用草稿", "todosescolhem-iniciar"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, DraftStartCommand, true, false),
             new(["dd", "draftdesc", "draftdescription", "драфтописание", "草稿描述", "todosescolhem-descricao"], "{index}", GetString("CommandDescription.DraftDescription"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftDescriptionCommand, false, false, [GetString("CommandArgs.DraftDescription.Index")]),
             new(["draft", "драфт", "选择草稿", "todosescolhem-escolher"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, false, false, [GetString("CommandArgs.Draft.Number")]),
             new(["rc", "readycheck", "проверитьготовность", "准备检测", "verificação-de-prontidão"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true, false),
@@ -545,7 +545,7 @@ internal static class ChatCommands
         Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
     }
 
-    private static void GameModePollCommand(PlayerControl player, string text, string[] args)
+    public static void GameModePollCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
@@ -916,11 +916,11 @@ internal static class ChatCommands
         ReadyPlayers.Add(player.PlayerId);
     }
 
-    private static void DraftStartCommand(PlayerControl player, string text, string[] args)
+    public static void DraftStartCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DraftStartCommand), text);
+            RequestCommandProcessingFromHost(nameof(DraftStartCommand), text, true);
             return;
         }
 

@@ -194,7 +194,8 @@ public static class AntiBlackout
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.Standard or CustomGameMode.HideAndSeek:
+            case CustomGameMode.Standard:
+            case CustomGameMode.HideAndSeek:
             {
                 StartGameHostPatch.RpcSetRoleReplacer.ResetRoleMapMidGame();
 
@@ -255,7 +256,12 @@ public static class AntiBlackout
 
                 break;
             }
-            case CustomGameMode.Speedrun or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz:
+            case CustomGameMode.Speedrun:
+            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.HotPotato:
+            case CustomGameMode.NaturalDisasters:
+            case CustomGameMode.RoomRush:
+            case CustomGameMode.Quiz:
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
@@ -280,7 +286,10 @@ public static class AntiBlackout
                 hasValue = true;
                 break;
             }
-            case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones:
+            case CustomGameMode.FFA:
+            case CustomGameMode.SoloKombat:
+            case CustomGameMode.CaptureTheFlag:
+            case CustomGameMode.KingOfTheZones:
             {
                 sender.RpcSetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate, noRpcForSelf: true);
                 RestartMessageIfTooLong();

@@ -5,6 +5,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -14,10 +15,13 @@ internal static class HotPotato
     private static OptionItem Time;
     private static OptionItem HolderSpeed;
     private static OptionItem Range;
+    private static OptionItem HolderCanPassViaKillButton;
 
     private static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) HotPotatoState;
     private static Dictionary<byte, int> SurvivalTimes;
     private static float DefaultSpeed;
+    
+    public static bool CanPassViaKillButton => HolderCanPassViaKillButton.GetBool();
 
     public static (byte HolderID, byte LastHolderID) GetState()
     {
@@ -41,6 +45,11 @@ internal static class HotPotato
             .SetGameMode(CustomGameMode.HotPotato)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new Color32(232, 205, 70, byte.MaxValue));
+
+        HolderCanPassViaKillButton = new BooleanOptionItem(69_213_003, "HotPotato_HolderCanPassViaKillButton", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.HotPotato)
+            .SetColor(new Color32(232, 205, 70, byte.MaxValue))
+            .SetHeader(true);
     }
 
     public static void Init()
@@ -71,6 +80,12 @@ internal static class HotPotato
     {
         if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || state.IsDead) return string.Empty;
         return $"{(HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty)}{Translator.GetString("HotPotato_TimeLeftSuffix")}{HotPotatoState.TimeLeft}s";
+    }
+
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        HotPotatoState.HolderID = reader.ReadByte();
+        HotPotatoState.LastHolderID = reader.ReadByte();
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -114,7 +129,8 @@ internal static class HotPotato
             }
 
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
-            if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2) && Vector2.Distance(x.Pos(), Holder.Pos()) <= Range.GetFloat())) return;
+            Vector2 pos = Holder.Pos();
+            if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2) && Vector2.Distance(x.Pos(), pos) <= Range.GetFloat())) return;
 
             float wait = aapc.Length <= 2 ? 0.4f : 0.05f;
             UpdateDelay += UnityEngine.Time.fixedDeltaTime;
@@ -122,7 +138,7 @@ internal static class HotPotato
 
             UpdateDelay = 0;
 
-            PlayerControl Target = aapc.OrderBy(x => Vector2.Distance(x.Pos(), Holder.Pos())).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2));
+            PlayerControl Target = aapc.OrderBy(x => Vector2.Distance(x.Pos(), pos)).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2));
             if (Target == null) return;
 
             PassHotPotato(Target, false);
@@ -147,14 +163,19 @@ internal static class HotPotato
 
                 HotPotatoState.LastHolderID = HotPotatoState.HolderID;
                 HotPotatoState.HolderID = target.PlayerId;
+                
+                Utils.SendRPC(CustomRPC.HotPotatoSync, HotPotatoState.HolderID, HotPotatoState.LastHolderID);
+                if (CanPassViaKillButton) target.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
 
                 Main.AllPlayerSpeed[target.PlayerId] = HolderSpeed.GetFloat();
                 target.MarkDirtySettings();
-
+                
                 PlayerControl LastHolder = Utils.GetPlayerById(HotPotatoState.LastHolderID);
 
                 if (LastHolder != null)
                 {
+                    if (CanPassViaKillButton) LastHolder.RpcChangeRoleBasis(CustomRoles.Potato);
+                    
                     Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = DefaultSpeed;
                     LastHolder.MarkDirtySettings();
                     Utils.NotifyRoles(SpecifyTarget: LastHolder);

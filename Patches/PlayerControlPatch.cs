@@ -233,11 +233,13 @@ internal static class CheckMurderPatch
             case CustomGameMode.FFA:
                 FreeForAll.OnPlayerAttack(killer, target);
                 return false;
-            case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
+                return HotPotato.CanPassViaKillButton && HotPotato.GetState().HolderID == killer.PlayerId;
+            case CustomGameMode.MoveAndStop:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
+                return false;
             case CustomGameMode.Quiz:
                 if (Quiz.AllowKills) killer.Kill(target);
                 return false;

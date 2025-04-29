@@ -1158,9 +1158,11 @@ internal static class ExtendedPlayerControl
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
+            case CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
+            case CustomGameMode.HotPotato:
+                return HotPotato.CanPassViaKillButton && HotPotato.GetState().HolderID == pc.PlayerId;
             case CustomGameMode.Quiz:
                 return Quiz.AllowKills;
             case CustomGameMode.KingOfTheZones:
@@ -1185,7 +1187,7 @@ internal static class ExtendedPlayerControl
             // Move And Stop
             CustomRoles.Tasker => false,
             // Hot Potato
-            CustomRoles.Potato => false,
+            CustomRoles.Potato => HotPotato.CanPassViaKillButton && HotPotato.GetState().HolderID == pc.PlayerId,
             // Speedrun
             CustomRoles.Runner => Speedrun.CanKill.Contains(pc.PlayerId),
             // Quiz

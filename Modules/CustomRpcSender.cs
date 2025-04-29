@@ -370,18 +370,20 @@ public class CustomRpcSender
 
 public static class CustomRpcSenderExtensions
 {
-    public static void RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true)
+    public static bool RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true)
     {
         if (AmongUsClient.Instance.ClientId == targetClientId && noRpcForSelf)
         {
             player.SetRole(role);
-            return;
+            return false;
         }
 
         sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetRole, targetClientId)
             .Write((ushort)role)
             .Write(true)
             .EndRpc();
+
+        return true;
     }
 
     // From TOH: https://github.com/tukasa0001/TownOfHost

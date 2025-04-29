@@ -313,7 +313,7 @@ public static class SabotageSystemTypeRepairDamagePatch
         ModifiedCooldownSec = Options.SabotageCooldown.GetFloat();
     }
 
-    public static bool Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
+    public static bool Prefix(SabotageSystemType __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
         if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
 
@@ -363,9 +363,12 @@ public static class SabotageSystemTypeRepairDamagePatch
             }
         }
 
-        if (CustomRoles.Battery.RoleExist() && systemTypes == SystemTypes.Electrical)
+        if (systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
+            batteryState.Player.RpcRemoveAbilityUse();
             player.Notify(string.Format(Translator.GetString("BatteryNotify"), CustomRoles.Battery.ToColoredString()), 10f);
+            __instance.Timer = IsCooldownModificationEnabled ? ModifiedCooldownSec : 30f;
+            __instance.IsDirty = true;
             return false;
         }
 

@@ -394,6 +394,50 @@ public static class CaptureTheFlag
             }
         }
 
+        try
+        {
+            foreach (CTFTeamData data in TeamData.Values)
+            {
+                try
+                {
+                    foreach (byte id1 in data.Players)
+                    {
+                        try
+                        {
+                            var pc1 = id1.GetPlayer();
+                            if (pc1 == null) continue;
+
+                            int targetClientId = pc1.GetClientId();
+
+                            foreach (byte id2 in data.Players)
+                            {
+                                try
+                                {
+                                    if (id1 == id2) continue;
+
+                                    var pc2 = id2.GetPlayer();
+                                    if (pc2 == null) continue;
+
+                                    hasValue |= sender.RpcSetRole(pc2, RoleTypes.Phantom, targetClientId);
+                    
+                                    if (sender.stream.Length > 800)
+                                    {
+                                        sender.SendMessage();
+                                        sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+                                        hasValue = false;
+                                    }
+                                }
+                                catch (Exception e) { Utils.ThrowException(e); }
+                            }
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
+                    }
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         sender.SendMessage(!hasValue);
 
         ValidTag = true;
