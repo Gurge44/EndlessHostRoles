@@ -197,6 +197,7 @@ namespace EHR
                 msg2.StartMessage(6);
                 msg2.Write(AmongUsClient.Instance.GameId);
                 msg2.WritePacked(int.MaxValue);
+
                 for (uint i = 1; i <= 3; ++i)
                 {
                     msg2.StartMessage(4);
@@ -209,6 +210,7 @@ namespace EHR
                     msg2.EndMessage();
                     msg2.EndMessage();
                 }
+
                 msg2.EndMessage();
                 AmongUsClient.Instance.SendOrDisconnect(msg2);
                 msg2.Recycle();
@@ -267,8 +269,6 @@ namespace EHR
             }, 0.2f);
 
             Position = position;
-            // playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-            // playerControl.cosmetics.colorBlindText.color = Color.clear;
             Sprite = sprite;
             ++MaxId;
             Id = MaxId;
@@ -312,12 +312,13 @@ namespace EHR
             LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.1f); // Fix for Host
             LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.4f); // Fix for Non-Host Modded
 
-            LateTask.New(() => RpcChangeSprite(sprite), 0.4f);
+            LateTask.New(() => RpcChangeSprite(sprite), 0.6f);
         }
 
         public static void FixedUpdate()
         {
-            foreach (CustomNetObject cno in AllObjects.ToArray()) cno?.OnFixedUpdate();
+            foreach (CustomNetObject cno in AllObjects.ToArray())
+                cno?.OnFixedUpdate();
         }
 
         public static CustomNetObject Get(int id)

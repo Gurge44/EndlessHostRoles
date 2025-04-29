@@ -6,8 +6,6 @@ namespace EHR.AddOns.Common;
 
 internal class Lovers : IAddon
 {
-    public static bool IsChatActivated = false;
-
     public static OptionItem LoverSpawnChances;
     public static OptionItem LoverKnowRoles;
     public static OptionItem LoverDieConsequence;
@@ -21,7 +19,6 @@ internal class Lovers : IAddon
     public static OptionItem LovingImpostorSpawnChance;
     public static OptionItem LovingImpostorRoleForOtherImps;
     public static OptionItem PrivateChat;
-    public static OptionItem PrivateChatForLoversOnly;
     public static OptionItem GuessAbility;
 
     private static readonly string[] GuessModes =
@@ -89,10 +86,6 @@ internal class Lovers : IAddon
 
         PrivateChat = new BooleanOptionItem(id + 6, "PrivateChat", false, TabGroup.Addons)
             .SetParent(spawnOption)
-            .SetGameMode(customGameMode);
-
-        PrivateChatForLoversOnly = new BooleanOptionItem(id + 7, "PrivateChatForLoversOnly", false, TabGroup.Addons)
-            .SetParent(PrivateChat)
             .SetGameMode(customGameMode);
 
         CrewLoversWinWithCrew = new BooleanOptionItem(id + 8, "CrewLoversWinWithCrew", true, TabGroup.Addons)

@@ -216,11 +216,11 @@ public static class ChatManager
         if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
     }
 
-    public static void SendPreviousMessagesToAll(bool clear = false)
+    public static void SendPreviousMessagesToAll()
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        Logger.Info($" clear: {clear}", "ChatManager.SendPreviousMessagesToAll");
+        Logger.Info(" Sending Previous Messages To Everyone", "ChatManager");
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         if (aapc.Length == 0) return;
@@ -230,11 +230,20 @@ public static class ChatManager
         var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
         var hasValue = false;
 
-        for (int i = clear ? 0 : filtered.Length; i < 20; i++)
+        if (filtered.Length < 20) ClearChat();
+
+        foreach (string str in filtered)
         {
-            PlayerControl player = aapc.RandomElement();
-            chat.AddChat(player, Utils.EmptyMessage);
-            SendRPC(writer, player, Utils.EmptyMessage);
+            string[] entryParts = str.Split(':');
+            string senderId = entryParts[0].Trim();
+            string senderMessage = entryParts[1].Trim();
+            for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
+
+            PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
+            if (senderPlayer == null) continue;
+
+            chat.AddChat(senderPlayer, senderMessage);
+            SendRPC(writer, senderPlayer, senderMessage);
             hasValue = true;
 
             if (writer.stream.Length > 800)
@@ -242,31 +251,6 @@ public static class ChatManager
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
                 hasValue = false;
-            }
-        }
-
-        if (!clear)
-        {
-            foreach (string str in filtered)
-            {
-                string[] entryParts = str.Split(':');
-                string senderId = entryParts[0].Trim();
-                string senderMessage = entryParts[1].Trim();
-                for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
-
-                PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
-                if (senderPlayer == null) continue;
-
-                chat.AddChat(senderPlayer, senderMessage);
-                SendRPC(writer, senderPlayer, senderMessage);
-                hasValue = true;
-                
-                if (writer.stream.Length > 800)
-                {
-                    writer.SendMessage();
-                    writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
-                    hasValue = false;
-                }
             }
         }
 
@@ -301,5 +285,18 @@ public static class ChatManager
 
         ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
         Loop.Times(20, _ => chat.AddChat(sender, Utils.EmptyMessage));
+    }
+
+    // From https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/Utils.cs
+    public static void ClearChat()
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        if (player == null) return;
+        FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
+        MessageWriter writer = AmongUsClient.Instance.StartRpc(player.NetId, (byte)RpcCalls.SendChat);
+        writer.Write("<size=32767>.");
+        writer.Write(true);
+        writer.EndMessage();
     }
 }

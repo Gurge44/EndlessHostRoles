@@ -982,21 +982,14 @@ internal static class IntroCutsceneDestroyPatch
                 System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
                 if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
 
-                if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFAChatDuringGame.GetBool())
-                    LateTask.New(SetSpectatorsDead, 12.5f, log: false);
-                else SetSpectatorsDead();
-
-                void SetSpectatorsDead()
+                var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
+                spectators.ForEach(sender.RpcExileV2);
+                sender.SendMessage(spectators.Count == 0);
+                spectators.ForEach(x =>
                 {
-                    var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
-                    spectators.ForEach(sender.RpcExileV2);
-                    sender.SendMessage(spectators.Count == 0);
-                    spectators.ForEach(x =>
-                    {
-                        Main.PlayerStates[x.PlayerId].SetDead();
-                        Utils.AfterPlayerDeathTasks(x);
-                    });
-                }
+                    Main.PlayerStates[x.PlayerId].SetDead();
+                    Utils.AfterPlayerDeathTasks(x);
+                });
             }
             catch (Exception e) { Utils.ThrowException(e); }
 

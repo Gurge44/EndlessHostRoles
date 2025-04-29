@@ -78,7 +78,7 @@ internal static class CheckForEndVotingPatch
 
                     voteTarget.SetRealKiller(pc);
                     Main.LastVotedPlayerInfo = voteTarget.Data;
-                    ExileControllerWrapUpPatch.AntiBlackout_LastExiled = voteTarget.Data;
+                    ExileControllerWrapUpPatch.LastExiled = voteTarget.Data;
 
                     if (Main.LastVotedPlayerInfo != null)
                         ConfirmEjections(Main.LastVotedPlayerInfo, false);
@@ -326,7 +326,7 @@ internal static class CheckForEndVotingPatch
             exiledPlayer?.Object.SetRealKiller(null);
 
             Main.LastVotedPlayerInfo = exiledPlayer;
-            ExileControllerWrapUpPatch.AntiBlackout_LastExiled = exiledPlayer;
+            ExileControllerWrapUpPatch.LastExiled = exiledPlayer;
 
             if (Main.LastVotedPlayerInfo != null)
                 ConfirmEjections(Main.LastVotedPlayerInfo, braked);
