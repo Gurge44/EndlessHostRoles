@@ -761,6 +761,10 @@ public static class Options
     public static OptionItem MinWaitAutoStart;
     public static OptionItem MaxWaitAutoStart;
     public static OptionItem PlayerAutoStart;
+    public static OptionItem AutoGMPollCommandAfterJoin;
+    public static OptionItem AutoGMPollCommandCooldown;
+    public static OptionItem AutoDraftStartCommandAfterJoin;
+    public static OptionItem AutoDraftStartCommandCooldown;
 
     public static OptionItem DumpLogAfterGameEnd;
 
@@ -1444,6 +1448,19 @@ public static class Options
 
         AutoPlayAgainCountdown = new IntegerOptionItem(44425, "AutoPlayAgainCountdown", new(1, 90, 1), 10, TabGroup.SystemSettings)
             .SetParent(AutoPlayAgain);
+        
+        AutoGMPollCommandAfterJoin = new BooleanOptionItem(19309, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+        
+        AutoGMPollCommandCooldown = new IntegerOptionItem(19307, "AutoGMPollCommandCooldown", new(10, 600, 5), 30, TabGroup.SystemSettings)
+            .SetParent(AutoGMPollCommandAfterJoin)
+            .SetValueFormat(OptionFormat.Seconds);
+
+        AutoDraftStartCommandAfterJoin = new BooleanOptionItem(19426, "AutoDraftStartCommandAfterJoin", false, TabGroup.SystemSettings);
+        
+        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
+            .SetParent(AutoDraftStartCommandAfterJoin)
+            .SetValueFormat(OptionFormat.Seconds);
 
         LowLoadMode = new BooleanOptionItem(19317, "LowLoadMode", true, TabGroup.SystemSettings)
             .SetHeader(true)

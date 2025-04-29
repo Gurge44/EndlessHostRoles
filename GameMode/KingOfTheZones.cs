@@ -299,6 +299,23 @@ public static class KingOfTheZones
                     writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
                     hasData = false;
                 }
+
+                try
+                {
+                    int targetClientId = player.GetClientId();
+                    PlayerTeams.DoIf(
+                        x => x.Key != id && x.Value == team,
+                        // ReSharper disable once AccessToModifiedClosure
+                        x => writer.RpcSetRole(x.Key.GetPlayer(), RoleTypes.Impostor, targetClientId));
+                    
+                    if (writer.stream.Length > 800)
+                    {
+                        writer.SendMessage();
+                        writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
+                        hasData = false;
+                    }
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
             }
             catch (Exception e) { Utils.ThrowException(e); }
 

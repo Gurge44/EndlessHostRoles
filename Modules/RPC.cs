@@ -147,7 +147,8 @@ public enum CustomRPC
     // Game Modes
     RoomRushDataSync,
     FFAKill,
-    QuizSync
+    QuizSync,
+    HotPotatoSync
 }
 
 public enum Sounds
@@ -1131,6 +1132,11 @@ internal static class RPCHandlerPatch
             case CustomRPC.QuizSync:
             {
                 Quiz.AllowKills = reader.ReadBoolean();
+                break;
+            }
+            case CustomRPC.HotPotatoSync:
+            {
+                HotPotato.ReceiveRPC(reader);
                 break;
             }
         }

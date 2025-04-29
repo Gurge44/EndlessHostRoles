@@ -88,6 +88,44 @@ internal static class OnGameJoinedPatch
                 }
                 else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType} (IsOnlineGame: {GameStates.IsOnlineGame})", "OnGameJoinedPatch");
             }, 5f, "NotifyLobbyCreated");
+
+            if (Options.AutoGMPollCommandAfterJoin.GetBool())
+            {
+                Main.Instance.StartCoroutine(CoRoutine());
+                
+                System.Collections.IEnumerator CoRoutine()
+                {
+                    float timer = Options.AutoGMPollCommandCooldown.GetInt();
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsLobby) yield break;
+                        timer -= Time.deltaTime;
+                        yield return null;
+                    }
+                    
+                    ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
+                }
+            }
+
+            if (Options.AutoDraftStartCommandAfterJoin.GetBool())
+            {
+                Main.Instance.StartCoroutine(CoRoutine());
+
+                System.Collections.IEnumerator CoRoutine()
+                {
+                    float timer = Options.AutoDraftStartCommandCooldown.GetInt();
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsLobby) yield break;
+                        timer -= Time.deltaTime;
+                        yield return null;
+                    }
+
+                    ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "/draftstart", ["/draftstart"]);
+                }
+            }
         }
         else
             LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client");
