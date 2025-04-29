@@ -128,7 +128,7 @@ internal static class HotPotato
             PassHotPotato(Target, false);
         }
 
-        private static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
+        public static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
         {
             if (!Main.IntroDestroyed || Main.AllAlivePlayerControls.Length < 2) return;
 

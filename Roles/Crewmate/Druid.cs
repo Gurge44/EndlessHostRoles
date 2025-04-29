@@ -184,7 +184,7 @@ public class Druid : RoleBase
         }
 
         long timeLeft = TriggerPlaceDelay.GetInt() - (now - TriggerDelay);
-        if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft, 2f));
+        if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft), 2f, overrideAll: true);
 
         lastUpdate = now;
     }

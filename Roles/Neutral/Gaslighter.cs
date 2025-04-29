@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
+using EHR.Modules;
 using EHR.Patches;
+using Hazel;
 
 namespace EHR.Neutral;
 
@@ -87,7 +90,10 @@ public class Gaslighter : RoleBase
                 foreach (byte id in exileIds)
                 {
                     if (id == instance.GaslighterId)
+                    {
                         instance.CursedPlayers.Clear();
+                        Utils.SendRPC(CustomRPC.SyncRoleData, id, 2);
+                    }
                 }
             }
 
@@ -118,6 +124,7 @@ public class Gaslighter : RoleBase
     {
         ShieldedPlayers.Clear();
         CursedPlayers.Clear();
+        Utils.SendRPC(CustomRPC.SyncRoleData, GaslighterId, 2);
 
         if (Main.PlayerStates[GaslighterId].IsDead) return;
 
@@ -144,6 +151,35 @@ public class Gaslighter : RoleBase
         LateTask.New(() => pc?.SetKillCooldown(), 1.5f, log: false);
     }
 
+    public override void OnReportDeadBody()
+    {
+        HashSet<byte> spelledPlayers = [];
+
+        foreach (Gaslighter instance in Instances)
+        {
+            PlayerControl pc = instance.GaslighterId.GetPlayer();
+
+            if (pc == null || !pc.IsAlive())
+            {
+                instance.CursedPlayers.Clear();
+                Utils.SendRPC(CustomRPC.SyncRoleData, instance.GaslighterId, 2);
+            }
+
+            spelledPlayers.UnionWith(instance.CursedPlayers);
+        }
+
+        if (spelledPlayers.Count > 0)
+        {
+            LateTask.New(() =>
+            {
+                string cursed = string.Join(", ", spelledPlayers.Select(x => x.ColoredPlayerName()));
+                string role = IRandom.Instance.Next(2) == 0 ? CustomRoles.HexMaster.ToColoredString() : CustomRoles.Witch.ToColoredString();
+                string text = string.Format(Translator.GetString("WitchCursedPlayersMessage"), cursed, role);
+                Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"));
+            }, 10f, "Witch Cursed Players Notify");
+        }
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         switch (CurrentRound)
@@ -156,19 +192,20 @@ public class Gaslighter : RoleBase
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                 killer.RpcRemoveAbilityUse();
                 killer.SetKillCooldown();
-                return false;
+                break;
             case Round.Curse:
                 CursedPlayers.Add(target.PlayerId);
+                Utils.SendRPC(CustomRPC.SyncRoleData, GaslighterId, 1, target.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 killer.SetKillCooldown();
-                return false;
+                break;
             case Round.Shield when killer.GetAbilityUseLimit() > 0:
                 ShieldedPlayers.Add(target.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                 killer.RpcRemoveAbilityUse();
                 killer.SetKillCooldown();
-                return false;
+                break;
         }
 
         return false;
@@ -195,9 +232,12 @@ public class Gaslighter : RoleBase
     {
         bool seerIsGaslighter = seer.Is(CustomRoles.Gaslighter);
         var sb = new StringBuilder();
-        if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId)) sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
 
-        if (IsCursed(target) && (meeting || seerIsGaslighter)) sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
+        if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId))
+            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
+
+        if (IsCursed(target) && (meeting || seerIsGaslighter))
+            sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
 
         return sb.ToString();
     }
@@ -210,6 +250,19 @@ public class Gaslighter : RoleBase
             1 => GaslighterId.GetPlayer()?.IsAlive() == true,
             _ => false
         };
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+                CursedPlayers.Add(reader.ReadByte());
+                break;
+            case 2:
+                CursedPlayers.Clear();
+                break;
+        }
     }
 
     private enum Round

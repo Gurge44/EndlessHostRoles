@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
@@ -159,6 +160,37 @@ public class Witch : RoleBase
 
             wc.SpelledPlayer.Clear();
             SendRPC(true, witch);
+        }
+    }
+
+    public override void OnReportDeadBody()
+    {
+        HashSet<byte> spelledPlayers = [];
+
+        foreach (byte id in PlayerIdList)
+        {
+            if (Main.PlayerStates[id].Role is not Witch wc) continue;
+
+            PlayerControl pc = id.GetPlayer();
+
+            if (pc == null || !pc.IsAlive())
+            {
+                wc.SpelledPlayer.Clear();
+                SendRPC(true, id);
+            }
+
+            spelledPlayers.UnionWith(wc.SpelledPlayer);
+        }
+
+        if (spelledPlayers.Count > 0)
+        {
+            LateTask.New(() =>
+            {
+                string cursed = string.Join(", ", spelledPlayers.Select(x => x.ColoredPlayerName()));
+                string role = IsHM ? CustomRoles.HexMaster.ToColoredString() : CustomRoles.Witch.ToColoredString();
+                string text = string.Format(GetString("WitchCursedPlayersMessage"), cursed, role);
+                Utils.SendMessage(text, title: GetString("MessageTitle.Attention"));
+            }, 10f, "Witch Cursed Players Notify");
         }
     }
 
