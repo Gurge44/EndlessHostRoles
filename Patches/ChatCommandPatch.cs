@@ -1512,6 +1512,7 @@ internal static class ChatCommands
                 if (!rl.IsAdditionRole()) player.SetRole(rl.GetRoleTypes());
 
                 player.RpcSetCustomRole(rl);
+                player.RpcChangeRoleBasis(rl);
 
                 if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(player.PlayerId, rl, true);
 

@@ -21,6 +21,7 @@ internal static class CustomTeamManager
 
             CustomTeams = File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
             RefreshCustomOptions();
+            UpdateEnabledTeams();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

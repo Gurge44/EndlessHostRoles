@@ -261,7 +261,6 @@ internal static class CustomHnS
         if (seer.PlayerId == target.PlayerId) return true;
 
         if (!PlayerRoles.TryGetValue(target.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) targetRole)) return false;
-
         if (!PlayerRoles.TryGetValue(seer.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) seerRole)) return false;
 
         if (PlayersSeeRoles.GetBool())
@@ -295,7 +294,6 @@ internal static class CustomHnS
         if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
 
         if (!PlayerRoles.TryGetValue(target.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) targetRole)) return false;
-
         if (!PlayerRoles.TryGetValue(seer.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) seerRole)) return false;
 
         return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
@@ -303,9 +301,7 @@ internal static class CustomHnS
 
     public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
     {
-        if (GameStates.IsLobby || !CustomGameMode.HideAndSeek.IsActiveOrIntegrated() || Main.HasJustStarted) return string.Empty;
-
-        if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
+        if (GameStates.IsLobby || !CustomGameMode.HideAndSeek.IsActiveOrIntegrated() || Main.HasJustStarted || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
 
         string dangerMeter = GetDangerMeter(seer);
 
@@ -461,7 +457,7 @@ internal static class CustomHnS
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor) return;
+        if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor || !IsBlindTime) return;
 
         killer.Kill(target);
 
@@ -480,7 +476,7 @@ internal static class CustomHnS
     public static void OnCoEnterVent(PlayerPhysics physics, int ventId) { }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private class FixedUpdatePatch
+    private static class FixedUpdatePatch
     {
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()

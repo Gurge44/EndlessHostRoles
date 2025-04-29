@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.AddOns.GhostRoles;
@@ -81,7 +82,8 @@ internal static class EndGamePatch
 
         HashSet<PlayerControl> winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToHashSet();
 
-        foreach (CustomRoles team in CustomWinnerHolder.WinnerRoles) winner.UnionWith(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
+        foreach (CustomRoles team in CustomWinnerHolder.WinnerRoles)
+            winner.UnionWith(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
 
         Main.WinnerNameList = [];
         Main.WinnerList = [];
@@ -106,7 +108,8 @@ internal static class EndGamePatch
         Bloodmoon.OnMeetingStart();
         AFKDetector.ExemptedPlayers.Clear();
 
-        foreach (PlayerState state in Main.PlayerStates.Values) state.Role.Init();
+        foreach (PlayerState state in Main.PlayerStates.Values)
+            state.Role.Init();
 
         if (AmongUsClient.Instance.AmHost)
         {
@@ -153,74 +156,7 @@ internal static class SetEverythingUpPatch
         //      ==Victory Faction Display==
         //#######################################
 
-        try
-        {
-            // ---------- Code from TOR (The Other Roles)! ----------
-            // https://github.com/TheOtherRolesAU/TheOtherRoles/blob/main/TheOtherRoles/Patches/EndGamePatch.cs
-
-            if (Options.CurrentGameMode != CustomGameMode.Standard) goto End;
-
-            int num = Mathf.CeilToInt(7.5f);
-
-            Il2CppArrayBase<PoolablePlayer> pbs = __instance?.transform.GetComponentsInChildren<PoolablePlayer>();
-
-            if (pbs != null)
-            {
-                foreach (PoolablePlayer pb in pbs)
-                    pb.ToggleName(false);
-            }
-
-            List<CachedPlayerData> list = EndGameResult.CachedWinners.ToArray().ToList();
-
-            for (var i = 0; i < list.Count; i++)
-            {
-                CachedPlayerData data = list[i];
-                int num2 = i % 2 == 0 ? -1 : 1;
-                int num3 = (i + 1) / 2;
-                float num4 = num3 / (float)num;
-                float num5 = Mathf.Lerp(1f, 0.75f, num4);
-                float num6 = i == 0 ? -8 : -1;
-                PoolablePlayer poolablePlayer = Object.Instantiate(__instance?.PlayerPrefab, __instance?.transform);
-                poolablePlayer.transform.localPosition = new Vector3(1f * num2 * num3 * num5, FloatRange.SpreadToEdges(-1.125f, 0f, num3, num), num6 + (num3 * 0.01f)) * 0.9f;
-                float num7 = Mathf.Lerp(1f, 0.65f, num4) * 0.9f;
-                Vector3 vector = new(num7, num7, 1f);
-                poolablePlayer.transform.localScale = vector;
-                poolablePlayer.UpdateFromPlayerOutfit(data.Outfit, PlayerMaterial.MaskType.ComplexUI, data.IsDead, true);
-
-                if (data.IsDead)
-                {
-                    poolablePlayer.cosmetics.currentBodySprite.BodySprite.sprite = poolablePlayer.cosmetics.currentBodySprite.GhostSprite;
-                    poolablePlayer.SetDeadFlipX(i % 2 == 0);
-                }
-                else
-                    poolablePlayer.SetFlipX(i % 2 == 0);
-
-                bool lowered = i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14;
-
-                poolablePlayer.cosmetics.nameText.color = Color.white;
-                poolablePlayer.cosmetics.nameText.transform.localScale = new(1f / vector.x, 1f / vector.y, 1f / vector.z);
-                poolablePlayer.cosmetics.nameText.text = data.PlayerName;
-
-                Vector3 defaultPos = poolablePlayer.cosmetics.nameText.transform.localPosition;
-
-                for (var j = 0; j < Main.WinnerList.Count; j++)
-                {
-                    byte id = Main.WinnerList[j];
-                    if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags() || data.PlayerName == GetString("Dead")) continue;
-
-                    CustomRoles role = Main.PlayerStates[id].MainRole;
-
-                    string color = Main.RoleColors[role];
-                    string rolename = Utils.GetRoleName(role);
-
-                    poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
-                    poolablePlayer.cosmetics.nameText.transform.localPosition = new(defaultPos.x, !lowered ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
-                }
-            }
-        }
-        catch (Exception e) { Logger.Error(e.ToString(), "OutroPatch.SetEverythingUpPatch.Postfix"); }
-
-        End:
+        Main.Instance.StartCoroutine(SetupPoolablePlayers());
 
         __instance.WinText.alignment = TextAlignmentOptions.Center;
         GameObject winnerTextObject = Object.Instantiate(__instance.WinText.gameObject);
@@ -592,6 +528,82 @@ internal static class SetEverythingUpPatch
         };
 
         return;
+
+        IEnumerator SetupPoolablePlayers()
+        {
+            // ---------- Code from TOR (The Other Roles)! ----------
+            // https://github.com/TheOtherRolesAU/TheOtherRoles/blob/main/TheOtherRoles/Patches/EndGamePatch.cs
+
+            if (Options.CurrentGameMode != CustomGameMode.Standard) yield break;
+
+            yield return null;
+
+            int num = Mathf.CeilToInt(7.5f);
+
+            Il2CppArrayBase<PoolablePlayer> pbs = __instance?.transform.GetComponentsInChildren<PoolablePlayer>();
+
+            if (pbs != null)
+            {
+                foreach (PoolablePlayer pb in pbs)
+                    if (pb != null)
+                        pb.ToggleName(false);
+            }
+
+            yield return null;
+
+            List<CachedPlayerData> list = EndGameResult.CachedWinners.ToArray().ToList();
+
+            for (var i = 0; i < list.Count; i++)
+            {
+                CachedPlayerData data = list[i];
+                int num2 = i % 2 == 0 ? -1 : 1;
+                int num3 = (i + 1) / 2;
+                float num4 = num3 / (float)num;
+                float num5 = Mathf.Lerp(1f, 0.75f, num4);
+                float num6 = i == 0 ? -8 : -1;
+
+                PoolablePlayer poolablePlayer = Object.Instantiate(__instance?.PlayerPrefab, __instance?.transform);
+                poolablePlayer.transform.localPosition = new Vector3(1f * num2 * num3 * num5, FloatRange.SpreadToEdges(-1.125f, 0f, num3, num), num6 + (num3 * 0.01f)) * 0.9f;
+                float num7 = Mathf.Lerp(1f, 0.65f, num4) * 0.9f;
+                Vector3 vector = new(num7, num7, 1f);
+                poolablePlayer.transform.localScale = vector;
+                poolablePlayer.UpdateFromPlayerOutfit(data.Outfit, PlayerMaterial.MaskType.ComplexUI, data.IsDead, true);
+
+                if (data.IsDead)
+                {
+                    poolablePlayer.cosmetics.currentBodySprite.BodySprite.sprite = poolablePlayer.cosmetics.currentBodySprite.GhostSprite;
+                    poolablePlayer.SetDeadFlipX(i % 2 == 0);
+                }
+                else
+                    poolablePlayer.SetFlipX(i % 2 == 0);
+
+                bool lowered = i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14;
+
+                poolablePlayer.cosmetics.nameText.color = Color.white;
+                poolablePlayer.cosmetics.nameText.transform.localScale = new(1f / vector.x, 1f / vector.y, 1f / vector.z);
+                poolablePlayer.cosmetics.nameText.text = data.PlayerName;
+
+                Vector3 defaultPos = poolablePlayer.cosmetics.nameText.transform.localPosition;
+
+                yield return null;
+
+                for (var j = 0; j < Main.WinnerList.Count; j++)
+                {
+                    byte id = Main.WinnerList[j];
+                    if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags() || data.PlayerName == GetString("Dead")) continue;
+
+                    CustomRoles role = Main.PlayerStates[id].MainRole;
+
+                    string color = Main.RoleColors[role];
+                    string rolename = Utils.GetRoleName(role);
+
+                    poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";
+                    poolablePlayer.cosmetics.nameText.transform.localPosition = new(defaultPos.x, !lowered ? defaultPos.y - 0.6f : defaultPos.y - 1.4f, -15f);
+                }
+
+                yield return null;
+            }
+        }
 
         static string GetAdditionalWinnerRoleName(string role)
         {

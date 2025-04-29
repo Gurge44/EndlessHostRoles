@@ -931,6 +931,7 @@ internal static class IntroCutsceneDestroyPatch
             {
                 lp.RpcChangeRoleBasis(lp.GetCustomRole());
                 lp.RpcResetAbilityCooldown();
+                LateTask.New(() => lp.SetKillCooldown(), 0.2f, log: false);
             }, 1f, log: false);
 
             if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.AllInOne)

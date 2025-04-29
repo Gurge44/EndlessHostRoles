@@ -162,7 +162,6 @@ public static class GameOptionsMenuPatch
                     switch (option.Name)
                     {
                         case "GameMode":
-                            GameSettingMenuPatch.GameModeBehaviour = (StringOption)optionBehaviour;
                             break;
                         case "Preset":
                             GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
@@ -902,7 +901,6 @@ public static class GameSettingMenuPatch
     private static System.Collections.Generic.Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
 
     public static NumberOption PresetBehaviour;
-    public static StringOption GameModeBehaviour;
 
     public static long LastPresetChange;
 
@@ -917,6 +915,13 @@ public static class GameSettingMenuPatch
     {
         ModSettingsButtons = [];
         TabGroup[] tabGroups = Enum.GetValues<TabGroup>();
+
+        tabGroups = Options.CurrentGameMode switch
+        {
+            CustomGameMode.Standard => tabGroups,
+            CustomGameMode.HideAndSeek or CustomGameMode.AllInOne => tabGroups[..6],
+            _ => tabGroups[..3]
+        };
 
         foreach (TabGroup tab in tabGroups)
         {
