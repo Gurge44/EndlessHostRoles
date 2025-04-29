@@ -234,7 +234,9 @@ internal static class CheckMurderPatch
                 FreeForAll.OnPlayerAttack(killer, target);
                 return false;
             case CustomGameMode.HotPotato:
-                return HotPotato.CanPassViaKillButton && HotPotato.GetState().HolderID == killer.PlayerId;
+                if (HotPotato.CanPassViaKillButton && HotPotato.GetState().HolderID == killer.PlayerId)
+                    HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
+                return false;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
