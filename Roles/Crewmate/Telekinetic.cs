@@ -5,6 +5,7 @@ using EHR.Neutral;
 using EHR.Patches;
 using Hazel;
 
+
 namespace EHR.Crewmate;
 
 public class Telekinetic : RoleBase
@@ -225,5 +226,10 @@ public class Telekinetic : RoleBase
         Shield,
         Speed,
         Doors
+    }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("TelekineticButtonText"));
     }
 }
