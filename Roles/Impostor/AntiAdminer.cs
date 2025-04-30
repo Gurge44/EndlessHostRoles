@@ -89,12 +89,13 @@ internal class AntiAdminer : RoleBase
         if (IsMonitor || !EnableExtraAbility.GetBool() || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
 
         ExtraAbilityStartTimeStamp = Utils.TimeStamp;
-        
+
         var sender = CustomRpcSender.Create("AntiAdminer.OnShapeshift", SendOption.Reliable);
         var hasValue = false;
-        
+
         hasValue |= sender.RpcResetAbilityCooldown(shapeshifter);
-        hasValue |= sender.NotifyRolesSpecific(shapeshifter, shapeshifter);
+        hasValue |= sender.NotifyRolesSpecific(shapeshifter, shapeshifter, out sender, out bool cleared);
+        if (cleared) hasValue = false;
 
         hasValue = PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive()).Aggregate(hasValue, (current, pc) => current || sender.Notify(pc, Translator.GetString("AAWarning"), Delay.GetFloat()));
 

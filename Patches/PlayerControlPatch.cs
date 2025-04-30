@@ -410,9 +410,21 @@ internal static class CheckMurderPatch
             return false;
         }
 
-        if (killer.Is(Team.Coven) && target.Is(Team.Coven))
+        if (killer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven))
         {
             Notify("CovenKillEachOther");
+            return false;
+        }
+
+        if (killer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoles.Entranced) && !Siren.CovenCanKillEntranced.GetBool())
+        {
+            Notify("CovenKillEntranced");
+            return false;
+        }
+
+        if (killer.Is(CustomRoles.Entranced) && target.Is(CustomRoleTypes.Coven) && !Siren.EntrancedCanKillCoven.GetBool())
+        {
+            Notify("EntrancedKillCoven");
             return false;
         }
 
@@ -2244,7 +2256,7 @@ public static class PlayerControlCheckUseZiplinePatch
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;
             if (Options.DisableZiplineFromUnder.GetBool() && !fromTop) return false;
 
-            if (__instance.Is(Team.Coven) && Options.DisableZiplineForCoven.GetBool()) return false;
+            if (__instance.Is(CustomRoleTypes.Coven) && Options.DisableZiplineForCoven.GetBool()) return false;
             if (__instance.IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
             if (__instance.GetCustomRole().IsNeutral() && Options.DisableZiplineForNeutrals.GetBool()) return false;
             if (__instance.IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;

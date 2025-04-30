@@ -60,15 +60,17 @@ public class LastImpostor : IAddon
                 SetKillCooldown();
 
                 var sender = CustomRpcSender.Create("LastImpostor", SendOption.Reliable);
-                sender.SyncSettings(pc);
-                sender.NotifyRolesSpecific(pc, pc);
+                var hasValue = false;
+                hasValue |= sender.SyncSettings(pc);
+                hasValue |= sender.NotifyRolesSpecific(pc, pc, out sender, out bool cleared);
+                if (cleared) hasValue = false;
 
                 if (Main.KillTimers.TryGetValue(pc.PlayerId, out float timer) &&
                     Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float cd) &&
                     timer > cd)
-                    sender.SetKillCooldown(pc);
+                    hasValue |= sender.SetKillCooldown(pc);
 
-                sender.SendMessage();
+                sender.SendMessage(!hasValue);
 
                 break;
             }

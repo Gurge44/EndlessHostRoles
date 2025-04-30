@@ -97,7 +97,7 @@ public static class GuessManager
 
                 if ((pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool()) ||
                     (pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool()) ||
-                    (pc.Is(Team.Coven) && !Options.CovenCanGuess.GetBool()) ||
+                    (pc.Is(CustomRoleTypes.Coven) && !Options.CovenCanGuess.GetBool()) ||
                     (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool()) ||
                     (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool()) ||
                     (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0) ||
@@ -177,6 +177,7 @@ public static class GuessManager
                             CustomRoles.Contagious => Options.ContagiousCanBeGuessed,
                             CustomRoles.Undead => Options.UndeadCanBeGuessed,
                             CustomRoles.Egoist => Options.EgoistCanBeGuessed,
+                            CustomRoles.Entranced => Options.EntrancedCanBeGuessed,
                             _ => null
                         };
 

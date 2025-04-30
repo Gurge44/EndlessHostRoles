@@ -233,6 +233,7 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
@@ -255,6 +256,7 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
@@ -277,12 +279,36 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Charmed);
+                SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
+                Utils.NotifyRoles(SpecifyTarget: Player);
+                break;
+            case CustomRoles.Entranced:
+                TaskState.HasTasks = false;
+                TaskState.AllTasksCount = 0;
+
+                countTypes = Siren.EntrancedCountMode.GetInt() switch
+                {
+                    0 => CountTypes.OutOfGame,
+                    1 => CountTypes.Coven,
+                    2 => countTypes,
+                    _ => throw new NotImplementedException()
+                };
+
+                SubRoles.Remove(CustomRoles.Charmed);
+                SubRoles.Remove(CustomRoles.Madmate);
+                SubRoles.Remove(CustomRoles.Recruit);
+                SubRoles.Remove(CustomRoles.Contagious);
+                SubRoles.Remove(CustomRoles.Rascal);
+                SubRoles.Remove(CustomRoles.Loyal);
+                SubRoles.Remove(CustomRoles.Undead);
                 SubRoles.Remove(CustomRoles.Stressed);
                 Utils.NotifyRoles(SpecifySeer: Player);
                 Utils.NotifyRoles(SpecifyTarget: Player);
@@ -302,6 +328,7 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Contagious);
@@ -324,6 +351,7 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Charmed);

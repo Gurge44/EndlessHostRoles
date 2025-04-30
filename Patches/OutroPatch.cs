@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -506,6 +507,51 @@ internal static class SetEverythingUpPatch
         roleSummaryRectTransform.anchoredPosition = new(pos.x + 3.5f, pos.y - 0.7f);
         roleSummary.text = sb.ToString();
 
+        string[] lines = sb.ToString().Split('\n');
+        List<TextMeshPro> roleSummaryObjects = [];
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            GameObject lineObj = Object.Instantiate(roleSummaryObject, roleSummaryObject.transform.parent);
+            TextMeshPro lineText = lineObj.GetComponent<TextMeshPro>();
+            lineText.text = "<font=\"DIN_Pro_Bold_700 SDF\">" + lines[i];
+            lineText.alignment = TextAlignmentOptions.TopLeft;
+
+            RectTransform lineRect = lineObj.GetComponent<RectTransform>();
+            lineRect.anchoredPosition = new(pos.x + 3.5f - 5f, pos.y - 0.7f - (i * 0.15f)); // slide from the left
+            lineText.alpha = 0f;
+
+            roleSummaryObjects.Add(lineText);
+
+            __instance.StartCoroutine(SlideAndFadeIn(lineRect, lineText, i * 0.15f).WrapToIl2Cpp()); // stagger animation
+            continue;
+
+            static IEnumerator SlideAndFadeIn(RectTransform rect, TextMeshPro text, float delay)
+            {
+                yield return new WaitForSeconds(delay);
+
+                Vector2 start = rect.anchoredPosition;
+                Vector2 end = start + new Vector2(5f, 0); // target pos
+                const float duration = 0.5f;
+                float elapsed = 0f;
+
+                while (elapsed < duration)
+                {
+                    elapsed += Time.deltaTime;
+                    float t = elapsed / duration;
+                    rect.anchoredPosition = Vector2.Lerp(start, end, Mathf.SmoothStep(0, 1, t));
+                    text.alpha = t;
+                    yield return null;
+                }
+
+                rect.anchoredPosition = end;
+                text.alpha = 1f;
+            }
+        }
+
+        Object.Destroy(roleSummaryObject);
+
+
         bool showInitially = Main.ShowResult;
 
         ResultsToggleButton = new SimpleButton(
@@ -516,8 +562,8 @@ internal static class SetEverythingUpPatch
             new(0, 255, 255, 255),
             () =>
             {
-                bool setToActive = !roleSummary.gameObject.activeSelf;
-                roleSummary.gameObject.SetActive(setToActive);
+                bool setToActive = !roleSummaryObjects[0].gameObject.activeSelf;
+                roleSummaryObjects.ForEach(x => x.gameObject.SetActive(setToActive));
                 Main.ShowResult = setToActive;
                 ResultsToggleButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
             },

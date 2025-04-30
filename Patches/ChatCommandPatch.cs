@@ -917,6 +917,8 @@ internal static class ChatCommands
 
     public static void DraftStartCommand(PlayerControl player, string text, string[] args)
     {
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(DraftStartCommand), text, true);
@@ -955,7 +957,7 @@ internal static class ChatCommands
 
         IEnumerator RepeatedlySendMessage()
         {
-            for (var index = 0; index < 3; index++)
+            for (var index = 0; index < 5; index++)
             {
                 List<Message> messages = [];
 
@@ -968,8 +970,8 @@ internal static class ChatCommands
 
                 messages.SendMultipleMessages(index == 0 ? SendOption.Reliable : SendOption.None);
 
-                yield return new WaitForSeconds(20f);
-                if (DraftResult.Count >= DraftRoles.Count || GameStates.InGame) yield break;
+                yield return new WaitForSeconds(30f);
+                if (DraftResult.Count >= DraftRoles.Count || !GameStates.IsLobby || GameStates.InGame) yield break;
             }
         }
     }
@@ -1241,8 +1243,6 @@ internal static class ChatCommands
             PollVotes[choiceLetter] = 0;
             PollAnswers[choiceLetter] = $"<size=70%>〖 {answers[i]} 〗</size>";
         }
-
-        if (gmPoll) PollVotes['A'] = Main.AllPlayerControls.Length / 4;
 
         msg += $"\n{GetString("Poll.Begin")}\n<size=60%><i>";
         string title = GetString("Poll.Title");

@@ -542,6 +542,7 @@ internal static class CustomRolesHelper
             CustomRoles.Illusionist => RoleTypes.Shapeshifter,
             CustomRoles.Timelord => RoleTypes.Impostor,
             CustomRoles.Enchanter => RoleTypes.Impostor,
+            CustomRoles.Siren => RoleTypes.Phantom,
 
             _ => RoleTypes.GuardianAngel
         };
@@ -762,7 +763,8 @@ internal static class CustomRolesHelper
             CustomRoles.Charmed or
             CustomRoles.Recruit or
             CustomRoles.Contagious or
-            CustomRoles.Rascal;
+            CustomRoles.Rascal or
+            CustomRoles.Entranced;
     }
 
     public static bool IsRecruitingRole(this CustomRoles role)
@@ -870,7 +872,8 @@ internal static class CustomRolesHelper
             CustomRoles.Lovers or
             CustomRoles.Madmate or
             CustomRoles.Undead or
-            CustomRoles.Egoist;
+            CustomRoles.Egoist or
+            CustomRoles.Entranced;
     }
 
     public static bool IsImpOnlyAddon(this CustomRoles role)
@@ -1164,7 +1167,8 @@ internal static class CustomRolesHelper
             CustomRoles.Banshee or
             CustomRoles.Illusionist or
             CustomRoles.Timelord or
-            CustomRoles.Enchanter;
+            CustomRoles.Enchanter or
+            CustomRoles.Siren;
     }
 
     public static RoleTypes GetRoleTypes(this CustomRoles role)
@@ -1209,7 +1213,8 @@ internal static class CustomRolesHelper
             CustomRoles.Charmed or
             CustomRoles.Recruit or
             CustomRoles.Contagious or
-            CustomRoles.Undead;
+            CustomRoles.Undead or
+            CustomRoles.Entranced;
     }
 
     public static bool IsRevealingRole(this CustomRoles role, PlayerControl target)

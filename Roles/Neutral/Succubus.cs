@@ -118,9 +118,11 @@ public class Succubus : RoleBase
             hasValue |= sender.SetKillCooldown(killer);
             hasValue |= sender.RpcGuardAndKill(target, killer);
             hasValue |= sender.RpcGuardAndKill(target, target);
-            
-            hasValue |= sender.NotifyRolesSpecific(killer, target);
-            hasValue |= sender.NotifyRolesSpecific(target, killer);
+
+            hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
+            if (cleared) hasValue = false;
+            hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
+            if (cleared) hasValue = false;
 
             sender.SendMessage(!hasValue);
 
@@ -140,11 +142,8 @@ public class Succubus : RoleBase
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (base.KnowRole(player, target)) return true;
-
         if (player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Succubus)) return true;
-
         if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Charmed)) return true;
-
         return TargetKnowOtherTarget.GetBool() && player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed);
     }
 

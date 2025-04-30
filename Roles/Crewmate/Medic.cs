@@ -202,9 +202,10 @@ public class Medic : RoleBase
 
         var sender = CustomRpcSender.Create("Medic.OnAnyoneCheckMurder", SendOption.Reliable);
         var hasValue = false;
-        
+
         hasValue |= sender.SetKillCooldown(killer, ResetCooldown.GetFloat());
-        hasValue |= sender.NotifyRolesSpecific(target, killer);
+        hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out bool cleared);
+        if (cleared) hasValue = false;
 
         switch (KnowShieldBroken.GetInt())
         {
@@ -238,7 +239,8 @@ public class Medic : RoleBase
             if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.Immediately)
             {
                 TempMarkProtectedList.Remove(target.PlayerId);
-                hasValue |= sender.NotifyRolesSpecific(killer, target);
+                hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out cleared);
+                if (cleared) hasValue = false;
             }
         }
 

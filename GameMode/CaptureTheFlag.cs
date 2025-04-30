@@ -317,8 +317,12 @@ public static class CaptureTheFlag
         NetworkedPlayerInfo.PlayerOutfit blueOutfit = BlueOutfit;
         NetworkedPlayerInfo.PlayerOutfit yellowOutfit = YellowOutfit;
 
-        var sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
-        var hasValue = false;
+        // var sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+        // var hasValue = false;
+        Dictionary<byte, CustomRpcSender> senders = [];
+        Dictionary<byte, bool> hasValue = [];
+        players.ForEach(x => senders[x.PlayerId] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable));
+        players.ForEach(x => hasValue[x.PlayerId] = false);
 
         for (var i = 0; i < blueCount; i++)
         {
@@ -328,13 +332,17 @@ public static class CaptureTheFlag
             bluePlayers.Add(player.PlayerId);
             blueOutfit.PlayerName = player.GetRealName();
             blueOutfit.PetId = player.Data.DefaultOutfit.PetId;
-            hasValue |= Utils.RpcChangeSkin(player, blueOutfit, sender);
 
-            if (sender.stream.Length > 800)
+            if (senders.TryGetValue(player.PlayerId, out CustomRpcSender sender) && hasValue.ContainsKey(player.PlayerId))
             {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
-                hasValue = false;
+                hasValue[player.PlayerId] |= Utils.RpcChangeSkin(player, blueOutfit, sender);
+
+                if (sender.stream.Length > 800)
+                {
+                    sender.SendMessage();
+                    senders[player.PlayerId] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+                    hasValue[player.PlayerId] = false;
+                }
             }
         }
 
@@ -344,13 +352,17 @@ public static class CaptureTheFlag
             yellowPlayers.Add(player.PlayerId);
             yellowOutfit.PlayerName = player.GetRealName();
             yellowOutfit.PetId = player.Data.DefaultOutfit.PetId;
-            hasValue |= Utils.RpcChangeSkin(player, yellowOutfit, sender);
 
-            if (sender.stream.Length > 800)
+            if (senders.TryGetValue(player.PlayerId, out CustomRpcSender sender) && hasValue.ContainsKey(player.PlayerId))
             {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
-                hasValue = false;
+                hasValue[player.PlayerId] |= Utils.RpcChangeSkin(player, yellowOutfit, sender);
+
+                if (sender.stream.Length > 800)
+                {
+                    sender.SendMessage();
+                    senders[player.PlayerId] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+                    hasValue[player.PlayerId] = false;
+                }
             }
         }
 
@@ -368,29 +380,31 @@ public static class CaptureTheFlag
         // Teleport players to their respective bases
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
+            if (!senders.TryGetValue(pc.PlayerId, out CustomRpcSender sender) || !hasValue.ContainsKey(pc.PlayerId)) continue;
+
             if (PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team))
             {
                 switch (team)
                 {
                     case CTFTeam.Blue:
-                        hasValue |= sender.TP(pc, blueFlagBase.Position);
-                        hasValue |= sender.Notify(pc, string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), yellowFlagBase.RoomName));
+                        hasValue[pc.PlayerId] |= sender.TP(pc, blueFlagBase.Position);
+                        hasValue[pc.PlayerId] |= sender.Notify(pc, string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), yellowFlagBase.RoomName));
                         break;
                     case CTFTeam.Yellow:
-                        hasValue |= sender.TP(pc, yellowFlagBase.Position);
-                        hasValue |= sender.Notify(pc, string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), blueFlagBase.RoomName));
+                        hasValue[pc.PlayerId] |= sender.TP(pc, yellowFlagBase.Position);
+                        hasValue[pc.PlayerId] |= sender.Notify(pc, string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), blueFlagBase.RoomName));
                         break;
                 }
             }
 
-            hasValue |= pc.RpcChangeRoleBasis(CustomRoles.CTFPlayer, sender: sender);
-            hasValue |= sender.RpcResetAbilityCooldown(pc);
+            hasValue[pc.PlayerId] |= pc.RpcChangeRoleBasis(CustomRoles.CTFPlayer, sender: sender);
+            hasValue[pc.PlayerId] |= sender.RpcResetAbilityCooldown(pc);
 
             if (sender.stream.Length > 800)
             {
                 sender.SendMessage();
-                sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
-                hasValue = false;
+                senders[pc.PlayerId] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+                hasValue[pc.PlayerId] = false;
             }
         }
 
@@ -409,6 +423,8 @@ public static class CaptureTheFlag
 
                             int targetClientId = pc1.GetClientId();
 
+                            if (!senders.TryGetValue(id1, out CustomRpcSender sender) || !hasValue.ContainsKey(id1)) continue;
+
                             foreach (byte id2 in data.Players)
                             {
                                 try
@@ -418,13 +434,13 @@ public static class CaptureTheFlag
                                     var pc2 = id2.GetPlayer();
                                     if (pc2 == null) continue;
 
-                                    hasValue |= sender.RpcSetRole(pc2, RoleTypes.Phantom, targetClientId);
-                    
+                                    hasValue[id1] |= sender.RpcSetRole(pc2, RoleTypes.Phantom, targetClientId);
+
                                     if (sender.stream.Length > 800)
                                     {
                                         sender.SendMessage();
-                                        sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
-                                        hasValue = false;
+                                        senders[id1] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
+                                        hasValue[id1] = false;
                                     }
                                 }
                                 catch (Exception e) { Utils.ThrowException(e); }
@@ -438,7 +454,7 @@ public static class CaptureTheFlag
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        sender.SendMessage(!hasValue);
+        senders.IntersectBy(hasValue.Keys, x => x.Key).Do(x => x.Value.SendMessage(!hasValue[x.Key]));
 
         ValidTag = true;
         GameStartTS = Utils.TimeStamp;
@@ -501,7 +517,7 @@ public static class CaptureTheFlag
         }
 
         if (PlayerData.TryGetValue(killer.PlayerId, out CTFPlayerData data)) data.TagCount++;
-        sender.NotifyRolesSpecific(killer, killer);
+        sender.NotifyRolesSpecific(killer, killer, out sender, out _);
 
         sender.SendMessage();
     }
@@ -650,7 +666,7 @@ public static class CaptureTheFlag
                     {
                         if (arrow) TargetArrow.Add(x.PlayerId, id);
                         hasValue |= sender.Notify(x, Utils.ColorString(Color.yellow, Translator.GetString("CTF_FlagTaken")));
-                        
+
                         if (sender.stream.Length > 800)
                         {
                             sender.SendMessage();
@@ -670,7 +686,7 @@ public static class CaptureTheFlag
                     {
                         if (arrow) TargetArrow.Add(x.PlayerId, id);
                         hasValue |= sender.Notify(x, Translator.GetString("CTF_EnemyFlagTaken"));
-                        
+
                         if (sender.stream.Length > 800)
                         {
                             sender.SendMessage();
@@ -774,7 +790,8 @@ public static class CaptureTheFlag
                 }
                 else if (GameEndCriteria.GetValue() != 2)
                 {
-                    hasValue |= sender.NotifyRolesSpecific(__instance, __instance);
+                    hasValue |= sender.NotifyRolesSpecific(__instance, __instance, out sender, out bool cleared);
+                    if (cleared) hasValue = false;
                     if (Vector2.Distance(pos, blackRoomPS) > 2f) hasValue |= sender.TP(__instance, blackRoomPS);
                 }
             }

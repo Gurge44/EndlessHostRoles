@@ -1724,7 +1724,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsCrewmate(this PlayerControl pc)
     {
-        return !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsCrewmate() && !pc.Is(Team.Coven);
+        return !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoleTypes.Coven);
     }
 
     public static CustomRoleTypes GetCustomRoleTypes(this PlayerControl pc)
@@ -1777,7 +1777,7 @@ internal static class ExtendedPlayerControl
     {
         return team switch
         {
-            Team.Coven => target.GetCustomRole().IsCoven(),
+            Team.Coven => target.GetCustomRole().IsCoven() || target.Is(CustomRoles.Entranced),
             Team.Impostor => (target.IsMadmate() || target.GetCustomRole().IsImpostorTeamV2() || Framer.FramedPlayers.Contains(target.PlayerId)) && !target.Is(CustomRoles.Bloodlust),
             Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust) || target.IsConverted(),
             Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),

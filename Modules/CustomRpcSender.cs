@@ -671,10 +671,14 @@ public static class CustomRpcSenderExtensions
         return sender.TP(pc, new(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
     }
 
-    public static bool NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target)
+    public static bool NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target, out CustomRpcSender newSender, out bool senderWasCleared)
     {
+        senderWasCleared = false;
+        newSender = sender;
         if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
-        return Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out bool senderWasCleared) && !senderWasCleared;
+        var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
+        newSender = sender;
+        return hasValue;
     }
 
     public static bool SyncSettings(this CustomRpcSender sender, PlayerControl player)
