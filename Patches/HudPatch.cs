@@ -205,12 +205,15 @@ internal static class HudManagerPatch
 
                     switch (role)
                     {
+                        case CustomRoles.CopyCat:
                         case CustomRoles.Farseer:
                         case CustomRoles.Escort:
                         case CustomRoles.Gaulois:
                         case CustomRoles.Sheriff:
+                        case CustomRoles.Socialite:
                         case CustomRoles.Crusader:
                         case CustomRoles.Monarch:
+                        case CustomRoles.Wizard:
                             usedButton?.OverrideText(GetString($"{role}KillButtonText"));
                             break;
                         case CustomRoles.Analyst:
