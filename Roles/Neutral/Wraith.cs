@@ -28,4 +28,9 @@ public class Wraith : RoleBase
     {
         opt.SetVision(ImpostorVision.GetBool());
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.ImpostorVentButton?.OverrideText(Translator.GetString("WraithButtonText"));
+    }
 }
