@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
+using static EHR.Options;
 
 namespace EHR.Crewmate;
 
@@ -217,5 +218,15 @@ public class NiceHacker : RoleBase
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
+    }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (UsePets.GetBool())
+            hud.PetButton?.OverrideText(GetString("NiceHackerButtonText"));
+        else
+        {
+            hud.AbilityButton?.OverrideText(GetString("NiceHackerButtonText"));
+        }
     }
 }
