@@ -42,4 +42,9 @@ public class Chameleon : RoleBase
     public override void Init() { }
 
     public override void Add(byte playerId) { }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("ChameleonButtonText"));
+    }
 }
