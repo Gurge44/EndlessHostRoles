@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using static EHR.Options;
 
 namespace EHR.Crewmate;
 
@@ -78,5 +79,15 @@ internal class Convener : RoleBase
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
+    }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (UsePets.GetBool())
+            hud.PetButton?.OverrideText(GetString("ConvenerButtonText"));
+        else
+        {
+            hud.AbilityButton?.OverrideText(GetString("ConvenerButtonText"));
+        }
     }
 }
