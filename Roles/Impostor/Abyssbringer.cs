@@ -243,4 +243,12 @@ public class Abyssbringer : RoleBase
         public string RoomName { get; } = roomName;
         public int PlayersConsumed { get; set; } = playersConsumed;
     }
+
+    if (UsePets.GetBool())
+            hud.PetButton?.OverrideText(GetString("AbyssbringerButtonText"));
+        else
+        {
+            hud.AbilityButton?.OverrideText(GetString("AbyssbringerButtonText"));
+        }
+    }
 }
