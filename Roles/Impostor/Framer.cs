@@ -49,4 +49,9 @@ public class Framer : RoleBase
             killer.RpcRemoveAbilityUse();
         });
     }
+    
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(Translator.GetString("FramerButtonText"));
+    }
 }
