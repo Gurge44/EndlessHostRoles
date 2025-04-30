@@ -134,4 +134,9 @@ public class Hitman : RoleBase
         byte id = (Main.PlayerStates[seer.PlayerId].Role as Hitman)?.TargetId ?? byte.MaxValue;
         return id == byte.MaxValue ? string.Empty : $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(id).GetRealName().RemoveHtmlTags()}</color>";
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("HitmanButtonText"));
+    }
 }
