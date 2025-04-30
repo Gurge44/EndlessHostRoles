@@ -114,4 +114,14 @@ internal class SecurityGuard : RoleBase
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (UsePets.GetBool())
+            hud.PetButton?.OverrideText(GetString("SecurityGuardButtonText"));
+        else
+        {
+            hud.AbilityButton?.OverrideText(GetString("SecurityGuardButtonText"));
+        }
+    }
 }
