@@ -8729,6 +8729,7 @@
   "AgitaterTargetNotify": "<size=110%><#ffff00>YOU HAVE THE BOMB!!</color>\\n<#ffa500>Pass it to someone else or die!</color></size>",
   "AgitaterCanGetBombed": "<color=#F4A460>Agitator</color> can get the bomb",
   "AgitaterAutoReportBait": "<color=#F4A460>Agitator</color> Auto Report Bait",
+  "AgitaterButtonText": "Pass",
   "Cleansed": "Cleansed",
   "CleansedInfo": "Your add-ons were cleansed",
   "Prefix.Cleansed": "Cleansed",
