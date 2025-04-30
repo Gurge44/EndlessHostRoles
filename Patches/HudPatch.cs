@@ -221,6 +221,10 @@ internal static class HudManagerPatch
                         case CustomRoles.Medic:
                             usedButton?.OverrideText(GetString("MedicalerButtonText"));
                             break;
+                        case CustomRoles.Agitater:
+                        case CustomRoles.Potato:
+                            usedButton?.OverrideText(GetString("AgitaterButtonText"));
+                            break;
                         case CustomRoles.KB_Normal:
                             __instance.KillButton?.OverrideText(GetString("GamerButtonText"));
                             break;
