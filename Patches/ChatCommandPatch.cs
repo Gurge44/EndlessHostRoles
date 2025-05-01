@@ -3215,9 +3215,15 @@ internal static class ChatCommands
 
         if (!canceled) ChatManager.SendMessage(player, text);
 
-        if (commandEntered) LastSentCommand[player.PlayerId] = now;
-
-        SpamManager.CheckSpam(player, text);
+        switch (commandEntered)
+        {
+            case true:
+                LastSentCommand[player.PlayerId] = now;
+                break;
+            case false:
+                SpamManager.CheckSpam(player, text);
+                break;
+        }
     }
 }
 
