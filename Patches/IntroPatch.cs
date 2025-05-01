@@ -779,31 +779,35 @@ internal static class BeginImpostorPatch
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
+        if (PlayerControl.LocalPlayer.IsImpostor() && Options.ImpKnowWhosMadmate.GetBool())
+        {
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (pc.IsMadmate() && !pc.IsLocalPlayer())
+                    yourTeam.Add(pc);
+            }
+        }
+
+        if (PlayerControl.LocalPlayer.IsMadmate())
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
 
-            if (role != CustomRoles.Parasite) // Parasite and Impostor doesn't know each other
+            if (Options.MadmateKnowWhosImp.GetBool())
             {
-                // Crewpostor is counted as Madmate but should be an Impostor
-                if (Options.MadmateKnowWhosImp.GetBool() || role != CustomRoles.Madmate)
+                foreach (var pc in Main.AllPlayerControls)
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls)
-                    {
-                        if (pc.GetCustomRole().IsImpostor() && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-                            yourTeam.Add(pc);
-                    }
+                    if (pc.IsImpostor() && !pc.IsLocalPlayer())
+                        yourTeam.Add(pc);
                 }
+            }
 
-                // Crewpostor is counted as Madmate but should be an Impostor
-                if (Options.MadmateKnowWhosMadmate.GetBool() || role != CustomRoles.Madmate && Options.ImpKnowWhosMadmate.GetBool())
+            if (Options.MadmateKnowWhosMadmate.GetBool())
+            {
+                foreach (var pc in Main.AllPlayerControls)
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls)
-                    {
-                        if (pc.Is(CustomRoles.Madmate) && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-                            yourTeam.Add(pc);
-                    }
+                    if (pc.IsMadmate() && !pc.IsLocalPlayer())
+                        yourTeam.Add(pc);
                 }
             }
 

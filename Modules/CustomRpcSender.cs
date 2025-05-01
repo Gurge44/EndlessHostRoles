@@ -99,7 +99,7 @@ public class CustomRpcSender
         {
             // StartMessage processing
             if (currentState == State.InRootMessage)
-                EndMessage(startNew: GameStates.CurrentServerType == GameStates.ServerType.Vanilla || stream.Length > 800);
+                EndMessage(startNew: true);
 
             StartMessage(targetClientId);
         }
@@ -130,12 +130,12 @@ public class CustomRpcSender
         {
             if (doneStreams.Count > 0)
             {
-                var sb = new StringBuilder();
+                var sb = new StringBuilder(" + Lengths: ");
 
                 doneStreams.ForEach(x =>
                 {
                     if (x.Length >= 1500 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
-                    else if (log || x.Length > 3) sb.Append($" + Part {doneStreams.IndexOf(x) + 2} (Length: {x.Length})");
+                    else if (log || x.Length > 3) sb.Append($" | {x.Length}");
 
                     AmongUsClient.Instance.SendOrDisconnect(x);
                     x.Recycle();

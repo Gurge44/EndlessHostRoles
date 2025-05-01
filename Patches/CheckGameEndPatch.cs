@@ -943,11 +943,13 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorsByKill;
 
+            if (Quiz.AllowKills) return false;
+
             PlayerControl[] appc = Main.AllAlivePlayerControls;
 
             switch (appc.Length)
             {
-                case 1 when !Quiz.AllowKills:
+                case 1:
                     PlayerControl winner = appc[0];
                     Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "Quiz");
                     WinnerIds = [winner.PlayerId];

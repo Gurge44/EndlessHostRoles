@@ -80,7 +80,8 @@ internal class Arsonist : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        killer.SetKillCooldown(ArsonistDouseTime.GetFloat());
+        float douseTime = ArsonistDouseTime.GetFloat();
+        killer.SetKillCooldown(Mathf.Approximately(douseTime, 0f) ? ArsonistCooldown.GetFloat() : douseTime);
 
         if (!IsDoused[(killer.PlayerId, target.PlayerId)] && !ArsonistTimer.ContainsKey(killer.PlayerId))
         {

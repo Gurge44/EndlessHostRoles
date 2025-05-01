@@ -185,7 +185,9 @@ public class Abyssbringer : RoleBase
 
             void RemoveBlackHole()
             {
-                LateTask.New(() => BlackHoles.RemoveAt(i), 0f, log: false);
+                BlackHoles.RemoveAt(i);
+                i--;
+                count--;
                 blackHole.NetObject.Despawn();
                 Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 3, i);
                 Notify();

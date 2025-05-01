@@ -2460,13 +2460,15 @@ public static class Utils
                         break;
                     case CustomGameMode.AllInOne:
                         bool alive = seer.IsAlive();
-                        if (alive) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true) + "\n");
-                        if (alive) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
-                        SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
-                        if (alive && !seer.Is(CustomRoles.Killer)) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
-                        SelfSuffix.Append(NaturalDisasters.SuffixText() + "\n");
+                        if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true) + "\n");
+                        if (alive && CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
+                        if (CustomGameMode.HotPotato.IsActiveOrIntegrated()) SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
+                        if (alive && !seer.Is(CustomRoles.Killer) && CustomGameMode.Speedrun.IsActiveOrIntegrated()) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
+                        if (CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) SelfSuffix.Append(NaturalDisasters.SuffixText() + "\n");
                         const StringSplitOptions splitFlags = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
-                        SelfSuffix.Append(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - "));
+                        if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) SelfSuffix.Append(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - ") + "\n");
+                        if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) SelfSuffix.Append(KingOfTheZones.GetSuffix(seer) + "\n");
+                        if (CustomGameMode.Quiz.IsActiveOrIntegrated()) SelfSuffix.Append(Quiz.GetSuffix(seer));
                         break;
                 }
             }

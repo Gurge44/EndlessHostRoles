@@ -234,7 +234,8 @@ internal static class CheckMurderPatch
                 FreeForAll.OnPlayerAttack(killer, target);
                 return false;
             case CustomGameMode.HotPotato:
-                if (HotPotato.CanPassViaKillButton && HotPotato.GetState().HolderID == killer.PlayerId)
+                (byte holderID, byte lastHolderID) = HotPotato.GetState();
+                if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && lastHolderID != target.PlayerId)
                     HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                 return false;
             case CustomGameMode.MoveAndStop:
@@ -1832,10 +1833,12 @@ internal static class FixedUpdatePatch
                         Suffix.Append(Quiz.GetSuffix(seer));
                         break;
                     case CustomGameMode.AllInOne:
-                        if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
-                        if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
-                        if (self && alive && !seer.Is(CustomRoles.Killer)) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
-                        if (self) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - "));
+                        if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
+                        if (self && alive && CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
+                        if (self && alive && !seer.Is(CustomRoles.Killer) && CustomGameMode.Speedrun.IsActiveOrIntegrated()) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
+                        if (self && CustomGameMode.RoomRush.IsActiveOrIntegrated()) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - ") + "\n");
+                        if (self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) Suffix.Append(KingOfTheZones.GetSuffix(seer) + "\n");
+                        if (self && CustomGameMode.Quiz.IsActiveOrIntegrated()) Suffix.Append(Quiz.GetSuffix(seer));
                         break;
                 }
 

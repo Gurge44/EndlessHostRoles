@@ -1261,6 +1261,8 @@ internal static class ChatCommands
 
             while ((notEveryoneVoted || gmPoll) && PollTimer > 0f)
             {
+                if (!GameStates.IsLobby) yield break;
+
                 notEveryoneVoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
@@ -1293,7 +1295,7 @@ internal static class ChatCommands
             PollAnswers.Clear();
             PollVoted.Clear();
 
-            if (winners.Length == 1 && gmPoll)
+            if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
             {
                 int winnerIndex = winners[0].Key - 65;
                 if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex - 1);
