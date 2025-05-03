@@ -2218,7 +2218,9 @@ internal static class PlayerControlCompleteTaskPatch
 
         try
         {
-            var task = __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask;
+            var index = Convert.ToInt32(idx);
+            if (index >= __instance.myTasks.Count || index < 0) return;
+            var task = __instance.myTasks[(Index)index] as PlayerTask;
             Benefactor.OnTaskComplete(__instance, task);
         }
         catch (Exception e) { ThrowException(e); }

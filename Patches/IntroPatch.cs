@@ -1065,8 +1065,11 @@ internal static class IntroCutsceneDestroyPatch
             if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
                 MoveAndStop.OnGameStart();
 
-            if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
-                CaptureTheFlag.OnGameStart();
+            LateTask.New(() =>
+            {
+                if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
+                    CaptureTheFlag.OnGameStart();
+            }, 0.2f, log: false);
 
             Utils.CheckAndSetVentInteractions();
 

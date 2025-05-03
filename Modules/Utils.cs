@@ -3530,21 +3530,18 @@ public static class Utils
         {
             if (excludeId != byte.MaxValue && pc.PlayerId == excludeId) continue;
 
-            if (impShow && pc.Is(Team.Impostor)) impnum++;
-            else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
-            else if (covenShow && pc.Is(Team.Coven)) covenNum++;
-        }
-
-        foreach (byte id in Forger.Forges.Keys)
-        {
-            if (excludeId != byte.MaxValue && id == excludeId) continue;
-
-            var pc = id.GetPlayer();
-            if (pc == null || (!ExileController.Instance && pc.IsAlive())) continue;
-
-            if (impShow && pc.Is(Team.Impostor)) impnum--;
-            else if (nkShow && pc.IsNeutralKiller()) neutralnum--;
-            else if (covenShow && pc.Is(Team.Coven)) covenNum--;
+            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole))
+            {
+                if (impShow && forgedRole.Is(Team.Impostor)) impnum++;
+                else if (nkShow && forgedRole.IsNK()) neutralnum++;
+                else if (covenShow && forgedRole.Is(Team.Coven)) covenNum++;
+            }
+            else
+            {
+                if (impShow && pc.Is(Team.Impostor)) impnum++;
+                else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
+                else if (covenShow && pc.Is(Team.Coven)) covenNum++;
+            }
         }
 
         impShow &= impnum > 0;

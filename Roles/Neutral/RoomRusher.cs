@@ -158,7 +158,7 @@ public class RoomRusher : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return pc.PlayerId != RoomRusherId || (CanVent && VentsLeft > 0);
+        return !IsThisRole(pc) || pc.PlayerId != RoomRusherId || (CanVent && VentsLeft > 0);
     }
 
     public override void AfterMeetingTasks()

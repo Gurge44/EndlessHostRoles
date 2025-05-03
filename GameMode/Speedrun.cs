@@ -201,6 +201,6 @@ public class Runner : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return false;
+        return !IsThisRole(pc);
     }
 }

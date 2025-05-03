@@ -55,7 +55,7 @@ public class Magistrate : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return pc.PlayerId != MagistrateID || (AbilityTrigger == AbilityTriggers.Vent && pc.GetAbilityUseLimit() > 0);
+        return !IsThisRole(pc) || pc.PlayerId != MagistrateID || (AbilityTrigger == AbilityTriggers.Vent && pc.GetAbilityUseLimit() > 0);
     }
 
     public override void OnCoEnterVent(PlayerPhysics physics, int ventId)

@@ -94,16 +94,17 @@ public static class BanManager
         if (!AmongUsClient.Instance.AmHost || player == null) return;
 
         string friendCode = player.FriendCode.Replace(':', '#');
+        string hashedPuid = player.GetHashedPuid();
 
-        if (!CheckBanList(friendCode, player.GetHashedPuid()) && !TempBanWhiteList.Contains(player.GetHashedPuid()))
+        if (!CheckBanList(friendCode, hashedPuid) && !TempBanWhiteList.Contains(hashedPuid))
         {
-            if (player.GetHashedPuid() != "" && player.GetHashedPuid() != null && player.GetHashedPuid() != "e3b0cb855")
+            if (!string.IsNullOrEmpty(hashedPuid))
             {
-                File.AppendAllText(BanListPath, $"{friendCode},{player.GetHashedPuid()},{player.PlayerName.RemoveHtmlTags()}\n");
+                File.AppendAllText(BanListPath, $"{friendCode},{hashedPuid},{player.PlayerName.RemoveHtmlTags()}\n");
                 Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
             }
             else
-                Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{friendCode}/{player.GetHashedPuid()} to ban list!", "AddBanPlayer");
+                Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{friendCode}/{hashedPuid} to ban list!", "AddBanPlayer");
         }
     }
 

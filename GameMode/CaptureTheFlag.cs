@@ -317,8 +317,6 @@ public static class CaptureTheFlag
         NetworkedPlayerInfo.PlayerOutfit blueOutfit = BlueOutfit;
         NetworkedPlayerInfo.PlayerOutfit yellowOutfit = YellowOutfit;
 
-        // var sender = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
-        // var hasValue = false;
         Dictionary<byte, CustomRpcSender> senders = [];
         Dictionary<byte, bool> hasValue = [];
         players.ForEach(x => senders[x.PlayerId] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable));
@@ -765,7 +763,7 @@ public static class CaptureTheFlag
             bool blue = team == CTFTeam.Blue;
             int colorId = blue ? 1 : 5;
 
-            var sender = CustomRpcSender.Create("CTF - FixedUpdate", SendOption.Reliable);
+            var sender = CustomRpcSender.Create("CTF - FixedUpdate", SendOption.Reliable, log: false);
             var hasValue = false;
 
             if (__instance.CurrentOutfit.ColorId != colorId)

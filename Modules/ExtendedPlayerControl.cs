@@ -79,8 +79,9 @@ internal static class ExtendedPlayerControl
         if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) return true;
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
-        if (!GameStates.IsInTask) return false;
-        return (player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return false;
+        if (player.inVent && player.GetClosestVent()?.Id == ventId) return true;
+        return (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
     }
 
     // Next 2: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
@@ -1040,7 +1041,7 @@ internal static class ExtendedPlayerControl
             }
 
             sender.SendMessage();
-        }, 0.4f, log: false);
+        }, 0.6f, log: false);
     }
 
     public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN)
@@ -1532,9 +1533,10 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
-            var sender = CustomRpcSender.Create("Send Noisemaker Alerts & Kill", SendOption.Reliable);
-            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies && !x.SubRoles.Contains(CustomRoles.Blind), x => sender.RpcSetRole(target, RoleTypes.Noisemaker, x.Player.GetClientId()));
+            Vector2 pos = target.Pos();
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies && !x.SubRoles.Contains(CustomRoles.Blind) && x.Player != null, x => LocateArrow.Add(x.Player.PlayerId, pos));
 
+            var sender = CustomRpcSender.Create("Kill", SendOption.Reliable);
             if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, MurderResultFlags.Succeeded);
             sender.AutoStartRpc(killer.NetId, 12);
             sender.WriteNetObject(target);
@@ -1542,6 +1544,9 @@ internal static class ExtendedPlayerControl
             sender.EndRpc();
 
             sender.SendMessage();
+
+            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && !state.IsDead)
+                state.SetDead();
         }
     }
 

@@ -82,6 +82,7 @@ gummytub#2962,0f6992415
 dollepic#0847,17be4645c // DESTRUCT10
 donehoof#2148
 huesassy#4051 // Harassment
+daytiddly#8682,f5f420927,Wardpatchy // Nuking lobbies
 
 ## Griefer
 setmolar#4374,藏族顶针
@@ -99,6 +100,10 @@ netgaff#6739,01b5992f0,李克强
 
 ## 冒充开发者
 polkaoval#0453,自作Modな橋本環奈
+
+## Lagging others' games
+tenpalace#1924,6a259fcd9,Goaty
+cat#2761,f70d4ddb1,ULC
 
 ## Other
 tenthrope#3476,Oldishwire
