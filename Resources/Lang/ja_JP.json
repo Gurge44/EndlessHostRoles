@@ -1232,6 +1232,7 @@
   "NoticeMe": "私に通知",
   "NoticeEveryone": "全員に通知",
   "OnlyCancel": "アクションのみ キャンセル",
+  "TempBan": "Ban For This Session Only",
   "CheatResponses": "不正行為が見つかったとき",
   "NeutralRoleWinTogether": "<color=#ffab1b>ニュートラル</color>は ともに勝利する",
   "NeutralWinTogether": "すべての <color=#ffab1b>ニュートラル</color>は ともに勝利する",
