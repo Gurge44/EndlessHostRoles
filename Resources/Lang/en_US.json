@@ -1232,6 +1232,7 @@
   "NoticeMe": "Notify me",
   "NoticeEveryone": "Notify everyone",
   "OnlyCancel": "Cancel Action Only",
+  "TempBan": "Ban For This Session Only",
   "CheatResponses": "When a cheating player is found",
   "NeutralRoleWinTogether": "<color=#ffab1b>Neutrals</color> win together",
   "NeutralWinTogether": "All <color=#ffab1b>Neutrals</color> win together",
