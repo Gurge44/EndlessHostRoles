@@ -74,16 +74,16 @@ internal class Hider : RoleBase, IHideAndSeekRole
 
     public static void OnSpecificTaskComplete(PlayerControl pc, PlayerTask task)
     {
-        if (task is not NormalPlayerTask npt) return;
-
-        int time = npt.Length switch
-        {
-            NormalPlayerTask.TaskLength.Short => TimeDecreaseOnShortTaskComplete.GetInt(),
-            NormalPlayerTask.TaskLength.Common => TimeDecreaseOnCommonTaskComplete.GetInt(),
-            NormalPlayerTask.TaskLength.Long => TimeDecreaseOnLongTaskComplete.GetInt(),
-            NormalPlayerTask.TaskLength.None => TimeDecreaseOnSituationalTaskComplete.GetInt(),
-            _ => TimeDecreaseOnOtherTaskComplete.GetInt()
-        };
+        int time = !AddTasksFromListPatch.DisableTasksSettings.TryGetValue(task.TaskType, out var setting)
+            ? TimeDecreaseOnOtherTaskComplete.GetInt()
+            : setting.Parent.Name switch
+            {
+                "DisableShortTasks" => TimeDecreaseOnShortTaskComplete.GetInt(),
+                "DisableCommonTasks" => TimeDecreaseOnCommonTaskComplete.GetInt(),
+                "DisableLongTasks" => TimeDecreaseOnLongTaskComplete.GetInt(),
+                "DisableOtherTasks" => TimeDecreaseOnSituationalTaskComplete.GetInt(),
+                _ => TimeDecreaseOnOtherTaskComplete.GetInt()
+            };
 
         CustomHnS.TimeLeft -= time;
         pc.Notify(string.Format(Translator.GetString("TimeDecreased"), time));
