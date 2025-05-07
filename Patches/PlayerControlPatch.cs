@@ -1089,6 +1089,8 @@ internal static class ReportDeadBodyPatch
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
 
+        HudSpritePatch.ResetButtonIcons = true;
+
         if (Options.CurrentGameMode == CustomGameMode.Standard)
         {
             foreach (byte id in Main.DiedThisRound)
@@ -1857,9 +1859,6 @@ internal static class FixedUpdatePatch
 
                 if (!self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                     realName = EmptyMessage;
-
-                if (Magistrate.CallCourtNextMeeting)
-                    realName = target.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
 
                 string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 

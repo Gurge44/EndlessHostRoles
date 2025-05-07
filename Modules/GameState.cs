@@ -139,7 +139,7 @@ public class PlayerState(byte playerId)
 
         Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
-        if (Main.IntroDestroyed)
+        if (Main.IntroDestroyed && GameStates.InGame)
         {
             if (!previousHasTasks && Utils.HasTasks(Player.Data, false))
             {
@@ -150,7 +150,7 @@ public class PlayerState(byte playerId)
 
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (Main.IntroDestroyed)
+        if (Main.IntroDestroyed && GameStates.InGame)
         {
             Player.ResetKillCooldown();
 
@@ -185,6 +185,8 @@ public class PlayerState(byte playerId)
 
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
+
+            HudSpritePatch.ResetButtonIcons = true;
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
@@ -209,6 +211,9 @@ public class PlayerState(byte playerId)
             SubRoles.Add(role);
 
         SetAddonCountTypes(role);
+
+        if (Main.IntroDestroyed && GameStates.InGame)
+            HudSpritePatch.ResetButtonIcons = true;
 
         Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
     }

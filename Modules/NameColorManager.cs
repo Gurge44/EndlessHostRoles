@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using EHR.AddOns.Common;
 using EHR.AddOns.GhostRoles;
@@ -42,7 +43,8 @@ public static class NameColorManager
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.FFA when FreeForAll.FFATeamMode.GetBool():
-                color = FreeForAll.TeamColors[FreeForAll.PlayerTeams[target.PlayerId]];
+                if (FreeForAll.PlayerTeams.TryGetValue(target.PlayerId, out int team))
+                    color = FreeForAll.TeamColors.GetValueOrDefault(team, "#00ffff");
                 return true;
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:

@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using System.Collections;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
@@ -92,8 +92,8 @@ internal static class OnGameJoinedPatch
             if (Options.AutoGMPollCommandAfterJoin.GetBool())
             {
                 Main.Instance.StartCoroutine(CoRoutine());
-                
-                System.Collections.IEnumerator CoRoutine()
+
+                IEnumerator CoRoutine()
                 {
                     float timer = Options.AutoGMPollCommandCooldown.GetInt();
 
@@ -103,7 +103,7 @@ internal static class OnGameJoinedPatch
                         timer -= Time.deltaTime;
                         yield return null;
                     }
-                    
+
                     ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
                 }
             }
@@ -112,7 +112,7 @@ internal static class OnGameJoinedPatch
             {
                 Main.Instance.StartCoroutine(CoRoutine());
 
-                System.Collections.IEnumerator CoRoutine()
+                IEnumerator CoRoutine()
                 {
                     float timer = Options.AutoDraftStartCommandCooldown.GetInt();
 
@@ -189,7 +189,7 @@ internal static class OnPlayerJoinedPatch
                 }
             }
             catch { }
-        }, 4f, "green bean kick late task", false);
+        }, 4.5f, "green bean kick late task", false);
 
         if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame && GameStates.CurrentServerType is not GameStates.ServerType.ModdedWithCNOSupport and not GameStates.ServerType.ModdedWithoutCNOSupport)
         {
@@ -206,12 +206,6 @@ internal static class OnPlayerJoinedPatch
             string msg = string.Format(GetString("KickAndriodPlayer"), client.PlayerName);
             Logger.SendInGame(msg);
             Logger.Info(msg, "Android Kick");
-        }
-
-        if (AmongUsClient.Instance.AmHost && (client.PlayerName.EndsWith("cm", StringComparison.OrdinalIgnoreCase) || client.PlayerName.EndsWith("sm", StringComparison.OrdinalIgnoreCase)) && (client.PlayerName.Length == 4 || client.PlayerName.Count(x => x is 'i' or 'I') >= 2))
-        {
-            AmongUsClient.Instance.KickPlayer(client.Id, false);
-            Logger.SendInGame("They were probably hacking tbh");
         }
 
         if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType is not GameStates.ServerType.ModdedWithCNOSupport and not GameStates.ServerType.ModdedWithoutCNOSupport)
@@ -549,7 +543,7 @@ internal static class SetColorPatch
                         AmongUsClient.Instance.KickPlayer(client.Id, false);
                     }
                 }
-            }, 4.5f, "fortegreen bean color kick");
+            }, 5f, "fortegreen bean color kick");
         }
 
         if (bodyColor == 255) return;

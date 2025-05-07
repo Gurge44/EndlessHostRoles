@@ -654,7 +654,7 @@ internal static class BeginCrewmatePatch
             case CustomGameMode.FFA:
             {
                 __instance.TeamTitle.text = GetString("Killer");
-                Color color = FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int team) && ColorUtility.TryParseHtmlString(FreeForAll.TeamColors[team], out Color teamColor) ? teamColor : new(0, 255, 255, byte.MaxValue);
+                Color color = FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int team) && FreeForAll.TeamColors.TryGetValue(team, out var teamColorHex) && ColorUtility.TryParseHtmlString(teamColorHex, out Color teamColor) ? teamColor : new(0, 255, 255, byte.MaxValue);
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = color;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);

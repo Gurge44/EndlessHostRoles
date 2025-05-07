@@ -147,20 +147,19 @@ internal static class FreeForAll
         if (Main.GM.Value && AmongUsClient.Instance.AmHost) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer).ToArray();
         allPlayers = allPlayers.ExceptBy(ChatCommands.Spectators, x => x.PlayerId).ToArray();
 
-        foreach (PlayerControl pc in allPlayers) KillCount[pc.PlayerId] = 0;
+        foreach (PlayerControl pc in allPlayers)
+        {
+            KillCount[pc.PlayerId] = 0;
+            Utils.SendRPC(CustomRPC.FFASync, pc.PlayerId, 0);
+        }
 
         if (FFATeamMode.GetBool())
         {
-            int teamNum = FFATeamNumber.GetInt();
-            int playerNum = allPlayers.Length;
-            int memberNum = (teamNum > 5 && playerNum >= 15) || playerNum % teamNum == 0 ? playerNum / teamNum : (playerNum / teamNum) + 1;
-            List<byte[]> teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle().Chunk(memberNum).ToList();
+            int i = 0;
 
-            for (var i = 0; i < teamMembers.Count; i++)
-            {
-                foreach (byte id in teamMembers[i])
-                    PlayerTeams.Add(id, i);
-            }
+            foreach (IEnumerable<byte> ids in allPlayers.Select(x => x.PlayerId).Shuffle().Partition(FFATeamNumber.GetInt()))
+                foreach (byte id in ids)
+                    PlayerTeams[id] = i++;
         }
     }
 
@@ -291,17 +290,14 @@ internal static class FreeForAll
                     // De-Buff
                     case 8:
                     {
-                        var EffectID = (byte)IRandom.Instance.Next(0, 3);
-                        if (Main.NormalOptions.MapId == 4) EffectID = 1;
+                        var effectID = (byte)IRandom.Instance.Next(0, 3);
+                        if (Main.NormalOptions.MapId == 4) effectID = 1;
 
-                        switch (EffectID)
+                        switch (effectID)
                         {
                             case 0:
-                                if (FFADecreasedSpeedList.ContainsKey(killer.PlayerId))
-                                {
-                                    FFADecreasedSpeedList.Remove(killer.PlayerId);
+                                if (FFADecreasedSpeedList.Remove(killer.PlayerId))
                                     FFADecreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
-                                }
                                 else
                                 {
                                     FFADecreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
@@ -361,25 +357,18 @@ internal static class FreeForAll
         ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
         KillCount[killer.PlayerId]++;
+        Utils.SendRPC(CustomRPC.FFASync, killer.PlayerId, KillCount[killer.PlayerId]);
     }
 
     public static string GetPlayerArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (GameStates.IsMeeting) return string.Empty;
+        if (GameStates.IsMeeting || target != null && seer.PlayerId != target.PlayerId || Main.AllAlivePlayerControls.Length != 2) return string.Empty;
 
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (Main.AllAlivePlayerControls.Length != 2) return string.Empty;
-
-        var arrows = string.Empty;
         PlayerControl otherPlayer = Main.AllAlivePlayerControls.FirstOrDefault(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId);
-
         if (otherPlayer == null) return string.Empty;
 
         string arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
-        arrows += Utils.ColorString(Utils.GetRoleColor(CustomRoles.Killer), arrow);
-
-        return arrows;
+        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Killer), arrow);
     }
 
     public static void UpdateLastChatMessage(string playerName, string message)
@@ -405,10 +394,10 @@ internal static class FreeForAll
             RoundTime--;
 
             var rd = IRandom.Instance;
-            var FFAdoTPdecider = (byte)rd.Next(0, 100);
-            bool FFAdoTP = FFAdoTPdecider == 0;
+            var ffaDoTPdecider = (byte)rd.Next(0, 100);
+            bool ffaDoTP = ffaDoTPdecider == 0;
 
-            if (FFAEnableRandomTwists.GetBool() && FFAdoTP)
+            if (FFAEnableRandomTwists.GetBool() && ffaDoTP)
             {
                 Logger.Info("Swap everyone with someone", "FFA");
 

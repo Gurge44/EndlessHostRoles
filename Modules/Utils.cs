@@ -62,7 +62,6 @@ public static class Utils
 
     private static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
 
-    private static int NumSnapToRPCsThisRound;
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModdedClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
@@ -154,8 +153,7 @@ public static class Utils
         }
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
-        SendOption sendOption = NumSnapToRPCsThisRound < 100 || GameStates.CurrentServerType != GameStates.ServerType.Vanilla || DateTime.UtcNow.Month < 4 ? SendOption.Reliable : SendOption.None;
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, sendOption);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -165,7 +163,6 @@ public static class Utils
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
 
-        NumSnapToRPCsThisRound++;
         return true;
     }
 
@@ -3482,8 +3479,11 @@ public static class Utils
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time2 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time2}</color>s")}</color>  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.RoomRush:
-                    int time3 = RoomRush.GetSurvivalTime(id);
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? RoomRush.PointsSystem ? string.Empty : $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({(RoomRush.PointsSystem ? RoomRush.GetPoints(id) : GetVitalText(id, true))})";
+                    int rrSurvivalTime = RoomRush.GetSurvivalTime(id);
+                    string rrSurvivalTimeText = rrSurvivalTime == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{rrSurvivalTime}</color>s";
+                    string rrSurvivedText = RoomRush.PointsSystem ? RoomRush.GetPoints(id) : $"{GetString("SurvivedTimePrefix")}: <#ffffff>{rrSurvivalTimeText}</color>";
+                    string vitalText = RoomRush.PointsSystem ? string.Empty : $" ({GetVitalText(id, true)})";
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{rrSurvivedText}{vitalText}";
                     break;
                 case CustomGameMode.CaptureTheFlag:
                     summary = $"{ColorString(Main.PlayerColors[id], name)}: {CaptureTheFlag.GetStatistics(id)}";

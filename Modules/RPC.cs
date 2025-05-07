@@ -71,7 +71,6 @@ public enum CustomRPC
     SyncRabbit,
     SyncSoulHunter,
 
-    // BAU should always be 150
     BAU = 150,
 
     SyncMycologist,
@@ -143,12 +142,15 @@ public enum CustomRPC
     SyncOverheat,
     SyncIntrovert,
     SyncAllergic,
+    SyncAsthmatic,
 
     // Game Modes
     RoomRushDataSync,
     FFAKill,
+    FFASync,
     QuizSync,
-    HotPotatoSync
+    HotPotatoSync,
+    SoloPVPSync
 }
 
 public enum Sounds
@@ -593,6 +595,11 @@ internal static class RPCHandlerPatch
                 case CustomRPC.SyncAllergic:
                 {
                     Allergic.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.SyncAsthmatic:
+                {
+                    Asthmatic.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetBountyTarget:
@@ -1133,6 +1140,11 @@ internal static class RPCHandlerPatch
                     FreeForAll.OnPlayerAttack(killer, target);
                     break;
                 }
+                case CustomRPC.FFASync:
+                {
+                    FreeForAll.KillCount[reader.ReadByte()] = reader.ReadPackedInt32();
+                    break;
+                }
                 case CustomRPC.QuizSync:
                 {
                     Quiz.AllowKills = reader.ReadBoolean();
@@ -1141,6 +1153,11 @@ internal static class RPCHandlerPatch
                 case CustomRPC.HotPotatoSync:
                 {
                     HotPotato.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.SoloPVPSync:
+                {
+                    SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
                     break;
                 }
             }

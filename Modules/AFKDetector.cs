@@ -65,6 +65,9 @@ public static class AFKDetector
 
         if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f && !TempIgnoredPlayers.Contains(pc.PlayerId))
         {
+            if (ExtendedPlayerControl.BlackScreenWaitingPlayers.Contains(pc.PlayerId))
+                ExtendedPlayerControl.CancelBlackScreenFix.Add(pc.PlayerId);
+
             PlayerData.Remove(pc.PlayerId);
             ShieldedPlayers.Remove(pc.PlayerId);
             return;

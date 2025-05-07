@@ -25,7 +25,8 @@ internal static class ExtendedPlayerControl
 {
     public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
 
-    private static readonly HashSet<byte> BlackScreenWaitingPlayers = [];
+    public static readonly HashSet<byte> BlackScreenWaitingPlayers = [];
+    public static readonly HashSet<byte> CancelBlackScreenFix = [];
 
     public static void SetRole(this PlayerControl player, RoleTypes role, bool canOverride = true)
     {
@@ -943,8 +944,15 @@ internal static class ExtendedPlayerControl
             {
                 Logger.Warn($"FixBlackScreen was called for {pc.GetNameWithRole()}, but the conditions are not met to execute this code right now, waiting until it becomes possible to do so", "FixBlackScreen");
 
-                while (GameStates.InGame && !GameStates.IsEnded && (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || Main.AllPlayerControls.All(x => x.IsAlive())))
+                while (GameStates.InGame && !GameStates.IsEnded && !CancelBlackScreenFix.Contains(pc.PlayerId) && (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || Main.AllPlayerControls.All(x => x.IsAlive())))
                     yield return null;
+
+                if (CancelBlackScreenFix.Remove(pc.PlayerId))
+                {
+                    Logger.Msg($"The black screen fix was canceled for {pc.GetNameWithRole()}", "FixBlackScreen");
+                    BlackScreenWaitingPlayers.Remove(pc.PlayerId);
+                    yield break;
+                }
 
                 if (!GameStates.InGame || GameStates.IsEnded)
                 {
@@ -1001,7 +1009,7 @@ internal static class ExtendedPlayerControl
             dummyGhost.NetTransform.SnapTo(murderPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
             dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
 
-            sender.AutoStartRpc(dummyGhost.NetTransform.NetId, (byte)RpcCalls.SnapTo);
+            sender.AutoStartRpc(dummyGhost.NetTransform.NetId, 21);
             sender.WriteVector2(murderPos);
             sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
             sender.EndRpc();
@@ -1032,7 +1040,7 @@ internal static class ExtendedPlayerControl
                 dummyGhost.NetTransform.SnapTo(ghostPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
                 dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
 
-                sender.AutoStartRpc(dummyGhost.NetTransform.NetId, (byte)RpcCalls.SnapTo);
+                sender.AutoStartRpc(dummyGhost.NetTransform.NetId, 21);
                 sender.WriteVector2(ghostPos);
                 sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
                 sender.EndRpc();

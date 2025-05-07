@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -97,7 +99,7 @@ internal class Asthmatic : IAddon
 
     public static void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
+        if (!Main.IntroDestroyed || !pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
 
         Vector2 currentPosition = pc.transform.position;
 
@@ -138,13 +140,32 @@ internal class Asthmatic : IAddon
 
         string suffix = GetSuffixText(pc.PlayerId);
 
-        if (!pc.IsModdedClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (!pc.IsModdedClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix))
+        {
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            Utils.SendRPC(CustomRPC.SyncAsthmatic, pc.PlayerId, suffix);
+        }
 
         LastSuffix[pc.PlayerId] = suffix;
     }
 
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        LastSuffix[reader.ReadByte()] = reader.ReadString();
+    }
+
     public static string GetSuffixText(byte id)
     {
-        return id.GetPlayer().IsAlive() && Timers.TryGetValue(id, out Counter counter) ? $"{counter.ColoredArrow} {counter.ColoredTimerString}" : string.Empty;
+        if (Main.PlayerStates.TryGetValue(id, out var state) && !state.IsDead)
+        {
+            if (Timers.TryGetValue(id, out Counter counter))
+                return $"{counter.ColoredArrow} {counter.ColoredTimerString}";
+            else if (id.IsPlayerModClient() && !id.IsHost())
+                return LastSuffix[id];
+            else
+                return string.Empty;
+        }
+        else
+            return string.Empty;
     }
 }
