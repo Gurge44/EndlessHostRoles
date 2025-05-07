@@ -3491,6 +3491,7 @@
   "WWRampageDur": "Duración del Desenfreno",
   "WWCanRampage": "Usa las ventilas para empezar a Desenfrenarte",
   "WWCanRampageUnshift": "Presiona Descambiar (botón de cambio de forma) para empezar a Desenfrenarte",
+  "WWCanRampageVanish": "Press Vanish to begin Rampaging",
   "WWRampageOut": "Ya no estás Desenfrenado",
   "WWRampageCountdown": "<color=#00ffa5>Desenfreno termina en</color> <b>{0}</b>s",
   "WWRampaging": "Desenfrenado",
