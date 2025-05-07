@@ -3491,6 +3491,7 @@
   "WWRampageDur": "Rampage Duration",
   "WWCanRampage": "Vent to begin Rampaging",
   "WWCanRampageUnshift": "Press Unshift (shapeshift button) to begin Rampaging",
+  "WWCanRampageVanish": "Press Vanish to begin Rampaging",
   "WWRampageOut": "You're no longer Rampaging",
   "WWRampageCountdown": "<color=#00ffa5>Rampage ends in</color> <b>{0}</b>s",
   "WWRampaging": "Rampaging",
