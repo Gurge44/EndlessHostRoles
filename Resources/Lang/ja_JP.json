@@ -3491,6 +3491,7 @@
   "WWRampageDur": "暴走の持続時間",
   "WWCanRampage": "通気口に入って 暴れ回ろう",
   "WWCanRampageUnshift": "アンシフトを押して (変身ボタン) 暴れ回ろう",
+  "WWCanRampageVanish": "Press Vanish to begin Rampaging",
   "WWRampageOut": "あなたはもう 暴走していない",
   "WWRampageCountdown": "<color=#00ffa5>暴走の終了まで</color> <b>{0}</b>s",
   "WWRampaging": "暴走中",
