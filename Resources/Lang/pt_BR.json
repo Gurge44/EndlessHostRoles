@@ -3491,6 +3491,7 @@
   "WWRampageDur": "Duração da transformação",
   "WWCanRampage": "Use um duto para se transformar em lobisomem",
   "WWCanRampageUnshift": "Pressione Destransformar (Botão do Metamorfo) para começar o Massacre",
+  "WWCanRampageVanish": "Press Vanish to begin Rampaging",
   "WWRampageOut": "você voltou ao normal",
   "WWRampageCountdown": "<color=#00ffa5>Você voltará ao normal em</color> <b>{0}</b>s",
   "WWRampaging": "Atualmente Transformado",
