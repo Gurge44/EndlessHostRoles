@@ -3491,6 +3491,7 @@
   "WWRampageDur": "Длительность ярости",
   "WWCanRampage": "Прыгните в люк, чтобы войти в ярость",
   "WWCanRampageUnshift": "Нажмите кнопку ''Отмена'' (Кнопку морфа), чтобы войти в ярость",
+  "WWCanRampageVanish": "Press Vanish to begin Rampaging",
   "WWRampageOut": "Ярость кончилась",
   "WWRampageCountdown": "<color=#00ffa5>Ярость кончится через</color> <b>{0}</b>с",
   "WWRampaging": "Ярость",
