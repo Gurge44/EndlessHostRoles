@@ -160,12 +160,11 @@ internal class Asthmatic : IAddon
         {
             if (Timers.TryGetValue(id, out Counter counter))
                 return $"{counter.ColoredArrow} {counter.ColoredTimerString}";
-            else if (id.IsPlayerModClient() && !id.IsHost())
-                return LastSuffix[id];
-            else
-                return string.Empty;
+
+            if (id.IsPlayerModClient() && !id.IsHost() && LastSuffix.TryGetValue(id, out var lastSuffix))
+                return lastSuffix;
         }
-        else
-            return string.Empty;
+
+        return string.Empty;
     }
 }
