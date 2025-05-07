@@ -3491,6 +3491,7 @@
   "WWRampageDur": "Durasi Mode Mengamuk",
   "WWCanRampage": "Masuk ventilasi untuk mulai mode mengamuk",
   "WWCanRampageUnshift": "Gunakan Shapeshift untuk mulai mode mengamuk",
+  "WWCanRampageVanish": "Press Vanish to begin Rampaging",
   "WWRampageOut": "Kamu sudah tidak dalam mode mengamuk",
   "WWRampageCountdown": "<color=#00ffa5>Mode mengamuk berakhir dalam</color> <b>{0}</b> detik",
   "WWRampaging": "Mengamuk",
