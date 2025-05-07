@@ -3491,6 +3491,7 @@
   "WWRampageDur": "狂暴持续时间",
   "WWCanRampage": "跳管以进入狂暴状态",
   "WWCanRampageUnshift": "按下变形按钮进入狂暴状态",
+  "WWCanRampageVanish": "Press Vanish to begin Rampaging",
   "WWRampageOut": "狂暴状态已结束",
   "WWRampageCountdown": "<color=#00ffa5>狂暴状态结束于</color><b>{0}</b>s后",
   "WWRampaging": "狂暴",
