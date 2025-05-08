@@ -640,6 +640,7 @@
   "NecroviewInfo": "죽은 플레이어의 팀을 봅니다",
   "ReachInfo": "당신은 킬 범위가 깁니다",
   "UndeadInfo": "당신은 언데드에 속해 있습니다",
+  "CharmedInfo": "You've been Charmed by the Cultist",
   "BaitInfo": "당신의 살인자가 스스로 리포트를 합니다",
   "TrapperInfo": "당신의 킬러는 몇초동안 얼어붙습니다",
   "OnboundInfo": "당신은 추측이 불가능합니다",
