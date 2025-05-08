@@ -640,6 +640,7 @@
   "NecroviewInfo": "See the team of the dead",
   "ReachInfo": "You have a longer kill range",
   "UndeadInfo": "You're on the Undead faction",
+  "CharmedInfo": "You've been Charmed by the Cultist",
   "BaitInfo": "Your killer self-reports your body",
   "TrapperInfo": "Freeze your killer for a few seconds",
   "OnboundInfo": "You can't be guessed",
