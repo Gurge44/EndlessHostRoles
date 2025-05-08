@@ -61,4 +61,9 @@ internal class Freezer : RoleBase
 
         return false;
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("FreezerButtonText"));
+    }
 }
