@@ -543,6 +543,7 @@ internal static class CustomRolesHelper
             CustomRoles.Timelord => RoleTypes.Impostor,
             CustomRoles.Enchanter => RoleTypes.Impostor,
             CustomRoles.Siren => RoleTypes.Phantom,
+            CustomRoles.Wyrd => RoleTypes.Shapeshifter,
 
             _ => RoleTypes.GuardianAngel
         };
@@ -1168,7 +1169,8 @@ internal static class CustomRolesHelper
             CustomRoles.Illusionist or
             CustomRoles.Timelord or
             CustomRoles.Enchanter or
-            CustomRoles.Siren;
+            CustomRoles.Siren or
+            CustomRoles.Wyrd;
     }
 
     public static RoleTypes GetRoleTypes(this CustomRoles role)

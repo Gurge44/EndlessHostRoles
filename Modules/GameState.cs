@@ -518,6 +518,7 @@ public class TaskState
                 }
 
                 Simon.RemoveTarget(player, Simon.Instruction.Task);
+                Wyrd.CheckPlayerAction(player, Wyrd.Action.Task);
 
                 // Update the player's task count for Task Managers
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)

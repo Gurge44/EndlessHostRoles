@@ -3268,6 +3268,7 @@ public static class Utils
             Postman.CheckAndResetTargets(target, !onMeeting && !disconnect);
             Hitman.CheckAndResetTargets();
             Reaper.OnAnyoneDead(target);
+            Wyrd.OnAnyoneDeath(target);
 
             if (!onMeeting && !disconnect)
             {

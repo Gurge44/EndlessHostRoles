@@ -22,6 +22,8 @@ public class Siren : Coven
     public static OptionItem CovenCanKillEntranced;
     public static OptionItem EntrancedCountMode;
     public static OptionItem EntrancedKnowCoven;
+    public static OptionItem CanVentBeforeNecronomicon;
+    public static OptionItem CanVentAfterNecronomicon;
 
     private static readonly string[] CovenKnowEntrancedOptions =
     [
@@ -59,7 +61,9 @@ public class Siren : Coven
             .AutoSetupOption(ref EntrancedKnowEntranced, false)
             .AutoSetupOption(ref CovenCanKillEntranced, true)
             .AutoSetupOption(ref EntrancedCountMode, 1, EntrancedCountModeOptions)
-            .AutoSetupOption(ref EntrancedKnowCoven, 1, CovenKnowEntrancedOptions);
+            .AutoSetupOption(ref EntrancedKnowCoven, 1, CovenKnowEntrancedOptions)
+            .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
+            .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
 
     public override void Init()
@@ -95,6 +99,11 @@ public class Siren : Coven
                 Main.AllPlayerSpeed[playerId] = ReducedSpeed.GetFloat();
             }
         }
+    }
+
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

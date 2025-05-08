@@ -997,6 +997,8 @@ internal static class ReportDeadBodyPatch
                     Notify("SoulHunterTargetNotifyNoMeeting");
                     return false;
                 }
+
+                if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Button)) return false; // Player dies, no notify needed
             }
 
             if (target != null)
@@ -1031,6 +1033,8 @@ internal static class ReportDeadBodyPatch
                     Notify("HypnosisNoMeeting");
                     return false;
                 }
+
+                if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Report)) return false; // Player dies, no notify needed
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 
