@@ -640,6 +640,7 @@
   "NecroviewInfo": "Вы знаете команды мёртвых",
   "ReachInfo": "У вас самая большая дистанция убийства в игре",
   "UndeadInfo": "Вы во фракции мёртвых",
+  "CharmedInfo": "You've been Charmed by the Cultist",
   "BaitInfo": "Ваш убийца сделает саморепорт",
   "TrapperInfo": "Ваш убийца будет заморожен на несколько секунд",
   "OnboundInfo": "Вас нельзя угадать",
