@@ -2226,19 +2226,7 @@ internal static class ChatCommands
 
     private static void SetRoleCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(SetRoleCommand), text);
-            return;
-        }
-
-        string subArgs = text.Remove(0, 8);
-
-        if (!GameStates.IsLobby)
-        {
-            Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId);
-            return;
-        }
+        string subArgs = string.Join(' ', args[1..]);
 
         if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
         {

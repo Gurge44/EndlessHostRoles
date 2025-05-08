@@ -93,6 +93,7 @@ public class Tremor : RoleBase
         {
             Timer--;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Timer);
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             LastUpdate = Utils.TimeStamp;
         }
 
@@ -123,6 +124,7 @@ public class Tremor : RoleBase
 
             DoomTimer--;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, DoomTimer);
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
             if (DoomTimer <= 0)
             {

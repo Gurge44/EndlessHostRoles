@@ -150,7 +150,10 @@ public enum CustomRPC
     FFASync,
     QuizSync,
     HotPotatoSync,
-    SoloPVPSync
+    SoloPVPSync,
+    CTFSync,
+    KOTZSync,
+    SpeedrunSync
 }
 
 public enum Sounds
@@ -1158,6 +1161,23 @@ internal static class RPCHandlerPatch
                 case CustomRPC.SoloPVPSync:
                 {
                     SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
+                    break;
+                }
+                case CustomRPC.CTFSync:
+                {
+                    CaptureTheFlag.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.KOTZSync:
+                {
+                    KingOfTheZones.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.SpeedrunSync:
+                {
+                    if (reader.ReadPackedInt32() == 1) Speedrun.CanKill = [];
+                    else Speedrun.CanKill.Add(reader.ReadByte());
+
                     break;
                 }
             }

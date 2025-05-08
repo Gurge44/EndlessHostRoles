@@ -67,7 +67,9 @@ public class Gamer : RoleBase
     {
         PlayerIdList.Add(playerId);
         GamerHealth[playerId] = SelfHealthMax.GetInt();
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls) PlayerHealth[pc.PlayerId] = HealthMax.GetInt();
+
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            PlayerHealth[pc.PlayerId] = HealthMax.GetInt();
     }
 
     public override void Remove(byte playerId)
@@ -102,22 +104,22 @@ public class Gamer : RoleBase
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        byte PlayerId = reader.ReadByte();
-        int Health = reader.ReadInt32();
+        byte playerId = reader.ReadByte();
+        int health = reader.ReadInt32();
 
-        if (GamerHealth.ContainsKey(PlayerId))
-            GamerHealth[PlayerId] = Health;
+        if (GamerHealth.ContainsKey(playerId))
+            GamerHealth[playerId] = health;
         else
-            PlayerHealth[PlayerId] = Health;
+            PlayerHealth[playerId] = health;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || target.Is(CustomRoles.Gamer) || !PlayerHealth.ContainsKey(target.PlayerId)) return false;
+        if (killer == null || target == null || target.Is(CustomRoles.Gamer) || !PlayerHealth.TryGetValue(target.PlayerId, out var targetHealth)) return false;
 
         killer.SetKillCooldown();
 
-        if (PlayerHealth[target.PlayerId] - Damage.GetInt() < 1)
+        if (targetHealth - Damage.GetInt() < 1)
         {
             if (target.Is(CustomRoles.Pestilence))
             {
@@ -130,7 +132,7 @@ public class Gamer : RoleBase
             }
 
             PlayerHealth.Remove(target.PlayerId);
-            killer.Kill(target);
+            killer.RpcCheckAndMurder(target);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             return false;
         }
@@ -172,29 +174,30 @@ public class Gamer : RoleBase
 
         if (seer.PlayerId == target.PlayerId)
         {
-            bool GetValue = GamerHealth.TryGetValue(target.PlayerId, out int value);
-            return GetValue && value > 0 ? Utils.ColorString(GetColor(value, true), $"【{value}/{SelfHealthMax.GetInt()}】") : string.Empty;
+            return GamerHealth.TryGetValue(target.PlayerId, out int value) && value > 0
+                ? Utils.ColorString(GetColor(value, true), $"【{value}/{SelfHealthMax.GetInt()}】")
+                : string.Empty;
         }
         else
         {
-            bool GetValue = PlayerHealth.TryGetValue(target.PlayerId, out int value);
-            return GetValue && value > 0 ? Utils.ColorString(GetColor(value), $"【{value}/{HealthMax.GetInt()}】") : string.Empty;
+            return PlayerHealth.TryGetValue(target.PlayerId, out int value) && value > 0
+                ? Utils.ColorString(GetColor(value), $"【{value}/{HealthMax.GetInt()}】")
+                : string.Empty;
         }
     }
 
-    private static Color32 GetColor(float Health, bool self = false)
+    private static Color32 GetColor(float health, bool self = false)
     {
-        var x = (int)(Health / (self ? SelfHealthMax.GetInt() : HealthMax.GetInt()) * 10 * 50);
-        var R = 255;
-        var G = 255;
-        var B = 0;
+        var x = (int)(health / (self ? SelfHealthMax.GetInt() : HealthMax.GetInt()) * 10 * 50);
+        var r = 255;
+        var g = 255;
 
         if (x > 255)
-            R -= x - 255;
+            r -= x - 255;
         else
-            G = x;
+            g = x;
 
-        return new((byte)R, (byte)G, (byte)B, byte.MaxValue);
+        return new((byte)r, (byte)g, 0, byte.MaxValue);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

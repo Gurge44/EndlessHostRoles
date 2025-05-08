@@ -48,7 +48,7 @@ public static class CaptureTheFlag
         "CTF_GameEndCriteria.TimeLimit"
     ];
 
-    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
+    public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     private static Dictionary<byte, CTFTeam> PlayerTeams = [];
     private static Dictionary<CTFTeam, CTFTeamData> TeamData = [];
@@ -66,23 +66,23 @@ public static class CaptureTheFlag
 
     private static (Vector2 Position, string RoomName) BlueFlagBase => Main.CurrentMap switch
     {
-        MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(SystemTypes.Nav.ToString())),
-        MapNames.MiraHQ => (new(-4.5f, 2.0f), Translator.GetString(SystemTypes.Launchpad.ToString())),
-        MapNames.Dleks => (new(-16.5f, -4.8f), Translator.GetString(SystemTypes.Nav.ToString())),
-        MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(SystemTypes.Electrical.ToString())),
-        MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(SystemTypes.Cockpit.ToString())),
-        MapNames.Fungle => (new(-15.5f, -7.5f), Translator.GetString(SystemTypes.Kitchen.ToString())),
+        MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(nameof(SystemTypes.Nav))),
+        MapNames.MiraHQ => (new(-4.5f, 2.0f), Translator.GetString(nameof(SystemTypes.Launchpad))),
+        MapNames.Dleks => (new(-16.5f, -4.8f), Translator.GetString(nameof(SystemTypes.Nav))),
+        MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(nameof(SystemTypes.Electrical))),
+        MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(nameof(SystemTypes.Cockpit))),
+        MapNames.Fungle => (new(-15.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Kitchen))),
         _ => (Vector2.zero, string.Empty)
     };
 
     private static (Vector2 Position, string RoomName) YellowFlagBase => Main.CurrentMap switch
     {
-        MapNames.Skeld => (new(-20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor.ToString())),
-        MapNames.MiraHQ => (new(17.8f, 23.0f), Translator.GetString(SystemTypes.Greenhouse.ToString())),
-        MapNames.Dleks => (new(20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor.ToString())),
-        MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(SystemTypes.Laboratory.ToString())),
-        MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(SystemTypes.CargoBay.ToString())),
-        MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(SystemTypes.Comms.ToString())),
+        MapNames.Skeld => (new(-20.5f, -5.5f), Translator.GetString(nameof(SystemTypes.Reactor))),
+        MapNames.MiraHQ => (new(17.8f, 23.0f), Translator.GetString(nameof(SystemTypes.Greenhouse))),
+        MapNames.Dleks => (new(20.5f, -5.5f), Translator.GetString(nameof(SystemTypes.Reactor))),
+        MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Laboratory))),
+        MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(nameof(SystemTypes.CargoBay))),
+        MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(nameof(SystemTypes.Comms))),
         _ => (Vector2.zero, string.Empty)
     };
 
@@ -300,6 +300,7 @@ public static class CaptureTheFlag
         DefaultOutfits = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
         TemporarilyOutPlayers = [];
         ValidTag = false;
+        SendRPC();
     }
 
     public static void OnGameStart()
@@ -536,6 +537,44 @@ public static class CaptureTheFlag
         AURoleOptions.PhantomCooldown = 5f;
     }
 
+    private static void SendRPC()
+    {
+        var w = Utils.CreateRPC(CustomRPC.CTFSync);
+
+        w.Write(WinnerData.Color);
+        w.Write(WinnerData.Team);
+
+        w.Write(PlayerData.Count);
+
+        foreach ((byte id, CTFPlayerData data) in PlayerData)
+        {
+            w.Write(id);
+            w.Write(data.FlagTime);
+            w.Write(data.TagCount);
+        }
+
+        Utils.EndRPC(w);
+    }
+
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        WinnerData.Color = reader.ReadColor();
+        WinnerData.Team = reader.ReadString();
+
+        int count = reader.ReadInt32();
+
+        for (int i = 0; i < count; i++)
+        {
+            byte id = reader.ReadByte();
+
+            if (!PlayerData.TryGetValue(id, out CTFPlayerData data))
+                PlayerData[id] = data = new CTFPlayerData();
+
+            data.FlagTime = reader.ReadSingle();
+            data.TagCount = reader.ReadInt32();
+        }
+    }
+
     private static Color GetTeamColor(this CTFTeam team)
     {
         return team switch
@@ -594,6 +633,7 @@ public static class CaptureTheFlag
             WinnerData = (team.GetTeamColor(), team.GetTeamName());
             CustomWinnerHolder.WinnerIds = Players;
             Logger.Info($"{team} team wins", "CTF");
+            SendRPC();
         }
 
         public void Update()

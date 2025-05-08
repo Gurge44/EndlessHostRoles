@@ -2189,7 +2189,7 @@ internal static class GameDataCompleteTaskPatch
 
         if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
         {
-            var task = pc.myTasks[(Index)Convert.ToInt32(taskId)] as PlayerTask;
+            var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
             Hider.OnSpecificTaskComplete(pc, task);
         }
 
@@ -2217,9 +2217,7 @@ internal static class PlayerControlCompleteTaskPatch
 
         try
         {
-            var index = Convert.ToInt32(idx);
-            if (index >= __instance.myTasks.Count || index < 0) return;
-            var task = __instance.myTasks[(Index)index] as PlayerTask;
+            var task = __instance.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => idx == x.Id));
             Benefactor.OnTaskComplete(__instance, task);
         }
         catch (Exception e) { ThrowException(e); }

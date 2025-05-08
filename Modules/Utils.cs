@@ -645,6 +645,12 @@ public static class Utils
                     case InnerNetObject ino:
                         w.WriteNetObject(ino);
                         break;
+                    case Color color:
+                        w.Write(color);
+                        break;
+                    case Color32 color32:
+                        w.Write(color32);
+                        break;
                     default:
                         try
                         {
@@ -1044,9 +1050,7 @@ public static class Utils
         if (taskState.HasTasks)
         {
             if (IsActive(SystemTypes.Comms)) comms = true;
-
             if (Camouflager.IsActive) comms = true;
-            //if (PlayerControl.LocalPlayer.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) Comms = true;
         }
 
         return GetProgressText(pc.PlayerId, comms);
@@ -3547,6 +3551,8 @@ public static class Utils
         impShow &= impnum > 0;
         nkShow &= neutralnum > 0;
         covenShow &= covenNum > 0;
+
+        if (!impShow && !nkShow && !covenShow) return string.Empty;
 
         StringBuilder sb = new();
 

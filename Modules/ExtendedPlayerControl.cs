@@ -1049,7 +1049,7 @@ internal static class ExtendedPlayerControl
             }
 
             sender.SendMessage();
-        }, 0.6f, log: false);
+        }, 1f + (AmongUsClient.Instance.Ping / 1000f), log: false);
     }
 
     public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN)

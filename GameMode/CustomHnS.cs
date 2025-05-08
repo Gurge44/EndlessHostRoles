@@ -360,7 +360,7 @@ internal static class CustomHnS
         }
 
         // If there are no crew roles left, the game is over and only impostors win
-        if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
+        if (alivePlayers.All(x => PlayerRoles.TryGetValue(x.PlayerId, out var role) && role.Interface.Team != Team.Crewmate))
         {
             reason = GameOverReason.HideAndSeek_ImpostorsByKills;
             SetWinners(CustomWinner.Seeker, Team.Impostor);
@@ -387,14 +387,7 @@ internal static class CustomHnS
 
     public static void AddFoxesToWinners()
     {
-        List<byte> foxes = Main.PlayerStates.Where(x => x.Value.MainRole == CustomRoles.Fox).Select(x => x.Key).ToList();
-
-        foxes.RemoveAll(x =>
-        {
-            PlayerControl pc = Utils.GetPlayerById(x);
-            return pc == null || !pc.IsAlive();
-        });
-
+        List<byte> foxes = Main.PlayerStates.Values.Where(x => x.MainRole == CustomRoles.Fox && x.Player != null && x.Player.IsAlive()).Select(x => x.Player.PlayerId).ToList();
         if (foxes.Count == 0) return;
 
         CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Fox);
