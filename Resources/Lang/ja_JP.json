@@ -640,6 +640,7 @@
   "NecroviewInfo": "死者の陣営を見れる",
   "ReachInfo": "あなたは ロングのキル可能距離を持つ",
   "UndeadInfo": "あなたは アンデット派閥に所属しています",
+  "CharmedInfo": "You've been Charmed by the Cultist",
   "BaitInfo": "あなたの殺人犯に あなたの死体を自己報告させる",
   "TrapperInfo": "あなたの殺人犯を 数秒間 フリーズさせる",
   "OnboundInfo": "あなたを推測することはできない",
