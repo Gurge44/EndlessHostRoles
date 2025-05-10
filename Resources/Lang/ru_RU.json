@@ -2581,6 +2581,7 @@
   "XORSameRole": "В комбинации XOR должно быть как минимум 2 разные роли.",
   "XORAdditionRole": "Комбинация XOR работает только с ролями. Для комбинации ролей и атрибутов используйте команду <b>/combo</b>.",
   "XORAdded": "Комбинация никогда не появляющихся вместе ролей (Комбинация XOR) успешно создана.",
+  "ForgeSuccess": "<#00ffa5>✓</color> Successfully forged {1} as {2}.\\n<size=80%>You have {0} ability uses left.</size>",
   "ThankYouForUsingEHR": "Спасибо за использование EHR!",
   "GMRoles": "<color=#ff5b70>【 ★ Роли ★ 】</color>",
   "ImpostorRoles": "【 ★ Предатели ★ 】",
