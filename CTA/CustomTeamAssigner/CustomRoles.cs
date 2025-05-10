@@ -388,6 +388,7 @@ public enum CustomRoles
     Timelord,
     Enchanter,
     Siren,
+    Wyrd,
 
     // Solo Kombat
     KB_Normal,

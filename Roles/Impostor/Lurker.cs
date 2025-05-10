@@ -57,10 +57,8 @@ public class Lurker : RoleBase
         pc.SyncSettings();
     }
 
-    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         killer.ResetKillCooldown();
-        killer.SyncSettings();
-        return true;
     }
 }
