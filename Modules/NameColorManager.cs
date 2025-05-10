@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using EHR.AddOns.Common;
 using EHR.AddOns.GhostRoles;
@@ -42,7 +43,8 @@ public static class NameColorManager
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.FFA when FreeForAll.FFATeamMode.GetBool():
-                color = FreeForAll.TeamColors[FreeForAll.PlayerTeams[target.PlayerId]];
+                if (FreeForAll.PlayerTeams.TryGetValue(target.PlayerId, out int team))
+                    color = FreeForAll.TeamColors.GetValueOrDefault(team, "#00ffff");
                 return true;
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
@@ -83,7 +85,7 @@ public static class NameColorManager
         if (Stained.VioletNameList.Contains(target.PlayerId) && !isMeeting) color = "#ff00ff";
 
         // Coven
-        if (seer.Is(Team.Coven) && target.Is(Team.Coven)) color = Main.CovenColor;
+        if (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) color = Main.CovenColor;
 
         // Impostors and Madmates
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)) color = target.Is(CustomRoles.Egoist) && Options.ImpEgoistVisibalToAllies.GetBool() && seer != target ? Main.RoleColors[CustomRoles.Egoist] : Main.ImpostorColor;
@@ -107,6 +109,9 @@ public static class NameColorManager
         if (target.Is(CustomRoles.Mare) && Utils.IsActive(SystemTypes.Electrical) && !isMeeting) color = Main.RoleColors[CustomRoles.Mare];
         if (seer.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Contagious) && Virus.TargetKnowOtherTarget.GetBool()) color = Main.RoleColors[CustomRoles.Virus];
         if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Succubus.TargetKnowOtherTarget.GetBool()) color = Main.RoleColors[CustomRoles.Charmed];
+        if (seer.Is(CustomRoles.Entranced) && target.Is(CustomRoles.Entranced) && Siren.EntrancedKnowEntranced.GetBool()) color = Main.RoleColors[CustomRoles.Siren];
+        if (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoles.Entranced) && Siren.CovenKnowEntranced.GetValue() == 1) color = Main.RoleColors[CustomRoles.Entranced];
+        if (target.Is(CustomRoleTypes.Coven) && seer.Is(CustomRoles.Entranced) && Siren.EntrancedKnowCoven.GetValue() == 1) color = Main.RoleColors[CustomRoles.Entranced];
         if (seer.Is(CustomRoles.Undead) && target.Is(CustomRoles.Undead)) color = Main.RoleColors[CustomRoles.Undead];
 
         // Ghost roles
@@ -138,6 +143,7 @@ public static class NameColorManager
             CustomRoles.Crewpostor when target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool() => Main.ImpostorColor,
             CustomRoles.Hypocrite when target.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool() => Main.ImpostorColor,
             CustomRoles.Succubus when target.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Charmed],
+            CustomRoles.Siren when target.Is(CustomRoles.Entranced) => Main.RoleColors[CustomRoles.Siren],
             CustomRoles.Necromancer or CustomRoles.Deathknight when target.Is(CustomRoles.Undead) => Main.RoleColors[CustomRoles.Undead],
             CustomRoles.Necromancer or CustomRoles.Deathknight when Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId) => Main.RoleColors[CustomRoles.Deathknight],
             CustomRoles.Virus when target.Is(CustomRoles.Contagious) => Main.RoleColors[CustomRoles.Contagious],
@@ -177,6 +183,7 @@ public static class NameColorManager
             CustomRoles.Seamstress when ((Seamstress)seerRoleClass).SewedPlayers.Item1 == target.PlayerId || ((Seamstress)seerRoleClass).SewedPlayers.Item2 == target.PlayerId => "000000",
             CustomRoles.Spirit when ((Spirit)seerRoleClass).Targets.Item1 == target.PlayerId || ((Spirit)seerRoleClass).Targets.Item2 == target.PlayerId => "000000",
             CustomRoles.Starspawn when ((Starspawn)seerRoleClass).IsolatedPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Wyrd when ((Wyrd)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             _ => color
         };
 
@@ -190,6 +197,7 @@ public static class NameColorManager
             CustomRoles.SoulHunter when SoulHunter.IsSoulHunterTarget(seer.PlayerId) => Main.RoleColors[CustomRoles.SoulHunter],
             CustomRoles.Necromancer or CustomRoles.Deathknight when seer.Is(CustomRoles.Undead) => Main.RoleColors[targetRole],
             CustomRoles.Succubus when seer.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Succubus],
+            CustomRoles.Siren when seer.Is(CustomRoles.Entranced) => Main.RoleColors[CustomRoles.Siren],
             CustomRoles.Crewpostor when seer.Is(CustomRoleTypes.Impostor) && Options.AlliesKnowCrewpostor.GetBool() => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.Hypocrite when seer.Is(CustomRoleTypes.Impostor) && Hypocrite.AlliesKnowHypocrite.GetBool() => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.President when ((President)targetRoleClass).IsRevealed => Main.RoleColors[CustomRoles.President],
@@ -211,6 +219,7 @@ public static class NameColorManager
             if (target.Is(CustomRoles.Contagious)) color = Main.NeutralColor;
             if (target.Is(CustomRoles.Egoist)) color = Main.NeutralColor;
             if (target.Is(CustomRoles.Recruit)) color = Main.NeutralColor;
+            if (target.Is(CustomRoles.Entranced)) color = Main.CovenColor;
         }
 
         // Global (important)
@@ -227,7 +236,7 @@ public static class NameColorManager
                || target.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.GM)
                || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)
-               || (seer.Is(Team.Coven) && target.Is(Team.Coven))
+               || (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven))
                || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor))
                || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))
                || (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))

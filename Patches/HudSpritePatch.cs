@@ -29,6 +29,8 @@ public static class HudSpritePatch
 
     private static long LastErrorTime;
 
+    public static bool ResetButtonIcons;
+
     public static void Postfix(HudManager __instance)
     {
         try
@@ -39,7 +41,7 @@ public static class HudSpritePatch
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
             if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive() || Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.CaptureTheFlag) return;
 
-            if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
+            if (ResetButtonIcons || !AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
             {
                 Kill = null;
                 Ability = null;
@@ -47,6 +49,8 @@ public static class HudSpritePatch
                 Sabotage = null;
                 Pet = null;
                 Report = null;
+
+                ResetButtonIcons = false;
                 return;
             }
 
@@ -466,15 +470,11 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Warlock:
                 {
-                    if (Options.UsePets.GetBool())
+                    if (Options.UsePets.GetBool() || !shapeshifting)
                     {
                         newKillButton = CustomButton.Get("Curse");
-                        if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse) newAbilityButton = CustomButton.Get("CurseKill");
-                    }
-                    else if (!shapeshifting)
-                    {
-                        newKillButton = CustomButton.Get("Curse");
-                        if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse) newAbilityButton = CustomButton.Get("CurseKill");
+                        if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
+                            newAbilityButton = CustomButton.Get("CurseKill");
                     }
 
                     break;

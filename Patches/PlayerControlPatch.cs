@@ -234,7 +234,10 @@ internal static class CheckMurderPatch
                 FreeForAll.OnPlayerAttack(killer, target);
                 return false;
             case CustomGameMode.HotPotato:
-                return HotPotato.CanPassViaKillButton && HotPotato.GetState().HolderID == killer.PlayerId;
+                (byte holderID, byte lastHolderID) = HotPotato.GetState();
+                if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && lastHolderID != target.PlayerId)
+                    HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
+                return false;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
@@ -408,9 +411,21 @@ internal static class CheckMurderPatch
             return false;
         }
 
-        if (killer.Is(Team.Coven) && target.Is(Team.Coven))
+        if (killer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven))
         {
             Notify("CovenKillEachOther");
+            return false;
+        }
+
+        if (killer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoles.Entranced) && !Siren.CovenCanKillEntranced.GetBool())
+        {
+            Notify("CovenKillEntranced");
+            return false;
+        }
+
+        if (killer.Is(CustomRoles.Entranced) && target.Is(CustomRoleTypes.Coven) && !Siren.EntrancedCanKillCoven.GetBool())
+        {
+            Notify("EntrancedKillCoven");
             return false;
         }
 
@@ -982,6 +997,8 @@ internal static class ReportDeadBodyPatch
                     Notify("SoulHunterTargetNotifyNoMeeting");
                     return false;
                 }
+
+                if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Button)) return false; // Player dies, no notify needed
             }
 
             if (target != null)
@@ -1016,6 +1033,8 @@ internal static class ReportDeadBodyPatch
                     Notify("HypnosisNoMeeting");
                     return false;
                 }
+
+                if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Report)) return false; // Player dies, no notify needed
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 
@@ -1073,6 +1092,8 @@ internal static class ReportDeadBodyPatch
 
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
+
+        HudSpritePatch.ResetButtonIcons = true;
 
         if (Options.CurrentGameMode == CustomGameMode.Standard)
         {
@@ -1818,10 +1839,12 @@ internal static class FixedUpdatePatch
                         Suffix.Append(Quiz.GetSuffix(seer));
                         break;
                     case CustomGameMode.AllInOne:
-                        if (alive) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
-                        if (self && alive) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
-                        if (self && alive && !seer.Is(CustomRoles.Killer)) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
-                        if (self) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - "));
+                        if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
+                        if (self && alive && CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
+                        if (self && alive && !seer.Is(CustomRoles.Killer) && CustomGameMode.Speedrun.IsActiveOrIntegrated()) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
+                        if (self && CustomGameMode.RoomRush.IsActiveOrIntegrated()) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - ") + "\n");
+                        if (self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) Suffix.Append(KingOfTheZones.GetSuffix(seer) + "\n");
+                        if (self && CustomGameMode.Quiz.IsActiveOrIntegrated()) Suffix.Append(Quiz.GetSuffix(seer));
                         break;
                 }
 
@@ -1840,9 +1863,6 @@ internal static class FixedUpdatePatch
 
                 if (!self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                     realName = EmptyMessage;
-
-                if (Magistrate.CallCourtNextMeeting)
-                    realName = target.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
 
                 string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 
@@ -2173,7 +2193,7 @@ internal static class GameDataCompleteTaskPatch
 
         if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
         {
-            var task = pc.myTasks[(Index)Convert.ToInt32(taskId)] as PlayerTask;
+            var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
             Hider.OnSpecificTaskComplete(pc, task);
         }
 
@@ -2201,7 +2221,7 @@ internal static class PlayerControlCompleteTaskPatch
 
         try
         {
-            var task = __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask;
+            var task = __instance.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => idx == x.Id));
             Benefactor.OnTaskComplete(__instance, task);
         }
         catch (Exception e) { ThrowException(e); }
@@ -2242,7 +2262,7 @@ public static class PlayerControlCheckUseZiplinePatch
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;
             if (Options.DisableZiplineFromUnder.GetBool() && !fromTop) return false;
 
-            if (__instance.Is(Team.Coven) && Options.DisableZiplineForCoven.GetBool()) return false;
+            if (__instance.Is(CustomRoleTypes.Coven) && Options.DisableZiplineForCoven.GetBool()) return false;
             if (__instance.IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
             if (__instance.GetCustomRole().IsNeutral() && Options.DisableZiplineForNeutrals.GetBool()) return false;
             if (__instance.IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;

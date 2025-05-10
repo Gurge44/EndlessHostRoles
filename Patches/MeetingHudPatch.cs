@@ -436,8 +436,13 @@ internal static class CheckForEndVotingPatch
                         name += Utils.ColorString(team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color color) ? Color.yellow : color, team.RoleRevealScreenTitle == "*" ? team.TeamName : team.RoleRevealScreenTitle);
                     else
                     {
-                        Color color = player.GetTeam().GetColor();
-                        string str = GetString($"Team{player.GetTeam()}");
+                        Team playerTeam = player.GetTeam();
+
+                        if (Forger.Forges.TryGetValue(player.PlayerId, out var forgedRole))
+                            playerTeam = forgedRole.GetTeam();
+
+                        Color color = playerTeam.GetColor();
+                        string str = GetString($"Team{playerTeam}");
                         name += Utils.ColorString(color, str);
                     }
 
@@ -850,7 +855,7 @@ internal static class MeetingHudStartPatch
                 (seer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                 (target.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && target.Data.IsDead) ||
                 (Main.LoversPlayers.TrueForAll(x => x.PlayerId == target.PlayerId || x.PlayerId == seer.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
-                (seer.Is(Team.Coven) && target.Is(Team.Coven)) ||
+                (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) ||
                 (target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(seer.PlayerId) == null && CustomTeamManager.GetCustomTeam(target.PlayerId) == null) ||
                 (target.Is(CustomRoleTypes.Impostor) && seer.IsMadmate() && Options.MadmateKnowWhosImp.GetBool()) ||
                 (target.IsMadmate() && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||

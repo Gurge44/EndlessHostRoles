@@ -139,7 +139,7 @@ public class PlayerState(byte playerId)
 
         Logger.Info($"ID {PlayerId} ({Player.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
-        if (Main.IntroDestroyed)
+        if (Main.IntroDestroyed && GameStates.InGame)
         {
             if (!previousHasTasks && Utils.HasTasks(Player.Data, false))
             {
@@ -150,7 +150,7 @@ public class PlayerState(byte playerId)
 
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (Main.IntroDestroyed)
+        if (Main.IntroDestroyed && GameStates.InGame)
         {
             Player.ResetKillCooldown();
 
@@ -185,6 +185,8 @@ public class PlayerState(byte playerId)
 
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
+
+            HudSpritePatch.ResetButtonIcons = true;
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
@@ -210,6 +212,9 @@ public class PlayerState(byte playerId)
 
         SetAddonCountTypes(role);
 
+        if (Main.IntroDestroyed && GameStates.InGame)
+            HudSpritePatch.ResetButtonIcons = true;
+
         Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
     }
 
@@ -233,6 +238,7 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
@@ -255,6 +261,7 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
@@ -277,12 +284,36 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Charmed);
+                SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
+                Utils.NotifyRoles(SpecifyTarget: Player);
+                break;
+            case CustomRoles.Entranced:
+                TaskState.HasTasks = false;
+                TaskState.AllTasksCount = 0;
+
+                countTypes = Siren.EntrancedCountMode.GetInt() switch
+                {
+                    0 => CountTypes.OutOfGame,
+                    1 => CountTypes.Coven,
+                    2 => countTypes,
+                    _ => throw new NotImplementedException()
+                };
+
+                SubRoles.Remove(CustomRoles.Charmed);
+                SubRoles.Remove(CustomRoles.Madmate);
+                SubRoles.Remove(CustomRoles.Recruit);
+                SubRoles.Remove(CustomRoles.Contagious);
+                SubRoles.Remove(CustomRoles.Rascal);
+                SubRoles.Remove(CustomRoles.Loyal);
+                SubRoles.Remove(CustomRoles.Undead);
                 SubRoles.Remove(CustomRoles.Stressed);
                 Utils.NotifyRoles(SpecifySeer: Player);
                 Utils.NotifyRoles(SpecifyTarget: Player);
@@ -302,6 +333,7 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Contagious);
@@ -324,6 +356,7 @@ public class PlayerState(byte playerId)
                     _ => throw new NotImplementedException()
                 };
 
+                SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Charmed);
@@ -413,84 +446,89 @@ public class TaskState
 
     public void Update(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
-        GameData.Instance.RecomputeTaskCounts();
-        Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
-
-        if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz)
-            player.Notify(Translator.GetString("DoingTasksIsPointlessInThisGameMode"), 10f);
-
-        if (AllTasksCount == -1) Init(player);
-
-        if (!HasTasks) return;
-
-        if (AmongUsClient.Instance.AmHost)
+        try
         {
-            bool alive = player.IsAlive();
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
+            GameData.Instance.RecomputeTaskCounts();
+            Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
-            if (alive && CustomGameMode.Speedrun.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz)
+                player.Notify(Translator.GetString("DoingTasksIsPointlessInThisGameMode"), 10f);
+
+            if (AllTasksCount == -1) Init(player);
+
+            if (!HasTasks) return;
+
+            if (AmongUsClient.Instance.AmHost)
             {
-                if (CompletedTasksCount + 1 >= AllTasksCount)
-                    Speedrun.OnTaskFinish(player);
+                bool alive = player.IsAlive();
 
-                Speedrun.ResetTimer(player);
-            }
-
-            // Ability Use Gain with this task completed
-            if (alive && !Main.HasJustStarted)
-            {
-                switch (player.GetCustomRole())
-                {
-                    case CustomRoles.SabotageMaster:
-                        if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
-
-                        sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        sm.SendRPC();
-                        break;
-                    case CustomRoles.NiceHacker:
-                        if (!player.IsModdedClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId))
-                            NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                        else if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
-
-                        if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.SendRPC(player.PlayerId, NiceHacker.UseLimitSeconds[player.PlayerId]);
-
-                        break;
-                }
-
-                float add = Utils.GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityUseGainWithEachTaskCompleted");
-                if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
-            }
-
-            try { Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount); }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            List<CustomRoles> addons = Main.PlayerStates[player.PlayerId].SubRoles;
-
-            if (addons.Contains(CustomRoles.Deadlined)) Deadlined.SetDone(player);
-            if (addons.Contains(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
-            if (addons.Contains(CustomRoles.Unlucky) && alive && IRandom.Instance.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt()) player.Suicide();
-
-            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
-            {
-                if (ghostRole is { Role: CustomRoles.Specter, Instance: Specter specter } && CompletedTasksCount + 1 >= AllTasksCount) specter.OnFinishedTasks(player);
-
-                if (ghostRole is { Role: CustomRoles.Haunter, Instance: Haunter haunter })
+                if (alive && CustomGameMode.Speedrun.IsActiveOrIntegrated())
                 {
                     if (CompletedTasksCount + 1 >= AllTasksCount)
-                        haunter.OnFinishedTasks(player);
-                    else if (CompletedTasksCount + 1 >= Haunter.TasksBeforeBeingKnown.GetInt()) haunter.OnOneTaskLeft(player);
+                        Speedrun.OnTaskFinish(player);
+
+                    Speedrun.ResetTimer(player);
+                }
+
+                // Ability Use Gain with this task completed
+                if (alive && !Main.HasJustStarted)
+                {
+                    switch (player.GetCustomRole())
+                    {
+                        case CustomRoles.SabotageMaster:
+                            if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
+
+                            sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
+                            sm.SendRPC();
+                            break;
+                        case CustomRoles.NiceHacker:
+                            if (!player.IsModdedClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId))
+                                NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
+                            else if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
+
+                            if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.SendRPC(player.PlayerId, NiceHacker.UseLimitSeconds[player.PlayerId]);
+
+                            break;
+                    }
+
+                    float add = Utils.GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityUseGainWithEachTaskCompleted");
+                    if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
+                }
+
+                try { Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount); }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                List<CustomRoles> addons = Main.PlayerStates[player.PlayerId].SubRoles;
+
+                if (addons.Contains(CustomRoles.Deadlined)) Deadlined.SetDone(player);
+                if (addons.Contains(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
+                if (addons.Contains(CustomRoles.Unlucky) && alive && IRandom.Instance.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt()) player.Suicide();
+
+                if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
+                {
+                    if (ghostRole is { Role: CustomRoles.Specter, Instance: Specter specter } && CompletedTasksCount + 1 >= AllTasksCount) specter.OnFinishedTasks(player);
+
+                    if (ghostRole is { Role: CustomRoles.Haunter, Instance: Haunter haunter })
+                    {
+                        if (CompletedTasksCount + 1 >= AllTasksCount)
+                            haunter.OnFinishedTasks(player);
+                        else if (CompletedTasksCount + 1 >= Haunter.TasksBeforeBeingKnown.GetInt()) haunter.OnOneTaskLeft(player);
+                    }
+                }
+
+                Simon.RemoveTarget(player, Simon.Instruction.Task);
+                Wyrd.CheckPlayerAction(player, Wyrd.Action.Task);
+
+                // Update the player's task count for Task Managers
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
+                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
                 }
             }
-
-            Simon.RemoveTarget(player, Simon.Instruction.Task);
-
-            // Update the player's task count for Task Managers
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
-            }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         if (CompletedTasksCount >= AllTasksCount) return;
 

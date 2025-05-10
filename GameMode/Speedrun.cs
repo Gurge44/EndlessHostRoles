@@ -54,6 +54,7 @@ public static class Speedrun
         CanKill = [];
         Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 10);
         if (Options.CurrentGameMode == CustomGameMode.AllInOne) Timers.AdjustAllValues(x => x * AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt());
+        Utils.SendRPC(CustomRPC.SpeedrunSync, 1);
     }
 
     public static void ResetTimer(PlayerControl pc)
@@ -75,6 +76,7 @@ public static class Speedrun
         if (TaskFinishWins.GetBool()) return;
 
         CanKill.Add(pc.PlayerId);
+        Utils.SendRPC(CustomRPC.SpeedrunSync, 2, pc.PlayerId);
         int kcd = KillCooldown.GetInt();
         Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
         var sender = CustomRpcSender.Create("Speedrun.OnTaskFinish", SendOption.Reliable);
@@ -88,13 +90,13 @@ public static class Speedrun
     public static string GetTaskBarText()
     {
         return string.Join('\n', Main.PlayerStates
-            .Join(Main.AllAlivePlayerControls, x => x.Key, x => x.PlayerId, (kvp, pc) => (
-                Name: Utils.ColorString(Main.PlayerColors.GetValueOrDefault(kvp.Key, Color.white), pc.GetRealName()),
+            .Join(Main.AllAlivePlayerControls, x => x.Key, x => x.PlayerId, (kvp, _) => (
+                Name: kvp.Key.ColoredPlayerName(),
                 CompletedTasks: kvp.Value.TaskState.CompletedTasksCount,
                 AllTasks: kvp.Value.TaskState.AllTasksCount,
-                Time: Timers.GetValueOrDefault(pc.PlayerId)))
+                Time: AmongUsClient.Instance.AmHost ? $" ({Timers.GetValueOrDefault(kvp.Key)}s)" : string.Empty))
             .OrderByDescending(x => x.CompletedTasks)
-            .Select(x => x.CompletedTasks < x.AllTasks ? $"{x.Name}: {x.CompletedTasks}/{x.AllTasks} ({x.Time}s)" : $"{x.Name}: {Translator.GetString("Speedrun_KillingPlayer")} ({x.Time}s)"));
+            .Select(x => x.CompletedTasks < x.AllTasks ? $"{x.Name}: {x.CompletedTasks}/{x.AllTasks}{x.Time}" : $"{x.Name}: {Translator.GetString("Speedrun_KillingPlayer")}{x.Time}"));
     }
 
     public static string GetSuffixText(PlayerControl pc)
@@ -201,6 +203,6 @@ public class Runner : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return false;
+        return !IsThisRole(pc);
     }
 }

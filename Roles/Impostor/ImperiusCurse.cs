@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Impostor;
@@ -54,6 +55,9 @@ internal class ImperiusCurse : RoleBase
                     Vector2 originPs = target.Pos();
                     target.TP(shapeshifter.Pos());
                     shapeshifter.TP(originPs);
+
+                    shapeshifter.RPCPlayCustomSound("Teleport");
+                    target.RPCPlayCustomSound("Teleport");
                 }
             }, 1.5f, "ImperiusCurse TP");
         }

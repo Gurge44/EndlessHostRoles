@@ -654,7 +654,7 @@ internal static class BeginCrewmatePatch
             case CustomGameMode.FFA:
             {
                 __instance.TeamTitle.text = GetString("Killer");
-                Color color = FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int team) && ColorUtility.TryParseHtmlString(FreeForAll.TeamColors[team], out Color teamColor) ? teamColor : new(0, 255, 255, byte.MaxValue);
+                Color color = FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int team) && FreeForAll.TeamColors.TryGetValue(team, out var teamColorHex) && ColorUtility.TryParseHtmlString(teamColorHex, out Color teamColor) ? teamColor : new(0, 255, 255, byte.MaxValue);
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = color;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
@@ -779,10 +779,38 @@ internal static class BeginImpostorPatch
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
+        if (PlayerControl.LocalPlayer.IsImpostor() && Options.ImpKnowWhosMadmate.GetBool())
+        {
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (pc.IsMadmate() && !pc.IsLocalPlayer())
+                    yourTeam.Add(pc);
+            }
+        }
+
+        if (PlayerControl.LocalPlayer.IsMadmate())
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
+
+            if (Options.MadmateKnowWhosImp.GetBool())
+            {
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (pc.IsImpostor() && !pc.IsLocalPlayer())
+                        yourTeam.Add(pc);
+                }
+            }
+
+            if (Options.MadmateKnowWhosMadmate.GetBool())
+            {
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (pc.IsMadmate() && !pc.IsLocalPlayer())
+                        yourTeam.Add(pc);
+                }
+            }
+
             __instance.BackgroundBar.material.color = Palette.ImpostorRed;
             return true;
         }
@@ -907,7 +935,8 @@ internal static class IntroCutsceneDestroyPatch
             {
                 lp.RpcChangeRoleBasis(lp.GetCustomRole());
                 lp.RpcResetAbilityCooldown();
-            }, 1f, log: false);
+                LateTask.New(() => lp.SetKillCooldown(), 0.2f, log: false);
+            }, 0.1f, log: false);
 
             if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.AllInOne)
             {
@@ -1036,8 +1065,11 @@ internal static class IntroCutsceneDestroyPatch
             if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
                 MoveAndStop.OnGameStart();
 
-            if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
-                CaptureTheFlag.OnGameStart();
+            LateTask.New(() =>
+            {
+                if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
+                    CaptureTheFlag.OnGameStart();
+            }, 0.2f, log: false);
 
             Utils.CheckAndSetVentInteractions();
 

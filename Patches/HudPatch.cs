@@ -773,7 +773,7 @@ internal static class TaskPanelBehaviourPatch
 
                     break;
 
-                case CustomGameMode.HideAndSeek:
+                case CustomGameMode.HideAndSeek when AmongUsClient.Instance.AmHost:
 
                     finalText += $"\r\n\r\n{CustomHnS.GetTaskBarText()}";
 

@@ -129,13 +129,13 @@ public static class NaturalDisasters
         const float extend = 3.5f;
         MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
 
-        GameStartTimeStamp = Utils.TimeStamp + 8;
+        GameStartTimeStamp = Utils.TimeStamp;
 
         LateTask.New(() =>
         {
             Main.AllPlayerSpeed = Main.PlayerStates.Keys.ToDictionary(k => k, _ => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
             Utils.SyncAllSettings();
-        }, 11f, log: false);
+        }, 16f, log: false);
     }
 
     public static void ApplyGameOptions(IGameOptions opt, byte id)
@@ -202,7 +202,7 @@ public static class NaturalDisasters
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
 
             UpdatePreparingDisasters();
 
@@ -727,7 +727,8 @@ public static class NaturalDisasters
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 bool inRange = Vector2.Distance(pc.Pos(), Position) <= Range;
-                if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId))) pc.MarkDirtySettings();
+                if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId)))
+                    pc.MarkDirtySettings();
             }
         }
 
@@ -816,7 +817,8 @@ public static class NaturalDisasters
                     _ => false
                 };
 
-                if (Vector2.Distance(pos, Position) <= Range && inWay) pc.Suicide(PlayerState.DeathReason.Drowned);
+                if (Vector2.Distance(pos, Position) <= Range && inWay)
+                    pc.Suicide(PlayerState.DeathReason.Drowned);
             }
 
             if (Count++ < 2) return;

@@ -139,7 +139,7 @@ public class Councillor : RoleBase
                 if (target != null)
                 {
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} murdered {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
-                    var CouncillorSuicide = true;
+                    var councillorSuicide = true;
 
                     if (pc.GetAbilityUseLimit() < 1)
                     {
@@ -181,7 +181,7 @@ public class Councillor : RoleBase
                         return true;
                     }
 
-                    var NoSuicide = false;
+                    var noSuicide = false;
 
                     if (pc.PlayerId == targetId)
                     {
@@ -191,26 +191,17 @@ public class Councillor : RoleBase
                             pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoMurderSelf"));
                     }
                     else if (target.IsMadmate() && CanMurderMadmate.GetBool())
-                        CouncillorSuicide = false;
-                    else if (target.Is(CustomRoles.SuperStar))
-                        NoSuicide = true;
-                    else if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted())
-                        NoSuicide = true;
-                    else if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted())
-                        NoSuicide = true;
-                    else if (target.Is(CustomRoles.Merchant) && Merchant.IsBribedKiller(pc, target))
-                        NoSuicide = true;
-                    else if (target.IsImpostor() && CanMurderImpostor.GetBool())
-                        CouncillorSuicide = false;
-                    else if (target.IsCrewmate())
-                        CouncillorSuicide = false;
-                    else if (target.GetCustomRole().IsNeutral() && !target.Is(CustomRoles.Pestilence)) CouncillorSuicide = false;
+                        councillorSuicide = false;
+                    else if (target.Is(CustomRoles.SuperStar) || target.Is(CustomRoles.Snitch) && target.AllTasksCompleted() || target.Is(CustomRoles.Guardian) && target.AllTasksCompleted() || target.Is(CustomRoles.Merchant) && Merchant.IsBribedKiller(pc, target))
+                        noSuicide = true;
+                    else if (target.IsImpostor() && CanMurderImpostor.GetBool() || target.IsCrewmate() || target.GetCustomRole().IsNeutral() && !target.Is(CustomRoles.Pestilence) || target.Is(CustomRoleTypes.Coven))
+                        councillorSuicide = false;
 
-                    if (NoSuicide) return true;
+                    if (noSuicide) return true;
 
-                    PlayerControl dp = CouncillorSuicide ? pc : target;
+                    PlayerControl dp = councillorSuicide ? pc : target;
 
-                    string Name = dp.GetRealName();
+                    string name = dp.GetRealName();
 
                     pc.RpcRemoveAbilityUse();
                     MeetingKillLimit[pc.PlayerId]--;
@@ -224,7 +215,7 @@ public class Councillor : RoleBase
 
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("MurderKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("MurderKillTitle"))), 0.6f, "Guess Msg");
+                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("MurderKillTitle"))), 0.6f, "Guess Msg");
                     }, 0.2f, "Murder Kill");
                 }
 

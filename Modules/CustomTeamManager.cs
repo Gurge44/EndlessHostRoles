@@ -21,6 +21,7 @@ internal static class CustomTeamManager
 
             CustomTeams = File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
             RefreshCustomOptions();
+            UpdateEnabledTeams();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -163,6 +164,9 @@ internal static class CustomTeamManager
             Dictionary<CustomTeam, HashSet<byte>> aliveTeamPlayers = CustomTeamPlayerIds.ToDictionary(x => x.Key, x => x.Value);
             aliveTeamPlayers.Do(x => x.Value.RemoveWhere(p => !Utils.GetPlayerById(p).IsAlive()));
 
+            List<CustomTeam> toRemove = aliveTeamPlayers.Where(x => x.Value.Count == 0).Select(x => x.Key).ToList();
+            toRemove.ForEach(x => aliveTeamPlayers.Remove(x));
+
             CustomTeam team = aliveTeamPlayers.Keys.First();
 
             if (aliveTeamPlayers.Count == 1 && Main.AllAlivePlayerControls.All(x =>
@@ -177,7 +181,7 @@ internal static class CustomTeamManager
                 return true;
             }
         }
-        catch { return false; }
+        catch (Exception e) { Logger.Error($"Error in CheckCustomTeamGameEnd: {e}", "CustomTeamManager"); }
 
         return false;
     }

@@ -102,6 +102,7 @@ internal static class SoloPVP
             PlayerDF.TryAdd(pc.PlayerId, 0f);
 
             KBScore.TryAdd(pc.PlayerId, 0);
+            Utils.SendRPC(CustomRPC.SoloPVPSync, pc.PlayerId, 0);
 
             LastHurt.TryAdd(pc.PlayerId, Utils.TimeStamp);
             LastCountdownTime.TryAdd(pc.PlayerId, Utils.TimeStamp);
@@ -268,6 +269,7 @@ internal static class SoloPVP
         ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
         KBScore[killer.PlayerId]++;
+        Utils.SendRPC(CustomRPC.SoloPVPSync, killer.PlayerId, KBScore[killer.PlayerId]);
 
         if (Options.CurrentGameMode == CustomGameMode.AllInOne)
             Speedrun.ResetTimer(killer);

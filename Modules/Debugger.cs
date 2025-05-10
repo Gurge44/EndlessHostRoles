@@ -62,7 +62,7 @@ internal static class Logger
 
         if (SendToGameList.Contains(tag) || IsAlsoInGame) SendInGame($"[{tag}]{text}");
 
-        string log_text;
+        string logText;
 
         if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && !NowDetailedErrorLog.Contains(tag))
         {
@@ -70,7 +70,7 @@ internal static class Logger
             StackFrame stack = new(2);
             string className = stack.GetMethod()?.ReflectedType?.Name;
             string memberName = stack.GetMethod()?.Name;
-            log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
+            logText = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
             NowDetailedErrorLog.Add(tag);
             LateTask.New(() => NowDetailedErrorLog.Remove(tag), 3f, log: false);
         }
@@ -79,10 +79,10 @@ internal static class Logger
             if (escapeCRLF) text = text.Replace("\r", "\\r").Replace("\n", "\\n");
 
             var t = DateTime.Now.ToString("HH:mm:ss");
-            log_text = $"[{t}][{tag}]{text}";
+            logText = $"[{t}][{tag}]{text}";
         }
 
-        CustomLogger.Instance.Log(level.ToString(), log_text, multiLine);
+        CustomLogger.Instance.Log(level.ToString(), logText, multiLine);
     }
 
     public static void Test(object content, string tag = "======= Test =======", bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false)
@@ -178,6 +178,7 @@ public class CustomLogger
         else if (new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
         {
             ClearLog(false);
+            PrivateInstance ??= new();
             Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped.");
         }
 

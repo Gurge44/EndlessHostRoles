@@ -52,6 +52,7 @@ internal class Ventguard : RoleBase
     public override void Init()
     {
         On = false;
+        BlockedVents = [];
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

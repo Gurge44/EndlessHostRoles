@@ -25,7 +25,8 @@ internal static class ExtendedPlayerControl
 {
     public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
 
-    private static readonly HashSet<byte> BlackScreenWaitingPlayers = [];
+    public static readonly HashSet<byte> BlackScreenWaitingPlayers = [];
+    public static readonly HashSet<byte> CancelBlackScreenFix = [];
 
     public static void SetRole(this PlayerControl player, RoleTypes role, bool canOverride = true)
     {
@@ -79,8 +80,9 @@ internal static class ExtendedPlayerControl
         if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) return true;
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
-        if (!GameStates.IsInTask) return false;
-        return (player.inVent && player.GetClosestVent()?.Id == ventId) || ((player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return false;
+        if (player.inVent && player.GetClosestVent()?.Id == ventId) return true;
+        return (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
     }
 
     // Next 2: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
@@ -110,6 +112,8 @@ internal static class ExtendedPlayerControl
     // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs - coded by Rabek009
     public static void SetChatVisible(this PlayerControl player, bool visible)
     {
+        Logger.Info($"Setting the chat {(visible ? "visible" : "hidden")} for {player.GetNameWithRole()}", "SetChatVisible");
+
         if (player.AmOwner)
         {
             HudManager.Instance.Chat.SetVisible(visible);
@@ -940,8 +944,15 @@ internal static class ExtendedPlayerControl
             {
                 Logger.Warn($"FixBlackScreen was called for {pc.GetNameWithRole()}, but the conditions are not met to execute this code right now, waiting until it becomes possible to do so", "FixBlackScreen");
 
-                while (GameStates.InGame && !GameStates.IsEnded && (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || Main.AllPlayerControls.All(x => x.IsAlive())))
+                while (GameStates.InGame && !GameStates.IsEnded && !CancelBlackScreenFix.Contains(pc.PlayerId) && (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || Main.AllPlayerControls.All(x => x.IsAlive())))
                     yield return null;
+
+                if (CancelBlackScreenFix.Remove(pc.PlayerId))
+                {
+                    Logger.Msg($"The black screen fix was canceled for {pc.GetNameWithRole()}", "FixBlackScreen");
+                    BlackScreenWaitingPlayers.Remove(pc.PlayerId);
+                    yield break;
+                }
 
                 if (!GameStates.InGame || GameStates.IsEnded)
                 {
@@ -998,7 +1009,7 @@ internal static class ExtendedPlayerControl
             dummyGhost.NetTransform.SnapTo(murderPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
             dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
 
-            sender.AutoStartRpc(dummyGhost.NetTransform.NetId, (byte)RpcCalls.SnapTo);
+            sender.AutoStartRpc(dummyGhost.NetTransform.NetId, 21);
             sender.WriteVector2(murderPos);
             sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
             sender.EndRpc();
@@ -1029,7 +1040,7 @@ internal static class ExtendedPlayerControl
                 dummyGhost.NetTransform.SnapTo(ghostPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
                 dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);
 
-                sender.AutoStartRpc(dummyGhost.NetTransform.NetId, (byte)RpcCalls.SnapTo);
+                sender.AutoStartRpc(dummyGhost.NetTransform.NetId, 21);
                 sender.WriteVector2(ghostPos);
                 sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
                 sender.EndRpc();
@@ -1038,7 +1049,7 @@ internal static class ExtendedPlayerControl
             }
 
             sender.SendMessage();
-        }, 0.4f, log: false);
+        }, 1f + (AmongUsClient.Instance.Ping / 1000f), log: false);
     }
 
     public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN)
@@ -1530,9 +1541,10 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
-            var sender = CustomRpcSender.Create("Send Noisemaker Alerts & Kill", SendOption.Reliable);
-            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies && !x.SubRoles.Contains(CustomRoles.Blind), x => sender.RpcSetRole(target, RoleTypes.Noisemaker, x.Player.GetClientId()));
+            Vector2 pos = target.Pos();
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies && !x.SubRoles.Contains(CustomRoles.Blind) && x.Player != null, x => LocateArrow.Add(x.Player.PlayerId, pos));
 
+            var sender = CustomRpcSender.Create("Kill", SendOption.Reliable);
             if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, MurderResultFlags.Succeeded);
             sender.AutoStartRpc(killer.NetId, 12);
             sender.WriteNetObject(target);
@@ -1540,6 +1552,9 @@ internal static class ExtendedPlayerControl
             sender.EndRpc();
 
             sender.SendMessage();
+
+            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && !state.IsDead)
+                state.SetDead();
         }
     }
 
@@ -1724,7 +1739,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsCrewmate(this PlayerControl pc)
     {
-        return !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsCrewmate() && !pc.Is(Team.Coven);
+        return !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsCrewmate() && !pc.Is(CustomRoleTypes.Coven);
     }
 
     public static CustomRoleTypes GetCustomRoleTypes(this PlayerControl pc)
@@ -1777,7 +1792,7 @@ internal static class ExtendedPlayerControl
     {
         return team switch
         {
-            Team.Coven => target.GetCustomRole().IsCoven(),
+            Team.Coven => target.GetCustomRole().IsCoven() || target.Is(CustomRoles.Entranced),
             Team.Impostor => (target.IsMadmate() || target.GetCustomRole().IsImpostorTeamV2() || Framer.FramedPlayers.Contains(target.PlayerId)) && !target.Is(CustomRoles.Bloodlust),
             Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust) || target.IsConverted(),
             Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),

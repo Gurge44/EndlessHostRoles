@@ -918,6 +918,8 @@ internal static class ChatCommands
 
     public static void DraftStartCommand(PlayerControl player, string text, string[] args)
     {
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(DraftStartCommand), text, true);
@@ -956,7 +958,7 @@ internal static class ChatCommands
 
         IEnumerator RepeatedlySendMessage()
         {
-            for (var index = 0; index < 3; index++)
+            for (var index = 0; index < 5; index++)
             {
                 List<Message> messages = [];
 
@@ -969,8 +971,8 @@ internal static class ChatCommands
 
                 messages.SendMultipleMessages(index == 0 ? SendOption.Reliable : SendOption.None);
 
-                yield return new WaitForSeconds(20f);
-                if (DraftResult.Count >= DraftRoles.Count || GameStates.InGame) yield break;
+                yield return new WaitForSeconds(30f);
+                if (DraftResult.Count >= DraftRoles.Count || !GameStates.IsLobby || GameStates.InGame) yield break;
             }
         }
     }
@@ -1243,8 +1245,6 @@ internal static class ChatCommands
             PollAnswers[choiceLetter] = $"<size=70%>〖 {answers[i]} 〗</size>";
         }
 
-        if (gmPoll) PollVotes['A'] = Main.AllPlayerControls.Length / 4;
-
         msg += $"\n{GetString("Poll.Begin")}\n<size=60%><i>";
         string title = GetString("Poll.Title");
         Utils.SendMessage(msg + $"{string.Format(GetString("Poll.TimeInfo"), (int)Math.Round(PollTimer))}</i></size>", title: title);
@@ -1262,6 +1262,8 @@ internal static class ChatCommands
 
             while ((notEveryoneVoted || gmPoll) && PollTimer > 0f)
             {
+                if (!GameStates.IsLobby) yield break;
+
                 notEveryoneVoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
@@ -1294,7 +1296,7 @@ internal static class ChatCommands
             PollAnswers.Clear();
             PollVoted.Clear();
 
-            if (winners.Length == 1 && gmPoll)
+            if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
             {
                 int winnerIndex = winners[0].Key - 65;
                 if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex - 1);
@@ -1513,6 +1515,7 @@ internal static class ChatCommands
                 if (!rl.IsAdditionRole()) player.SetRole(rl.GetRoleTypes());
 
                 player.RpcSetCustomRole(rl);
+                player.RpcChangeRoleBasis(rl);
 
                 if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(player.PlayerId, rl, true);
 
@@ -2224,19 +2227,7 @@ internal static class ChatCommands
 
     private static void SetRoleCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(SetRoleCommand), text);
-            return;
-        }
-
-        string subArgs = text.Remove(0, 8);
-
-        if (!GameStates.IsLobby)
-        {
-            Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId);
-            return;
-        }
+        string subArgs = string.Join(' ', args[1..]);
 
         if (!GuessManager.MsgToPlayerAndRole(subArgs, out byte resultId, out CustomRoles roleToSet, out _))
         {
@@ -3213,9 +3204,15 @@ internal static class ChatCommands
 
         if (!canceled) ChatManager.SendMessage(player, text);
 
-        if (commandEntered) LastSentCommand[player.PlayerId] = now;
-
-        SpamManager.CheckSpam(player, text);
+        switch (commandEntered)
+        {
+            case true:
+                LastSentCommand[player.PlayerId] = now;
+                break;
+            case false:
+                SpamManager.CheckSpam(player, text);
+                break;
+        }
     }
 }
 

@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
+using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Neutral;
@@ -179,11 +180,19 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
-                case CustomGameMode.MoveAndStop:
                 case CustomGameMode.KingOfTheZones:
                 case CustomGameMode.Quiz:
                     SetMaxVision();
                     break;
+                case CustomGameMode.MoveAndStop:
+                    try
+                    {
+                        AURoleOptions.EngineerCooldown = 1f;
+                        AURoleOptions.EngineerInVentMaxTime = 300f;
+                    }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
+                    goto case CustomGameMode.RoomRush;
                 case CustomGameMode.HideAndSeek:
                     CustomHnS.ApplyGameOptions(opt, player);
                     break;
@@ -285,6 +294,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 AURoleOptions.NoisemakerAlertDuration = 300f;
             }
 
+            Siren.ApplyGameOptionsForOthers(opt, player.PlayerId);
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
             President.OnAnyoneApplyGameOptions(opt);
             Negotiator.OnAnyoneApplyGameOptions(opt, player.PlayerId);

@@ -99,7 +99,7 @@ public class CustomRpcSender
         {
             // StartMessage processing
             if (currentState == State.InRootMessage)
-                EndMessage(startNew: GameStates.CurrentServerType == GameStates.ServerType.Vanilla || stream.Length > 800);
+                EndMessage(startNew: true);
 
             StartMessage(targetClientId);
         }
@@ -130,12 +130,12 @@ public class CustomRpcSender
         {
             if (doneStreams.Count > 0)
             {
-                var sb = new StringBuilder();
+                var sb = new StringBuilder(" + Lengths: ");
 
                 doneStreams.ForEach(x =>
                 {
                     if (x.Length >= 1500 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
-                    else if (log || x.Length > 3) sb.Append($" + Part {doneStreams.IndexOf(x) + 2} (Length: {x.Length})");
+                    else if (log || x.Length > 3) sb.Append($" | {x.Length}");
 
                     AmongUsClient.Instance.SendOrDisconnect(x);
                     x.Recycle();
@@ -671,10 +671,14 @@ public static class CustomRpcSenderExtensions
         return sender.TP(pc, new(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
     }
 
-    public static bool NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target)
+    public static bool NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target, out CustomRpcSender newSender, out bool senderWasCleared)
     {
+        senderWasCleared = false;
+        newSender = sender;
         if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
-        return Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out bool senderWasCleared) && !senderWasCleared;
+        var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
+        newSender = sender;
+        return hasValue;
     }
 
     public static bool SyncSettings(this CustomRpcSender sender, PlayerControl player)

@@ -29,7 +29,7 @@ public static class KingOfTheZones
     private static OptionItem MaxGameLength;
     private static OptionItem SpawnProtectionTime;
 
-    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
+    public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     private static readonly Dictionary<MapNames, List<List<SystemTypes>>> DefaultZones = new()
     {
@@ -251,6 +251,7 @@ public static class KingOfTheZones
         ChatCommands.Spectators.Do(x => Main.AllPlayerSpeed[x] = normalSpeed);
 
         GameGoing = false;
+        SendRPC();
     }
 
     public static IEnumerator GameStart()
@@ -307,7 +308,7 @@ public static class KingOfTheZones
                         x => x.Key != id && x.Value == team,
                         // ReSharper disable once AccessToModifiedClosure
                         x => writer.RpcSetRole(x.Key.GetPlayer(), RoleTypes.Impostor, targetClientId));
-                    
+
                     if (writer.stream.Length > 800)
                     {
                         writer.SendMessage();
@@ -584,12 +585,39 @@ public static class KingOfTheZones
                 Color color = winner.GetColor();
                 CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == winner).Select(x => x.Key).ToHashSet();
                 WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{winner}")));
+                SendRPC();
                 return true;
             default:
                 return WinnerData.Team != "No one wins";
         }
 
         void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+    }
+
+    private static void SendRPC()
+    {
+        var w = Utils.CreateRPC(CustomRPC.KOTZSync);
+
+        w.Write(WinnerData.Color);
+        w.Write(WinnerData.Team);
+
+        w.Write(Points.Count);
+
+        foreach ((KOTZTeam team, int points) in Points)
+        {
+            w.Write((int)team);
+            w.Write(points);
+        }
+
+        Utils.EndRPC(w);
+    }
+
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        WinnerData.Color = reader.ReadColor();
+        WinnerData.Team = reader.ReadString();
+
+        Loop.Times(reader.ReadInt32(), _ => Points[(KOTZTeam)reader.ReadInt32()] = reader.ReadInt32());
     }
 
     private enum KOTZTeam
@@ -803,6 +831,7 @@ public static class KingOfTheZones
                 CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == winner).Select(x => x.Key).ToHashSet();
                 Color color = winner.GetColor();
                 WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{winner}")));
+                SendRPC();
 
                 Logger.Info($"Game ended. Winner: {winner} team", "KOTZ");
             }

@@ -44,10 +44,15 @@ public static class AFKDetector
     {
         if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId)) return;
 
+        float waitingTime = 10f;
+        if (MeetingStates.FirstMeeting) waitingTime += 5f;
+        if (!pc.IsAlive()) waitingTime += 5f;
+        if (pc.Is(CustomRoles.Truant) && !MeetingStates.FirstMeeting) waitingTime += Options.TruantWaitingTime.GetFloat();
+
         PlayerData[pc.PlayerId] = new()
         {
             LastPosition = pc.Pos(),
-            Timer = 10f + (pc.Is(CustomRoles.Truant) ? Options.TruantWaitingTime.GetFloat() : 0f)
+            Timer = waitingTime
         };
 
         ShieldedPlayers.Remove(pc.PlayerId);
@@ -60,6 +65,9 @@ public static class AFKDetector
 
         if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f && !TempIgnoredPlayers.Contains(pc.PlayerId))
         {
+            if (ExtendedPlayerControl.BlackScreenWaitingPlayers.Contains(pc.PlayerId))
+                ExtendedPlayerControl.CancelBlackScreenFix.Add(pc.PlayerId);
+
             PlayerData.Remove(pc.PlayerId);
             ShieldedPlayers.Remove(pc.PlayerId);
             return;

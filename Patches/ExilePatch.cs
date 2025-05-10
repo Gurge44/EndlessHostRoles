@@ -185,24 +185,28 @@ internal static class ExileControllerWrapUpPatch
         if ((showRemainingKillers || ejectionNotify) && CustomGameMode.Standard.IsActiveOrIntegrated())
         {
             string text = showRemainingKillers ? Utils.GetRemainingKillers(true) : string.Empty;
-            var r = IRandom.Instance;
-            var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
-            var hasValue = false;
+            string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            if (!string.IsNullOrEmpty(finalText))
             {
-                string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
-                hasValue |= sender.Notify(pc, finalText, r.Next(7, 13));
+                var r = IRandom.Instance;
+                var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
+                var hasValue = false;
 
-                if (sender.stream.Length > 800)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    sender.SendMessage();
-                    sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
-                    hasValue = false;
-                }
-            }
+                    hasValue |= sender.Notify(pc, finalText, r.Next(7, 13));
 
-            sender.SendMessage(dispose: !hasValue);
+                    if (sender.stream.Length > 800)
+                    {
+                        sender.SendMessage();
+                        sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
+                        hasValue = false;
+                    }
+                }
+
+                sender.SendMessage(dispose: !hasValue);
+            }
         }
 
         LateTask.New(ChatManager.ClearChat, 3f, log: false);

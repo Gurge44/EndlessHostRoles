@@ -129,7 +129,8 @@ public static class Options
         "Kick",
         "NoticeMe",
         "NoticeEveryone",
-        "OnlyCancel"
+        "OnlyCancel",
+        "TempBan"
     ];
 
     private static readonly string[] ConfirmEjectionsMode =
@@ -736,6 +737,7 @@ public static class Options
     public static OptionItem ContagiousCanBeGuessed;
     public static OptionItem UndeadCanBeGuessed;
     public static OptionItem EgoistCanBeGuessed;
+    public static OptionItem EntrancedCanBeGuessed;
 
     public static OptionItem BewilderVision;
     public static OptionItem SunglassesVision;
@@ -1252,6 +1254,10 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .AddReplacement(("{role}", CustomRoles.Egoist.ToColoredString()));
 
+        EntrancedCanBeGuessed = new StringOptionItem(218, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Entranced.ToColoredString()));
+
 
         RoleLoadingText = "Add-ons\n.";
 
@@ -1448,16 +1454,16 @@ public static class Options
 
         AutoPlayAgainCountdown = new IntegerOptionItem(44425, "AutoPlayAgainCountdown", new(1, 90, 1), 10, TabGroup.SystemSettings)
             .SetParent(AutoPlayAgain);
-        
+
         AutoGMPollCommandAfterJoin = new BooleanOptionItem(19309, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
             .SetHeader(true);
-        
+
         AutoGMPollCommandCooldown = new IntegerOptionItem(19307, "AutoGMPollCommandCooldown", new(10, 600, 5), 30, TabGroup.SystemSettings)
             .SetParent(AutoGMPollCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
         AutoDraftStartCommandAfterJoin = new BooleanOptionItem(19426, "AutoDraftStartCommandAfterJoin", false, TabGroup.SystemSettings);
-        
+
         AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);

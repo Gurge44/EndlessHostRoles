@@ -111,11 +111,12 @@ public class PotionMaster : Coven
             ShieldedPlayers.Remove(x);
             PlayerControl player = x.GetPlayer();
 
-            sender.NotifyRolesSpecific(pc, player);
+            hasValue |= sender.NotifyRolesSpecific(pc, player, out sender, out bool cleared);
+            if (cleared) hasValue = false;
             sender = RestartMessageIfTooLong();
 
-            sender.NotifyRolesSpecific(player, player);
-            hasValue = true;
+            hasValue |= sender.NotifyRolesSpecific(player, player, out sender, out cleared);
+            if (cleared) hasValue = false;
             sender = RestartMessageIfTooLong();
 
             Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 2, x);
@@ -125,12 +126,12 @@ public class PotionMaster : Coven
         {
             PlayerControl player = shieldedId.GetPlayer();
 
-            sender.NotifyRolesSpecific(pc, player);
-            hasValue = true;
+            hasValue |= sender.NotifyRolesSpecific(pc, player, out sender, out bool cleared);
+            if (cleared) hasValue = false;
             sender = RestartMessageIfTooLong();
 
-            sender.NotifyRolesSpecific(player, player);
-            hasValue = true;
+            hasValue |= sender.NotifyRolesSpecific(player, player, out sender, out cleared);
+            if (cleared) hasValue = false;
             sender = RestartMessageIfTooLong();
         }
 

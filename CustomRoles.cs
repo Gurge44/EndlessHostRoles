@@ -387,6 +387,8 @@ public enum CustomRoles
     Illusionist,
     Timelord,
     Enchanter,
+    Siren,
+    Wyrd,
 
     // Solo Kombat
     KB_Normal,
@@ -472,6 +474,7 @@ public enum CustomRoles
     DoubleShot,
     Egoist,
     Energetic,
+    Entranced,
     EvilSpirit,
     Finder,
     Flashman,

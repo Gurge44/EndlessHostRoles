@@ -175,6 +175,7 @@ public class Alchemist : RoleBase
         {
             case 1: // Shield
                 am.IsProtected = true;
+                player.RPCPlayCustomSound("Shield");
                 player.Notify(GetString("AlchemistShielded"), ShieldDuration.GetInt());
 
                 LateTask.New(() =>

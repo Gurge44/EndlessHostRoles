@@ -149,48 +149,48 @@ internal static class RpcSetTasksPatch
 
         // Default number of tasks
         var hasCommonTasks = true;
-        int NumLongTasks = Main.NormalOptions.NumLongTasks;
-        int NumShortTasks = Main.NormalOptions.NumShortTasks;
+        int numLongTasks = Main.NormalOptions.NumLongTasks;
+        int numShortTasks = Main.NormalOptions.NumShortTasks;
 
         if (Options.OverrideTasksData.AllData.TryGetValue(role, out Options.OverrideTasksData data) && data.DoOverride.GetBool())
         {
             hasCommonTasks = data.AssignCommonTasks.GetBool(); // Whether to assign common tasks (regular tasks)
             // Even if assigned, it will not be reassigned and will be assigned the same common tasks as other crews.
-            NumLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
-            NumShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
+            numLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
+            numShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
             // Longs and shorts are constantly reallocated.
-            if (role is CustomRoles.Specter or CustomRoles.Haunter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = NumLongTasks + NumShortTasks;
+            if (role is CustomRoles.Specter or CustomRoles.Haunter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = numLongTasks + numShortTasks;
         }
 
         if (pc.Is(CustomRoles.Busy))
         {
-            NumLongTasks += Options.BusyLongTasks.GetInt();
-            NumShortTasks += Options.BusyShortTasks.GetInt();
+            numLongTasks += Options.BusyLongTasks.GetInt();
+            numShortTasks += Options.BusyShortTasks.GetInt();
         }
 
         // Mad Snitch mission coverage
         if (pc.Is(CustomRoles.Snitch) && pc.Is(CustomRoles.Madmate))
         {
             hasCommonTasks = false;
-            NumLongTasks = 0;
-            NumShortTasks = Options.MadSnitchTasks.GetInt();
+            numLongTasks = 0;
+            numShortTasks = Options.MadSnitchTasks.GetInt();
         }
 
         // GM and Lazy Guy have no tasks
         if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones)
         {
             hasCommonTasks = false;
-            NumShortTasks = 0;
-            NumLongTasks = 0;
+            numShortTasks = 0;
+            numLongTasks = 0;
         }
 
         // Workhorse task assignment
-        if (pc.Is(CustomRoles.Workhorse)) (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
+        if (pc.Is(CustomRoles.Workhorse)) (hasCommonTasks, numLongTasks, numShortTasks) = Workhorse.TaskData;
 
         // Capitalism is going to harm people~
         if (Capitalism.CapitalismAssignTask.TryGetValue(pc.PlayerId, out int extraTasksNum))
         {
-            NumShortTasks += extraTasksNum;
+            numShortTasks += extraTasksNum;
             Capitalism.CapitalismAssignTask.Remove(pc.PlayerId);
         }
 
@@ -198,10 +198,10 @@ internal static class RpcSetTasksPatch
 
         switch (hasCommonTasks)
         {
-            case false when NumLongTasks == 0 && NumShortTasks == 0:
-                NumShortTasks = 1; // Task 0 measures
+            case false when numLongTasks == 0 && numShortTasks == 0:
+                numShortTasks = 1; // Task 0 measures
                 break;
-            case true when NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks:
+            case true when numLongTasks == Main.NormalOptions.NumLongTasks && numShortTasks == Main.NormalOptions.NumShortTasks:
                 return; // If there are no changes
         }
 
@@ -242,7 +242,7 @@ internal static class RpcSetTasksPatch
         // Use the task assignment function actually used on the Among Us side.
         ShipStatus.Instance.AddTasksFromList(
             ref start2,
-            NumLongTasks,
+            numLongTasks,
             TasksList,
             usedTaskTypes,
             LongTasks
@@ -250,7 +250,7 @@ internal static class RpcSetTasksPatch
 
         ShipStatus.Instance.AddTasksFromList(
             ref start3,
-            NumShortTasks,
+            numShortTasks,
             TasksList,
             usedTaskTypes,
             ShortTasks

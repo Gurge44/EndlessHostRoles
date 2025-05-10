@@ -152,6 +152,17 @@ public class Wasp : RoleBase
 
         if (WaspPC == null || !WaspPC.IsAlive())
             MeetingKills.Clear();
+
+        if (MeetingKills.Count > 0)
+        {
+            LateTask.New(() =>
+            {
+                string stung = string.Join(", ", MeetingKills.Select(x => x.ColoredPlayerName()));
+                string role = CustomRoles.Wasp.ToColoredString();
+                string text = string.Format(Translator.GetString("WaspStungPlayersMessage"), stung, role);
+                Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"));
+            }, 10f, "Wasp Stung Players Notify");
+        }
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)

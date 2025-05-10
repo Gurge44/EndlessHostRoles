@@ -293,6 +293,6 @@ public class Swooper : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return UsedRole != CustomRoles.Chameleon || pc.GetClosestVent()?.Id == ventId;
+        return !IsThisRole(pc) || UsedRole != CustomRoles.Chameleon || pc.GetClosestVent()?.Id == ventId;
     }
 }

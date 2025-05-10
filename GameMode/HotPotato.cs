@@ -20,7 +20,7 @@ internal static class HotPotato
     private static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) HotPotatoState;
     private static Dictionary<byte, int> SurvivalTimes;
     private static float DefaultSpeed;
-    
+
     public static bool CanPassViaKillButton => HolderCanPassViaKillButton.GetBool();
 
     public static (byte HolderID, byte LastHolderID) GetState()
@@ -89,7 +89,7 @@ internal static class HotPotato
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    public static class FixedUpdatePatch
     {
         private static float UpdateDelay;
         private static long LastFixedUpdate;
@@ -144,7 +144,7 @@ internal static class HotPotato
             PassHotPotato(Target, false);
         }
 
-        private static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
+        public static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
         {
             if (!Main.IntroDestroyed || Main.AllAlivePlayerControls.Length < 2) return;
 
@@ -163,19 +163,24 @@ internal static class HotPotato
 
                 HotPotatoState.LastHolderID = HotPotatoState.HolderID;
                 HotPotatoState.HolderID = target.PlayerId;
-                
+
                 Utils.SendRPC(CustomRPC.HotPotatoSync, HotPotatoState.HolderID, HotPotatoState.LastHolderID);
-                if (CanPassViaKillButton) target.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+
+                if (CanPassViaKillButton)
+                {
+                    target.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+                    LateTask.New(() => target.SetKillCooldown(1f), 0.2f, log: false);
+                }
 
                 Main.AllPlayerSpeed[target.PlayerId] = HolderSpeed.GetFloat();
                 target.MarkDirtySettings();
-                
+
                 PlayerControl LastHolder = Utils.GetPlayerById(HotPotatoState.LastHolderID);
 
                 if (LastHolder != null)
                 {
                     if (CanPassViaKillButton) LastHolder.RpcChangeRoleBasis(CustomRoles.Potato);
-                    
+
                     Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = DefaultSpeed;
                     LastHolder.MarkDirtySettings();
                     Utils.NotifyRoles(SpecifyTarget: LastHolder);

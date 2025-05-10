@@ -466,7 +466,7 @@ internal static class EAC
         var msg = $"{pc.GetClientId()}|{pc.FriendCode}|{pc.Data.PlayerName}|{pc.GetClient().GetHashedPuid()}|{reason}";
         //Cloud.SendData(msg);
         Logger.Fatal($"EAC report: {msg}", "EAC Cloud");
-        if (Options.CheatResponses.GetInt() != 5) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
+        if (Options.CheatResponses.GetInt() != 4) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
     }
 
     public static bool ReceiveInvalidRpc(PlayerControl pc, byte callId)
@@ -510,7 +510,7 @@ internal static class EAC
                     select new Message(message, player.PlayerId, title)
                 ).SendMultipleMessages(SendOption.None);
                 break;
-            case 4:
+            case 5:
                 string hashedPuid = pc.GetClient().GetHashedPuid();
                 if (!BanManager.TempBanWhiteList.Contains(hashedPuid)) BanManager.TempBanWhiteList.Add(hashedPuid);
 

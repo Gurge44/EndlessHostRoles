@@ -62,7 +62,6 @@ public static class Utils
 
     private static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
 
-    private static int NumSnapToRPCsThisRound;
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModdedClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
@@ -154,8 +153,7 @@ public static class Utils
         }
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
-        SendOption sendOption = NumSnapToRPCsThisRound < 100 || GameStates.CurrentServerType != GameStates.ServerType.Vanilla || DateTime.UtcNow.Month < 4 ? SendOption.Reliable : SendOption.None;
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, sendOption);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -165,7 +163,6 @@ public static class Utils
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
 
-        NumSnapToRPCsThisRound++;
         return true;
     }
 
@@ -482,7 +479,7 @@ public static class Utils
         if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && targetMainRole == CustomRoles.Agent && CustomHnS.PlayerRoles[seerId].Interface.Team != Team.Impostor)
             targetMainRole = CustomRoles.Hider;
 
-        if ((GameStates.IsMeeting || ExileController.Instance || targetState.IsDead) && Forger.Forges.TryGetValue(targetId, out var forgedRole))
+        if ((ExileController.Instance || targetState.IsDead || (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)) && !GameStates.IsEnded && Forger.Forges.TryGetValue(targetId, out var forgedRole))
             targetMainRole = forgedRole;
 
         if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles.TryGetValue(targetId, out CustomRoles shownRole))
@@ -511,7 +508,7 @@ public static class Utils
         {
             foreach (CustomRoles subRole in targetSubRoles)
             {
-                if (subRole is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious and not CustomRoles.Bloodlust)
+                if (subRole is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious and not CustomRoles.Bloodlust and not CustomRoles.Entranced)
                 {
                     string str = GetString("Prefix." + subRole);
                     if (!subRole.IsAdditionRole()) str = GetString(subRole.ToString());
@@ -540,6 +537,12 @@ public static class Utils
         {
             roleColor = GetRoleColor(CustomRoles.Charmed);
             roleText = GetRoleString("Charmed-") + roleText;
+        }
+
+        if (targetSubRoles.Contains(CustomRoles.Entranced) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Siren || (Siren.CovenKnowEntranced.GetValue() == 1 && seerMainRole.IsCoven()) || (Siren.EntrancedKnowEntranced.GetBool() && seerSubRoles.Contains(CustomRoles.Entranced))))
+        {
+            roleColor = GetRoleColor(CustomRoles.Entranced);
+            roleText = GetRoleString("Entranced-") + roleText;
         }
 
         if (targetSubRoles.Contains(CustomRoles.Contagious) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Virus || (Virus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Contagious))))
@@ -641,6 +644,12 @@ public static class Utils
                         break;
                     case InnerNetObject ino:
                         w.WriteNetObject(ino);
+                        break;
+                    case Color color:
+                        w.Write(color);
+                        break;
+                    case Color32 color32:
+                        w.Write(color32);
                         break;
                     default:
                         try
@@ -923,6 +932,7 @@ public static class Utils
         {
             switch (subRole)
             {
+                case CustomRoles.Entranced:
                 case CustomRoles.Madmate:
                 case CustomRoles.Charmed:
                 case CustomRoles.Recruit:
@@ -1011,7 +1021,7 @@ public static class Utils
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId) == null && CustomTeamManager.GetCustomTeam(__instance.PlayerId) == null) ||
-               (__instance.Is(Team.Coven) && PlayerControl.LocalPlayer.Is(Team.Coven)) ||
+               (__instance.Is(CustomRoleTypes.Coven) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Coven)) ||
                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.IsLocalPlayer()) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                (CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, CTAOption.KnowRoles)) ||
                Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, __instance)) ||
@@ -1040,9 +1050,7 @@ public static class Utils
         if (taskState.HasTasks)
         {
             if (IsActive(SystemTypes.Comms)) comms = true;
-
             if (Camouflager.IsActive) comms = true;
-            //if (PlayerControl.LocalPlayer.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) Comms = true;
         }
 
         return GetProgressText(pc.PlayerId, comms);
@@ -2454,13 +2462,15 @@ public static class Utils
                         break;
                     case CustomGameMode.AllInOne:
                         bool alive = seer.IsAlive();
-                        if (alive) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true) + "\n");
-                        if (alive) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
-                        SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
-                        if (alive && !seer.Is(CustomRoles.Killer)) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
-                        SelfSuffix.Append(NaturalDisasters.SuffixText() + "\n");
+                        if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) SelfSuffix.Append(SoloPVP.GetDisplayHealth(seer, true) + "\n");
+                        if (alive && CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) SelfSuffix.Append(MoveAndStop.GetSuffixText(seer) + "\n");
+                        if (CustomGameMode.HotPotato.IsActiveOrIntegrated()) SelfSuffix.Append(HotPotato.GetSuffixText(seer.PlayerId) + "\n");
+                        if (alive && !seer.Is(CustomRoles.Killer) && CustomGameMode.Speedrun.IsActiveOrIntegrated()) SelfSuffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
+                        if (CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) SelfSuffix.Append(NaturalDisasters.SuffixText() + "\n");
                         const StringSplitOptions splitFlags = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries;
-                        SelfSuffix.Append(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - "));
+                        if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) SelfSuffix.Append(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - ") + "\n");
+                        if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) SelfSuffix.Append(KingOfTheZones.GetSuffix(seer) + "\n");
+                        if (CustomGameMode.Quiz.IsActiveOrIntegrated()) SelfSuffix.Append(Quiz.GetSuffix(seer));
                         break;
                 }
             }
@@ -2658,7 +2668,7 @@ public static class Utils
                                 (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                                 (target.Is(CustomRoles.Gravestone) && target.Data.IsDead) ||
                                 (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
-                                (seer.Is(Team.Coven) && target.Is(Team.Coven)) ||
+                                (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(seer.PlayerId) == null && CustomTeamManager.GetCustomTeam(target.PlayerId) == null) ||
                                 (seer.IsMadmate() && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.IsMadmate() && Options.ImpKnowWhosMadmate.GetBool()) ||
@@ -3259,6 +3269,7 @@ public static class Utils
             Postman.CheckAndResetTargets(target, !onMeeting && !disconnect);
             Hitman.CheckAndResetTargets();
             Reaper.OnAnyoneDead(target);
+            Wyrd.OnAnyoneDeath(target);
 
             if (!onMeeting && !disconnect)
             {
@@ -3474,8 +3485,11 @@ public static class Utils
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time2 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time2}</color>s")}</color>  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.RoomRush:
-                    int time3 = RoomRush.GetSurvivalTime(id);
-                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? RoomRush.PointsSystem ? string.Empty : $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({(RoomRush.PointsSystem ? RoomRush.GetPoints(id) : GetVitalText(id, true))})";
+                    int rrSurvivalTime = RoomRush.GetSurvivalTime(id);
+                    string rrSurvivalTimeText = rrSurvivalTime == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{rrSurvivalTime}</color>s";
+                    string rrSurvivedText = RoomRush.PointsSystem ? RoomRush.GetPoints(id) : $"{GetString("SurvivedTimePrefix")}: <#ffffff>{rrSurvivalTimeText}</color>";
+                    string vitalText = RoomRush.PointsSystem ? string.Empty : $" ({GetVitalText(id, true)})";
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{rrSurvivedText}{vitalText}";
                     break;
                 case CustomGameMode.CaptureTheFlag:
                     summary = $"{ColorString(Main.PlayerColors[id], name)}: {CaptureTheFlag.GetStatistics(id)}";
@@ -3522,26 +3536,25 @@ public static class Utils
         {
             if (excludeId != byte.MaxValue && pc.PlayerId == excludeId) continue;
 
-            if (impShow && pc.Is(Team.Impostor)) impnum++;
-            else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
-            else if (covenShow && pc.Is(Team.Coven)) covenNum++;
-        }
-
-        foreach (byte id in Forger.Forges.Keys)
-        {
-            if (excludeId != byte.MaxValue && id == excludeId) continue;
-
-            var pc = id.GetPlayer();
-            if (pc == null || (!ExileController.Instance && pc.IsAlive())) continue;
-
-            if (impShow && pc.Is(Team.Impostor)) impnum--;
-            else if (nkShow && pc.IsNeutralKiller()) neutralnum--;
-            else if (covenShow && pc.Is(Team.Coven)) covenNum--;
+            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole))
+            {
+                if (impShow && forgedRole.Is(Team.Impostor)) impnum++;
+                else if (nkShow && forgedRole.IsNK()) neutralnum++;
+                else if (covenShow && forgedRole.Is(Team.Coven)) covenNum++;
+            }
+            else
+            {
+                if (impShow && pc.Is(Team.Impostor)) impnum++;
+                else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
+                else if (covenShow && pc.Is(Team.Coven)) covenNum++;
+            }
         }
 
         impShow &= impnum > 0;
         nkShow &= neutralnum > 0;
         covenShow &= covenNum > 0;
+
+        if (!impShow && !nkShow && !covenShow) return string.Empty;
 
         StringBuilder sb = new();
 

@@ -66,7 +66,8 @@ public static class NameNotifyManager
 
         toNotify.ToValidPlayers().ForEach(x =>
         {
-            hasValue |= sender.NotifyRolesSpecific(x, x);
+            hasValue |= sender.NotifyRolesSpecific(x, x, out sender, out bool cleared);
+            if (cleared) hasValue = false;
 
             if (sender.stream.Length > 800)
             {

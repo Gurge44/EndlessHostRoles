@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Impostor;
 
@@ -60,7 +61,15 @@ internal class Minimalism : RoleBase
 
         if (BypassShields.GetBool())
         {
-            killer.Kill(target);
+            if (killer.Is(CustomRoles.Swift))
+            {
+                target.Suicide(PlayerState.DeathReason.Kill, killer);
+                killer.SetKillCooldown();
+                RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+            }
+            else
+                killer.Kill(target);
+
             return false;
         }
 

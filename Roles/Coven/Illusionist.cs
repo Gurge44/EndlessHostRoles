@@ -79,6 +79,8 @@ public class Illusionist : Coven
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
+        if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+
         PlayerControl sampledPlayer = SampledPlayerId.GetPlayer();
         if (sampledPlayer == null) return false;
 

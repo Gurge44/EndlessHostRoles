@@ -35,8 +35,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "5.5.3";
-    public const string PluginDisplayVersion = "5.5.3";
+    public const string PluginVersion = "5.6.0";
+    public const string PluginDisplayVersion = "5.6.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -716,7 +716,7 @@ public class Main : BasePlugin
 
             CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
             allRoles.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
-            allRoles.Where(x => x.IsCoven()).Do(x => RoleColors.TryAdd(x, CovenColor));
+            allRoles.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleColors.TryAdd(x, CovenColor));
         }
         catch (ArgumentException ex)
         {

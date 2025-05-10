@@ -176,8 +176,10 @@ public class Jackal : RoleBase
         hasValue |= sender.RpcGuardAndKill(target, killer);
         hasValue |= sender.RpcGuardAndKill(target, target);
 
-        hasValue |= sender.NotifyRolesSpecific(killer, target);
-        hasValue |= sender.NotifyRolesSpecific(target, killer);
+        hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
+        if (cleared) hasValue = false;
+        hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
+        if (cleared) hasValue = false;
 
         sender.SendMessage(!hasValue);
 
