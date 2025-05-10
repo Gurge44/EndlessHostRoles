@@ -48,6 +48,16 @@ public class CovenLeader : Coven
 
     protected override void OnReceiveNecronomicon()
     {
-        CovenLeaderId.GetPlayer().ResetKillCooldown();
+        CovenLeaderId.GetPlayer()?.ResetKillCooldown();
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        if (!HasNecronomicon) return;
+        
+        float kcd = Options.CovenLeaderKillCooldown.GetFloat() / 2f;
+        
+        if (Main.KillTimers[CovenLeaderId] > kcd)
+            CovenLeaderId.GetPlayer()?.SetKillCooldown(kcd);
     }
 }

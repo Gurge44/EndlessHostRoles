@@ -1053,7 +1053,9 @@ public static class Utils
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.MoveAndStop: return GetTaskCount(playerId, comms, AmongUsClient.Instance.AmHost);
-            case CustomGameMode.Speedrun: return string.Empty;
+            case CustomGameMode.Speedrun:
+            case CustomGameMode.Standard when Forger.Forges.ContainsKey(playerId) && Main.PlayerStates.TryGetValue(playerId, out var state) && state.IsDead:
+                return string.Empty;
         }
 
         StringBuilder progressText = new();
@@ -1072,7 +1074,8 @@ public static class Utils
             progressText.Append($" <#00ffa5>{totalCompleted}</color><#ffffff>/{GameData.Instance.TotalTasks}</color>");
         }
 
-        if (progressText.Length != 0 && !progressText.ToString().RemoveHtmlTags().StartsWith(' ')) progressText.Insert(0, ' ');
+        if (progressText.Length != 0 && !progressText.ToString().RemoveHtmlTags().StartsWith(' '))
+            progressText.Insert(0, ' ');
 
         return progressText.ToString();
     }
@@ -2345,8 +2348,6 @@ public static class Utils
 
             if (!GameStates.IsLobby)
             {
-                if (AntiBlackout.SkipTasks && seer.IsAlive()) SelfSuffix.AppendLine(GetString("AntiBlackoutSkipTasks"));
-
                 if (!CustomGameMode.Standard.IsActiveOrIntegrated()) goto GameMode0;
 
                 SelfMark.Append(Snitch.GetWarningArrow(seer));

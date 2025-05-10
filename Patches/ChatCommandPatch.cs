@@ -417,9 +417,10 @@ internal static class ChatCommands
 
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
-        Forger.Forges[targetId] = forgeRole;
-
         player.RpcRemoveAbilityUse();
+
+        Forger.Forges[targetId] = forgeRole;
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ForgeSuccess"), (int)Math.Round(player.GetAbilityUseLimit(), 1), targetId.ColoredPlayerName(), forgeRole.ToColoredString()));
     }
 
     private static void ChemistInfoCommand(PlayerControl player, string text, string[] args)
