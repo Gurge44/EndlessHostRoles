@@ -109,6 +109,7 @@ internal static class ChatCommands
 
     public static readonly HashSet<byte> Spectators = [];
     public static readonly HashSet<byte> LastSpectators = [];
+    public static readonly HashSet<byte> ForcedSpectators = [];
 
     private static HashSet<byte> ReadyPlayers = [];
 
@@ -187,7 +188,7 @@ internal static class ChatCommands
             new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true, false),
             new(["dn", "deathnote", "заметкамертвого", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, true, [GetString("CommandArgs.DeathNote.Name")]),
             new(["w", "whisper", "шепот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
-            new(["spectate", "спектейт", "观战", "espectar"], "", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false),
+            new(["spectate", "спектейт", "观战", "espectar"], "[id]", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false, [GetString("CommandArgs.Spectate.Id")]),
             new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true, false),
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
             new(["jt", "jailtalk", "тюремныйразговор", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
@@ -716,6 +717,19 @@ internal static class ChatCommands
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(SpectateCommand), text);
+            return;
+        }
+        
+        if (player.IsHost() && args.Length > 1 && byte.TryParse(args[1], out byte targetId))
+        {
+            PlayerControl pc = targetId.GetPlayer();
+            if (pc == null) return;
+            
+            if (ForcedSpectators.Remove(targetId))
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("SpectateCommand.RemovedForcedSpectator"), targetId.ColoredPlayerName()));
+            
+            if (ForcedSpectators.Add(targetId))
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("SpectateCommand.ForcedSpectator"), targetId.ColoredPlayerName()));
             return;
         }
 

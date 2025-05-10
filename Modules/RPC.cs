@@ -168,6 +168,7 @@ public enum Sounds
 internal static class RPCHandlerPatch
 {
     public static readonly Dictionary<byte, int> ReportDeadBodyRPCs = [];
+    public static readonly Dictionary<byte, int> NumRPCsThisSecond = [];
 
     private static bool TrustedRpc(byte id)
     {
@@ -182,67 +183,58 @@ internal static class RPCHandlerPatch
 
         Logger.Info($"From ID: {__instance?.Data?.PlayerId} ({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}) : {callId} ({RPC.GetRpcName(callId)})", "ReceiveRPC");
 
-        if (callId == 11 && __instance != null)
+        if (__instance != null)
         {
-            if (!ReportDeadBodyRPCs.ContainsKey(__instance.PlayerId)) ReportDeadBodyRPCs.TryAdd(__instance.PlayerId, 0);
+            if (NumRPCsThisSecond.TryAdd(__instance.PlayerId, 0)) LateTask.New(() => NumRPCsThisSecond.Remove(__instance.PlayerId), 1f, log: false);
+            NumRPCsThisSecond[__instance.PlayerId] += rpcType is RpcCalls.CheckMurder or RpcCalls.CheckProtect ? 1 : 2;
 
-            ReportDeadBodyRPCs[__instance.PlayerId]++;
-            Logger.Info($"ReportDeadBody RPC count: {ReportDeadBodyRPCs[__instance.PlayerId]}, from {__instance.Data?.PlayerName}", "EAC");
-        }
+            switch (rpcType)
+            {
+                case RpcCalls.SetName:
+                    subReader.ReadUInt32();
+                    string name = subReader.ReadString();
+                    if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
+                    Logger.Info($"RPC Set Name For Player: {__instance.GetNameWithRole().RemoveHtmlTags()} => {name}", "SetName");
+                    break;
+                case RpcCalls.SetRole:
+                    var role = (RoleTypes)subReader.ReadUInt16();
+                    bool canOverriddenRole = subReader.ReadBoolean();
+                    Logger.Info($"RPC Set Role For Player: {__instance.GetRealName()} => {role} CanOverrideRole: {canOverriddenRole}", "SetRole");
+                    break;
+                case RpcCalls.SendChat:
+                    string text = subReader.ReadString();
+                    Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
+                    ChatCommands.OnReceiveChat(__instance, text, out bool canceled);
+                    if (canceled) return false;
+                    break;
+                case RpcCalls.StartMeeting:
+                    PlayerControl p = Utils.GetPlayerById(subReader.ReadByte());
+                    Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
+                    break;
+                case RpcCalls.Pet:
+                    Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} petted their pet", "RpcHandlerPatch");
+                    break;
+            }
 
-        switch (rpcType)
-        {
-            case RpcCalls.SetName:
-                subReader.ReadUInt32();
-                string name = subReader.ReadString();
-                if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
+            if (!__instance.IsHost() && Enum.IsDefined(typeof(CustomRPC), (int)callId) && !TrustedRpc(callId))
+            {
+                Logger.Warn($"{__instance.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) canceled because it was sent by someone other than the host.", "CustomRPC");
+                if (!AmongUsClient.Instance.AmHost) return false;
 
-                Logger.Info($"RPC Set Name For Player: {__instance.GetNameWithRole().RemoveHtmlTags()} => {name}", "SetName");
-                break;
-            case RpcCalls.SetRole:
-                var role = (RoleTypes)subReader.ReadUInt16();
-                bool canOverriddenRole = subReader.ReadBoolean();
-                Logger.Info($"RPC Set Role For Player: {__instance.GetRealName()} => {role} CanOverrideRole: {canOverriddenRole}", "SetRole");
-                break;
-            case RpcCalls.SendChat:
-                string text = subReader.ReadString();
-                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
-                ChatCommands.OnReceiveChat(__instance, text, out bool canceled);
-                if (canceled) return false;
+                if (!EAC.ReceiveInvalidRpc(__instance, callId)) return false;
 
-                break;
-            case RpcCalls.StartMeeting:
-                PlayerControl p = Utils.GetPlayerById(subReader.ReadByte());
-                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
-                break;
-            case RpcCalls.Pet:
-                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} petted their pet", "RpcHandlerPatch");
-                break;
-            case RpcCalls.SetScanner when Main.HasJustStarted && AmongUsClient.Instance.AmHost:
-                Logger.Fatal($"{__instance.GetNameWithRole().RemoveHtmlTags()} triggered this bs ---- revive was attempted", "RpcHandlerPatch");
-                __instance?.Revive();
+                AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                Logger.Warn($"The RPC received from {__instance.Data?.PlayerName} is not trusted, so they were kicked.", "Kick");
+                Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance.Data?.PlayerName));
                 return false;
-        }
+            }
 
-        if (__instance != null && !__instance.IsHost() && Enum.IsDefined(typeof(CustomRPC), (int)callId) && !TrustedRpc(callId))
-        {
-            Logger.Warn($"{__instance.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) canceled because it was sent by someone other than the host.", "CustomRPC");
-            if (!AmongUsClient.Instance.AmHost) return false;
-
-            if (!EAC.ReceiveInvalidRpc(__instance, callId)) return false;
-
-            AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
-            Logger.Warn($"The RPC received from {__instance.Data?.PlayerName} is not trusted, so they were kicked.", "Kick");
-            Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance.Data?.PlayerName));
-            return false;
-        }
-
-        if (__instance != null && ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out int times) && times > 4)
-        {
-            AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
-            Logger.Warn($"{__instance.Data?.PlayerName} has sent 5 or more ReportDeadBody RPCs in the last 1 second, they were banned for hacking.", "EAC");
-            Logger.SendInGame(string.Format(GetString("Warning.ReportDeadBodyHack"), __instance.Data?.PlayerName));
-            return false;
+            if (NumRPCsThisSecond.TryGetValue(__instance.PlayerId, out int times) && times > (GameStates.IsLobby ? 24 : 40))
+            {
+                AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName));
+                return false;
+            }
         }
 
         return true;

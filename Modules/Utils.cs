@@ -508,7 +508,7 @@ public static class Utils
         {
             foreach (CustomRoles subRole in targetSubRoles)
             {
-                if (subRole is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious and not CustomRoles.Bloodlust and not CustomRoles.Entranced)
+                if (subRole is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious and not CustomRoles.Bloodlust and not CustomRoles.Entranced and not CustomRoles.Egoist)
                 {
                     string str = GetString("Prefix." + subRole);
                     if (!subRole.IsAdditionRole()) str = GetString(subRole.ToString());
@@ -3188,6 +3188,8 @@ public static class Utils
 
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
         EAC.InvalidReports.Clear();
+        
+        CustomNetObject.AfterMeeting();
     }
 
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)
@@ -3532,17 +3534,17 @@ public static class Utils
 
         if (!impShow && !nkShow && !covenShow) return string.Empty;
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (excludeId != byte.MaxValue && pc.PlayerId == excludeId) continue;
 
-            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole))
+            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (ExileController.Instance || !pc.IsAlive() || (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)) && !GameStates.IsEnded)
             {
-                if (impShow && forgedRole.Is(Team.Impostor)) impnum++;
-                else if (nkShow && forgedRole.IsNK()) neutralnum++;
-                else if (covenShow && forgedRole.Is(Team.Coven)) covenNum++;
+                if (impShow && forgedRole.Is(Team.Impostor)) impnum--;
+                else if (nkShow && forgedRole.IsNK()) neutralnum--;
+                else if (covenShow && forgedRole.Is(Team.Coven)) covenNum--;
             }
-            else
+            else if (pc.IsAlive())
             {
                 if (impShow && pc.Is(Team.Impostor)) impnum++;
                 else if (nkShow && pc.IsNeutralKiller()) neutralnum++;

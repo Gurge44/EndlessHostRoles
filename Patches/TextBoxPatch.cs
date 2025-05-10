@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.Data;
 using HarmonyLib;
+using InnerNet;
 using TMPro;
 using UnityEngine;
 
@@ -257,7 +259,13 @@ internal static class TextBoxTMPSetTextPatch
         {
             if (PlaceHolderText != null) PlaceHolderText.enabled = false;
             if (CommandInfoText != null) CommandInfoText.enabled = false;
-            if (AdditionalInfoText != null) AdditionalInfoText.enabled = false;
+            
+            if (AdditionalInfoText != null)
+            {
+                bool showLobbyCode = FastDestroyableSingleton<HudManager>.Instance?.Chat?.IsOpenOrOpening == true && GameStates.IsLobby && Options.GetSuffixMode() == SuffixModes.Streaming && !Options.HideGameSettings.GetBool() && !DataManager.Settings.Gameplay.StreamerMode;
+                AdditionalInfoText.enabled = showLobbyCode;
+                if (showLobbyCode) AdditionalInfoText.text = $"\n\n{Translator.GetString("LobbyCode")}:\n<size=200%>{GameCode.IntToGameName(AmongUsClient.Instance.GameId)}</size>";
+            }
         }
     }
 
@@ -276,7 +284,7 @@ internal static class TextBoxTMPSetTextPatch
     {
         try
         {
-            bool open = HudManager.Instance?.Chat?.IsOpenOrOpening ?? false;
+            bool open = FastDestroyableSingleton<HudManager>.Instance?.Chat?.IsOpenOrOpening ?? false;
             PlaceHolderText?.gameObject.SetActive(open);
             CommandInfoText?.gameObject.SetActive(open);
             AdditionalInfoText?.gameObject.SetActive(open);

@@ -17,7 +17,7 @@ namespace EHR
 {
     public class CustomNetObject
     {
-        public static readonly List<CustomNetObject> AllObjects = [];
+        public static List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
         private readonly HashSet<byte> HiddenList = [];
         protected int Id;
@@ -98,15 +98,6 @@ namespace EHR
             }
             catch (Exception e)
             {
-                if (CustomGameMode.NaturalDisasters.IsActiveOrIntegrated())
-                {
-                    if (HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId)) return;
-
-                    Logger.Warn("Error during despawn, hiding instead", "CNO.Despawn");
-                    Main.AllPlayerControls.Do(Hide);
-                    return;
-                }
-
                 Utils.ThrowException(e);
             }
         }
@@ -334,6 +325,20 @@ namespace EHR
                 AllObjects.Clear();
             }
             catch (Exception e) { Utils.ThrowException(e); }
+        }
+
+        private static List<CustomNetObject> TempDespawnedObjects = [];
+
+        public static void OnMeeting()
+        {
+            TempDespawnedObjects = AllObjects.ToList();
+            Reset();
+        }
+
+        public static void AfterMeeting()
+        {
+            TempDespawnedObjects.ForEach(x => x.CreateNetObject(x.Sprite, x.Position));
+            TempDespawnedObjects.Clear();
         }
     }
 
