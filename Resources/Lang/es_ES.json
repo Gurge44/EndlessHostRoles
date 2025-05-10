@@ -2581,6 +2581,7 @@
   "XORSameRole": "<#ff0000>X</color> XOR combinations must have 2 different roles.",
   "XORAdditionRole": "<#ff0000>X</color> XOR combinations don't support add-ons. Use <#ffff00>/combo</color> for that.",
   "XORAdded": "<#00ffa5>✓</color> XOR combination added successfully.",
+  "ForgeSuccess": "<#00ffa5>✓</color> Successfully forged {1} as {2}.\\n<size=80%>You have {0} ability uses left.</size>",
   "ThankYouForUsingEHR": "¡Gracias por usar EHR!",
   "GMRoles": "<color=#ff5b70>【 ★ Roles ★ 】</color>",
   "ImpostorRoles": "【 ★ Roles de Impostor ★ 】",
