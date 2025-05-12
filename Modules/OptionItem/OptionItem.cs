@@ -269,7 +269,6 @@ public abstract class OptionItem
         CallUpdateValueEvent(beforeValue, afterValue);
         Refresh();
         if (doSync) SyncAllOptions();
-
         if (doSave) OptionSaver.Save();
     }
 
@@ -303,7 +302,8 @@ public abstract class OptionItem
     {
         CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);
 
-        foreach (OptionItem op in AllOptions) op.Refresh();
+        foreach (OptionItem op in AllOptions)
+            op.Refresh();
 
         SyncAllOptions();
     }

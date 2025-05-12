@@ -232,8 +232,6 @@ internal static class OnPlayerLeftPatch
     {
         try
         {
-            if (data != null && data.Character != null) StartGameHostPatch.DataDisconnected[data.Character.PlayerId] = true;
-
             if (GameStates.IsInGame && data != null && data.Character != null)
             {
                 if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);

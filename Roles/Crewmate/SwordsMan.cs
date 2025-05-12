@@ -89,8 +89,8 @@ public class SwordsMan : RoleBase
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        byte SwordsManId = reader.ReadByte();
-        if (!Killed.Contains(SwordsManId)) Killed.Add(SwordsManId);
+        byte swordsManId = reader.ReadByte();
+        if (!Killed.Contains(swordsManId)) Killed.Add(swordsManId);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

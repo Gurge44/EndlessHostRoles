@@ -149,6 +149,12 @@ internal static class CheckMurderPatch
             return false;
         }
 
+        if (!Main.IntroDestroyed)
+        {
+            Logger.Info("CheckMurder while intro is not destroyed, kill canceled", "CheckMurder");
+            return false;
+        }
+
         if (target.Is(CustomRoles.Detour))
         {
             PlayerControl tempTarget = target;
@@ -1540,10 +1546,9 @@ internal static class FixedUpdatePatch
 
             // Ability Use Gain every 5 seconds
 
-            if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out PlayerState state) && state.TaskState.RemainingTasksCount <= 0 && (!LastAddAbilityTime.TryGetValue(playerId, out long ts) || ts + 5 < now))
+            if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out PlayerState state) && state.TaskState.IsTaskFinished && (!LastAddAbilityTime.TryGetValue(playerId, out long ts) || ts + 5 < now))
             {
                 LastAddAbilityTime[playerId] = now;
-
                 AddExtraAbilityUsesOnFinishedTasks(player);
             }
 

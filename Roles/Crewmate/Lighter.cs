@@ -79,12 +79,12 @@ internal class Lighter : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        var ProgressText = new StringBuilder();
+        var progressText = new StringBuilder();
 
-        ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, IsAbilityActive));
-        ProgressText.Append(Utils.GetTaskCount(playerId, comms));
+        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, IsAbilityActive));
+        progressText.Append(Utils.GetTaskCount(playerId, comms));
 
-        return ProgressText.ToString();
+        return progressText.ToString();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

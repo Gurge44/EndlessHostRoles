@@ -71,7 +71,8 @@ internal class Mayor : RoleBase
     {
         if (!MayorHasPortableButton.GetBool()) return;
 
-        if (MayorUsedButtonCount.TryGetValue(pc.PlayerId, out int count) && count < MayorNumOfUseButton.GetInt()) pc.ReportDeadBody(null);
+        if (MayorUsedButtonCount.TryGetValue(pc.PlayerId, out int count) && count < MayorNumOfUseButton.GetInt())
+            pc.ReportDeadBody(null);
     }
 
     public override void SetupCustomOption()

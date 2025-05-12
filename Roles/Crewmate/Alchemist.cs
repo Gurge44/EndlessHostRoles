@@ -261,8 +261,6 @@ public class Alchemist : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (UsePets.GetBool()) return;
-
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }

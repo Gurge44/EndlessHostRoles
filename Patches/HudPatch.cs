@@ -884,11 +884,10 @@ internal static class CoShowIntroPatch
         {
             if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended))
             {
-                StartGameHostPatch.RpcSetDisconnected(false);
-
-                if (!AmongUsClient.Instance.IsGameOver) FastDestroyableSingleton<HudManager>.Instance.SetHudActive(true);
+                if (!AmongUsClient.Instance.IsGameOver)
+                    FastDestroyableSingleton<HudManager>.Instance.SetHudActive(true);
             }
-        }, 0.6f, "Set Disconnected");
+        }, 0.6f, "Set Hud Active");
 
         LateTask.New(() =>
         {

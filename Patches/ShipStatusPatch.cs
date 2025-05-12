@@ -6,7 +6,6 @@ using BepInEx;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
 using EHR.Crewmate;
-using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
@@ -92,7 +91,7 @@ internal static class RepairSystemPatch
                 SabotageMaster.RepairSystem(player.PlayerId, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
-            case CustomRoles.Alchemist when Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
+            case CustomRoles.Alchemist when systemType != SystemTypes.Electrical && Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
                 Alchemist.RepairSystem(player, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
@@ -163,30 +162,7 @@ internal static class RepairSystemPatch
 
                 break;
             }
-            case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
-            {
-                if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
-                if (SecurityGuard.BlockSabo.Count > 0) return false;
-
-                if (player.IsRoleBlocked())
-                {
-                    player.Notify(BlockedAction.Sabotage.GetBlockNotify());
-                    return false;
-                }
-
-                if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
-                if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
-
-                return player.GetCustomRole() switch
-                {
-                    CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
-                    CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
-                    CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
-                    CustomRoles.Parasite when player.IsAlive() => true,
-                    CustomRoles.Refugee when player.IsAlive() => true,
-                    _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
-                };
-            }
+            case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay: { return SabotageSystemTypeRepairDamagePatch.CheckSabotage(null, player, systemType); }
             case SystemTypes.Security when amount == 1:
             {
                 bool camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
@@ -610,7 +586,7 @@ internal static class VentilationSystemDeterioratePatch
             if (player != null && pc != player) continue;
 
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            
+
             if (BlockVentInteraction(pc))
             {
                 writer.StartMessage(6);
@@ -670,7 +646,7 @@ internal static class VentilationSystemDeterioratePatch
                 writer.EndMessage();
                 writer.EndMessage();
             }
-            
+
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
         }

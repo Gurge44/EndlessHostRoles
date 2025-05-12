@@ -324,6 +324,11 @@ public static class SabotageSystemTypeRepairDamagePatch
             newReader.Recycle();
         }
 
+        return CheckSabotage(__instance, player, systemTypes);
+    }
+
+    public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
+    {
         if (Options.DisableSabotage.GetBool())
         {
             switch (systemTypes)
@@ -363,7 +368,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             }
         }
 
-        if (systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
+        if (__instance != null && systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player != null && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
             batteryState.Player.RpcRemoveAbilityUse();
             player.Notify(string.Format(Translator.GetString("BatteryNotify"), CustomRoles.Battery.ToColoredString()), 10f);
@@ -409,7 +414,6 @@ public static class SabotageSystemTypeRepairDamagePatch
 
         return allow;
     }
-
 
     public static void Postfix(SabotageSystemType __instance)
     {

@@ -181,6 +181,9 @@ public class Dad : RoleBase
             opt.SetFloat(FloatOptionNames.CrewLightMod, 1.5f);
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.5f);
         }
+
+        AURoleOptions.EngineerCooldown = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override void OnReportDeadBody()
@@ -200,7 +203,7 @@ public class Dad : RoleBase
                 if (pc == null) continue;
 
                 CustomRoles selfRole = Main.PlayerStates[id].MainRole;
-                CustomRoles rndRole = allRoles.Without(selfRole).RandomElement();
+                CustomRoles rndRole = allRoles.RandomElement();
                 CustomRoles role = IRandom.Instance.Next(100) < chance ? rndRole : selfRole;
                 string msg = string.Format(Translator.GetString("Dad.DrunkRoleNotify"), Translator.GetString(role.ToString()).ToLower());
                 int delay = 10 + IRandom.Instance.Next(12);

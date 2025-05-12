@@ -644,6 +644,8 @@ public static class NumberOptionPatch
 [HarmonyPatch(typeof(StringOption))]
 public static class StringOptionPatch
 {
+    private static long HelpShowEndTS;
+
     [HarmonyPatch(nameof(StringOption.Initialize))]
     [HarmonyPrefix]
     private static bool InitializePrefix(StringOption __instance)
@@ -724,8 +726,16 @@ public static class StringOptionPatch
                     var info = $"{value.ToColoredString()}: {infoLong}";
                     GameSettingMenu.Instance.MenuDescriptionText.text = info;
 
-                    LateTask.New(() =>
+                    long now = Utils.TimeStamp;
+                    bool startCoRoutine = now > HelpShowEndTS;
+                    HelpShowEndTS = now + 15;
+                    if (startCoRoutine) Main.Instance.StartCoroutine(CoRoutine());
+
+                    IEnumerator CoRoutine()
                     {
+                        while (HelpShowEndTS > Utils.TimeStamp)
+                            yield return new WaitForSeconds(1f);
+
                         GameObject gameObject = GameObject.Find("PlayerOptionsMenu(Clone)");
 
                         if (gameObject != null)
@@ -735,7 +745,7 @@ public static class StringOptionPatch
                         }
 
                         GameSettingMenuPatch.GMButtons.ForEach(x => x.gameObject.SetActive(true));
-                    }, 15f, log: false);
+                    }
                 }
             }
         }));
@@ -908,11 +918,24 @@ public static class GameSettingMenuPatch
     private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
     public static Action SearchForOptionsAction;
 
+    private static int NumImpsOnOpen = 1;
+    private static int MinImpsOnOpen = 1;
+    private static int MaxImpsOnOpen = 1;
+
     [HarmonyPatch(nameof(GameSettingMenu.Start))]
     [HarmonyPrefix]
     [HarmonyPriority(Priority.First)]
     public static void StartPostfix(GameSettingMenu __instance)
     {
+        try
+        {
+            (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
+            MinImpsOnOpen = impLimits.MinSetting.GetInt();
+            MaxImpsOnOpen = impLimits.MaxSetting.GetInt();
+            NumImpsOnOpen = Main.NormalOptions.NumImpostors;
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         ModSettingsButtons = [];
         TabGroup[] tabGroups = Enum.GetValues<TabGroup>();
 
@@ -1339,6 +1362,20 @@ public static class GameSettingMenuPatch
     [HarmonyPostfix]
     public static void ClosePostfix()
     {
+        try
+        {
+            int numImpostors = Main.NormalOptions.NumImpostors;
+            (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
+
+            if (numImpostors != NumImpsOnOpen && MinImpsOnOpen == impLimits.MinSetting.GetInt() && MaxImpsOnOpen == impLimits.MaxSetting.GetInt())
+            {
+                impLimits.MinSetting.SetValue(numImpostors);
+                impLimits.MaxSetting.SetValue(numImpostors);
+                Logger.SendInGame(string.Format(Translator.GetString("MinMaxModdedImpCountsSettingsChangedAuto"), numImpostors));
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
         foreach (PassiveButton button in ModSettingsButtons.Values) Object.Destroy(button);
         foreach (GameOptionsMenu tab in ModSettingsTabs.Values) Object.Destroy(tab);
         foreach (GameObject button in GMButtons) Object.Destroy(button);
