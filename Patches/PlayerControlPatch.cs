@@ -1093,6 +1093,8 @@ internal static class ReportDeadBodyPatch
         //=============================================================================================
         //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
         //=============================================================================================
+        
+        CustomNetObject.OnMeeting();
 
         Asthmatic.RunChecks = false;
 

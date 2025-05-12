@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -53,12 +54,12 @@ public static class AntiBlackout
 
             if (Options.CurrentGameMode is CustomGameMode.Speedrun or CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones)
             {
-                sender.RpcSetRole(seer, RoleTypes.Impostor, seer.OwnerId, noRpcForSelf: true);
+                sender.RpcSetRole(seer, RoleTypes.Impostor, seer.OwnerId, noRpcForSelf: false);
 
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {
                     if (target.PlayerId != seer.PlayerId)
-                        sender.RpcSetRole(target, RoleTypes.Crewmate, seer.OwnerId, noRpcForSelf: true);
+                        sender.RpcSetRole(target, RoleTypes.Crewmate, seer.OwnerId, noRpcForSelf: false);
                 }
 
                 hasValue = true;
@@ -72,9 +73,9 @@ public static class AntiBlackout
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {
                     if (seerIsAliveAndHasKillButton)
-                        sender.RpcSetRole(target, target.PlayerId != seer.PlayerId ? RoleTypes.Crewmate : selfRoleType, seer.GetClientId(), noRpcForSelf: true);
+                        sender.RpcSetRole(target, target.PlayerId != seer.PlayerId ? RoleTypes.Crewmate : selfRoleType, seer.GetClientId(), noRpcForSelf: false);
                     else
-                        sender.RpcSetRole(target, target.PlayerId == dummyImp.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, seer.GetClientId(), noRpcForSelf: true);
+                        sender.RpcSetRole(target, target.PlayerId == dummyImp.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, seer.GetClientId(), noRpcForSelf: false);
 
                     hasValue = true;
                     RestartMessageIfTooLong();
@@ -186,9 +187,9 @@ public static class AntiBlackout
     {
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
 
-        var hasValue = false;
-
-        var sender = CustomRpcSender.Create("AntiBlackout.SetRealPlayerRoles", SendOption.Reliable);
+        byte[] keys = Main.AllPlayerControls.Select(x => x.PlayerId).Concat(Main.PlayerStates.Keys).Append(byte.MaxValue).ToArray();
+        Dictionary<byte, CustomRpcSender> senders = keys.ToDictionary(x => x, _ => CustomRpcSender.Create("AntiBlackout.SetRealPlayerRoles", SendOption.Reliable));
+        Dictionary<byte, bool> hasValue = keys.ToDictionary(x => x, _ => false);
 
         List<PlayerControl> selfExiled = [];
 
@@ -230,28 +231,32 @@ public static class AntiBlackout
                         continue;
                     }
 
-                    sender.RpcSetRole(target, changedRoleType, seer.OwnerId, noRpcForSelf: true);
-                    hasValue = true;
-                    RestartMessageIfTooLong();
+                    senders[seer.PlayerId].RpcSetRole(target, changedRoleType, seer.OwnerId, noRpcForSelf: false);
+                    hasValue[seer.PlayerId] = true;
+                    RestartMessageIfTooLong(seer.PlayerId);
                 }
 
                 foreach (PlayerControl pc in selfExiled)
                 {
+                    CustomRpcSender sender = senders[byte.MaxValue];
                     sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.Exiled);
                     sender.EndRpc();
-                    hasValue = true;
+                    hasValue[byte.MaxValue] = true;
 
                     if (!pc.IsModdedClient() && pc.PlayerId == ExileControllerWrapUpPatch.LastExiled?.PlayerId)
                     {
+                        sender = senders[pc.PlayerId];
                         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.MurderPlayer, pc.OwnerId);
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
+                        
+                        hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
                     }
 
-                    RestartMessageIfTooLong();
+                    RestartMessageIfTooLong(byte.MaxValue, pc.PlayerId);
                 }
 
                 break;
@@ -265,25 +270,28 @@ public static class AntiBlackout
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    sender.RpcSetRole(pc, RoleTypes.Crewmate, pc.OwnerId, noRpcForSelf: true);
-                    RestartMessageIfTooLong();
+                    senders[pc.PlayerId].RpcSetRole(pc, RoleTypes.Crewmate, pc.OwnerId, noRpcForSelf: false);
+                    hasValue[pc.PlayerId] = true;
+                    RestartMessageIfTooLong(pc.PlayerId);
 
                     if (pc.IsModdedClient()) continue;
 
                     if (!pc.IsAlive())
                     {
+                        CustomRpcSender sender = senders[pc.PlayerId];
                         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.MurderPlayer, pc.OwnerId);
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
+                        
+                        hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
                     }
 
-                    RestartMessageIfTooLong();
+                    RestartMessageIfTooLong(pc.PlayerId);
                 }
 
-                hasValue = true;
                 break;
             }
             case CustomGameMode.FFA:
@@ -291,13 +299,19 @@ public static class AntiBlackout
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.KingOfTheZones:
             {
-                sender.RpcSetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate, noRpcForSelf: true);
-                RestartMessageIfTooLong();
+                senders[byte.MaxValue].RpcSetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate, noRpcForSelf: false);
+                hasValue[byte.MaxValue] = true;
+                RestartMessageIfTooLong(byte.MaxValue);
 
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
+                    CustomRpcSender sender = senders[pc.PlayerId];
+                    
                     if (pc.IsAlive())
-                        sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId, noRpcForSelf: true);
+                    {
+                        sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId, noRpcForSelf: false);
+                        hasValue[pc.PlayerId] = true;
+                    }
                     else
                     {
                         if (pc.IsModdedClient()) continue;
@@ -305,37 +319,45 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
+                        
+                        hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
                     }
 
-                    RestartMessageIfTooLong();
+                    RestartMessageIfTooLong(pc.PlayerId);
                 }
 
-                hasValue = true;
                 break;
             }
         }
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            hasValue |= sender.RpcResetAbilityCooldown(pc);
-            hasValue |= sender.SetKillCooldown(pc);
-            RestartMessageIfTooLong();
+            CustomRpcSender sender = senders[pc.PlayerId];
+            hasValue[pc.PlayerId] |= sender.RpcResetAbilityCooldown(pc);
+            hasValue[pc.PlayerId] |= sender.SetKillCooldown(pc);
+            RestartMessageIfTooLong(pc.PlayerId);
         }
 
-        sender.SendMessage(!hasValue);
+        senders.Do(x => x.Value.SendMessage(dispose: !hasValue[x.Key]));
 
         return;
 
-        void RestartMessageIfTooLong()
+        void RestartMessageIfTooLong(params List<byte> ids)
         {
-            if (sender.stream.Length > 800)
+            foreach (var kvp in senders)
             {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("AntiBlackout.SetRealPlayerRoles", SendOption.Reliable);
-                hasValue = false;
+                if (!ids.Contains(kvp.Key)) continue;
+                
+                if (kvp.Value.stream.Length > 800)
+                {
+                    kvp.Value.SendMessage();
+                    hasValue[kvp.Key] = false;
+                }
             }
+
+            ids.ForEach(x => senders[x] = CustomRpcSender.Create("AntiBlackout.SetRealPlayerRoles", SendOption.Reliable));
         }
     }
 

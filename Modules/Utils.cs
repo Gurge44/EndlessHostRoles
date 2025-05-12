@@ -508,7 +508,7 @@ public static class Utils
         {
             foreach (CustomRoles subRole in targetSubRoles)
             {
-                if (subRole is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious and not CustomRoles.Bloodlust and not CustomRoles.Entranced)
+                if (subRole is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious and not CustomRoles.Bloodlust and not CustomRoles.Entranced and not CustomRoles.Egoist)
                 {
                     string str = GetString("Prefix." + subRole);
                     if (!subRole.IsAdditionRole()) str = GetString(subRole.ToString());
@@ -1061,7 +1061,9 @@ public static class Utils
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.MoveAndStop: return GetTaskCount(playerId, comms, AmongUsClient.Instance.AmHost);
-            case CustomGameMode.Speedrun: return string.Empty;
+            case CustomGameMode.Speedrun:
+            case CustomGameMode.Standard when Forger.Forges.ContainsKey(playerId) && Main.PlayerStates.TryGetValue(playerId, out var state) && state.IsDead:
+                return string.Empty;
         }
 
         StringBuilder progressText = new();
@@ -1080,7 +1082,8 @@ public static class Utils
             progressText.Append($" <#00ffa5>{totalCompleted}</color><#ffffff>/{GameData.Instance.TotalTasks}</color>");
         }
 
-        if (progressText.Length != 0 && !progressText.ToString().RemoveHtmlTags().StartsWith(' ')) progressText.Insert(0, ' ');
+        if (progressText.Length != 0 && !progressText.ToString().RemoveHtmlTags().StartsWith(' '))
+            progressText.Insert(0, ' ');
 
         return progressText.ToString();
     }
@@ -2353,8 +2356,6 @@ public static class Utils
 
             if (!GameStates.IsLobby)
             {
-                if (AntiBlackout.SkipTasks && seer.IsAlive()) SelfSuffix.AppendLine(GetString("AntiBlackoutSkipTasks"));
-
                 if (!CustomGameMode.Standard.IsActiveOrIntegrated()) goto GameMode0;
 
                 SelfMark.Append(Snitch.GetWarningArrow(seer));
@@ -3187,6 +3188,8 @@ public static class Utils
 
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
         EAC.InvalidReports.Clear();
+        
+        CustomNetObject.AfterMeeting();
     }
 
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)
@@ -3531,17 +3534,17 @@ public static class Utils
 
         if (!impShow && !nkShow && !covenShow) return string.Empty;
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (excludeId != byte.MaxValue && pc.PlayerId == excludeId) continue;
 
-            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole))
+            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (ExileController.Instance || !pc.IsAlive() || (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)) && !GameStates.IsEnded)
             {
-                if (impShow && forgedRole.Is(Team.Impostor)) impnum++;
-                else if (nkShow && forgedRole.IsNK()) neutralnum++;
-                else if (covenShow && forgedRole.Is(Team.Coven)) covenNum++;
+                if (impShow && forgedRole.Is(Team.Impostor)) impnum--;
+                else if (nkShow && forgedRole.IsNK()) neutralnum--;
+                else if (covenShow && forgedRole.Is(Team.Coven)) covenNum--;
             }
-            else
+            else if (pc.IsAlive())
             {
                 if (impShow && pc.Is(Team.Impostor)) impnum++;
                 else if (nkShow && pc.IsNeutralKiller()) neutralnum++;

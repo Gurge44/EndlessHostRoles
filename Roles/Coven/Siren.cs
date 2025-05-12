@@ -10,20 +10,20 @@ public class Siren : Coven
     public static bool On;
     private static List<Siren> Instances = [];
 
-    public static OptionItem AbilityCooldown;
-    public static OptionItem SingRange;
-    public static OptionItem Stage1EffectsLength;
-    public static OptionItem Stage2EffectsLength;
-    public static OptionItem ReducedVision;
-    public static OptionItem ReducedSpeed;
+    private static OptionItem AbilityCooldown;
+    private static OptionItem SingRange;
+    private static OptionItem Stage1EffectsLength;
+    private static OptionItem Stage2EffectsLength;
+    private static OptionItem ReducedVision;
+    private static OptionItem ReducedSpeed;
     public static OptionItem EntrancedCanKillCoven;
     public static OptionItem CovenKnowEntranced;
     public static OptionItem EntrancedKnowEntranced;
     public static OptionItem CovenCanKillEntranced;
     public static OptionItem EntrancedCountMode;
     public static OptionItem EntrancedKnowCoven;
-    public static OptionItem CanVentBeforeNecronomicon;
-    public static OptionItem CanVentAfterNecronomicon;
+    private static OptionItem CanVentBeforeNecronomicon;
+    private static OptionItem CanVentAfterNecronomicon;
 
     private static readonly string[] CovenKnowEntrancedOptions =
     [

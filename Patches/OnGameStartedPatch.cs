@@ -247,6 +247,8 @@ internal static class ChangeRoleSettings
 
             Options.UsedButtonCount = 0;
 
+            ChatCommands.Spectators.UnionWith(ChatCommands.ForcedSpectators);
+            ChatCommands.ForcedSpectators.Clear();
             ChatCommands.LastSpectators.Clear();
             ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 

@@ -96,7 +96,7 @@ public static class PhantomRolePatch
 
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
-            if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole()) continue;
+            if (!target.IsAlive() || phantom.PlayerId == target.PlayerId || target.AmOwner || !target.HasDesyncRole()) continue;
 
             int clientId = target.GetClientId();
 
@@ -107,10 +107,7 @@ public static class PhantomRolePatch
             }
             else
             {
-                writer.AutoStartRpc(phantom.NetId, (byte)RpcCalls.SetRole, clientId);
-                writer.Write((ushort)RoleTypes.Phantom);
-                writer.Write(true);
-                writer.EndRpc();
+                writer.RpcSetRole(phantom, RoleTypes.Phantom, clientId);
 
                 writer.AutoStartRpc(phantom.NetId, (byte)RpcCalls.CheckVanish, clientId);
                 writer.Write(0); // not used, lol
@@ -129,7 +126,7 @@ public static class PhantomRolePatch
 
             foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                if (GameStates.IsMeeting || phantom == null) return;
+                if (GameStates.IsMeeting || phantom == null || target.PlayerId == phantom.PlayerId) return;
 
                 int clientId = target.GetClientId();
                 string petId = phantom.Data.DefaultOutfit.PetId;
@@ -198,7 +195,7 @@ public static class PhantomRolePatch
 
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
-            if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole()) continue;
+            if (!target.IsAlive() || phantom.PlayerId == target.PlayerId || target.AmOwner || !target.HasDesyncRole()) continue;
             sender.RpcSetRole(phantom, RoleTypes.Phantom, target.GetClientId());
             hasValue = true;
         }
@@ -238,16 +235,16 @@ public static class PhantomRolePatch
 
             foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                if (GameStates.IsMeeting || phantom == null) return;
+                if (GameStates.IsMeeting || phantom == null || target.PlayerId == phantom.PlayerId) return;
+
+                int clientId = target.GetClientId();
 
                 InvisibilityList.Remove(phantom);
-                sender.RpcSetRole(phantom, RoleTypes.Scientist, target.GetClientId());
+                sender.RpcSetRole(phantom, RoleTypes.Scientist, clientId);
                 hasValue = true;
 
                 if (PetsList.TryGetValue(phantom.PlayerId, out string petId))
                 {
-                    int clientId = target.GetClientId();
-
                     if (clientId != -1)
                     {
                         if (AmongUsClient.Instance.ClientId == clientId)

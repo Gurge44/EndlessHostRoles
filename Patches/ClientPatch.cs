@@ -283,9 +283,8 @@ public static class InnerNetClientPatch
                             {
                                 if (playerinfo.IsIncomplete)
                                 {
-                                    Logger.Info($"Disconnecting Client [{client.Id}]{client.PlayerName} {client.FriendCode} for playerinfo timeout", "DelayedNetworkedData");
-                                    AmongUsClient.Instance.SendLateRejection(client.Id, DisconnectReasons.ClientTimeout);
-                                    __instance.OnPlayerLeft(client, DisconnectReasons.ClientTimeout);
+                                    Logger.Warn($"Disconnecting Client [{client.Id}]{client.PlayerName} {client.FriendCode} for playerinfo timeout", "DelayedNetworkedData");
+                                    AmongUsClient.Instance.KickPlayer(client.Id, false);
                                 }
                             }
                         }
@@ -304,8 +303,7 @@ public static class InnerNetClientPatch
                                 if (player.Data == null || player.Data.IsIncomplete)
                                 {
                                     Logger.Info($"Disconnecting Client [{client.Id}]{client.PlayerName} {client.FriendCode} for playercontrol timeout", "DelayedNetworkedData");
-                                    AmongUsClient.Instance.SendLateRejection(client.Id, DisconnectReasons.ClientTimeout);
-                                    __instance.OnPlayerLeft(client, DisconnectReasons.ClientTimeout);
+                                    AmongUsClient.Instance.KickPlayer(client.Id, false);
                                 }
                             }
                         }

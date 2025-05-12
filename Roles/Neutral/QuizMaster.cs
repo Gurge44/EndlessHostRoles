@@ -257,7 +257,7 @@ internal class QuizMaster : RoleBase
             11 => (GetTwoRandomNumbers(Data.NumPlayersDeadFirstRound, Math.Max(Data.NumPlayersDeadFirstRound - 3, 0), Data.NumPlayersDeadFirstRound + 3), Data.NumPlayersDeadFirstRound.ToString()),
             12 => (GetTwoRandomNumbers(Data.NumSabotages, Math.Max(Data.NumSabotages - 3, 0), Data.NumSabotages + 3), Data.NumSabotages.ToString()),
             13 => (GetTwoRandomNumbers(GameData.Instance.CompletedTasks, 0, GameData.Instance.TotalTasks), GameData.Instance.CompletedTasks.ToString()),
-            14 => (Enum.GetValues<RoleTypes>().Where(x => x != randomRole.GetRoleTypes()).Shuffle().Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetRoleTypes()}")),
+            14 => (Enum.GetValues<RoleTypes>().Without(RoleTypes.CrewmateGhost).Without(RoleTypes.ImpostorGhost).Where(x => x != randomRole.GetRoleTypes()).Shuffle().Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetRoleTypes()}")),
 
             _ => ([], string.Empty)
         };
