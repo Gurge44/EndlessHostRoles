@@ -193,7 +193,6 @@ public class Wyrd : Coven
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine();
         if (Countdown <= 0) sb.Append("<#ff0000>");
         sb.AppendLine(string.Format(Translator.GetString("Wyrd.Suffix.FateCountdown"), Countdown));
 
@@ -209,6 +208,6 @@ public class Wyrd : Coven
             }
         }
 
-        return sb.ToString().TrimEnd();
+        return sb.ToString().Trim();
     }
 }

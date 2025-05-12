@@ -1142,7 +1142,7 @@ internal static class StartGameHostPatch
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static void AssignLoversRoles(int RawCount = -1)
+    private static void AssignLoversRoles(int rawCount = -1)
     {
         try
         {
@@ -1154,8 +1154,8 @@ internal static class StartGameHostPatch
 
             List<PlayerControl> allPlayers = Main.AllPlayerControls.Where(pc => (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> bannedCombos) || bannedCombos.All(x => !pc.Is(x.Key) || !x.Value.Contains(CustomRoles.Lovers))) && !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Provocateur) && !pc.Is(CustomRoles.Altruist) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.Is(CustomRoleTypes.Coven) || Lovers.CovenCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
             const CustomRoles role = CustomRoles.Lovers;
-            int count = Math.Clamp(RawCount, 0, allPlayers.Count);
-            if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
+            int count = Math.Clamp(rawCount, 0, allPlayers.Count);
+            if (rawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
 
             if (count <= 0) return;
 
