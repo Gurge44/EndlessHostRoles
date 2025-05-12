@@ -230,7 +230,7 @@ public class Main : BasePlugin
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || (pc.Data.Disconnected && (CoShowIntroPatch.IntroStarted || IntroDestroyed || GameStates.IsLobby)) || Pelican.IsEaten(pc.PlayerId)) continue;
 
                 result[i++] = pc;
             }
