@@ -127,4 +127,9 @@ public class Hypnotist : RoleBase
         var timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
         return timeLeft <= 5 ? $"\u25a9 ({timeLeft})" : "\u25a9";
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("HypnotistButtonText"));
+    }
 }

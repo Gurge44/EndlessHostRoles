@@ -276,4 +276,10 @@ internal class Commander : RoleBase
         DontSabotage,
         UseAbility
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.ImpostorVentButton?.OverrideText(Translator.GetString("CommanderVentButtonText"));
+        hud.AbilityButton?.OverrideText(Translator.GetString("CommanderAbilityButtonText"));
+    }
 }
