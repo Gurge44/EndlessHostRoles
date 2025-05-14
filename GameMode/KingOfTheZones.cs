@@ -15,6 +15,8 @@ namespace EHR;
 
 public static class KingOfTheZones
 {
+    private static OptionItem AutoSetNumTeams;
+    private static OptionItem PreferNumTeams;
     private static OptionItem NumTeams;
     private static OptionItem NumZones;
     private static OptionItem ZonesMove;
@@ -28,6 +30,8 @@ public static class KingOfTheZones
     private static OptionItem GameEndsByTimeLimit;
     private static OptionItem MaxGameLength;
     private static OptionItem SpawnProtectionTime;
+
+    private static readonly string[] PreferNumTeamsOptions = ["KOTZ.PNTO.Less", "KOTZ.PNTO.More"];
 
     public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
@@ -99,6 +103,16 @@ public static class KingOfTheZones
         var id = 69_219_001;
         Color color = ColorUtility.TryParseHtmlString("#ff0000", out Color c) ? c : Color.red;
         const CustomGameMode gameMode = CustomGameMode.KingOfTheZones;
+
+        AutoSetNumTeams = new BooleanOptionItem(id++, "KingOfTheZones.AutoSetNumTeams", true, TabGroup.GameSettings)
+            .SetHeader(true)
+            .SetGameMode(gameMode)
+            .SetColor(color);
+
+        PreferNumTeams = new StringOptionItem(id++, "KingOfTheZones.PreferNumTeams", PreferNumTeamsOptions, 1, TabGroup.GameSettings)
+            .SetParent(AutoSetNumTeams)
+            .SetGameMode(gameMode)
+            .SetColor(color);
 
         NumTeams = new IntegerOptionItem(id++, "KingOfTheZones.NumTeams", new(2, 7, 1), 2, TabGroup.GameSettings)
             .SetHeader(true)
@@ -238,6 +252,20 @@ public static class KingOfTheZones
         List<byte> ids = Main.PlayerStates.Keys.Shuffle();
         if (Main.GM.Value) ids.Remove(0);
         ids.RemoveAll(ChatCommands.Spectators.Contains);
+
+        int numPlayers = ids.Count;
+
+        if (AutoSetNumTeams.GetBool() && numPlayers % NumTeams.GetInt() != 0 && (numPlayers <= 1 || Enumerable.Range(2, (int)Math.Sqrt(numPlayers) - 1).Any(x => numPlayers % x == 0)))
+        {
+            List<int> divisors = Enumerable.Range(2, 6).Where(x => numPlayers % x == 0).ToList();
+
+            if (divisors.Count > 0)
+            {
+                int selectedTeamCount = PreferNumTeams.GetValue() == 0 ? divisors.Min() : divisors.Max();
+                NumTeams.SetValue(selectedTeamCount - 2);
+                Logger.Msg($"Auto set teams to {selectedTeamCount}", "KOTZ");
+            }
+        }
 
         PlayerTeams = ids
             .Partition(NumTeams.GetInt())

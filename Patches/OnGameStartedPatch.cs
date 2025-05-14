@@ -1000,8 +1000,9 @@ internal static class StartGameHostPatch
 
         foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
         {
-            playerInfo.Disconnected = false;
-            playerInfo.MarkDirty();
+            bool disconnected = Main.PlayerStates.TryGetValue(playerInfo.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
+            playerInfo.Disconnected = disconnected;
+            if (!disconnected) playerInfo.MarkDirty();
         }
 
         yield return new WaitForSeconds(6.8f);

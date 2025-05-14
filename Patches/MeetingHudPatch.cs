@@ -1133,7 +1133,8 @@ internal static class MeetingHudUpdatePatch
 
             if (!GameStates.IsVoting && __instance.lastSecond < 1)
             {
-                if (GameObject.Find("ShootButton") != null) ClearShootButton(__instance, true);
+                if (GameObject.Find("ShootButton") != null)
+                    ClearShootButton(__instance, true);
 
                 return;
             }
@@ -1211,27 +1212,28 @@ internal static class MeetingHudCastVotePatch
 
     public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
     {
-        PlayerVoteArea pva_src = null;
-        PlayerVoteArea pva_target = null;
-        var isSkip = false;
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        PlayerVoteArea pvaSrc = null;
+        PlayerVoteArea pvaTarget = null;
+        var skip = false;
 
         foreach (PlayerVoteArea t in __instance.playerStates)
         {
-            if (t.TargetPlayerId == srcPlayerId) pva_src = t;
-
-            if (t.TargetPlayerId == suspectPlayerId) pva_target = t;
+            if (t.TargetPlayerId == srcPlayerId) pvaSrc = t;
+            if (t.TargetPlayerId == suspectPlayerId) pvaTarget = t;
         }
 
-        if (pva_src == null)
+        if (pvaSrc == null)
         {
             Logger.Error("Src PlayerVoteArea not found", "MeetingHudCastVotePatch.Prefix");
             return true;
         }
 
-        if (pva_target == null)
+        if (pvaTarget == null)
         {
             //Logger.Warn("Target PlayerVoteArea not found ⇒ Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
-            isSkip = true;
+            skip = true;
         }
 
         PlayerControl pc_src = Utils.GetPlayerById(srcPlayerId);
@@ -1246,36 +1248,32 @@ internal static class MeetingHudCastVotePatch
         if (pc_target == null)
         {
             //Logger.Warn("Target PlayerControl is null ⇒ Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
-            isSkip = true;
+            skip = true;
         }
 
         var voteCanceled = false;
 
-        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !isSkip && pc_src.GetCustomRole().CancelsVote() && Main.PlayerStates[srcPlayerId].Role.OnVote(pc_src, pc_target))
+        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pc_src.GetCustomRole().CancelsVote() && Main.PlayerStates[srcPlayerId].Role.OnVote(pc_src, pc_target))
         {
-            ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pva_src, pc_src));
+            ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pvaSrc, pc_src));
             voteCanceled = true;
         }
 
-        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
+        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(skip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
 
-        return isSkip || !voteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
+        return skip || !voteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
     }
 
     public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)
     {
         if (!ShouldCancelVoteList.TryGetValue(srcPlayerId, out (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC) info)) return;
 
-        MeetingHud __instance = info.MeetingHud;
-        PlayerVoteArea pva_src = info.SourcePVA;
-        PlayerControl pc_src = info.SourcePC;
-
-        try { pva_src.UnsetVote(); }
+        try { info.SourcePVA.UnsetVote(); }
         catch { }
 
-        __instance.RpcClearVote(pc_src.GetClientId());
+        info.MeetingHud.RpcClearVote(info.SourcePC.GetClientId());
 
-        pva_src.VotedFor = byte.MaxValue;
+        info.SourcePVA.VotedFor = byte.MaxValue;
 
         ShouldCancelVoteList.Remove(srcPlayerId);
     }

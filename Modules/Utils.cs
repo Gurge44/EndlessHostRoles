@@ -3567,15 +3567,15 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            if (excludeId != byte.MaxValue && pc.PlayerId == excludeId) continue;
+            bool exclude = excludeId != byte.MaxValue && pc.PlayerId == excludeId;
 
-            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (ExileController.Instance || !pc.IsAlive() || (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)) && !GameStates.IsEnded)
+            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (exclude || ExileController.Instance || !pc.IsAlive() || (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)) && !GameStates.IsEnded)
             {
                 if (impShow && forgedRole.Is(Team.Impostor)) impnum--;
                 else if (nkShow && forgedRole.IsNK()) neutralnum--;
                 else if (covenShow && forgedRole.Is(Team.Coven)) covenNum--;
             }
-            else if (pc.IsAlive())
+            else if (pc.IsAlive() && !exclude)
             {
                 if (impShow && pc.Is(Team.Impostor)) impnum++;
                 else if (nkShow && pc.IsNeutralKiller()) neutralnum++;

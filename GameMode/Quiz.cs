@@ -120,11 +120,11 @@ public static class Quiz
                 .SetColor(color)
                 .SetGameMode(gameMode);
 
-            var correctRequirement = new IntegerOptionItem(id++, $"Quiz.Settings.CorrectRequirement.{difficulty}", new(1, 50, 1), 4 - (int)difficulty, TabGroup.GameSettings)
+            var correctRequirement = new IntegerOptionItem(id++, $"Quiz.Settings.CorrectRequirement.{difficulty}", new(1, 50, 1), 3, TabGroup.GameSettings)
                 .SetColor(color)
                 .SetGameMode(gameMode);
 
-            var timeLimit = new IntegerOptionItem(id++, $"Quiz.Settings.TimeLimit.{difficulty}", new(5, 120, 1), 10 + 5 * (int)difficulty, TabGroup.GameSettings)
+            var timeLimit = new IntegerOptionItem(id++, $"Quiz.Settings.TimeLimit.{difficulty}", new(5, 120, 1), 15, TabGroup.GameSettings)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color)
                 .SetGameMode(gameMode);
@@ -211,7 +211,7 @@ public static class Quiz
 
                 if (seer.IsAlive()) str += "\n\n" + string.Format(Utils.ColorString(failed ? Color.red : Color.green, GetString("Quiz.Notify.CorrectAnswerNum")), gotCorrect, QuestionsAsked, requiredCorrect);
 
-                str += "\n" + NumCorrectAnswers.Count(x => x.Value[CurrentDifficulty][Round] < requiredCorrect) switch
+                str += "\n" + NumCorrectAnswers.Count(x => x.Value[CurrentDifficulty][Round] < requiredCorrect && Main.PlayerStates.TryGetValue(x.Key, out var s) && !s.IsDead) switch
                 {
                     0 => GetString("Quiz.Notify.AllCorrect"),
                     var x when x == numPlayers => GetString("Quiz.Notify.AllDie"),
@@ -415,7 +415,7 @@ public static class Quiz
         yield return new WaitForSeconds(2f);
 
         var correctRequirement = settings.CorrectRequirement.GetInt();
-        List<byte> dyingPlayers = NumCorrectAnswers.Where(x => x.Value[CurrentDifficulty][Round] < correctRequirement).Select(x => x.Key).ToList();
+        List<byte> dyingPlayers = NumCorrectAnswers.Where(x => x.Value[CurrentDifficulty][Round] < correctRequirement).Select(x => x.Key).Where(x => Main.PlayerStates.TryGetValue(x, out var s) && !s.IsDead).ToList();
         Logger.Info($"Round {Round + 1} of {CurrentDifficulty} difficulty ended. Dying players: {dyingPlayers.Count} | {string.Join(", ", dyingPlayers.Select(x => Main.AllPlayerNames[x]))}", "Quiz");
 
         Round++;

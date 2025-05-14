@@ -255,6 +255,9 @@ internal static class ChatCommands
     public static bool Prefix(ChatController __instance)
     {
         if (__instance.quickChatField.visible) return true;
+
+        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty);
+
         if (__instance.freeChatField.textArea.text == string.Empty) return false;
         __instance.timeSinceLastMessage = 3f;
 
@@ -719,15 +722,15 @@ internal static class ChatCommands
             RequestCommandProcessingFromHost(nameof(SpectateCommand), text);
             return;
         }
-        
+
         if (player.IsHost() && args.Length > 1 && byte.TryParse(args[1], out byte targetId))
         {
             PlayerControl pc = targetId.GetPlayer();
             if (pc == null) return;
-            
+
             if (ForcedSpectators.Remove(targetId))
                 Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("SpectateCommand.RemovedForcedSpectator"), targetId.ColoredPlayerName()));
-            
+
             if (ForcedSpectators.Add(targetId))
                 Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("SpectateCommand.ForcedSpectator"), targetId.ColoredPlayerName()));
             return;
@@ -2234,7 +2237,11 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt()) return;
+        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt())
+        {
+            Utils.SendMessage(GetString("Message.CommandUnavailable"), player.PlayerId, sendOption: SendOption.None);
+            return;
+        }
 
         Utils.SendMessage("\n", player.PlayerId, Utils.GetGameStateData());
     }

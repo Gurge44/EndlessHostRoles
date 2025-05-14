@@ -142,25 +142,31 @@ internal class Necromancer : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !IsEnable || NecromancerPC.IsAlive() || !Deathknight.DeathknightPC.IsAlive()) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !IsEnable) return;
 
-        Deathknight.DeathknightPC.RpcSetCustomRole(CustomRoles.Necromancer);
-        Add(Deathknight.DeathknightId);
+        if (!NecromancerPC.IsAlive() && Deathknight.DeathknightPC.IsAlive())
+        {
+            Deathknight.DeathknightPC.RpcSetCustomRole(CustomRoles.Necromancer);
+            Add(Deathknight.DeathknightId);
 
-        Deathknight.DeathknightPC = null;
-        Deathknight.DeathknightId = byte.MaxValue;
+            Deathknight.DeathknightPC = null;
+            Deathknight.DeathknightId = byte.MaxValue;
+            return;
+        }
+
+        if (!CustomRoles.Deathknight.RoleExist() && (Deathknight.DeathknightId != byte.MaxValue || Deathknight.DeathknightPC != null))
+        {
+            Deathknight.DeathknightPC = null;
+            Deathknight.DeathknightId = byte.MaxValue;
+        }
     }
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (base.KnowRole(player, target)) return true;
-
         if (player.Is(CustomRoles.Undead) && (target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight))) return true;
-
         if (KnowTargetRole.GetBool() && (player.Is(CustomRoles.Necromancer) || player.Is(CustomRoles.Deathknight)) && target.Is(CustomRoles.Undead)) return true;
-
         if (player.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Necromancer)) return true;
-
         return player.Is(CustomRoles.Necromancer) && target.Is(CustomRoles.Deathknight);
     }
 
