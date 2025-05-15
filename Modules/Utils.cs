@@ -3015,6 +3015,25 @@ public static class Utils
             if (Romantic.PartnerId == pc.PlayerId) nums[Options.GameStateInfo.RomanticState] *= 4;
         }
 
+        foreach ((byte id, CustomRoles role) in Forger.Forges)
+        {
+            if (!Main.PlayerStates.TryGetValue(id, out var state) || state.IsDead)
+            {
+                if (role.IsMadmate())
+                    nums[Options.GameStateInfo.MadmateCount]--;
+                else if (role.IsNK())
+                    nums[Options.GameStateInfo.NKCount]--;
+                else if (role.IsCrewmate())
+                    nums[Options.GameStateInfo.CrewCount]--;
+                else if (role.Is(Team.Impostor))
+                    nums[Options.GameStateInfo.ImpCount]--;
+                else if (role.Is(Team.Neutral))
+                    nums[Options.GameStateInfo.NNKCount]--;
+                else if (role.Is(Team.Coven))
+                    nums[Options.GameStateInfo.CovenCount]--;
+            }
+        }
+
         // All possible results of RomanticState from the above code:
         // 0: Romantic doesn't exist
         // 1: Romantic exists but hasn't picked a partner (and is dead)
