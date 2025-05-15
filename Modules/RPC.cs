@@ -86,6 +86,9 @@ public enum CustomRPC
     SyncMafiosoPistolCD,
     SyncDamoclesTimer,
     SyncChronomancer,
+
+    Sicko = 164,
+
     PenguinSync,
     SyncPlagueDoctor,
     SetAlchemistPotion,
