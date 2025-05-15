@@ -3569,7 +3569,7 @@ public static class Utils
         {
             bool exclude = excludeId != byte.MaxValue && pc.PlayerId == excludeId;
 
-            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (exclude || ExileController.Instance || !pc.IsAlive() || (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)) && !GameStates.IsEnded)
+            if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (exclude || ExileController.Instance || !pc.IsAlive()))
             {
                 if (impShow && forgedRole.Is(Team.Impostor)) impnum--;
                 else if (nkShow && forgedRole.IsNK()) neutralnum--;
