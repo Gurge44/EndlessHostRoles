@@ -962,6 +962,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Quiz:
                     GameEndChecker.SetPredicateToQuiz();
                     break;
+                case CustomGameMode.TheMindGame:
+                    GameEndChecker.SetPredicateToTheMindGame();
+                    break;
                 case CustomGameMode.AllInOne:
                     GameEndChecker.SetPredicateToAllInOne();
                     break;

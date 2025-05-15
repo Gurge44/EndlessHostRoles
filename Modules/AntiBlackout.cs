@@ -250,7 +250,7 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
-                        
+
                         hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
@@ -266,6 +266,7 @@ public static class AntiBlackout
             case CustomGameMode.HotPotato:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.RoomRush:
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -283,7 +284,7 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
-                        
+
                         hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
@@ -306,7 +307,7 @@ public static class AntiBlackout
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     CustomRpcSender sender = senders[pc.PlayerId];
-                    
+
                     if (pc.IsAlive())
                     {
                         sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId, noRpcForSelf: false);
@@ -319,7 +320,7 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
-                        
+
                         hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
@@ -349,7 +350,7 @@ public static class AntiBlackout
             foreach (var kvp in senders)
             {
                 if (!ids.Contains(kvp.Key)) continue;
-                
+
                 if (kvp.Value.stream.Length > 800)
                 {
                     kvp.Value.SendMessage();

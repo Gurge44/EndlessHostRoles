@@ -434,6 +434,9 @@ public enum CustomRoles
     // Quiz
     QuizPlayer,
 
+    // The Mind Game
+    TMGPlayer,
+
     // GM
     GM,
 

@@ -466,6 +466,7 @@ internal static class SetHudActivePatch
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.NaturalDisasters:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -840,6 +841,13 @@ internal static class TaskPanelBehaviourPatch
 
                     finalText += "\r\n\r\n\r\n<size=70%>";
                     finalText += Quiz.GetTaskBarText();
+                    finalText += "</size>";
+                    break;
+
+                case CustomGameMode.TheMindGame when AmongUsClient.Instance.AmHost:
+
+                    finalText += "\r\n\r\n\r\n<size=70%>";
+                    finalText += TheMindGame.GetTaskBarText();
                     finalText += "</size>";
                     break;
             }

@@ -1127,6 +1127,7 @@ public static class GameSettingMenuPatch
             [CustomGameMode.RoomRush] = Team.Neutral.GetColor(),
             [CustomGameMode.KingOfTheZones] = Color.red,
             [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
+            [CustomGameMode.TheMindGame] = Color.yellow,
             [CustomGameMode.AllInOne] = ColorUtility.TryParseHtmlString("#f542ad", out c) ? c : Color.white
         };
 

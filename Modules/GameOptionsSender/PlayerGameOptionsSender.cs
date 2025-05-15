@@ -196,6 +196,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.HideAndSeek:
                     CustomHnS.ApplyGameOptions(opt, player);
                     break;
+                case CustomGameMode.TheMindGame:
+                    try { AURoleOptions.PhantomCooldown = 0.1f; }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
+                    goto case CustomGameMode.RoomRush;
             }
 
             switch (player.GetCustomRoleTypes())

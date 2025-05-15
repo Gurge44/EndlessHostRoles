@@ -244,6 +244,7 @@ internal static class CheckMurderPatch
                 if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && lastHolderID != target.PlayerId)
                     HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                 return false;
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
@@ -1843,6 +1844,9 @@ internal static class FixedUpdatePatch
                     case CustomGameMode.Quiz when self:
                         additionalSuffixes.Add(Quiz.GetSuffix(seer));
                         break;
+                    case CustomGameMode.TheMindGame:
+                        additionalSuffixes.Add(TheMindGame.GetSuffix(seer, target));
+                        break;
                     case CustomGameMode.AllInOne:
                         if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) additionalSuffixes.Add(SoloPVP.GetDisplayHealth(target, self));
                         if (self && alive && CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) additionalSuffixes.Add("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
@@ -2098,6 +2102,7 @@ internal static class CoEnterVentPatch
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.KingOfTheZones:
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
                 LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;

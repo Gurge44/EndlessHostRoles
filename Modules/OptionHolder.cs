@@ -30,7 +30,8 @@ public enum CustomGameMode
     RoomRush = 0x0A,
     KingOfTheZones = 0x0B,
     Quiz = 0x0C,
-    AllInOne = 0x0D,
+    TheMindGame = 0x0D,
+    AllInOne = 0x0E,
     All = int.MaxValue
 }
 
@@ -79,6 +80,7 @@ public static class Options
         "RoomRush",
         "KingOfTheZones",
         "Quiz",
+        "TheMindGame",
         "AllInOne"
     ];
 
@@ -836,7 +838,8 @@ public static class Options
         9 => CustomGameMode.RoomRush,
         10 => CustomGameMode.KingOfTheZones,
         11 => CustomGameMode.Quiz,
-        12 => CustomGameMode.AllInOne,
+        12 => CustomGameMode.TheMindGame,
+        13 => CustomGameMode.AllInOne,
         _ => CustomGameMode.Standard
     };
 
@@ -1589,6 +1592,8 @@ public static class Options
         KingOfTheZones.SetupCustomOption();
         // Quiz
         Quiz.SetupCustomOption();
+        // The Mind Game
+        TheMindGame.SetupCustomOption();
 
         yield return null;
 

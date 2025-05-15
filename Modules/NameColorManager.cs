@@ -49,6 +49,7 @@ public static class NameColorManager
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.MoveAndStop:
+            case CustomGameMode.TheMindGame:
                 color = "#ffffff";
                 return true;
             case CustomGameMode.AllInOne:

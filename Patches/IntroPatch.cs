@@ -129,6 +129,16 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("QuizPlayerInfo");
                     break;
                 }
+                case CustomGameMode.TheMindGame:
+                {
+                    Color color = Color.yellow;
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("TMGPlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("TMGPlayerInfo");
+                    break;
+                }
                 case CustomGameMode.AllInOne:
                 {
                     Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : new(255, 255, 255, 255);
@@ -742,6 +752,15 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("QuizPlayerInfo");
                 break;
             }
+            case CustomGameMode.TheMindGame:
+            {
+                __instance.TeamTitle.text = GetString("TMGPlayer");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Color.yellow;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("TMGPlayerInfo");
+                break;
+            }
             case CustomGameMode.AllInOne:
             {
                 __instance.TeamTitle.text = GetString("AllInOne");
@@ -1064,6 +1083,9 @@ internal static class IntroCutsceneDestroyPatch
 
             if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
                 MoveAndStop.OnGameStart();
+
+            if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+                Main.Instance.StartCoroutine(TheMindGame.OnGameStart());
 
             LateTask.New(() =>
             {

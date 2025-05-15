@@ -396,9 +396,7 @@ internal static class CheckForEndVotingPatch
         {
             if (pc == exiledPlayer.Object) continue;
 
-            if (pc.IsImpostor())
-                impnum++;
-            else if (Options.MadmateCountMode.GetValue() == 1 && pc.IsMadmate())
+            if (pc.IsImpostor() || Options.MadmateCountMode.GetValue() == 1 && pc.IsMadmate())
                 impnum++;
             else if (pc.IsNeutralKiller())
                 neutralnum++;
@@ -506,6 +504,8 @@ internal static class CheckForEndVotingPatch
 
         EndOfSession:
 
+        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+            name = TheMindGame.GetEjectionMessage(exiledPlayer);
 
         name = name.Replace("color=", string.Empty) + "<size=0>";
         TempExiledPlayer = exiledPlayer;

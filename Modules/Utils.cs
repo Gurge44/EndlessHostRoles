@@ -765,6 +765,7 @@ public static class Utils
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.RoomRush:
             case CustomGameMode.KingOfTheZones:
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
                 return false;
             case CustomGameMode.HideAndSeek:
@@ -982,7 +983,7 @@ public static class Utils
     {
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz:
+            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame:
             case CustomGameMode.Standard when IsRevivingRoleAlive() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
             case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.AllInOne:
@@ -1460,6 +1461,7 @@ public static class Utils
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.KingOfTheZones:
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.Speedrun:
@@ -2038,6 +2040,7 @@ public static class Utils
                     CustomGameMode.NaturalDisasters => $"<color=#03fc4a>{modeText}</color>\r\n{name}",
                     CustomGameMode.RoomRush => $"<color=#ffab1b>{modeText}</color>\r\n{name}",
                     CustomGameMode.KingOfTheZones => $"<color=#ff0000>{modeText}</color>\r\n{name}",
+                    CustomGameMode.TheMindGame => $"<color=#ffff00>{modeText}</color>\r\n{name}",
                     CustomGameMode.AllInOne => $"<color=#f542ad>{modeText}</color>\r\n{name}",
                     CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"{modeText}\r\n") + name,
                     CustomGameMode.Quiz => ColorString(GetRoleColor(CustomRoles.QuizMaster), $"{modeText}\r\n") + name,
@@ -2478,6 +2481,9 @@ public static class Utils
                     case CustomGameMode.Quiz:
                         additionalSuffixes.Add(Quiz.GetSuffix(seer));
                         break;
+                    case CustomGameMode.TheMindGame:
+                        additionalSuffixes.Add(TheMindGame.GetSuffix(seer, seer));
+                        break;
                     case CustomGameMode.AllInOne:
                         bool alive = seer.IsAlive();
                         if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) additionalSuffixes.Add(SoloPVP.GetDisplayHealth(seer, true) + "\n");
@@ -2489,6 +2495,7 @@ public static class Utils
                         if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) additionalSuffixes.Add(RoomRush.GetSuffix(seer).Split('\n', splitFlags).Join(delimiter: " - ") + "\n");
                         if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) additionalSuffixes.Add(KingOfTheZones.GetSuffix(seer) + "\n");
                         if (CustomGameMode.Quiz.IsActiveOrIntegrated()) additionalSuffixes.Add(Quiz.GetSuffix(seer));
+                        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated()) additionalSuffixes.Add(TheMindGame.GetSuffix(seer, seer));
                         break;
                 }
 
@@ -2505,7 +2512,7 @@ public static class Utils
                 if ((CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFATeamMode.GetBool()) || CustomGameMode.HotPotato.IsActiveOrIntegrated())
                     seerRealName = seerRealName.ApplyNameColorData(seer, seer, forMeeting);
 
-                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.AllInOne)
+                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.AllInOne)
                 {
                     CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
 
@@ -2543,7 +2550,7 @@ public static class Utils
                     SelfSuffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
             }
 
-            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz;
+            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame;
 
             // Combine the seer's job title and SelfTaskText with the seer's player name and SelfMark
             string selfRoleName = noRoleText ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{selfTaskText}</size>";
@@ -2720,7 +2727,8 @@ public static class Utils
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 targetRoleText = string.Empty;
 
-                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz) targetRoleText = string.Empty;
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame)
+                                targetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
                             {
@@ -2812,6 +2820,9 @@ public static class Utils
                                         break;
                                     case CustomGameMode.CaptureTheFlag:
                                         additionalSuffixes.Add(CaptureTheFlag.GetSuffixText(seer, target));
+                                        break;
+                                    case CustomGameMode.TheMindGame:
+                                        additionalSuffixes.Add(TheMindGame.GetSuffix(seer, target));
                                         break;
                                 }
 
@@ -3552,6 +3563,9 @@ public static class Utils
                     break;
                 case CustomGameMode.Quiz:
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - {Quiz.GetStatistics(id)}";
+                    break;
+                case CustomGameMode.TheMindGame:
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - {TheMindGame.GetStatistics(id)}";
                     break;
                 case CustomGameMode.AllInOne:
                     string survivalTimeText = !Main.PlayerStates[id].IsDead ? string.Empty : $" ({GetString("SurvivedTimePrefix")}: <#f542ad>{RoomRush.GetSurvivalTime(id)}s</color>)";

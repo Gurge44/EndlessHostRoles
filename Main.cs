@@ -699,6 +699,8 @@ public class Main : BasePlugin
                 { CustomRoles.KOTZPlayer, "#ff0000" },
                 // Quiz
                 { CustomRoles.QuizPlayer, "#CF2472" },
+                // The Mind Game
+                { CustomRoles.TMGPlayer, "#ffff00" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
