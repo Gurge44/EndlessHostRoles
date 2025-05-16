@@ -159,6 +159,12 @@ public static class TheMindGame
         int points = Points[target.PlayerId];
         int superPoints = SuperPoints[target.PlayerId];
 
+        if (!self)
+        {
+            sb.Append($"ID {target.PlayerId}");
+            sb.Append('\n');
+        }
+
         if ((!self || !HiddenPoints.Contains(seer.PlayerId)) && (self || PlayersCanSeeOthersPoints))
             sb.Append(string.Format(Translator.GetString("TMG.Suffix.Points"), points, superPoints));
 
