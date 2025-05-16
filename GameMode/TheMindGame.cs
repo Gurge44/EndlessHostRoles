@@ -241,9 +241,9 @@ public static class TheMindGame
         if (currentMap is MapNames.MiraHQ) AllRooms.Remove(SystemTypes.Storage);
         if (currentMap is MapNames.MiraHQ) AllRooms.Remove(SystemTypes.MedBay);
         if (currentMap is MapNames.MiraHQ) AllRooms.Remove(SystemTypes.Admin);
+        if (currentMap is MapNames.MiraHQ or MapNames.Polus or MapNames.Airship) AllRooms.Remove(SystemTypes.Comms);
         if (currentMap is MapNames.Polus) AllRooms.Remove(SystemTypes.Security);
         if (currentMap is MapNames.Polus) AllRooms.Remove(SystemTypes.BoilerRoom);
-        if (currentMap is MapNames.MiraHQ or MapNames.Polus or MapNames.Airship) AllRooms.Remove(SystemTypes.Comms);
         if (currentMap is MapNames.Fungle) AllRooms.Remove(SystemTypes.SleepingQuarters);
         if (currentMap is MapNames.Fungle) AllRooms.Remove(SystemTypes.FishingDock);
         if (currentMap is MapNames.Fungle) AllRooms.Remove(SystemTypes.Greenhouse);
