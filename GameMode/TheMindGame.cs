@@ -230,20 +230,20 @@ public static class TheMindGame
 
         Round = 1;
 
-        var map = Main.CurrentMap;
+        var currentMap = Main.CurrentMap;
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).Distinct().Shuffle();
         AllRooms.Remove(SystemTypes.Hallway);
         AllRooms.Remove(SystemTypes.Outside);
         AllRooms.Remove(SystemTypes.Ventilation);
-        if (map is MapNames.Skeld or MapNames.Dleks or MapNames.Polus) AllRooms.Remove(SystemTypes.LifeSupp);
-        if (map is MapNames.Skeld or MapNames.Dleks) AllRooms.Remove(SystemTypes.UpperEngine);
-        if (map is MapNames.Skeld or MapNames.Dleks) AllRooms.Remove(SystemTypes.LowerEngine);
-        if (map is MapNames.Polus) AllRooms.Remove(SystemTypes.Security);
-        if (map is MapNames.Polus) AllRooms.Remove(SystemTypes.BoilerRoom);
-        if (map is MapNames.Airship) AllRooms.Remove(SystemTypes.Comms);
-        if (map is MapNames.Fungle) AllRooms.Remove(SystemTypes.SleepingQuarters);
-        if (map is MapNames.Fungle) AllRooms.Remove(SystemTypes.FishingDock);
-        if (map is MapNames.Fungle) AllRooms.Remove(SystemTypes.Greenhouse);
+        if (currentMap is MapNames.Skeld or MapNames.Dleks or MapNames.Polus) AllRooms.Remove(SystemTypes.LifeSupp);
+        if (currentMap is MapNames.Skeld or MapNames.Dleks) AllRooms.Remove(SystemTypes.UpperEngine);
+        if (currentMap is MapNames.Skeld or MapNames.Dleks) AllRooms.Remove(SystemTypes.LowerEngine);
+        if (currentMap is MapNames.Polus) AllRooms.Remove(SystemTypes.Security);
+        if (currentMap is MapNames.Polus) AllRooms.Remove(SystemTypes.BoilerRoom);
+        if (currentMap is MapNames.Airship) AllRooms.Remove(SystemTypes.Comms);
+        if (currentMap is MapNames.Fungle) AllRooms.Remove(SystemTypes.SleepingQuarters);
+        if (currentMap is MapNames.Fungle) AllRooms.Remove(SystemTypes.FishingDock);
+        if (currentMap is MapNames.Fungle) AllRooms.Remove(SystemTypes.Greenhouse);
         AllRooms.RemoveAll(x => x.ToString().Contains("Decontamination"));
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
