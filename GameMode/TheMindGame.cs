@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
+using Hazel;
+using InnerNet;
 using UnityEngine;
 
 namespace EHR;
@@ -12,18 +15,22 @@ public static class TheMindGame
     private static Dictionary<byte, int> SuperPoints = [];
     private static Dictionary<PlayerControl, int> DefaultColorIds = [];
     private static Dictionary<byte, Group> Groups = [];
-    private static Dictionary<Group, List<byte>> GroupPlayers = []; // TODO: Reset ALL these at the start of the game
+    private static Dictionary<Group, List<byte>> GroupPlayers = [];
     private static List<SystemTypes> AllRooms = [];
     private static Dictionary<Group, SystemTypes> GroupRooms = [];
     private static Dictionary<byte, int> Pick = [];
     private static HashSet<byte> AmReady = [];
     private static Dictionary<byte, Dictionary<Item, int>> ItemIds = [];
     private static Dictionary<byte, List<Item>> PlayerItems = [];
+    private static HashSet<byte> HiddenPoints = [];
+    private static HashSet<byte> CannotPurchase = [];
+    private static HashSet<byte> DoubleModifierActive = [];
     private static long ProceedingInCountdownEndTS;
     private static long LastTimeWarning;
     private static bool ShowSuffixOtherThanPoints;
     private static int AuctionValue;
     private static byte WinningBriefcaseHolderId;
+    private static byte WinningBriefcaseLastHolderId;
     private static List<byte> Round4PlacesFromFirst;
     private static List<byte> Round4PlacesFromLast;
     private static List<byte> EjectedPlayers;
@@ -31,7 +38,7 @@ public static class TheMindGame
 
     // Settings
     private static bool PlayersCanSeeOthersPoints = true;
-    private static int NumGroupsForRound1 = 5; // 1-7
+    private static int NumGroupsForRound1 = 5;
     private static int TimeForEachPickInRound1 = 15;
     private static int NumPointsToAdvanceInRound1 = 10;
     private static int MinPlayersInRound2 = 10;
@@ -39,17 +46,176 @@ public static class TheMindGame
     private static int TimeForEachPickInRound2 = 25;
     private static int TimeForItemPurchasingInRound2 = 40;
     private static int FoolNumPointsLost = 5;
-    private static Dictionary<Item, int> ItemCosts = []; // !!!!
+    private static Dictionary<Item, int> ItemCosts = [];
     private static int TimeForEachPickInRound3 = 30;
     private static int MaxPlayersForRound4 = 5;
+    private static int MindDetectiveFailChance = 10;
+
+    private static OptionItem PlayersCanSeeOthersPointsOption;
+    private static OptionItem NumGroupsForRound1Option;
+    private static OptionItem TimeForEachPickInRound1Option;
+    private static OptionItem NumPointsToAdvanceInRound1Option;
+    private static OptionItem MinPlayersInRound2Option;
+    private static OptionItem SuperPointsToNormalPointsMultiplierOption;
+    private static OptionItem TimeForEachPickInRound2Option;
+    private static OptionItem TimeForItemPurchasingInRound2Option;
+    private static OptionItem FoolNumPointsLostOption;
+    private static OptionItem TimeForEachPickInRound3Option;
+    private static OptionItem MaxPlayersForRound4Option;
+    private static OptionItem MindDetectiveFailChanceOption;
+    private static readonly Dictionary<Item, OptionItem> ItemCostsOptions = [];
 
     private static bool Stop => GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby || GameStates.IsEnded;
 
-    public static void SetupCustomOption() { }
-    public static string GetStatistics(byte id) { }
-    public static int GetPoints(byte id) { }
-    public static string GetTaskBarText() { }
-    public static string GetSuffix(PlayerControl seer, PlayerControl target) { }
+    public static void SetupCustomOption()
+    {
+        var id = 69_221_001;
+        var color = Color.yellow;
+        const CustomGameMode gameMode = CustomGameMode.TheMindGame;
+        const TabGroup tab = TabGroup.GameSettings;
+
+        PlayersCanSeeOthersPointsOption = new BooleanOptionItem(id++, "TMG.Setting.PlayersCanSeeOthersPoints", true, tab)
+            .SetHeader(true)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        NumGroupsForRound1Option = new IntegerOptionItem(id++, "TMG.Setting.NumGroupsForRound1", new IntegerValueRule(1, 7, 1), 5, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        TimeForEachPickInRound1Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound1", new IntegerValueRule(1, 60, 1), 15, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        NumPointsToAdvanceInRound1Option = new IntegerOptionItem(id++, "TMG.Setting.NumPointsToAdvanceInRound1", new IntegerValueRule(1, 100, 1), 10, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        MinPlayersInRound2Option = new IntegerOptionItem(id++, "TMG.Setting.MinPlayersInRound2", new IntegerValueRule(1, 15, 1), 10, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        SuperPointsToNormalPointsMultiplierOption = new IntegerOptionItem(id++, "TMG.Setting.SuperPointsToNormalPointsMultiplier", new IntegerValueRule(1, 10, 1), 3, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        TimeForEachPickInRound2Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound2", new IntegerValueRule(1, 60, 1), 25, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        TimeForItemPurchasingInRound2Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForItemPurchasingInRound2", new IntegerValueRule(1, 60, 1), 40, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        FoolNumPointsLostOption = new IntegerOptionItem(id++, "TMG.Setting.FoolNumPointsLost", new IntegerValueRule(1, 100, 1), 5, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        TimeForEachPickInRound3Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound3", new IntegerValueRule(1, 60, 1), 30, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        MaxPlayersForRound4Option = new IntegerOptionItem(id++, "TMG.Setting.MaxPlayersForRound4", new IntegerValueRule(1, 15, 1), 5, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        MindDetectiveFailChanceOption = new IntegerOptionItem(id++, "TMG.Setting.MindDetectiveFailChance", new IntegerValueRule(0, 100, 1), 10, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        foreach (Item item in Enum.GetValues<Item>())
+        {
+            var option = new IntegerOptionItem(id++, $"TMG.Setting.ItemCost.{item}", new IntegerValueRule(1, 100, 1), 5, tab)
+                .SetColor(color)
+                .SetGameMode(gameMode);
+
+            ItemCostsOptions[item] = option;
+        }
+    }
+
+    public static string GetStatistics(byte id)
+    {
+        return string.Format(Translator.GetString("TMG.EndScreen.Points"), GetPoints(id));
+    }
+
+    public static int GetPoints(byte id)
+    {
+        return Points.GetValueOrDefault(id, 0);
+    }
+
+    public static string GetTaskBarText()
+    {
+        long now = Utils.TimeStamp;
+        return ProceedingInCountdownEndTS < now ? string.Empty : string.Format(Translator.GetString("TMG.Message.TimeLeft"), ProceedingInCountdownEndTS - now);
+    }
+
+    public static string GetSuffix(PlayerControl seer, PlayerControl target)
+    {
+        if (!target.IsAlive()) return string.Empty;
+
+        var sb = new StringBuilder();
+
+        bool self = seer.PlayerId == target.PlayerId;
+        int points = Points[target.PlayerId];
+        int superPoints = SuperPoints[target.PlayerId];
+
+        if ((!self || !HiddenPoints.Contains(seer.PlayerId)) && (self || PlayersCanSeeOthersPoints))
+            sb.Append(string.Format(Translator.GetString("TMG.Suffix.Points"), points, superPoints));
+
+        if (!self) return sb.ToString();
+
+        if (ShowSuffixOtherThanPoints)
+        {
+            switch (Round)
+            {
+                case 1:
+                case 3:
+                    sb.Append('\n');
+                    sb.Append('\n');
+                    sb.Append(string.Format(Translator.GetString("TMG.Suffix.YourPick"), Pick[seer.PlayerId]));
+                    sb.Append('\n');
+                    sb.Append(Translator.GetString("TMG.Suffix.ChangePickHint"));
+                    break;
+                case 2 when AuctionValue != 0:
+                    sb.Append('\n');
+                    sb.Append('\n');
+                    sb.Append(string.Format(Translator.GetString("TMG.Suffix.AuctionValue"), AuctionValue));
+                    sb.Append('\n');
+                    sb.Append(string.Format(Translator.GetString("TMG.Suffix.YourBid"), Pick[seer.PlayerId]));
+                    sb.Append('\n');
+                    sb.Append(Translator.GetString("TMG.Suffix.ChangeBidHint"));
+                    break;
+                case 2:
+                    sb.Append('\n');
+                    sb.Append('\n');
+                    sb.Append("<size=80%>");
+                    sb.Append(string.Join('\n', Enum.GetValues<Item>().Select(x => $"{Translator.GetString($"TMG.Item.{x}")} (ID {ItemIds[seer.PlayerId][x]}) ({string.Format(Translator.GetString("TMG.Suffix.ItemCost"), ItemCosts[x])}) - {Translator.GetString($"TMG.ItemDescription.{x}")}")));
+                    sb.Append('\n');
+                    sb.Append('\n');
+                    sb.Append(Translator.GetString("TMG.Suffix.BuyItemHint"));
+                    sb.Append("</size>");
+                    break;
+            }
+        }
+
+        List<Item> items = PlayerItems[seer.PlayerId];
+
+        if (items.Count > 0)
+        {
+            sb.Append('\n');
+            sb.Append('\n');
+            sb.Append(Translator.GetString("TMG.Suffix.YourItems"));
+            sb.Append('\n');
+            Dictionary<Item, int> count = items.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            string join = string.Join(", ", count.Select(x => $"{x.Value}x {Translator.GetString($"TMG.Item.{x.Key}")}"));
+            sb.Append(join);
+            sb.Append('\n');
+            sb.Append('\n');
+            sb.Append(Translator.GetString("TMG.Suffix.UseItemHint"));
+        }
+
+        return sb.ToString().Trim();
+    }
 
     public static IEnumerator OnGameStart()
     {
@@ -67,6 +233,38 @@ public static class TheMindGame
         Points = aapc.ToDictionary(x => x.PlayerId, _ => 0);
         SuperPoints = aapc.ToDictionary(x => x.PlayerId, _ => 0);
         DefaultColorIds = aapc.ToDictionary(x => x, x => x.Data.DefaultOutfit.ColorId);
+        PlayerItems = aapc.ToDictionary(x => x.PlayerId, _ => new List<Item>());
+
+        Groups = [];
+        GroupPlayers = [];
+        GroupRooms = [];
+        Pick = [];
+        AmReady = [];
+        ItemIds = [];
+        HiddenPoints = [];
+        CannotPurchase = [];
+        DoubleModifierActive = [];
+        EjectedPlayers = [];
+        Round4PlacesFromFirst = [];
+        Round4PlacesFromLast = [];
+        WinningBriefcaseHolderId = byte.MaxValue;
+        WinningBriefcaseLastHolderId = byte.MaxValue;
+        AuctionValue = 0;
+
+        ItemCosts = ItemCostsOptions.ToDictionary(x => x.Key, x => x.Value.GetInt());
+
+        PlayersCanSeeOthersPoints = PlayersCanSeeOthersPointsOption.GetBool();
+        NumGroupsForRound1 = NumGroupsForRound1Option.GetInt();
+        TimeForEachPickInRound1 = TimeForEachPickInRound1Option.GetInt();
+        NumPointsToAdvanceInRound1 = NumPointsToAdvanceInRound1Option.GetInt();
+        MinPlayersInRound2 = MinPlayersInRound2Option.GetInt();
+        SuperPointsToNormalPointsMultiplier = SuperPointsToNormalPointsMultiplierOption.GetInt();
+        TimeForEachPickInRound2 = TimeForEachPickInRound2Option.GetInt();
+        TimeForItemPurchasingInRound2 = TimeForItemPurchasingInRound2Option.GetInt();
+        FoolNumPointsLost = FoolNumPointsLostOption.GetInt();
+        TimeForEachPickInRound3 = TimeForEachPickInRound3Option.GetInt();
+        MaxPlayersForRound4 = MaxPlayersForRound4Option.GetInt();
+        MindDetectiveFailChance = MindDetectiveFailChanceOption.GetInt();
 
         {
             IEnumerable<IEnumerable<PlayerControl>> groups = aapc.Partition(NumGroupsForRound1);
@@ -286,8 +484,10 @@ public static class TheMindGame
                 int pick = Pick[pc.PlayerId];
                 bool sameAsSomeoneElse = Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Pick[x.PlayerId] == pick, out PlayerControl otherPc);
 
-                if (!sameAsSomeoneElse) Points[pc.PlayerId] += pick;
+                if (!sameAsSomeoneElse)
+                    Points[pc.PlayerId] += DoubleModifierActive.Contains(pc.PlayerId) ? pick * 2 : pick;
 
+                if (HiddenPoints.Contains(pc.PlayerId)) continue;
                 pc.Notify(string.Format(Translator.GetString(sameAsSomeoneElse ? "TMG.Notify.SamePick" : "TMG.Notify.Pick"), pick, sameAsSomeoneElse ? otherPc.PlayerId.ColoredPlayerName() : string.Empty));
             }
 
@@ -366,6 +566,7 @@ public static class TheMindGame
             }
         }
 
+        HiddenPoints.Clear();
         EjectedPlayers.ToValidPlayers().FindAll(x => !x.IsAlive()).ForEach(x => x.RpcRevive());
 
         yield return NotifyEveryone("TMG.Notify.Round4End", 3);
@@ -384,9 +585,10 @@ public static class TheMindGame
         if (Stop) yield break;
 
         Dictionary<byte, int> round4Points = ranking.ToDictionary(x => x, x => (ranking.Count - ranking.IndexOf(x)) * 10);
+        round4Points.Do(x => Points[x.Key] += x.Value);
 
         join = string.Join('\n', round4Points.Select(x => $"{x.Key.ColoredPlayerName()}:  +{x.Value}"));
-        yield return NotifyEveryone("TMG.Notify.Round4PointGain", 7, join);
+        yield return NotifyEveryone("TMG.Notify.Round4PointGain", 5, join);
         if (Stop) yield break;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -396,6 +598,19 @@ public static class TheMindGame
             for (int i = 0; i < superPoints; i++)
                 Points[pc.PlayerId] += SuperPointsToNormalPointsMultiplier;
         }
+
+        var w = Utils.CreateRPC(CustomRPC.TMGSync);
+        w.WritePacked(Points.Count);
+
+        foreach ((byte key, int value) in Points)
+        {
+            w.Write(key);
+            w.WritePacked(value);
+        }
+
+        Utils.EndRPC(w);
+
+        SuperPoints.SetAllValues(0);
 
         yield return NotifyEveryone("TMG.Notify.SuperPointConversion", 4, SuperPointsToNormalPointsMultiplier);
         if (Stop) yield break;
@@ -410,7 +625,8 @@ public static class TheMindGame
     private static IEnumerator NotifyEveryone(string key, int time, params object[] args)
     {
         NameNotifyManager.Reset();
-        Main.AllAlivePlayerControls.NotifyPlayers(string.Format(Translator.GetString(key), args), 100f);
+        string str = Translator.GetString(key);
+        Main.AllAlivePlayerControls.NotifyPlayers(args.Length == 0 ? str : string.Format(str, args), 100f);
         ProceedingInCountdownEndTS = Utils.TimeStamp + time;
         yield return new WaitForSeconds(time);
         NameNotifyManager.Reset();
@@ -452,8 +668,185 @@ public static class TheMindGame
 
     public static void OnChat(PlayerControl pc, string text)
     {
-        // TODO: Item purchasing
-        // TODO: Item using, including the stealing of briefcases
+        try
+        {
+            switch (text[0])
+            {
+                case 'b':
+                {
+                    if (CannotPurchase.Contains(pc.PlayerId))
+                    {
+                        Utils.SendMessage(Translator.GetString("TMG.Message.CannotPurchase"), pc.PlayerId, "<#ff0000>X</color>");
+                        break;
+                    }
+
+                    var item = FindItemFromText();
+                    if (!item.HasValue) break;
+
+                    int superPoints = SuperPoints[pc.PlayerId];
+                    int cost = ItemCosts[item.Value];
+                    string itemName = Translator.GetString($"TMG.Item.{item.Value}");
+
+                    if (cost > superPoints)
+                    {
+                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.NotEnoughSuperPoints"), itemName, cost, superPoints), pc.PlayerId, "<#ff0000>X</color>");
+                        break;
+                    }
+
+                    if (item.Value == Item.DoubleModifier) DoubleModifierActive.Add(pc.PlayerId);
+
+                    SuperPoints[pc.PlayerId] -= cost;
+                    PlayerItems[pc.PlayerId].Add(item.Value);
+                    Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.ItemPurchased"), itemName, cost, superPoints), pc.PlayerId, "<#00ff00>✓</color>");
+
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    break;
+                }
+                case 'u':
+                {
+                    var item = FindItemFromText();
+                    if (!item.HasValue || !PlayerItems[pc.PlayerId].Remove(item.Value)) break;
+
+                    switch (item.Value)
+                    {
+                        case Item.BlindingGas:
+                        {
+                            byte id = FindTargetIdFromText();
+                            if (id == byte.MaxValue) break;
+                            HiddenPoints.Add(id);
+                            PlayerControl target = id.GetPlayer();
+                            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+                            Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.ItemUsed"), Translator.GetString($"TMG.Item.{item.Value}")), pc.PlayerId, "<#00ff00>✓</color>");
+                            break;
+                        }
+                        case Item.MerchantDise:
+                        {
+                            byte id = FindTargetIdFromText();
+                            if (id == byte.MaxValue) break;
+                            CannotPurchase.Add(id);
+                            Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.ItemUsed"), Translator.GetString($"TMG.Item.{item.Value}")), pc.PlayerId, "<#00ff00>✓</color>");
+                            break;
+                        }
+                        case Item.Lasso:
+                        {
+                            if (Round != 4 || !GameStates.IsMeeting)
+                            {
+                                Utils.SendMessage(Translator.GetString("TMG.Message.LassoOnlyInRound4"), pc.PlayerId, "<#ff0000>X</color>");
+                                break;
+                            }
+
+                            byte id = FindTargetIdFromText();
+                            if (id == byte.MaxValue) break;
+
+                            if (!pc.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+
+                            if (id == WinningBriefcaseHolderId)
+                            {
+                                WinningBriefcaseLastHolderId = id;
+                                WinningBriefcaseHolderId = pc.PlayerId;
+                                Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>");
+                                Utils.SendMessage(Translator.GetString("TMG.Message.LassoedWinningBriefcase"), id, "<#ffff00>⚠</color>");
+                            }
+                            else
+                                Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>");
+
+                            break;
+                        }
+                        case Item.Fool:
+                        {
+                            byte id = FindTargetIdFromText();
+                            if (id == byte.MaxValue) break;
+                            Points[id] -= FoolNumPointsLost;
+                            break;
+                        }
+                        case Item.MindDetective:
+                        {
+                            byte id = FindTargetIdFromText();
+                            if (id == byte.MaxValue) break;
+
+                            int pick = Pick[id];
+
+                            if (IRandom.Instance.Next(100) < MindDetectiveFailChance)
+                                pick = IRandom.Instance.Next(1, Main.AllAlivePlayerControls.Length + 1);
+
+                            Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.MindDetective"), id.ColoredPlayerName(), pick), pc.PlayerId, "<#00ff00>✓</color>");
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+                case 's':
+                {
+                    if (WinningBriefcaseLastHolderId != pc.PlayerId)
+                    {
+                        Utils.SendMessage(Translator.GetString("TMG.Message.StealBackNotLastHolder"), pc.PlayerId, "<#ff0000>X</color>");
+                        break;
+                    }
+
+                    byte id = FindTargetIdFromText(false);
+                    if (id == byte.MaxValue) break;
+
+                    if (id == WinningBriefcaseHolderId)
+                    {
+                        WinningBriefcaseHolderId = pc.PlayerId;
+                        WinningBriefcaseLastHolderId = byte.MaxValue;
+                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>");
+                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackWinningBriefcase"), pc.PlayerId.ColoredPlayerName()), id, "<#ffff00>⚠</color>");
+                    }
+                    else
+                    {
+                        WinningBriefcaseLastHolderId = byte.MaxValue;
+                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>");
+                    }
+
+                    break;
+                }
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        return;
+
+        Item? FindItemFromText()
+        {
+            for (int i = 1; i < text.Length; i++)
+            {
+                char letter = text[i];
+
+                switch (letter)
+                {
+                    case ' ':
+                    case < '0':
+                    case > '9':
+                        continue;
+                    default:
+                        int id = letter - '0';
+                        Dictionary<Item, int> itemIds = ItemIds[pc.PlayerId];
+                        if (id >= itemIds.Count) break;
+                        return itemIds.GetKeyByValue(id);
+                }
+            }
+
+            return null;
+        }
+
+        byte FindTargetIdFromText(bool space = true)
+        {
+            int startIndex;
+
+            if (space)
+            {
+                int lastSpaceIndex = text.LastIndexOf(' ');
+                if (lastSpaceIndex == -1 || lastSpaceIndex == text.Length - 1) return byte.MaxValue;
+                startIndex = lastSpaceIndex + 1;
+            }
+            else
+                startIndex = 1;
+
+            string idString = text[startIndex..];
+            return !byte.TryParse(idString, out byte id) ? byte.MaxValue : id;
+        }
     }
 
     public static void OnVanish(PlayerControl player)
@@ -468,7 +861,7 @@ public static class TheMindGame
             }
             case 2 when AuctionValue == 0 && AmReady.Add(player.PlayerId):
             {
-                player.RpcChangeRoleBasis(CustomRoles.TMGPlayer);
+                LateTask.New(() => player.RpcChangeRoleBasis(CustomRoles.TMGPlayer), 0.3f, log: false);
                 break;
             }
             case 2:
@@ -488,34 +881,30 @@ public static class TheMindGame
         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
     }
 
-    private static string GetHexColor(this Group group)
+    public static void ReceiveRPC(MessageReader reader)
     {
-        return group switch
+        switch (reader.ReadPackedInt32(), AmongUsClient.Instance.AmHost)
         {
-            Group.Red => "#ff0000",
-            Group.Yellow => "#ffff00",
-            Group.Blue => "#00ffff",
-            Group.Green => "#00ff00",
-            Group.Tan => "#A88E8E",
-            Group.Rose => "#FAB8EB",
-            Group.Orange => "#ff8800",
-            _ => "#ffffff"
-        };
-    }
+            case (1, true):
+            {
+                OnChat(reader.ReadNetObject<PlayerControl>(), reader.ReadString());
+                break;
+            }
+            case (2, false):
+            {
+                Points = [];
+                int count = reader.ReadPackedInt32();
 
-    private static Color GetColor(this Group group)
-    {
-        return group switch
-        {
-            Group.Red => Color.red,
-            Group.Yellow => Color.yellow,
-            Group.Blue => Color.cyan,
-            Group.Green => Color.green,
-            Group.Tan => Palette.Brown,
-            Group.Rose => Color.magenta,
-            Group.Orange => Palette.Orange,
-            _ => Color.white
-        };
+                for (int i = 0; i < count; i++)
+                {
+                    byte key = reader.ReadByte();
+                    int value = reader.ReadPackedInt32();
+                    Points[key] = value;
+                }
+
+                break;
+            }
+        }
     }
 
     private static byte GetColorId(this Group group)
@@ -533,7 +922,29 @@ public static class TheMindGame
         };
     }
 
-    public static bool CheckForGameEnd(out GameOverReason reason) { }
+    public static bool CheckForGameEnd(out GameOverReason reason)
+    {
+        reason = GameOverReason.ImpostorsByKill;
+
+        if (CustomWinnerHolder.WinnerIds.Count > 0) return true;
+
+        var aapc = Main.AllAlivePlayerControls;
+
+        switch (aapc.Length)
+        {
+            case 0:
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                CustomWinnerHolder.WinnerIds = [PlayerControl.LocalPlayer.PlayerId];
+                Logger.Warn("Game ended with no players alive", "TMG");
+                return true;
+            case 1:
+                CustomWinnerHolder.WinnerIds = [aapc[0].PlayerId];
+                Logger.Warn("Game ended with one player alive", "TMG");
+                return true;
+        }
+
+        return false;
+    }
 
     enum Item
     {
@@ -559,7 +970,7 @@ public static class TheMindGame
 
 public class TMGPlayer : RoleBase
 {
-    public static bool On;
+    private static bool On;
 
     public override bool IsEnable => On;
 

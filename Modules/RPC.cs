@@ -156,7 +156,8 @@ public enum CustomRPC
     SoloPVPSync,
     CTFSync,
     KOTZSync,
-    SpeedrunSync
+    SpeedrunSync,
+    TMGSync
 }
 
 public enum Sounds
@@ -175,7 +176,7 @@ internal static class RPCHandlerPatch
 
     private static bool TrustedRpc(byte id)
     {
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync;
     }
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
@@ -542,7 +543,7 @@ internal static class RPCHandlerPatch
 
                     if (modCommand && !ChatCommands.IsPlayerModerator(player.FriendCode)) break;
 
-                    const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
+                    const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
                     typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [player, text, text.Split(' ')]);
                     Logger.Info($"Invoke Command: {methodName} ({player?.Data?.PlayerName}, {text})", "RequestCommandProcessing");
                     break;
@@ -1173,6 +1174,11 @@ internal static class RPCHandlerPatch
                     if (reader.ReadPackedInt32() == 1) Speedrun.CanKill = [];
                     else Speedrun.CanKill.Add(reader.ReadByte());
 
+                    break;
+                }
+                case CustomRPC.TMGSync:
+                {
+                    TheMindGame.ReceiveRPC(reader);
                     break;
                 }
             }

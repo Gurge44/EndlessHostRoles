@@ -12,6 +12,7 @@ using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
+using InnerNet;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -263,6 +264,19 @@ internal static class ChatCommands
 
         string text = __instance.freeChatField.textArea.text.Trim();
         var cancelVal = string.Empty;
+
+        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+        {
+            if (AmongUsClient.Instance.AmHost)
+                TheMindGame.OnChat(PlayerControl.LocalPlayer, text.ToLower());
+            else
+            {
+                MessageWriter w = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.TMGSync);
+                w.WriteNetObject(PlayerControl.LocalPlayer);
+                w.Write(text);
+                w.EndMessage();
+            }
+        }
 
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
@@ -3140,6 +3154,9 @@ internal static class ChatCommands
         }
 
         if (text.StartsWith("\n")) text = text[1..];
+
+        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+            TheMindGame.OnChat(player, text.ToLower());
 
         CheckAnagramGuess(player.PlayerId, text.ToLower());
 
