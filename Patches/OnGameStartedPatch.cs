@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
@@ -15,7 +16,6 @@ using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
-using Il2CppSystem.Collections;
 using InnerNet;
 using UnityEngine;
 using UnityEngine.UI;
@@ -410,7 +410,7 @@ internal static class ChangeRoleSettings
 
         return;
 
-        System.Collections.IEnumerator PopulateSkinItems()
+        IEnumerator PopulateSkinItems()
         {
             while (!ShipStatus.Instance) yield return null;
             BlockPopulateSkins = false;
@@ -454,16 +454,43 @@ internal static class StartGameHostPatch
         };
     }
 
+    private static IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
+    {
+        float startTime = Time.time;
+
+        while (Time.time - startTime < duration)
+        {
+            float t = (Time.time - startTime) / duration;
+            float newPercent = Mathf.Lerp(startPercent, targetPercent, t);
+
+            try
+            {
+                loadingBarManager.SetLoadingPercent(newPercent, StringNames.LoadingBarGameStart);
+                loadingBarManager.loadingBar.loadingText.text = loadingText;
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            yield return null;
+        }
+
+        try
+        {
+            loadingBarManager.SetLoadingPercent(targetPercent, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = loadingText;
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+    }
+
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
     [HarmonyPrefix]
-    public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref IEnumerator __result)
+    public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
         AUClient = __instance;
         __result = StartGameHost().WrapToIl2Cpp();
         return false;
     }
 
-    private static System.Collections.IEnumerator StartGameHost()
+    private static IEnumerator StartGameHost()
     {
         string loadingTextText1 = GetString("LoadingBarText.1");
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
@@ -487,12 +514,6 @@ internal static class StartGameHostPatch
             if (fillImage) fillImage.color = new Color(0f, 0.647f, 1f, 1f);
         }
         catch (Exception e) { Utils.ThrowException(e); }
-
-        foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
-        {
-            playerInfo.Disconnected = true;
-            playerInfo.MarkDirty();
-        }
 
         if (LobbyBehaviour.Instance)
             LobbyBehaviour.Instance.Despawn();
@@ -563,7 +584,7 @@ internal static class StartGameHostPatch
             {
                 if (totalSeconds < (double)num)
                 {
-                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 90.0), StringNames.LoadingBarGameStartWaitingPlayers);
+                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 80.0), StringNames.LoadingBarGameStartWaitingPlayers);
 
                     int timeoutIn = num - (int)totalSeconds;
                     loadingBarManager.loadingBar.loadingText.text = string.Format(GetString("LoadingBarText.2"), clientsReady, allClientsCount, timeoutIn);
@@ -578,11 +599,10 @@ internal static class StartGameHostPatch
         }
 
         AUClient.SendClientReady();
-        loadingBarManager.ToggleLoadingBar(false);
         yield return AssignRoles();
     }
 
-    private static System.Collections.IEnumerator AssignRoles()
+    private static IEnumerator AssignRoles()
     {
         if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
 
@@ -993,6 +1013,16 @@ internal static class StartGameHostPatch
             yield break;
         }
 
+
+        foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+        {
+            playerInfo.Disconnected = true;
+            playerInfo.MarkDirty();
+        }
+
+        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
+        loadingBarManager.ToggleLoadingBar(false);
 
         Main.AllPlayerControls.Do(SetRoleSelf);
 

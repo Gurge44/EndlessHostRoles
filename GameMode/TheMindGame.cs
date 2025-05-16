@@ -152,7 +152,7 @@ public static class TheMindGame
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target)
     {
-        if (!target.IsAlive()) return string.Empty;
+        if (!target.IsAlive() || !Main.IntroDestroyed) return string.Empty;
 
         var sb = new StringBuilder("<#ffffff>");
 
@@ -297,7 +297,7 @@ public static class TheMindGame
 
             foreach (IEnumerable<PlayerControl> players in groups)
             {
-                (SystemTypes room, Vector2 location) = map.Positions.ExceptBy(GroupRooms.Values, x => x.Key).RandomElement();
+                (SystemTypes room, Vector2 location) = map.Positions.IntersectBy(AllRooms, x => x.Key).ExceptBy(GroupRooms.Values, x => x.Key).RandomElement();
                 GroupRooms[group] = room;
                 List<byte> ids = [];
 
@@ -318,7 +318,7 @@ public static class TheMindGame
 
         Utils.SetChatVisibleForAll();
 
-        yield return NotifyEveryone("TMG.Tutorial.Basics", 4);
+        yield return NotifyEveryone("TMG.Tutorial.Basics", 6);
         if (Stop) yield break;
 
         yield return NotifyEveryone("TMG.Notify.Round", 2, 1);
@@ -348,6 +348,7 @@ public static class TheMindGame
                 {
                     LastTimeWarning = Utils.TimeStamp;
                     Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.TimeLeft"), (int)timer), title: Translator.GetString("TMG.Message.TimeLeftTitle"));
+                    LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: Main.AllAlivePlayerControls.MinBy(x => x.PlayerId)), 1f, log: false);
                 }
             }
 
@@ -412,6 +413,7 @@ public static class TheMindGame
                 {
                     LastTimeWarning = Utils.TimeStamp;
                     Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.TimeLeft"), (int)timer), title: Translator.GetString("TMG.Message.TimeLeftTitle"));
+                    LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: Main.AllAlivePlayerControls.MinBy(x => x.PlayerId)), 1f, log: false);
                 }
             }
 
@@ -455,6 +457,7 @@ public static class TheMindGame
             {
                 LastTimeWarning = Utils.TimeStamp;
                 Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.TimeLeft"), (int)timer2), title: Translator.GetString("TMG.Message.TimeLeftTitle"));
+                LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: Main.AllAlivePlayerControls.MinBy(x => x.PlayerId)), 1f, log: false);
             }
 
             if (Main.AllAlivePlayerControls.Length == AmReady.Count)
@@ -497,6 +500,7 @@ public static class TheMindGame
                 {
                     LastTimeWarning = Utils.TimeStamp;
                     Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.TimeLeft"), (int)timer), title: Translator.GetString("TMG.Message.TimeLeftTitle"));
+                    LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: Main.AllAlivePlayerControls.MinBy(x => x.PlayerId)), 1f, log: false);
                 }
             }
 
