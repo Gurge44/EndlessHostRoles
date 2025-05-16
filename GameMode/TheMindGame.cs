@@ -331,7 +331,7 @@ public static class TheMindGame
                 if (Stop) yield break;
                 yield return null;
 
-                if ((int)timer % 10 == 0 && LastTimeWarning + 2 < Utils.TimeStamp)
+                if ((int)timer % 10 == 0 && LastTimeWarning + 2 < Utils.TimeStamp && timer > 3f)
                 {
                     LastTimeWarning = Utils.TimeStamp;
                     Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.TimeLeft"), (int)timer), title: Translator.GetString("TMG.Message.TimeLeftTitle"));
