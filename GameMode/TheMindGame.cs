@@ -126,6 +126,7 @@ public static class TheMindGame
         foreach (Item item in Enum.GetValues<Item>())
         {
             var option = new IntegerOptionItem(id++, $"TMG.Setting.ItemCost.{item}", new IntegerValueRule(1, 100, 1), 5, tab)
+                .SetHeader((int)item == 0)
                 .SetColor(color)
                 .SetGameMode(gameMode);
 
@@ -153,7 +154,7 @@ public static class TheMindGame
     {
         if (!target.IsAlive()) return string.Empty;
 
-        var sb = new StringBuilder();
+        var sb = new StringBuilder("<#ffffff>");
 
         bool self = seer.PlayerId == target.PlayerId;
         int points = Points[target.PlayerId];
@@ -271,6 +272,9 @@ public static class TheMindGame
         TimeForEachPickInRound3 = TimeForEachPickInRound3Option.GetInt();
         MaxPlayersForRound4 = MaxPlayersForRound4Option.GetInt();
         MindDetectiveFailChance = MindDetectiveFailChanceOption.GetInt();
+
+        if (MinPlayersInRound2 > aapc.Length)
+            MinPlayersInRound2 = aapc.Length;
 
         {
             IEnumerable<IEnumerable<PlayerControl>> groups = aapc.Partition(NumGroupsForRound1);
