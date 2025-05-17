@@ -8592,7 +8592,7 @@
   "Generator.Shapeshift.Cost": "変身に必要なチャージ量",
   "Generator.Notify.RevertShapeshift": "あなたは チャージがないので、変身が元に戻された",
   "Generator.Notify.NotEnoughCharges": "あなたは ({0}) それをする 十分なチャージ量がありません",
-  "GNoCommandInfo": "<b>This Command can only be used when in lobby or after you die.</b>\\n\\ntype <b>/gno X</b> to play guess a number. X can be a number between 0 and 99 (both included). \\n\\nYou get maximum of <color=#ff0000>7 tries</color> to guess the number.\\n\\n Example:- <b>/gno 10</b>",
+  "GNoCommandInfo": "<size=80%><b>このコマンドは ロビー内 または あなたが死んだ後のときにのみ使用できます。</b>\\n\\n<b>/gno X</b> と入力することで 数字の推測で遊べます。\\nXは 0 から 99 までの数字 (両方を含む) で できます。\\n\\nあなたが 数字の推測をするための <color=#ff0000>7 回の試み</color>が得られます。\\n\\n 例:- <b>/gno 10</b></size>",
   "GNoLost": "Oh, you were so close! Just one more guess, and you might have deciphered the Da Vinci code! By the way, <color=#ff0000>the secret number was... {0}!</color> But hey, you were only off by a few billion possibilities.  Better luck next time, Sherlock! ",
   "GNoLow": "Oh, you're really nailing this! It's so low, I almost need a shovel to dig it up!\\nYou have <color=#ff0000>{0} guesses</color> left!",
   "GNoHigh": "Oh, absolutely! You're getting warmer. In fact, it's so high, I need a telescope to see it from here! \\nYou have <color=#ff0000>{0} guesses</color> left!",
