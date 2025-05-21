@@ -2605,7 +2605,7 @@
   "LoadingHint.8": "Did you know?\nHackers usually don't have a friend code, so you can easily enable the protect in System Settings!",
   "LoadingHint.9": "Did you know?\nYou can quickly change game settings without opening the menu using /changesetting (/cs)!\nExample: /cs map polus",
   "LoadingHint.10": "Did you know?\nYou can customize your lobby tag using custom translation files!",
-  "LoadingHint.11": "Did you know?\nYou can set your role/add-on for the next game using /setrole or /setaddon as the host!",
+  "LoadingHint.11": "Did you know?\nYou can set your role/add-on for the next game using /setrole and /setaddon as the host!",
   "LoadingHint.12": "Confused about your death? Don't know who killed you?\nUse /death or /d after you die!",
   "LoadingHint.13": "Did you know?\nYou can use /poll to ask your players a question and let them vote!",
   "LoadingHint.14": "Bored of waiting in lobby or after dying early?\nUse /gno to play a simple Guess The Number minigame to speed up time!",
