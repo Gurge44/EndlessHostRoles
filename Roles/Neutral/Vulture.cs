@@ -141,6 +141,7 @@ public class Vulture : RoleBase
 
         if (Utils.TimeStamp - LastReport < VultureReportCD.GetFloat()) return true;
 
+        pc.RPCPlayCustomSound("Eat");
         BodyReportCount++;
         pc.RpcRemoveAbilityUse();
 
