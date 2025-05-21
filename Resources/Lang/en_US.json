@@ -2359,7 +2359,7 @@
   "CommandDescription.Version": "View the current version of EHR",
   "CommandDescription.ChangeSetting": "Change the game settings",
   "CommandDescription.Winner": "View the winners of the last game",
-  "CommandDescription.LastResult": "View the roles/add-ons of players in the last game",
+  "CommandDescription.LastResult": "View the roles and add-ons of players in the last game",
   "CommandDescription.Rename": "Gives you a new name",
   "CommandDescription.HideName": "Hides your name",
   "CommandDescription.Level": "Changes your level",
