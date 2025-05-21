@@ -107,4 +107,9 @@ public class Duellist : RoleBase
             }
         }
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(GetString("DuellistButtonText"));
+    }
 }

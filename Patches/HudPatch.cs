@@ -205,12 +205,15 @@ internal static class HudManagerPatch
 
                     switch (role)
                     {
+                        case CustomRoles.CopyCat:
                         case CustomRoles.Farseer:
                         case CustomRoles.Escort:
                         case CustomRoles.Gaulois:
                         case CustomRoles.Sheriff:
+                        case CustomRoles.Socialite:
                         case CustomRoles.Crusader:
                         case CustomRoles.Monarch:
+                        case CustomRoles.Wizard:
                             usedButton?.OverrideText(GetString($"{role}KillButtonText"));
                             break;
                         case CustomRoles.Analyst:
@@ -220,6 +223,10 @@ internal static class HudManagerPatch
                         case CustomRoles.DonutDelivery:
                         case CustomRoles.Medic:
                             usedButton?.OverrideText(GetString("MedicalerButtonText"));
+                            break;
+                        case CustomRoles.Agitater:
+                        case CustomRoles.Potato:
+                            usedButton?.OverrideText(GetString("AgitaterButtonText"));
                             break;
                         case CustomRoles.KB_Normal:
                             __instance.KillButton?.OverrideText(GetString("GamerButtonText"));

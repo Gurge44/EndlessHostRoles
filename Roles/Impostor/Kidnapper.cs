@@ -44,4 +44,9 @@ internal class Kidnapper : RoleBase
     {
         On = true;
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("KidnapperButtonText"));
+    }
 }
