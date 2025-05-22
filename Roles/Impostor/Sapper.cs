@@ -81,7 +81,7 @@ public class Sapper : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
         return PlaceBomb(shapeshifter);
     }
 

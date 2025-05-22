@@ -48,7 +48,7 @@ public class Auditor : RoleBase
         On = true;
         Instances.Add(this);
         AuditorID = playerId;
-        AbilityTrigger = Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? AbilityTriggers.Vanish : Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() ? AbilityTriggers.Unshift : Options.UsePets.GetBool() ? AbilityTriggers.Pet : AbilityTriggers.Vent;
+        AbilityTrigger = Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? AbilityTriggers.Vanish : Options.UsePets.GetBool() ? AbilityTriggers.Pet : AbilityTriggers.Vent;
         Mode = Modes.Auditing;
         LoweredVisionPlayers = [];
         RevealedPlayers = [];
@@ -122,14 +122,6 @@ public class Auditor : RoleBase
         SwitchMode(pc);
     }
 
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
-    {
-        if (!shapeshifting && AbilityTrigger == AbilityTriggers.Unshift)
-            SwitchMode(shapeshifter);
-
-        return false;
-    }
-
     public override bool OnVanish(PlayerControl pc)
     {
         if (AbilityTrigger == AbilityTriggers.Vanish)
@@ -192,7 +184,6 @@ public class Auditor : RoleBase
     {
         Vent,
         Pet,
-        Unshift,
         Vanish
     }
 

@@ -123,7 +123,7 @@ internal class Bomber : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         Bomb(shapeshifter);
 

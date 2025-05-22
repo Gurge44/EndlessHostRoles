@@ -135,8 +135,6 @@ public class Magician : RoleBase
     {
         opt.SetVision(HasImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
-
-        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
@@ -150,7 +148,7 @@ public class Magician : RoleBase
         sb.Append("\n\n");
         sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Card name: <color=#ffffff>{GetString($"Magician-GetIdToName-{CardId}")}</color>"));
         sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Description: <color=#ffffff>{GetString($"Magician-GetIdToDesc-{CardId}")}</color>"));
-        sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Trigger by: <color=#ffffff>{(UsePets.GetBool() ? "Pet button" : UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "Vanish button" : UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "Shapeshift button" : "Sabotage")}</color>"));
+        sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Trigger by: <color=#ffffff>{(UsePets.GetBool() ? "Pet button" : UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "Vanish button" : "Sabotage")}</color>"));
 
         killer.Notify(sb.ToString(), 15f);
     }
@@ -175,8 +173,7 @@ public class Magician : RoleBase
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (shapeshifter == null) return false;
-
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return false;
+        if (!shapeshifting) return false;
 
         UseCard(shapeshifter);
         return false;

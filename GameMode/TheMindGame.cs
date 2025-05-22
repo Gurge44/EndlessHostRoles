@@ -34,7 +34,7 @@ public static class TheMindGame
     private static List<byte> Round4PlacesFromFirst;
     private static List<byte> Round4PlacesFromLast;
     private static List<byte> EjectedPlayers;
-    private static int Round = 1;
+    private static int Round;
 
     // Settings
     private static bool PlayersCanSeeOthersPoints = true;
@@ -83,7 +83,7 @@ public static class TheMindGame
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        TimeForEachPickInRound1Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound1", new IntegerValueRule(1, 60, 1), 15, tab)
+        TimeForEachPickInRound1Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound1", new IntegerValueRule(1, 60, 1), 12, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
 
@@ -111,7 +111,7 @@ public static class TheMindGame
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        TimeForEachPickInRound3Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound3", new IntegerValueRule(1, 60, 1), 30, tab)
+        TimeForEachPickInRound3Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound3", new IntegerValueRule(1, 60, 1), 20, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
 
@@ -119,13 +119,24 @@ public static class TheMindGame
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        MindDetectiveFailChanceOption = new IntegerOptionItem(id++, "TMG.Setting.MindDetectiveFailChance", new IntegerValueRule(0, 100, 1), 10, tab)
+        MindDetectiveFailChanceOption = new IntegerOptionItem(id++, "TMG.Setting.MindDetectiveFailChance", new IntegerValueRule(0, 100, 1), 5, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
 
         foreach (Item item in Enum.GetValues<Item>())
         {
-            var option = new IntegerOptionItem(id++, $"TMG.Setting.ItemCost.{item}", new IntegerValueRule(1, 100, 1), 5, tab)
+            int defaultValue = item switch
+            {
+                Item.BlindingGas => 5,
+                Item.MerchantDise => 2,
+                Item.Lasso => 6,
+                Item.DoubleModifier => 4,
+                Item.Fool => 3,
+                Item.MindDetective => 2,
+                _ => 5
+            };
+
+            var option = new IntegerOptionItem(id++, $"TMG.Setting.ItemCost.{item}", new IntegerValueRule(1, 100, 1), defaultValue, tab)
                 .SetHeader((int)item == 0)
                 .SetColor(color)
                 .SetGameMode(gameMode);
@@ -152,7 +163,7 @@ public static class TheMindGame
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target)
     {
-        if (!target.IsAlive() || !Main.IntroDestroyed) return string.Empty;
+        if (!target.IsAlive() || !Main.IntroDestroyed || Round is 0 or 5) return string.Empty;
 
         var sb = new StringBuilder("<#ffffff>");
 
@@ -213,9 +224,7 @@ public static class TheMindGame
             sb.Append('\n');
             sb.Append(Translator.GetString("TMG.Suffix.YourItems"));
             sb.Append('\n');
-            Dictionary<Item, int> count = items.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
-            string join = string.Join(", ", count.Select(x => $"{x.Value}x {Translator.GetString($"TMG.Item.{x.Key}")}"));
-            sb.Append(join);
+            sb.Append(string.Join(", ", items.GroupBy(x => x).Select(x => $"{x.Count()}x {Translator.GetString($"TMG.Item.{x.Key}")} (ID {ItemIds[seer.PlayerId][x.Key]})")));
             sb.Append('\n');
             sb.Append('\n');
             sb.Append(Translator.GetString("TMG.Suffix.UseItemHint"));
@@ -226,9 +235,10 @@ public static class TheMindGame
 
     public static IEnumerator OnGameStart()
     {
-        yield return null;
+        Round = 0;
+        ShowSuffixOtherThanPoints = false;
 
-        Round = 1;
+        yield return null;
 
         var currentMap = Main.CurrentMap;
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).Distinct().Shuffle();
@@ -314,6 +324,8 @@ public static class TheMindGame
             }
         }
 
+        Round = 1;
+
         Main.Instance.StartCoroutine(PreventMovingOutOfGroupRooms());
 
         Utils.SetChatVisibleForAll();
@@ -324,7 +336,7 @@ public static class TheMindGame
         yield return NotifyEveryone("TMG.Notify.Round", 2, 1);
         if (Stop) yield break;
 
-        yield return NotifyEveryone("TMG.Tutorial.Round1", 10, TimeForEachPickInRound1, NumPointsToAdvanceInRound1, MinPlayersInRound2);
+        yield return NotifyEveryone("TMG.Tutorial.Round1", 12, TimeForEachPickInRound1, NumPointsToAdvanceInRound1, Main.AllAlivePlayerControls.Length - MinPlayersInRound2);
         if (Stop) yield break;
 
         Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.PhantomEHR));
@@ -369,19 +381,11 @@ public static class TheMindGame
             if (Stop) yield break;
             NameNotifyManager.Reset();
 
-            int playersAdvancing = Points.Count(x => x.Value >= NumPointsToAdvanceInRound1);
-            yield return NotifyEveryone("TMG.Notify.Round1NumPlayersAdvancing", 3, playersAdvancing, Main.AllAlivePlayerControls.Length, MinPlayersInRound2);
-            if (Stop) yield break;
-
-            if (playersAdvancing >= MinPlayersInRound2) break;
+            if (Points.Values.Any(x => x >= NumPointsToAdvanceInRound1)) break;
         }
 
-        foreach (List<byte> playerIds in GroupPlayers.Values)
-        {
-            var points = playerIds.ToDictionary(x => x, x => Points[x]);
-            int lowestScore = points.Values.Min();
-            playerIds.Intersect(Main.AllAlivePlayerControls.Select(x => x.PlayerId)).Join(points, x => x, x => x.Key, (id, kvp) => (id, points: kvp.Value)).DoIf(x => x.points == lowestScore, x => x.id.GetPlayer().Suicide());
-        }
+        aapc = Main.AllAlivePlayerControls;
+        aapc.Join(Points, x => x.PlayerId, x => x.Key, (pc, kvp) => (pc, points: kvp.Value)).OrderBy(x => x.points).SkipLast(MinPlayersInRound2).Do(x => x.pc.Suicide());
 
         Round = 2;
 
@@ -390,7 +394,7 @@ public static class TheMindGame
         yield return NotifyEveryone("TMG.Notify.Round", 2, 2);
         if (Stop) yield break;
 
-        yield return NotifyEveryone("TMG.Tutorial.Round2", 9, SuperPointsToNormalPointsMultiplier);
+        yield return NotifyEveryone("TMG.Tutorial.Round2", 10, SuperPointsToNormalPointsMultiplier);
         if (Stop) yield break;
 
         for (int i = 0; i < 3; i++)
@@ -467,19 +471,18 @@ public static class TheMindGame
             }
         }
 
-        Main.AllAlivePlayerControls.ExceptBy(AmReady, x => x.PlayerId).Do(x => x.RpcChangeRoleBasis(CustomRoles.TMGPlayer));
         ShowSuffixOtherThanPoints = false;
 
         yield return NotifyEveryone("TMG.Notify.ItemPurchasingEnd", 3);
         if (Stop) yield break;
+
+        Round = 3;
 
         yield return NotifyEveryone("TMG.Notify.Round", 2, 3);
         if (Stop) yield break;
 
         yield return NotifyEveryone("TMG.Tutorial.Round3", 6, Main.AllAlivePlayerControls.Length, MaxPlayersForRound4);
         if (Stop) yield break;
-
-        Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.PhantomEHR));
 
         while (true)
         {
@@ -593,6 +596,8 @@ public static class TheMindGame
             }
         }
 
+        Round = 5;
+
         HiddenPoints.Clear();
         EjectedPlayers.ToValidPlayers().FindAll(x => !x.IsAlive()).ForEach(x => x.RpcRevive());
 
@@ -677,26 +682,26 @@ public static class TheMindGame
         }
     }
 
-    public static string GetEjectionMessage(NetworkedPlayerInfo exiled)
+    public static string GetEjectionMessage(byte exiledPlayerId)
     {
-        if (exiled == null) return string.Empty;
+        EjectedPlayers.Add(exiledPlayerId);
 
-        EjectedPlayers.Add(exiled.PlayerId);
-
-        if (WinningBriefcaseHolderId == exiled.PlayerId)
+        if (WinningBriefcaseHolderId == exiledPlayerId)
         {
-            Round4PlacesFromFirst.Add(exiled.PlayerId);
-            return string.Format(Translator.GetString("TMG.EjectionText.HadWinningBriefcase"), exiled.PlayerId.ColoredPlayerName(), Round4PlacesFromFirst.IndexOf(exiled.PlayerId) + 1);
+            Round4PlacesFromFirst.Add(exiledPlayerId);
+            return string.Format(Translator.GetString("TMG.EjectionText.HadWinningBriefcase"), exiledPlayerId.ColoredPlayerName(), Round4PlacesFromFirst.IndexOf(exiledPlayerId) + 1);
         }
 
-        Round4PlacesFromLast.Add(exiled.PlayerId);
-        return string.Format(Translator.GetString("TMG.EjectionText.HadEmptyBriefcase"), exiled.PlayerId.ColoredPlayerName());
+        Round4PlacesFromLast.Add(exiledPlayerId);
+        return string.Format(Translator.GetString("TMG.EjectionText.HadEmptyBriefcase"), exiledPlayerId.ColoredPlayerName());
     }
 
     public static void OnChat(PlayerControl pc, string text)
     {
         try
         {
+            if (Round < 2 || !text.Any(x => x is >= '0' and <= '9') || text.Length < 2 || GameStates.IsLobby) return;
+
             switch (text[0])
             {
                 case 'b':
@@ -807,7 +812,7 @@ public static class TheMindGame
                 {
                     if (WinningBriefcaseLastHolderId != pc.PlayerId)
                     {
-                        Utils.SendMessage(Translator.GetString("TMG.Message.StealBackNotLastHolder"), pc.PlayerId, "<#ff0000>X</color>");
+                        if (Round == 4) Utils.SendMessage(Translator.GetString("TMG.Message.StealBackNotLastHolder"), pc.PlayerId, "<#ff0000>X</color>");
                         break;
                     }
 
@@ -886,9 +891,9 @@ public static class TheMindGame
                 if (Pick[player.PlayerId] > 3) Pick[player.PlayerId] = 1;
                 break;
             }
-            case 2 when AuctionValue == 0 && AmReady.Add(player.PlayerId):
+            case 2 when AuctionValue == 0:
             {
-                LateTask.New(() => player.RpcChangeRoleBasis(CustomRoles.TMGPlayer), 0.3f, log: false);
+                AmReady.Add(player.PlayerId);
                 break;
             }
             case 2:

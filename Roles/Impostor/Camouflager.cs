@@ -66,33 +66,20 @@ public class Camouflager : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
-        bool unshift = Options.UseUnshiftTrigger.GetBool();
-
-        if (!shapeshifting && !unshift)
+        if (!shapeshifting)
         {
             IsActive = false;
             Camouflage.CheckCamouflage();
             return true;
         }
 
-        if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool() && !unshift) pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
+        if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool()) pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
 
         pc.RpcRemoveAbilityUse();
         IsActive = true;
         Camouflage.CheckCamouflage();
 
-        if (unshift)
-        {
-            LateTask.New(() =>
-            {
-                if (!IsActive) return;
-
-                IsActive = false;
-                Camouflage.CheckCamouflage();
-            }, CamouflageDuration.GetFloat());
-        }
-
-        return !unshift;
+        return true;
     }
 
     public override void OnReportDeadBody()

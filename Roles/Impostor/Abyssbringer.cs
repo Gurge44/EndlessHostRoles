@@ -89,7 +89,7 @@ public class Abyssbringer : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         CreateBlackHole(shapeshifter);
         return false;

@@ -19,7 +19,8 @@ namespace EHR
     {
         public static List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
-        private readonly HashSet<byte> HiddenList = [];
+
+        private static List<CustomNetObject> TempDespawnedObjects = [];
         protected int Id;
         public PlayerControl playerControl;
         public Vector2 Position;
@@ -83,6 +84,7 @@ namespace EHR
 
         public void TP(Vector2 position)
         {
+            playerControl.NetTransform.RpcSnapTo(position);
             Position = position;
         }
 
@@ -96,18 +98,13 @@ namespace EHR
                 playerControl.Despawn();
                 AllObjects.Remove(this);
             }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         protected void Hide(PlayerControl player)
         {
             if (!AmongUsClient.Instance.AmHost) return;
             Logger.Info($" Hide Custom Net Object {GetType().Name} (ID {Id}) from {player.GetNameWithRole()}", "CNO.Hide");
-
-            HiddenList.Add(player.PlayerId);
 
             if (player.AmOwner)
             {
@@ -140,30 +137,7 @@ namespace EHR
             writer.Recycle();
         }
 
-        protected virtual void OnFixedUpdate()
-        {
-            if (!AmongUsClient.Instance.AmHost) return;
-
-            CustomNetworkTransform nt = playerControl.NetTransform;
-            if (nt == null) return;
-
-            playerControl.Collider.enabled = false;
-
-            if (Position != nt.body.position)
-            {
-                Transform transform = nt.transform;
-                nt.body.position = Position;
-                transform.position = Position;
-                nt.body.velocity = Vector2.zero;
-                nt.lastSequenceId++;
-            }
-
-            if (nt.HasMoved())
-            {
-                nt.sendQueue.Enqueue(nt.body.position);
-                nt.SetDirtyBit(2U);
-            }
-        }
+        protected virtual void OnFixedUpdate() { }
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
@@ -177,7 +151,34 @@ namespace EHR
             MessageWriter msg = MessageWriter.Get();
             msg.StartMessage(5);
             msg.Write(AmongUsClient.Instance.GameId);
-            AmongUsClient.Instance.WriteSpawnMessage(playerControl, -2, SpawnFlags.None, msg);
+            msg.StartMessage(4);
+            msg.WritePacked(playerControl.SpawnId);
+            msg.WritePacked(-2);
+            msg.Write((byte)SpawnFlags.None);
+            InnerNetObject[] componentsInChildren = playerControl.GetComponentsInChildren<InnerNetObject>();
+            msg.WritePacked(componentsInChildren.Length);
+
+            for (int index = 0; index < componentsInChildren.Length; ++index)
+            {
+                InnerNetObject innerNetObject = componentsInChildren[index];
+                innerNetObject.OwnerId = -2;
+                innerNetObject.SpawnFlags = SpawnFlags.None;
+
+                if (innerNetObject.NetId == 0U)
+                {
+                    innerNetObject.NetId = AmongUsClient.Instance.NetIdCnt++;
+                    InnerNetObjectCollection allObjects = AmongUsClient.Instance.allObjects;
+                    allObjects.allObjects.Add(innerNetObject);
+                    allObjects.allObjectsFast.Add(innerNetObject.NetId, innerNetObject);
+                }
+
+                msg.WritePacked(innerNetObject.NetId);
+                msg.StartMessage(1);
+                innerNetObject.Serialize(msg, true);
+                msg.EndMessage();
+            }
+
+            msg.EndMessage();
             msg.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(msg);
             msg.Recycle();
@@ -326,8 +327,6 @@ namespace EHR
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
-
-        private static List<CustomNetObject> TempDespawnedObjects = [];
 
         public static void OnMeeting()
         {

@@ -1574,29 +1574,6 @@ internal static class ExtendedPlayerControl
         reporter.RpcStartMeeting(target);
     }
 
-    public static void CheckAndSetUnshiftState(this PlayerControl pc, bool notify = true, bool force = false)
-    {
-        CustomRoles role = pc.GetCustomRole();
-
-        if (force || role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
-        {
-            Logger.Info($"Set Unshift State For {pc.GetNameWithRole()}", "CheckAndSetUnshiftState");
-            PlayerControl target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
-            NetworkedPlayerInfo.PlayerOutfit outfit = pc.Data.DefaultOutfit;
-            bool process = Main.ProcessShapeshifts;
-            Main.ProcessShapeshifts = false;
-            pc.RpcShapeshift(target, false);
-            Main.ProcessShapeshifts = process;
-            Main.CheckShapeshift[pc.PlayerId] = false;
-
-            LateTask.New(() =>
-            {
-                RpcChangeSkin(pc, outfit);
-                if (notify) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
-            }, 0.1f, log: false);
-        }
-    }
-
     public static bool UsesPetInsteadOfKill(this PlayerControl pc)
     {
         return pc != null && !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().UsesPetInsteadOfKill();

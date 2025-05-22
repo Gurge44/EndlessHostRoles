@@ -112,7 +112,7 @@ internal static class ChangeRoleSettings
 
             for (var index = 0; index < GameData.Instance.PlayerCount; ++index)
             {
-                PlayerControl player = GameData.Instance.AllPlayers[index].Object; // False error
+                PlayerControl player = GameData.Instance.AllPlayers[index].Object;
 
                 if (player)
                 {
@@ -521,7 +521,7 @@ internal static class StartGameHostPatch
         if (!ShipStatus.Instance)
         {
             int index = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
-            AUClient.ShipLoadingAsyncHandle = AUClient.ShipPrefabs[index].InstantiateAsync(); // False error
+            AUClient.ShipLoadingAsyncHandle = AUClient.ShipPrefabs[index].InstantiateAsync();
 
             while (!AUClient.ShipLoadingAsyncHandle.IsDone)
             {
@@ -562,7 +562,7 @@ internal static class StartGameHostPatch
             {
                 for (var index = 0; index < AUClient.allClients.Count; ++index)
                 {
-                    ClientData allClient = AUClient.allClients[index]; // False error
+                    ClientData allClient = AUClient.allClients[index];
 
                     if (allClient.Id != AUClient.ClientId && !allClient.IsReady)
                     {

@@ -146,7 +146,7 @@ internal class Assassin : RoleBase
     {
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
 
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         Take(pc);
 

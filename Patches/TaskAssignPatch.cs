@@ -258,7 +258,7 @@ internal static class RpcSetTasksPatch
 
         // Convert the list of tasks to array (Il2CppStructArray)
         taskTypeIds = new(TasksList.Count);
-        for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i]; // False error
+        for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i];
 
         #region Logging
 

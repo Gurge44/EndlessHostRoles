@@ -51,7 +51,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2025.3.25";
+    public const string SupportedAUVersion = "2025.4.15";
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 

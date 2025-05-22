@@ -45,8 +45,6 @@ internal class Swiftclaw : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = DashCD.GetFloat() + DashDuration.GetFloat();
-
-        if (Options.UseUnshiftTrigger.GetBool()) AURoleOptions.ShapeshifterCooldown = DashCD.GetFloat() + DashDuration.GetFloat();
     }
 
     public override void OnPet(PlayerControl pc)
@@ -62,7 +60,7 @@ internal class Swiftclaw : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         Dash(shapeshifter);
         return false;
@@ -88,14 +86,14 @@ internal class Swiftclaw : RoleBase
 
     public override void OnReportDeadBody()
     {
-        foreach (KeyValuePair<byte, (long StartTimeStamp, float NormalSpeed)> item in DashStart) Main.AllPlayerSpeed[item.Key] = item.Value.NormalSpeed;
+        foreach (KeyValuePair<byte, (long StartTimeStamp, float NormalSpeed)> item in DashStart)
+            Main.AllPlayerSpeed[item.Key] = item.Value.NormalSpeed;
 
         DashStart.Clear();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        ActionButton button = Options.UseUnshiftTrigger.GetBool() ? hud.AbilityButton : hud.PetButton;
-        button?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
+        hud.PetButton?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
     }
 }

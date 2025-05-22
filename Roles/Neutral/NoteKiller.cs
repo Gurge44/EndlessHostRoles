@@ -103,9 +103,6 @@ public class NoteKiller : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetVision(ImpostorVision.GetBool());
-
-        if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
-            AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -172,14 +169,6 @@ public class NoteKiller : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, NoteKillerID, 3);
             Utils.NotifyRoles(SpecifySeer: pc);
         }
-    }
-
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
-    {
-        if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() && !shapeshifting)
-            OnPet(shapeshifter);
-
-        return false;
     }
 
     public override void AfterMeetingTasks()

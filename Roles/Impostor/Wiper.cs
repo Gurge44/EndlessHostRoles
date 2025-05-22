@@ -49,9 +49,7 @@ public class Wiper : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (Options.UseUnshiftTrigger.GetBool())
-            AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetInt();
-        else if (Options.UsePhantomBasis.GetBool())
+        if (Options.UsePhantomBasis.GetBool())
             AURoleOptions.PhantomCooldown = AbilityCooldown.GetInt();
     }
 

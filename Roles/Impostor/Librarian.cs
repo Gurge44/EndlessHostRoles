@@ -154,7 +154,7 @@ public class Librarian : RoleBase
 
         ChangeSilencingMode(pc);
 
-        return (!shapeshifting && !UseUnshiftTrigger.GetBool()) || ShowSSAnimation.GetBool();
+        return !shapeshifting || ShowSSAnimation.GetBool();
     }
 
     public override bool OnVanish(PlayerControl pc)
@@ -179,7 +179,7 @@ public class Librarian : RoleBase
     {
         if (!IsEnable) return;
 
-        if (ShowSSAnimation.GetBool() && !UsePhantomBasis.GetBool() && !UseUnshiftTrigger.GetBool()) return;
+        if (ShowSSAnimation.GetBool() && !UsePhantomBasis.GetBool()) return;
 
         if (IsInSilencingMode.SILENCING && IsInSilencingMode.LAST_CHANGE + SSDur.GetInt() < TimeStamp)
         {

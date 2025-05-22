@@ -1020,13 +1020,6 @@ internal static class IntroCutsceneDestroyPatch
 
             try
             {
-                if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
-                    LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            try
-            {
                 System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
                 if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
 

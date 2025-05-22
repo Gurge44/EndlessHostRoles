@@ -349,7 +349,7 @@ internal static class CheckForEndVotingPatch
         }
     }
 
-    // Reference：https://github.com/music-discussion/TownOfHost-TheOtherRoles
+    // Reference: https://github.com/music-discussion/TownOfHost-TheOtherRoles
     private static void ConfirmEjections(NetworkedPlayerInfo exiledPlayer, bool tiebreaker)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -505,7 +505,7 @@ internal static class CheckForEndVotingPatch
         EndOfSession:
 
         if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
-            name = TheMindGame.GetEjectionMessage(exiledPlayer);
+            name = TheMindGame.GetEjectionMessage(exileId);
 
         name = name.Replace("color=", string.Empty) + "<size=0>";
         TempExiledPlayer = exiledPlayer;
@@ -1302,7 +1302,7 @@ internal static class MeetingHudRpcClosePatch
     {
         Logger.Info("MeetingHud.RpcClose is being called", "MeetingHudRpcClosePatch");
 
-        if (Options.CurrentGameMode == CustomGameMode.Standard)
+        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame)
         {
             if (AmongUsClient.Instance.AmClient)
                 __instance.Close();
@@ -1386,7 +1386,7 @@ internal static class ExileControllerBeginPatch
 {
     public static void Postfix(ExileController __instance, [HarmonyArgument(0)] ExileController.InitProperties init)
     {
-        if (Options.CurrentGameMode == CustomGameMode.Standard && init is { outfit: not null })
+        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && init is { outfit: not null })
             __instance.completeString = CheckForEndVotingPatch.EjectionText;
     }
 }

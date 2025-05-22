@@ -87,11 +87,6 @@ public class Amogus : RoleBase
             AURoleOptions.PhantomCooldown = AbilityCooldown.GetInt();
             AURoleOptions.PhantomDuration = AbilityDuration.GetInt();
         }
-        else if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
-        {
-            AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetInt();
-            AURoleOptions.ShapeshifterDuration = AbilityDuration.GetInt();
-        }
 
         if (CurrentLevel >= Levels.Sugoma) Main.AllPlayerSpeed[id] = SugomaSpeed.GetFloat();
         if (CurrentLevel == Levels.Sugoma) Main.AllPlayerSpeed[id] *= -1;
@@ -115,14 +110,6 @@ public class Amogus : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         OnPet(pc);
-        return false;
-    }
-
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
-    {
-        if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() && !shapeshifting)
-            OnPet(shapeshifter);
-
         return false;
     }
 

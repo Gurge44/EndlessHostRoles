@@ -177,8 +177,6 @@ public static class MushroomMixupSabotageSystemPatch
                 var sender = CustomRpcSender.Create("MushroomMixupSabotageSystemPatch.Postfix", SendOption.Reliable);
                 Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => sender.RpcResetAbilityCooldown(x));
                 sender.SendMessage();
-
-                Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState());
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -289,7 +287,7 @@ public static class ElectricTaskCompletePatch
 
                 if (role == CustomRoles.Wiper)
                 {
-                    if (Options.UseUnshiftTrigger.GetBool() || Options.UsePhantomBasis.GetBool()) pc.RpcResetAbilityCooldown();
+                    if (Options.UsePhantomBasis.GetBool()) pc.RpcResetAbilityCooldown();
                     else pc.AddAbilityCD();
                 }
             }

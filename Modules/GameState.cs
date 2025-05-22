@@ -171,8 +171,6 @@ public class PlayerState(byte playerId)
             if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal))
                 jackal.SidekickId = PlayerId;
 
-            LateTask.New(() => Player.CheckAndSetUnshiftState(), 1f, log: false);
-
             if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                 Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 

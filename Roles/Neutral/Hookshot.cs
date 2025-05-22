@@ -69,8 +69,6 @@ internal class Hookshot : RoleBase
     {
         opt.SetVision(HasImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
-
-        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
     }
 
     private void SendRPC()
@@ -112,7 +110,7 @@ internal class Hookshot : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         ExecuteAction();
         return false;

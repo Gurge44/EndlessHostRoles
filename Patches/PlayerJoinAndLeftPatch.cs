@@ -297,22 +297,6 @@ internal static class OnPlayerLeftPatch
                 Main.SayStartTimes.Remove(__instance.ClientId);
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
                 Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
-
-                if (data != null && data.Character != null)
-                {
-                    uint netid = data.Character.NetId;
-
-                    LateTask.New(() =>
-                    {
-                        if (GameStates.IsOnlineGame)
-                        {
-                            MessageWriter messageWriter = AmongUsClient.Instance.Streams[1];
-                            messageWriter.StartMessage(5);
-                            messageWriter.WritePacked(netid);
-                            messageWriter.EndMessage();
-                        }
-                    }, 2.5f, "Repeat Despawn", false);
-                }
             }
 
             Utils.CountAlivePlayers(true);

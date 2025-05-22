@@ -77,8 +77,6 @@ internal class Tiger : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
-
-        if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
     }
 
     public override bool OnSabotage(PlayerControl pc)
@@ -110,7 +108,7 @@ internal class Tiger : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         if (CooldownTimer <= 0f)
         {

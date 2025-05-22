@@ -113,9 +113,9 @@ public class Banshee : Coven
 
     public static void OnReceiveChat()
     {
-        HashSet<PlayerControl> screechedPlayers = Instances.SelectMany(x => x.ScreechedPlayers).ToValidPlayers().ToHashSet();
-        if (screechedPlayers.Count == 0) return;
+        PlayerControl[] screechedPlayers = Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().ToArray();
+        if (screechedPlayers.Length == 0) return;
 
-        LateTask.New(() => screechedPlayers.Do(ChatManager.ClearChatForSpecificPlayer), Utils.CalculatePingDelay());
+        LateTask.New(() => ChatManager.ClearChat(screechedPlayers), Utils.CalculatePingDelay());
     }
 }

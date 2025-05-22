@@ -171,7 +171,6 @@ public enum Sounds
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal static class RPCHandlerPatch
 {
-    public static readonly Dictionary<byte, int> ReportDeadBodyRPCs = [];
     public static readonly Dictionary<byte, int> NumRPCsThisSecond = [];
 
     private static bool TrustedRpc(byte id)
@@ -233,7 +232,7 @@ internal static class RPCHandlerPatch
                 return false;
             }
 
-            if (NumRPCsThisSecond.TryGetValue(__instance.PlayerId, out int times) && times > (GameStates.IsLobby ? 24 : 40))
+            if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && NumRPCsThisSecond.TryGetValue(__instance.PlayerId, out int times) && times > 50)
             {
                 AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
                 Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName));
@@ -251,6 +250,29 @@ internal static class RPCHandlerPatch
             Logger.Info($"__instance: {__instance.GetNameWithRole()}, callId: {callId} ({RPC.GetRpcName(callId)})", "RPCHandlerPatch.Postfix");
 
             var rpcType = (CustomRPC)callId;
+
+            switch (callId)
+            {
+                case 70:
+                {
+                    Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName));
+                    break;
+                }
+                case 80:
+                {
+                    reader.ReadString();
+                    reader.ReadString();
+
+                    if (reader.ReadString() != Main.ForkId)
+                    {
+                        AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                        Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName));
+                    }
+
+                    break;
+                }
+            }
+
             if (AmongUsClient.Instance.AmHost && !TrustedRpc(callId)) return;
 
             switch (rpcType)
@@ -1303,11 +1325,11 @@ internal static class RPC
                 Utils.SendRPC(CustomRPC.VersionCheck, Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
             else
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck, SendOption.Reliable, AmongUsClient.Instance.HostId);
                 writer.Write(Main.PluginVersion);
                 writer.Write($"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
                 writer.Write(Main.ForkId);
-                writer.EndMessage();
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
 
             Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
@@ -1511,41 +1533,6 @@ internal static class PlayerPhysicsRPCHandlerPatch
         if (!player)
         {
             Logger.Warn("Received Physics RPC without a player", "PlayerPhysics_ReceiveRPC");
-            return false;
-        }
-
-        return true;
-    }
-}
-
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpc))]
-internal static class StartRpcPatch
-{
-    public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option = SendOption.Reliable)
-    {
-        RPC.SendRpcLogger(targetNetId, callId, option);
-    }
-}
-
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
-internal static class StartRpcImmediatelyPatch
-{
-    public static bool Prefix(InnerNetClient __instance, ref MessageWriter __result, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option, [HarmonyArgument(3)] int targetClientId = -1)
-    {
-        if (!__instance.AmHost) __result = __instance.StartRpc(targetNetId, callId, option);
-        RPC.SendRpcLogger(targetNetId, callId, option, targetClientId);
-        return __instance.AmHost;
-    }
-}
-
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FinishRpcImmediately))]
-internal static class FinishRpcImmediatelyPatch
-{
-    public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] MessageWriter msg)
-    {
-        if (!__instance.AmHost)
-        {
-            msg.EndMessage();
             return false;
         }
 

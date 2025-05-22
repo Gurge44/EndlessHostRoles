@@ -705,8 +705,6 @@ public static class Options
     public static OptionItem PetToAssignToEveryone;
     public static OptionItem AnonymousBodies;
     public static OptionItem EveryoneSeesDeadPlayersRoles;
-    public static OptionItem UseUnshiftTrigger;
-    public static OptionItem UseUnshiftTriggerForNKs;
     public static OptionItem UsePhantomBasis;
     public static OptionItem UsePhantomBasisForNKs;
     public static OptionItem AutoKickStart;
@@ -1467,7 +1465,7 @@ public static class Options
 
         AutoDraftStartCommandAfterJoin = new BooleanOptionItem(19426, "AutoDraftStartCommandAfterJoin", false, TabGroup.SystemSettings);
 
-        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
+        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 120, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -2119,16 +2117,6 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
-
-        UseUnshiftTrigger = new BooleanOptionItem(23871, "UseUnshiftTrigger", false, TabGroup.TaskSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetHeader(true)
-            .SetColor(new Color32(255, 44, 44, byte.MaxValue));
-
-        UseUnshiftTriggerForNKs = new BooleanOptionItem(23872, "UseUnshiftTriggerForNKs", false, TabGroup.TaskSettings)
-            .SetParent(UseUnshiftTrigger)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(255, 44, 44, byte.MaxValue));
 
         UsePhantomBasis = new BooleanOptionItem(23851, "UsePhantomBasis", true, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)

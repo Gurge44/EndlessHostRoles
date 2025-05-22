@@ -162,21 +162,21 @@ public class Sniper : RoleBase
         {
             if (target.PlayerId == sniper.PlayerId) continue;
 
-            Vector3 target_pos = target.transform.position - snipePos;
-            if (target_pos.magnitude < 1) continue;
+            Vector3 targetPos = target.transform.position - snipePos;
+            if (targetPos.magnitude < 1) continue;
 
-            Vector3 target_dir = target_pos.normalized;
-            float target_dot = Vector3.Dot(dir, target_dir);
-            if (target_dot < 0.995) continue;
+            Vector3 targetDir = targetPos.normalized;
+            float targetDot = Vector3.Dot(dir, targetDir);
+            if (targetDot < 0.995) continue;
 
             if (PrecisionShooting)
             {
-                float err = Vector3.Cross(dir, target_pos).magnitude;
+                float err = Vector3.Cross(dir, targetPos).magnitude;
                 if (err < 0.5) targets.Add(target, err);
             }
             else
             {
-                float err = target_pos.magnitude;
+                float err = targetPos.magnitude;
                 targets.Add(target, err);
             }
         }
@@ -186,7 +186,7 @@ public class Sniper : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        return Options.UseUnshiftTrigger.GetBool() ? Snipe(shapeshifter, !IsAim) : Snipe(shapeshifter, shapeshifting);
+        return Snipe(shapeshifter, shapeshifting);
     }
 
     public override void OnPet(PlayerControl pc)
@@ -208,8 +208,8 @@ public class Sniper : RoleBase
 
         if (bulletCount <= 0)
         {
-            float CD = ShapeshiftDuration.GetFloat() + 1f;
-            if (Main.KillTimers[sniper.PlayerId] < CD && !isPet) sniper.SetKillCooldown(CD);
+            float cd = ShapeshiftDuration.GetFloat() + 1f;
+            if (Main.KillTimers[sniper.PlayerId] < cd && !isPet) sniper.SetKillCooldown(cd);
 
             return false;
         }

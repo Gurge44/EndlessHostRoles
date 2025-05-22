@@ -83,8 +83,6 @@ internal class Mycologist : RoleBase
     {
         opt.SetVision(HasImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = CD.GetInt();
-
-        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = CD.GetInt();
     }
 
     private void SendRPC()
@@ -139,7 +137,7 @@ internal class Mycologist : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         if (SpreadAction.GetValue() == 4) SpreadSpores();
 

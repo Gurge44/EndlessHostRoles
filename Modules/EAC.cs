@@ -473,7 +473,7 @@ internal static class EAC
             case unchecked((byte)42069):
                 Report(pc, "AUM");
                 HandleCheat(pc, GetString("EAC.CheatDetected.EAC"));
-                return true;
+                break;
         }
 
         return true;
@@ -621,7 +621,7 @@ internal class GameDataHandlerPatch
             {
                 uint netId = reader.ReadPackedUInt32();
 
-                if (__instance.allObjectsFast.TryGetValue(netId, out InnerNetObject obj))
+                if (__instance.allObjects.allObjectsFast.TryGetValue(netId, out InnerNetObject obj))
                 {
                     if (obj.AmOwner)
                     {

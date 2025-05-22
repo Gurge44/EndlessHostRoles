@@ -209,7 +209,11 @@ internal static class ExileControllerWrapUpPatch
             }
         }
 
-        LateTask.New(ChatManager.ClearChat, 3f, log: false);
+        LateTask.New(() =>
+        {
+            if (ChatCommands.HasMessageDuringEjectionScreen)
+                ChatManager.ClearChat(Main.AllAlivePlayerControls);
+        }, 3f, log: false);
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

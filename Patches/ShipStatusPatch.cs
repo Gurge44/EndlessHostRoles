@@ -211,7 +211,7 @@ internal static class RepairSystemPatch
 
         if (new List<SystemTypes> { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Contains(systemType) && !Utils.IsActive(systemType))
         {
-            bool petcd = !Options.UseUnshiftTrigger.GetBool() && !Options.UsePhantomBasis.GetBool();
+            bool petcd = !Options.UsePhantomBasis.GetBool();
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
@@ -517,12 +517,12 @@ internal static class VentilationSystemDeterioratePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (!GameStates.InGame || !Main.IntroDestroyed) return;
-        List<NetworkedPlayerInfo> AllPlayers = [];
+        List<NetworkedPlayerInfo> allPlayers = [];
 
         foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
         {
             if (playerInfo != null && !playerInfo.Disconnected)
-                AllPlayers.Add(playerInfo);
+                allPlayers.Add(playerInfo);
         }
 
 
@@ -531,7 +531,7 @@ internal static class VentilationSystemDeterioratePatch
             if (BlockVentInteraction(pc))
             {
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
-                if (AllPlayers.Count >= vents) continue;
+                if (allPlayers.Count >= vents) continue;
                 MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -540,18 +540,18 @@ internal static class VentilationSystemDeterioratePatch
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);
                 var blockedVents = 0;
-                writer.WritePacked(AllPlayers.Count);
+                writer.WritePacked(allPlayers.Count);
 
                 foreach (Vent vent in pc.GetVentsFromClosest())
                 {
                     if (!pc.CanUseVent(vent.Id))
                     {
-                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write(allPlayers[blockedVents].PlayerId);
                         writer.Write((byte)vent.Id);
                         ++blockedVents;
                     }
 
-                    if (blockedVents >= AllPlayers.Count)
+                    if (blockedVents >= allPlayers.Count)
                         break;
                 }
 
@@ -596,15 +596,15 @@ internal static class VentilationSystemDeterioratePatch
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
-                List<NetworkedPlayerInfo> AllPlayers = [];
+                List<NetworkedPlayerInfo> allPlayers = [];
 
                 foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
                 {
                     if (playerInfo != null && !playerInfo.Disconnected)
-                        AllPlayers.Add(playerInfo);
+                        allPlayers.Add(playerInfo);
                 }
 
-                int maxVents = Math.Min(vents, AllPlayers.Count);
+                int maxVents = Math.Min(vents, allPlayers.Count);
                 var blockedVents = 0;
                 writer.WritePacked(maxVents);
 
@@ -612,7 +612,7 @@ internal static class VentilationSystemDeterioratePatch
                 {
                     if (!pc.CanUseVent(vent.Id))
                     {
-                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write(allPlayers[blockedVents].PlayerId);
                         writer.Write((byte)vent.Id);
                         ++blockedVents;
                     }

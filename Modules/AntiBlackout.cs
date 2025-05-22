@@ -187,7 +187,7 @@ public static class AntiBlackout
     {
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
 
-        byte[] keys = Main.AllPlayerControls.Select(x => x.PlayerId).Concat(Main.PlayerStates.Keys).Append(byte.MaxValue).ToArray();
+        byte[] keys = Main.AllPlayerControls.Select(x => x.PlayerId).Concat(Main.PlayerStates.Keys).Append(byte.MaxValue).Distinct().ToArray();
         Dictionary<byte, CustomRpcSender> senders = keys.ToDictionary(x => x, _ => CustomRpcSender.Create("AntiBlackout.SetRealPlayerRoles", SendOption.Reliable));
         Dictionary<byte, bool> hasValue = keys.ToDictionary(x => x, _ => false);
 

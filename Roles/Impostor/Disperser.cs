@@ -65,7 +65,7 @@ public class Disperser : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (shapeshifter == null || (!shapeshifting && !UseUnshiftTrigger.GetBool())) return false;
+        if (shapeshifter == null || !shapeshifting) return false;
 
         if (shapeshifter.GetAbilityUseLimit() < 1 && !DisableShapeshiftAnimations.GetBool())
         {

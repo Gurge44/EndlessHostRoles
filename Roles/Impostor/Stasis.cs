@@ -71,7 +71,7 @@ public class Stasis : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         OnPet(shapeshifter);
         return false;

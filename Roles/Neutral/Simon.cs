@@ -84,8 +84,6 @@ public class Simon : RoleBase
     {
         opt.SetVision(HasImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
-
-        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -154,7 +152,7 @@ public class Simon : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         OnPet(shapeshifter);
         return false;

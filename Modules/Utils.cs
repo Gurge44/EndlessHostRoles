@@ -91,9 +91,9 @@ public static class Utils
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AntiBlackout);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.AntiBlackout, SendOption.Reliable, AmongUsClient.Instance.HostId);
             writer.Write(text);
-            writer.EndMessage();
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
 
             if (Options.EndWhenPlayerBug.GetBool())
                 LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/), 3f, "Anti-Black Msg SendInGame");
@@ -135,7 +135,7 @@ public static class Utils
                 return false;
             }
 
-            if (Vector2.Distance(pc.Pos(), location) < 0.5f)
+            if (Vector2.Distance(pc.Pos(), location) < 0.1f)
             {
                 if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
                 return false;
@@ -1724,12 +1724,12 @@ public static class Utils
             {
                 if (sendTo == PlayerControl.LocalPlayer.PlayerId && !multiple)
                 {
-                    MessageWriter w = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestSendMessage);
+                    MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestSendMessage, SendOption.Reliable, AmongUsClient.Instance.HostId);
                     w.Write(text);
                     w.Write(sendTo);
                     w.Write(title);
                     w.Write(noSplit);
-                    w.EndMessage();
+                    AmongUsClient.Instance.FinishRpcImmediately(w);
                 }
 
                 return writer;
@@ -2173,7 +2173,7 @@ public static class Utils
 
         for (int i = 0; i < PlayerControl.AllPlayerControls.Count; i++)
         {
-            PlayerControl pc = PlayerControl.AllPlayerControls[i]; // False error
+            PlayerControl pc = PlayerControl.AllPlayerControls[i];
 
             if (pc.PlayerId == playerId)
                 return pc;
@@ -2186,7 +2186,7 @@ public static class Utils
     {
         for (int i = 0; i < GameData.Instance.AllPlayers.Count; i++)
         {
-            NetworkedPlayerInfo info = GameData.Instance.AllPlayers[i]; // False error
+            NetworkedPlayerInfo info = GameData.Instance.AllPlayers[i];
 
             if (info.PlayerId == playerId)
                 return info;
@@ -3134,8 +3134,7 @@ public static class Utils
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, cd);
 
         if (role.SimpleAbilityTrigger() &&
-            ((Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && !role.AlwaysUsesUnshift()) ||
-             (Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool()))))
+            (Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool())) && !role.AlwaysUsesPhantomBase())
             GetPlayerById(playerId)?.RpcResetAbilityCooldown();
     }
 
@@ -3191,8 +3190,6 @@ public static class Utils
                         sender.SendMessage();
                     }, 3f, "No Pet Reassign");
                 }
-
-                pc.CheckAndSetUnshiftState(false);
 
                 AFKDetector.RecordPosition(pc);
             }

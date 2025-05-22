@@ -105,10 +105,10 @@ internal static class CmdCheckMurderPatch
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FFAKill);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FFAKill, SendOption.Reliable, AmongUsClient.Instance.HostId);
             writer.WriteNetObject(__instance);
             writer.WriteNetObject(target);
-            writer.EndMessage();
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         return false;
@@ -823,7 +823,7 @@ internal static class ShapeshiftPatch
 
         CustomRoles role = shapeshifter.GetCustomRole();
 
-        if (AmongUsClient.Instance.AmHost && (shapeshifting || role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!shapeshifter.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))))
+        if (AmongUsClient.Instance.AmHost && shapeshifting)
         {
             if (!Rhapsode.CheckAbilityUse(shapeshifter) || Stasis.IsTimeFrozen || TimeMaster.Rewinding) return false;
 
@@ -853,10 +853,6 @@ internal static class ShapeshiftPatch
         }
 
         bool forceCancel = role.ForceCancelShapeshift();
-        bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
-
-        unshiftTrigger |= role.AlwaysUsesUnshift();
-        forceCancel |= unshiftTrigger;
 
         if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out bool changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
         {
@@ -893,14 +889,8 @@ internal static class ShapeshiftPatch
             return false;
         }
 
-        if (unshiftTrigger)
-        {
-            shapeshifter.CheckAndSetUnshiftState(force: true);
-            shapeshifter.AddAbilityCD();
-        }
 
-
-        bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
+        bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel);
         Statistics.OnShapeshift(shapeshifter, shapeshifting, animated);
         return animated;
     }
@@ -1122,7 +1112,7 @@ internal static class ReportDeadBodyPatch
 
         Main.AllAlivePlayerControls.DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos());
 
-        if (Lovers.PrivateChat.GetBool()) ChatManager.ClearChat();
+        if (Lovers.PrivateChat.GetBool()) ChatManager.ClearChat(Main.AllAlivePlayerControls.ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray());
 
         if (target == null)
         {
@@ -1248,11 +1238,6 @@ internal static class ReportDeadBodyPatch
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            CustomRoles role = pc.GetCustomRole();
-
-            if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
-                pc.RpcShapeshift(pc, false);
-
             if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
                 Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
 
@@ -1414,8 +1399,6 @@ internal static class FixedUpdatePatch
                 if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
                     NotifyRoles();
             }
-
-            if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId)) Logger.Info($"Cleared ReportDeadBodyRPC Count for {player.GetRealName().RemoveHtmlTags()}", "FixedUpdatePatch");
         }
 
         if (AmongUsClient.Instance.AmHost)

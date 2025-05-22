@@ -116,6 +116,8 @@ internal static class ChatCommands
 
     private static string CurrentAnagram = string.Empty;
 
+    public static bool HasMessageDuringEjectionScreen;
+
     public static void LoadCommands()
     {
         AllCommands =
@@ -271,10 +273,10 @@ internal static class ChatCommands
                 TheMindGame.OnChat(PlayerControl.LocalPlayer, text.ToLower());
             else
             {
-                MessageWriter w = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.TMGSync);
+                MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.TMGSync, SendOption.Reliable, AmongUsClient.Instance.HostId);
                 w.WriteNetObject(PlayerControl.LocalPlayer);
                 w.Write(text);
-                w.EndMessage();
+                AmongUsClient.Instance.FinishRpcImmediately(w);
             }
         }
 
@@ -329,29 +331,14 @@ internal static class ChatCommands
 
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
 
-        if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
-        {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
-            {
-                PlayerControl otherLover = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId);
-                string title = PlayerControl.LocalPlayer.GetRealName();
-                ChatUpdatePatch.LoversMessage = true;
-                var sender = CustomRpcSender.Create("LoversMessage", SendOption.Reliable);
-                sender = Utils.SendMessage(text, otherLover.PlayerId, title, writer: sender, multiple: true);
-                sender = Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title, writer: sender, multiple: true);
-                sender.Notify(otherLover, $"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
-                sender.SendMessage();
-                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
-            }
-
-            goto Canceled;
-        }
-
         goto Skip;
         Canceled:
         Main.IsChatCommand = false;
         canceled = true;
         Skip:
+
+        if (ExileController.Instance)
+            canceled = true;
 
         if (canceled)
         {
@@ -394,12 +381,12 @@ internal static class ChatCommands
     private static void RequestCommandProcessingFromHost(string methodName, string text, bool modCommand = false)
     {
         PlayerControl pc = PlayerControl.LocalPlayer;
-        MessageWriter w = AmongUsClient.Instance.StartRpc(pc.NetId, (byte)CustomRPC.RequestCommandProcessing);
+        MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)CustomRPC.RequestCommandProcessing, SendOption.Reliable, AmongUsClient.Instance.HostId);
         w.Write(methodName);
         w.Write(pc.PlayerId);
         w.Write(text);
         w.Write(modCommand);
-        w.EndMessage();
+        AmongUsClient.Instance.FinishRpcImmediately(w);
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -1260,13 +1247,13 @@ internal static class ChatCommands
             return;
         }
 
-        PollTimer = 45f;
-
         int splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
         string[] answers = args.Skip(splitIndex).ToArray();
 
         string msg = string.Join(" ", args.Take(splitIndex).Skip(1)) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
+
+        PollTimer = gmPoll ? 60f : 45f;
 
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
@@ -3212,32 +3199,10 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && (player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
+        if (ExileController.Instance)
         {
-            ChatManager.ClearChat();
             canceled = true;
-
-            if (player.Is(CustomRoles.Lovers) || player.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
-            {
-                PlayerControl otherLover = Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != player.PlayerId);
-
-                if (otherLover != null)
-                {
-                    LateTask.New(() =>
-                    {
-                        string title = player.GetRealName();
-                        ChatUpdatePatch.LoversMessage = true;
-                        var sender = CustomRpcSender.Create("LoversChat", SendOption.Reliable);
-                        sender = Utils.SendMessage(text, otherLover.PlayerId, title, writer: sender, multiple: true);
-                        sender = Utils.SendMessage(text, player.PlayerId, title, writer: sender, multiple: true);
-                        sender.Notify(otherLover, $"<size=80%><{Main.RoleColors[CustomRoles.Lovers]}>[\u2665]</color> {text}</size>", 8f);
-                        sender.SendMessage();
-                        LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
-                    }, 0.2f, log: false);
-                }
-            }
-            else
-                LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
+            HasMessageDuringEjectionScreen = true;
         }
 
         if (!canceled) ChatManager.SendMessage(player, text);
@@ -3257,7 +3222,6 @@ internal static class ChatCommands
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal static class ChatUpdatePatch
 {
-    public static bool LoversMessage;
     public static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
 
     public static void Postfix(ChatController __instance)
@@ -3369,9 +3333,9 @@ internal static class RpcSendChatPatch
 
         if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) FastDestroyableSingleton<UnityTelemetry>.Instance.SendWho();
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpc(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.None);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable);
         messageWriter.Write(chatText);
-        messageWriter.EndMessage();
+        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         __result = true;
         return false;
     }
