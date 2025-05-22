@@ -112,7 +112,7 @@ public class Stressed : IAddon
             }
 
             LogTimer();
-        }, 8f, "Add Stressed Timers");
+        }, 8f, log: false);
     }
 
     public static void Update(PlayerControl pc)

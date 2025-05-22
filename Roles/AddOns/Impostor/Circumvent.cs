@@ -46,7 +46,7 @@ internal class Circumvent : IAddon
                 if (state.Value.SubRoles.Contains(CustomRoles.Circumvent))
                     Limits[state.Key] = Limit.GetInt();
             }
-        }, 3f, "Add Circumvents");
+        }, 3f, log: false);
     }
 
     public static void OnCoEnterVent(PlayerPhysics physics, int ventId)

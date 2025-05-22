@@ -75,7 +75,7 @@ internal class Asthmatic : IAddon
                 if (pc.Is(CustomRoles.Asthmatic))
                     Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false, RandomRedTime, RandomGreenTime);
             }
-        }, 8f, "Add Asthmatic Timers");
+        }, 8f, log: false);
     }
 
     public static void OnFixedUpdate()

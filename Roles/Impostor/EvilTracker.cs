@@ -78,7 +78,7 @@ public class EvilTracker : RoleBase
         LateTask.New(() =>
         {
             foreach (byte id in ImpostorsId) TargetArrow.Add(playerId, id);
-        }, 3f, "Add Evil Tracker Arrows");
+        }, 3f, log: false);
     }
 
     public override void Remove(byte playerId)
