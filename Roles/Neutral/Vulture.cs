@@ -156,10 +156,7 @@ public class Vulture : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != VultureId) return string.Empty;
-
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
+        if (seer.PlayerId != VultureId || target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }
 
