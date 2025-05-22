@@ -1545,14 +1545,7 @@ internal static class ExtendedPlayerControl
             Vector2 pos = target.Pos();
             Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies && !x.SubRoles.Contains(CustomRoles.Blind) && x.Player != null, x => LocateArrow.Add(x.Player.PlayerId, pos));
 
-            var sender = CustomRpcSender.Create("Kill", SendOption.Reliable);
-            if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, MurderResultFlags.Succeeded);
-            sender.AutoStartRpc(killer.NetId, 12);
-            sender.WriteNetObject(target);
-            sender.Write((int)MurderResultFlags.Succeeded);
-            sender.EndRpc();
-
-            sender.SendMessage();
+            killer.RpcMurderPlayer(target, true);
 
             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && !state.IsDead)
                 state.SetDead();

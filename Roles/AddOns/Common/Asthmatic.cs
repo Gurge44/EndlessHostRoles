@@ -103,6 +103,12 @@ internal class Asthmatic : IAddon
 
         Vector2 currentPosition = pc.transform.position;
 
+        if (CheckInvalidMovementPatch.ExemptedPlayers.Contains(pc.PlayerId) && CheckInvalidMovementPatch.LastPosition.TryGetValue(pc.PlayerId, out Vector2 position))
+        {
+            LastPosition[pc.PlayerId] = position;
+            return;
+        }
+
         if (!LastPosition.TryGetValue(pc.PlayerId, out Vector2 previousPosition))
         {
             LastPosition[pc.PlayerId] = currentPosition;

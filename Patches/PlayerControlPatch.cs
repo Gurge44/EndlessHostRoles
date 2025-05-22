@@ -655,7 +655,6 @@ internal static class MurderPlayerPatch
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
 
         if (!target.Data.IsDead || !AmongUsClient.Instance.AmHost) return;
-
         if (OverKiller.OverDeadPlayerList.Contains(target.PlayerId)) return;
 
         PlayerControl killer = __instance; // Alternative variable

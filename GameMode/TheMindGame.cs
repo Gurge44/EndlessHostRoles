@@ -84,6 +84,7 @@ public static class TheMindGame
             .SetGameMode(gameMode);
 
         TimeForEachPickInRound1Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound1", new IntegerValueRule(1, 60, 1), 12, tab)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color)
             .SetGameMode(gameMode);
 
@@ -92,18 +93,22 @@ public static class TheMindGame
             .SetGameMode(gameMode);
 
         MinPlayersInRound2Option = new IntegerOptionItem(id++, "TMG.Setting.MinPlayersInRound2", new IntegerValueRule(1, 15, 1), 10, tab)
+            .SetValueFormat(OptionFormat.Players)
             .SetColor(color)
             .SetGameMode(gameMode);
 
         SuperPointsToNormalPointsMultiplierOption = new IntegerOptionItem(id++, "TMG.Setting.SuperPointsToNormalPointsMultiplier", new IntegerValueRule(1, 10, 1), 3, tab)
+            .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color)
             .SetGameMode(gameMode);
 
         TimeForEachPickInRound2Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound2", new IntegerValueRule(1, 60, 1), 25, tab)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color)
             .SetGameMode(gameMode);
 
         TimeForItemPurchasingInRound2Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForItemPurchasingInRound2", new IntegerValueRule(1, 60, 1), 40, tab)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color)
             .SetGameMode(gameMode);
 
@@ -112,14 +117,17 @@ public static class TheMindGame
             .SetGameMode(gameMode);
 
         TimeForEachPickInRound3Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound3", new IntegerValueRule(1, 60, 1), 20, tab)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color)
             .SetGameMode(gameMode);
 
         MaxPlayersForRound4Option = new IntegerOptionItem(id++, "TMG.Setting.MaxPlayersForRound4", new IntegerValueRule(1, 15, 1), 5, tab)
+            .SetValueFormat(OptionFormat.Players)
             .SetColor(color)
             .SetGameMode(gameMode);
 
         MindDetectiveFailChanceOption = new IntegerOptionItem(id++, "TMG.Setting.MindDetectiveFailChance", new IntegerValueRule(0, 100, 1), 5, tab)
+            .SetValueFormat(OptionFormat.Percent)
             .SetColor(color)
             .SetGameMode(gameMode);
 
