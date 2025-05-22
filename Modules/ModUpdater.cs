@@ -105,7 +105,7 @@ public static class ModUpdater
 
                 for (var i = 0; i < assets.Count; i++)
                 {
-                    if (assets[i]["name"].ToString() == $"EHR.v{LatestVersion}.zip")
+                    if (assets[i]["name"].ToString() == $"EHR.v{LatestVersion}_Steam.zip")
                     {
                         DownloadUrl = assets[i]["browser_download_url"].ToString();
                         break;
@@ -156,7 +156,7 @@ public static class ModUpdater
             {
                 DirectoryInfo di = new("TOH_DATA");
                 di.Delete(true);
-                Logger.Warn("Directory deleted：TOH_DATA", "NewVersionCheck");
+                Logger.Warn("Directory deleted: TOH_DATA", "NewVersionCheck");
             }
         }
         catch (Exception ex)
