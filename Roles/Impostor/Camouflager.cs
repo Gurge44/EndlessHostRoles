@@ -73,13 +73,37 @@ public class Camouflager : RoleBase
             return true;
         }
 
-        if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool()) pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
+        if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool())
+        {
+            pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
+            return true;
+        }
 
         pc.RpcRemoveAbilityUse();
         IsActive = true;
         Camouflage.CheckCamouflage();
 
         return true;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (pc.GetAbilityUseLimit() < 1) return false;
+        pc.RpcRemoveAbilityUse();
+
+        IsActive = true;
+        Camouflage.CheckCamouflage();
+
+        LateTask.New(() =>
+        {
+            if (GameStates.IsInTask && !ExileController.Instance)
+            {
+                IsActive = false;
+                Camouflage.CheckCamouflage();
+            }
+        }, CamouflageDuration.GetFloat(), "Revert Camouflage");
+
+        return false;
     }
 
     public override void OnReportDeadBody()

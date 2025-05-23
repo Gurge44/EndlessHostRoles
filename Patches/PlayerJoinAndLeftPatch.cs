@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using AmongUs.InnerNet.GameDataMessages;
 using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -297,6 +298,20 @@ internal static class OnPlayerLeftPatch
                 Main.SayStartTimes.Remove(__instance.ClientId);
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
                 Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
+
+                if (data != null && data.Character != null)
+                {
+                    uint netid = data.Character.NetId;
+
+                    LateTask.New(() =>
+                    {
+                        if (GameStates.IsOnlineGame)
+                        {
+                            var message = new DespawnGameDataMessage(netid);
+                            AmongUsClient.Instance.LateBroadcastReliableMessage(message.Cast<IGameDataMessage>());
+                        }
+                    }, 2.5f, "Repeat Despawn", false);
+                }
             }
 
             Utils.CountAlivePlayers(true);

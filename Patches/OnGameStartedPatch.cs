@@ -70,7 +70,7 @@ internal static class ChangeRoleSettings
 
             if (DestroyableSingleton<GameStartManager>.InstanceExists)
             {
-                // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) FastDestroyableSingleton<GameStartManager>.Instance);
+                amongUsClient.DisconnectHandlers.Remove(FastDestroyableSingleton<GameStartManager>.Instance.Cast<IDisconnectHandler>());
                 Object.Destroy(FastDestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
 
@@ -584,7 +584,7 @@ internal static class StartGameHostPatch
             {
                 if (totalSeconds < (double)num)
                 {
-                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 80.0), StringNames.LoadingBarGameStartWaitingPlayers);
+                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 70.0), StringNames.LoadingBarGameStartWaitingPlayers);
 
                     int timeoutIn = num - (int)totalSeconds;
                     loadingBarManager.loadingBar.loadingText.text = string.Format(GetString("LoadingBarText.2"), clientsReady, allClientsCount, timeoutIn);
@@ -1021,7 +1021,7 @@ internal static class StartGameHostPatch
         }
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(80f, 100f, 4f, GetString("LoadingBarText.1"));
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.AllPlayerControls.Do(SetRoleSelf);
@@ -1038,14 +1038,14 @@ internal static class StartGameHostPatch
             if (!disconnected) playerInfo.MarkDirty();
         }
 
-        yield return new WaitForSeconds(6.8f);
+        yield return new WaitForSeconds(7.8f);
 
         var sender = CustomRpcSender.Create("OnGameStartedPatch - Reset All Cooldowns", SendOption.Reliable);
         var hasValue = false;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            hasValue |= sender.SetKillCooldown(pc, 11f);
+            hasValue |= sender.SetKillCooldown(pc, 10f);
             hasValue |= sender.RpcResetAbilityCooldown(pc);
         }
 

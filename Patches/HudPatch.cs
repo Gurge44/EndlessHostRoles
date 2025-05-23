@@ -875,48 +875,6 @@ internal static class DialogueBoxShowPatch
     }
 }
 
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
-internal static class CoShowIntroPatch
-{
-    public static bool IntroStarted;
-
-    public static void Prefix()
-    {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
-
-        IntroStarted = true;
-
-        Utils.SetupLongRoleDescriptions();
-
-        LateTask.New(() =>
-        {
-            if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended))
-            {
-                if (!AmongUsClient.Instance.IsGameOver)
-                    FastDestroyableSingleton<HudManager>.Instance.SetHudActive(true);
-            }
-        }, 0.6f, "Set Hud Active");
-
-        LateTask.New(() =>
-        {
-            try
-            {
-                if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended))
-                {
-                    ShipStatusBeginPatch.RolesIsAssigned = true;
-
-                    // Assign tasks after assigning all roles, as it should be
-                    ShipStatus.Instance.Begin();
-
-                    GameOptionsSender.AllSenders.Clear();
-                    foreach (PlayerControl pc in Main.AllPlayerControls) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
-                }
-            }
-            catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
-        }, 4f, "Assign Tasks");
-    }
-}
-
 internal static class RepairSender
 {
     public static bool Enabled;
