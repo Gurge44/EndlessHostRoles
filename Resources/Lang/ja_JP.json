@@ -2345,7 +2345,6 @@
   "Warning.MismatchedVersion": "<size=80%><b>{0}</b>は <b>{1}</b>と 異なるバージョンがあります</size>",
   "Warning.AutoExitAtMismatchedVersion": "<size=80%>{0}は ホストにない または 異なるバージョンがあります\\nあなたは {1}に追い出されます。</size>",
   "EnabledGMWarning": "<size=80%>あなたは <#ff5b70>ゲームマスター</color>を有効にしました。\\nこれは 毎ゲームの開始であなたが幽霊になります。\\n未知の問題により、ゲームが '全員が死んだ’ という理由で即座に終わる可能性があります。\\nもし これが発生したとき <#ff5b70>ゲームマスター</color>を無効にしてください。</size>",
-  "ModdedServerDoesntSupportCNOMessage": "⚠ <b>警告</b> ⚠\\n<size=80%>あなたは バニラ (非-MOD導入) プレイヤーに いくつかのピクセルアートを表示するための カスタム ネット オブジェクト (濃い 緑のプレイヤー) を必要とする ゲームモードを有効にしました。\\n現在のサーバーで あなたは改造されたもの (MNA/MEU/MAS) を使用しており、これをサポートしていません。\\n別のゲームモード (カスタム ネット オブジェクトを必要としないものが たくさんある) を使用する か 別のサーバー (北米、ヨーロッパ、アジア など) に切り替えてください。</size>",
   "Commands.NoAccess.Level.Host": "<size=80%><#ff5555>X</color> <#bb0000>このコマンドは <#ffffff>ホスト</color>による 使用のみできます</color></size>",
   "Commands.NoAccess.Level.Modded": "<size=80%><#ff5555>X</color> <#bb0000>このコマンドは <#ffffff>Mod導入 クライアント</color>による 使用のみできます</color></size>",
   "Commands.NoAccess.Level.HostOrModerator": "<size=80%><#ff5555>X</color> <#bb0000>このコマンドは <#ffffff>ホスト & モデレーター</color>による 使用のみできます</color></size>",
