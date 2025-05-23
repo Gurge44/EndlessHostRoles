@@ -69,7 +69,7 @@ public static class NameNotifyManager
             hasValue |= sender.NotifyRolesSpecific(x, x, out sender, out bool cleared);
             if (cleared) hasValue = false;
 
-            if (sender.stream.Length > 800)
+            if (sender.stream.Length > 400)
             {
                 sender.SendMessage();
                 sender = CustomRpcSender.Create("NameNotifyManager.OnFixedUpdate", SendOption.Reliable);

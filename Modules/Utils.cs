@@ -1987,7 +1987,7 @@ public static class Utils
 
         void RestartMessageIfTooLong()
         {
-            if (writer.stream.Length > 800)
+            if (writer.stream.Length > 400)
             {
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);
@@ -2296,7 +2296,7 @@ public static class Utils
             hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared);
             if (senderWasCleared) hasValue = false;
 
-            if (sender.stream.Length >= 800)
+            if (sender.stream.Length > 400)
             {
                 sender.SendMessage();
                 sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
@@ -2863,7 +2863,7 @@ public static class Utils
                             hasValue = true;
                             senderWasCleared = false;
 
-                            if (sender.stream.Length > 800)
+                            if (sender.stream.Length > 400)
                             {
                                 sender.SendMessage();
                                 sender = CustomRpcSender.Create(sender.name, sender.sendOption);

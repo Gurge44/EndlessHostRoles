@@ -246,7 +246,7 @@ public static class ChatManager
             SendRPC(writer, senderPlayer, senderMessage);
             hasValue = true;
 
-            if (writer.stream.Length > 800)
+            if (writer.stream.Length > 400)
             {
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);

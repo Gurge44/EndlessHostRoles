@@ -322,7 +322,7 @@ public static class KingOfTheZones
                 hasData |= writer.Notify(player, $"<#ffffff>{notify}</color>", 100f);
                 Logger.Info($"{name} assigned to {team} team", "KOTZ");
 
-                if (writer.stream.Length > 800)
+                if (writer.stream.Length > 400)
                 {
                     writer.SendMessage();
                     writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
@@ -337,7 +337,7 @@ public static class KingOfTheZones
                         // ReSharper disable once AccessToModifiedClosure
                         x => writer.RpcSetRole(x.Key.GetPlayer(), RoleTypes.Impostor, targetClientId));
 
-                    if (writer.stream.Length > 800)
+                    if (writer.stream.Length > 400)
                     {
                         writer.SendMessage();
                         writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);

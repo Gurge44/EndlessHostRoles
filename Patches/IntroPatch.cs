@@ -990,7 +990,7 @@ internal static class IntroCutsceneDestroyPatch
                     else
                         pc.AddAbilityCD(false);
 
-                    if (writer.stream.Length > 800)
+                    if (writer.stream.Length > 400)
                     {
                         writer.SendMessage();
                         writer = CustomRpcSender.Create("IntroPatch - SyncSettings", SendOption.Reliable);
@@ -1095,7 +1095,7 @@ internal static class IntroCutsceneDestroyPatch
                         }
                         catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
 
-                        if (sender.stream.Length > 800)
+                        if (sender.stream.Length > 400)
                         {
                             sender.SendMessage();
                             sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);

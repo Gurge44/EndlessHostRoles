@@ -1014,10 +1014,14 @@ internal static class StartGameHostPatch
         }
 
 
-        foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
-            playerInfo.Disconnected = true;
-            playerInfo.MarkDirty();
+            if (pc.Data == null)
+                while (pc.Data == null)
+                    yield return null;
+            pc.Data.Disconnected = true;
+            pc.Data.MarkDirty();
+            AmongUsClient.Instance.SendAllStreamedObjects();
         }
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
@@ -1031,11 +1035,18 @@ internal static class StartGameHostPatch
 
         yield return new WaitForSeconds(1.2f);
 
-        foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
-            bool disconnected = Main.PlayerStates.TryGetValue(playerInfo.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
-            playerInfo.Disconnected = disconnected;
-            if (!disconnected) playerInfo.MarkDirty();
+            if (pc == null || pc.Data == null) continue;
+
+            bool disconnected = Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
+            pc.Data.Disconnected = disconnected;
+
+            if (!disconnected)
+            {
+                pc.Data.MarkDirty();
+                AmongUsClient.Instance.SendAllStreamedObjects();
+            }
         }
 
         yield return new WaitForSeconds(7.8f);

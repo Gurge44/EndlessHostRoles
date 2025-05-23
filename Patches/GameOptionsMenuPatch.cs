@@ -157,17 +157,8 @@ public static class GameOptionsMenuPatch
                 optionBehaviour.transform.localPosition = new(posX, num, posZ);
                 OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
 
-                if (!ModGameOptionsMenu.OptionList.ContainsValue(index))
-                {
-                    switch (option.Name)
-                    {
-                        case "GameMode":
-                            break;
-                        case "Preset":
-                            GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
-                            break;
-                    }
-                }
+                if (!ModGameOptionsMenu.OptionList.ContainsValue(index) && option.Name == "Preset")
+                    GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
 
                 optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
                 optionBehaviour.SetClickMask(__instance.ButtonClickMask);
@@ -222,28 +213,28 @@ public static class GameOptionsMenuPatch
         Vector3 positionOffset = new(0f, 0f, 0f);
         Vector3 scaleOffset = new(0f, 0f, 0f);
         Color color = new(0.35f, 0.35f, 0.35f);
-        var sizeDelta_x = 5.7f;
+        var sizeDeltaX = 5.7f;
 
         if (option.Parent?.Parent?.Parent != null)
         {
             scaleOffset = new(-0.18f, 0, 0);
             positionOffset = new(0.3f, 0f, 0f);
             color = new(0.35f, 0f, 0f);
-            sizeDelta_x = 5.1f;
+            sizeDeltaX = 5.1f;
         }
         else if (option.Parent?.Parent != null)
         {
             scaleOffset = new(-0.12f, 0, 0);
             positionOffset = new(0.2f, 0f, 0f);
             color = new(0.35f, 0.35f, 0f);
-            sizeDelta_x = 5.3f;
+            sizeDeltaX = 5.3f;
         }
         else if (option.Parent != null)
         {
             scaleOffset = new(-0.05f, 0, 0);
             positionOffset = new(0.1f, 0f, 0f);
             color = new(0f, 0f, 0.35f);
-            sizeDelta_x = 5.5f;
+            sizeDeltaX = 5.5f;
         }
 
         Transform labelBackground = optionBehaviour.transform.FindChild("LabelBackground");
@@ -253,7 +244,7 @@ public static class GameOptionsMenuPatch
 
         Transform titleText = optionBehaviour.transform.FindChild("Title Text");
         titleText.localPosition += new Vector3(-0.4f, 0f, 0f) + positionOffset;
-        titleText.GetComponent<RectTransform>().sizeDelta = new(sizeDelta_x, 0.37f);
+        titleText.GetComponent<RectTransform>().sizeDelta = new(sizeDeltaX, 0.37f);
         var textMeshPro = titleText.GetComponent<TextMeshPro>();
         textMeshPro.alignment = TextAlignmentOptions.MidlineLeft;
         textMeshPro.fontStyle = FontStyles.Bold;
@@ -262,10 +253,27 @@ public static class GameOptionsMenuPatch
         switch (type)
         {
             case OptionTypes.Checkbox:
+            {
                 optionBehaviour.transform.FindChild("Toggle").localPosition = new(1.46f, -0.042f);
                 break;
-
+            }
+            case OptionTypes.String when option is BooleanOptionItem:
+            {
+                Transform plusButton = optionBehaviour.transform.FindChild("PlusButton");
+                Transform minusButton = optionBehaviour.transform.FindChild("MinusButton");
+                minusButton.GetComponentInChildren<TextMeshPro>().text = "↔";
+                minusButton.localPosition += new Vector3(0.9f, 0f, 0f);
+                plusButton.localPosition += new Vector3(500f, 500f, 500f);
+                Transform valueTMP = optionBehaviour.transform.FindChild("Value_TMP (1)");
+                valueTMP.localPosition += new Vector3(0.32f, 0f, 0f);
+                valueTMP.GetComponent<RectTransform>().sizeDelta = new(2.3f, 0.4f);
+                Transform valueBox = optionBehaviour.transform.FindChild("ValueBox");
+                valueBox.localScale -= new Vector3(0.35f, 0f, 0f);
+                valueBox.localPosition += new Vector3(0.32f, 0f, 0f);
+                break;
+            }
             case OptionTypes.String:
+            {
                 Transform plusButton = optionBehaviour.transform.FindChild("PlusButton");
                 Transform minusButton = optionBehaviour.transform.FindChild("MinusButton");
                 plusButton.localPosition += new Vector3(option.IsText ? 500f : 1.7f, option.IsText ? 500f : 0f, option.IsText ? 500f : 0f);
@@ -274,19 +282,22 @@ public static class GameOptionsMenuPatch
                 valueTMP.localPosition += new Vector3(1.3f, 0f, 0f);
                 valueTMP.GetComponent<RectTransform>().sizeDelta = new(2.3f, 0.4f);
                 goto default;
-
+            }
             case OptionTypes.Float:
             case OptionTypes.Int:
+            {
                 optionBehaviour.transform.FindChild("PlusButton").localPosition += new Vector3(option.IsText ? 500f : 1.7f, option.IsText ? 500f : 0f, option.IsText ? 500f : 0f);
                 optionBehaviour.transform.FindChild("MinusButton").localPosition += new Vector3(option.IsText ? 500f : 0.9f, option.IsText ? 500f : 0f, option.IsText ? 500f : 0f);
                 optionBehaviour.transform.FindChild("Value_TMP").localPosition += new Vector3(1.3f, 0f, 0f);
                 goto default;
-
+            }
             default:
+            {
                 Transform valueBox = optionBehaviour.transform.FindChild("ValueBox");
                 valueBox.localScale += new Vector3(0.2f, 0f, 0f);
                 valueBox.localPosition += new Vector3(1.3f, 0f, 0f);
                 break;
+            }
         }
     }
 
@@ -350,10 +361,12 @@ public static class GameOptionsMenuPatch
 
         switch (item)
         {
-            case BooleanOptionItem:
-                var checkboxGameSetting = ScriptableObject.CreateInstance<CheckboxGameSetting>();
-                checkboxGameSetting.Type = OptionTypes.Checkbox;
-                baseGameSetting = checkboxGameSetting;
+            case BooleanOptionItem booleanOptionItem:
+                var stringGameSettingBoolean = ScriptableObject.CreateInstance<StringGameSetting>();
+                stringGameSettingBoolean.Type = OptionTypes.String;
+                stringGameSettingBoolean.Values = new StringNames[2];
+                stringGameSettingBoolean.Index = booleanOptionItem.GetInt();
+                baseGameSetting = stringGameSettingBoolean;
                 break;
             case IntegerOptionItem integerOptionItem:
                 var intGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
@@ -406,7 +419,7 @@ public static class GameOptionsMenuPatch
     }
 
     // From MoreGamemodes, by Rabek009
-    public static void ReloadUI(int index)
+    public static void ReloadUI()
     {
         UIReloadTS = Utils.TimeStamp;
 
@@ -551,7 +564,7 @@ public static class NumberOptionPatch
                     break;
                 case PresetOptionItem presetOptionItem:
                     presetOptionItem.SetValue(presetOptionItem.Rule.GetNearestIndex(__instance.GetInt()));
-                    GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
+                    GameOptionsMenuPatch.ReloadUI();
                     break;
             }
 
@@ -794,7 +807,7 @@ public static class StringOptionPatch
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
             string name = item.GetName();
-            if (item.Name == "GameMode" && GameSettingMenu.Instance) GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
+            if (item.Name == "GameMode" && GameSettingMenu.Instance) GameOptionsMenuPatch.ReloadUI();
 
             string name1 = name;
 
@@ -845,14 +858,24 @@ public static class StringOptionPatch
             __instance.MinusBtn.SetInteractable(true);
             __instance.PlusBtn.SetInteractable(true);
 
-            if (OptionItem.AllOptions[index] is StringOptionItem stringOptionItem)
+            if (__instance.oldValue != __instance.Value)
             {
-                if (__instance.oldValue != __instance.Value)
+                switch (OptionItem.AllOptions[index])
                 {
-                    __instance.oldValue = __instance.Value;
-                    string selection = stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)];
-                    if (!stringOptionItem.noTranslation) selection = Translator.GetString(selection);
-                    __instance.ValueText.text = selection;
+                    case StringOptionItem stringOptionItem:
+                    {
+                        __instance.oldValue = __instance.Value;
+                        string selection = stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)];
+                        if (!stringOptionItem.noTranslation) selection = Translator.GetString(selection);
+                        __instance.ValueText.text = selection;
+                        break;
+                    }
+                    case BooleanOptionItem booleanOptionItem:
+                    {
+                        __instance.oldValue = __instance.Value;
+                        __instance.ValueText.text = Translator.GetString(booleanOptionItem.GetBool() ? "ColoredOn" : "ColoredOff");
+                        break;
+                    }
                 }
             }
 
@@ -1154,7 +1177,7 @@ public static class GameSettingMenuPatch
             gmPassiveButton.OnClick.AddListener((Action)(() =>
             {
                 Options.GameMode.SetValue((int)gm - 1);
-                GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
+                GameOptionsMenuPatch.ReloadUI();
                 LateTask.New(() => GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(false), 0.02f);
             }));
             gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = gmColors[gm];

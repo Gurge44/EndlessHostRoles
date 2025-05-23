@@ -277,7 +277,7 @@ public static class CaptureTheFlag
                     Utils.RpcChangeSkin(pc, outfit, sender);
                     hasValue = true;
 
-                    if (sender.stream.Length > 800)
+                    if (sender.stream.Length > 400)
                     {
                         sender.SendMessage();
                         sender = CustomRpcSender.Create("CTF - ResetSkins", SendOption.Reliable);
@@ -336,7 +336,7 @@ public static class CaptureTheFlag
             {
                 hasValue[player.PlayerId] |= Utils.RpcChangeSkin(player, blueOutfit, sender);
 
-                if (sender.stream.Length > 800)
+                if (sender.stream.Length > 400)
                 {
                     sender.SendMessage();
                     senders[player.PlayerId] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
@@ -356,7 +356,7 @@ public static class CaptureTheFlag
             {
                 hasValue[player.PlayerId] |= Utils.RpcChangeSkin(player, yellowOutfit, sender);
 
-                if (sender.stream.Length > 800)
+                if (sender.stream.Length > 400)
                 {
                     sender.SendMessage();
                     senders[player.PlayerId] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
@@ -399,7 +399,7 @@ public static class CaptureTheFlag
             hasValue[pc.PlayerId] |= pc.RpcChangeRoleBasis(CustomRoles.CTFPlayer, sender: sender);
             hasValue[pc.PlayerId] |= sender.RpcResetAbilityCooldown(pc);
 
-            if (sender.stream.Length > 800)
+            if (sender.stream.Length > 400)
             {
                 sender.SendMessage();
                 senders[pc.PlayerId] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
@@ -435,7 +435,7 @@ public static class CaptureTheFlag
 
                                     hasValue[id1] |= sender.RpcSetRole(pc2, RoleTypes.Phantom, targetClientId);
 
-                                    if (sender.stream.Length > 800)
+                                    if (sender.stream.Length > 400)
                                     {
                                         sender.SendMessage();
                                         senders[id1] = CustomRpcSender.Create("CTF - OnGameStart", SendOption.Reliable);
@@ -705,7 +705,7 @@ public static class CaptureTheFlag
                         if (arrow) TargetArrow.Add(x.PlayerId, id);
                         hasValue |= sender.Notify(x, Utils.ColorString(Color.yellow, Translator.GetString("CTF_FlagTaken")));
 
-                        if (sender.stream.Length > 800)
+                        if (sender.stream.Length > 400)
                         {
                             sender.SendMessage();
                             sender = CustomRpcSender.Create("CTF - PickUpFlag", SendOption.Reliable);
@@ -725,7 +725,7 @@ public static class CaptureTheFlag
                         if (arrow) TargetArrow.Add(x.PlayerId, id);
                         hasValue |= sender.Notify(x, Translator.GetString("CTF_EnemyFlagTaken"));
 
-                        if (sender.stream.Length > 800)
+                        if (sender.stream.Length > 400)
                         {
                             sender.SendMessage();
                             sender = CustomRpcSender.Create("CTF - PickUpFlag", SendOption.Reliable);

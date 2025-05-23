@@ -197,7 +197,7 @@ internal static class ExileControllerWrapUpPatch
                 {
                     hasValue |= sender.Notify(pc, finalText, r.Next(7, 13));
 
-                    if (sender.stream.Length > 800)
+                    if (sender.stream.Length > 400)
                     {
                         sender.SendMessage();
                         sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
