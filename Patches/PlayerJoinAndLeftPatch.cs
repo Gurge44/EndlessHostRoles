@@ -192,7 +192,7 @@ internal static class OnPlayerJoinedPatch
             catch { }
         }, 4.5f, "green bean kick late task", false);
 
-        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame && GameStates.CurrentServerType is not GameStates.ServerType.ModdedWithCNOSupport and not GameStates.ServerType.ModdedWithoutCNOSupport)
+        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame && GameStates.CurrentServerType != GameStates.ServerType.Modded)
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid())) BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
 
@@ -209,7 +209,7 @@ internal static class OnPlayerJoinedPatch
             Logger.Info(msg, "Android Kick");
         }
 
-        if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType is not GameStates.ServerType.ModdedWithCNOSupport and not GameStates.ServerType.ModdedWithoutCNOSupport)
+        if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType != GameStates.ServerType.Modded)
         {
             AmongUsClient.Instance.KickPlayer(client.Id, true);
             Logger.Info($"Blocked Player {client.PlayerName}({client.FriendCode}) has been banned.", "BAN");

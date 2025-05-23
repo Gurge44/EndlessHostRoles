@@ -12,25 +12,25 @@ namespace EHR;
 
 public static class SpamManager
 {
-    private static readonly string BANEDWORDS_FILE_PATH = "./EHR_DATA/BanWords.txt";
-    public static List<string> BanWords = [];
+    private const string BannedwordsFilePath = "./EHR_DATA/BanWords.txt";
+    private static List<string> BanWords = [];
 
     public static void Init()
     {
         CreateIfNotExists();
-        BanWords = ReturnAllNewLinesInFile(BANEDWORDS_FILE_PATH);
+        BanWords = ReturnAllNewLinesInFile(BannedwordsFilePath);
     }
 
-    public static void CreateIfNotExists()
+    private static void CreateIfNotExists()
     {
-        if (!File.Exists(BANEDWORDS_FILE_PATH))
+        if (!File.Exists(BannedwordsFilePath))
         {
             try
             {
-                if (!Directory.Exists(@"EHR_DATA")) Directory.CreateDirectory(@"EHR_DATA");
+                if (!Directory.Exists("EHR_DATA")) Directory.CreateDirectory("EHR_DATA");
 
-                if (File.Exists(@"./BanWords.txt"))
-                    File.Move(@"./BanWords.txt", BANEDWORDS_FILE_PATH);
+                if (File.Exists("./BanWords.txt"))
+                    File.Move("./BanWords.txt", BannedwordsFilePath);
                 else
                 {
                     string fileName;
@@ -48,8 +48,8 @@ public static class SpamManager
                     else
                         fileName = "English";
 
-                    Logger.Warn($"创建新的 BanWords 文件：{fileName}", "SpamManager");
-                    File.WriteAllText(BANEDWORDS_FILE_PATH, GetResourcesTxt($"EHR.Resources.Config.BanWords.{fileName}.txt"));
+                    Logger.Warn($"Creating new BanWords file: {fileName}", "SpamManager");
+                    File.WriteAllText(BannedwordsFilePath, GetResourcesTxt($"EHR.Resources.Config.BanWords.{fileName}.txt"));
                 }
             }
             catch (Exception ex) { Logger.Exception(ex, "SpamManager"); }
@@ -59,20 +59,19 @@ public static class SpamManager
     private static string GetResourcesTxt(string path)
     {
         Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
-        stream.Position = 0;
+        stream!.Position = 0;
         using StreamReader reader = new(stream, Encoding.UTF8);
         return reader.ReadToEnd();
     }
 
-    public static List<string> ReturnAllNewLinesInFile(string filename)
+    private static List<string> ReturnAllNewLinesInFile(string filename)
     {
         if (!File.Exists(filename)) return [];
 
         using StreamReader sr = new(filename, Encoding.GetEncoding("UTF-8"));
-        string text;
         List<string> sendList = [];
 
-        while ((text = sr.ReadLine()) != null)
+        while (sr.ReadLine() is { } text)
         {
             if (text.Length > 1 && text != "")
                 sendList.Add(text.Replace("\\n", "\n").ToLower());
