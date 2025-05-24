@@ -3373,7 +3373,7 @@
   "Wasp.PestControlSpeed": "虫害控制期间速度",
   "Wasp.PestControlVision": "虫害控制期间的视野",
   "Wasp.SwarmModeSuffix": "<#ffff00>你被攻击并进入种群模式 {0} 秒！</color>",
-  "WaspStungPlayersMessage": "<b>{0}</b> has/have been stung!\\nThey will die after the meeting if the {1} isn't dead or ejected by then!",
+  "WaspStungPlayersMessage": "<b>{0}</b> 已经被刺痛！\\n如果 {1} 没有死亡或被驱逐，他们将会在会议后死亡！",
   "Occultist": "神秘术士",
   "OccultistInfo": "重生玩家到你的阵营",
   "OccultistInfoLong": "(内鬼职业):\\n作为神秘术士, 你有两种模式：报告和复活。在报告模式中，你通常报告身体状况。 在复活模式中，当您按下某人尸体的报告时。 你会复活他们，他们会变成逃亡者/获得叛徒的附加职业(如果他们不是内鬼)。",
