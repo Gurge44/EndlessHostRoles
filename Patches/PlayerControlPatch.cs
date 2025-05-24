@@ -2157,7 +2157,7 @@ internal static class CoEnterVentPatch
         if (!__instance.myPlayer.CanUseVent(id) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
             LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "CannotUseVentBootFromVent");
 
-        if (((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
+        if (((__instance.myPlayer.GetRoleTypes() != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
              (__instance.myPlayer.Is(CustomRoles.Mayor) && Mayor.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out int count) && count >= Mayor.MayorNumOfUseButton.GetInt()) ||
              (__instance.myPlayer.Is(CustomRoles.Paranoia) && Paranoia.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out int count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))
             && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust) && CustomGameMode.Standard.IsActiveOrIntegrated())

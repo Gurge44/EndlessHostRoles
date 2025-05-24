@@ -433,7 +433,7 @@ public static class CaptureTheFlag
                                     var pc2 = id2.GetPlayer();
                                     if (pc2 == null) continue;
 
-                                    hasValue[id1] |= sender.RpcSetRole(pc2, RoleTypes.Phantom, targetClientId);
+                                    hasValue[id1] |= sender.RpcSetRole(pc2, RoleTypes.Phantom, targetClientId, changeRoleMap: true);
 
                                     if (sender.stream.Length > 400)
                                     {

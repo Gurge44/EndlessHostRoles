@@ -335,7 +335,7 @@ public static class KingOfTheZones
                     PlayerTeams.DoIf(
                         x => x.Key != id && x.Value == team,
                         // ReSharper disable once AccessToModifiedClosure
-                        x => writer.RpcSetRole(x.Key.GetPlayer(), RoleTypes.Impostor, targetClientId));
+                        x => writer.RpcSetRole(x.Key.GetPlayer(), RoleTypes.Impostor, targetClientId, changeRoleMap: true));
 
                     if (writer.stream.Length > 400)
                     {

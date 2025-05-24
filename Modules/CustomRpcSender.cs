@@ -370,7 +370,7 @@ public class CustomRpcSender
 
 public static class CustomRpcSenderExtensions
 {
-    public static bool RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true)
+    public static bool RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true, bool changeRoleMap = false)
     {
         if (AmongUsClient.Instance.ClientId == targetClientId && noRpcForSelf)
         {
@@ -382,6 +382,27 @@ public static class CustomRpcSenderExtensions
             .Write((ushort)role)
             .Write(true)
             .EndRpc();
+
+        if (changeRoleMap)
+        {
+            try
+            {
+                if (targetClientId != -1) ChangeRoleMapForClient(Utils.GetClientById(targetClientId).Character.PlayerId);
+                else Main.PlayerStates.Keys.Do(ChangeRoleMapForClient);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            void ChangeRoleMapForClient(byte id)
+            {
+                (byte, byte) key = (player.PlayerId, id);
+
+                if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out (RoleTypes RoleType, CustomRoles CustomRole) pair))
+                {
+                    pair.RoleType = role;
+                    StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = pair;
+                }
+            }
+        }
 
         return true;
     }
