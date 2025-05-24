@@ -2345,7 +2345,6 @@
   "Warning.MismatchedVersion": "<b>{0}</b> 安裝了其他版本的 <b>{1}</b>",
   "Warning.AutoExitAtMismatchedVersion": "您的 {0} 版本與房主不同\\n您將在 {1} 秒後被踢出",
   "EnabledGMWarning": "你已啟用GM。這會讓你在每場遊戲開始時變成幽靈。由於未知問題，遊戲可能會立即以“所有人都已死亡”的原因結束，如果發生這種情況，請停用GM。",
-  "ModdedServerDoesntSupportCNOMessage": "⚠ <b>WARNING</b> ⚠\\nYou have enabled a game mode that requires custom net objects (fortegreen players) to show some pixel art to vanilla (non-modded) players. The current server you are using is modded (MNA/MEU/MAS), which doesn't support this. Please use another game mode (we have plenty that don't require custom net objects) or switch to another server (e.g. North America, Europe, Asia).",
   "Commands.NoAccess.Level.Host": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>The Host",
   "Commands.NoAccess.Level.Modded": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>Modded Clients",
   "Commands.NoAccess.Level.HostOrModerator": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>The Host & Moderators",
