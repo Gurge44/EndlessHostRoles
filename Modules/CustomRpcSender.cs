@@ -593,7 +593,7 @@ public static class CustomRpcSenderExtensions
         player.Exiled();
         sender.AutoStartRpc(player.NetId, (byte)RpcCalls.Exiled);
         sender.EndRpc();
-        FixedUpdatePatch.LoversSuicide(player.PlayerId);
+        LateTask.New(() => FixedUpdatePatch.LoversSuicide(player.PlayerId), Utils.CalculatePingDelay() * 2f, log: false);
     }
 
     public static bool Notify(this CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)

@@ -171,6 +171,7 @@ public static class AntiBlackout
                 {
                     if (!pc.IsAlive())
                     {
+                        pc.Exiled();
                         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.Exiled);
                         sender.EndRpc();
                         hasValue = true;
@@ -178,7 +179,7 @@ public static class AntiBlackout
                 }
 
                 sender.SendMessage(!hasValue);
-            }, 0.3f, "AntiBlackout.AfterMeetingTasks");
+            }, 0.3f + Utils.CalculatePingDelay(), "AntiBlackout.AfterMeetingTasks");
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -225,20 +226,14 @@ public static class AntiBlackout
                             changedRoleType = roletype is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost;
                     }
 
-                    if (seer.AmOwner)
-                    {
-                        target.SetRole(changedRoleType);
-                        continue;
-                    }
-
-                    senders[seer.PlayerId].RpcSetRole(target, changedRoleType, seer.OwnerId, noRpcForSelf: false);
-                    hasValue[seer.PlayerId] = true;
+                    hasValue[seer.PlayerId] = senders[seer.PlayerId].RpcSetRole(target, changedRoleType, seer.OwnerId);
                     RestartMessageIfTooLong(seer.PlayerId);
                 }
 
                 foreach (PlayerControl pc in selfExiled)
                 {
                     CustomRpcSender sender = senders[byte.MaxValue];
+                    pc.Exiled();
                     sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.Exiled);
                     sender.EndRpc();
                     hasValue[byte.MaxValue] = true;
