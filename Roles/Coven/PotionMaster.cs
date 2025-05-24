@@ -140,7 +140,7 @@ public class PotionMaster : Coven
 
         CustomRpcSender RestartMessageIfTooLong()
         {
-            if (sender.stream.Length > 800)
+            if (sender.stream.Length > 400)
             {
                 sender.SendMessage();
                 sender = CustomRpcSender.Create("PotionMaster.OnFixedUpdate", SendOption.Reliable);

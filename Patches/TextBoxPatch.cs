@@ -154,6 +154,9 @@ internal static class TextBoxTMPSetTextPatch
             string text = "/" + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
 
+            if (!command.CanUseCommand(PlayerControl.LocalPlayer))
+                info = $"<#ff5555>{info}</color>  <#ff0000>╳ {Translator.GetString("Message.CommandUnavailableShort")}</color>";
+
             var additionalInfo = string.Empty;
 
             if (exactMatch && command.Arguments.Length > 0)
@@ -259,12 +262,12 @@ internal static class TextBoxTMPSetTextPatch
         {
             if (PlaceHolderText != null) PlaceHolderText.enabled = false;
             if (CommandInfoText != null) CommandInfoText.enabled = false;
-            
+
             if (AdditionalInfoText != null)
             {
                 bool showLobbyCode = FastDestroyableSingleton<HudManager>.Instance?.Chat?.IsOpenOrOpening == true && GameStates.IsLobby && Options.GetSuffixMode() == SuffixModes.Streaming && !Options.HideGameSettings.GetBool() && !DataManager.Settings.Gameplay.StreamerMode;
                 AdditionalInfoText.enabled = showLobbyCode;
-                if (showLobbyCode) AdditionalInfoText.text = $"\n\n{Translator.GetString("LobbyCode")}:\n<size=200%>{GameCode.IntToGameName(AmongUsClient.Instance.GameId)}</size>";
+                if (showLobbyCode) AdditionalInfoText.text = $"\n\n{Translator.GetString("LobbyCode")}:\n<size=250%><b>{GameCode.IntToGameName(AmongUsClient.Instance.GameId)}</b></size>";
             }
         }
     }

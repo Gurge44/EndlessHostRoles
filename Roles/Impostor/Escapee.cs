@@ -89,7 +89,7 @@ internal class Escapee : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (shapeshifting || Options.UseUnshiftTrigger.GetBool()) TeleportOrMark(shapeshifter);
+        if (shapeshifting) TeleportOrMark(shapeshifter);
 
         return false;
     }

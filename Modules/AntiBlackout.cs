@@ -43,7 +43,10 @@ public static class AntiBlackout
     {
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default || PlayerControl.AllPlayerControls.Count < 2) return;
 
-        PlayerControl dummyImp = PlayerControl.LocalPlayer;
+        var players = Main.AllAlivePlayerControls;
+        if (CheckForEndVotingPatch.TempExiledPlayer != null) players = players.Where(x => x.PlayerId != CheckForEndVotingPatch.TempExiledPlayer.PlayerId).ToArray();
+        PlayerControl dummyImp = players.MinBy(x => x.PlayerId);
+        if (dummyImp == null) return;
 
         var hasValue = false;
         var sender = CustomRpcSender.Create("AntiBlackout.RevivePlayersAndSetDummyImp", SendOption.Reliable);
@@ -88,7 +91,7 @@ public static class AntiBlackout
 
         void RestartMessageIfTooLong()
         {
-            if (sender.stream.Length > 800)
+            if (sender.stream.Length > 400)
             {
                 sender.SendMessage();
                 sender = CustomRpcSender.Create("AntiBlackout.RevivePlayersAndSetDummyImp", SendOption.Reliable);
@@ -145,7 +148,10 @@ public static class AntiBlackout
         Logger.Info($"SendGameData is called from {callerMethodName}");
 
         foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+        {
             playerInfo.MarkDirty();
+            AmongUsClient.Instance.SendAllStreamedObjects();
+        }
     }
 
     public static void OnDisconnect(NetworkedPlayerInfo player)
@@ -188,7 +194,7 @@ public static class AntiBlackout
     {
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
 
-        byte[] keys = Main.AllPlayerControls.Select(x => x.PlayerId).Concat(Main.PlayerStates.Keys).Append(byte.MaxValue).ToArray();
+        byte[] keys = Main.AllPlayerControls.Select(x => x.PlayerId).Concat(Main.PlayerStates.Keys).Append(byte.MaxValue).Distinct().ToArray();
         Dictionary<byte, CustomRpcSender> senders = keys.ToDictionary(x => x, _ => CustomRpcSender.Create("AntiBlackout.SetRealPlayerRoles", SendOption.Reliable));
         Dictionary<byte, bool> hasValue = keys.ToDictionary(x => x, _ => false);
 
@@ -245,7 +251,7 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
-                        
+
                         hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
@@ -261,6 +267,7 @@ public static class AntiBlackout
             case CustomGameMode.HotPotato:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.RoomRush:
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -278,7 +285,7 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
-                        
+
                         hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
@@ -301,7 +308,7 @@ public static class AntiBlackout
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     CustomRpcSender sender = senders[pc.PlayerId];
-                    
+
                     if (pc.IsAlive())
                     {
                         sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId, noRpcForSelf: false);
@@ -314,7 +321,7 @@ public static class AntiBlackout
                         sender.WriteNetObject(pc);
                         sender.Write((int)MurderResultFlags.Succeeded);
                         sender.EndRpc();
-                        
+
                         hasValue[pc.PlayerId] = true;
 
                         pc.ReactorFlash(0.2f);
@@ -344,8 +351,8 @@ public static class AntiBlackout
             foreach (var kvp in senders)
             {
                 if (!ids.Contains(kvp.Key)) continue;
-                
-                if (kvp.Value.stream.Length > 800)
+
+                if (kvp.Value.stream.Length > 400)
                 {
                     kvp.Value.SendMessage();
                     hasValue[kvp.Key] = false;

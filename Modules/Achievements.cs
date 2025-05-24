@@ -242,7 +242,7 @@ public static class Achievements
                 {
                     string json = request.downloadHandler.text;
                     CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
-                    yield return File.WriteAllTextAsync(SaveFilePath, json);
+                    File.WriteAllText(SaveFilePath, json);
                     Logger.Info("Achievements loaded successfully.", "Achievements.LoadAllData");
                 }
             }

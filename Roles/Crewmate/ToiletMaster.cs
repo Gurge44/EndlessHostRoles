@@ -242,7 +242,8 @@ public class ToiletMaster : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        if (ToiletVisible == ToiletVisibilityOptions.AfterMeeting) Toilets.Values.Do(x => x.NetObject = new(Toilets.GetKeyByValue((x.NetObject, x.Uses, x.PlaceTimeStamp)), []));
+        if (ToiletVisible == ToiletVisibilityOptions.AfterMeeting)
+            Toilets.Values.Do(x => x.NetObject = new(Toilets.GetKeyByValue((x.NetObject, x.Uses, x.PlaceTimeStamp)), []));
     }
 
     private static Color GetPoopColor(Poop poop)
@@ -297,18 +298,14 @@ public class ToiletMaster : RoleBase
         {
             if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Purple)
             {
-                if (PurplePoopNotifyOnKillAttempt.GetBool()) target.Notify(Translator.GetString("TM.TryKillNotify"));
+                if (PurplePoopNotifyOnKillAttempt.GetBool())
+                    target.Notify(Translator.GetString("TM.TryKillNotify"));
 
                 return false;
             }
         }
 
         return true;
-    }
-
-    public override bool CanUseVent(PlayerControl pc, int ventId)
-    {
-        return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
 
     private enum ToiletVisibilityOptions

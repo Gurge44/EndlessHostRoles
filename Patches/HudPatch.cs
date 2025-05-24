@@ -235,7 +235,7 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesUnshift() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || ((!Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && (!Options.UseUnshiftTrigger.GetBool() || !(player.IsNeutralKiller() && Options.UseUnshiftTriggerForNKs.GetBool())))))
+                    if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || ((!Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())))))
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)
@@ -466,6 +466,7 @@ internal static class SetHudActivePatch
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.NaturalDisasters:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -842,6 +843,13 @@ internal static class TaskPanelBehaviourPatch
                     finalText += Quiz.GetTaskBarText();
                     finalText += "</size>";
                     break;
+
+                case CustomGameMode.TheMindGame when AmongUsClient.Instance.AmHost:
+
+                    finalText += "\r\n\r\n\r\n<size=70%>";
+                    finalText += TheMindGame.GetTaskBarText();
+                    finalText += "</size>";
+                    break;
             }
 
             __instance.taskText.text = finalText;
@@ -864,49 +872,6 @@ internal static class DialogueBoxShowPatch
 
         __instance.gameObject.SetActive(true);
         return false;
-    }
-}
-
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
-internal static class CoShowIntroPatch
-{
-    public static bool IntroStarted;
-
-    public static void Prefix()
-    {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
-
-        IntroStarted = true;
-
-        Utils.SetupLongRoleDescriptions();
-
-        LateTask.New(() =>
-        {
-            if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended))
-            {
-                StartGameHostPatch.RpcSetDisconnected(false);
-
-                if (!AmongUsClient.Instance.IsGameOver) FastDestroyableSingleton<HudManager>.Instance.SetHudActive(true);
-            }
-        }, 0.6f, "Set Disconnected");
-
-        LateTask.New(() =>
-        {
-            try
-            {
-                if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended))
-                {
-                    ShipStatusBeginPatch.RolesIsAssigned = true;
-
-                    // Assign tasks after assigning all roles, as it should be
-                    ShipStatus.Instance.Begin();
-
-                    GameOptionsSender.AllSenders.Clear();
-                    foreach (PlayerControl pc in Main.AllPlayerControls) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
-                }
-            }
-            catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
-        }, 4f, "Assign Tasks");
     }
 }
 

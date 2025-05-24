@@ -177,8 +177,6 @@ public static class MushroomMixupSabotageSystemPatch
                 var sender = CustomRpcSender.Create("MushroomMixupSabotageSystemPatch.Postfix", SendOption.Reliable);
                 Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => sender.RpcResetAbilityCooldown(x));
                 sender.SendMessage();
-
-                Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState());
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -289,7 +287,7 @@ public static class ElectricTaskCompletePatch
 
                 if (role == CustomRoles.Wiper)
                 {
-                    if (Options.UseUnshiftTrigger.GetBool() || Options.UsePhantomBasis.GetBool()) pc.RpcResetAbilityCooldown();
+                    if (Options.UsePhantomBasis.GetBool()) pc.RpcResetAbilityCooldown();
                     else pc.AddAbilityCD();
                 }
             }
@@ -324,6 +322,11 @@ public static class SabotageSystemTypeRepairDamagePatch
             newReader.Recycle();
         }
 
+        return CheckSabotage(__instance, player, systemTypes);
+    }
+
+    public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
+    {
         if (Options.DisableSabotage.GetBool())
         {
             switch (systemTypes)
@@ -363,7 +366,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             }
         }
 
-        if (systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
+        if (__instance != null && systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player != null && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
             batteryState.Player.RpcRemoveAbilityUse();
             player.Notify(string.Format(Translator.GetString("BatteryNotify"), CustomRoles.Battery.ToColoredString()), 10f);
@@ -409,7 +412,6 @@ public static class SabotageSystemTypeRepairDamagePatch
 
         return allow;
     }
-
 
     public static void Postfix(SabotageSystemType __instance)
     {

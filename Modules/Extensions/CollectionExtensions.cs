@@ -273,7 +273,7 @@ public static class CollectionExtensions
         {
             hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
 
-            if (sender.stream.Length > 800)
+            if (sender.stream.Length > 400)
             {
                 sender.SendMessage();
                 sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);

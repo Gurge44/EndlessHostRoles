@@ -138,7 +138,6 @@ internal class Assassin : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        if (!IsUndertaker) return;
         Take(pc);
     }
 
@@ -146,7 +145,7 @@ internal class Assassin : RoleBase
     {
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
 
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         Take(pc);
 
@@ -156,12 +155,6 @@ internal class Assassin : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
-
-        if (!IsUndertaker)
-        {
-            LateTask.New(() => Take(pc), 1.5f, "Ninja Vanish");
-            return true;
-        }
 
         Take(pc);
         return false;

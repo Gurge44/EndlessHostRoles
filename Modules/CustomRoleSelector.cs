@@ -20,7 +20,7 @@ internal static class CustomRoleSelector
     public static int AddTrackerNum;
     public static int AddPhantomNum;
 
-    public static Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
+    public static readonly Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
     {
         { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
         { CustomGameMode.FFA, CustomRoles.Killer },
@@ -31,6 +31,7 @@ internal static class CustomRoleSelector
         { CustomGameMode.NaturalDisasters, CustomRoles.NDPlayer },
         { CustomGameMode.RoomRush, CustomRoles.RRPlayer },
         { CustomGameMode.KingOfTheZones, CustomRoles.KOTZPlayer },
+        { CustomGameMode.TheMindGame, CustomRoles.TMGPlayer },
         { CustomGameMode.Quiz, CustomRoles.QuizPlayer }
     };
 

@@ -509,6 +509,11 @@ internal static class GameEndChecker
         Predicate = new QuizGameEndPredicate();
     }
 
+    public static void SetPredicateToTheMindGame()
+    {
+        Predicate = new TheMindGameGameEndPredicate();
+    }
+
     public static void SetPredicateToAllInOne()
     {
         Predicate = new AllInOneGameEndPredicate();
@@ -1014,6 +1019,20 @@ internal static class GameEndChecker
                 default:
                     return false;
             }
+        }
+    }
+
+    private class TheMindGameGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return TheMindGame.CheckForGameEnd(out reason);
         }
     }
 

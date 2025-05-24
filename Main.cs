@@ -51,7 +51,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2025.3.25";
+    public const string SupportedAUVersion = "2025.4.15";
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
@@ -230,7 +230,7 @@ public class Main : BasePlugin
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || (pc.Data.Disconnected && (CoShowIntroPatch.IntroStarted || IntroDestroyed || GameStates.IsLobby)) || Pelican.IsEaten(pc.PlayerId)) continue;
 
                 result[i++] = pc;
             }
@@ -699,6 +699,8 @@ public class Main : BasePlugin
                 { CustomRoles.KOTZPlayer, "#ff0000" },
                 // Quiz
                 { CustomRoles.QuizPlayer, "#CF2472" },
+                // The Mind Game
+                { CustomRoles.TMGPlayer, "#ffff00" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },

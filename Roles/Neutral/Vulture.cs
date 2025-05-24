@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -141,6 +142,7 @@ public class Vulture : RoleBase
 
         if (Utils.TimeStamp - LastReport < VultureReportCD.GetFloat()) return true;
 
+        pc.RPCPlayCustomSound("Eat");
         BodyReportCount++;
         pc.RpcRemoveAbilityUse();
 
@@ -154,10 +156,7 @@ public class Vulture : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != VultureId) return string.Empty;
-
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
+        if (seer.PlayerId != VultureId || target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }
 

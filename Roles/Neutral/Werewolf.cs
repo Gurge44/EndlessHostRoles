@@ -70,7 +70,7 @@ public class Werewolf : RoleBase
 
         LateTask.New(() =>
         {
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() || UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
                 Utils.GetPlayerById(playerId).RpcResetAbilityCooldown();
         }, 12f, log: false);
     }
@@ -87,7 +87,7 @@ public class Werewolf : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return (CanRampage && (!UsePhantomBasis.GetBool() || !UsePhantomBasisForNKs.GetBool()) && (!UseUnshiftTrigger.GetBool() || !UseUnshiftTriggerForNKs.GetBool())) || IsRampaging || pc.inVent;
+        return (CanRampage && (!UsePhantomBasis.GetBool() || !UsePhantomBasisForNKs.GetBool())) || IsRampaging || pc.inVent;
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -101,9 +101,6 @@ public class Werewolf : RoleBase
 
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
             AURoleOptions.PhantomCooldown = 1f;
-
-        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-            AURoleOptions.ShapeshifterCooldown = RampageDur.GetFloat() + 0.5f;
 
         AURoleOptions.EngineerCooldown = 0f;
         AURoleOptions.EngineerInVentMaxTime = 0f;
@@ -152,11 +149,11 @@ public class Werewolf : RoleBase
             if (lastTime + (long)RampageCD.GetFloat() < now)
             {
                 lastTime = -10;
-                bool otherTrigger = UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() || UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool();
+                bool otherTrigger = UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool();
 
                 if (!player.IsModdedClient())
                 {
-                    player.Notify(GetString(otherTrigger ? "WWCanRampageUnshift" : "WWCanRampage"));
+                    player.Notify(GetString(otherTrigger ? "WWCanRampageVanish" : "WWCanRampage"));
                     player.RpcChangeRoleBasis(otherTrigger ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
                 }
 
@@ -210,7 +207,7 @@ public class Werewolf : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         Rampage(shapeshifter);
         return false;
@@ -249,7 +246,7 @@ public class Werewolf : RoleBase
             str.Append(string.Format(GetString("WWCD"), cooldown + 1));
         }
         else
-            str.Append(GetString(UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "WWCanRampageUnshift" : UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "WWCanRampageVanish" : "WWCanRampage"));
+            str.Append(GetString(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "WWCanRampageVanish" : "WWCanRampage"));
 
         return str.ToString();
     }

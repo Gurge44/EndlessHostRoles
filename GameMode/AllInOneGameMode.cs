@@ -89,11 +89,14 @@ public static class AllInOneGameMode
             CustomGameMode.CaptureTheFlag,
             CustomGameMode.FFA,
             CustomGameMode.SoloKombat,
+            CustomGameMode.KingOfTheZones,
             CustomGameMode.RoomRush,
             CustomGameMode.Speedrun,
             CustomGameMode.NaturalDisasters,
             CustomGameMode.MoveAndStop,
-            CustomGameMode.HotPotato
+            CustomGameMode.HotPotato,
+            CustomGameMode.Quiz,
+            CustomGameMode.TheMindGame
         }.First(x => x.IsActiveOrIntegrated());
     }
 

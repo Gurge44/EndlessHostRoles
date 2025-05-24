@@ -64,7 +64,8 @@ internal static class CustomRolesHelper
             CustomRoles.NDPlayer or
             CustomRoles.RRPlayer or
             CustomRoles.KOTZPlayer or
-            CustomRoles.QuizPlayer;
+            CustomRoles.QuizPlayer or
+            CustomRoles.TMGPlayer;
     }
 
     public static RoleBase GetRoleClass(this CustomRoles role)
@@ -101,8 +102,7 @@ internal static class CustomRolesHelper
         if (role.IsVanilla()) return role;
         if (role is CustomRoles.GM) return CustomRoles.Crewmate;
         if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
-        if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
-        if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;
+        if ((Options.UsePhantomBasis.GetBool() || role.AlwaysUsesPhantomBase()) && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
 
         bool UsePets = Options.UsePets.GetBool();
 
@@ -381,6 +381,8 @@ internal static class CustomRolesHelper
             CustomRoles.RRPlayer => CustomRoles.Crewmate,
             // Quiz
             CustomRoles.QuizPlayer => CustomRoles.Crewmate,
+            // The Mind Game
+            CustomRoles.TMGPlayer => CustomRoles.Crewmate,
 
             _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate
         };
@@ -409,8 +411,7 @@ internal static class CustomRolesHelper
 
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
-        if (!load && Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
-        if (!load && Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Shapeshifter;
+        if (!load && ((Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
 
         bool UsePets = !load && Options.UsePets.GetBool();
 
@@ -527,7 +528,7 @@ internal static class CustomRolesHelper
             CustomRoles.Pestilence => RoleTypes.Impostor,
             CustomRoles.Spiritcaller => RoleTypes.Impostor,
             CustomRoles.Doppelganger => RoleTypes.Impostor,
-            CustomRoles.Wizard => RoleTypes.Shapeshifter,
+            CustomRoles.Wizard => RoleTypes.Phantom,
 
             CustomRoles.CovenLeader => RoleTypes.Impostor,
             CustomRoles.SpellCaster => RoleTypes.Impostor,
@@ -856,7 +857,7 @@ internal static class CustomRolesHelper
 
     public static bool OnlySpawnsWithPets(this CustomRoles role)
     {
-        return !(((Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool())) || (Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool()))) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist && !role.AlwaysUsesUnshift()) && OnlySpawnsWithPetsRoleList.Contains(role);
+        return !(((Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool()))) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist && !role.AlwaysUsesPhantomBase()) && OnlySpawnsWithPetsRoleList.Contains(role);
     }
 
     public static bool NeedUpdateOnLights(this CustomRoles role)
@@ -949,7 +950,7 @@ internal static class CustomRolesHelper
             CustomRoles.Echo;
     }
 
-    public static bool AlwaysUsesUnshift(this CustomRoles role)
+    public static bool AlwaysUsesPhantomBase(this CustomRoles role)
     {
         return role is
             CustomRoles.Wizard;

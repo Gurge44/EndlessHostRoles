@@ -48,7 +48,7 @@ public class Occultist : RoleBase
     public override void Init()
     {
         On = false;
-        ActionSwitchMode = Options.UsePhantomBasis.GetBool() ? ActionSwitchModes.Vanish : Options.UseUnshiftTrigger.GetBool() ? ActionSwitchModes.Unshift : Options.UsePets.GetBool() ? ActionSwitchModes.Pet : ActionSwitchModes.Vent;
+        ActionSwitchMode = Options.UsePhantomBasis.GetBool() ? ActionSwitchModes.Vanish : Options.UsePets.GetBool() ? ActionSwitchModes.Pet : ActionSwitchModes.Vent;
         Revives = [];
     }
 
@@ -77,14 +77,6 @@ public class Occultist : RoleBase
     {
         if (ActionSwitchMode == ActionSwitchModes.Pet)
             SwitchAction();
-    }
-
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
-    {
-        if (!shapeshifting && ActionSwitchMode == ActionSwitchModes.Unshift)
-            SwitchAction();
-
-        return false;
     }
 
     public override bool OnVanish(PlayerControl pc)
@@ -174,7 +166,6 @@ public class Occultist : RoleBase
     {
         Vent,
         Pet,
-        Unshift,
         Vanish
     }
 

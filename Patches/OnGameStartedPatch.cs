@@ -70,7 +70,7 @@ internal static class ChangeRoleSettings
 
             if (DestroyableSingleton<GameStartManager>.InstanceExists)
             {
-                // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) FastDestroyableSingleton<GameStartManager>.Instance);
+                amongUsClient.DisconnectHandlers.Remove(FastDestroyableSingleton<GameStartManager>.Instance.Cast<IDisconnectHandler>());
                 Object.Destroy(FastDestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
 
@@ -112,7 +112,7 @@ internal static class ChangeRoleSettings
 
             for (var index = 0; index < GameData.Instance.PlayerCount; ++index)
             {
-                PlayerControl player = GameData.Instance.AllPlayers[index].Object; // False error
+                PlayerControl player = GameData.Instance.AllPlayers[index].Object;
 
                 if (player)
                 {
@@ -460,7 +460,7 @@ internal static class StartGameHostPatch
 
         while (Time.time - startTime < duration)
         {
-            float t = (Time.time - startTime) / duration; // Normalized time (0 to 1)
+            float t = (Time.time - startTime) / duration;
             float newPercent = Mathf.Lerp(startPercent, targetPercent, t);
 
             try
@@ -470,10 +470,9 @@ internal static class StartGameHostPatch
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            yield return null; // Wait for the next frame
+            yield return null;
         }
 
-        // Ensure it reaches exactly the target percentage at the end
         try
         {
             loadingBarManager.SetLoadingPercent(targetPercent, StringNames.LoadingBarGameStart);
@@ -522,8 +521,17 @@ internal static class StartGameHostPatch
         if (!ShipStatus.Instance)
         {
             int index = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
-            AUClient.ShipLoadingAsyncHandle = AUClient.ShipPrefabs[index].InstantiateAsync(); // False error
-            yield return AUClient.ShipLoadingAsyncHandle;
+            AUClient.ShipLoadingAsyncHandle = AUClient.ShipPrefabs[index].InstantiateAsync();
+
+            while (!AUClient.ShipLoadingAsyncHandle.IsDone)
+            {
+                float progress = AUClient.ShipLoadingAsyncHandle.PercentComplete;
+                float displayPercent = Mathf.Lerp(0f, 10f, progress);
+                loadingBarManager.SetLoadingPercent(displayPercent, StringNames.LoadingBarGameStart);
+                loadingBarManager.loadingBar.loadingText.text = loadingTextText1;
+                yield return null;
+            }
+
             GameObject result = AUClient.ShipLoadingAsyncHandle.Result;
             ShipStatus.Instance = result.GetComponent<ShipStatus>();
             AUClient.Spawn(ShipStatus.Instance);
@@ -531,7 +539,7 @@ internal static class StartGameHostPatch
 
         try
         {
-            loadingBarManager.SetLoadingPercent(5f, StringNames.LoadingBarGameStart);
+            loadingBarManager.SetLoadingPercent(10f, StringNames.LoadingBarGameStart);
             loadingBarManager.loadingBar.loadingText.text = loadingTextText1;
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -554,7 +562,7 @@ internal static class StartGameHostPatch
             {
                 for (var index = 0; index < AUClient.allClients.Count; ++index)
                 {
-                    ClientData allClient = AUClient.allClients[index]; // False error
+                    ClientData allClient = AUClient.allClients[index];
 
                     if (allClient.Id != AUClient.ClientId && !allClient.IsReady)
                     {
@@ -576,7 +584,7 @@ internal static class StartGameHostPatch
             {
                 if (totalSeconds < (double)num)
                 {
-                    loadingBarManager.SetLoadingPercent(5 + (float)(totalSeconds / (double)num * 55.0), StringNames.LoadingBarGameStartWaitingPlayers);
+                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 70.0), StringNames.LoadingBarGameStartWaitingPlayers);
 
                     int timeoutIn = num - (int)totalSeconds;
                     loadingBarManager.loadingBar.loadingText.text = string.Format(GetString("LoadingBarText.2"), clientsReady, allClientsCount, timeoutIn);
@@ -591,19 +599,12 @@ internal static class StartGameHostPatch
         }
 
         AUClient.SendClientReady();
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(60f, 65f, 2f, GetString("LoadingBarText.3"));
         yield return AssignRoles();
     }
 
     private static IEnumerator AssignRoles()
     {
-        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-
-        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended)
-        {
-            loadingBarManager.ToggleLoadingBar(false);
-            yield break;
-        }
+        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
 
         RpcSetRoleReplacer.Initialize();
 
@@ -622,147 +623,135 @@ internal static class StartGameHostPatch
 
         Statistics.OnRoleSelectionComplete();
 
+        #region BasisChangingAddonsSetup
+
         try
         {
-            #region BasisChangingAddonsSetup
+            BasisChangingAddons.Clear();
 
-            try
+            var random = IRandom.Instance;
+
+            if (CustomGameMode.Standard.IsActiveOrIntegrated())
             {
-                BasisChangingAddons.Clear();
+                bool bloodlustSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable() && Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt() > 0;
+                bool physicistSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out IntegerOptionItem option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
+                bool nimbleSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out IntegerOptionItem option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
+                bool finderSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Finder, out IntegerOptionItem option3) ? option3.GetFloat() : 0) && CustomRoles.Finder.IsEnable();
+                bool noisySpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Noisy, out IntegerOptionItem option4) ? option4.GetFloat() : 0) && CustomRoles.Noisy.IsEnable();
 
-                var random = IRandom.Instance;
-
-                if (CustomGameMode.Standard.IsActiveOrIntegrated())
+                if (Options.EveryoneCanVent.GetBool())
                 {
-                    bool bloodlustSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable() && Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt() > 0;
-                    bool physicistSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out IntegerOptionItem option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
-                    bool nimbleSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out IntegerOptionItem option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
-                    bool finderSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Finder, out IntegerOptionItem option3) ? option3.GetFloat() : 0) && CustomRoles.Finder.IsEnable();
-                    bool noisySpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Noisy, out IntegerOptionItem option4) ? option4.GetFloat() : 0) && CustomRoles.Noisy.IsEnable();
+                    nimbleSpawn = false;
+                    physicistSpawn = false;
+                    finderSpawn = false;
+                    noisySpawn = false;
+                }
 
-                    if (Options.EveryoneCanVent.GetBool())
+                HashSet<byte> bloodlustList = [], nimbleList = [], physicistList = [], finderList = [], noisyList = [];
+                bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> banned);
+
+                if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn || bloodlustSpawn)
+                {
+                    foreach (PlayerControl player in Main.AllPlayerControls)
                     {
-                        nimbleSpawn = false;
-                        physicistSpawn = false;
-                        finderSpawn = false;
-                        noisySpawn = false;
-                    }
+                        if (IsBasisChangingPlayer(player.PlayerId, CustomRoles.Bloodlust)) continue;
 
-                    HashSet<byte> bloodlustList = [], nimbleList = [], physicistList = [], finderList = [], noisyList = [];
-                    bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> banned);
+                        KeyValuePair<byte, CustomRoles> kp = RoleResult.FirstOrDefault(x => x.Key == player.PlayerId);
 
-                    if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn || bloodlustSpawn)
-                    {
-                        foreach (PlayerControl player in Main.AllPlayerControls)
+                        bool bloodlustBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Bloodlust));
+                        bool nimbleBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Nimble));
+                        bool physicistBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Physicist));
+                        bool finderBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Finder));
+                        bool noisyBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Noisy));
+
+                        if (kp.Value.IsCrewmate())
                         {
-                            if (IsBasisChangingPlayer(player.PlayerId, CustomRoles.Bloodlust)) continue;
+                            if (!bloodlustBanned && !kp.Value.IsTaskBasedCrewmate()) bloodlustList.Add(player.PlayerId);
+                            if (!nimbleBanned) nimbleList.Add(player.PlayerId);
 
-                            KeyValuePair<byte, CustomRoles> kp = RoleResult.FirstOrDefault(x => x.Key == player.PlayerId);
-
-                            bool bloodlustBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Bloodlust));
-                            bool nimbleBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Nimble));
-                            bool physicistBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Physicist));
-                            bool finderBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Finder));
-                            bool noisyBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Noisy));
-
-                            if (kp.Value.IsCrewmate())
+                            if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
                             {
-                                if (!bloodlustBanned && !kp.Value.IsTaskBasedCrewmate()) bloodlustList.Add(player.PlayerId);
-                                if (!nimbleBanned) nimbleList.Add(player.PlayerId);
-
-                                if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
-                                {
-                                    if (!physicistBanned) physicistList.Add(player.PlayerId);
-                                    if (!finderBanned) finderList.Add(player.PlayerId);
-                                    if (!noisyBanned) noisyList.Add(player.PlayerId);
-                                }
+                                if (!physicistBanned) physicistList.Add(player.PlayerId);
+                                if (!finderBanned) finderList.Add(player.PlayerId);
+                                if (!noisyBanned) noisyList.Add(player.PlayerId);
                             }
                         }
                     }
+                }
 
-                    Dictionary<CustomRoles, (bool SpawnFlag, HashSet<byte> RoleList)> roleSpawnMapping = new()
+                Dictionary<CustomRoles, (bool SpawnFlag, HashSet<byte> RoleList)> roleSpawnMapping = new()
+                {
+                    { CustomRoles.Bloodlust, (bloodlustSpawn, bloodlustList) },
+                    { CustomRoles.Nimble, (nimbleSpawn, nimbleList) },
+                    { CustomRoles.Physicist, (physicistSpawn, physicistList) },
+                    { CustomRoles.Finder, (finderSpawn, finderList) },
+                    { CustomRoles.Noisy, (noisySpawn, noisyList) }
+                };
+
+                for (var i = 0; i < roleSpawnMapping.Count; i++)
+                {
+                    (CustomRoles addon, (bool SpawnFlag, HashSet<byte> RoleList) value) = roleSpawnMapping.ElementAt(i);
+                    if (value.RoleList.Count == 0) value.SpawnFlag = false;
+                    if (!value.SpawnFlag) value.RoleList.Clear();
+
+                    if (Main.GM.Value) value.RoleList.Remove(0);
+                    value.RoleList.ExceptWith(ChatCommands.Spectators);
+
+                    if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> combos) && combos.Values.Any(l => l.Contains(addon)))
                     {
-                        { CustomRoles.Bloodlust, (bloodlustSpawn, bloodlustList) },
-                        { CustomRoles.Nimble, (nimbleSpawn, nimbleList) },
-                        { CustomRoles.Physicist, (physicistSpawn, physicistList) },
-                        { CustomRoles.Finder, (finderSpawn, finderList) },
-                        { CustomRoles.Noisy, (noisySpawn, noisyList) }
-                    };
+                        HashSet<CustomRoles> roles = combos.Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
+                        HashSet<byte> players = RoleResult.Where(x => roles.Contains(x.Value) && x.Value.IsCrewmate() && (addon != CustomRoles.Bloodlust || x.Value.IsTasklessCrewmate()) && (addon == CustomRoles.Nimble || x.Value.GetRoleTypes() == RoleTypes.Crewmate) && !IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
 
-                    for (var i = 0; i < roleSpawnMapping.Count; i++)
-                    {
-                        (CustomRoles addon, (bool SpawnFlag, HashSet<byte> RoleList) value) = roleSpawnMapping.ElementAt(i);
-                        if (value.RoleList.Count == 0) value.SpawnFlag = false;
-                        if (!value.SpawnFlag) value.RoleList.Clear();
-
-                        if (Main.GM.Value) value.RoleList.Remove(0);
-                        value.RoleList.ExceptWith(ChatCommands.Spectators);
-
-                        if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> combos) && combos.Values.Any(l => l.Contains(addon)))
+                        if (players.Count > 0)
                         {
-                            HashSet<CustomRoles> roles = combos.Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
-                            HashSet<byte> players = RoleResult.Where(x => roles.Contains(x.Value) && x.Value.IsCrewmate() && (addon != CustomRoles.Bloodlust || x.Value.IsTasklessCrewmate()) && (addon == CustomRoles.Nimble || x.Value.GetRoleTypes() == RoleTypes.Crewmate) && !IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
-
-                            if (players.Count > 0)
-                            {
-                                value.RoleList = players;
-                                value.SpawnFlag = true;
-                                roleSpawnMapping[addon] = value;
-                            }
-                        }
-
-                        if (Main.SetAddOns.Values.Any(x => x.Contains(addon)))
-                        {
+                            value.RoleList = players;
                             value.SpawnFlag = true;
-                            HashSet<byte> newRoleList = Main.SetAddOns.Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
-                            if (value.RoleList.Count != 1 || value.RoleList.First() != newRoleList.First()) value.RoleList = newRoleList;
-
                             roleSpawnMapping[addon] = value;
                         }
                     }
 
-                    foreach ((CustomRoles addon, (bool spawnFlag, HashSet<byte> roleList)) in roleSpawnMapping)
+                    if (Main.SetAddOns.Values.Any(x => x.Contains(addon)))
                     {
-                        if (spawnFlag)
-                        {
-                            foreach ((CustomRoles otherAddon, (bool otherSpawnFlag, _)) in roleSpawnMapping)
-                            {
-                                if (otherAddon != addon && otherSpawnFlag && BasisChangingAddons.TryGetValue(otherAddon, out List<byte> otherList))
-                                    roleList.ExceptWith(otherList);
-                            }
+                        value.SpawnFlag = true;
+                        HashSet<byte> newRoleList = Main.SetAddOns.Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
+                        if (value.RoleList.Count != 1 || value.RoleList.First() != newRoleList.First()) value.RoleList = newRoleList;
 
-                            BasisChangingAddons[addon] = roleList.Shuffle().Take(addon.GetCount()).ToList();
+                        roleSpawnMapping[addon] = value;
+                    }
+                }
+
+                foreach ((CustomRoles addon, (bool spawnFlag, HashSet<byte> roleList)) in roleSpawnMapping)
+                {
+                    if (spawnFlag)
+                    {
+                        foreach ((CustomRoles otherAddon, (bool otherSpawnFlag, _)) in roleSpawnMapping)
+                        {
+                            if (otherAddon != addon && otherSpawnFlag && BasisChangingAddons.TryGetValue(otherAddon, out List<byte> otherList))
+                                roleList.ExceptWith(otherList);
                         }
+
+                        BasisChangingAddons[addon] = roleList.Shuffle().Take(addon.GetCount()).ToList();
                     }
                 }
             }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            #endregion
-
-            // Start CustomRpcSender
-            RpcSetRoleReplacer.StartReplace();
-
-            // Assign roles and create role maps for desync roles
-            RpcSetRoleReplacer.AssignDesyncRoles();
-            RpcSetRoleReplacer.SendRpcForDesync();
-
-            // Assign roles and create role maps for normal roles
-            RpcSetRoleReplacer.AssignNormalRoles();
-            RpcSetRoleReplacer.SendRpcForNormal();
         }
         catch (Exception e) { Utils.ThrowException(e); }
+
+        #endregion
+
+        // Start CustomRpcSender
+        RpcSetRoleReplacer.StartReplace();
+
+        // Assign roles and create role maps for desync roles
+        RpcSetRoleReplacer.AssignDesyncRoles();
+        RpcSetRoleReplacer.SendRpcForDesync();
+
+        // Assign roles and create role maps for normal roles
+        RpcSetRoleReplacer.AssignNormalRoles();
+        RpcSetRoleReplacer.SendRpcForNormal();
 
         // Send all RPCs
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) yield return RpcSetRoleReplacer.ReleaseAsync();
-        else RpcSetRoleReplacer.Release();
-
-        try
-        {
-            loadingBarManager.SetLoadingPercent(75f, StringNames.LoadingBarGameStart);
-            loadingBarManager.loadingBar.loadingText.text = GetString("LoadingBarText.4");
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
+        RpcSetRoleReplacer.Release();
 
         try
         {
@@ -993,6 +982,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Quiz:
                     GameEndChecker.SetPredicateToQuiz();
                     break;
+                case CustomGameMode.TheMindGame:
+                    GameEndChecker.SetPredicateToTheMindGame();
+                    break;
                 case CustomGameMode.AllInOne:
                     GameEndChecker.SetPredicateToAllInOne();
                     break;
@@ -1018,35 +1010,53 @@ internal static class StartGameHostPatch
         {
             Utils.ErrorEnd("Select Role Postfix");
             Utils.ThrowException(ex);
-            loadingBarManager.ToggleLoadingBar(false);
             yield break;
         }
 
-        Logger.Info("Others assign finished", "AssignRoleTypes");
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(75f, 80f, 1f, GetString("LoadingBarText.4"));
 
-        Logger.Info("Send rpc disconnected for all", "AssignRoleTypes");
-        DataDisconnected.Clear();
-        RpcSetDisconnected(true);
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (pc.Data == null)
+                while (pc.Data == null)
+                    yield return null;
+            pc.Data.Disconnected = true;
+            pc.Data.MarkDirty();
+            AmongUsClient.Instance.SendAllStreamedObjects();
+        }
 
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(80f, 100f, 4f, GetString("LoadingBarText.5"));
+        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(80f, 100f, 4f, GetString("LoadingBarText.1"));
+        loadingBarManager.ToggleLoadingBar(false);
 
-        Logger.Info("Assign self", "AssignRoleTypes");
-        SetRoleSelf();
+        Main.AllPlayerControls.Do(SetRoleSelf);
 
         RpcSetRoleReplacer.EndReplace();
 
-        try { loadingBarManager.ToggleLoadingBar(false); }
-        catch (Exception e) { Utils.ThrowException(e); }
 
-        yield return new WaitForSeconds(6f);
+        yield return new WaitForSeconds(1.2f);
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (pc == null || pc.Data == null) continue;
+
+            bool disconnected = Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
+            pc.Data.Disconnected = disconnected;
+
+            if (!disconnected)
+            {
+                pc.Data.MarkDirty();
+                AmongUsClient.Instance.SendAllStreamedObjects();
+            }
+        }
+
+        yield return new WaitForSeconds(7.8f);
 
         var sender = CustomRpcSender.Create("OnGameStartedPatch - Reset All Cooldowns", SendOption.Reliable);
         var hasValue = false;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            hasValue |= sender.SetKillCooldown(pc, 13f);
+            hasValue |= sender.SetKillCooldown(pc, 10f);
             hasValue |= sender.RpcResetAbilityCooldown(pc);
         }
 
@@ -1139,24 +1149,7 @@ internal static class StartGameHostPatch
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static void SetRoleSelf()
-    {
-        try
-        {
-            var sender = CustomRpcSender.Create("OnGameStartedPatch.SetRoleSelf", SendOption.Reliable);
-
-            foreach (PlayerControl pc in Main.AllPlayerControls)
-            {
-                try { SetRoleSelf(pc, sender); }
-                catch (Exception e) { Utils.ThrowException(e); }
-            }
-
-            sender.SendMessage();
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-    }
-
-    private static void SetRoleSelf(PlayerControl target, CustomRpcSender sender)
+    private static void SetRoleSelf(PlayerControl target)
     {
         try
         {
@@ -1169,38 +1162,9 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
+            var sender = CustomRpcSender.Create("OnGameStartedPatch.SetRoleSelf", SendOption.Reliable);
             sender.RpcSetRole(target, roleType, targetClientId);
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-    }
-
-    public static void RpcSetDisconnected(bool disconnected)
-    {
-        try
-        {
-            foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
-            {
-                try
-                {
-                    if (disconnected)
-                    {
-                        // if player left the game, remember current data
-                        DataDisconnected[playerInfo.PlayerId] = playerInfo.Disconnected;
-
-                        playerInfo.Disconnected = true;
-                        playerInfo.IsDead = false;
-                    }
-                    else
-                    {
-                        bool data = DataDisconnected.GetValueOrDefault(playerInfo.PlayerId, true);
-                        playerInfo.Disconnected = data;
-                        playerInfo.IsDead = data;
-                    }
-
-                    playerInfo.MarkDirty();
-                }
-                catch (Exception e) { Utils.ThrowException(e); }
-            }
+            sender.SendMessage();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -1219,7 +1183,7 @@ internal static class StartGameHostPatch
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static void AssignLoversRoles(int RawCount = -1)
+    private static void AssignLoversRoles(int rawCount = -1)
     {
         try
         {
@@ -1231,8 +1195,8 @@ internal static class StartGameHostPatch
 
             List<PlayerControl> allPlayers = Main.AllPlayerControls.Where(pc => (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> bannedCombos) || bannedCombos.All(x => !pc.Is(x.Key) || !x.Value.Contains(CustomRoles.Lovers))) && !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Provocateur) && !pc.Is(CustomRoles.Altruist) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.Is(CustomRoleTypes.Coven) || Lovers.CovenCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
             const CustomRoles role = CustomRoles.Lovers;
-            int count = Math.Clamp(RawCount, 0, allPlayers.Count);
-            if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
+            int count = Math.Clamp(rawCount, 0, allPlayers.Count);
+            if (rawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
 
             if (count <= 0) return;
 
@@ -1433,11 +1397,7 @@ internal static class StartGameHostPatch
                             int targetClientId = target.GetClientId();
                             if (targetClientId == -1) continue;
 
-                            // send rpc set role for other clients
-                            sender.AutoStartRpc(seer.NetId, (byte)RpcCalls.SetRole, targetClientId)
-                                .Write((ushort)roleType)
-                                .Write(true) // canOverride
-                                .EndRpc();
+                            sender.RpcSetRole(seer, roleType, targetClientId, false);
                         }
                         catch (Exception e) { Utils.ThrowException(e); }
                     }
@@ -1461,26 +1421,6 @@ internal static class StartGameHostPatch
                 }
             }
             catch (Exception e) { Utils.ThrowException(e); }
-        }
-
-        public static IEnumerator ReleaseAsync()
-        {
-            BlockSetRole = false;
-
-            if (Senders == null) yield break;
-
-            LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-            float step = (75f - 65f) / Senders.Count;
-            var index = 0;
-
-            foreach (CustomRpcSender sender in Senders.Values)
-            {
-                try { sender.SendMessage(); }
-                catch (Exception e) { Utils.ThrowException(e); }
-
-                index++;
-                yield return loadingBarManager.WaitAndSmoothlyUpdate(65f + (step * (index - 1)), 65f + (step * index), 0.3f, GetString("LoadingBarText.4"));
-            }
         }
 
         public static void EndReplace()

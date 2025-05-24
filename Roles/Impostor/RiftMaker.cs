@@ -130,7 +130,7 @@ public class RiftMaker : RoleBase
     {
         if (player == null) return false;
 
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         if (Marks.Count >= 2) return false;
 

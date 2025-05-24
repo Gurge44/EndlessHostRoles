@@ -105,10 +105,10 @@ internal static class CmdCheckMurderPatch
         }
         else
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FFAKill);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FFAKill, SendOption.Reliable, AmongUsClient.Instance.HostId);
             writer.WriteNetObject(__instance);
             writer.WriteNetObject(target);
-            writer.EndMessage();
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         return false;
@@ -146,6 +146,12 @@ internal static class CheckMurderPatch
         if (AntiBlackout.SkipTasks)
         {
             Logger.Info("CheckMurder while AntiBlackOut protection is in progress, kill canceled", "CheckMurder");
+            return false;
+        }
+
+        if (!Main.IntroDestroyed)
+        {
+            Logger.Info("CheckMurder while intro is not destroyed, kill canceled", "CheckMurder");
             return false;
         }
 
@@ -238,6 +244,7 @@ internal static class CheckMurderPatch
                 if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && lastHolderID != target.PlayerId)
                     HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                 return false;
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
@@ -648,7 +655,6 @@ internal static class MurderPlayerPatch
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
 
         if (!target.Data.IsDead || !AmongUsClient.Instance.AmHost) return;
-
         if (OverKiller.OverDeadPlayerList.Contains(target.PlayerId)) return;
 
         PlayerControl killer = __instance; // Alternative variable
@@ -816,7 +822,7 @@ internal static class ShapeshiftPatch
 
         CustomRoles role = shapeshifter.GetCustomRole();
 
-        if (AmongUsClient.Instance.AmHost && (shapeshifting || role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!shapeshifter.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))))
+        if (AmongUsClient.Instance.AmHost && shapeshifting)
         {
             if (!Rhapsode.CheckAbilityUse(shapeshifter) || Stasis.IsTimeFrozen || TimeMaster.Rewinding) return false;
 
@@ -846,10 +852,6 @@ internal static class ShapeshiftPatch
         }
 
         bool forceCancel = role.ForceCancelShapeshift();
-        bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
-
-        unshiftTrigger |= role.AlwaysUsesUnshift();
-        forceCancel |= unshiftTrigger;
 
         if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out bool changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
         {
@@ -886,14 +888,8 @@ internal static class ShapeshiftPatch
             return false;
         }
 
-        if (unshiftTrigger)
-        {
-            shapeshifter.CheckAndSetUnshiftState(force: true);
-            shapeshifter.AddAbilityCD();
-        }
 
-
-        bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
+        bool animated = isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel);
         Statistics.OnShapeshift(shapeshifter, shapeshifting, animated);
         return animated;
     }
@@ -1087,7 +1083,7 @@ internal static class ReportDeadBodyPatch
         //=============================================================================================
         //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
         //=============================================================================================
-        
+
         CustomNetObject.OnMeeting();
 
         Asthmatic.RunChecks = false;
@@ -1115,7 +1111,7 @@ internal static class ReportDeadBodyPatch
 
         Main.AllAlivePlayerControls.DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos());
 
-        if (Lovers.PrivateChat.GetBool()) ChatManager.ClearChat();
+        if (Lovers.PrivateChat.GetBool()) ChatManager.ClearChat(Main.AllAlivePlayerControls.ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray());
 
         if (target == null)
         {
@@ -1241,11 +1237,6 @@ internal static class ReportDeadBodyPatch
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            CustomRoles role = pc.GetCustomRole();
-
-            if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
-                pc.RpcShapeshift(pc, false);
-
             if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
                 Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
 
@@ -1407,8 +1398,6 @@ internal static class FixedUpdatePatch
                 if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
                     NotifyRoles();
             }
-
-            if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId)) Logger.Info($"Cleared ReportDeadBodyRPC Count for {player.GetRealName().RemoveHtmlTags()}", "FixedUpdatePatch");
         }
 
         if (AmongUsClient.Instance.AmHost)
@@ -1542,10 +1531,9 @@ internal static class FixedUpdatePatch
 
             // Ability Use Gain every 5 seconds
 
-            if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out PlayerState state) && state.TaskState.RemainingTasksCount <= 0 && (!LastAddAbilityTime.TryGetValue(playerId, out long ts) || ts + 5 < now))
+            if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out PlayerState state) && state.TaskState.IsTaskFinished && (!LastAddAbilityTime.TryGetValue(playerId, out long ts) || ts + 5 < now))
             {
                 LastAddAbilityTime[playerId] = now;
-
                 AddExtraAbilityUsesOnFinishedTasks(player);
             }
 
@@ -1683,11 +1671,13 @@ internal static class FixedUpdatePatch
                 // Name Color Manager
                 realName = realName.ApplyNameColorData(seer, target, false);
 
-                Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, meeting: GameStates.IsMeeting)));
+                Suffix.Append(BuildSuffix(seer, target, meeting: GameStates.IsMeeting));
 
-                if (self) Suffix.Append(CustomTeamManager.GetSuffix(seer));
+                List<string> additionalSuffixes = [];
 
-                Suffix.Append(AFKDetector.GetSuffix(seer, target));
+                if (self) additionalSuffixes.Add(CustomTeamManager.GetSuffix(seer));
+
+                additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
 
                 switch (target.GetCustomRole())
                 {
@@ -1755,16 +1745,16 @@ internal static class FixedUpdatePatch
                         Mark.Append(Scout.GetTargetMark(seer, target));
                         break;
                     case CustomRoles.Monitor when inTask && self:
-                        if (AntiAdminer.IsAdminWatch) Suffix.Append($"{GetString("AntiAdminerAD")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
-                        if (AntiAdminer.IsVitalWatch) Suffix.Append($"{GetString("AntiAdminerVI")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
-                        if (AntiAdminer.IsDoorLogWatch) Suffix.Append($"{GetString("AntiAdminerDL")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
-                        if (AntiAdminer.IsCameraWatch) Suffix.Append($"{GetString("AntiAdminerCA")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsAdminWatch) additionalSuffixes.Add($"{GetString("AntiAdminerAD")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsVitalWatch) additionalSuffixes.Add($"{GetString("AntiAdminerVI")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsDoorLogWatch) additionalSuffixes.Add($"{GetString("AntiAdminerDL")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
+                        if (AntiAdminer.IsCameraWatch) additionalSuffixes.Add($"{GetString("AntiAdminerCA")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Camera)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
                         break;
                     case CustomRoles.AntiAdminer when inTask && self:
-                        if (AntiAdminer.IsAdminWatch) Suffix.Append(GetString("AntiAdminerAD"));
-                        if (AntiAdminer.IsVitalWatch) Suffix.Append(GetString("AntiAdminerVI"));
-                        if (AntiAdminer.IsDoorLogWatch) Suffix.Append(GetString("AntiAdminerDL"));
-                        if (AntiAdminer.IsCameraWatch) Suffix.Append(GetString("AntiAdminerCA"));
+                        if (AntiAdminer.IsAdminWatch) additionalSuffixes.Add(GetString("AntiAdminerAD"));
+                        if (AntiAdminer.IsVitalWatch) additionalSuffixes.Add(GetString("AntiAdminerVI"));
+                        if (AntiAdminer.IsDoorLogWatch) additionalSuffixes.Add(GetString("AntiAdminerDL"));
+                        if (AntiAdminer.IsCameraWatch) additionalSuffixes.Add(GetString("AntiAdminerCA"));
                         break;
                     case CustomRoles.Executioner:
                         Mark.Append(Executioner.TargetMark(seer, target));
@@ -1794,59 +1784,58 @@ internal static class FixedUpdatePatch
                 Main.LoversPlayers.ToArray().DoIf(x => x == null, x => Main.LoversPlayers.Remove(x));
                 if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
 
-                if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId))
-                {
-                    if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId))
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
-                    else if (!seer.IsAlive()) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
-                }
+                if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId) || !seer.IsAlive()))
+                    Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
 
                 if (self)
                 {
-                    Suffix.Append(Bloodmoon.GetSuffix(seer));
-                    Suffix.Append(Haunter.GetSuffix(seer));
-                    if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
-                    if (seer.Is(CustomRoles.Sonar)) Suffix.Append(Sonar.GetSuffix(seer, GameStates.IsMeeting));
-                    if (seer.Is(CustomRoles.Deadlined)) Suffix.Append(Deadlined.GetSuffix(seer));
-                    if (seer.Is(CustomRoles.Allergic)) Suffix.Append(Allergic.GetSelfSuffix(seer));
+                    additionalSuffixes.Add(Bloodmoon.GetSuffix(seer));
+                    additionalSuffixes.Add(Haunter.GetSuffix(seer));
+                    if (seer.Is(CustomRoles.Asthmatic)) additionalSuffixes.Add(Asthmatic.GetSuffixText(seer.PlayerId));
+                    if (seer.Is(CustomRoles.Sonar)) additionalSuffixes.Add(Sonar.GetSuffix(seer, GameStates.IsMeeting));
+                    if (seer.Is(CustomRoles.Deadlined)) additionalSuffixes.Add(Deadlined.GetSuffix(seer));
+                    if (seer.Is(CustomRoles.Allergic)) additionalSuffixes.Add(Allergic.GetSelfSuffix(seer));
                 }
 
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.SoloKombat:
-                        Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
+                        additionalSuffixes.Add(SoloPVP.GetDisplayHealth(target, self));
                         break;
                     case CustomGameMode.FFA:
-                        Suffix.Append(FreeForAll.GetPlayerArrow(seer, target));
+                        additionalSuffixes.Add(FreeForAll.GetPlayerArrow(seer, target));
                         break;
                     case CustomGameMode.MoveAndStop when self:
-                        Suffix.Append(MoveAndStop.GetSuffixText(seer));
+                        additionalSuffixes.Add(MoveAndStop.GetSuffixText(seer));
                         break;
                     case CustomGameMode.Speedrun when self:
-                        Suffix.Append(Speedrun.GetSuffixText(seer));
+                        additionalSuffixes.Add(Speedrun.GetSuffixText(seer));
                         break;
                     case CustomGameMode.HideAndSeek:
-                        Suffix.Append(CustomHnS.GetSuffixText(seer, target));
+                        additionalSuffixes.Add(CustomHnS.GetSuffixText(seer, target));
                         break;
                     case CustomGameMode.CaptureTheFlag:
-                        Suffix.Append(CaptureTheFlag.GetSuffixText(seer, target));
+                        additionalSuffixes.Add(CaptureTheFlag.GetSuffixText(seer, target));
                         break;
                     case CustomGameMode.RoomRush when self:
-                        Suffix.Append(RoomRush.GetSuffix(seer));
+                        additionalSuffixes.Add(RoomRush.GetSuffix(seer));
                         break;
                     case CustomGameMode.KingOfTheZones when self:
-                        Suffix.Append(KingOfTheZones.GetSuffix(seer));
+                        additionalSuffixes.Add(KingOfTheZones.GetSuffix(seer));
                         break;
                     case CustomGameMode.Quiz when self:
-                        Suffix.Append(Quiz.GetSuffix(seer));
+                        additionalSuffixes.Add(Quiz.GetSuffix(seer));
+                        break;
+                    case CustomGameMode.TheMindGame:
+                        additionalSuffixes.Add(TheMindGame.GetSuffix(seer, target));
                         break;
                     case CustomGameMode.AllInOne:
-                        if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) Suffix.Append(SoloPVP.GetDisplayHealth(target, self));
-                        if (self && alive && CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) Suffix.Append("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
-                        if (self && alive && !seer.Is(CustomRoles.Killer) && CustomGameMode.Speedrun.IsActiveOrIntegrated()) Suffix.Append(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
-                        if (self && CustomGameMode.RoomRush.IsActiveOrIntegrated()) Suffix.Append(RoomRush.GetSuffix(seer).Replace("\n", " - ") + "\n");
-                        if (self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) Suffix.Append(KingOfTheZones.GetSuffix(seer) + "\n");
-                        if (self && CustomGameMode.Quiz.IsActiveOrIntegrated()) Suffix.Append(Quiz.GetSuffix(seer));
+                        if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) additionalSuffixes.Add(SoloPVP.GetDisplayHealth(target, self));
+                        if (self && alive && CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) additionalSuffixes.Add("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
+                        if (self && alive && !seer.Is(CustomRoles.Killer) && CustomGameMode.Speedrun.IsActiveOrIntegrated()) additionalSuffixes.Add(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[seer.PlayerId]) + "\n");
+                        if (self && CustomGameMode.RoomRush.IsActiveOrIntegrated()) additionalSuffixes.Add(RoomRush.GetSuffix(seer).Replace("\n", " - ") + "\n");
+                        if (self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) additionalSuffixes.Add(KingOfTheZones.GetSuffix(seer) + "\n");
+                        if (self && CustomGameMode.Quiz.IsActiveOrIntegrated()) additionalSuffixes.Add(Quiz.GetSuffix(seer));
                         break;
                 }
 
@@ -1854,7 +1843,12 @@ internal static class FixedUpdatePatch
                     Suffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
 
                 if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
-                    Suffix.Append(GetString("DiedR1Warning"));
+                    additionalSuffixes.Add(GetString("DiedR1Warning"));
+
+                additionalSuffixes
+                    .ConvertAll(x => x.Trim())
+                    .FindAll(x => !string.IsNullOrEmpty(x))
+                    .ForEach(x => Suffix.Append("\n" + x));
 
                 // Devourer
                 if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)))
@@ -2090,6 +2084,7 @@ internal static class CoEnterVentPatch
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.KingOfTheZones:
+            case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
                 LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;

@@ -117,8 +117,6 @@ public class WeaponMaster : RoleBase
         opt.SetInt(Int32OptionNames.KillDistance, Mode == 2 ? 2 : 0);
         opt.SetVision(HasImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
-
-        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -145,7 +143,7 @@ public class WeaponMaster : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
 
         SwitchMode();
         return false;

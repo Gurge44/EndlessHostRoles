@@ -230,7 +230,7 @@ public static class ChatManager
         var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
         var hasValue = false;
 
-        if (filtered.Length < 20) ClearChat();
+        if (filtered.Length < 20) ClearChat(aapc);
 
         foreach (string str in filtered)
         {
@@ -246,7 +246,7 @@ public static class ChatManager
             SendRPC(writer, senderPlayer, senderMessage);
             hasValue = true;
 
-            if (writer.stream.Length > 800)
+            if (writer.stream.Length > 400)
             {
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
@@ -258,45 +258,41 @@ public static class ChatManager
         writer.SendMessage(!hasValue);
     }
 
-    private static void SendRPC(CustomRpcSender writer, InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
+    private static void SendRPC(CustomRpcSender writer, PlayerControl senderPlayer, string senderMessage, int targetClientId = -1)
     {
+        if (GameStates.IsLobby && senderPlayer.IsHost() && Main.AllPlayerNames.TryGetValue(senderPlayer.PlayerId, out var name))
+        {
+            writer.AutoStartRpc(senderPlayer.NetId, (byte)RpcCalls.SetName, targetClientId)
+                .Write(senderPlayer.Data.NetId)
+                .Write(name)
+                .EndRpc();
+        }
+
         writer.AutoStartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat, targetClientId)
             .Write(senderMessage)
             .EndRpc();
     }
 
-    public static void ClearChatForSpecificPlayer(PlayerControl target)
-    {
-        PlayerControl sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-        if (sender == null) return;
-
-        Logger.Info($"Desync Clear Chat for {target.GetNameWithRole()}", "ChatManager");
-
-        if (!target.IsLocalPlayer())
-        {
-            int clientId = target.GetClientId();
-            if (clientId == -1) return;
-
-            var writer = CustomRpcSender.Create("ClearChatForSpecificPlayer", SendOption.Reliable);
-            Loop.Times(20, _ => SendRPC(writer, sender, Utils.EmptyMessage, clientId));
-            writer.SendMessage();
-            return;
-        }
-
-        ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
-        Loop.Times(20, _ => chat.AddChat(sender, Utils.EmptyMessage));
-    }
-
-    // From https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/Utils.cs
-    public static void ClearChat()
+    // Base from https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/Utils.cs
+    public static void ClearChat(params PlayerControl[] targets)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return;
-        FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
-        MessageWriter writer = AmongUsClient.Instance.StartRpc(player.NetId, (byte)RpcCalls.SendChat);
-        writer.Write("<size=32767>.");
-        writer.Write(true);
-        writer.EndMessage();
+
+        if (targets.Length == 0 || targets.Length == PlayerControl.AllPlayerControls.Count) SendEmptyMessage(null);
+        else targets.Do(SendEmptyMessage);
+        return;
+
+        void SendEmptyMessage(PlayerControl receiver)
+        {
+            bool toLocalPlayer = receiver.IsLocalPlayer();
+            if (toLocalPlayer || receiver == null) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
+            if (toLocalPlayer) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, receiver.GetClientId());
+            writer.Write("<size=32767>.");
+            writer.Write(true);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
     }
 }

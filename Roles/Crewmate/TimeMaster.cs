@@ -119,7 +119,7 @@ internal class TimeMaster : RoleBase
                 hasValue |= sender.Notify(player, notify, Math.Max(length * delay, 4f));
                 player.MarkDirtySettings();
 
-                if (sender.stream.Length > 800)
+                if (sender.stream.Length > 400)
                 {
                     sender.SendMessage();
                     sender = CustomRpcSender.Create("TimeMaster.Rewind", SendOption.Reliable);
@@ -162,7 +162,7 @@ internal class TimeMaster : RoleBase
                     hasValue |= sender.TP(ps.Player, deadBody.TruePosition);
                     hasValue |= sender.Notify(ps.Player, Translator.GetString("RevivedByTimeMaster"), 15f);
 
-                    if (sender.stream.Length > 800)
+                    if (sender.stream.Length > 400)
                     {
                         sender.SendMessage();
                         sender = CustomRpcSender.Create("TimeMaster.Rewind - 3", SendOption.Reliable);

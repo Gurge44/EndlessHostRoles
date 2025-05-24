@@ -42,9 +42,6 @@ public class Weatherman : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetVision(ImpostorVision.GetBool());
-
-        if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
-            AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

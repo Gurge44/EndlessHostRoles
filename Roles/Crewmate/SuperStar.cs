@@ -29,4 +29,9 @@ internal class SuperStar : RoleBase
     {
         return !Main.AllAlivePlayerControls.Any(x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId && Vector2.Distance(x.Pos(), target.Pos()) < 2f);
     }
+
+    public override bool KnowRole(PlayerControl seer, PlayerControl target)
+    {
+        return base.KnowRole(seer, target) || (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool());
+    }
 }

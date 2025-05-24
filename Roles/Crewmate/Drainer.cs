@@ -60,6 +60,7 @@ public class Drainer : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.EngineerCooldown = VentCD.GetFloat();
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public static void OnAnyoneExitVent(PlayerControl pc)
@@ -94,20 +95,23 @@ public class Drainer : RoleBase
 
         if (!PlayersInVents.ContainsValue(ventId)) return;
 
-        foreach (KeyValuePair<byte, int> venterId in PlayersInVents.Where(x => x.Value == ventId).ToArray())
+        foreach (KeyValuePair<byte, int> venterId in PlayersInVents)
         {
-            PlayerControl venter = Utils.GetPlayerById(venterId.Key);
-            if (venter == null) continue;
-
-            if (pc != null && pc.RpcCheckAndMurder(venter, true))
+            if (venterId.Value == ventId)
             {
-                venter.MyPhysics.RpcBootFromVent(ventId);
+                PlayerControl venter = Utils.GetPlayerById(venterId.Key);
+                if (venter == null) continue;
 
-                LateTask.New(() =>
+                if (pc != null && pc.RpcCheckAndMurder(venter, true))
                 {
-                    venter.Suicide(PlayerState.DeathReason.Demolished, pc);
-                    Logger.Info($"Killed venter {venter.GetNameWithRole()} (was inside {vent.name}, ID {ventId})", "Drainer");
-                }, 0.55f, "Drainer-KillPlayerInVent");
+                    venter.MyPhysics.RpcBootFromVent(ventId);
+
+                    LateTask.New(() =>
+                    {
+                        venter.Suicide(PlayerState.DeathReason.Demolished, pc);
+                        Logger.Info($"Killed venter {venter.GetNameWithRole()} (was inside {vent.name}, ID {ventId})", "Drainer");
+                    }, 0.55f, "Drainer-KillPlayerInVent");
+                }
             }
         }
     }

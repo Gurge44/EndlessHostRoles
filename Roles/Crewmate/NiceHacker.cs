@@ -130,7 +130,9 @@ public class NiceHacker : RoleBase
             UseLimit[pc.PlayerId] -= 1;
             Dictionary<string, int> list = GetAllPlayerLocationsCount();
             var sb = new StringBuilder();
-            foreach (KeyValuePair<string, int> location in list) sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
+
+            foreach (KeyValuePair<string, int> location in list)
+                sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
 
             pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat());
         }

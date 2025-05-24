@@ -24,7 +24,7 @@ internal static class NotificationPopperPatch
     {
         string optValue = key.GetString();
         if (optValue == "STRMISS") return;
-        
+
         SendRpc(0, index, playSound: playSound);
 
         string str = key.Parent != null
@@ -38,7 +38,7 @@ internal static class NotificationPopperPatch
     {
         string optValue = key.GetString();
         if (optValue == "STRMISS") return;
-        
+
         SendRpc(1, index, customRole, playSound);
         string str = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetName() + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>");
         SettingsChangeMessageLogic(key, str, playSound);
@@ -47,7 +47,7 @@ internal static class NotificationPopperPatch
     private static void SettingsChangeMessageLogic(OptionItem key, string item, bool playSound)
     {
         if (Instance.lastMessageKey == key.Id && Instance.activeMessages.Count > 0)
-            Instance.activeMessages[^1].UpdateMessage(item); // False error
+            Instance.activeMessages[^1].UpdateMessage(item);
         else
         {
             Instance.lastMessageKey = key.Id;

@@ -156,12 +156,15 @@ public class Druid : RoleBase
     {
         if (!GameStates.IsInTask || Triggers.Count <= 0 || PlayerIdList.Contains(pc.PlayerId)) return;
 
-        foreach (KeyValuePair<Vector2, string> trigger in Triggers.Where(trigger => Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f))
+        foreach (KeyValuePair<Vector2, string> trigger in Triggers)
         {
-            DruidPC.Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
-            Triggers.Remove(trigger.Key);
-            SendRPCAddTrigger(false, DruidPC.PlayerId, trigger.Key);
-            CustomNetObject.Get(TriggerIds[trigger.Key])?.Despawn();
+            if (Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f)
+            {
+                DruidPC.Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
+                Triggers.Remove(trigger.Key);
+                SendRPCAddTrigger(false, DruidPC.PlayerId, trigger.Key);
+                CustomNetObject.Get(TriggerIds[trigger.Key])?.Despawn();
+            }
         }
     }
 

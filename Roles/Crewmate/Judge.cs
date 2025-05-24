@@ -112,7 +112,7 @@ public class Judge : RoleBase
         {
             case 1:
                 Utils.SendMessage(GuessManager.GetFormatString(), pc.PlayerId);
-                return true;
+                break;
             case 2:
             {
                 if (TryHideMsg.GetBool()) /*GuessManager.TryHideMsg();*/
@@ -171,45 +171,15 @@ public class Judge : RoleBase
 
                         judgeSuicide = true;
                     }
-                    else if (pc.Is(CustomRoles.Madmate))
+                    else if (pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Charmed) || pc.Is(CustomRoles.Recruit) || pc.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Rascal) || target.Is(CustomRoles.Madmate) && CanTrialMadmate.GetBool() || target.IsConverted() && CanTrialConverted.GetBool() || target.IsNeutralKiller() && CanTrialNeutralK.GetBool())
                         judgeSuicide = false;
-                    else if (pc.Is(CustomRoles.Charmed))
-                        judgeSuicide = false;
-                    else if (pc.Is(CustomRoles.Recruit))
-                        judgeSuicide = false;
-                    else if (pc.Is(CustomRoles.Contagious))
-                        judgeSuicide = false;
-                    else if (target.Is(CustomRoles.Rascal))
-                        judgeSuicide = false;
-                    else if (target.Is(CustomRoles.Pestilence))
+                    else if (target.Is(CustomRoles.Pestilence) || target.Is(CustomRoles.Trickster))
                         judgeSuicide = true;
-                    else if (target.Is(CustomRoles.Trickster))
-                        judgeSuicide = true;
-                    else if (target.Is(CustomRoles.Madmate) && CanTrialMadmate.GetBool())
-                        judgeSuicide = false;
-                    else if (target.IsConverted() && CanTrialConverted.GetBool())
-                        judgeSuicide = false;
-                    else if (target.IsNeutralKiller() && CanTrialNeutralK.GetBool())
-                        judgeSuicide = false;
                     else
                     {
                         CustomRoles targetRole = target.GetCustomRole();
 
-                        if (targetRole.GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CanTrialCrewKilling.GetBool())
-                            judgeSuicide = false;
-                        else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && CanTrialNeutralB.GetBool())
-                            judgeSuicide = false;
-                        else if (targetRole.GetNeutralRoleCategory() is RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah && CanTrialNeutralE.GetBool())
-                            judgeSuicide = false;
-                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && targetRole.GetNeutralRoleCategory() is not RoleOptionType.Neutral_Benign and not RoleOptionType.Neutral_Evil and not RoleOptionType.Neutral_Pariah && CanTrialNeutralK.GetBool())
-                            judgeSuicide = false;
-                        else if (targetRole.IsCoven() && CanTrialCoven.GetBool())
-                            judgeSuicide = false;
-                        else if (targetRole.IsImpostor())
-                            judgeSuicide = false;
-                        else if (targetRole.IsMadmate() && CanTrialMadmate.GetBool())
-                            judgeSuicide = false;
-                        else if (targetRole is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick && CanTrialNeutralK.GetBool())
+                        if (targetRole.GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CanTrialCrewKilling.GetBool() || targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && CanTrialNeutralB.GetBool() || targetRole.GetNeutralRoleCategory() is RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah && CanTrialNeutralE.GetBool() || targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && targetRole.GetNeutralRoleCategory() is not RoleOptionType.Neutral_Benign and not RoleOptionType.Neutral_Evil and not RoleOptionType.Neutral_Pariah && CanTrialNeutralK.GetBool() || targetRole.IsCoven() && CanTrialCoven.GetBool() || targetRole.IsImpostor() || targetRole.IsMadmate() && CanTrialMadmate.GetBool() || targetRole is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick && CanTrialNeutralK.GetBool())
                             judgeSuicide = false;
                         else
                             judgeSuicide = true;
@@ -219,7 +189,7 @@ public class Judge : RoleBase
 
                     PlayerControl dp = judgeSuicide ? pc : target;
 
-                    string Name = dp.GetRealName();
+                    string name = dp.GetRealName();
 
                     pc.RpcRemoveAbilityUse();
                     MeetingUseLimit[pc.PlayerId]--;
@@ -233,7 +203,7 @@ public class Judge : RoleBase
 
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        LateTask.New(() => { Utils.SendMessage(string.Format(GetString("TrialKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))); }, 0.6f, "Guess Msg");
+                        LateTask.New(() => { Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))); }, 0.6f, "Guess Msg");
                     }, 0.2f, "Trial Kill");
                 }
 
@@ -274,7 +244,7 @@ public class Judge : RoleBase
         return true;
     }
 
-    public static bool CheckCommand(ref string msg, string command, bool exact = true)
+    private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         string[] comList = command.Split('|');
 
@@ -299,15 +269,15 @@ public class Judge : RoleBase
 
     private static void SendRPC(byte playerId)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.Judge);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.Judge, SendOption.Reliable, AmongUsClient.Instance.HostId);
         writer.Write(playerId);
-        writer.EndMessage();
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
-        int PlayerId = reader.ReadByte();
-        TrialMsg(pc, $"/tl {PlayerId}", true);
+        int playerId = reader.ReadByte();
+        TrialMsg(pc, $"/tl {playerId}", true);
     }
 
     private static void JudgeOnClick(byte playerId /*, MeetingHud __instance*/)
@@ -322,7 +292,7 @@ public class Judge : RoleBase
             SendRPC(playerId);
     }
 
-    public static void CreateJudgeButton(MeetingHud __instance)
+    private static void CreateJudgeButton(MeetingHud __instance)
     {
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {

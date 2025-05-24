@@ -95,7 +95,7 @@ public class Wyrd : Coven
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+        if (!shapeshifting) return true;
         if (MarkedPlayers.Count >= MaxMarkedPlayersAtOnce.GetInt()) return false;
 
         if (MarkedPlayers.Count != 0) Countdown += TimeAdditionOnMoreMark.GetInt();
@@ -193,7 +193,6 @@ public class Wyrd : Coven
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine();
         if (Countdown <= 0) sb.Append("<#ff0000>");
         sb.AppendLine(string.Format(Translator.GetString("Wyrd.Suffix.FateCountdown"), Countdown));
 
@@ -209,6 +208,6 @@ public class Wyrd : Coven
             }
         }
 
-        return sb.ToString().TrimEnd();
+        return sb.ToString().Trim();
     }
 }

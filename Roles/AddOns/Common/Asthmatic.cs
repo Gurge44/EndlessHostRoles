@@ -75,7 +75,7 @@ internal class Asthmatic : IAddon
                 if (pc.Is(CustomRoles.Asthmatic))
                     Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false, RandomRedTime, RandomGreenTime);
             }
-        }, 8f, "Add Asthmatic Timers");
+        }, 8f, log: false);
     }
 
     public static void OnFixedUpdate()
@@ -102,6 +102,12 @@ internal class Asthmatic : IAddon
         if (!Main.IntroDestroyed || !pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
 
         Vector2 currentPosition = pc.transform.position;
+
+        if (CheckInvalidMovementPatch.ExemptedPlayers.Contains(pc.PlayerId) && CheckInvalidMovementPatch.LastPosition.TryGetValue(pc.PlayerId, out Vector2 position))
+        {
+            LastPosition[pc.PlayerId] = position;
+            return;
+        }
 
         if (!LastPosition.TryGetValue(pc.PlayerId, out Vector2 previousPosition))
         {

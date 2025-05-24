@@ -30,7 +30,8 @@ public enum CustomGameMode
     RoomRush = 0x0A,
     KingOfTheZones = 0x0B,
     Quiz = 0x0C,
-    AllInOne = 0x0D,
+    TheMindGame = 0x0D,
+    AllInOne = 0x0E,
     All = int.MaxValue
 }
 
@@ -79,6 +80,7 @@ public static class Options
         "RoomRush",
         "KingOfTheZones",
         "Quiz",
+        "TheMindGame",
         "AllInOne"
     ];
 
@@ -703,8 +705,6 @@ public static class Options
     public static OptionItem PetToAssignToEveryone;
     public static OptionItem AnonymousBodies;
     public static OptionItem EveryoneSeesDeadPlayersRoles;
-    public static OptionItem UseUnshiftTrigger;
-    public static OptionItem UseUnshiftTriggerForNKs;
     public static OptionItem UsePhantomBasis;
     public static OptionItem UsePhantomBasisForNKs;
     public static OptionItem AutoKickStart;
@@ -836,7 +836,8 @@ public static class Options
         9 => CustomGameMode.RoomRush,
         10 => CustomGameMode.KingOfTheZones,
         11 => CustomGameMode.Quiz,
-        12 => CustomGameMode.AllInOne,
+        12 => CustomGameMode.TheMindGame,
+        13 => CustomGameMode.AllInOne,
         _ => CustomGameMode.Standard
     };
 
@@ -1464,7 +1465,7 @@ public static class Options
 
         AutoDraftStartCommandAfterJoin = new BooleanOptionItem(19426, "AutoDraftStartCommandAfterJoin", false, TabGroup.SystemSettings);
 
-        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
+        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 120, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -1589,6 +1590,8 @@ public static class Options
         KingOfTheZones.SetupCustomOption();
         // Quiz
         Quiz.SetupCustomOption();
+        // The Mind Game
+        TheMindGame.SetupCustomOption();
 
         yield return null;
 
@@ -2114,16 +2117,6 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
-
-        UseUnshiftTrigger = new BooleanOptionItem(23871, "UseUnshiftTrigger", false, TabGroup.TaskSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetHeader(true)
-            .SetColor(new Color32(255, 44, 44, byte.MaxValue));
-
-        UseUnshiftTriggerForNKs = new BooleanOptionItem(23872, "UseUnshiftTriggerForNKs", false, TabGroup.TaskSettings)
-            .SetParent(UseUnshiftTrigger)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(255, 44, 44, byte.MaxValue));
 
         UsePhantomBasis = new BooleanOptionItem(23851, "UsePhantomBasis", true, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)

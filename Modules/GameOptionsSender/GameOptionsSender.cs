@@ -61,24 +61,19 @@ public abstract class GameOptionsSender
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
             writer.StartMessage(targetClientId == -1 ? Tags.GameData : Tags.GameDataTo);
-
             {
                 writer.Write(AmongUsClient.Instance.GameId);
                 if (targetClientId != -1) writer.WritePacked(targetClientId);
 
                 writer.StartMessage(1);
-
                 {
                     writer.WritePacked(GameManager.Instance.NetId);
                     writer.StartMessage(LogicOptionsIndex);
-
                     {
                         writer.WriteBytesAndSize(optionArray);
                     }
-
                     writer.EndMessage();
                 }
-
                 writer.EndMessage();
             }
 

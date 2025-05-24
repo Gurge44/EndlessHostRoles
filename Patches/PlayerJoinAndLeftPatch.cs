@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using AmongUs.InnerNet.GameDataMessages;
 using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -191,7 +192,7 @@ internal static class OnPlayerJoinedPatch
             catch { }
         }, 4.5f, "green bean kick late task", false);
 
-        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame && GameStates.CurrentServerType is not GameStates.ServerType.ModdedWithCNOSupport and not GameStates.ServerType.ModdedWithoutCNOSupport)
+        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame && GameStates.CurrentServerType != GameStates.ServerType.Modded)
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid())) BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
 
@@ -208,7 +209,7 @@ internal static class OnPlayerJoinedPatch
             Logger.Info(msg, "Android Kick");
         }
 
-        if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType is not GameStates.ServerType.ModdedWithCNOSupport and not GameStates.ServerType.ModdedWithoutCNOSupport)
+        if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType != GameStates.ServerType.Modded)
         {
             AmongUsClient.Instance.KickPlayer(client.Id, true);
             Logger.Info($"Blocked Player {client.PlayerName}({client.FriendCode}) has been banned.", "BAN");
@@ -232,8 +233,6 @@ internal static class OnPlayerLeftPatch
     {
         try
         {
-            if (data != null && data.Character != null) StartGameHostPatch.DataDisconnected[data.Character.PlayerId] = true;
-
             if (GameStates.IsInGame && data != null && data.Character != null)
             {
                 if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
@@ -308,10 +307,8 @@ internal static class OnPlayerLeftPatch
                     {
                         if (GameStates.IsOnlineGame)
                         {
-                            MessageWriter messageWriter = AmongUsClient.Instance.Streams[1];
-                            messageWriter.StartMessage(5);
-                            messageWriter.WritePacked(netid);
-                            messageWriter.EndMessage();
+                            var message = new DespawnGameDataMessage(netid);
+                            AmongUsClient.Instance.LateBroadcastReliableMessage(message.Cast<IGameDataMessage>());
                         }
                     }, 2.5f, "Repeat Despawn", false);
                 }

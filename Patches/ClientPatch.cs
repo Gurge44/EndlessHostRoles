@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using AmongUs.Data;
 using EHR.Modules;
 using EHR.Patches;
@@ -118,7 +116,6 @@ internal static class KickPlayerPatch
         if (AmongUsClient.Instance.ClientId == clientId)
         {
             Logger.SendInGame($"Game Attempting to {(ban ? "Ban" : "Kick")} Host, Blocked the attempt.");
-            Logger.Info("Game attempted to kick/ban host....", "KickPlayerPatch");
             return false;
         }
 
@@ -143,187 +140,6 @@ internal static class InnerNetObjectSerializePatch
     public static void Prefix()
     {
         if (AmongUsClient.Instance.AmHost) Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
-    }
-}
-
-[HarmonyPatch(typeof(InnerNetClient))]
-public static class InnerNetClientPatch
-{
-    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData))]
-    [HarmonyPrefix]
-    public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
-    {
-        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
-        MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
-        messageWriter.StartMessage(6);
-        messageWriter.Write(__instance.GameId);
-        messageWriter.WritePacked(clientId);
-        List<InnerNetObject> obj = __instance.allObjects;
-
-        lock (obj)
-        {
-            System.Collections.Generic.HashSet<GameObject> hashSet = [];
-
-            for (var i = 0; i < __instance.allObjects.Count; i++)
-            {
-                if (messageWriter.Length > 800)
-                {
-                    messageWriter.EndMessage();
-                    __instance.SendOrDisconnect(messageWriter);
-                    messageWriter.Recycle();
-                    messageWriter = MessageWriter.Get(SendOption.Reliable);
-                    messageWriter.StartMessage(6);
-                    messageWriter.Write(__instance.GameId);
-                    messageWriter.WritePacked(clientId);
-                }
-
-                InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
-
-                if (innerNetObject && (innerNetObject.OwnerId != -4 || __instance.AmModdedHost) && hashSet.Add(innerNetObject.gameObject))
-                {
-                    var gameManager = innerNetObject as GameManager;
-
-                    if (gameManager != null)
-                        __instance.SendGameManager(clientId, gameManager);
-                    else
-                        __instance.WriteSpawnMessage(innerNetObject, innerNetObject.OwnerId, innerNetObject.SpawnFlags, messageWriter);
-                }
-            }
-
-            messageWriter.EndMessage();
-            __instance.SendOrDisconnect(messageWriter);
-            messageWriter.Recycle();
-        }
-
-        return false;
-    }
-
-    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendAllStreamedObjects))]
-    [HarmonyPrefix]
-    public static bool SendAllStreamedObjectsPrefix(InnerNetClient __instance, ref bool __result)
-    {
-        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
-        __result = false;
-        List<InnerNetObject> obj = __instance.allObjects;
-
-        lock (obj)
-        {
-            for (var i = 0; i < __instance.allObjects.Count; i++)
-            {
-                InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
-
-                if (innerNetObject && innerNetObject.IsDirty && (innerNetObject.AmOwner || (innerNetObject.OwnerId == -2 && __instance.AmHost)))
-                {
-                    MessageWriter messageWriter = __instance.Streams[(int)innerNetObject.sendMode];
-                    if (messageWriter.Length > 800)
-                    {
-                        messageWriter.EndMessage();
-                        __instance.SendOrDisconnect(messageWriter);
-                        messageWriter.Clear(innerNetObject.sendMode);
-                        messageWriter.StartMessage(5);
-                        messageWriter.Write(__instance.GameId);
-                    }
-                    messageWriter.StartMessage(1);
-                    messageWriter.WritePacked(innerNetObject.NetId);
-
-                    try
-                    {
-                        if (innerNetObject.Serialize(messageWriter, false))
-                            messageWriter.EndMessage();
-                        else
-                            messageWriter.CancelMessage();
-
-                        if (innerNetObject.Chunked && innerNetObject.IsDirty)
-                            __result = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Exception(ex, "SendAllStreamedObjectsPrefix");
-                        messageWriter.CancelMessage();
-                    }
-                }
-            }
-        }
-
-        for (var j = 0; j < __instance.Streams.Length; j++)
-        {
-            MessageWriter messageWriter2 = __instance.Streams[j];
-
-            if (messageWriter2.HasBytes(7))
-            {
-                messageWriter2.EndMessage();
-                __instance.SendOrDisconnect(messageWriter2);
-                messageWriter2.Clear((SendOption)j);
-                messageWriter2.StartMessage(5);
-                messageWriter2.Write(__instance.GameId);
-            }
-        }
-
-        return false;
-    }
-
-    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
-    [HarmonyPostfix]
-    public static void Spawn_Postfix(InnerNetClient __instance, InnerNetObject netObjParent, int ownerId = -2, SpawnFlags flags = SpawnFlags.None)
-    {
-        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return;
-
-        if (__instance.AmHost)
-        {
-            switch (netObjParent)
-            {
-                case NetworkedPlayerInfo playerinfo:
-                    LateTask.New(() =>
-                    {
-                        if (playerinfo != null && AmongUsClient.Instance.AmConnected)
-                        {
-                            ClientData client = AmongUsClient.Instance.GetClient(playerinfo.ClientId);
-
-                            if (client != null && !client.IsDisconnected())
-                            {
-                                if (playerinfo.IsIncomplete)
-                                {
-                                    Logger.Warn($"Disconnecting Client [{client.Id}]{client.PlayerName} {client.FriendCode} for playerinfo timeout", "DelayedNetworkedData");
-                                    AmongUsClient.Instance.KickPlayer(client.Id, false);
-                                }
-                            }
-                        }
-                    }, 5f, "PlayerInfo Green Bean Kick", false);
-
-                    break;
-                case PlayerControl player:
-                    LateTask.New(() =>
-                    {
-                        if (player != null && !player.notRealPlayer && !player.isDummy && AmongUsClient.Instance.AmConnected)
-                        {
-                            ClientData client = AmongUsClient.Instance.GetClient(player.OwnerId);
-
-                            if (client != null && !client.IsDisconnected())
-                            {
-                                if (player.Data == null || player.Data.IsIncomplete)
-                                {
-                                    Logger.Info($"Disconnecting Client [{client.Id}]{client.PlayerName} {client.FriendCode} for playercontrol timeout", "DelayedNetworkedData");
-                                    AmongUsClient.Instance.KickPlayer(client.Id, false);
-                                }
-                            }
-                        }
-                    }, 5.5f, "PlayerControl Green Bean Kick", false);
-
-                    break;
-            }
-        }
-
-        if (!__instance.AmHost)
-            Debug.LogError("Tried to spawn while not host: " + netObjParent?.ToString());
-    }
-}
-
-[HarmonyPatch(typeof(GameData), nameof(GameData.DirtyAllData))]
-internal static class DirtyAllDataPatch
-{
-    public static bool Prefix()
-    {
-        return false;
     }
 }
 
@@ -377,7 +193,7 @@ internal static class NetworkedPlayerInfoSerializePatch
             writer.Write((byte)__instance.Tasks.Count);
 
             for (var i = 0; i < __instance.Tasks.Count; i++)
-                __instance.Tasks[i].Serialize(writer); // False error
+                __instance.Tasks[i].Serialize(writer);
         }
         else
             writer.Write(0);
@@ -395,7 +211,7 @@ internal static class NetworkedPlayerInfoSerializePatch
     }
 }
 
-// Next 4: https://github.com/Rabek009/MoreGamemodes/blob/master/Patches/ClientPatch.cs
+// https://github.com/Rabek009/MoreGamemodes/blob/master/Patches/ClientPatch.cs
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CheckOnlinePermissions))]
 static class CheckOnlinePermissionsPatch
@@ -403,57 +219,6 @@ static class CheckOnlinePermissionsPatch
     public static void Prefix()
     {
         DataManager.Player.Ban.banPoints = 0f;
-    }
-}
- 
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpc))]
-static class StartRpcPatch
-{
-    public static void Prefix(InnerNetClient __instance, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(2)] SendOption option)
-    {
-        MessageWriter writer = __instance.Streams[(int)option];
-        if (writer.Length > 800)
-        {
-            writer.EndMessage();
-            __instance.SendOrDisconnect(writer);
-            writer.Clear(option);
-            writer.StartMessage(5);
-            writer.Write(__instance.GameId);
-        }
-    }
-}
- 
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
-static class SpawnPatch
-{
-    public static void Prefix(InnerNetClient __instance)
-    {
-        MessageWriter writer = __instance.Streams[1];
-        if (writer.Length > 800)
-        {
-            writer.EndMessage();
-            __instance.SendOrDisconnect(writer);
-            writer.Clear(SendOption.Reliable);
-            writer.StartMessage(5);
-            writer.Write(__instance.GameId);
-        }
-    }
-}
- 
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Despawn))]
-static class DespawnPatch
-{
-    public static void Prefix(InnerNetClient __instance)
-    {
-        MessageWriter writer = __instance.Streams[1];
-        if (writer.Length > 800)
-        {
-            writer.EndMessage();
-            __instance.SendOrDisconnect(writer);
-            writer.Clear(SendOption.Reliable);
-            writer.StartMessage(5);
-            writer.Write(__instance.GameId);
-        }
     }
 }
 
@@ -475,9 +240,9 @@ internal static class AuthTimeoutPatch
 
     // If you don't patch this, you still need to wait for 5 s.
     // I have no idea why this is happening
-    [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__1), nameof(AmongUsClient._CoJoinOnlinePublicGame_d__1.MoveNext))]
+    [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__49), nameof(AmongUsClient._CoJoinOnlinePublicGame_d__49.MoveNext))]
     [HarmonyPrefix]
-    public static void EnableUdpMatchmakingPrefix(AmongUsClient._CoJoinOnlinePublicGame_d__1 __instance)
+    public static void EnableUdpMatchmakingPrefix(AmongUsClient._CoJoinOnlinePublicGame_d__49 __instance)
     {
         // Skip to state 1, which just calls CoJoinOnlineGameDirect
         if (__instance.__1__state == 0 && !ServerManager.Instance.IsHttp)

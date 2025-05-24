@@ -186,10 +186,8 @@ public class Wizard : RoleBase
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    public override bool OnVanish(PlayerControl pc)
     {
-        if (shapeshifting) return false;
-
         BuffValues[SelectedBuff] += Steps[SelectedBuff];
 
         if (BuffValues[SelectedBuff] > MaxBuffValues[SelectedBuff])
@@ -198,7 +196,7 @@ public class Wizard : RoleBase
             BuffValues[SelectedBuff] = (float)Math.Round(BuffValues[SelectedBuff], 1);
 
         Utils.SendRPC(CustomRPC.SyncRoleData, WizardId, 2, BuffValues[SelectedBuff]);
-        Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         return false;
     }
 

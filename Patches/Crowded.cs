@@ -64,9 +64,9 @@ internal static class Crowded
 
                 Object.Destroy(firstButtonRenderer);
                 var lastButtonRenderer = __instance.MaxPlayerButtons[^1]; // Must use 'var' here to avoid compiler errors
-                lastButtonRenderer.GetComponentInChildren<TextMeshPro>().text = "+"; // False error
-                lastButtonRenderer.enabled = false; // False error
-                var lastButtonButton = lastButtonRenderer.GetComponent<PassiveButton>(); // False error
+                lastButtonRenderer.GetComponentInChildren<TextMeshPro>().text = "+";
+                lastButtonRenderer.enabled = false;
+                var lastButtonButton = lastButtonRenderer.GetComponent<PassiveButton>();
                 lastButtonButton.OnClick.RemoveAllListeners();
 
                 lastButtonButton.OnClick.AddListener((Action)(() =>
@@ -85,7 +85,7 @@ internal static class Crowded
                     __instance.UpdateMaxPlayersButtons(__instance.GetTargetOptions());
                 }));
 
-                Object.Destroy(lastButtonRenderer); // False error
+                Object.Destroy(lastButtonRenderer);
 
                 for (var i = 1; i < 11; i++)
                 {

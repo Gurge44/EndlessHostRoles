@@ -6,7 +6,6 @@ using BepInEx;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
 using EHR.Crewmate;
-using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
@@ -92,7 +91,7 @@ internal static class RepairSystemPatch
                 SabotageMaster.RepairSystem(player.PlayerId, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
-            case CustomRoles.Alchemist when Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
+            case CustomRoles.Alchemist when systemType != SystemTypes.Electrical && Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
                 Alchemist.RepairSystem(player, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
@@ -163,30 +162,7 @@ internal static class RepairSystemPatch
 
                 break;
             }
-            case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
-            {
-                if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
-                if (SecurityGuard.BlockSabo.Count > 0) return false;
-
-                if (player.IsRoleBlocked())
-                {
-                    player.Notify(BlockedAction.Sabotage.GetBlockNotify());
-                    return false;
-                }
-
-                if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
-                if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
-
-                return player.GetCustomRole() switch
-                {
-                    CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
-                    CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
-                    CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
-                    CustomRoles.Parasite when player.IsAlive() => true,
-                    CustomRoles.Refugee when player.IsAlive() => true,
-                    _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
-                };
-            }
+            case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay: { return SabotageSystemTypeRepairDamagePatch.CheckSabotage(null, player, systemType); }
             case SystemTypes.Security when amount == 1:
             {
                 bool camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
@@ -235,7 +211,7 @@ internal static class RepairSystemPatch
 
         if (new List<SystemTypes> { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Contains(systemType) && !Utils.IsActive(systemType))
         {
-            bool petcd = !Options.UseUnshiftTrigger.GetBool() && !Options.UsePhantomBasis.GetBool();
+            bool petcd = !Options.UsePhantomBasis.GetBool();
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
@@ -265,7 +241,7 @@ internal static class CloseDoorsPatch
 {
     public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.AllInOne;
+        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.AllInOne;
 
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
@@ -541,12 +517,12 @@ internal static class VentilationSystemDeterioratePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (!GameStates.InGame || !Main.IntroDestroyed) return;
-        List<NetworkedPlayerInfo> AllPlayers = [];
+        List<NetworkedPlayerInfo> allPlayers = [];
 
         foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
         {
             if (playerInfo != null && !playerInfo.Disconnected)
-                AllPlayers.Add(playerInfo);
+                allPlayers.Add(playerInfo);
         }
 
 
@@ -555,7 +531,7 @@ internal static class VentilationSystemDeterioratePatch
             if (BlockVentInteraction(pc))
             {
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
-                if (AllPlayers.Count >= vents) continue;
+                if (allPlayers.Count >= vents) continue;
                 MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -564,18 +540,18 @@ internal static class VentilationSystemDeterioratePatch
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);
                 var blockedVents = 0;
-                writer.WritePacked(AllPlayers.Count);
+                writer.WritePacked(allPlayers.Count);
 
                 foreach (Vent vent in pc.GetVentsFromClosest())
                 {
                     if (!pc.CanUseVent(vent.Id))
                     {
-                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write(allPlayers[blockedVents].PlayerId);
                         writer.Write((byte)vent.Id);
                         ++blockedVents;
                     }
 
-                    if (blockedVents >= AllPlayers.Count)
+                    if (blockedVents >= allPlayers.Count)
                         break;
                 }
 
@@ -610,7 +586,7 @@ internal static class VentilationSystemDeterioratePatch
             if (player != null && pc != player) continue;
 
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            
+
             if (BlockVentInteraction(pc))
             {
                 writer.StartMessage(6);
@@ -620,15 +596,15 @@ internal static class VentilationSystemDeterioratePatch
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
-                List<NetworkedPlayerInfo> AllPlayers = [];
+                List<NetworkedPlayerInfo> allPlayers = [];
 
                 foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
                 {
                     if (playerInfo != null && !playerInfo.Disconnected)
-                        AllPlayers.Add(playerInfo);
+                        allPlayers.Add(playerInfo);
                 }
 
-                int maxVents = Math.Min(vents, AllPlayers.Count);
+                int maxVents = Math.Min(vents, allPlayers.Count);
                 var blockedVents = 0;
                 writer.WritePacked(maxVents);
 
@@ -636,7 +612,7 @@ internal static class VentilationSystemDeterioratePatch
                 {
                     if (!pc.CanUseVent(vent.Id))
                     {
-                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write(allPlayers[blockedVents].PlayerId);
                         writer.Write((byte)vent.Id);
                         ++blockedVents;
                     }
@@ -670,7 +646,7 @@ internal static class VentilationSystemDeterioratePatch
                 writer.EndMessage();
                 writer.EndMessage();
             }
-            
+
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
         }

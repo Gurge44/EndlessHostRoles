@@ -32,7 +32,7 @@ public class Magistrate : RoleBase
         On = true;
         MagistrateID = playerId;
         playerId.SetAbilityUseLimit(1);
-        AbilityTrigger = Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? AbilityTriggers.Vanish : Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() ? AbilityTriggers.Unshift : Options.UsePets.GetBool() ? AbilityTriggers.Pet : AbilityTriggers.Vent;
+        AbilityTrigger = Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? AbilityTriggers.Vanish : Options.UsePets.GetBool() ? AbilityTriggers.Pet : AbilityTriggers.Vent;
     }
 
     public override void AfterMeetingTasks()
@@ -70,13 +70,6 @@ public class Magistrate : RoleBase
             UseAbility(pc);
     }
 
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
-    {
-        if (AbilityTrigger != AbilityTriggers.Unshift || shapeshifting) return false;
-        UseAbility(shapeshifter);
-        return false;
-    }
-
     public override bool OnVanish(PlayerControl pc)
     {
         if (AbilityTrigger != AbilityTriggers.Vanish) return false;
@@ -94,7 +87,6 @@ public class Magistrate : RoleBase
     {
         Vent,
         Pet,
-        Unshift,
         Vanish
     }
 }

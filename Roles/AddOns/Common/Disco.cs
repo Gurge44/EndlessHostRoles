@@ -23,7 +23,7 @@ internal class Disco : IAddon
 
         pc.SetColor(colorId);
 
-        if (GameStates.CurrentServerType is GameStates.ServerType.ModdedWithCNOSupport or GameStates.ServerType.ModdedWithoutCNOSupport)
+        if (GameStates.CurrentServerType == GameStates.ServerType.Modded)
             pc.RpcSetColor((byte)colorId);
         else
         {

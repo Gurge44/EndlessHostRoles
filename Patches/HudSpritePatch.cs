@@ -434,7 +434,7 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Swiftclaw:
                 {
-                    if (Options.UsePets.GetBool() && !Options.UseUnshiftTrigger.GetBool()) newPetButton = CustomButton.Get("Dash");
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Dash");
                     else newAbilityButton = CustomButton.Get("Dash");
 
                     break;

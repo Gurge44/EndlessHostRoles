@@ -916,7 +916,7 @@ internal static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.AllInOne ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.AllInOne ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -1169,7 +1169,7 @@ internal static class ExtendedPlayerControl
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
+            case CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.TheMindGame:
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.HotPotato:
@@ -1238,6 +1238,7 @@ internal static class ExtendedPlayerControl
             CustomGameMode.NaturalDisasters => false,
             CustomGameMode.RoomRush => false,
             CustomGameMode.Quiz => false,
+            CustomGameMode.TheMindGame => false,
             CustomGameMode.AllInOne => false,
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
@@ -1544,14 +1545,7 @@ internal static class ExtendedPlayerControl
             Vector2 pos = target.Pos();
             Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies && !x.SubRoles.Contains(CustomRoles.Blind) && x.Player != null, x => LocateArrow.Add(x.Player.PlayerId, pos));
 
-            var sender = CustomRpcSender.Create("Kill", SendOption.Reliable);
-            if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, MurderResultFlags.Succeeded);
-            sender.AutoStartRpc(killer.NetId, 12);
-            sender.WriteNetObject(target);
-            sender.Write((int)MurderResultFlags.Succeeded);
-            sender.EndRpc();
-
-            sender.SendMessage();
+            killer.RpcMurderPlayer(target, true);
 
             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && !state.IsDead)
                 state.SetDead();
@@ -1571,29 +1565,6 @@ internal static class ExtendedPlayerControl
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
         FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
-    }
-
-    public static void CheckAndSetUnshiftState(this PlayerControl pc, bool notify = true, bool force = false)
-    {
-        CustomRoles role = pc.GetCustomRole();
-
-        if (force || role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
-        {
-            Logger.Info($"Set Unshift State For {pc.GetNameWithRole()}", "CheckAndSetUnshiftState");
-            PlayerControl target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
-            NetworkedPlayerInfo.PlayerOutfit outfit = pc.Data.DefaultOutfit;
-            bool process = Main.ProcessShapeshifts;
-            Main.ProcessShapeshifts = false;
-            pc.RpcShapeshift(target, false);
-            Main.ProcessShapeshifts = process;
-            Main.CheckShapeshift[pc.PlayerId] = false;
-
-            LateTask.New(() =>
-            {
-                RpcChangeSkin(pc, outfit);
-                if (notify) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
-            }, 0.1f, log: false);
-        }
     }
 
     public static bool UsesPetInsteadOfKill(this PlayerControl pc)

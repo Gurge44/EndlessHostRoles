@@ -209,19 +209,18 @@ public static class PhantomRolePatch
 
             foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                if (target != null)
-                {
-                    int clientId = target.GetClientId();
+                if (target == null || target.PlayerId == phantom.PlayerId) continue;
 
-                    if (AmongUsClient.Instance.ClientId == clientId)
-                        phantom.CheckAppear(shouldAnimate);
-                    else
-                    {
-                        sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.CheckAppear, clientId);
-                        sender.Write(shouldAnimate);
-                        sender.EndRpc();
-                        hasValue = true;
-                    }
+                int clientId = target.GetClientId();
+
+                if (AmongUsClient.Instance.ClientId == clientId)
+                    phantom.CheckAppear(shouldAnimate);
+                else
+                {
+                    sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.CheckAppear, clientId);
+                    sender.Write(shouldAnimate);
+                    sender.EndRpc();
+                    hasValue = true;
                 }
             }
 
