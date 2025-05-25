@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using AmongUs.Data;
 using EHR.AddOns.Crewmate;
@@ -19,8 +20,6 @@ internal static class ExileControllerWrapUpPatch
     {
         var decidedWinner = false;
         if (!AmongUsClient.Instance.AmHost) return;
-
-        AntiBlackout.RestoreIsDead(false);
 
         if (!Collector.CollectorWin(false) && exiled != null)
         {
@@ -128,47 +127,8 @@ internal static class ExileControllerWrapUpPatch
             LateTask.New(() =>
             {
                 if (GameStates.IsEnded) return;
-
-                AntiBlackout.SendGameData();
-                AntiBlackout.SetRealPlayerRoles();
-            }, Options.CurrentGameMode == CustomGameMode.Standard ? 0.5f : 1.4f, "Restore IsDead Task");
-
-            LateTask.New(AntiBlackout.ResetAfterMeeting, 0.6f, "ResetAfterMeeting");
-
-            LateTask.New(() =>
-            {
-                if (GameStates.IsEnded) return;
-
-                var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer", SendOption.Reliable);
-                Main.AfterMeetingDeathPlayers.Do(x => sender.RpcExileV2(x.Key.GetPlayer()));
-                sender.SendMessage(Main.AfterMeetingDeathPlayers.Count == 0);
-
-                foreach ((byte id, PlayerState.DeathReason deathReason) in Main.AfterMeetingDeathPlayers)
-                {
-                    var player = id.GetPlayer();
-                    var state = Main.PlayerStates[id];
-
-                    Logger.Info($"{Main.AllPlayerNames[id]} ({state.MainRole}) died with {deathReason}", "AfterMeetingDeath");
-
-                    state.deathReason = deathReason;
-                    state.SetDead();
-
-                    if (player == null) continue;
-
-                    if (deathReason == PlayerState.DeathReason.Suicide)
-                        player.SetRealKiller(player, true);
-
-                    Utils.AfterPlayerDeathTasks(player);
-                }
-
-                Main.AfterMeetingDeathPlayers.Clear();
-
-                Utils.AfterMeetingTasks();
-                Utils.SyncAllSettings();
-                Utils.CheckAndSetVentInteractions();
-
-                Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 5));
-            }, 1f, "AfterMeetingDeathPlayers Task");
+                AntiBlackout.RevertToActualRoleTypes();
+            }, Math.Max(0.5f, Utils.CalculatePingDelay() * 2f), "Revert AntiBlackout Measures");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
@@ -216,6 +176,41 @@ internal static class ExileControllerWrapUpPatch
         }, 3f, log: false);
     }
 
+    public static void AfterMeetingTasks()
+    {
+        if (GameStates.IsEnded) return;
+
+        var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer", SendOption.Reliable);
+        Main.AfterMeetingDeathPlayers.Do(x => sender.RpcExileV2(x.Key.GetPlayer()));
+        sender.SendMessage(Main.AfterMeetingDeathPlayers.Count == 0);
+
+        foreach ((byte id, PlayerState.DeathReason deathReason) in Main.AfterMeetingDeathPlayers)
+        {
+            var player = id.GetPlayer();
+            var state = Main.PlayerStates[id];
+
+            Logger.Info($"{Main.AllPlayerNames[id]} ({state.MainRole}) died with {deathReason}", "AfterMeetingDeath");
+
+            state.deathReason = deathReason;
+            state.SetDead();
+
+            if (player == null) continue;
+
+            if (deathReason == PlayerState.DeathReason.Suicide)
+                player.SetRealKiller(player, true);
+
+            Utils.AfterPlayerDeathTasks(player);
+        }
+
+        Main.AfterMeetingDeathPlayers.Clear();
+
+        Utils.AfterMeetingTasks();
+        Utils.SyncAllSettings();
+        Utils.CheckAndSetVentInteractions();
+
+        Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 5));
+    }
+
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
     private static class BaseExileControllerPatch
     {
@@ -226,12 +221,13 @@ internal static class ExileControllerWrapUpPatch
         }
     }
 
-    [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
+    [HarmonyPatch(typeof(AirshipExileController._WrapUpAndSpawn_d__11), nameof(AirshipExileController._WrapUpAndSpawn_d__11.MoveNext))]
     private static class AirshipExileControllerPatch
     {
-        public static void Postfix(AirshipExileController __instance)
+        public static void Postfix(AirshipExileController._WrapUpAndSpawn_d__11 __instance, ref bool __result)
         {
-            try { WrapUpPostfix(__instance.initData.networkedPlayer); }
+            if (__result) return;
+            try { WrapUpPostfix(__instance.__4__this.initData.networkedPlayer); }
             finally { WrapUpFinalizer(); }
         }
     }

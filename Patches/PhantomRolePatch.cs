@@ -98,7 +98,7 @@ public static class PhantomRolePatch
         {
             if (!target.IsAlive() || phantom.PlayerId == target.PlayerId || target.AmOwner || !target.HasDesyncRole()) continue;
 
-            int clientId = target.GetClientId();
+            int clientId = target.OwnerId;
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {
@@ -128,7 +128,7 @@ public static class PhantomRolePatch
             {
                 if (GameStates.IsMeeting || phantom == null || target.PlayerId == phantom.PlayerId) return;
 
-                int clientId = target.GetClientId();
+                int clientId = target.OwnerId;
                 string petId = phantom.Data.DefaultOutfit.PetId;
 
                 if (petId != "")
@@ -211,7 +211,7 @@ public static class PhantomRolePatch
             {
                 if (target == null || target.PlayerId == phantom.PlayerId) continue;
 
-                int clientId = target.GetClientId();
+                int clientId = target.OwnerId;
 
                 if (AmongUsClient.Instance.ClientId == clientId)
                     phantom.CheckAppear(shouldAnimate);
@@ -236,7 +236,7 @@ public static class PhantomRolePatch
             {
                 if (GameStates.IsMeeting || phantom == null || target.PlayerId == phantom.PlayerId) return;
 
-                int clientId = target.GetClientId();
+                int clientId = target.OwnerId;
 
                 InvisibilityList.Remove(phantom);
                 sender.RpcSetRole(phantom, RoleTypes.Scientist, clientId);
@@ -292,14 +292,14 @@ public static class PhantomRolePatch
         // Set Scientist for meeting
         if (!force) yield return new WaitForSeconds(0.0001f);
 
-        if (seer.GetClientId() == -1 || phantom == null) yield break;
+        if (seer.OwnerId == -1 || phantom == null) yield break;
         phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
 
         // Return Phantom in meeting
         yield return new WaitForSeconds(1f);
 
         {
-            if (seer.GetClientId() == -1 || phantom == null) yield break;
+            if (seer.OwnerId == -1 || phantom == null) yield break;
             phantom.RpcSetRoleDesync(RoleTypes.Phantom, seer.GetClientId());
         }
 
@@ -307,7 +307,7 @@ public static class PhantomRolePatch
         yield return new WaitForSeconds(1f);
 
         {
-            if (seer.GetClientId() == -1 || phantom == null) yield break;
+            if (seer.OwnerId == -1 || phantom == null) yield break;
             phantom.RpcStartAppearDesync(false, seer);
         }
 
@@ -315,7 +315,7 @@ public static class PhantomRolePatch
         yield return new WaitForSeconds(4f);
 
         {
-            if (seer.GetClientId() == -1 || phantom == null) yield break;
+            if (seer.OwnerId == -1 || phantom == null) yield break;
             phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
 
             if (PetsList.TryGetValue(phantom.PlayerId, out string petId))

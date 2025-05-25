@@ -92,20 +92,20 @@ public static class SpamManager
         {
             if (ContainsStart(text) && GameStates.IsLobby)
             {
-                if (!Main.SayStartTimes.ContainsKey(player.GetClientId())) Main.SayStartTimes.Add(player.GetClientId(), 0);
+                if (!Main.SayStartTimes.ContainsKey(player.GetClientId())) Main.SayStartTimes.Add(player.OwnerId, 0);
 
-                Main.SayStartTimes[player.GetClientId()]++;
-                msg = string.Format(GetString("Message.WarnWhoSayStart"), name, Main.SayStartTimes[player.GetClientId()]);
+                Main.SayStartTimes[player.OwnerId]++;
+                msg = string.Format(GetString("Message.WarnWhoSayStart"), name, Main.SayStartTimes[player.OwnerId]);
 
-                if (Main.SayStartTimes[player.GetClientId()] > Options.AutoKickStartTimes.GetInt())
+                if (Main.SayStartTimes[player.OwnerId] > Options.AutoKickStartTimes.GetInt())
                 {
-                    msg = string.Format(GetString("Message.KickStartAfterWarn"), name, Main.SayStartTimes[player.GetClientId()]);
+                    msg = string.Format(GetString("Message.KickStartAfterWarn"), name, Main.SayStartTimes[player.OwnerId]);
                     kick = true;
                 }
 
                 if (msg != string.Empty && msg != "") Utils.SendMessage(msg, sendOption: SendOption.None);
 
-                if (kick) AmongUsClient.Instance.KickPlayer(player.GetClientId(), Options.AutoKickStartAsBan.GetBool());
+                if (kick) AmongUsClient.Instance.KickPlayer(player.OwnerId, Options.AutoKickStartAsBan.GetBool());
 
                 return true;
             }
@@ -119,14 +119,14 @@ public static class SpamManager
 
         if (Options.AutoKickStopWords.GetBool())
         {
-            if (!Main.SayBanwordsTimes.ContainsKey(player.GetClientId())) Main.SayBanwordsTimes.Add(player.GetClientId(), 0);
+            if (!Main.SayBanwordsTimes.ContainsKey(player.GetClientId())) Main.SayBanwordsTimes.Add(player.OwnerId, 0);
 
-            Main.SayBanwordsTimes[player.GetClientId()]++;
-            msg = string.Format(GetString("Message.WarnWhoSayBanWordTimes"), name, Main.SayBanwordsTimes[player.GetClientId()]);
+            Main.SayBanwordsTimes[player.OwnerId]++;
+            msg = string.Format(GetString("Message.WarnWhoSayBanWordTimes"), name, Main.SayBanwordsTimes[player.OwnerId]);
 
-            if (Main.SayBanwordsTimes[player.GetClientId()] > Options.AutoKickStopWordsTimes.GetInt())
+            if (Main.SayBanwordsTimes[player.OwnerId] > Options.AutoKickStopWordsTimes.GetInt())
             {
-                msg = string.Format(GetString("Message.KickWhoSayBanWordAfterWarn"), name, Main.SayBanwordsTimes[player.GetClientId()]);
+                msg = string.Format(GetString("Message.KickWhoSayBanWordAfterWarn"), name, Main.SayBanwordsTimes[player.OwnerId]);
                 kick = true;
             }
         }
@@ -142,7 +142,7 @@ public static class SpamManager
             }
         }
 
-        if (kick) AmongUsClient.Instance.KickPlayer(player.GetClientId(), Options.AutoKickStopWordsAsBan.GetBool());
+        if (kick) AmongUsClient.Instance.KickPlayer(player.OwnerId, Options.AutoKickStopWordsAsBan.GetBool());
 
         return true;
     }

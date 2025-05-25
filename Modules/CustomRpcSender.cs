@@ -411,7 +411,7 @@ public static class CustomRpcSenderExtensions
     public static void RpcSetName(this CustomRpcSender sender, PlayerControl player, string name, PlayerControl seer = null)
     {
         bool seerIsNull = seer == null;
-        int targetClientId = seerIsNull ? -1 : seer.GetClientId();
+        int targetClientId = seerIsNull ? -1 : seer.OwnerId;
 
         name = name.Replace("color=", string.Empty);
 
@@ -439,7 +439,7 @@ public static class CustomRpcSenderExtensions
     {
         if (sender == null || physics == null) return false;
 
-        int clientId = seer.GetClientId();
+        int clientId = seer.OwnerId;
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {

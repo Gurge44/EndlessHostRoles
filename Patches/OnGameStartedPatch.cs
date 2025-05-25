@@ -1134,7 +1134,7 @@ internal static class StartGameHostPatch
 
                         if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out (RoleTypes, CustomRoles) roleMap))
                         {
-                            int targetClientId = target.GetClientId();
+                            int targetClientId = target.OwnerId;
                             if (targetClientId == -1) continue;
 
                             RoleTypes roleType = roleMap.Item1;
@@ -1155,7 +1155,7 @@ internal static class StartGameHostPatch
         {
             if (target == null) return;
 
-            int targetClientId = target.GetClientId();
+            int targetClientId = target.OwnerId;
             if (targetClientId == -1) return;
 
             RoleTypes roleType = RpcSetRoleReplacer.RoleMap.TryGetValue((target.PlayerId, target.PlayerId), out (RoleTypes RoleType, CustomRoles CustomRole) roleMap)
@@ -1394,7 +1394,7 @@ internal static class StartGameHostPatch
                             PlayerControl seer = Utils.GetPlayerById(seerId);
                             if (seer == null || target == null) continue;
 
-                            int targetClientId = target.GetClientId();
+                            int targetClientId = target.OwnerId;
                             if (targetClientId == -1) continue;
 
                             sender.RpcSetRole(seer, roleType, targetClientId, false);

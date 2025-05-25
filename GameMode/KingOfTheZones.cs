@@ -331,7 +331,7 @@ public static class KingOfTheZones
 
                 try
                 {
-                    int targetClientId = player.GetClientId();
+                    int targetClientId = player.OwnerId;
                     PlayerTeams.DoIf(
                         x => x.Key != id && x.Value == team,
                         // ReSharper disable once AccessToModifiedClosure

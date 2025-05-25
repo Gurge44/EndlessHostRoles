@@ -382,6 +382,8 @@ public static class SabotageSystemTypeRepairDamagePatch
             player.Notify(BlockedAction.Sabotage.GetBlockNotify());
             return false;
         }
+        
+        if (Pelican.IsEaten(player.PlayerId)) return false;
 
         if (!Rhapsode.CheckAbilityUse(player) || Stasis.IsTimeFrozen || TimeMaster.Rewinding) return false;
 

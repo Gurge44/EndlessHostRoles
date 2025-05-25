@@ -420,7 +420,7 @@ public static class CaptureTheFlag
                             var pc1 = id1.GetPlayer();
                             if (pc1 == null) continue;
 
-                            int targetClientId = pc1.GetClientId();
+                            int targetClientId = pc1.OwnerId;
 
                             if (!senders.TryGetValue(id1, out CustomRpcSender sender) || !hasValue.ContainsKey(id1)) continue;
 

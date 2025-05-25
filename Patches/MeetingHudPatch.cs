@@ -1197,7 +1197,7 @@ internal static class MeetingHudOnDestroyPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            AntiBlackout.SetIsDead();
+            AntiBlackout.SetOptimalRoleTypesToPreventBlackScreen();
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
 
             Main.LastVotedPlayerInfo = null;

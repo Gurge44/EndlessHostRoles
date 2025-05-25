@@ -361,6 +361,8 @@ public static class GameOptionsMenuPatch
 
         switch (item)
         {
+            // ToggleOption doesn't work for Steam users.... no idea why
+            // So instead, we use a StringOption with two values and a button to swap it
             case BooleanOptionItem booleanOptionItem:
                 var stringGameSettingBoolean = ScriptableObject.CreateInstance<StringGameSetting>();
                 stringGameSettingBoolean.Type = OptionTypes.String;
