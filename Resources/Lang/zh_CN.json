@@ -2872,6 +2872,8 @@
   "DraftResend": "<size=90%>您的起草选择是：</size>\\n\\n{0}\\n\\n<size=90%>需要使用的聊天命令：</size>\\n- 选择职业： <b>/draft [index]</b>\\n- 查看职业介绍： <b>/dd [index]</b>\\n<size=90%>用您想要选择的职业id代替 [index] 比如： <b>/draft 4</b></size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>起草</color> <#00a5ff>⬅</color>",
   "DraftChosen": "您选择了<b>{0}</b>职业.\\n<size=70%>再次输入 /draft [职业名称编号],更改选择</size>",
+  "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
+  "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
   "DeathCommand": "<#ffffff>你被杀了</color>{0}<#ffffff>\\n凶手的职业是:</color>{1}",
   "DeathCommandFail": "<#ff0000>游戏也不知道谁杀了你.</color>",
   "DefaultSystemMessageTitle": "➡ 系统消息 ⬅",
