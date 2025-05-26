@@ -3802,7 +3802,7 @@ public static class Utils
                 name = "MEU";
             else if (ip.Contains("au-as"))
                 name = "MAS";
-            else if (ip.Contains("www."))
+            else
                 name = "MNA";
 
             return name;
