@@ -2872,6 +2872,8 @@
   "DraftResend": "<size=90%>Your drafting choices are:</size>\\n\\n{0}\\n\\n<size=90%>Chat commands to use:</size>\\n- Pick role: <b>/draft [index]</b>\\n- View description of role: <b>/dd [index]</b>\\n<size=90%>Replace [index] with the number of the role you want to pick. Example: <b>/draft 4</b></size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>草稿模式</color> <#00a5ff>⬅</color>",
   "DraftChosen": "你為下一局遊戲選擇了 <b>{0}</b> 職業\\n<size=70%>你可以再次輸入 /draft [index] 來更改你的選擇</size>",
+  "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
+  "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
   "DeathCommand": "<#ffffff>殺害你的人是 </color>{0}<#ffffff>\\n他們的職業是 </color>{1}",
   "DeathCommandFail": "<#ff0000>連遊戲都不知道是誰殺了你</color>",
   "DefaultSystemMessageTitle": "➡ 系統信息 ⬅",
