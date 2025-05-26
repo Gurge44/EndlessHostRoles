@@ -868,7 +868,7 @@ internal static class ShapeshiftPatch
         forceCancel |= shouldAlwaysCancel;
         isSSneeded &= !doSSwithoutAnim;
 
-        // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
+        // Forced rewriting in case the name cannot be corrected due to the timing of unshifting being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
             LateTask.New(() => Main.Instance.StartCoroutine(NotifyEveryoneAsync(3)), 1.2f, "ShapeShiftNotify");
 
