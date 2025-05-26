@@ -1247,6 +1247,8 @@ internal static class ReportDeadBodyPatch
             }
         }
 
+        RPCHandlerPatch.RemoveExpiredWhiteList();
+
         Camouflage.CamoTimesThisRound = 0;
 
         if (HudManagerPatch.AchievementUnlockedText == string.Empty)

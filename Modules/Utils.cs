@@ -3246,6 +3246,8 @@ public static class Utils
         EAC.InvalidReports.Clear();
 
         CustomNetObject.AfterMeeting();
+
+        RPCHandlerPatch.RemoveExpiredWhiteList();
     }
 
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)

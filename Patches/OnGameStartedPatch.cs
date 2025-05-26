@@ -252,6 +252,8 @@ internal static class ChangeRoleSettings
             ChatCommands.LastSpectators.Clear();
             ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 
+            RPCHandlerPatch.RemoveExpiredWhiteList();
+
             try
             {
                 (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];

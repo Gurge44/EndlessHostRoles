@@ -128,7 +128,7 @@ internal static class ExileControllerWrapUpPatch
             {
                 if (GameStates.IsEnded) return;
                 AntiBlackout.RevertToActualRoleTypes();
-            }, Math.Max(0.5f, Utils.CalculatePingDelay() * 2f), "Revert AntiBlackout Measures");
+            }, Math.Max(1f, Utils.CalculatePingDelay() * 2f), "Revert AntiBlackout Measures");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
@@ -227,6 +227,7 @@ internal static class ExileControllerWrapUpPatch
         public static void Postfix(AirshipExileController._WrapUpAndSpawn_d__11 __instance, ref bool __result)
         {
             if (__result) return;
+
             try { WrapUpPostfix(__instance.__4__this.initData.networkedPlayer); }
             finally { WrapUpFinalizer(); }
         }

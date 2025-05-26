@@ -171,7 +171,23 @@ public enum Sounds
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal static class RPCHandlerPatch
 {
-    public static readonly Dictionary<byte, int> NumRPCsThisSecond = [];
+    private static readonly Dictionary<byte, int> NumRPCsThisSecond = [];
+    private static readonly Dictionary<byte, long> RateLimitWhiteList = [];
+
+    public static void WhiteListFromRateLimitUntil(byte id, long timestamp)
+    {
+        if (RateLimitWhiteList.TryGetValue(id, out var ts) && ts > timestamp) return;
+        RateLimitWhiteList[id] = timestamp;
+    }
+
+    public static void RemoveExpiredWhiteList()
+    {
+        long ts = Utils.TimeStamp;
+
+        foreach (var key in RateLimitWhiteList.Keys.ToArray())
+            if (RateLimitWhiteList[key] < ts)
+                RateLimitWhiteList.Remove(key);
+    }
 
     private static bool TrustedRpc(byte id)
     {
@@ -232,7 +248,7 @@ internal static class RPCHandlerPatch
                 return false;
             }
 
-            if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && NumRPCsThisSecond.TryGetValue(__instance.PlayerId, out int times) && times > 50)
+            if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out var expireTS) || expireTS < Utils.TimeStamp) && NumRPCsThisSecond.TryGetValue(__instance.PlayerId, out int times) && times > 50)
             {
                 AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
                 Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName));
