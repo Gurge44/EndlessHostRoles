@@ -2872,6 +2872,8 @@
   "DraftResend": "<size=90%>В драфтинге вы выбрали:</size>\\n\\n{0}\\n\\n<size=90%>Команды для драфтинга:</size>\\n1. Для выбора роли: <b>/draft [номер]</b>\\n2. Для просмотра описания роли: <b>/dd [номер]</b>\\n<size=90%>Вместо [номер] напишите номер роли, который указан в сообщение.</size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>Драфтинг</color> <#00a5ff>⬅</color>",
   "DraftChosen": "Вы выбрали роль <b>{0}</b>.\\n<size=70%>Вы всё ещё можете изменить решение, написав <b>/draft [номер роли]</b> ещё раз.</size>",
+  "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
+  "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
   "DeathCommand": "<#ffffff>Ты был убит игроком </color>{0}<#ffffff>\\nРоль этого игрока - </color>{1}",
   "DeathCommandFail": "<#ff0000>Не удалось определить вашего убийцу.</color>",
   "DefaultSystemMessageTitle": "<#eb0c38>СИСТЕМА</color>",
