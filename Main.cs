@@ -104,7 +104,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
     public static bool VisibleTasksCount;
     public static string NickName = "";
-    public static bool IntroDestroyed;
+    public static bool IntroDestroyed = true;
     public static float DefaultCrewmateVision;
     public static float DefaultImpostorVision;
     public static readonly bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day == 1;
@@ -230,7 +230,7 @@ public class Main : BasePlugin
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || (pc.Data.Disconnected && (CoShowIntroPatch.IntroStarted || IntroDestroyed || GameStates.IsLobby)) || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId)) continue;
 
                 result[i++] = pc;
             }

@@ -681,6 +681,7 @@ public static class Options
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
     public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem MessageRpcSizeLimit;
+    public static OptionItem DraftMaxRolesPerPlayer;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
@@ -2646,6 +2647,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard);
 
         UniqueNeutralRevealScreen = new BooleanOptionItem(24450, "UniqueNeutralRevealScreen", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
+        DraftMaxRolesPerPlayer = new IntegerOptionItem(19430, "DraftMaxRolesPerPlayer", new(1, 30, 1), 5, TabGroup.SystemSettings)
+            .SetHeader(true)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 

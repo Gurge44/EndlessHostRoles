@@ -110,7 +110,7 @@ public class PlagueBearer : RoleBase
 
     public static bool IsPlaguedAll(PlayerControl player)
     {
-        if (!player.Is(CustomRoles.PlagueBearer)) return false;
+        if (!player.Is(CustomRoles.PlagueBearer) || !Main.IntroDestroyed) return false;
 
         (int plagued, int all) = PlaguedPlayerCount(player.PlayerId);
         return plagued >= all;
@@ -128,7 +128,7 @@ public class PlagueBearer : RoleBase
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-        Logger.Msg($"kill cooldown {PlagueBearerCD[killer.PlayerId]}", "PlagueBearer");
+        Logger.Msg($"Kill cooldown: {PlagueBearerCD[killer.PlayerId]}", "PlagueBearer");
         return false;
     }
 
@@ -172,7 +172,8 @@ public class Pestilence : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (base.OnCheckMurder(killer, target)) killer.Kill(target);
+        if (base.OnCheckMurder(killer, target))
+            killer.Kill(target);
 
         return false;
     }

@@ -963,13 +963,15 @@ internal static class ChatCommands
         allRoles.RemoveAll(x => x.IsNonNK());
         allRoles.RemoveAll(x => x.IsCoven());
 
+        int maxRolesPerPlayer = Options.DraftMaxRolesPerPlayer.GetInt();
+
         DraftRoles = allRoles
-            .Take(allPlayerIds.Length * 5)
+            .Take(allPlayerIds.Length * maxRolesPerPlayer)
             .CombineWith(impRoles, nkRoles, nnkRoles, covenRoles)
             .Shuffle()
             .Partition(allPlayerIds.Length)
             .Zip(allPlayerIds)
-            .ToDictionary(x => x.Second, x => x.First.Take(5).ToList());
+            .ToDictionary(x => x.Second, x => x.First.Take(maxRolesPerPlayer).ToList());
 
         Main.Instance.StartCoroutine(RepeatedlySendMessage());
         return;
@@ -989,7 +991,7 @@ internal static class ChatCommands
 
                 messages.SendMultipleMessages(index == 0 ? SendOption.Reliable : SendOption.None);
 
-                yield return new WaitForSeconds(30f);
+                yield return new WaitForSeconds(20f);
                 if (DraftResult.Count >= DraftRoles.Count || !GameStates.IsLobby || GameStates.InGame) yield break;
             }
         }
@@ -1031,6 +1033,8 @@ internal static class ChatCommands
         CustomRoles role = roles[chosenIndex - 1];
         DraftResult[player.PlayerId] = role;
         Utils.SendMessage(string.Format(GetString("DraftChosen"), role.ToColoredString()), player.PlayerId, GetString("DraftTitle"));
+
+        if (DraftResult.Count >= DraftRoles.Count) Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, GetString("EveryoneDrafted"));
     }
 
     private static void MuteCommand(PlayerControl player, string text, string[] args)

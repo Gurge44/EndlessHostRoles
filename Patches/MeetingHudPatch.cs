@@ -708,7 +708,7 @@ internal static class MeetingHudStartPatch
                 roleDescMsgs.Add(new(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString()));
             }
 
-            LateTask.New(() => roleDescMsgs.SendMultipleMessages(SendOption.None), 6f, "Send Role Descriptions Round 1");
+            LateTask.New(() => roleDescMsgs.SendMultipleMessages(SendOption.None), 7f, "Send Role Descriptions Round 1");
         }
 
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting)
@@ -797,7 +797,7 @@ internal static class MeetingHudStartPatch
             }
         }
 
-        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 6f, "Meeting Start Notify");
+        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 8f, "Meeting Start Notify");
 
         Main.CyberStarDead.Clear();
         Express.SpeedNormal.Clear();
@@ -934,8 +934,11 @@ internal static class MeetingHudStartPatch
                 Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
             }
 
-            TemplateManager.SendTemplate("OnMeeting", noErr: true, sendOption: SendOption.None);
-            if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, sendOption: SendOption.None);
+            LateTask.New(() =>
+            {
+                TemplateManager.SendTemplate("OnMeeting", noErr: true, sendOption: SendOption.None);
+                if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, sendOption: SendOption.None);
+            }, 2f, log: false);
 
             NotifyRoleSkillOnMeetingStart();
 
