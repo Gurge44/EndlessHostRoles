@@ -78,13 +78,13 @@ public static class Prompt
         NoButton = null;
     }
 
-    public static void ClearQueue()
+    private static void ClearQueue()
     {
         Queue.Clear();
     }
 
     [HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.Hide))]
-    private static class DialogueBoxHidePatch
+    static class DialogueBoxHidePatch
     {
         public static void Prefix()
         {
@@ -92,6 +92,7 @@ public static class Prompt
             {
                 ClearQueue();
                 HidePromt();
+                CurrentQuestion = string.Empty;
             }
         }
     }
