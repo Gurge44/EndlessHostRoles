@@ -2872,6 +2872,8 @@
   "DraftResend": "<size=90%>Your drafting choices are:</size>\\n\\n{0}\\n\\n<size=90%>Chat commands to use:</size>\\n- Pick role: <b>/draft [index]</b>\\n- View description of role: <b>/dd [index]</b>\\n<size=90%>Replace [index] with the number of the role you want to pick. Example: <b>/draft 4</b></size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>ドラフト中</color> <#00a5ff>⬅</color>",
   "DraftChosen": "<size=80%>あなたは 次のゲームでの役割で <b>{0}</b>を選びました。\\n<size=70%>あなたは 再度 <b>/draft [index]</b>を入力することにより あなたの選択はまだ変更できます。</size>",
+  "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
+  "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
   "DeathCommand": "<size=80%><#ffffff>あなたは </color>{0}<#ffffff> によって殺害された</color><#ffffff>\\n彼の役割は </color>{1} <#ffffff>です</color></size>",
   "DeathCommandFail": "<size=80%><#ff0000>ゲームで あなたの真犯人を特定できませんでした。</color></size>",
   "DefaultSystemMessageTitle": "➡ システム メッセージ ⬅",
