@@ -370,7 +370,7 @@ public class CustomRpcSender
 
 public static class CustomRpcSenderExtensions
 {
-    public static bool RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true)
+    public static bool RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true, bool changeRoleMap = false)
     {
         if (AmongUsClient.Instance.ClientId == targetClientId && noRpcForSelf)
         {
@@ -383,6 +383,27 @@ public static class CustomRpcSenderExtensions
             .Write(true)
             .EndRpc();
 
+        if (changeRoleMap)
+        {
+            try
+            {
+                if (targetClientId != -1) ChangeRoleMapForClient(Utils.GetClientById(targetClientId).Character.PlayerId);
+                else Main.PlayerStates.Keys.Do(ChangeRoleMapForClient);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            void ChangeRoleMapForClient(byte id)
+            {
+                (byte, byte) key = (player.PlayerId, id);
+
+                if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out (RoleTypes RoleType, CustomRoles CustomRole) pair))
+                {
+                    pair.RoleType = role;
+                    StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = pair;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -390,7 +411,7 @@ public static class CustomRpcSenderExtensions
     public static void RpcSetName(this CustomRpcSender sender, PlayerControl player, string name, PlayerControl seer = null)
     {
         bool seerIsNull = seer == null;
-        int targetClientId = seerIsNull ? -1 : seer.GetClientId();
+        int targetClientId = seerIsNull ? -1 : seer.OwnerId;
 
         name = name.Replace("color=", string.Empty);
 
@@ -418,7 +439,7 @@ public static class CustomRpcSenderExtensions
     {
         if (sender == null || physics == null) return false;
 
-        int clientId = seer.GetClientId();
+        int clientId = seer.OwnerId;
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
@@ -593,7 +614,7 @@ public static class CustomRpcSenderExtensions
         player.Exiled();
         sender.AutoStartRpc(player.NetId, (byte)RpcCalls.Exiled);
         sender.EndRpc();
-        FixedUpdatePatch.LoversSuicide(player.PlayerId);
+        LateTask.New(() => FixedUpdatePatch.LoversSuicide(player.PlayerId), Utils.CalculatePingDelay() * 2f, log: false);
     }
 
     public static bool Notify(this CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)

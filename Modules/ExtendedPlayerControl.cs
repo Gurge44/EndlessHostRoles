@@ -230,7 +230,7 @@ internal static class ExtendedPlayerControl
     // By TommyXL
     public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
     {
-        int clientId = seer.GetClientId();
+        int clientId = seer.OwnerId;
         if (clientId == -1) return;
 
         if (AmongUsClient.Instance.ClientId == clientId)
@@ -325,49 +325,55 @@ internal static class ExtendedPlayerControl
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
-    public static bool RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, CustomRpcSender sender = null)
+    public static bool RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, CustomRpcSender sender = null, bool forced = false)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return false;
-
-        if (AntiBlackout.SkipTasks || ExileController.Instance)
+        if (!forced)
         {
-            StackTrace stackTrace = new(1, true);
-            MethodBase callerMethod = stackTrace.GetFrame(0)?.GetMethod();
-            string callerMethodName = callerMethod?.Name;
-            string callerClassName = callerMethod?.DeclaringType?.FullName;
-            Logger.Warn($"{callerClassName}.{callerMethodName} tried to change the role basis of {player.GetNameWithRole()} during anti-blackout processing or ejection screen showing, delaying the code to run after these tasks are complete", "RpcChangeRoleBasis");
-            Main.Instance.StartCoroutine(DelayBasisChange());
-            return false;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return false;
 
-            IEnumerator DelayBasisChange()
+            if (AntiBlackout.SkipTasks || ExileController.Instance)
             {
-                while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
-                yield return new WaitForSeconds(1f);
-                Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
-                player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
+                StackTrace stackTrace = new(1, true);
+                MethodBase callerMethod = stackTrace.GetFrame(0)?.GetMethod();
+                string callerMethodName = callerMethod?.Name;
+                string callerClassName = callerMethod?.DeclaringType?.FullName;
+                Logger.Warn($"{callerClassName}.{callerMethodName} tried to change the role basis of {player.GetNameWithRole()} during anti-blackout processing or ejection screen showing, delaying the code to run after these tasks are complete", "RpcChangeRoleBasis");
+                Main.Instance.StartCoroutine(DelayBasisChange());
+                return false;
+
+                IEnumerator DelayBasisChange()
+                {
+                    while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
+                    yield return new WaitForSeconds(1f);
+                    Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
+                    player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
+                }
             }
         }
 
         byte playerId = player.PlayerId;
-        int playerClientId = player.GetClientId();
+        int playerClientId = player.OwnerId;
         CustomRoles playerRole = Utils.GetRoleMap(playerId).CustomRole;
         RoleTypes newRoleType = newCustomRole.GetRoleTypes();
         RoleTypes remeberRoleType;
 
-        newRoleType = Options.CurrentGameMode switch
+        if (!forced)
         {
-            CustomGameMode.Speedrun when newCustomRole == CustomRoles.Runner => Speedrun.CanKill.Contains(playerId) ? RoleTypes.Impostor : RoleTypes.Crewmate,
-            CustomGameMode.Standard when StartGameHostPatch.BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out KeyValuePair<CustomRoles, List<byte>> kvp) => kvp.Key switch
+            newRoleType = Options.CurrentGameMode switch
             {
-                CustomRoles.Bloodlust when newRoleType is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist => RoleTypes.Impostor,
-                CustomRoles.Nimble when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Engineer,
-                CustomRoles.Physicist when newRoleType == RoleTypes.Crewmate => RoleTypes.Scientist,
-                CustomRoles.Finder when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Tracker,
-                CustomRoles.Noisy when newRoleType == RoleTypes.Crewmate => RoleTypes.Noisemaker,
+                CustomGameMode.Speedrun when newCustomRole == CustomRoles.Runner => Speedrun.CanKill.Contains(playerId) ? RoleTypes.Impostor : RoleTypes.Crewmate,
+                CustomGameMode.Standard when StartGameHostPatch.BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out KeyValuePair<CustomRoles, List<byte>> kvp) => kvp.Key switch
+                {
+                    CustomRoles.Bloodlust when newRoleType is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist => RoleTypes.Impostor,
+                    CustomRoles.Nimble when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Engineer,
+                    CustomRoles.Physicist when newRoleType == RoleTypes.Crewmate => RoleTypes.Scientist,
+                    CustomRoles.Finder when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Tracker,
+                    CustomRoles.Noisy when newRoleType == RoleTypes.Crewmate => RoleTypes.Noisemaker,
+                    _ => newRoleType
+                },
                 _ => newRoleType
-            },
-            _ => newRoleType
-        };
+            };
+        }
 
         bool oldRoleIsDesync = playerRole.IsDesyncRole();
         bool newRoleIsDesync = newCustomRole.IsDesyncRole() || player.Is(CustomRoles.Bloodlust);
@@ -384,7 +390,7 @@ internal static class ExtendedPlayerControl
             {
                 foreach (PlayerControl seer in Main.AllPlayerControls)
                 {
-                    int seerClientId = seer.GetClientId();
+                    int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
 
                     bool seerIsHost = seer.IsHost();
@@ -434,7 +440,7 @@ internal static class ExtendedPlayerControl
             {
                 foreach (PlayerControl seer in Main.AllPlayerControls)
                 {
-                    int seerClientId = seer.GetClientId();
+                    int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
 
                     bool self = playerId == seer.PlayerId;
@@ -483,7 +489,7 @@ internal static class ExtendedPlayerControl
 
                 foreach (PlayerControl seer in Main.AllPlayerControls)
                 {
-                    int seerClientId = seer.GetClientId();
+                    int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
 
                     if ((playerIsDesync || seer.HasDesyncRole()) && seer.PlayerId != playerId)
@@ -516,7 +522,7 @@ internal static class ExtendedPlayerControl
             }
         }
 
-        Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
+        if (!forced) Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
 
         Main.ChangedRole = true;
 
@@ -544,7 +550,7 @@ internal static class ExtendedPlayerControl
     {
         if (physics == null) return;
 
-        int clientId = seer.GetClientId();
+        int clientId = seer.OwnerId;
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
@@ -560,7 +566,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcStartAppearDesync(this PlayerControl player, bool shouldAnimate, PlayerControl seer)
     {
-        int clientId = seer.GetClientId();
+        int clientId = seer.OwnerId;
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
@@ -987,7 +993,7 @@ internal static class ExtendedPlayerControl
 
         sender.RpcDesyncRepairSystem(pc, systemtype, 128);
 
-        int targetClientId = pc.GetClientId();
+        int targetClientId = pc.OwnerId;
         var ghostPos = dummyGhost.Pos();
         var pcPos = pc.Pos();
         var timer = Math.Max(Main.KillTimers[pc.PlayerId], 0.1f);
@@ -1135,7 +1141,7 @@ internal static class ExtendedPlayerControl
 
         if (target == null || seer == null) return;
 
-        int seerClientId = seer.GetClientId();
+        int seerClientId = seer.OwnerId;
         if (seerClientId == -1) return;
 
         byte cnt = ++target.scannerCount;

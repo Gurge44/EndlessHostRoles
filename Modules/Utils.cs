@@ -1769,7 +1769,7 @@ public static class Utils
                 return writer;
             }
 
-            int targetClientId = sendTo == byte.MaxValue ? -1 : receiver.GetClientId();
+            int targetClientId = sendTo == byte.MaxValue ? -1 : receiver.OwnerId;
 
             if (writer == null || writer.CurrentState == CustomRpcSender.State.Finished)
                 writer = CustomRpcSender.Create("Utils.SendMessage(1)", sendOption);
@@ -3156,8 +3156,6 @@ public static class Utils
         AFKDetector.PlayerData.Clear();
 
         Camouflage.CheckCamouflage();
-
-        AntiBlackout.AfterMeetingTasks();
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {

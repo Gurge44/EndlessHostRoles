@@ -1134,7 +1134,7 @@ internal static class StartGameHostPatch
 
                         if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out (RoleTypes, CustomRoles) roleMap))
                         {
-                            int targetClientId = target.GetClientId();
+                            int targetClientId = target.OwnerId;
                             if (targetClientId == -1) continue;
 
                             RoleTypes roleType = roleMap.Item1;
@@ -1155,7 +1155,7 @@ internal static class StartGameHostPatch
         {
             if (target == null) return;
 
-            int targetClientId = target.GetClientId();
+            int targetClientId = target.OwnerId;
             if (targetClientId == -1) return;
 
             RoleTypes roleType = RpcSetRoleReplacer.RoleMap.TryGetValue((target.PlayerId, target.PlayerId), out (RoleTypes RoleType, CustomRoles CustomRole) roleMap)
@@ -1394,7 +1394,7 @@ internal static class StartGameHostPatch
                             PlayerControl seer = Utils.GetPlayerById(seerId);
                             if (seer == null || target == null) continue;
 
-                            int targetClientId = target.GetClientId();
+                            int targetClientId = target.OwnerId;
                             if (targetClientId == -1) continue;
 
                             sender.RpcSetRole(seer, roleType, targetClientId, false);
@@ -1430,67 +1430,6 @@ internal static class StartGameHostPatch
                 Senders = null;
                 OverriddenSenderList = null;
                 StoragedData = null;
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
-        }
-
-        public static void ResetRoleMapMidGame()
-        {
-            try
-            {
-                RoleMap.Clear();
-
-                Dictionary<byte, PlayerState>.ValueCollection states = Main.PlayerStates.Values;
-
-                foreach (PlayerState targetState in states)
-                {
-                    try
-                    {
-                        CustomRoles targetMainRole = targetState.MainRole;
-                        RoleTypes selfRoleTypes = GetRoleTypes(targetState);
-
-                        foreach (PlayerState seerState in states)
-                        {
-                            try
-                            {
-                                byte seerID = seerState.Player.PlayerId;
-                                byte targetID = targetState.Player.PlayerId;
-
-                                if (seerID == targetID || selfRoleTypes is RoleTypes.Noisemaker)
-                                {
-                                    RoleMap[(seerID, targetID)] = (selfRoleTypes, targetMainRole);
-                                    continue;
-                                }
-
-                                CustomRoles seerMainRole = seerState.MainRole;
-
-                                RoleMap[(seerID, targetID)] = HasDesyncRole(seerState)
-                                    ? (RoleTypes.Scientist, targetMainRole)
-                                    : (IsImpostor(seerState) && IsImpostor(targetState))
-                                        ? (selfRoleTypes, seerMainRole)
-                                        : (RoleTypes.Crewmate, seerMainRole);
-
-                                bool HasDesyncRole(PlayerState state) => state.Player == null ? state.SubRoles.Contains(CustomRoles.Bloodlust) || state.MainRole.IsDesyncRole() : state.Player.HasDesyncRole();
-                                bool IsImpostor(PlayerState state) => state.Player == null ? !state.SubRoles.Contains(CustomRoles.Bloodlust) && state.MainRole.IsImpostor() : state.Player.IsImpostor();
-                            }
-                            catch (Exception e) { Utils.ThrowException(e); }
-                        }
-
-                        RoleTypes GetRoleTypes(PlayerState state) =>
-                            state.Player == null
-                                ? state.SubRoles switch
-                                {
-                                    { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
-                                    { } x when x.Contains(CustomRoles.Nimble) && !targetMainRole.IsDesyncRole() => RoleTypes.Engineer,
-                                    { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
-                                    { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
-                                    { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
-                                    _ => targetMainRole.GetRoleTypes()
-                                }
-                                : state.Player.GetRoleTypes();
-                    }
-                    catch (Exception e) { Utils.ThrowException(e); }
-                }
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }

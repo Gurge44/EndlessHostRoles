@@ -1429,7 +1429,7 @@ internal static class FixedUpdatePatch
                     {
                         string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
                         Logger.SendInGame(msg);
-                        AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
+                        AmongUsClient.Instance.KickPlayer(player.OwnerId, true);
                         Logger.Info(msg, "Low Level Temp Ban");
                     }
                 }
@@ -1470,7 +1470,7 @@ internal static class FixedUpdatePatch
                     PlagueBearer.PlayerIdList.Remove(playerId);
                 }
 
-                bool checkPos = inTask && player != null && alive && !Pelican.IsEaten(playerId);
+                bool checkPos = inTask && !ExileController.Instance && !AntiBlackout.SkipTasks && player != null && alive && !Pelican.IsEaten(playerId) && Main.IntroDestroyed;
                 if (checkPos) Asthmatic.OnCheckPlayerPosition(player);
 
                 foreach (PlayerState state in Main.PlayerStates.Values)
@@ -1478,7 +1478,6 @@ internal static class FixedUpdatePatch
                     if (state.Role.IsEnable)
                     {
                         if (checkPos) state.Role.OnCheckPlayerPosition(player);
-
                         state.Role.OnGlobalFixedUpdate(player, lowLoad);
                     }
                 }
@@ -1952,12 +1951,14 @@ internal static class FixedUpdatePatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Start))]
+[HarmonyPatch(typeof(PlayerControl._Start_d__82), nameof(PlayerControl._Start_d__82.MoveNext))]
 internal static class PlayerStartPatch
 {
-    public static void Postfix(PlayerControl __instance)
+    public static void Postfix(PlayerControl._Start_d__82 __instance, ref bool __result)
     {
-        TextMeshPro roleText = Object.Instantiate(__instance.cosmetics.nameText, __instance.cosmetics.nameText.transform, true);
+        if (__result) return;
+        TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
+        TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
         roleText.transform.localPosition = new(0f, 0.2f, 0f);
         roleText.fontSize -= 0.9f;
         roleText.text = "RoleText";
@@ -1965,17 +1966,6 @@ internal static class PlayerStartPatch
         roleText.enabled = false;
     }
 }
-
-//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]
-//class SetColorPatch
-//{
-//    public static bool IsAntiGlitchDisabled;
-
-//    public static bool Prefix(PlayerControl __instance, int bodyColor)
-//    {
-//        return true;
-//    }
-//}
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
 internal static class ExitVentPatch
@@ -2157,7 +2147,7 @@ internal static class CoEnterVentPatch
         if (!__instance.myPlayer.CanUseVent(id) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
             LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "CannotUseVentBootFromVent");
 
-        if (((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
+        if (((__instance.myPlayer.GetRoleTypes() != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
              (__instance.myPlayer.Is(CustomRoles.Mayor) && Mayor.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out int count) && count >= Mayor.MayorNumOfUseButton.GetInt()) ||
              (__instance.myPlayer.Is(CustomRoles.Paranoia) && Paranoia.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out int count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))
             && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust) && CustomGameMode.Standard.IsActiveOrIntegrated())

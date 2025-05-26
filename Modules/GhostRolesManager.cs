@@ -33,7 +33,7 @@ internal static class GhostRolesManager
 
         IGhostRole instance = CreateGhostRoleInstance(suitableRole);
         pc.RpcSetCustomRole(suitableRole);
-        pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId(), true);
+        pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
         instance.OnAssign(pc);
         Main.ResetCamPlayerList.Add(pc.PlayerId);
         AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);

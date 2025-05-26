@@ -279,7 +279,6 @@ internal static class OnPlayerLeftPatch
 
                 NameNotifyManager.Notifies.Remove(data.Character.PlayerId);
                 data.Character.RpcSetName(data.Character.GetRealName(true));
-                AntiBlackout.OnDisconnect(data.Character.Data);
                 PlayerGameOptionsSender.RemoveSender(data.Character);
             }
 

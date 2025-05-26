@@ -12,6 +12,22 @@ using static EHR.Translator;
 
 namespace EHR;
 
+// Patch for non-host modded clients to ensure that the intro cutscene is shown correctly
+// and GameStates.InGame is set to true
+[HarmonyPatch(typeof(IntroCutscene._ShowRole_d__41), nameof(IntroCutscene._ShowRole_d__41.MoveNext))]
+static class ShowRoleMoveNextPatch
+{
+    public static void Postfix(IntroCutscene._ShowRole_d__41 __instance)
+    {
+        if (AmongUsClient.Instance.AmHost) return;
+        
+        GameStates.InGame = true;
+        SetUpRoleTextPatch.Postfix(__instance.__4__this);
+    }
+}
+
+// For some reason, IntroCutScene.ShowRole is not called in the base game with this exact same code,
+// so we need to patch HudManager.CoShowIntro for the host entirely to ensure that the intro is shown correctly
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
 static class CoShowIntroPatch
 {
@@ -1067,7 +1083,11 @@ internal static class IntroCutsceneDestroyPatch
 
                     sender.SendMessage();
 
-                    AntiBlackout.SendGameData();
+                    foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
+                    {
+                        playerInfo.MarkDirty();
+                        AmongUsClient.Instance.SendAllStreamedObjects();
+                    }
                 }, 0.3f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
