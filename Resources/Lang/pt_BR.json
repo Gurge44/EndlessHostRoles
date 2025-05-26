@@ -2872,6 +2872,8 @@
   "DraftResend": "<size=90%>Your drafting choices are:</size>\\n\\n{0}\\n\\n<size=90%>Chat commands to use:</size>\\n- Pick role: <b>/draft [index]</b>\\n- View description of role: <b>/dd [index]</b>\\n<size=90%>Replace [index] with the number of the role you want to pick. Example: <b>/draft 4</b></size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>Todos Escolhem</color> <#00a5ff>⬅</color>",
   "DraftChosen": "Você escolheu a função <b>{0}</b> para o próximo jogo.\\n<size=70%> Você ainda pode mudar sua escolhe ao digitar /draft [número] novamente</size>",
+  "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
+  "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
   "DeathCommand": "<#ffffff>Você foi Morto por </color>{0}<#ffffff>\nA função dele é </color>{1}",
   "DeathCommandFail": "<#ff0000>O jogo não pode determinar seu verdadeiro assassino.</color>",
   "DefaultSystemMessageTitle": "【★ Sistema ★】",
