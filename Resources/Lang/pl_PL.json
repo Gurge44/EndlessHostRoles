@@ -2872,6 +2872,8 @@
   "DraftResend": "<size=90%>Your drafting choices are:</size>\\n\\n{0}\\n\\n<size=90%>Chat commands to use:</size>\\n- Pick role: <b>/draft [index]</b>\\n- View description of role: <b>/dd [index]</b>\\n<size=90%>Replace [index] with the number of the role you want to pick. Example: <b>/draft 4</b></size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>Drafting</color> <#00a5ff>⬅</color>",
   "DraftChosen": "You have chosen the <b>{0}</b> role for the next game.\\n<size=70%>You can still change your choice by typing /draft [index] again.</size>",
+  "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
+  "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
   "DeathCommand": "<#ffffff>You were killed by </color>{0}<#ffffff>\\nTheir role is </color>{1}",
   "DeathCommandFail": "<#ff0000>The game could not determine your real killer.</color>",
   "DefaultSystemMessageTitle": "➡ SYSTEM MESSAGE ⬅",
