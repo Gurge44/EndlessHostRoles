@@ -372,22 +372,22 @@ public enum CustomRoles
 
     // Coven
 
-    RegularCoven,
-    CovenLeader,
-    SpellCaster,
-    PotionMaster,
-    Poache,
-    Reaper,
-    Death, // Reaper changes to Death
-    VoodooMaster,
-    Goddess,
     Augur,
-    Dreamweaver,
     Banshee,
-    Illusionist,
-    Timelord,
+    CovenLeader,
+    RegularCoven, // Coven Member
+    Death, // Reaper changes to Death
+    Dreamweaver,
     Enchanter,
+    Goddess,
+    Illusionist,
+    Poache,
+    PotionMaster,
+    Reaper,
     Siren,
+    SpellCaster,
+    Timelord,
+    VoodooMaster,
     Wyrd,
 
     // Solo Kombat
