@@ -967,7 +967,7 @@ internal static class ExtendedPlayerControl
                     yield break;
                 }
 
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(pc.IsAlive() ? 1f : 3f);
 
                 if (!GameStates.InGame || GameStates.IsEnded)
                 {
@@ -1040,8 +1040,8 @@ internal static class ExtendedPlayerControl
             if (pc.IsAlive())
             {
                 sender.TP(pc, pcPos);
-
                 sender.SetKillCooldown(pc, timer);
+                sender.Notify(pc, GetString("BlackScreenFixCompleteNotify"));
 
                 dummyGhost.NetTransform.SnapTo(ghostPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
                 dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);

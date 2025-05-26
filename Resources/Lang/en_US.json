@@ -9513,6 +9513,7 @@
   "ForceEnd": "Aborted",
   "EveryoneDied": "Everyone died",
   "ForceEndText": "Host has aborted the game",
+  "BlackScreenFixCompleteNotify": "<#00ff00>Black Screen Fix Code Executed</color>",
   "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>Modded Min/Max Impostors Automatically Set To </color><#ffffff>{0}</color></b>\\n<size=80%>Because you only changed the vanilla setting, which gets overridden by the modded ones.</size>",
   "DiscoChangeInterval": "Disco Change Color Interval",
   "Modifier": "\nModifier: ",
