@@ -4842,6 +4842,7 @@
   "ND_Tornado.DurationOpt": "Duración del Tornado",
   "ND_Tornado.GoesThroughWalls": "Tornado Atraviesa Paredes",
   "ND_Tornado.MovingSpeed": "Velocidad de Movimiento del Tornado",
+  "ND_Tornado.AngleChangeFrequency": "Tornado Angle Change Frequency",
   "ND_Thunderstorm.DurationOpt": "Thunderstorm Duration",
   "ND_Thunderstorm.HitFrequency": "Lightning Strike Frequency",
   "ND_SandStorm.DurationOpt": "Sandstorm Duration",
