@@ -932,6 +932,7 @@
   "AdditionalEmergencyCooldown": "Дополнительная перезарядка собраний",
   "AdditionalEmergencyCooldownThreshold": "Минимальное кол-во игроков для назначения",
   "AdditionalEmergencyCooldownTime": "Дополнительная перезарядка",
+  "DisablePlayerVotedMessage": "Disable 'X has voted. Y remaining.' Message in Meetings",
   "LadderDeath": "Падение с лестниц",
   "LadderDeathChance": "Шанс разбиться",
   "GuesserDoesntDieOnMisguess": "<color=#f3e304>Угадыватель не умирает при ошибке</color>",
