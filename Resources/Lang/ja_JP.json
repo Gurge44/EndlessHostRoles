@@ -932,6 +932,7 @@
   "AdditionalEmergencyCooldown": "追加の緊急クールダウン",
   "AdditionalEmergencyCooldownThreshold": "適用される 生存プレイヤーの 最小数",
   "AdditionalEmergencyCooldownTime": "追加するクールダウン",
+  "DisablePlayerVotedMessage": "Disable 'X has voted. Y remaining.' Message in Meetings",
   "LadderDeath": "梯子からの転落",
   "LadderDeathChance": "転落で死ぬ確率",
   "GuesserDoesntDieOnMisguess": "<color=#f3e304>推測者は 間違っても死亡しない</color>",
