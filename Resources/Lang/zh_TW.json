@@ -4842,6 +4842,7 @@
   "ND_Tornado.DurationOpt": "龍捲風持續時間",
   "ND_Tornado.GoesThroughWalls": "龍捲風可以穿過牆壁",
   "ND_Tornado.MovingSpeed": "龍捲風移動速度",
+  "ND_Tornado.AngleChangeFrequency": "Tornado Angle Change Frequency",
   "ND_Thunderstorm.DurationOpt": "雷暴持續時間",
   "ND_Thunderstorm.HitFrequency": "雷擊頻率",
   "ND_SandStorm.DurationOpt": "沙塵暴持續時間",
