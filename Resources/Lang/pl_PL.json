@@ -932,6 +932,7 @@
   "AdditionalEmergencyCooldown": "Additional Emergency Cooldown",
   "AdditionalEmergencyCooldownThreshold": "Minimum Living Players to be Applied",
   "AdditionalEmergencyCooldownTime": "Additional Cooldown",
+  "DisablePlayerVotedMessage": "Disable 'X has voted. Y remaining.' Message in Meetings",
   "LadderDeath": "Fall From Ladders",
   "LadderDeathChance": "Fall To Death Chance",
   "GuesserDoesntDieOnMisguess": "<color=#f3e304>Guesser Doesn't Die on Misguess</color>",
