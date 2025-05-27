@@ -4842,6 +4842,7 @@
   "ND_Tornado.DurationOpt": "Duraçaõ do Tornado",
   "ND_Tornado.GoesThroughWalls": "Tornado viaja Através de Muralhas",
   "ND_Tornado.MovingSpeed": "Velocidade de movimento do Tornado",
+  "ND_Tornado.AngleChangeFrequency": "Tornado Angle Change Frequency",
   "ND_Thunderstorm.DurationOpt": "Duração da Tempestade",
   "ND_Thunderstorm.HitFrequency": "Frequência dos raios",
   "ND_SandStorm.DurationOpt": "Duração da Tempestade de Areia",
