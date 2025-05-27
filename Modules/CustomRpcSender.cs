@@ -487,7 +487,7 @@ public static class CustomRpcSenderExtensions
         // Other Clients
         if (!killer.IsHost())
         {
-            sender.AutoStartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer, killer.GetClientId());
+            sender.AutoStartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer, killer.OwnerId);
             sender.WriteNetObject(target);
             sender.Write((int)MurderResultFlags.FailedProtected);
             sender.EndRpc();
@@ -546,7 +546,7 @@ public static class CustomRpcSenderExtensions
                 PlayerControl.LocalPlayer.SetKillTimer(time);
             else
             {
-                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, player.GetClientId());
+                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, player.OwnerId);
                 sender.Write(time);
                 sender.EndRpc();
 
@@ -592,7 +592,7 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.ProtectPlayer, target.GetClientId());
+        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.ProtectPlayer, target.OwnerId);
         sender.WriteNetObject(target);
         sender.Write(0);
         sender.EndRpc();
@@ -602,7 +602,7 @@ public static class CustomRpcSenderExtensions
 
     public static void RpcDesyncRepairSystem(this CustomRpcSender sender, PlayerControl target, SystemTypes systemType, int amount)
     {
-        sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, target.GetClientId());
+        sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, target.OwnerId);
         sender.Write((byte)systemType);
         sender.WriteNetObject(target);
         sender.Write((byte)amount);

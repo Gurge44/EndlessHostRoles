@@ -3239,8 +3239,6 @@ public static class Utils
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
         EAC.InvalidReports.Clear();
 
-        CustomNetObject.AfterMeeting();
-
         RPCHandlerPatch.RemoveExpiredWhiteList();
     }
 

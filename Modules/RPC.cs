@@ -242,7 +242,7 @@ internal static class RPCHandlerPatch
 
                 if (!EAC.ReceiveInvalidRpc(__instance, callId)) return false;
 
-                AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                 Logger.Warn($"The RPC received from {__instance.Data?.PlayerName} is not trusted, so they were kicked.", "Kick");
                 Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance.Data?.PlayerName));
                 return false;
@@ -250,7 +250,7 @@ internal static class RPCHandlerPatch
 
             if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out var expireTS) || expireTS < Utils.TimeStamp) && NumRPCsThisSecond.TryGetValue(__instance.PlayerId, out int times) && times > 50)
             {
-                AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                 Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName));
                 return false;
             }
@@ -281,7 +281,7 @@ internal static class RPCHandlerPatch
 
                     if (reader.ReadString() != Main.ForkId)
                     {
-                        AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                        AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                         Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName));
                     }
 
@@ -342,7 +342,7 @@ internal static class RPCHandlerPatch
                                     string msg = string.Format(GetString("KickBecauseDiffrentVersionOrMod"), __instance.Data?.PlayerName);
                                     Logger.Warn(msg, "Version Kick");
                                     Logger.SendInGame(msg);
-                                    AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                                    AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                                 }
                             }, 5f, "Kick");
                         }
@@ -356,7 +356,7 @@ internal static class RPCHandlerPatch
 
                         LateTask.New(() =>
                         {
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.OwnerId);
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }, 1f, "Retry Version Check Task");
                     }
@@ -1306,7 +1306,7 @@ internal static class RPC
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, SendOption.Reliable, pc.GetClientId());
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, SendOption.Reliable, pc.OwnerId);
         writer.Write(msg);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }

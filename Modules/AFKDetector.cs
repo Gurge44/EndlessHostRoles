@@ -129,7 +129,7 @@ public static class AFKDetector
                 Utils.NotifyRoles(SpecifyTarget: pc);
                 break;
             case Consequence.Kick:
-                AmongUsClient.Instance.KickPlayer(pc.GetClientId(), false);
+                AmongUsClient.Instance.KickPlayer(pc.OwnerId, false);
                 Logger.SendInGame(string.Format(Translator.GetString("AFKKick"), pc.PlayerId.ColoredPlayerName()));
                 break;
             case Consequence.Suicide:

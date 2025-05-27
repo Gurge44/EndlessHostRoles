@@ -120,7 +120,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
             {
                 Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[(Index)i];
-                if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.GetClientId());
+                if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.OwnerId);
             }
         }
         catch (Exception ex) { Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray"); }

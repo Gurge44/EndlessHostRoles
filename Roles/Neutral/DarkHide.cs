@@ -123,7 +123,7 @@ public class DarkHide : RoleBase
 
         var sender = CustomRpcSender.Create("DarkHide.OnCheckMurder", SendOption.Reliable);
         DRpcSetKillCount(killer, sender);
-        sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, killer.GetClientId());
+        sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, killer.OwnerId);
         sender.Write((byte)SystemTypes.Electrical);
         sender.WriteNetObject(killer);
         sender.EndRpc();
@@ -132,7 +132,7 @@ public class DarkHide : RoleBase
         {
             if (target.PlayerId == killer.PlayerId || target.Data.Disconnected) continue;
 
-            sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, target.GetClientId());
+            sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, target.OwnerId);
             sender.Write((byte)SystemTypes.Electrical);
             sender.WriteNetObject(target);
             sender.EndRpc();

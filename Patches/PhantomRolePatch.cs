@@ -71,7 +71,7 @@ public static class PhantomRolePatch
             }
 
             var sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}");
-            sender.StartMessage(phantom.GetClientId());
+            sender.StartMessage(phantom.OwnerId);
 
             sender.StartRpc(phantom.NetId, (byte)RpcCalls.SetRole)
                 .Write((ushort)RoleTypes.Phantom)
@@ -196,7 +196,7 @@ public static class PhantomRolePatch
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
             if (!target.IsAlive() || phantom.PlayerId == target.PlayerId || target.AmOwner || !target.HasDesyncRole()) continue;
-            sender.RpcSetRole(phantom, RoleTypes.Phantom, target.GetClientId());
+            sender.RpcSetRole(phantom, RoleTypes.Phantom, target.OwnerId);
             hasValue = true;
         }
 
@@ -293,14 +293,14 @@ public static class PhantomRolePatch
         if (!force) yield return new WaitForSeconds(0.0001f);
 
         if (seer.OwnerId == -1 || phantom == null) yield break;
-        phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
+        phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.OwnerId);
 
         // Return Phantom in meeting
         yield return new WaitForSeconds(1f);
 
         {
             if (seer.OwnerId == -1 || phantom == null) yield break;
-            phantom.RpcSetRoleDesync(RoleTypes.Phantom, seer.GetClientId());
+            phantom.RpcSetRoleDesync(RoleTypes.Phantom, seer.OwnerId);
         }
 
         // Revert invis for phantom
@@ -316,7 +316,7 @@ public static class PhantomRolePatch
 
         {
             if (seer.OwnerId == -1 || phantom == null) yield break;
-            phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
+            phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.OwnerId);
 
             if (PetsList.TryGetValue(phantom.PlayerId, out string petId))
                 phantom.RpcSetPetDesync(petId, seer);

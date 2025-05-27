@@ -92,7 +92,7 @@ public static class SpamManager
         {
             if (ContainsStart(text) && GameStates.IsLobby)
             {
-                if (!Main.SayStartTimes.ContainsKey(player.GetClientId())) Main.SayStartTimes.Add(player.OwnerId, 0);
+                if (!Main.SayStartTimes.ContainsKey(player.OwnerId)) Main.SayStartTimes.Add(player.OwnerId, 0);
 
                 Main.SayStartTimes[player.OwnerId]++;
                 msg = string.Format(GetString("Message.WarnWhoSayStart"), name, Main.SayStartTimes[player.OwnerId]);
@@ -119,7 +119,7 @@ public static class SpamManager
 
         if (Options.AutoKickStopWords.GetBool())
         {
-            if (!Main.SayBanwordsTimes.ContainsKey(player.GetClientId())) Main.SayBanwordsTimes.Add(player.OwnerId, 0);
+            if (!Main.SayBanwordsTimes.ContainsKey(player.OwnerId)) Main.SayBanwordsTimes.Add(player.OwnerId, 0);
 
             Main.SayBanwordsTimes[player.OwnerId]++;
             msg = string.Format(GetString("Message.WarnWhoSayBanWordTimes"), name, Main.SayBanwordsTimes[player.OwnerId]);

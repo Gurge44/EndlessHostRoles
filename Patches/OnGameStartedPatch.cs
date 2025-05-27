@@ -336,7 +336,7 @@ internal static class ChangeRoleSettings
                 RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
                 NetworkedPlayerInfo.PlayerOutfit outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
-                Main.ClientIdList.Add(pc.GetClientId());
+                Main.ClientIdList.Add(pc.OwnerId);
 
                 try { Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId]; }
                 catch (Exception e) { Utils.ThrowException(e); }
@@ -586,7 +586,7 @@ internal static class StartGameHostPatch
             {
                 if (totalSeconds < (double)num)
                 {
-                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 70.0), StringNames.LoadingBarGameStartWaitingPlayers);
+                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 80.0), StringNames.LoadingBarGameStartWaitingPlayers);
 
                     int timeoutIn = num - (int)totalSeconds;
                     loadingBarManager.loadingBar.loadingText.text = string.Format(GetString("LoadingBarText.2"), clientsReady, allClientsCount, timeoutIn);
@@ -1021,13 +1021,14 @@ internal static class StartGameHostPatch
             if (pc.Data == null)
                 while (pc.Data == null)
                     yield return null;
+
             pc.Data.Disconnected = true;
             pc.Data.MarkDirty();
             AmongUsClient.Instance.SendAllStreamedObjects();
         }
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(80f, 100f, 4f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.AllPlayerControls.Do(SetRoleSelf);
@@ -1070,7 +1071,7 @@ internal static class StartGameHostPatch
         return BasisChangingAddons.TryGetValue(role, out List<byte> list) && list.Contains(id);
     }
 
-    private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), (RoleTypes, CustomRoles)> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
+    private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), (RoleTypes, CustomRoles)> rolesMap, RoleTypes baseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
     {
         try
         {
@@ -1081,7 +1082,7 @@ internal static class StartGameHostPatch
 
             Main.PlayerStates[player.PlayerId].SetMainRole(role);
 
-            RoleTypes selfRole = isHost ? BaseRole == RoleTypes.Shapeshifter ? RoleTypes.Shapeshifter : hostBaseRole : BaseRole;
+            RoleTypes selfRole = isHost ? baseRole == RoleTypes.Shapeshifter ? RoleTypes.Shapeshifter : hostBaseRole : baseRole;
             RoleTypes othersRole = isHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
             // Set Desync role for self and for others
@@ -1252,7 +1253,7 @@ internal static class StartGameHostPatch
                     try
                     {
                         Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false, true)
-                            .StartMessage(pc.GetClientId());
+                            .StartMessage(pc.OwnerId);
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }

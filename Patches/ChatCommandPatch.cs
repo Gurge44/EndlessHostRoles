@@ -1709,7 +1709,7 @@ internal static class ChatCommands
         }
 
         // Kick the specified Player
-        AmongUsClient.Instance.KickPlayer(kickedPlayer.GetClientId(), args[0] == "/ban");
+        AmongUsClient.Instance.KickPlayer(kickedPlayer.OwnerId, args[0] == "/ban");
         string kickedPlayerName = kickedPlayer.GetRealName();
         var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
         if (GameStates.IsInGame) textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";

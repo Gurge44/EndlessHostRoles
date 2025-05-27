@@ -243,7 +243,7 @@ public class Wizard : RoleBase
                 TaskMode = false;
                 break;
             case false when !pc.IsAlive():
-                pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId());
+                pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.OwnerId);
                 TaskMode = true;
                 break;
             case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():

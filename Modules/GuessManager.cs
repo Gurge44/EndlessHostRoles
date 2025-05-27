@@ -566,7 +566,7 @@ public static class GuessManager
 
                 PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
 
-                if (!voteAreaPlayer.AmOwner) meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
+                if (!voteAreaPlayer.AmOwner) meetingHud.RpcClearVote(voteAreaPlayer.OwnerId);
                 else meetingHud.ClearVote();
             }
 

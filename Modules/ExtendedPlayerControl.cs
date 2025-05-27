@@ -125,7 +125,7 @@ internal static class ExtendedPlayerControl
         MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
         writer.StartMessage(6);
         writer.Write(AmongUsClient.Instance.GameId);
-        writer.WritePacked(player.GetClientId());
+        writer.WritePacked(player.OwnerId);
         writer.StartMessage(4);
         writer.WritePacked(HudManager.Instance.MeetingPrefab.SpawnId);
         writer.WritePacked(-2);
@@ -612,7 +612,7 @@ internal static class ExtendedPlayerControl
         }
         else if (player.IsModdedClient())
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.OwnerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         else if (!reactorCheck) player.ReactorFlash(); // Reactor flash
@@ -649,7 +649,7 @@ internal static class ExtendedPlayerControl
         // Other Clients
         if (!killer.IsHost())
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.OwnerId);
             writer.WriteNetObject(target);
             writer.Write((int)MurderResultFlags.FailedProtected);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -813,7 +813,7 @@ internal static class ExtendedPlayerControl
                 PlayerControl.LocalPlayer.SetKillTimer(time);
             else
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, SendOption.Reliable, player.GetClientId());
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, SendOption.Reliable, player.OwnerId);
                 writer.Write(time);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
@@ -846,7 +846,7 @@ internal static class ExtendedPlayerControl
         else
         {
             // If target is not host
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.Reliable, target.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.Reliable, target.OwnerId);
             writer.WriteNetObject(target);
             writer.Write(0);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -861,7 +861,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcDesyncRepairSystem(this PlayerControl target, SystemTypes systemType, int amount)
     {
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.GetClientId());
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.OwnerId);
         messageWriter.Write((byte)systemType);
         messageWriter.WriteNetObject(target);
         messageWriter.Write((byte)amount);
@@ -1569,8 +1569,12 @@ internal static class ExtendedPlayerControl
 
         ReportDeadBodyPatch.AfterReportTasks(reporter, target, true);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
-        FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
-        reporter.RpcStartMeeting(target);
+
+        LateTask.New(() =>
+        {
+            FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
+            reporter.RpcStartMeeting(target);
+        }, 0.2f, "NoCheckStartMeeting Delay");
     }
 
     public static bool UsesPetInsteadOfKill(this PlayerControl pc)

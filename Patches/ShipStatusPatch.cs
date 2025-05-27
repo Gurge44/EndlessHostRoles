@@ -475,7 +475,7 @@ internal static class ShipStatusSerializePatch
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(6);
             writer.Write(AmongUsClient.Instance.GameId);
-            writer.WritePacked(pc.GetClientId());
+            writer.WritePacked(pc.OwnerId);
             writer.StartMessage(1);
             writer.WritePacked(ShipStatus.Instance.NetId);
             writer.StartMessage((byte)SystemTypes.Comms);
@@ -496,7 +496,7 @@ internal static class ShipStatusSerializePatch
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(6);
             writer.Write(AmongUsClient.Instance.GameId);
-            writer.WritePacked(pc.GetClientId());
+            writer.WritePacked(pc.OwnerId);
             writer.StartMessage(1);
             writer.WritePacked(ShipStatus.Instance.NetId);
             writer.StartMessage((byte)SystemTypes.Comms);
@@ -535,7 +535,7 @@ internal static class VentilationSystemDeterioratePatch
                 MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
-                writer.WritePacked(pc.GetClientId());
+                writer.WritePacked(pc.OwnerId);
                 writer.StartMessage(1);
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);
@@ -591,7 +591,7 @@ internal static class VentilationSystemDeterioratePatch
             {
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
-                writer.WritePacked(pc.GetClientId());
+                writer.WritePacked(pc.OwnerId);
                 writer.StartMessage(1);
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);
@@ -637,7 +637,7 @@ internal static class VentilationSystemDeterioratePatch
             {
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
-                writer.WritePacked(pc.GetClientId());
+                writer.WritePacked(pc.OwnerId);
                 writer.StartMessage(1);
                 writer.WritePacked(ShipStatus.Instance.NetId);
                 writer.StartMessage((byte)SystemTypes.Ventilation);

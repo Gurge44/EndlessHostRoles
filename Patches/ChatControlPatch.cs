@@ -289,7 +289,7 @@ public static class ChatManager
             bool toLocalPlayer = receiver.IsLocalPlayer();
             if (toLocalPlayer || receiver == null) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
             if (toLocalPlayer) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, receiver.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, receiver.OwnerId);
             writer.Write("<size=32767>.");
             writer.Write(true);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

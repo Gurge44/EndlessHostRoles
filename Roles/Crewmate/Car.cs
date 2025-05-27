@@ -70,7 +70,8 @@ public class Car : RoleBase
 
         LastPosition = pos;
 
-        if (Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out PlayerControl target) && CurrentlyPropelling.Add(target.PlayerId)) Main.Instance.StartCoroutine(Propel(pc, target, direction));
+        if (Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out PlayerControl target) && CurrentlyPropelling.Add(target.PlayerId))
+            Main.Instance.StartCoroutine(Propel(pc, target, direction));
     }
 
     private IEnumerator Propel(PlayerControl car, PlayerControl target, Direction direction)
@@ -81,16 +82,18 @@ public class Car : RoleBase
 
         Vector2 pos = car.Pos();
 
+        const float unit = 0.15f;
+
         Vector2 addVector = direction switch
         {
-            Direction.Left => new(-0.25f, 0),
-            Direction.UpLeft => new(-0.25f, 0.25f),
-            Direction.Up => new(0, 0.25f),
-            Direction.UpRight => new(0.25f, 0.25f),
-            Direction.Right => new(0.25f, 0),
-            Direction.DownRight => new(0.25f, -0.25f),
-            Direction.Down => new(0, -0.25f),
-            Direction.DownLeft => new(-0.25f, -0.25f),
+            Direction.Left => new(-unit, 0),
+            Direction.UpLeft => new(-unit, unit),
+            Direction.Up => new(0, unit),
+            Direction.UpRight => new(unit, unit),
+            Direction.Right => new(unit, 0),
+            Direction.DownRight => new(unit, -unit),
+            Direction.Down => new(0, -unit),
+            Direction.DownLeft => new(-unit, -unit),
             _ => Vector2.zero
         };
 
@@ -99,7 +102,7 @@ public class Car : RoleBase
 
         for (Vector2 newPos = target.Pos(); Vector2.Distance(pos, newPos) < distance && GameStates.IsInTask; newPos += addVector)
         {
-            if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos, Constants.ShipOnlyMask, false)) break;
+            if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos + addVector, Constants.ShipOnlyMask, false)) break;
 
             target.TP(newPos, log: false);
             yield return new WaitForSeconds(0.05f);

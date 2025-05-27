@@ -17,10 +17,10 @@ namespace EHR;
 [HarmonyPatch(typeof(IntroCutscene._ShowRole_d__41), nameof(IntroCutscene._ShowRole_d__41.MoveNext))]
 static class ShowRoleMoveNextPatch
 {
-    public static void Postfix(IntroCutscene._ShowRole_d__41 __instance)
+    public static void Postfix(IntroCutscene._ShowRole_d__41 __instance, ref bool __result)
     {
-        if (AmongUsClient.Instance.AmHost) return;
-        
+        if (AmongUsClient.Instance.AmHost || __instance.__1__state != 1 || !__result) return;
+
         GameStates.InGame = true;
         SetUpRoleTextPatch.Postfix(__instance.__4__this);
     }
@@ -1137,11 +1137,7 @@ internal static class IntroCutsceneDestroyPatch
                 var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
                 spectators.ForEach(sender.RpcExileV2);
                 sender.SendMessage(spectators.Count == 0);
-                spectators.ForEach(x =>
-                {
-                    Main.PlayerStates[x.PlayerId].SetDead();
-                    Utils.AfterPlayerDeathTasks(x);
-                });
+                spectators.ForEach(x => Main.PlayerStates[x.PlayerId].SetDead());
             }
             catch (Exception e) { Utils.ThrowException(e); }
 

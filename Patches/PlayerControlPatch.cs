@@ -1068,10 +1068,10 @@ internal static class ReportDeadBodyPatch
                 if (Math.Abs(Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) < 0.5f)
                     Logger.Info("This was the last allowed emergency meeting", "ReportDeadBody");
             }
-
-            AfterReportTasks(__instance, target);
         }
         catch (Exception e) { ThrowException(e); }
+
+        AfterReportTasks(__instance, target);
 
         return true;
 
@@ -1084,7 +1084,7 @@ internal static class ReportDeadBodyPatch
         //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
         //=============================================================================================
 
-        CustomNetObject.OnMeeting();
+        CustomNetObject.Meeting();
 
         Asthmatic.RunChecks = false;
 
@@ -1965,7 +1965,7 @@ internal static class PlayerStartPatch
 {
     public static void Postfix(PlayerControl._Start_d__82 __instance, ref bool __result)
     {
-        if (__result) return;
+        if (__result || __instance.__4__this.PlayerId >= 254) return;
         TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
         TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
         roleText.transform.localPosition = new(0f, 0.2f, 0f);
@@ -2331,7 +2331,7 @@ internal static class PlayerControlSetRolePatch
                 foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
                 {
                     Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                    sender.RpcSetRole(__instance, role, seer.GetClientId());
+                    sender.RpcSetRole(__instance, role, seer.OwnerId);
                 }
 
                 sender.SendMessage();

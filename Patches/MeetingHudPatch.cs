@@ -101,7 +101,7 @@ internal static class CheckForEndVotingPatch
                     if (voteTarget == null || !voteTarget.IsAlive() || voteTarget.Data == null || voteTarget.Data.Disconnected)
                     {
                         pva.UnsetVote();
-                        __instance.RpcClearVote(pc.GetClientId());
+                        __instance.RpcClearVote(pc.OwnerId);
                         __instance.UpdateButtons();
                         pva.VotedFor = byte.MaxValue;
                     }

@@ -117,7 +117,7 @@ public class Spiritcaller : RoleBase
             target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
             var writer = CustomRpcSender.Create("SpiritCallerSendMessage", SendOption.Reliable);
-            writer.StartMessage(target.GetClientId());
+            writer.StartMessage(target.OwnerId);
 
             writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                 .Write(target.Data.NetId)

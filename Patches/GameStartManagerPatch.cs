@@ -170,7 +170,7 @@ public static class GameStartManagerPatch
                             {
                                 Main.AllPlayerControls
                                     .Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId)
-                                    .Do(p => AmongUsClient.Instance.KickPlayer(p.GetClientId(), false));
+                                    .Do(p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
 
                                 Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
                                 string msg = GetString("Error.InvalidColor");
