@@ -932,6 +932,7 @@
   "AdditionalEmergencyCooldown": "Recarga Adicional de Reunião",
   "AdditionalEmergencyCooldownThreshold": "Jogadores com vida mínima a serem aplicados",
   "AdditionalEmergencyCooldownTime": "Recarga Adicional",
+  "DisablePlayerVotedMessage": "Disable 'X has voted. Y remaining.' Message in Meetings",
   "LadderDeath": "Cair de Escadas",
   "LadderDeathChance": "Chance de Cair Para a Morte",
   "GuesserDoesntDieOnMisguess": "Adivinhador não morre ao adivinhar errado",
