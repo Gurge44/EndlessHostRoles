@@ -932,6 +932,7 @@
   "AdditionalEmergencyCooldown": "Tiempo de Reutilización de Emergencia Adicional",
   "AdditionalEmergencyCooldownThreshold": "Mínimo de Jugadores Vivos para ser Aplicada",
   "AdditionalEmergencyCooldownTime": "Tiempo de Reutilización Adicional",
+  "DisablePlayerVotedMessage": "Disable 'X has voted. Y remaining.' Message in Meetings",
   "LadderDeath": "Caer De Escaleras",
   "LadderDeathChance": "Probabilidad De Caer A La Muerte",
   "GuesserDoesntDieOnMisguess": "<color=#f3e304>Adivino No Muere al Adivinar Mal</color>",
