@@ -660,6 +660,8 @@ public static class Options
     public static OptionItem AdditionalEmergencyCooldownThreshold;
     public static OptionItem AdditionalEmergencyCooldownTime;
 
+    public static OptionItem DisablePlayerVotedMessage;
+
     public static OptionItem LadderDeath;
     public static OptionItem LadderDeathChance;
 
@@ -2578,6 +2580,10 @@ public static class Options
             .SetParent(AdditionalEmergencyCooldown)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Seconds);
+
+        DisablePlayerVotedMessage = new BooleanOptionItem(23512, "DisablePlayerVotedMessage", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         LoadingPercentage = 95;
 

@@ -394,6 +394,8 @@ internal static class CustomRolesHelper
 
         CustomRoles vnRole = role.GetVNRole(true);
 
+        if (vnRole.ToString().EndsWith("EHR")) return vnRole;
+
         return vnRole switch
         {
             CustomRoles.Crewmate => CustomRoles.CrewmateEHR,

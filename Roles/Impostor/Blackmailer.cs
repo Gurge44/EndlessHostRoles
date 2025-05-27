@@ -79,24 +79,24 @@ internal class Blackmailer : RoleBase
             KeyValuePair<byte, PlayerState> bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
             if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0) return;
 
-            byte? bmVotedForTemp = MeetingHud.Instance.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
+            MeetingHud meetingHud = MeetingHud.Instance;
+
+            byte? bmVotedForTemp = meetingHud.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
             if (bmVotedForTemp == null) return;
 
             var bmVotedFor = (byte)bmVotedForTemp;
 
-            MeetingHud.Instance.playerStates.DoIf(x => bm.BlackmailedPlayerIds.Contains(x.TargetPlayerId), x =>
+            meetingHud.playerStates.DoIf(x => bm.BlackmailedPlayerIds.Contains(x.TargetPlayerId), x =>
             {
                 if (x.DidVote)
                 {
                     x.UnsetVote();
-                    MeetingHud.Instance.RpcClearVote(x.TargetPlayerId.GetPlayer().GetClientId());
+                    meetingHud.SetDirtyBit(1U);
+                    meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
+                    meetingHud.SetDirtyBit(1U);
                 }
 
-                if (x.TargetPlayerId.IsHost())
-                    MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
-                else
-                    MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
-
+                meetingHud.CastVote(x.TargetPlayerId, bmVotedFor);
                 x.VotedFor = bmVotedFor;
             });
         }

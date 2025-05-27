@@ -264,7 +264,7 @@ internal static class HudManagerPatch
 
                     string GetAddonSuffixes()
                     {
-                        IEnumerable<string> suffixes = state.SubRoles.Select(s => s switch
+                        string[] suffixes = state.SubRoles.Select(s => s switch
                         {
                             CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
                             CustomRoles.Spurt => Spurt.GetSuffix(player, true),
@@ -272,22 +272,24 @@ internal static class HudManagerPatch
                             CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
                             CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
                             _ => string.Empty
-                        });
+                        }).Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
-                        return string.Join(string.Empty, suffixes);
+                        return suffixes.Length > 0
+                            ? $"\n{string.Join('\n', suffixes)}"
+                            : string.Empty;
                     }
 
-                    string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out (long StartTimeStamp, int TotalCooldown) CD)
+                    string cdHUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out (long StartTimeStamp, int TotalCooldown) CD)
                         ? string.Empty
                         : string.Format(GetString("CDPT"), CD.TotalCooldown - (Utils.TimeStamp - CD.StartTimeStamp) + 1);
 
-                    bool hasCD = CD_HUDText != string.Empty;
+                    bool hasCD = cdHUDText != string.Empty;
 
                     if (hasCD)
                     {
-                        if (CooldownTimerFlashColor.HasValue) CD_HUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, CD_HUDText.RemoveHtmlTags())}</b>";
+                        if (CooldownTimerFlashColor.HasValue) cdHUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, cdHUDText.RemoveHtmlTags())}</b>";
 
-                        LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
+                        LowerInfoText.text = $"{cdHUDText}\n{LowerInfoText.text}";
                     }
 
                     if (AchievementUnlockedText != string.Empty)

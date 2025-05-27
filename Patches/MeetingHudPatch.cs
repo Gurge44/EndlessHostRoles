@@ -1262,7 +1262,7 @@ internal static class MeetingHudCastVotePatch
             voteCanceled = true;
         }
 
-        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(skip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
+        Logger.Info($"{pc_src.GetNameWithRole()} => {(skip ? "Skip" : pc_target.GetNameWithRole())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
 
         return skip || !voteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
     }
@@ -1271,28 +1271,30 @@ internal static class MeetingHudCastVotePatch
     {
         if (!ShouldCancelVoteList.TryGetValue(srcPlayerId, out (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC) info)) return;
 
-        try { info.SourcePVA.UnsetVote(); }
+        try
+        {
+            info.SourcePVA.UnsetVote();
+            info.MeetingHud.SetDirtyBit(1U);
+        }
         catch { }
 
-        info.MeetingHud.RpcClearVote(info.SourcePC.GetClientId());
+        info.MeetingHud.RpcClearVote(info.SourcePC.OwnerId);
+        info.MeetingHud.SetDirtyBit(1U);
 
         info.SourcePVA.VotedFor = byte.MaxValue;
 
         ShouldCancelVoteList.Remove(srcPlayerId);
+
+        Logger.Info($"Vote for {info.SourcePC.GetNameWithRole()} canceled", "MeetingHudCastVotePatch.Postfix");
     }
 }
 
-[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CmdCastVote))]
-internal static class MeetingHudCmdCastVotePatch
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSendChatNote))]
+static class SendChatNotePatch
 {
-    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
+    public static bool Prefix()
     {
-        return MeetingHudCastVotePatch.Prefix(__instance, srcPlayerId, suspectPlayerId);
-    }
-
-    public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)
-    {
-        MeetingHudCastVotePatch.Postfix(srcPlayerId);
+        return !Options.DisablePlayerVotedMessage.GetBool();
     }
 }
 

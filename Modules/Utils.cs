@@ -1862,7 +1862,7 @@ public static class Utils
 
                         writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
                             .Write(sender.Data.NetId)
-                            .Write(sender.Data.PlayerName)
+                            .Write(Main.AllPlayerNames.GetValueOrDefault(sender.PlayerId, string.Empty))
                             .EndRpc();
 
                         writer.SendMessage();
@@ -1922,7 +1922,7 @@ public static class Utils
                 {
                     writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
                         .Write(sender.Data.NetId)
-                        .Write(sender.Data.PlayerName)
+                        .Write(Main.AllPlayerNames.GetValueOrDefault(sender.PlayerId, string.Empty))
                         .EndRpc();
 
                     if (!multiple) writer.SendMessage();
@@ -1971,7 +1971,7 @@ public static class Utils
             {
                 writer.AutoStartRpc(sender.NetId, (byte)RpcCalls.SetName, targetClientId)
                     .Write(sender.Data.NetId)
-                    .Write(sender.Data.PlayerName)
+                    .Write(Main.AllPlayerNames.GetValueOrDefault(sender.PlayerId, string.Empty))
                     .EndRpc();
 
                 if (!multiple) writer.SendMessage();
@@ -2296,7 +2296,7 @@ public static class Utils
             hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared);
             if (senderWasCleared) hasValue = false;
 
-            if (sender.stream.Length > 400)
+            if (sender.stream.Length > 100)
             {
                 sender.SendMessage();
                 sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
@@ -2499,10 +2499,7 @@ public static class Utils
                         break;
                 }
 
-                additionalSuffixes
-                    .ConvertAll(x => x.Trim())
-                    .FindAll(x => !string.IsNullOrEmpty(x))
-                    .ForEach(x => SelfSuffix.Append("\n" + x));
+                SelfSuffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
             }
 
             string seerRealName = seer.GetRealName(forMeeting);
@@ -2833,10 +2830,7 @@ public static class Utils
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));
 
-                                additionalSuffixes
-                                    .ConvertAll(x => x.Trim())
-                                    .FindAll(x => !string.IsNullOrEmpty(x))
-                                    .ForEach(x => TargetSuffix.Append("\n" + x));
+                                TargetSuffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
                             }
 
                             var targetDeathReason = string.Empty;

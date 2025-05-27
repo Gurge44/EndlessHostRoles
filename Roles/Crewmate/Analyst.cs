@@ -73,14 +73,14 @@ internal class Analyst : RoleBase
         return SeeRoleBasis.GetBool()
             ? role.GetVNRole(true) switch
             {
-                CustomRoles.Impostor => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
-                CustomRoles.Shapeshifter => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
-                CustomRoles.Phantom => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Witness), GetString("Phantom")),
-                CustomRoles.Crewmate => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
-                CustomRoles.Engineer => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
-                CustomRoles.Scientist => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
-                CustomRoles.Noisemaker => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bubble), GetString("Noisemaker")),
-                CustomRoles.Tracker => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Scout), GetString("Tracker")),
+                CustomRoles.Impostor or CustomRoles.ImpostorEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
+                CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
+                CustomRoles.Phantom or CustomRoles.PhantomEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Witness), GetString("Phantom")),
+                CustomRoles.Crewmate or CustomRoles.CrewmateEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
+                CustomRoles.Engineer or CustomRoles.EngineerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
+                CustomRoles.Scientist or CustomRoles.ScientistEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
+                CustomRoles.Noisemaker or CustomRoles.NoisemakerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bubble), GetString("Noisemaker")),
+                CustomRoles.Tracker or CustomRoles.TrackerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Scout), GetString("Tracker")),
                 _ => string.Empty
             }
             : string.Empty;

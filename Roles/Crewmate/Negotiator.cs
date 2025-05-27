@@ -98,12 +98,17 @@ public class Negotiator : RoleBase
             switch (Penalty)
             {
                 case NegotiationType.Suicide:
-                    LateTask.New(() => target.Suicide(PlayerState.DeathReason.Negotiation, negotiator), 1f, log: false);
+                    target.SetRealKiller(negotiator);
+                    PlayerState state = Main.PlayerStates[target.PlayerId];
+                    state.deathReason = PlayerState.DeathReason.Negotiation;
+                    state.SetDead();
+                    Medic.IsDead(target);
+                    target.RpcExileV2();
+                    Utils.AfterPlayerDeathTasks(target, true);
                     break;
                 case NegotiationType.HarmfulAddon:
                     CustomRoles addon = Options.GroupedAddons[AddonTypes.Harmful].Shuffle().FirstOrDefault(x => CustomRolesHelper.CheckAddonConflict(x, target));
                     if (addon != default(CustomRoles)) target.RpcSetCustomRole(addon);
-
                     break;
                 case NegotiationType.LowVision:
                 case NegotiationType.LowSpeed:

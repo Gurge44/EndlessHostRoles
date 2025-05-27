@@ -104,8 +104,8 @@ internal class Kamikaze : RoleBase
                     {
                         victim.SetRealKiller(kamikazePc);
                         PlayerState state = Main.PlayerStates[victim.PlayerId];
-                        state.IsDead = true;
                         state.deathReason = PlayerState.DeathReason.Kamikazed;
+                        state.SetDead();
                         Medic.IsDead(victim);
 
                         if (kamikazePc.Is(CustomRoles.Damocles))

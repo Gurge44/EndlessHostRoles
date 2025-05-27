@@ -1865,10 +1865,7 @@ internal static class ChatCommands
         PlayerControl votedPlayer = voteId.GetPlayer();
         if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
 
-        if (!player.IsHost())
-            MeetingHud.Instance.CastVote(player.PlayerId, voteId);
-        else
-            MeetingHud.Instance.CmdCastVote(player.PlayerId, voteId);
+        MeetingHud.Instance.CastVote(player.PlayerId, voteId);
     }
 
     private static void SayCommand(PlayerControl player, string text, string[] args)
