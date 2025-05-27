@@ -932,6 +932,7 @@
   "AdditionalEmergencyCooldown": "额外紧急冷却时间",
   "AdditionalEmergencyCooldownThreshold": "增加紧急会议cd所需最低玩家数",
   "AdditionalEmergencyCooldownTime": "附加冷却时间",
+  "DisablePlayerVotedMessage": "Disable 'X has voted. Y remaining.' Message in Meetings",
   "LadderDeath": "从梯子上下滑时有可能摔死",
   "LadderDeathChance": "从梯子上摔死的概率",
   "GuesserDoesntDieOnMisguess": "<color=#f3e304>赌怪不会因猜测错误而死</color>",
