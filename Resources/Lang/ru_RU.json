@@ -4842,6 +4842,7 @@
   "ND_Tornado.DurationOpt": "Длительность торнадо",
   "ND_Tornado.GoesThroughWalls": "Торнадо проходит через стены",
   "ND_Tornado.MovingSpeed": "Скорость движения Торнадо",
+  "ND_Tornado.AngleChangeFrequency": "Tornado Angle Change Frequency",
   "ND_Thunderstorm.DurationOpt": "Длительность грозы",
   "ND_Thunderstorm.HitFrequency": "Молнии бьют каждые",
   "ND_SandStorm.DurationOpt": "Длительность Песчаной Бури",
