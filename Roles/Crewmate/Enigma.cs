@@ -135,9 +135,7 @@ public class Enigma : RoleBase
             }
             else if (tasksCompleted >= EnigmaClueStage1Tasks.GetInt()) stage = 1;
 
-            List<EnigmaClue> clues = EnigmaClues.Where(a => a.ClueStage <= stage &&
-                                                            !ShownClues[playerId].Any(b => b.EnigmaClueType == a.EnigmaClueType && b.ClueStage == a.ClueStage))
-                .ToList();
+            List<EnigmaClue> clues = EnigmaClues.FindAll(a => a.ClueStage <= stage && !ShownClues[playerId].Any(b => b.EnigmaClueType == a.EnigmaClueType && b.ClueStage == a.ClueStage));
 
             if (clues.Count == 0) continue;
 
@@ -249,7 +247,7 @@ public class Enigma : RoleBase
         public override string GetMessage(PlayerControl killer, bool showStageClue)
         {
             string killerName = killer.GetRealName();
-            string letter = killerName[rd.Next(0, killerName.Length - 1)].ToString().ToLower();
+            string letter = killerName.Where(char.IsLetter).RandomElement().ToString().ToLower();
 
             switch (ClueStage)
             {
@@ -257,14 +255,10 @@ public class Enigma : RoleBase
                     return GetStage1Clue(killer, letter);
                 case 2:
                     if (showStageClue) GetStage2Clue(letter);
-
                     return GetStage1Clue(killer, letter);
                 case 3:
                     if (showStageClue) return GetStage3Clue(killerName, letter);
-
-                    if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) return GetStage2Clue(letter);
-
-                    return GetStage1Clue(killer, letter);
+                    return rd.Next(100) < EnigmaClueStage2Probability.GetInt() ? GetStage2Clue(letter) : GetStage1Clue(killer, letter);
             }
 
             return null;
@@ -273,7 +267,7 @@ public class Enigma : RoleBase
         private string GetStage1Clue(PlayerControl killer, string letter)
         {
             string randomLetter = GetRandomLetter(killer, letter);
-            int random = rd.Next(1, 2);
+            int random = rd.Next(2);
             return random == 1 ? string.Format(GetString("EnigmaClueName1"), letter, randomLetter) : string.Format(GetString("EnigmaClueName1"), randomLetter, letter);
         }
 
@@ -282,22 +276,18 @@ public class Enigma : RoleBase
             return string.Format(GetString("EnigmaClueName2"), letter);
         }
 
-        private string GetStage3Clue(string killerName, string letter)
+        private static string GetStage3Clue(string killerName, string letter)
         {
             var letter2 = string.Empty;
             string tmpName = killerName.Replace(letter, string.Empty);
-            if (!string.IsNullOrEmpty(tmpName)) letter2 = tmpName[rd.Next(0, tmpName.Length - 1)].ToString().ToLower();
+            if (!string.IsNullOrEmpty(tmpName)) letter2 = tmpName.Where(char.IsLetter).RandomElement().ToString().ToLower();
 
             return string.Format(GetString("EnigmaClueName3"), letter, letter2);
         }
 
-        private string GetRandomLetter(PlayerControl killer, string letter)
+        private static string GetRandomLetter(PlayerControl killer, string letter)
         {
-            PlayerControl[] alivePlayers = Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId).ToArray();
-            PlayerControl rndPlayer = alivePlayers[rd.Next(0, alivePlayers.Length - 1)];
-            string rndPlayerName = rndPlayer.GetRealName().Replace(letter, "");
-            string letter2 = rndPlayerName[rd.Next(0, rndPlayerName.Length - 1)].ToString().ToLower();
-            return letter2;
+            return Main.AllAlivePlayerControls.Without(killer).RandomElement().GetRealName().Replace(letter, "").Where(char.IsLetter).RandomElement().ToString().ToLower();
         }
     }
 

@@ -307,8 +307,7 @@ public static class HauntMenuMinigameSetFilterTextPatch
     {
         if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
         {
-            byte id = __instance.HauntTarget.PlayerId;
-            __instance.FilterText.text = Utils.GetDisplayRoleName(id) + Utils.GetProgressText(id);
+            __instance.FilterText.text = __instance.HauntTarget.GetCustomRole().ToColoredString();
             return false;
         }
 

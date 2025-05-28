@@ -1002,6 +1002,7 @@ internal static class ExtendedPlayerControl
         {
             CheckInvalidMovementPatch.ExemptedPlayers.UnionWith([pc.PlayerId, dummyGhost.PlayerId]);
             AFKDetector.TempIgnoredPlayers.UnionWith([pc.PlayerId, dummyGhost.PlayerId]);
+            LateTask.New(() => AFKDetector.TempIgnoredPlayers.ExceptWith([pc.PlayerId, dummyGhost.PlayerId]), 3f, log: false);
 
             var murderPos = Pelican.GetBlackRoomPS();
 
@@ -1050,8 +1051,6 @@ internal static class ExtendedPlayerControl
                 sender.WriteVector2(ghostPos);
                 sender.Write((ushort)(dummyGhost.NetTransform.lastSequenceId + 8));
                 sender.EndRpc();
-
-                LateTask.New(() => AFKDetector.TempIgnoredPlayers.ExceptWith([pc.PlayerId, dummyGhost.PlayerId]), 1f, log: false);
             }
 
             sender.SendMessage();
