@@ -439,7 +439,7 @@ public static class GameStartRandomMap
         }
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
-            Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
+            Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
         else
         {
             Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
@@ -522,7 +522,7 @@ internal static class ResetStartStatePatch
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
         {
-            Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
+            Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
             GameManager.Instance.LogicOptions.SetDirty();
             OptionItem.SyncAllOptions();
         }

@@ -266,6 +266,8 @@ internal static class ChangeRoleSettings
             GameOptionsManager.Instance.currentNormalGameOptions.ConfirmImpostor = false;
             Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);
 
+            Options.DefaultKillCooldown = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
+
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
             GameEndChecker.Ended = false;

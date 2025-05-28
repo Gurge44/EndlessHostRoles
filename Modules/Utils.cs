@@ -3060,7 +3060,7 @@ public static class Utils
     {
         if (role.UsesPetInsteadOfKill())
         {
-            var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Options.DefaultKillCooldown);
+            var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown));
             Main.AbilityCD[playerId] = (TimeStamp, kcd);
             SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, kcd);
             return;
@@ -3071,8 +3071,8 @@ public static class Utils
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
-            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.DefaultKillCooldown),
-            CustomRoles.Paranoia => (int)Math.Round(Options.DefaultKillCooldown),
+            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown)),
+            CustomRoles.Paranoia => (int)Math.Round(Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown)),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),

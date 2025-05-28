@@ -665,7 +665,7 @@ internal static class ExtendedPlayerControl
 
     public static void AddKCDAsAbilityCD(this PlayerControl pc)
     {
-        AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd) ? kcd : Options.DefaultKillCooldown));
+        AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd) ? kcd : Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown)));
     }
 
     public static void AddAbilityCD(this PlayerControl pc, bool includeDuration = true)
