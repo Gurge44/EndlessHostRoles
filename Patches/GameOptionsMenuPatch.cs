@@ -132,7 +132,7 @@ public static class GameOptionsMenuPatch
 
                     if (enabled) num -= 0.63f;
                 }
-                else if (option.IsHeader && enabled) num -= 0.25f;
+                else if (option.IsHeader && enabled) num -= 0.18f;
 
                 if (option is TextOptionItem) continue;
 
@@ -198,7 +198,7 @@ public static class GameOptionsMenuPatch
                     num -= 0.63f;
                 else if (enabled)
                 {
-                    if (option.IsHeader) num -= 0.25f;
+                    if (option.IsHeader) num -= 0.18f;
 
                     num -= 0.45f;
                 }
@@ -337,7 +337,7 @@ public static class GameOptionsMenuPatch
                 categoryHeaderMasked.gameObject.SetActive(enabled);
                 if (enabled) num -= 0.63f;
             }
-            else if (option.IsHeader && enabled) num -= 0.25f;
+            else if (option.IsHeader && enabled) num -= 0.18f;
 
             if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out OptionBehaviour optionBehaviour))
             {
