@@ -98,25 +98,25 @@ public class Simon : RoleBase
         });
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (Executed || MarkedPlayers.Count == 0) return;
 
         int size = MarkedPlayers.Count;
         MarkedPlayers.Where(x => x.Value.Instruction == Instruction.None).ToList().ForEach(x => MarkedPlayers.Remove(x.Key));
-        if (size != MarkedPlayers.Count) Utils.SendRPC(CustomRPC.SyncRoleData, physics.myPlayer.PlayerId, 2);
+        if (size != MarkedPlayers.Count) Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2);
 
         Executed = true;
 
         foreach (KeyValuePair<byte, (bool DoAction, Instruction Instruction)> kvp in MarkedPlayers)
         {
-            PlayerControl pc = Utils.GetPlayerById(kvp.Key);
-            if (pc == null || !pc.IsAlive()) continue;
+            PlayerControl player = Utils.GetPlayerById(kvp.Key);
+            if (player == null || !player.IsAlive()) continue;
 
-            pc.Notify(Translator.GetString(GetNotify(kvp.Value.Instruction, kvp.Value.DoAction, false)), 300f);
+            player.Notify(Translator.GetString(GetNotify(kvp.Value.Instruction, kvp.Value.DoAction, false)), 300f);
         }
 
-        Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     private static string GetNotify(Instruction instruction, bool doAction, bool forSimon)
@@ -124,7 +124,6 @@ public class Simon : RoleBase
         if (!forSimon)
         {
             if (instruction == Instruction.Kill) return doAction ? "SimonKill" : "SimonDontKill";
-
             return doAction ? "SimonTask" : "SimonDontTask";
         }
 

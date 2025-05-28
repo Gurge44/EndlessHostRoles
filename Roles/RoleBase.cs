@@ -76,8 +76,6 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount) { }
 
-    public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId) { }
-
     public virtual void OnEnterVent(PlayerControl pc, Vent vent) { }
 
     public virtual void OnExitVent(PlayerControl pc, Vent vent) { }

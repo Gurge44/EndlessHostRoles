@@ -53,11 +53,11 @@ public class Venter : RoleBase, IHideAndSeekRole
         return pc.IsAlive();
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (physics.myPlayer.GetAbilityUseLimit() < 1f)
-            LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, "Venter no uses boot from vent");
+        if (pc.GetAbilityUseLimit() < 1f)
+            pc.MyPhysics?.RpcBootFromVent(vent.Id);
         else
-            physics.myPlayer.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse();
     }
 }

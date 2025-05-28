@@ -84,7 +84,7 @@ public class Evolver : RoleBase
         opt.SetInt(Int32OptionNames.KillDistance, Stats.KillDistance);
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         Stats.VentUseLimit--;
         EnsureStatLimits();

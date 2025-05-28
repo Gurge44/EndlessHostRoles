@@ -96,9 +96,9 @@ internal class Changeling : RoleBase
         return CanKillBeforeRoleChange.GetBool();
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        SelectNextRole(physics.myPlayer);
+        SelectNextRole(pc);
     }
 
     public override void OnPet(PlayerControl pc)

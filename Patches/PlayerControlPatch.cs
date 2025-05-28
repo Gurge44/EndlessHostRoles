@@ -1987,7 +1987,8 @@ internal static class ExitVentPatch
 
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (Main.KillTimers.ContainsKey(pc.PlayerId)) Main.KillTimers[pc.PlayerId] += 0.5f;
+        if (Main.KillTimers.ContainsKey(pc.PlayerId))
+            Main.KillTimers[pc.PlayerId] += 0.5f;
 
         Drainer.OnAnyoneExitVent(pc);
 
@@ -2028,8 +2029,84 @@ internal static class EnterVentPatch
 
         if (!AmongUsClient.Instance.AmHost) return;
 
+        if (Main.KillTimers.TryGetValue(pc.PlayerId, out var killTimer) && killTimer > 0f)
+            Main.KillTimers[pc.PlayerId] += 0.5f;
+
+        CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
+
         Main.LastEnteredVent[pc.PlayerId] = __instance;
         Main.LastEnteredVentLocation[pc.PlayerId] = pc.Pos();
+
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
+                pc.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
+                pc.MyPhysics?.RpcBootFromVent(__instance.Id);
+                break;
+            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[pc.PlayerId] <= 0:
+                pc.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
+                pc.MyPhysics?.RpcExitVent(__instance.Id);
+                break;
+            case CustomGameMode.AllInOne when !CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !CustomGameMode.RoomRush.IsActiveOrIntegrated():
+            case CustomGameMode.HotPotato:
+            case CustomGameMode.Speedrun:
+            case CustomGameMode.CaptureTheFlag:
+            case CustomGameMode.NaturalDisasters:
+            case CustomGameMode.KingOfTheZones:
+            case CustomGameMode.TheMindGame:
+            case CustomGameMode.Quiz:
+                pc.MyPhysics?.RpcBootFromVent(__instance.Id);
+                break;
+        }
+
+        if (pc.IsRoleBlocked())
+        {
+            pc.Notify(BlockedAction.Vent.GetBlockNotify());
+            pc.MyPhysics?.RpcExitVent(__instance.Id);
+            return;
+        }
+
+        if (!Rhapsode.CheckAbilityUse(pc) || Stasis.IsTimeFrozen || TimeMaster.Rewinding)
+        {
+            pc.MyPhysics?.RpcExitVent(__instance.Id);
+            return;
+        }
+
+        if (Penguin.IsVictim(pc))
+        {
+            pc.MyPhysics?.RpcBootFromVent(__instance.Id);
+            return;
+        }
+
+        if (SoulHunter.IsSoulHunterTarget(pc.PlayerId))
+        {
+            pc.Notify(GetString("SoulHunterTargetNotifyNoVent"));
+            pc.MyPhysics?.RpcBootFromVent(__instance.Id);
+            return;
+        }
+
+        if (Ventguard.BlockedVents.Contains(__instance.Id) && (!Ventguard.VentguardBlockDoesNotAffectCrew.GetBool() || !pc.IsCrewmate()))
+        {
+            pc.Notify(GetString("EnteredBlockedVent"));
+            pc.MyPhysics?.RpcExitVent(__instance.Id);
+
+            if (Ventguard.VentguardNotifyOnBlockedVentUse.GetBool())
+            {
+                foreach (PlayerControl ventguard in Main.AllAlivePlayerControls)
+                {
+                    if (ventguard.Is(CustomRoles.Ventguard))
+                        ventguard.Notify(GetString("VentguardNotify"));
+                }
+            }
+
+            return;
+        }
+
+        if (pc.Is(CustomRoles.Circumvent))
+            Circumvent.OnEnterVent(pc, __instance);
+
+        if (!pc.CanUseVent(__instance.Id) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !pc.Is(CustomRoles.Nimble) && !pc.Is(CustomRoles.Bloodlust))
+            pc.MyPhysics?.RpcExitVent(__instance.Id);
 
         if (pc.Is(CustomRoles.Unlucky))
         {
@@ -2042,141 +2119,9 @@ internal static class EnterVentPatch
         Chef.SpitOutFood(pc);
 
         Main.PlayerStates[pc.PlayerId].Role.OnEnterVent(pc, __instance);
-    }
-}
 
-[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoEnterVent))]
-internal static class CoEnterVentPatch
-{
-    public static bool Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] int id)
-    {
-        if (!AmongUsClient.Instance.AmHost) return true;
-
-        Logger.Info($" {__instance.myPlayer.GetNameWithRole()}, Vent ID: {id}", "CoEnterVent");
-
-        if (Main.KillTimers.ContainsKey(__instance.myPlayer.PlayerId))
-            Main.KillTimers[__instance.myPlayer.PlayerId] += 0.5f;
-
-        CheckInvalidMovementPatch.ExemptedPlayers.Add(__instance.myPlayer.PlayerId);
-
-        switch (Options.CurrentGameMode)
-        {
-            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
-                LateTask.New(() =>
-                {
-                    __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
-                    __instance.RpcBootFromVent(id);
-                }, 0.5f, "FFA-NoVentingWhenTwoPlayersAlive");
-
-                return true;
-            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
-                LateTask.New(() =>
-                {
-                    __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
-                    __instance.RpcExitVent(id);
-                }, 1f, "FFA-NoVentingWhenKCDIsUP");
-
-                return true;
-            case CustomGameMode.AllInOne when !CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !CustomGameMode.RoomRush.IsActiveOrIntegrated():
-            case CustomGameMode.HotPotato:
-            case CustomGameMode.Speedrun:
-            case CustomGameMode.CaptureTheFlag:
-            case CustomGameMode.NaturalDisasters:
-            case CustomGameMode.KingOfTheZones:
-            case CustomGameMode.TheMindGame:
-            case CustomGameMode.Quiz:
-                LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
-                return true;
-            case CustomGameMode.HideAndSeek:
-                CustomHnS.OnCoEnterVent(__instance, id);
-                break;
-            case CustomGameMode.RoomRush:
-                return true;
-        }
-
-        if (__instance.myPlayer.IsRoleBlocked())
-        {
-            LateTask.New(() =>
-            {
-                __instance.myPlayer?.Notify(BlockedAction.Vent.GetBlockNotify());
-                __instance.RpcExitVent(id);
-            }, 1f, "RoleBlockedBootFromVent");
-
-            return true;
-        }
-
-        if (!Rhapsode.CheckAbilityUse(__instance.myPlayer) || Stasis.IsTimeFrozen || TimeMaster.Rewinding)
-        {
-            LateTask.New(() => __instance.RpcExitVent(id), 1f, log: false);
-            return true;
-        }
-
-        if (Penguin.IsVictim(__instance.myPlayer))
-        {
-            LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "PenguinVictimBootFromVent");
-            return true;
-        }
-
-        if (SoulHunter.IsSoulHunterTarget(__instance.myPlayer.PlayerId))
-        {
-            LateTask.New(() =>
-            {
-                __instance.myPlayer?.Notify(GetString("SoulHunterTargetNotifyNoVent"));
-                __instance.RpcBootFromVent(id);
-            }, 0.5f, "SoulHunterTargetBootFromVent");
-
-            return true;
-        }
-
-        if (Ventguard.BlockedVents.Contains(id))
-        {
-            PlayerControl pc = __instance.myPlayer;
-
-            if (!Ventguard.VentguardBlockDoesNotAffectCrew.GetBool() || !pc.IsCrewmate())
-            {
-                LateTask.New(() =>
-                {
-                    pc?.Notify(GetString("EnteredBlockedVent"));
-                    __instance.RpcExitVent(id);
-                }, 1f, "VentguardBlockedVentBootFromVent");
-
-                if (Ventguard.VentguardNotifyOnBlockedVentUse.GetBool())
-                {
-                    foreach (PlayerControl ventguard in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Ventguard)).ToArray())
-                        ventguard.Notify(GetString("VentguardNotify"));
-                }
-
-                return true;
-            }
-        }
-
-        if (__instance.myPlayer.Is(CustomRoles.Circumvent))
-            Circumvent.OnCoEnterVent(__instance, id);
-
-        if (!__instance.myPlayer.CanUseVent(id) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
-            LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "CannotUseVentBootFromVent");
-
-        if (((__instance.myPlayer.GetRoleTypes() != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
-             (__instance.myPlayer.Is(CustomRoles.Mayor) && Mayor.MayorUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out int count) && count >= Mayor.MayorNumOfUseButton.GetInt()) ||
-             (__instance.myPlayer.Is(CustomRoles.Paranoia) && Paranoia.ParaUsedButtonCount.TryGetValue(__instance.myPlayer.PlayerId, out int count2) && count2 >= Options.ParanoiaNumOfUseButton.GetInt()))
-            && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust) && CustomGameMode.Standard.IsActiveOrIntegrated())
-        {
-            try
-            {
-                LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "CannotUseVentBootFromVent2");
-                return true;
-            }
-            catch { }
-
-            return true;
-        }
-
-        Main.PlayerStates[__instance.myPlayer.PlayerId].Role.OnCoEnterVent(__instance, id);
-
-        if (__instance.myPlayer.IsLocalPlayer())
+        if (pc.IsLocalPlayer())
             Statistics.VentTimes++;
-
-        return true;
     }
 }
 

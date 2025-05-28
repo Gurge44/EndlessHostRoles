@@ -83,9 +83,9 @@ public class Rhapsode : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        ActivateAbility(physics.myPlayer);
+        ActivateAbility(pc);
     }
 
     public override void OnPet(PlayerControl pc)

@@ -123,18 +123,14 @@ internal static class GeneratorStatic
             if (beforeCharges != Charges) pc.SetAbilityUseLimit(Charges, log: false);
         }
 
-        public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             int cost = ActionCosts[Action.Vent];
 
             if (Charges < cost)
             {
-                LateTask.New(() =>
-                {
-                    physics.RpcExitVent(ventId);
-                    physics.myPlayer.Notify(string.Format(Translator.GetString("Generator.Notify.NotEnoughCharges"), cost));
-                }, 1f, "Generator not enough charges to vent");
-
+                pc.MyPhysics?.RpcExitVent(vent.Id);
+                pc.Notify(string.Format(Translator.GetString("Generator.Notify.NotEnoughCharges"), cost));
                 return;
             }
 

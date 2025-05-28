@@ -55,9 +55,9 @@ internal class Convener : RoleBase
         PullEveryone(pc, isPet: true);
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        PullEveryone(physics.myPlayer, ventId);
+        PullEveryone(pc, vent.Id);
     }
 
     private static void PullEveryone(PlayerControl pc, int ventId = 0, bool isPet = false)

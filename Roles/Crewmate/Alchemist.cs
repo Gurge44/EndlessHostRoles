@@ -164,6 +164,7 @@ public class Alchemist : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (OnCoEnterVent(pc.MyPhysics, vent.Id)) return;
         DrinkPotion(pc, vent.Id);
     }
 
@@ -265,24 +266,23 @@ public class Alchemist : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override void OnCoEnterVent(PlayerPhysics instance, int ventId)
+    public bool OnCoEnterVent(PlayerPhysics instance, int ventId)
     {
-        if (PotionID != 6) return;
+        if (PotionID != 6) return false;
 
         PotionID = 10;
         PlayerControl pc = instance.myPlayer;
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost) return false;
 
-        LateTask.New(() =>
-        {
-            ventedId = ventId;
+        ventedId = ventId;
 
-            instance.RpcExitVentDesync(ventId, pc);
+        instance.RpcExitVentDesync(ventId, pc);
 
-            InvisTime = Utils.TimeStamp;
-            SendRPC();
-            pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
-        }, 0.5f, "Alchemist Invis");
+        InvisTime = Utils.TimeStamp;
+        SendRPC();
+        pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
+
+        return true;
     }
 
     public override void OnFixedUpdate(PlayerControl player)

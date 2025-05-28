@@ -74,9 +74,8 @@ public class Oxyman : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        PlayerControl pc = physics.myPlayer;
         Level previousLevel = GetCurrentLevel();
 
         OxygenLevel += IncrementByVenting.GetValue();

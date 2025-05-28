@@ -49,18 +49,18 @@ internal class Circumvent : IAddon
         }, 3f, log: false);
     }
 
-    public static void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public static void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (VentPreventionMode.GetValue() == 0)
         {
-            LateTask.New(() => physics.RpcExitVent(ventId), 1f, "Circumvent Boot From Vent");
+            pc.MyPhysics?.RpcExitVent(vent.Id);
             return;
         }
 
-        if (Limits.ContainsKey(physics.myPlayer.PlayerId))
+        if (Limits.ContainsKey(pc.PlayerId))
         {
-            Limits[physics.myPlayer.PlayerId]--;
-            Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
+            Limits[pc.PlayerId]--;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
     }
 

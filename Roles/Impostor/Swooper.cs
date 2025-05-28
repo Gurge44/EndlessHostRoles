@@ -70,11 +70,6 @@ public class Swooper : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        InvisTime = -10;
-        lastTime = -10;
-        ventedId = -10;
-        CD = 0;
-        SwooperId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
@@ -198,7 +193,7 @@ public class Swooper : RoleBase
 
                     var sender = CustomRpcSender.Create("RpcExitVentDesync", SendOption.Reliable);
                     int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                    bool hasValue = Main.AllPlayerControls.Where(pc => player.PlayerId != pc.PlayerId).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
+                    bool hasValue = Main.AllPlayerControls.Without(player).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
                     sender.SendMessage(!hasValue);
 
                     player.Notify(GetString("SwooperInvisStateOut"));
@@ -215,46 +210,50 @@ public class Swooper : RoleBase
         }
     }
 
-    public override void OnCoEnterVent(PlayerPhysics __instance, int ventId)
+    public bool OnCoEnterVent(PlayerPhysics __instance, int ventId)
     {
-        if (!AmongUsClient.Instance.AmHost || IsInvis) return;
+        if (!AmongUsClient.Instance.AmHost || IsInvis) return false;
 
         PlayerControl pc = __instance.myPlayer;
 
-        LateTask.New(() =>
+        float limit = pc.GetAbilityUseLimit();
+        bool wraith = UsedRole == CustomRoles.Wraith;
+
+        if (CanGoInvis && (wraith || limit >= 1))
         {
-            float limit = pc.GetAbilityUseLimit();
-            bool wraith = UsedRole == CustomRoles.Wraith;
+            __instance.RpcExitVentDesync(ventId, pc);
 
-            if (CanGoInvis && (wraith || limit >= 1))
-            {
-                __instance.RpcExitVentDesync(ventId, pc);
+            ventedId = ventId;
+            InvisTime = Utils.TimeStamp;
+            if (!wraith) pc.RpcRemoveAbilityUse();
 
-                ventedId = ventId;
-                InvisTime = Utils.TimeStamp;
-                if (!wraith) pc.RpcRemoveAbilityUse();
+            SendRPC();
+            pc.Notify(GetString("SwooperInvisState"), Duration);
+            return true;
+        }
 
-                SendRPC();
-                pc.Notify(GetString("SwooperInvisState"), Duration);
-            }
-            else if (!VentNormallyOnCooldown)
-            {
-                __instance.RpcExitVent(ventId);
-                pc.Notify(GetString("SwooperInvisInCooldown"));
-            }
-        }, 0.5f, "Swooper Vent");
+        if (!VentNormallyOnCooldown)
+        {
+            __instance.RpcExitVent(ventId);
+            pc.Notify(GetString("SwooperInvisInCooldown"));
+            return true;
+        }
+
+        return false;
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (OnCoEnterVent(pc.MyPhysics, vent.Id)) return;
+
         if (!IsInvis || InvisTime == Utils.TimeStamp) return;
 
         InvisTime = -10;
         lastTime = Utils.TimeStamp;
         SendRPC();
 
-        pc?.MyPhysics?.RpcExitVent(vent.Id);
-        pc?.Notify(GetString("SwooperInvisStateOut"));
+        pc.MyPhysics?.RpcExitVent(vent.Id);
+        pc.Notify(GetString("SwooperInvisStateOut"));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

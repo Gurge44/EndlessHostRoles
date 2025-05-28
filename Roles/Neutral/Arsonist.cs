@@ -98,10 +98,10 @@ internal class Arsonist : RoleBase
         Ignite(pc.MyPhysics);
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (AmongUsClient.Instance.IsGameStarted)
-            Ignite(physics);
+            Ignite(pc.MyPhysics);
     }
 
     private static void Ignite(PlayerPhysics physics)

@@ -466,8 +466,6 @@ internal static class CustomHnS
         }
     }
 
-    public static void OnCoEnterVent(PlayerPhysics physics, int ventId) { }
-
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     private static class FixedUpdatePatch
     {

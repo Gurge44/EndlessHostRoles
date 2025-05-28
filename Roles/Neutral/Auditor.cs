@@ -110,10 +110,10 @@ public class Auditor : RoleBase
         return false;
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (AbilityTrigger != AbilityTriggers.Vent) return;
-        SwitchMode(physics.myPlayer);
+        SwitchMode(pc);
     }
 
     public override void OnPet(PlayerControl pc)

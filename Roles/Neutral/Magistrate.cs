@@ -58,10 +58,10 @@ public class Magistrate : RoleBase
         return !IsThisRole(pc) || pc.PlayerId != MagistrateID || (AbilityTrigger == AbilityTriggers.Vent && pc.GetAbilityUseLimit() > 0);
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (AbilityTrigger != AbilityTriggers.Vent || physics.myPlayer.GetAbilityUseLimit() < 1) return;
-        UseAbility(physics.myPlayer);
+        if (AbilityTrigger != AbilityTriggers.Vent || pc.GetAbilityUseLimit() < 1) return;
+        UseAbility(pc);
     }
 
     public override void OnPet(PlayerControl pc)
