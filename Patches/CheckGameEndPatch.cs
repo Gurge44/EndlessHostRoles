@@ -1144,17 +1144,11 @@ internal static class GameEndChecker
 }
 
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckEndGameViaTasks))]
-internal static class CheckGameEndPatch
+internal static class CheckEndGameViaTasksPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (GameEndChecker.ShouldNotCheck)
-        {
-            __result = false;
-            return false;
-        }
-
-        __result = GameEndChecker.Predicate?.CheckGameEndByTask(out _) ?? false;
+        __result = false;
         return false;
     }
 }

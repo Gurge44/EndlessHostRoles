@@ -1338,15 +1338,18 @@ internal static class FixedUpdatePatch
         catch (Exception ex)
         {
             long now = TimeStamp;
+            string nameWithRole = __instance.GetNameWithRole();
+            if (string.IsNullOrEmpty(nameWithRole.Trim())) return;
 
             if (LastErrorTS != now)
             {
-                Logger.Error($"Error for {__instance.GetNameWithRole()}:", "FixedUpdatePatch");
+                Logger.Error($"Error for {nameWithRole}:", "FixedUpdatePatch");
                 ThrowException(ex);
                 LastErrorTS = now;
+                return;
             }
 
-            Logger.Error($"Error for {__instance.GetNameWithRole()}: {ex}", "FixedUpdatePatch");
+            Logger.Error($"Error for {nameWithRole}: {ex}", "FixedUpdatePatch");
         }
     }
 

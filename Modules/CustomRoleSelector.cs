@@ -166,7 +166,10 @@ internal static class CustomRoleSelector
         }
 
         (OptionItem MinSetting, OptionItem MaxSetting) covenLimits = Options.FactionMinMaxSettings[Team.Coven];
-        int numCovens = rd.Next(covenLimits.MinSetting.GetInt(), covenLimits.MaxSetting.GetInt() + 1);
+        int numCovens;
+
+        try { numCovens = rd.Next(covenLimits.MinSetting.GetInt(), covenLimits.MaxSetting.GetInt() + 1); }
+        catch { numCovens = (int)(new[] { covenLimits.MinSetting.GetInt(), covenLimits.MinSetting.GetInt() + 1 }.Average()); }
 
         if (numCovens > 0 && !Main.SetRoles.ContainsValue(CustomRoles.CovenLeader) && !ChatCommands.DraftResult.ContainsValue(CustomRoles.CovenLeader))
         {
@@ -176,7 +179,10 @@ internal static class CustomRoleSelector
         }
 
         (OptionItem MinSetting, OptionItem MaxSetting) neutralLimits = Options.FactionMinMaxSettings[Team.Neutral];
-        int numNeutrals = rd.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1);
+        int numNeutrals;
+
+        try { numNeutrals = rd.Next(neutralLimits.MinSetting.GetInt(), neutralLimits.MaxSetting.GetInt() + 1); }
+        catch { numNeutrals = (int)(new[] { neutralLimits.MinSetting.GetInt(), neutralLimits.MinSetting.GetInt() + 1 }.Average()); }
 
         if (Roles[RoleAssignType.Impostor].Count == 0 && numNeutrals == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
         {
@@ -203,9 +209,15 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Coven].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "CovenRoles");
         Logger.Msg("=====================================================", "AllActiveRoles");
 
-        Dictionary<RoleOptionType, int> subCategoryLimits = Options.RoleSubCategoryLimits
-            .Where(x => x.Key.GetTabFromOptionType() == TabGroup.NeutralRoles || x.Value[0].GetBool())
-            .ToDictionary(x => x.Key, x => rd.Next(x.Value[1].GetInt(), x.Value[2].GetInt() + 1));
+        Dictionary<RoleOptionType, int> subCategoryLimits;
+
+        try
+        {
+            subCategoryLimits = Options.RoleSubCategoryLimits
+                .Where(x => x.Key.GetTabFromOptionType() == TabGroup.NeutralRoles || x.Value[0].GetBool())
+                .ToDictionary(x => x.Key, x => rd.Next(x.Value[1].GetInt(), x.Value[2].GetInt() + 1));
+        }
+        catch { subCategoryLimits = []; }
 
         try
         {
@@ -219,9 +231,15 @@ internal static class CustomRoleSelector
         if (subCategoryLimits.Count > 0) Logger.Info($"Sub-Category Limits: {string.Join(", ", subCategoryLimits.Select(x => $"{x.Key}: {x.Value}"))}", "SubCategoryLimits");
 
         int nkLimit = subCategoryLimits[RoleOptionType.Neutral_Killing];
-        int nnkLimit = rd.Next(Options.MinNNKs.GetInt(), Options.MaxNNKs.GetInt() + 1);
+        int nnkLimit;
 
-        int madmateNum = rd.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1);
+        try { nnkLimit = rd.Next(Options.MinNNKs.GetInt(), Options.MaxNNKs.GetInt() + 1); }
+        catch { nnkLimit = (int)(new[] { Options.MinNNKs.GetInt(), Options.MaxNNKs.GetInt() + 1 }.Average()); }
+
+        int madmateNum;
+
+        try { madmateNum = rd.Next(Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1); }
+        catch { madmateNum = (int)(new[] { Options.MinMadmateRoles.GetInt(), Options.MaxMadmateRoles.GetInt() + 1 }.Average()); }
 
         Logger.Info($"Number of Neutral Killing roles to select: {nkLimit}", "NeutralKillingLimit");
         Logger.Info($"Number of Non-Killing Neutral roles to select: {nnkLimit}", "NonKillingNeutralLimit");
