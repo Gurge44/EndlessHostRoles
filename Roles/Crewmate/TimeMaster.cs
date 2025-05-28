@@ -88,8 +88,6 @@ internal class TimeMaster : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        pc.MyPhysics?.RpcExitVent(vent.Id);
-
         if (pc.GetAbilityUseLimit() < 1) return;
         pc.RpcRemoveAbilityUse();
 
@@ -115,8 +113,9 @@ internal class TimeMaster : RoleBase
 
             foreach (PlayerControl player in Main.AllPlayerControls)
             {
-                player.ReactorFlash(flashDuration: length * delay);
-                hasValue |= sender.Notify(player, notify, Math.Max(length * delay, 4f));
+                if (player.inVent || player.MyPhysics?.Animations?.IsPlayingEnterVentAnimation() == true) player.MyPhysics?.RpcExitVent(player.GetClosestVent().Id);
+                player.ReactorFlash(flashDuration: length * delay + 0.55f);
+                hasValue |= sender.Notify(player, notify, Math.Max(length * delay + 0.55f, 4f));
                 player.MarkDirtySettings();
 
                 if (sender.stream.Length > 400)
@@ -128,6 +127,8 @@ internal class TimeMaster : RoleBase
             }
 
             sender.SendMessage(dispose: !hasValue);
+
+            yield return new WaitForSeconds(0.55f);
 
             for (long i = now - 1; i >= now - length; i--)
             {

@@ -187,8 +187,7 @@ public class Alchemist : RoleBase
 
                 break;
             case 2: // Suicide
-                if (!isPet) player.MyPhysics.RpcExitVent(ventId);
-                LateTask.New(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 1f : 0.1f, "Alchemist Suicide");
+                LateTask.New(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 2f : 0.1f, "Alchemist Suicide");
                 break;
             case 3: // TP to random player
                 LateTask.New(() =>
@@ -232,7 +231,6 @@ public class Alchemist : RoleBase
 
                 break;
             case 10 when !player.Is(CustomRoles.Nimble):
-                if (!isPet) player.MyPhysics.RpcExitVent(ventId);
                 player.Notify(GetString("AlchemistNoPotion"));
                 break;
         }
@@ -266,7 +264,7 @@ public class Alchemist : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public bool OnCoEnterVent(PlayerPhysics instance, int ventId)
+    bool OnCoEnterVent(PlayerPhysics instance, int ventId)
     {
         if (PotionID != 6) return false;
 

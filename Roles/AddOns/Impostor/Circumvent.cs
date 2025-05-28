@@ -53,7 +53,7 @@ internal class Circumvent : IAddon
     {
         if (VentPreventionMode.GetValue() == 0)
         {
-            pc.MyPhysics?.RpcExitVent(vent.Id);
+            pc.MyPhysics?.RpcBootFromVent(vent.Id);
             return;
         }
 

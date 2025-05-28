@@ -210,7 +210,7 @@ public class Swooper : RoleBase
         }
     }
 
-    public bool OnCoEnterVent(PlayerPhysics __instance, int ventId)
+    bool OnCoEnterVent(PlayerPhysics __instance, int ventId)
     {
         if (!AmongUsClient.Instance.AmHost || IsInvis) return false;
 
@@ -252,8 +252,7 @@ public class Swooper : RoleBase
         lastTime = Utils.TimeStamp;
         SendRPC();
 
-        pc.MyPhysics?.RpcExitVent(vent.Id);
-        pc.Notify(GetString("SwooperInvisStateOut"));
+        pc.Notify(GetString("SwooperInvisStateOut"), 10f);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

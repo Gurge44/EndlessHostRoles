@@ -241,8 +241,7 @@ public class Dad : RoleBase
         switch (SelectedAbility)
         {
             case Ability.GoForMilk:
-                pc.MyPhysics?.RpcExitVent(vent.Id);
-                LateTask.New(() => pc.TP(Pelican.GetBlackRoomPS()), 1f, log: false);
+                LateTask.New(() => pc.TP(Pelican.GetBlackRoomPS()), 2f, log: false);
                 Main.AllAlivePlayerControls.NotifyPlayers(Translator.GetString("Dad.GoForMilkNotify"), 10f);
                 UsingAbilities.Add(SelectedAbility);
                 break;
