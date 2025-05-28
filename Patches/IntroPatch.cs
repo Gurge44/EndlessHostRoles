@@ -72,16 +72,18 @@ static class CoShowIntroPatch
             __instance.IsIntroDisplayed = true;
             __instance.LobbyTimerExtensionUI.HideAll();
             __instance.SetMapButtonEnabled(false);
-            DestroyableSingleton<HudManager>.Instance.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
 
-            yield return DestroyableSingleton<HudManager>.Instance.ShowEmblem(true);
+            HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+            hudManager.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
+
+            yield return hudManager.ShowEmblem(true);
             yield return CoBegin(Object.Instantiate(__instance.IntroPrefab, __instance.transform));
 
             PlayerControl.LocalPlayer.SetKillTimer(10f);
-            (ShipStatus.Instance.Systems[SystemTypes.Sabotage].Cast<SabotageSystemType>()).SetInitialSabotageCooldown();
+            (ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>()).SetInitialSabotageCooldown();
 
             if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType systemType) && systemType.TryCast<IDoorSystem>() != null)
-                (systemType.Cast<IDoorSystem>()).SetInitialSabotageCooldown();
+                (systemType.CastFast<IDoorSystem>()).SetInitialSabotageCooldown();
 
             yield return ShipStatus.Instance.PrespawnStep();
             PlayerControl.LocalPlayer.AdjustLighting();
@@ -115,7 +117,7 @@ static class CoShowIntroPatch
             else
             {
                 int adjustedNumImpostors = GameManager.Instance.LogicOptions.GetAdjustedNumImpostors(GameData.Instance.PlayerCount);
-                introCutscene.ImpostorText.text = adjustedNumImpostors == 1 ? DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsS) : DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsP, adjustedNumImpostors);
+                introCutscene.ImpostorText.text = adjustedNumImpostors == 1 ? FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsS) : FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsP, adjustedNumImpostors);
                 introCutscene.ImpostorText.text = introCutscene.ImpostorText.text.Replace("[FF1919FF]", "<color=#FF1919FF>");
                 introCutscene.ImpostorText.text = introCutscene.ImpostorText.text.Replace("[]", "</color>");
             }

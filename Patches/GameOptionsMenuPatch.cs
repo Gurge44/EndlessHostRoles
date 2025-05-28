@@ -1188,7 +1188,7 @@ public static class GameSettingMenuPatch
         }
 
 
-        FreeChatInputField freeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
+        FreeChatInputField freeChatField = FastDestroyableSingleton<ChatController>.Instance.freeChatField;
         FreeChatInputField field = Object.Instantiate(freeChatField, parentLeftPanel.parent);
         field.transform.localScale = new(0.3f, 0.59f, 1);
         field.transform.localPosition = new(-0.7f, -2.5f, -5f);

@@ -70,7 +70,7 @@ internal static class ChangeRoleSettings
 
             if (DestroyableSingleton<GameStartManager>.InstanceExists)
             {
-                amongUsClient.DisconnectHandlers.Remove(FastDestroyableSingleton<GameStartManager>.Instance.Cast<IDisconnectHandler>());
+                amongUsClient.DisconnectHandlers.Remove(FastDestroyableSingleton<GameStartManager>.Instance.CastFast<IDisconnectHandler>());
                 Object.Destroy(FastDestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
 

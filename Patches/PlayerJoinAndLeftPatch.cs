@@ -307,7 +307,7 @@ internal static class OnPlayerLeftPatch
                         if (GameStates.IsOnlineGame)
                         {
                             var message = new DespawnGameDataMessage(netid);
-                            AmongUsClient.Instance.LateBroadcastReliableMessage(message.Cast<IGameDataMessage>());
+                            AmongUsClient.Instance.LateBroadcastReliableMessage(message.CastFast<IGameDataMessage>());
                         }
                     }, 2.5f, "Repeat Despawn", false);
                 }
