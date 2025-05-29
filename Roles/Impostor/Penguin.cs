@@ -374,14 +374,14 @@ public class Penguin : RoleBase
 
                         var sender = CustomRpcSender.Create("PenguinMurder", SendOption.Reliable);
                         {
-                            sender.AutoStartRpc(abductVictim.NetTransform.NetId, (byte)RpcCalls.SnapTo);
+                            sender.AutoStartRpc(abductVictim.NetTransform.NetId, RpcCalls.SnapTo);
                             {
                                 NetHelpers.WriteVector2(Penguin_.transform.position, sender.stream);
                                 sender.Write(abductVictim.NetTransform.lastSequenceId);
                             }
                             sender.EndRpc();
 
-                            sender.AutoStartRpc(Penguin_.NetId, (byte)RpcCalls.MurderPlayer);
+                            sender.AutoStartRpc(Penguin_.NetId, RpcCalls.MurderPlayer);
                             {
                                 sender.WriteNetObject(abductVictim);
                             }

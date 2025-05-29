@@ -73,12 +73,12 @@ public static class PhantomRolePatch
             var sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}");
             sender.StartMessage(phantom.OwnerId);
 
-            sender.StartRpc(phantom.NetId, (byte)RpcCalls.SetRole)
+            sender.StartRpc(phantom.NetId, RpcCalls.SetRole)
                 .Write((ushort)RoleTypes.Phantom)
                 .Write(true)
                 .EndRpc();
 
-            sender.StartRpc(phantom.NetId, (byte)RpcCalls.ProtectPlayer)
+            sender.StartRpc(phantom.NetId, RpcCalls.ProtectPlayer)
                 .WriteNetObject(phantom)
                 .Write(0)
                 .EndRpc();
@@ -109,7 +109,7 @@ public static class PhantomRolePatch
             {
                 writer.RpcSetRole(phantom, RoleTypes.Phantom, clientId);
 
-                writer.AutoStartRpc(phantom.NetId, (byte)RpcCalls.CheckVanish, clientId);
+                writer.AutoStartRpc(phantom.NetId, RpcCalls.CheckVanish, clientId);
                 writer.Write(0); // not used, lol
                 writer.EndRpc();
 
@@ -143,7 +143,7 @@ public static class PhantomRolePatch
                         {
                             phantom.Data.DefaultOutfit.PetSequenceId += 10;
 
-                            sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.SetPetStr, clientId);
+                            sender.AutoStartRpc(phantom.NetId, RpcCalls.SetPetStr, clientId);
                             sender.Write("");
                             sender.Write(phantom.GetNextRpcSequenceId(RpcCalls.SetPetStr));
                             sender.EndRpc();
@@ -157,7 +157,7 @@ public static class PhantomRolePatch
                     phantom.Exiled();
                 else
                 {
-                    sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.Exiled, clientId);
+                    sender.AutoStartRpc(phantom.NetId, RpcCalls.Exiled, clientId);
                     sender.EndRpc();
 
                     hasData = true;
@@ -217,7 +217,7 @@ public static class PhantomRolePatch
                     phantom.CheckAppear(shouldAnimate);
                 else
                 {
-                    sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.CheckAppear, clientId);
+                    sender.AutoStartRpc(phantom.NetId, RpcCalls.CheckAppear, clientId);
                     sender.Write(shouldAnimate);
                     sender.EndRpc();
                     hasValue = true;
@@ -252,7 +252,7 @@ public static class PhantomRolePatch
                         {
                             phantom.Data.DefaultOutfit.PetSequenceId += 10;
 
-                            sender.AutoStartRpc(phantom.NetId, (byte)RpcCalls.SetPetStr, clientId);
+                            sender.AutoStartRpc(phantom.NetId, RpcCalls.SetPetStr, clientId);
                             sender.Write(petId);
                             sender.Write(phantom.GetNextRpcSequenceId(RpcCalls.SetPetStr));
                             sender.EndRpc();

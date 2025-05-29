@@ -29,7 +29,7 @@ internal class Disco : IAddon
         {
             var sender = CustomRpcSender.Create($"Disco.ChangeColor({pc.Data.PlayerName})");
 
-            sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
+            sender.AutoStartRpc(pc.NetId, RpcCalls.SetColor)
                 .Write(pc.Data.NetId)
                 .Write((byte)colorId)
                 .EndRpc();

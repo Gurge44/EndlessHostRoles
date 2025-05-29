@@ -3265,16 +3265,16 @@ internal static class ChatUpdatePatch
             player.SetName(name);
         }
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(title)
             .EndRpc();
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SendChat, clientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SendChat, clientId)
             .Write(msg)
             .EndRpc();
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(player.Data.PlayerName)
             .EndRpc();

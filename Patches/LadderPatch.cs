@@ -37,7 +37,7 @@ public class FallFromLadder
         {
             if (player.Data.IsDead) return;
 
-            // In order to insert LateTask, first enter the death judgment.
+            // To insert LateTask, first enter the death judgment.
             player.Data.IsDead = true;
 
             LateTask.New(() =>
@@ -47,12 +47,12 @@ public class FallFromLadder
                 var num2 = (ushort)(NetHelpers.YRange.ReverseLerp(targetPos.y) * 65535f);
                 var sender = CustomRpcSender.Create("LadderFallRpc", SendOption.Reliable);
 
-                sender.AutoStartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                sender.AutoStartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                     .Write(num)
                     .Write(num2)
                     .EndRpc();
 
-                sender.AutoStartRpc(player.NetId, (byte)RpcCalls.MurderPlayer)
+                sender.AutoStartRpc(player.NetId, RpcCalls.MurderPlayer)
                     .WriteNetObject(player)
                     .Write((byte)ExtendedPlayerControl.ResultFlags)
                     .EndRpc();

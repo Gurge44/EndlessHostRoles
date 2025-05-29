@@ -150,7 +150,7 @@ public class Doppelganger : RoleBase
 
         pc.SetName(newOutfit.PlayerName);
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetName)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetName)
             .Write(pc.Data.NetId)
             .Write(newOutfit.PlayerName)
             .EndRpc();
@@ -159,7 +159,7 @@ public class Doppelganger : RoleBase
 
         pc.SetColor(newOutfit.ColorId);
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetColor)
             .Write(pc.Data.NetId)
             .Write((byte)newOutfit.ColorId)
             .EndRpc();
@@ -167,7 +167,7 @@ public class Doppelganger : RoleBase
         pc.SetHat(newOutfit.HatId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.HatSequenceId += 10;
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetHatStr)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetHatStr)
             .Write(newOutfit.HatId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr))
             .EndRpc();
@@ -175,7 +175,7 @@ public class Doppelganger : RoleBase
         pc.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.SkinSequenceId += 10;
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetSkinStr)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetSkinStr)
             .Write(newOutfit.SkinId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
             .EndRpc();
@@ -183,7 +183,7 @@ public class Doppelganger : RoleBase
         pc.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
         pc.Data.DefaultOutfit.VisorSequenceId += 10;
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetVisorStr)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetVisorStr)
             .Write(newOutfit.VisorId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
             .EndRpc();
@@ -191,7 +191,7 @@ public class Doppelganger : RoleBase
         pc.SetPet(newOutfit.PetId);
         pc.Data.DefaultOutfit.PetSequenceId += 10;
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr)
             .Write(newOutfit.PetId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();
@@ -199,7 +199,7 @@ public class Doppelganger : RoleBase
         pc.SetNamePlate(newOutfit.NamePlateId);
         pc.Data.DefaultOutfit.NamePlateSequenceId += 10;
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetNamePlateStr)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetNamePlateStr)
             .Write(newOutfit.NamePlateId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr))
             .EndRpc();

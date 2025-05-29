@@ -78,6 +78,18 @@ public class CustomRpcSender
 
     public CustomRpcSender AutoStartRpc(
         uint targetNetId,
+        RpcCalls rpcCall,
+        int targetClientId = -1,
+        [CallerFilePath] string callerPath = "",
+        [CallerLineNumber] int callerLine = 0)
+    {
+        // ReSharper disable ExplicitCallerInfoArgument
+        return AutoStartRpc(targetNetId, (byte)rpcCall, targetClientId, callerPath, callerLine);
+        // ReSharper restore ExplicitCallerInfoArgument
+    }
+
+    public CustomRpcSender AutoStartRpc(
+        uint targetNetId,
         byte callId,
         int targetClientId = -1,
         [CallerFilePath] string callerPath = "",
@@ -378,7 +390,7 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetRole, targetClientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetRole, targetClientId)
             .Write((ushort)role)
             .Write(true)
             .EndRpc();
@@ -428,7 +440,7 @@ public static class CustomRpcSenderExtensions
                 break;
         }
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, targetClientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, targetClientId)
             .Write(player.Data.NetId)
             .Write(name)
             .Write(false)
@@ -448,7 +460,7 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        sender.AutoStartRpc(physics.NetId, (byte)RpcCalls.ExitVent, clientId);
+        sender.AutoStartRpc(physics.NetId, RpcCalls.ExitVent, clientId);
         sender.WritePacked(ventId);
         sender.EndRpc();
 
@@ -487,7 +499,7 @@ public static class CustomRpcSenderExtensions
         // Other Clients
         if (!killer.IsHost())
         {
-            sender.AutoStartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer, killer.OwnerId);
+            sender.AutoStartRpc(killer.NetId, RpcCalls.MurderPlayer, killer.OwnerId);
             sender.WriteNetObject(target);
             sender.Write((int)MurderResultFlags.FailedProtected);
             sender.EndRpc();
@@ -592,7 +604,7 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.ProtectPlayer, target.OwnerId);
+        sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.OwnerId);
         sender.WriteNetObject(target);
         sender.Write(0);
         sender.EndRpc();
@@ -602,7 +614,7 @@ public static class CustomRpcSenderExtensions
 
     public static void RpcDesyncRepairSystem(this CustomRpcSender sender, PlayerControl target, SystemTypes systemType, int amount)
     {
-        sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, target.OwnerId);
+        sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, target.OwnerId);
         sender.Write((byte)systemType);
         sender.WriteNetObject(target);
         sender.Write((byte)amount);
@@ -612,7 +624,7 @@ public static class CustomRpcSenderExtensions
     public static void RpcExileV2(this CustomRpcSender sender, PlayerControl player)
     {
         player.Exiled();
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.Exiled);
+        sender.AutoStartRpc(player.NetId, RpcCalls.Exiled);
         sender.EndRpc();
         LateTask.New(() => FixedUpdatePatch.LoversSuicide(player.PlayerId), Utils.CalculatePingDelay() * 2f, log: false);
     }
@@ -673,7 +685,7 @@ public static class CustomRpcSenderExtensions
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
 
-        sender.AutoStartRpc(nt.NetId, (byte)RpcCalls.SnapTo);
+        sender.AutoStartRpc(nt.NetId, RpcCalls.SnapTo);
         sender.WriteVector2(location);
         sender.Write(newSid);
         sender.EndRpc();

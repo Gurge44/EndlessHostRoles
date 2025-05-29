@@ -262,13 +262,13 @@ public static class ChatManager
     {
         if (GameStates.IsLobby && senderPlayer.IsHost() && Main.AllPlayerNames.TryGetValue(senderPlayer.PlayerId, out var name))
         {
-            writer.AutoStartRpc(senderPlayer.NetId, (byte)RpcCalls.SetName, targetClientId)
+            writer.AutoStartRpc(senderPlayer.NetId, RpcCalls.SetName, targetClientId)
                 .Write(senderPlayer.Data.NetId)
                 .Write(name)
                 .EndRpc();
         }
 
-        writer.AutoStartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat, targetClientId)
+        writer.AutoStartRpc(senderPlayer.NetId, RpcCalls.SendChat, targetClientId)
             .Write(senderMessage)
             .EndRpc();
     }

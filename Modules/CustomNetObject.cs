@@ -74,7 +74,7 @@ namespace EHR
             writer.EndMessage();
 
             playerControl.Shapeshift(player, false);
-            sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
+            sender.StartRpc(playerControl.NetId, RpcCalls.Shapeshift)
                 .WriteNetObject(player)
                 .Write(false)
                 .EndRpc();
@@ -139,7 +139,7 @@ namespace EHR
                 writer.EndMessage();
 
                 playerControl.Shapeshift(player, false);
-                sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
+                sender.StartRpc(playerControl.NetId, RpcCalls.Shapeshift)
                     .WriteNetObject(player)
                     .Write(false)
                     .EndRpc();
@@ -158,7 +158,7 @@ namespace EHR
                 }
                 writer.EndMessage();
 
-                sender.StartRpc(playerControl.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                sender.StartRpc(playerControl.NetTransform.NetId, RpcCalls.SnapTo)
                     .WriteVector2(position + Vector2.up * PlayerControlOffset)
                     .Write(playerControl.NetTransform.lastSequenceId)
                     .EndRpc();
@@ -315,7 +315,7 @@ namespace EHR
                     }
                     writer2.EndMessage();
 
-                    sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
+                    sender.StartRpc(playerControl.NetId, RpcCalls.MurderPlayer)
                         .WriteNetObject(playerControl)
                         .Write((int)MurderResultFlags.FailedError)
                         .EndRpc();
@@ -365,7 +365,7 @@ namespace EHR
                 writer3.EndMessage();
 
                 playerControl.Shapeshift(player, false);
-                sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
+                sender.StartRpc(playerControl.NetId, RpcCalls.Shapeshift)
                     .WriteNetObject(player)
                     .Write(false)
                     .EndRpc();
@@ -385,7 +385,7 @@ namespace EHR
                 writer3.EndMessage();
 
                 playerControl.NetTransform.SnapTo(Position + Vector2.up * PlayerControlOffset);
-                sender.StartRpc(playerControl.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                sender.StartRpc(playerControl.NetTransform.NetId, RpcCalls.SnapTo)
                     .WriteVector2(Position + Vector2.up * PlayerControlOffset)
                     .Write(playerControl.NetTransform.lastSequenceId)
                     .EndRpc();
@@ -468,7 +468,7 @@ namespace EHR
                 writer.EndMessage();
 
                 playerControl.Shapeshift(player, false);
-                sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
+                sender.StartRpc(playerControl.NetId, RpcCalls.Shapeshift)
                     .WriteNetObject(player)
                     .Write(false)
                     .EndRpc();
@@ -489,7 +489,7 @@ namespace EHR
 
                 playerControl.NetTransform.SnapTo(Position + Vector2.up * PlayerControlOffset);
                 lastOffset = PlayerControlOffset;
-                sender.StartRpc(playerControl.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                sender.StartRpc(playerControl.NetTransform.NetId, RpcCalls.SnapTo)
                     .WriteVector2(Position + Vector2.up * PlayerControlOffset)
                     .Write(playerControl.NetTransform.lastSequenceId)
                     .EndRpc();
@@ -525,7 +525,7 @@ namespace EHR
                     }
                     writer.EndMessage();
 
-                    sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
+                    sender.StartRpc(playerControl.NetId, RpcCalls.MurderPlayer)
                         .WriteNetObject(playerControl)
                         .Write((int)MurderResultFlags.FailedError)
                         .EndRpc();

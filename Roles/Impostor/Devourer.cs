@@ -133,7 +133,7 @@ public class Devourer : RoleBase
 
         target.SetColor(outfit.ColorId);
 
-        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
+        sender.AutoStartRpc(target.NetId, RpcCalls.SetColor)
             .Write(target.Data.NetId)
             .Write((byte)outfit.ColorId)
             .EndRpc();
@@ -141,7 +141,7 @@ public class Devourer : RoleBase
         target.SetHat(outfit.HatId, outfit.ColorId);
         target.Data.DefaultOutfit.HatSequenceId += 10;
 
-        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
+        sender.AutoStartRpc(target.NetId, RpcCalls.SetHatStr)
             .Write(outfit.HatId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
             .EndRpc();
@@ -149,7 +149,7 @@ public class Devourer : RoleBase
         target.SetSkin(outfit.SkinId, outfit.ColorId);
         target.Data.DefaultOutfit.SkinSequenceId += 10;
 
-        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
+        sender.AutoStartRpc(target.NetId, RpcCalls.SetSkinStr)
             .Write(outfit.SkinId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
             .EndRpc();
@@ -157,7 +157,7 @@ public class Devourer : RoleBase
         target.SetVisor(outfit.VisorId, outfit.ColorId);
         target.Data.DefaultOutfit.VisorSequenceId += 10;
 
-        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
+        sender.AutoStartRpc(target.NetId, RpcCalls.SetVisorStr)
             .Write(outfit.VisorId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
             .EndRpc();
@@ -165,7 +165,7 @@ public class Devourer : RoleBase
         target.SetPet(outfit.PetId);
         target.Data.DefaultOutfit.PetSequenceId += 10;
 
-        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
+        sender.AutoStartRpc(target.NetId, RpcCalls.SetPetStr)
             .Write(outfit.PetId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();

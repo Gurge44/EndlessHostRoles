@@ -19,7 +19,7 @@ public static class PetsHelper
         pc.SetPet(petId);
         pc.Data.DefaultOutfit.PetSequenceId += 10;
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr)
             .Write(petId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();
