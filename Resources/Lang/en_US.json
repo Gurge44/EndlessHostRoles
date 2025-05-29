@@ -3496,6 +3496,7 @@
   "WWRampageCD": "Rampage Cooldown",
   "WWRampageDur": "Rampage Duration",
   "WWRampageCDAfterNoKillRampage": "Rampage Cooldown After Rampaging Without Killing",
+  "ResetToNormalCooldownAfterMeetings": "Reset Rampage Cooldown to Normal After Meetings",
   "WWCanRampage": "Vent to begin Rampaging",
   "WWCanRampageVanish": "Press Vanish to begin Rampaging",
   "WWRampageOut": "You're no longer Rampaging",
