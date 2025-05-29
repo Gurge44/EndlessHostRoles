@@ -354,7 +354,7 @@ public class ParityCop : RoleBase
         PlayerControl target1 = Utils.GetPlayerById(id1);
         PlayerControl target2 = Utils.GetPlayerById(id2);
 
-        if (target1 == null || target1.Data.IsDead || target2 == null || target2.Data.IsDead)
+        if (target1 == null || !target1.IsAlive() || target2 == null || !target2.IsAlive())
         {
             error = GetString("ParityCheckNull");
             return false;

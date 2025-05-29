@@ -56,7 +56,7 @@ public class Jackal : RoleBase
         ResetKillCooldownWhenSbGetKilled = new BooleanOptionItem(Id + 7, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
 
-        ResetKillCooldownOn = new FloatOptionItem(Id + 8, "ResetKillCooldownOn", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles)
+        ResetKillCooldownOn = new FloatOptionItem(Id + 8, "ResetKillCooldownOn", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(ResetKillCooldownWhenSbGetKilled)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -75,7 +75,7 @@ public class Jackal : RoleBase
         SKCanKill = new BooleanOptionItem(Id + 13, "SKCanKill", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
 
-        KillCooldownSK = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles)
+        KillCooldownSK = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.NeutralRoles)
             .SetParent(SKCanKill)
             .SetValueFormat(OptionFormat.Seconds);
 

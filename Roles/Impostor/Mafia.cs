@@ -81,7 +81,7 @@ internal class Mafia : RoleBase
             return true;
         }
 
-        if (!pc.Data.IsDead)
+        if (pc.IsAlive())
         {
             Utils.SendMessage(GetString("MafiaAliveKill"), pc.PlayerId, sendOption: SendOption.None);
             return true;
@@ -126,7 +126,7 @@ internal class Mafia : RoleBase
             return true;
         }
 
-        if (target == null || target.Data.IsDead)
+        if (target == null || !target.IsAlive())
         {
             if (!isUI)
                 Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId, sendOption: SendOption.None);

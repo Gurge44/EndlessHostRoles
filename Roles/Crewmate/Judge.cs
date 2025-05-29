@@ -234,7 +234,7 @@ public class Judge : RoleBase
 
         PlayerControl target = Utils.GetPlayerById(id);
 
-        if (target == null || target.Data.IsDead)
+        if (target == null || !target.IsAlive())
         {
             error = GetString("TrialNull");
             return false;

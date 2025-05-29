@@ -25,13 +25,13 @@ public class Hitman : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hitman);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
             .SetValueFormat(OptionFormat.Seconds);
 
-        SuccessKCD = new FloatOptionItem(Id + 11, "HitmanLowKCD", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
+        SuccessKCD = new FloatOptionItem(Id + 11, "HitmanLowKCD", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShapeshiftCooldown = new FloatOptionItem(Id + 12, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
+        ShapeshiftCooldown = new FloatOptionItem(Id + 12, "ShapeshiftCooldown", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
             .SetValueFormat(OptionFormat.Seconds);
     }
 

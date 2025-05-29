@@ -16,11 +16,11 @@ internal class Tiger : RoleBase
     public static OptionItem CanVent;
 
     public static bool On;
+
     private float CooldownTimer;
-
     private int Count;
-
     public float EnrageTimer;
+
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -31,11 +31,11 @@ internal class Tiger : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        EnrageCooldown = new FloatOptionItem(Id + 3, "EnrageCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles)
+        EnrageCooldown = new FloatOptionItem(Id + 3, "EnrageCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
             .SetValueFormat(OptionFormat.Seconds);
 
-        EnrageDuration = new FloatOptionItem(Id + 4, "EnrageDuration", new(1f, 30f, 1f), 10f, TabGroup.NeutralRoles)
+        EnrageDuration = new FloatOptionItem(Id + 4, "EnrageDuration", new(1f, 30f, 1f), 15f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
             .SetValueFormat(OptionFormat.Seconds);
 

@@ -38,14 +38,14 @@ internal class Puppeteer : RoleBase
     {
         SetupRoleOptions(3900, TabGroup.ImpostorRoles, CustomRoles.Puppeteer);
 
-        PuppeteerCD = new FloatOptionItem(3911, "PuppeteerCD", new(2.5f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
+        PuppeteerCD = new FloatOptionItem(3911, "PuppeteerCD", new(2.5f, 60f, 0.5f), 22.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
             .SetValueFormat(OptionFormat.Seconds);
 
         PuppeteerCanKillNormally = new BooleanOptionItem(3917, "PuppeteerCanKillNormally", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
 
-        PuppeteerKCD = new FloatOptionItem(3912, "PuppeteerKCD", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        PuppeteerKCD = new FloatOptionItem(3912, "PuppeteerKCD", new(2.5f, 60f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(PuppeteerCanKillNormally)
             .SetValueFormat(OptionFormat.Seconds);
 

@@ -393,7 +393,7 @@ public class Enigma : RoleBase
 
         public override string GetMessage(PlayerControl killer, bool showStageClue)
         {
-            return killer.inVent ? GetString("EnigmaClueStatus1") : killer.onLadder ? GetString("EnigmaClueStatus2") : GetString(killer.Data.IsDead ? "EnigmaClueStatus3" : "EnigmaClueStatus4");
+            return killer.inVent ? GetString("EnigmaClueStatus1") : killer.onLadder ? GetString("EnigmaClueStatus2") : GetString(!killer.IsAlive() ? "EnigmaClueStatus3" : "EnigmaClueStatus4");
         }
     }
 

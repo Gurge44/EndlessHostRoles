@@ -197,11 +197,12 @@ internal class Warlock : RoleBase
     {
         IsCurseAndKill.TryAdd(pc.PlayerId, false);
 
-        if (CursedPlayers[pc.PlayerId] != null)
+        if (CursedPlayers.TryGetValue(pc.PlayerId, out PlayerControl cp))
         {
-            if (!CursedPlayers[pc.PlayerId].Data.IsDead)
+            if (cp == null) return;
+
+            if (cp.IsAlive())
             {
-                PlayerControl cp = CursedPlayers[pc.PlayerId];
                 Vector2 cppos = cp.Pos();
                 Dictionary<PlayerControl, float> cpdistance = [];
 
@@ -258,9 +259,9 @@ internal class Warlock : RoleBase
 
                 IsCurseAndKill[pc.PlayerId] = false;
             }
-
-            CursedPlayers[pc.PlayerId] = null;
         }
+
+        CursedPlayers[pc.PlayerId] = null;
     }
 
     public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)

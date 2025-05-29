@@ -45,8 +45,7 @@ internal static class LoadingScreen
         int index;
         if (ToldHints.Count == HintCount) ToldHints.Clear();
 
-        do
-            index = IRandom.Instance.Next(HintCount);
+        do index = IRandom.Instance.Next(HintCount);
         while (!ToldHints.Add(index));
 
         bool joke = IRandom.Instance.Next(20) == 0;
@@ -90,10 +89,13 @@ internal static class LoadingScreen
                 float y = basePos.y - 4.5f;
                 float z = basePos.z;
 
-                if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new(x, y, z);
+                if (LoadingAnimation.transform.position != new Vector3(x, y, z))
+                    LoadingAnimation.transform.position = new(x, y, z);
 
                 LoadingAnimation.transform.Rotate(Vector3.forward, 200f * Time.deltaTime);
             }
+
+            visible &= !GameStates.IsEnded;
 
             switch (visible)
             {
@@ -102,7 +104,6 @@ internal static class LoadingScreen
                     return;
                 case true when !ErrorText.HasHint:
                     if (HintHideTimer > 15f) NewHint();
-
                     HintHideTimer = 0f;
                     ErrorText.Instance.AddError(ErrorCode.LoadingHint);
                     break;

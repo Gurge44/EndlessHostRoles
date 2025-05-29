@@ -24,11 +24,11 @@ public class YinYanger : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.YinYanger);
 
-        YinYangCD = new FloatOptionItem(Id + 5, "YinYangCD", new(0f, 60f, 2.5f), 12.5f, TabGroup.ImpostorRoles)
+        YinYangCD = new FloatOptionItem(Id + 5, "YinYangCD", new(0f, 60f, 0.5f), 12.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.YinYanger])
             .SetValueFormat(OptionFormat.Seconds);
 
-        KCD = new FloatOptionItem(Id + 6, "KillCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        KCD = new FloatOptionItem(Id + 6, "KillCooldown", new(0f, 60f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.YinYanger])
             .SetValueFormat(OptionFormat.Seconds);
     }

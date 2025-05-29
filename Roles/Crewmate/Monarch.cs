@@ -21,7 +21,7 @@ public class Monarch : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Monarch);
 
-        KnightCooldown = new FloatOptionItem(Id + 10, "MonarchKnightCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
+        KnightCooldown = new FloatOptionItem(Id + 10, "MonarchKnightCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -55,7 +55,7 @@ public class Monarch : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+        return player.IsAlive() && player.GetAbilityUseLimit() >= 1;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

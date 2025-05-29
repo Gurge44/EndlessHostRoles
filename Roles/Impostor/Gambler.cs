@@ -48,7 +48,7 @@ public class Gambler : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gambler);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 0.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
             .SetValueFormat(OptionFormat.Seconds);
 
         KillDelay = new IntegerOptionItem(Id + 11, "GamblerKillDelay", new(0, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
@@ -75,10 +75,10 @@ public class Gambler : RoleBase
         BsrDelay = new IntegerOptionItem(Id + 18, "GamblerBSRDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
             .SetValueFormat(OptionFormat.Seconds);
 
-        HighKCD = new FloatOptionItem(Id + 19, "GamblerHighKCD", new(10f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+        HighKCD = new FloatOptionItem(Id + 19, "GamblerHighKCD", new(10f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
             .SetValueFormat(OptionFormat.Seconds);
 
-        LowKCD = new FloatOptionItem(Id + 20, "GamblerLowKCD", new(10f, 60f, 2.5f), 17.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+        LowKCD = new FloatOptionItem(Id + 20, "GamblerLowKCD", new(10f, 60f, 0.5f), 17.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
             .SetValueFormat(OptionFormat.Seconds);
 
         TPDelay = new IntegerOptionItem(Id + 21, "GamblerTPDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])

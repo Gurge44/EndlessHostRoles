@@ -225,6 +225,8 @@ internal static class CustomRolesHelper
             CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
             CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Astral => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+            CustomRoles.Helper => CustomRoles.Crewmate,
             CustomRoles.Ankylosaurus => CustomRoles.Crewmate,
             CustomRoles.Leery => CustomRoles.Crewmate,
             CustomRoles.Altruist => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -896,6 +898,7 @@ internal static class CustomRolesHelper
     public static bool IsTaskBasedCrewmate(this CustomRoles role)
     {
         return role is
+            CustomRoles.Helper or
             CustomRoles.Snitch or
             CustomRoles.Speedrunner or
             CustomRoles.Marshall or
@@ -1035,7 +1038,6 @@ internal static class CustomRolesHelper
             CustomRoles.Lazy when pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
             CustomRoles.Brakar when pc.Is(CustomRoles.Dictator) => false,
             CustomRoles.Stressed when !pc.IsCrewmate() || pc.GetCustomRole().IsTasklessCrewmate() => false,
-            CustomRoles.Lazy when pc.GetCustomRole().IsNeutral() || pc.IsImpostor() || (pc.GetCustomRole().IsTasklessCrewmate() && !Options.TasklessCrewCanBeLazy.GetBool()) || (pc.GetCustomRole().IsTaskBasedCrewmate() && !Options.TaskBasedCrewCanBeLazy.GetBool()) => false,
             CustomRoles.TicketsStealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when pc.Is(CustomRoles.Bomber) || pc.Is(CustomRoles.Nuker) || pc.Is(CustomRoles.BoobyTrap) || pc.Is(CustomRoles.Capitalism) => false,
             CustomRoles.Torch when !pc.IsCrewmate() || pc.Is(CustomRoles.Bewilder) || pc.Is(CustomRoles.Sunglasses) || pc.Is(CustomRoles.GuardianAngelEHR) => false,
             CustomRoles.Bewilder when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelEHR) || pc.Is(CustomRoles.Sunglasses) => false,
@@ -1713,6 +1715,7 @@ internal static class CustomRolesHelper
             CustomRoles.Gaulois => RoleOptionType.Crewmate_Support,
             CustomRoles.Grappler => RoleOptionType.Crewmate_Support,
             CustomRoles.Grenadier => RoleOptionType.Crewmate_Support,
+            CustomRoles.Helper => RoleOptionType.Crewmate_Support,
             CustomRoles.Jailor => RoleOptionType.Crewmate_Support,
             CustomRoles.Mathematician => RoleOptionType.Crewmate_Support,
             CustomRoles.SabotageMaster => RoleOptionType.Crewmate_Support,
@@ -1738,6 +1741,7 @@ internal static class CustomRolesHelper
             CustomRoles.Adrenaline => RoleOptionType.Crewmate_Power,
             CustomRoles.Adventurer => RoleOptionType.Crewmate_Power,
             CustomRoles.Alchemist => RoleOptionType.Crewmate_Power,
+            CustomRoles.Astral => RoleOptionType.Crewmate_Power,
             CustomRoles.CopyCat => RoleOptionType.Crewmate_Power,
             CustomRoles.Detour => RoleOptionType.Crewmate_Power,
             CustomRoles.Dictator => RoleOptionType.Crewmate_Power,

@@ -259,7 +259,7 @@ public static class Translator
                     if (tmp.Length > 1 && tmp[1] != "")
                     {
                         try { TranslateMaps[tmp[0]][(int)lang] = tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n").Replace("\\r", "\r"); }
-                        catch (KeyNotFoundException) { Logger.Warn($"Invalid Key：{tmp[0]}", "LoadCustomTranslation"); }
+                        catch (KeyNotFoundException) { Logger.Warn($"Invalid Key: {tmp[0]}", "LoadCustomTranslation"); }
                     }
                 }
             }
@@ -267,7 +267,7 @@ public static class Translator
             catch (Exception e) { Logger.Error(e.ToString(), "Translator.LoadCustomTranslation"); }
         }
         else
-            Logger.Error($"Custom Translation File Not Found：{filename}", "LoadCustomTranslation");
+            Logger.Error($"Custom Translation File Not Found: {filename}", "LoadCustomTranslation");
     }
 
     private static void CreateTemplateFile()

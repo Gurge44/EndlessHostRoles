@@ -32,7 +32,7 @@ public class DonutDelivery : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.DonutDelivery);
 
-        CD = new FloatOptionItem(Id + 10, "DonutDeliverCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
+        CD = new FloatOptionItem(Id + 10, "DonutDeliverCD", new(2.5f, 60f, 0.5f), 30f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
             .SetValueFormat(OptionFormat.Seconds);
 

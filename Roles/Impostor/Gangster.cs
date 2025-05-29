@@ -25,7 +25,7 @@ public class Gangster : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gangster);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 2.5f), 7.5f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 0.5f), 7.5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
             .SetValueFormat(OptionFormat.Seconds);
 

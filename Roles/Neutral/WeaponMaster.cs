@@ -50,7 +50,7 @@ public class WeaponMaster : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        HighKCD = new FloatOptionItem(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles)
+        HighKCD = new FloatOptionItem(Id + 14, "GamblerHighKCD", new(0f, 180f, 0.5f), 35f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
     }

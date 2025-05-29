@@ -15,7 +15,7 @@ internal class Kidnapper : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Kidnapper);
 
-        SSCD = new FloatOptionItem(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        SSCD = new FloatOptionItem(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
             .SetValueFormat(OptionFormat.Seconds);
     }

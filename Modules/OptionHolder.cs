@@ -408,8 +408,6 @@ public static class Options
     public static OptionItem BaitDelayNotify;
     public static OptionItem TorchVision;
     public static OptionItem TorchAffectedByLights;
-    public static OptionItem TasklessCrewCanBeLazy;
-    public static OptionItem TaskBasedCrewCanBeLazy;
     public static OptionItem DovesOfNeaceCooldown;
     public static OptionItem DovesOfNeaceMaxOfUseage;
     public static OptionItem killAttacker;
@@ -1200,7 +1198,7 @@ public static class Options
         MadmateHasImpostorVision = new BooleanOptionItem(156, "MadmateHasImpostorVision", true, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.Standard);
 
-        RefugeeKillCD = new FloatOptionItem(157, "RefugeeKillCD", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        RefugeeKillCD = new FloatOptionItem(157, "RefugeeKillCD", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -2797,7 +2795,7 @@ public static class Options
 
     public static OptionItem CreateCDSetting(int id, TabGroup tab, CustomRoles role, bool isKCD = false)
     {
-        return new FloatOptionItem(id, isKCD ? "KillCooldown" : "AbilityCooldown", new(0f, 180f, 2.5f), 30f, tab)
+        return new FloatOptionItem(id, isKCD ? "KillCooldown" : "AbilityCooldown", new(0f, 180f, 0.5f), 30f, tab)
             .SetParent(CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Seconds);
     }

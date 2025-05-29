@@ -111,13 +111,13 @@ internal class Veteran : RoleBase
             {
                 killer.SetRealKiller(target);
                 target.Kill(killer);
-                Logger.Info($"{target.GetRealName()} reverse killed：{killer.GetRealName()}", "Veteran Kill");
+                Logger.Info($"{target.GetRealName()} reverse killed: {killer.GetRealName()}", "Veteran Kill");
                 return false;
             }
 
             target.SetRealKiller(killer);
             killer.Kill(target);
-            Logger.Info($"{target.GetRealName()} reverse reverse killed：{target.GetRealName()}", "Pestilence Reflect");
+            Logger.Info($"{target.GetRealName()} reverse reverse killed: {target.GetRealName()}", "Pestilence Reflect");
 
             if (killer.IsLocalPlayer())
                 Achievements.Type.YoureTooLate.Complete();

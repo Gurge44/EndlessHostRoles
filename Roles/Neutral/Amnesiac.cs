@@ -94,7 +94,7 @@ public class Amnesiac : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead && RememberMode.GetValue() == 1;
+        return player.IsAlive() && RememberMode.GetValue() == 1;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

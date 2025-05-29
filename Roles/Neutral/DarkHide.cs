@@ -100,7 +100,7 @@ public class DarkHide : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead;
+        return player.IsAlive();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

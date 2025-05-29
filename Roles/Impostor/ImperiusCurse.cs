@@ -13,7 +13,7 @@ internal class ImperiusCurse : RoleBase
     {
         SetupRoleOptions(3700, TabGroup.ImpostorRoles, CustomRoles.ImperiusCurse);
 
-        ShapeImperiusCurseShapeshiftDuration = new FloatOptionItem(3710, "ShapeshiftDuration", new(2.5f, 300f, 2.5f), 20f, TabGroup.ImpostorRoles)
+        ShapeImperiusCurseShapeshiftDuration = new FloatOptionItem(3710, "ShapeshiftDuration", new(2.5f, 300f, 0.5f), 20f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ImperiusCurse])
             .SetValueFormat(OptionFormat.Seconds);
 

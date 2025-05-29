@@ -56,7 +56,7 @@ public class Vulture : RoleBase
         CanVent = new BooleanOptionItem(Id + 12, "CanVent", true, TabGroup.NeutralRoles, true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
 
-        VultureReportCD = new FloatOptionItem(Id + 13, "VultureReportCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles)
+        VultureReportCD = new FloatOptionItem(Id + 13, "VultureReportCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture])
             .SetValueFormat(OptionFormat.Seconds);
 

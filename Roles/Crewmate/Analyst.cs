@@ -34,7 +34,7 @@ internal class Analyst : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst])
             .SetValueFormat(OptionFormat.Times);
 
-        CD = new FloatOptionItem(Id + 11, "AnalyzeCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
+        CD = new FloatOptionItem(Id + 11, "AnalyzeCD", new(0f, 60f, 0.5f), 15f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst])
             .SetValueFormat(OptionFormat.Seconds);
 

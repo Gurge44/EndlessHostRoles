@@ -13,7 +13,7 @@ internal class Scavenger : RoleBase
     {
         SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
 
-        ScavengerKillCooldown = new FloatOptionItem(4010, "KillCooldown", new(0f, 180f, 2.5f), 35f, TabGroup.ImpostorRoles)
+        ScavengerKillCooldown = new FloatOptionItem(4010, "KillCooldown", new(0f, 180f, 0.5f), 35f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
             .SetValueFormat(OptionFormat.Seconds);
 

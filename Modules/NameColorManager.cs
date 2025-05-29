@@ -232,8 +232,8 @@ public static class NameColorManager
         return seer == target
                || (Main.GodMode.Value && seer.AmOwner)
                || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop
-               || (Main.PlayerStates[seer.Data.PlayerId].IsDead && seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!Utils.IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(seer.PlayerId)))
-               || (seer.Is(CustomRoles.Mimic) && Main.PlayerStates[target.Data.PlayerId].IsDead && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
+               || (seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!Utils.IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(seer.PlayerId)))
+               || (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
                || target.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.GM)
                || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)

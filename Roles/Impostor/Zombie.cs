@@ -21,7 +21,7 @@ internal class Zombie : RoleBase
     {
         SetupRoleOptions(16400, TabGroup.ImpostorRoles, CustomRoles.Zombie);
 
-        ZombieKillCooldown = new FloatOptionItem(16410, "KillCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.ImpostorRoles)
+        ZombieKillCooldown = new FloatOptionItem(16410, "KillCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Zombie])
             .SetValueFormat(OptionFormat.Seconds);
 

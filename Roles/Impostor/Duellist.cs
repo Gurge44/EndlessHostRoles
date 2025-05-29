@@ -23,7 +23,7 @@ public class Duellist : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Duellist);
 
-        SSCD = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.ImpostorRoles)
+        SSCD = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Duellist])
             .SetValueFormat(OptionFormat.Seconds);
     }

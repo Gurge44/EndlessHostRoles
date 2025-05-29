@@ -23,11 +23,11 @@ internal class QuickShooter : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.QuickShooter);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShapeshiftCooldown = new FloatOptionItem(Id + 12, "QuickShooterShapeshiftCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
+        ShapeshiftCooldown = new FloatOptionItem(Id + 12, "QuickShooterShapeshiftCooldown", new(0f, 180f, 0.5f), 40f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
             .SetValueFormat(OptionFormat.Seconds);
 

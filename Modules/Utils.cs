@@ -289,7 +289,7 @@ public static class Utils
 
     private static void TargetDies(PlayerControl killer, PlayerControl target)
     {
-        if (!target.Data.IsDead || GameStates.IsMeeting) return;
+        if (target.IsAlive() || GameStates.IsMeeting) return;
 
         CustomRoles targetRole = target.GetCustomRole();
 
@@ -326,7 +326,7 @@ public static class Utils
     {
         if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer)) return true;
 
-        if (seer.Data.IsDead || killer == seer || target == seer) return false;
+        if (!seer.IsAlive() || killer == seer || target == seer) return false;
 
         return seer.Is(CustomRoles.EvilTracker) && EvilTracker.KillFlashCheck(killer, target);
     }
@@ -991,7 +991,7 @@ public static class Utils
                 return true;
         }
 
-        if ((Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) || (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool())) return true;
+        if ((Main.VisibleTasksCount && !PlayerControl.LocalPlayer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool()) || (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool())) return true;
 
         if (__instance.IsLocalPlayer()) return true;
 
@@ -1018,7 +1018,7 @@ public static class Utils
         return (__instance.IsMadmate() && PlayerControl.LocalPlayer.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool()) ||
                (__instance.IsMadmate() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.IsMadmate() && Options.MadmateKnowWhosImp.GetBool()) ||
-               (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead) ||
+               (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && !__instance.IsAlive()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId) == null && CustomTeamManager.GetCustomTeam(__instance.PlayerId) == null) ||
@@ -1676,7 +1676,7 @@ public static class Utils
             {
                 if (pc.Is(CustomRoles.Terrorist))
                     Main.PlayerStates[pc.PlayerId].deathReason = Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote ? PlayerState.DeathReason.etc : PlayerState.DeathReason.Suicide;
-                else if (!pc.Data.IsDead) pc.Suicide(PlayerState.DeathReason.Bombed, terrorist.Object);
+                else if (pc.IsAlive()) pc.Suicide(PlayerState.DeathReason.Bombed, terrorist.Object);
             }
 
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Terrorist);
@@ -2621,7 +2621,7 @@ public static class Utils
             if (onlySelfNameUpdateRequired) return true;
 
             // Run the second loop only when necessary, such as when the seer is dead
-            if (seer.Data.IsDead || !seer.IsAlive() || noCache || camouflageIsForMeeting || mushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || forceLoop || seerList.Length == 1 || targetList.Length == 1)
+            if (!seer.IsAlive() || noCache || camouflageIsForMeeting || mushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || forceLoop || seerList.Length == 1 || targetList.Length == 1)
             {
                 foreach (PlayerControl target in targetList)
                 {
@@ -2648,7 +2648,7 @@ public static class Utils
 
                             TargetMark.Append(Snitch.GetWarningMark(seer, target));
 
-                            if ((seer.Data.IsDead || Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) && Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId))
+                            if ((!seer.IsAlive() || Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) && Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId))
                                 TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
 
                             if (Randomizer.IsShielded(target)) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Randomizer), "✚"));
@@ -2691,9 +2691,9 @@ public static class Utils
                             bool shouldSeeTargetAddons = seer.PlayerId == target.PlayerId || new[] { seer, target }.All(x => x.Is(Team.Impostor));
 
                             string targetRoleText =
-                                (seer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
-                                (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
-                                (target.Is(CustomRoles.Gravestone) && target.Data.IsDead) ||
+                                (!seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool()) ||
+                                (seer.Is(CustomRoles.Mimic) && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool()) ||
+                                (target.Is(CustomRoles.Gravestone) && !target.IsAlive()) ||
                                 (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(seer.PlayerId) == null && CustomTeamManager.GetCustomTeam(target.PlayerId) == null) ||
@@ -2729,7 +2729,7 @@ public static class Utils
 
                             if (!GameStates.IsLobby)
                             {
-                                if (!seer.Data.IsDead && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
+                                if (seer.IsAlive() && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
                                 {
                                     targetRoleText = Farseer.RandomRole[seer.PlayerId];
                                     targetRoleText += Farseer.GetTaskState();
@@ -3079,6 +3079,7 @@ public static class Utils
             CustomRoles.Veteran => Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0),
             CustomRoles.Rhapsode => Rhapsode.AbilityCooldown.GetInt() + (includeDuration ? Rhapsode.AbilityDuration.GetInt() : 0),
             CustomRoles.Whisperer => Whisperer.Cooldown.GetInt() + (includeDuration ? Whisperer.Duration.GetInt() : 0),
+            CustomRoles.Astral => Astral.AbilityCooldown.GetInt() + (includeDuration ? Astral.AbilityDuration.GetInt() : 0),
             CustomRoles.TimeMaster => TimeMaster.TimeMasterSkillCooldown.GetInt(),
             CustomRoles.Perceiver => Perceiver.CD.GetInt(),
             CustomRoles.Convener => Convener.CD.GetInt(),

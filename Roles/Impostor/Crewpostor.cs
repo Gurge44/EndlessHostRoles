@@ -81,7 +81,7 @@ internal class Crewpostor : RoleBase
                     Logger.Info("lunge mode kill", "Crewpostor");
                 }
 
-                Logger.Info($"Crewpostor completed task to kill：{player.GetNameWithRole()} => {target.GetNameWithRole()}", "Crewpostor");
+                Logger.Info($"Crewpostor completed task to kill: {player.GetNameWithRole()} => {target.GetNameWithRole()}", "Crewpostor");
             }
             else
             {
@@ -91,7 +91,7 @@ internal class Crewpostor : RoleBase
                 if (target.IsLocalPlayer())
                     Achievements.Type.YoureTooLate.Complete();
 
-                Logger.Info($"Crewpostor tried to kill Pestilence：{target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");
+                Logger.Info($"Crewpostor tried to kill Pestilence: {target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");
             }
         }
     }

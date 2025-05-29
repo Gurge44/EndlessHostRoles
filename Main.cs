@@ -385,6 +385,8 @@ public class Main : BasePlugin
                 { CustomRoles.Perceiver, "#ebeb34" },
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
+                { CustomRoles.Helper, "#fcf1bd" },
+                { CustomRoles.Astral, "#b329d6" },
                 { CustomRoles.Transmitter, "#c9a11e" },
                 { CustomRoles.Ankylosaurus, "#7FE44C" },
                 { CustomRoles.Leery, "#32a852" },

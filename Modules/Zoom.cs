@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace EHR;
 
-// Credit：https://github.com/tugaru1975/TownOfPlus/TOPmods/Zoom.cs 
-// Credit：https://github.com/Yumenopai/TownOfHost_Y
+// Credit: https://github.com/tugaru1975/TownOfPlus/TOPmods/Zoom.cs 
+// Credit: https://github.com/Yumenopai/TownOfHost_Y
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 public static class Zoom
 {
@@ -18,7 +18,7 @@ public static class Zoom
         {
             if (Camera.main == null) return;
 
-            if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && PlayerControl.LocalPlayer.Data != null && PlayerControl.LocalPlayer.Data.IsDead) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
+            if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
             {
                 if (Camera.main.orthographicSize > 3.0f) ResetButtons = true;
 
@@ -26,7 +26,8 @@ public static class Zoom
                 {
                     case > 0:
                     {
-                        if (Camera.main.orthographicSize > 3.0f) SetZoomSize();
+                        if (Camera.main.orthographicSize > 3.0f)
+                            SetZoomSize();
 
                         break;
                     }

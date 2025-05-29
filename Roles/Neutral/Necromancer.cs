@@ -37,7 +37,7 @@ internal class Necromancer : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        Dkcd = new FloatOptionItem(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
+        Dkcd = new FloatOptionItem(Id + 10, "DKCD", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
             .SetValueFormat(OptionFormat.Seconds);
 

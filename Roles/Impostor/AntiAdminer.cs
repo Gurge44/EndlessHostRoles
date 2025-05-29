@@ -8,7 +8,7 @@ using Monitor = EHR.Crewmate.Monitor;
 namespace EHR.Impostor;
 
 // Reference: https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
-// Reference：https://github.com/Yumenopai/TownOfHost_Y/tree/AntiAdminer
+// Reference: https://github.com/Yumenopai/TownOfHost_Y/tree/AntiAdminer
 internal class AntiAdminer : RoleBase
 {
     public enum Device

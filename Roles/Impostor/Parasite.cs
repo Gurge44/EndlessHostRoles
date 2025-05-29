@@ -19,7 +19,7 @@ internal class Parasite : RoleBase
     {
         Options.SetupSingleRoleOptions(4900, TabGroup.ImpostorRoles, CustomRoles.Parasite);
 
-        ParasiteCD = new FloatOptionItem(4910, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        ParasiteCD = new FloatOptionItem(4910, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Parasite])
             .SetValueFormat(OptionFormat.Seconds);
 

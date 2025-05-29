@@ -1159,8 +1159,7 @@ internal static class ReportDeadBodyPatch
 
         if (QuizMaster.On)
         {
-            if (MeetingStates.FirstMeeting) QuizMaster.Data.NumPlayersDeadFirstRound = Main.AllPlayerControls.Count(x => x.Data.IsDead && !x.Is(CustomRoles.GM));
-
+            if (MeetingStates.FirstMeeting) QuizMaster.Data.NumPlayersDeadFirstRound = Main.AllPlayerControls.Count(x => !x.IsAlive() && !x.Is(CustomRoles.GM));
             QuizMaster.Data.NumMeetings++;
         }
 
@@ -1613,7 +1612,7 @@ internal static class FixedUpdatePatch
 
             roleText.enabled = IsRoleTextEnabled(__instance);
 
-            if (!PlayerControl.LocalPlayer.Data.IsDead && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
+            if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
             {
                 roleText.text = Farseer.RandomRole[lpId];
                 roleText.text += Farseer.GetTaskState();
@@ -1871,7 +1870,7 @@ internal static class FixedUpdatePatch
             if (!self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                 realName = EmptyMessage;
 
-            string deathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
+            string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 
             string currentText = target.cosmetics.nameText.text;
             var changeTo = $"{realName}{deathReason}{Mark}\r\n{Suffix}";
@@ -1942,10 +1941,10 @@ internal static class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
-        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Exists(player => player.Data.IsDead && player.PlayerId == deathId) && !force)) return;
+        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Exists(player => !player.IsAlive() && player.PlayerId == deathId) && !force)) return;
 
         Main.IsLoversDead = true;
-        PlayerControl partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && !player.Data.IsDead);
+        PlayerControl partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && player.IsAlive());
 
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {

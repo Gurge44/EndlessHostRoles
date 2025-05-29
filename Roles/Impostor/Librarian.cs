@@ -37,11 +37,11 @@ public class Librarian : RoleBase
         ShowSSAnimation = new BooleanOptionItem(Id + 6, "LibrarianShowSSAnimation", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian]);
 
-        SSCD = new FloatOptionItem(Id + 7, "ShapeshiftCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        SSCD = new FloatOptionItem(Id + 7, "ShapeshiftCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(ShowSSAnimation)
             .SetValueFormat(OptionFormat.Seconds);
 
-        SSDur = new FloatOptionItem(Id + 8, "LibrarianSilenceDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
+        SSDur = new FloatOptionItem(Id + 8, "LibrarianSilenceDuration", new(2.5f, 60f, 0.5f), 10f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian])
             .SetValueFormat(OptionFormat.Seconds);
 

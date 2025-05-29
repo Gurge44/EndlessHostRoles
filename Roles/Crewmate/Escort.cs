@@ -20,7 +20,7 @@ public class Escort : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort);
 
-        CD = new FloatOptionItem(Id + 10, "RoleBlockCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
+        CD = new FloatOptionItem(Id + 10, "RoleBlockCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
             .SetValueFormat(OptionFormat.Seconds);
 

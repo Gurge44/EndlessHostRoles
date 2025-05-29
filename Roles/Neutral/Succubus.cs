@@ -86,7 +86,7 @@ public class Succubus : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+        return player.IsAlive() && player.GetAbilityUseLimit() >= 1;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

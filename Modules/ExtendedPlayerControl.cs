@@ -1657,8 +1657,8 @@ internal static class ExtendedPlayerControl
                 || seer.Is(CustomRoles.Autopsy)
                 || Options.EveryoneSeesDeathReasons.GetBool()
                 || target.Is(CustomRoles.Gravestone)
-                || (seer.Data.IsDead && Options.GhostCanSeeDeathReason.GetBool()))
-               && target.Data.IsDead;
+                || (!seer.IsAlive() && Options.GhostCanSeeDeathReason.GetBool()))
+               && !target.IsAlive();
     }
 
     public static string GetRoleInfo(this PlayerControl player, bool infoLong = false)

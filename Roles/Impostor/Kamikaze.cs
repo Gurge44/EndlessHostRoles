@@ -26,7 +26,7 @@ internal class Kamikaze : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Kamikaze);
 
-        MarkCD = new FloatOptionItem(Id + 2, "KamikazeMarkCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        MarkCD = new FloatOptionItem(Id + 2, "KamikazeMarkCD", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
             .SetValueFormat(OptionFormat.Seconds);
 

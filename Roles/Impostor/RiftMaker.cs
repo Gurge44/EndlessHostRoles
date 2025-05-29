@@ -24,10 +24,10 @@ public class RiftMaker : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.RiftMaker);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
+        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "ShapeshiftCooldown", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -72,7 +72,7 @@ public class RiftMaker : RoleBase
     {
         if (!GameStates.IsInTask) return;
 
-        if (Pelican.IsEaten(player.PlayerId) || player.Data.IsDead) return;
+        if (Pelican.IsEaten(player.PlayerId) || !player.IsAlive()) return;
 
         if (!player.Is(CustomRoles.RiftMaker)) return;
 

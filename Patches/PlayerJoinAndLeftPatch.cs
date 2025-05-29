@@ -237,7 +237,7 @@ internal static class OnPlayerLeftPatch
             {
                 if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
 
-                if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
+                if (data.Character.Is(CustomRoles.Lovers) && data.Character.IsAlive())
                 {
                     foreach (PlayerControl lovers in Main.LoversPlayers)
                     {

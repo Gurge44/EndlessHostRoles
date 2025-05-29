@@ -140,6 +140,7 @@ public enum CustomRoles
     Altruist,
     Analyst,
     Ankylosaurus,
+    Astral,
     Autocrat,
     Bane,
     Battery,
@@ -186,6 +187,7 @@ public enum CustomRoles
     Grenadier,
     GuessManagerRole,
     Guardian,
+    Helper,
     Ignitor,
     Insight,
     ParityCop, // Inspector

@@ -188,7 +188,7 @@ public class Agitater : RoleBase
                 {
                     if (!target.IsAlive()) continue;
 
-                    if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer && !target.Data.IsDead)
+                    if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer && target.IsAlive())
                     {
                         float dis = Vector2.Distance(agitaterPos, target.transform.position);
                         targetDistance.Add(target.PlayerId, dis);
@@ -209,18 +209,13 @@ public class Agitater : RoleBase
     private void PassBomb(PlayerControl player, PlayerControl target /*, bool IsAgitater = false*/)
     {
         if (!IsEnable) return;
-
         if (!AgitaterHasBombed) return;
-
-        if (target.Data.IsDead) return;
+        if (!target.IsAlive()) return;
 
         long now = Utils.TimeStamp;
         if (now - CurrentBombedPlayerTime < PassCooldown.GetFloat()) return;
-
         if (target.PlayerId == LastBombedPlayer) return;
-
         if (!AgitaterCanGetBombed.GetBool() && target.Is(CustomRoles.Agitater)) return;
-
 
         if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)))
         {

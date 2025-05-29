@@ -26,11 +26,11 @@ public class Dazzler : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Dazzler);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DazzleCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
+        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DazzleCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
             .SetValueFormat(OptionFormat.Seconds);
 

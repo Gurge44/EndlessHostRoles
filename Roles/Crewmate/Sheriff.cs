@@ -42,7 +42,7 @@ public class Sheriff : RoleBase
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sheriff);
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]).SetValueFormat(OptionFormat.Seconds);
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]).SetValueFormat(OptionFormat.Seconds);
         MisfireKillsTarget = new BooleanOptionItem(Id + 11, "SheriffMisfireKillsTarget", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         ShotLimitOpt = new IntegerOptionItem(Id + 12, "SheriffShotLimit", new(1, 15, 1), 5, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]).SetValueFormat(OptionFormat.Times);
         ShowShotLimit = new BooleanOptionItem(Id + 13, "SheriffShowShotLimit", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
