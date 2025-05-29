@@ -39,7 +39,7 @@ internal class Tiger : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
             .SetValueFormat(OptionFormat.Seconds);
 
-        KillCooldown = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles)
+        KillCooldown = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
             .SetValueFormat(OptionFormat.Seconds);
 
