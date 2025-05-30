@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Patches;
@@ -75,7 +74,7 @@ public class Gaslighter : RoleBase
         {
             Round.Kill => KillCooldown.GetFloat(),
             Round.Knight => Monarch.KnightCooldown.GetFloat(),
-            Round.Curse => Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown),
+            Round.Curse => Options.DefaultKillCooldown,
             Round.Shield => Medic.CD.GetFloat(),
             _ => Options.DefaultKillCooldown
         };

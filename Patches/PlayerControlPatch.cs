@@ -566,15 +566,10 @@ internal static class CheckMurderPatch
                 Notify("SomeSortOfProtection");
                 killer.SetKillCooldown(5f);
                 return false;
-            case CustomRoles.Spiritcaller:
-                if (Spiritcaller.InProtect(target))
-                {
-                    killer.RpcGuardAndKill(target);
-                    Notify("SomeSortOfProtection");
-                    return false;
-                }
-
-                break;
+            case CustomRoles.Spiritcaller when Spiritcaller.InProtect(target):
+                killer.RpcGuardAndKill(target);
+                Notify("SomeSortOfProtection");
+                return false;
         }
 
         if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode))
@@ -1084,7 +1079,7 @@ internal static class ReportDeadBodyPatch
         //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
         //=============================================================================================
 
-        CustomNetObject.Meeting();
+        CustomNetObject.OnMeeting();
 
         Asthmatic.RunChecks = false;
 
@@ -1552,7 +1547,7 @@ internal static class FixedUpdatePatch
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Assassin) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
-                        Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown) * 2;
+                        Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown * 2;
                 }
             }
 

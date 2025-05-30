@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using AmongUs.Data;
-using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
 using EHR.Crewmate;
@@ -75,7 +74,7 @@ internal static class ExileControllerWrapUpPatch
                 Main.PlayerStates[exiled.PlayerId].SetDead();
         }
 
-        if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown) Main.RefixCooldownDelay = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown) - 3f;
+        if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown) Main.RefixCooldownDelay = Options.DefaultKillCooldown - 3f;
 
         Witch.RemoveSpelledPlayer();
 

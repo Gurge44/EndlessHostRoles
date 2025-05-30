@@ -3060,7 +3060,7 @@ public static class Utils
     {
         if (role.UsesPetInsteadOfKill())
         {
-            var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown));
+            var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Options.DefaultKillCooldown);
             Main.AbilityCD[playerId] = (TimeStamp, kcd);
             SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, kcd);
             return;
@@ -3071,8 +3071,8 @@ public static class Utils
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
-            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown)),
-            CustomRoles.Paranoia => (int)Math.Round(Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown)),
+            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.DefaultKillCooldown),
+            CustomRoles.Paranoia => (int)Math.Round(Options.DefaultKillCooldown),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),
@@ -3239,6 +3239,8 @@ public static class Utils
 
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
         EAC.InvalidReports.Clear();
+
+        CustomNetObject.AfterMeeting();
 
         RPCHandlerPatch.RemoveExpiredWhiteList();
     }
@@ -3881,10 +3883,10 @@ public static class Utils
             CustomGameMode.SoloKombat => 3000f,
             CustomGameMode.CaptureTheFlag => 1500f,
             CustomGameMode.KingOfTheZones => 1500f,
-            _ => 1000f
+            _ => 500f
         };
 
-        float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / divice * 6f);
+        float minTime = Mathf.Max(0.5f, AmongUsClient.Instance.Ping / divice * 6f);
         return minTime;
     }
 }

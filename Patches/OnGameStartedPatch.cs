@@ -266,8 +266,6 @@ internal static class ChangeRoleSettings
             GameOptionsManager.Instance.currentNormalGameOptions.ConfirmImpostor = false;
             Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);
 
-            Options.DefaultKillCooldown = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
-
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
             GameEndChecker.Ended = false;
@@ -330,7 +328,7 @@ internal static class ChangeRoleSettings
 
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
+                Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown;
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
