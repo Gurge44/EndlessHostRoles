@@ -1907,7 +1907,7 @@ internal static class FixedUpdatePatch
                     offset += 0.8f;
 
                 roleText.transform.SetLocalY(offset);
-                target.cosmetics.colorBlindText.transform.SetLocalY(-(offset - 0.2f));
+                target.cosmetics.colorBlindText.transform.SetLocalY(-(offset + 0.2f));
             }
         }
         else

@@ -171,8 +171,39 @@ public enum Sounds
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal static class RPCHandlerPatch
 {
-    private static readonly Dictionary<byte, int> NumRPCsThisSecond = [];
+    private static readonly Dictionary<byte, Dictionary<RpcCalls, int>> NumRPCsThisSecond = [];
     private static readonly Dictionary<byte, long> RateLimitWhiteList = [];
+
+    // By Rabek009
+    public static Dictionary<RpcCalls, int> RpcRateLimit = new()
+    {
+        [RpcCalls.PlayAnimation] = 3,
+        [RpcCalls.CompleteTask] = 2,
+        [RpcCalls.CheckColor] = 10,
+        [RpcCalls.SendChat] = 2,
+        [RpcCalls.SetScanner] = 10,
+        [RpcCalls.SetStartCounter] = 15,
+        [RpcCalls.EnterVent] = 3,
+        [RpcCalls.ExitVent] = 3,
+        [RpcCalls.SnapTo] = 8,
+        [RpcCalls.ClimbLadder] = 1,
+        [RpcCalls.UsePlatform] = 20,
+        [RpcCalls.SendQuickChat] = 1,
+        [RpcCalls.SetHatStr] = 10,
+        [RpcCalls.SetSkinStr] = 10,
+        [RpcCalls.SetPetStr] = 10,
+        [RpcCalls.SetVisorStr] = 10,
+        [RpcCalls.SetNamePlateStr] = 10,
+        [RpcCalls.CheckMurder] = 25,
+        [RpcCalls.CheckProtect] = 25,
+        [RpcCalls.Pet] = 40,
+        [RpcCalls.CancelPet] = 40,
+        [RpcCalls.CheckZipline] = 1,
+        [RpcCalls.CheckSpore] = 5,
+        [RpcCalls.CheckShapeshift] = 10,
+        [RpcCalls.CheckVanish] = 10,
+        [RpcCalls.CheckAppear] = 10
+    };
 
     public static void WhiteListFromRateLimitUntil(byte id, long timestamp)
     {
@@ -204,8 +235,9 @@ internal static class RPCHandlerPatch
 
         if (__instance != null)
         {
-            if (NumRPCsThisSecond.TryAdd(__instance.PlayerId, 0)) LateTask.New(() => NumRPCsThisSecond.Remove(__instance.PlayerId), 1f, log: false);
-            NumRPCsThisSecond[__instance.PlayerId] += rpcType is RpcCalls.CheckMurder or RpcCalls.CheckProtect ? 1 : 2;
+            if (NumRPCsThisSecond.TryAdd(__instance.PlayerId, [])) LateTask.New(() => NumRPCsThisSecond.Remove(__instance.PlayerId), 1f, log: false);
+            Dictionary<RpcCalls, int> calls = NumRPCsThisSecond[__instance.PlayerId];
+            if (!calls.TryAdd(rpcType, 1)) calls[rpcType]++;
 
             switch (rpcType)
             {
@@ -248,10 +280,11 @@ internal static class RPCHandlerPatch
                 return false;
             }
 
-            if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out var expireTS) || expireTS < Utils.TimeStamp) && NumRPCsThisSecond.TryGetValue(__instance.PlayerId, out int times) && times > 50)
+            if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out var expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out var limit) && calls[rpcType] > limit)
             {
                 AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                 Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName));
+                Logger.Warn($"Sent {calls[rpcType]} RPCs of type {rpcType} ({callId}), which exceeds the limit of {limit}. Kicking player.", "Kick");
                 return false;
             }
         }
@@ -356,7 +389,7 @@ internal static class RPCHandlerPatch
 
                         LateTask.New(() =>
                         {
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.OwnerId);
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance?.OwnerId ?? -1);
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }, 1f, "Retry Version Check Task");
                     }
@@ -1382,7 +1415,14 @@ internal static class RPC
             try { GameManager.Instance.LogicFlow.CheckEndCriteria(); }
             catch { }
 
-            try { GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false); }
+            try
+            {
+                GameManager.Instance.ShouldCheckForGameEnd = false;
+                MessageWriter msg = AmongUsClient.Instance.StartEndGame();
+                msg.Write((byte)5);
+                msg.Write(false);
+                AmongUsClient.Instance.FinishEndGame(msg);
+            }
             catch { }
         }
     }

@@ -107,6 +107,7 @@ public static class AntiBlackout
                         pc.Exiled();
                         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        if (pc.HasDesyncRole()) pc.FixBlackScreen();
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

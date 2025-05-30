@@ -20,6 +20,18 @@ using static EHR.Utils;
 
 namespace EHR;
 
+[HarmonyPatch(typeof(GameManager), nameof(GameManager.RpcEndGame))]
+static class RpcEndGamePatch
+{
+    public static bool Prefix() => false;
+}
+
+[HarmonyPatch(typeof(LogicGameFlowHnS), nameof(LogicGameFlowHnS.CheckEndCriteria))]
+static class HnsEndPatch
+{
+    public static bool Prefix() => false;
+}
+
 [HarmonyPatch(typeof(LogicGameFlowNormal), nameof(LogicGameFlowNormal.CheckEndCriteria))]
 internal static class GameEndChecker
 {
@@ -402,7 +414,11 @@ internal static class GameEndChecker
         }
 
         // Start End Game
-        GameManager.Instance.RpcEndGame(reason, false);
+        GameManager.Instance.ShouldCheckForGameEnd = false;
+        MessageWriter msg = self.StartEndGame();
+        msg.Write((byte)reason);
+        msg.Write(false);
+        self.FinishEndGame(msg);
     }
 
     private static bool WouldWinIfCrewLost(PlayerState state)

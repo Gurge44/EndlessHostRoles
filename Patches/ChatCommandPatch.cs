@@ -2322,12 +2322,20 @@ internal static class ChatCommands
         {
             case "crew":
                 GameManager.Instance.enabled = false;
-                GameManager.Instance.RpcEndGame(GameOverReason.CrewmateDisconnect, false);
+                GameManager.Instance.ShouldCheckForGameEnd = false;
+                MessageWriter msg = AmongUsClient.Instance.StartEndGame();
+                msg.Write((byte)6);
+                msg.Write(false);
+                AmongUsClient.Instance.FinishEndGame(msg);
                 break;
 
             case "imp":
                 GameManager.Instance.enabled = false;
-                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
+                GameManager.Instance.ShouldCheckForGameEnd = false;
+                MessageWriter msg2 = AmongUsClient.Instance.StartEndGame();
+                msg2.Write((byte)5);
+                msg2.Write(false);
+                AmongUsClient.Instance.FinishEndGame(msg2);
                 break;
 
             default:

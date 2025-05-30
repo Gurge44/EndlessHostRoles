@@ -591,9 +591,10 @@ public static class NaturalDisasters
                 angle = Angle;
 
             float speed = MovingSpeed.GetFloat() * Time.fixedDeltaTime;
-            Vector2 newPos = Position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * speed;
+            Vector2 addVector = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+            Vector2 newPos = Position + addVector * speed;
 
-            if ((!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos, Constants.ShipOnlyMask, false)) ||
+            if ((!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos + addVector * 3, Constants.ShipOnlyMask, false)) ||
                 newPos.x < MapBounds.X.Left || newPos.x > MapBounds.X.Right || newPos.y < MapBounds.Y.Bottom || newPos.y > MapBounds.Y.Top)
             {
                 Angle = RandomAngle();
