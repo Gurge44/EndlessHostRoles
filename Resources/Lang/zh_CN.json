@@ -1283,7 +1283,7 @@
   "GSInfo.MadmateCount": "<#ff1919>叛徒:</color> {0}",
   "GSInfo.ConvertedCount": "<#ffab1b>转换玩家</color> <size=70%>（不包括<#ff1919>叛徒</color>）</size>: {0}",
   "GSInfo.NNKCount": "<#ffff00>没有带刀</color> <#ffab1b>中立</color>: {0}",
-  "GSInfo.NKCount": "<#ff1919>有带刀</color>: {0}<#ffab1b>中立</color>",
+  "GSInfo.NKCount": "<#ff1919>带刀</color><#ffab1b>中立</color>: {0}",
   "GSInfo.CovenCount": "<#7b3fbb>巫师阵营:</color> {0}",
   "GSInfo.CrewCount": "<#8cffff>船员:</color> {0}",
   "GSInfo.RomanticState": "{0}",
