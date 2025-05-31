@@ -39,6 +39,11 @@ public class Spirit : RoleBase
         Targets = (byte.MaxValue, byte.MaxValue);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         bool firstIsSet = Targets.Item1 != byte.MaxValue;

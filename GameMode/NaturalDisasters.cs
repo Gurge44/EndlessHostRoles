@@ -126,7 +126,7 @@ public static class NaturalDisasters
         float[] x = rooms.Select(r => r.x).ToArray();
         float[] y = rooms.Select(r => r.y).ToArray();
 
-        const float extend = 3.5f;
+        const float extend = 5f;
         MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
 
         GameStartTimeStamp = Utils.TimeStamp;
@@ -594,7 +594,7 @@ public static class NaturalDisasters
             Vector2 addVector = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
             Vector2 newPos = Position + addVector * speed;
 
-            if ((!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos + addVector * 3, Constants.ShipOnlyMask, false)) ||
+            if ((!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos + addVector * 2, Constants.ShipOnlyMask, false)) ||
                 newPos.x < MapBounds.X.Left || newPos.x > MapBounds.X.Right || newPos.y < MapBounds.Y.Bottom || newPos.y > MapBounds.Y.Top)
             {
                 Angle = RandomAngle();

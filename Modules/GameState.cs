@@ -93,6 +93,8 @@ public class PlayerState(byte playerId)
     public RoleBase Role = new VanillaRole();
 
     private int RoleChangeTimes = -1;
+
+    public List<CustomRoles> RoleHistory = [];
     public bool IsDead { get; set; }
 
     // ReSharper disable once InconsistentNaming
@@ -106,6 +108,9 @@ public class PlayerState(byte playerId)
     {
         try { Utils.RemovePlayerFromPreviousRoleData(Player); }
         catch (Exception e) { Utils.ThrowException(e); }
+
+        if (Main.IntroDestroyed && MainRole != CustomRoles.NotAssigned)
+            RoleHistory.Add(MainRole);
 
         bool previousHasTasks = Utils.HasTasks(Player.Data, false);
 
@@ -192,7 +197,7 @@ public class PlayerState(byte playerId)
         if (!Main.IntroDestroyed || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
 
         RoleChangeTimes++;
-        if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();
+        if (RoleChangeTimes >= 4) Achievements.Type.Transformer.Complete();
     }
 
     public void SetSubRole(CustomRoles role, bool replaceAll = false)

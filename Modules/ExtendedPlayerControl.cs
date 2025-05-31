@@ -1547,13 +1547,27 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
-            Vector2 pos = target.Pos();
-            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role.SeesArrowsToDeadBodies && !x.SubRoles.Contains(CustomRoles.Blind) && x.Player != null, x => LocateArrow.Add(x.Player.PlayerId, pos));
-
             killer.RpcMurderPlayer(target, true);
 
             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && !state.IsDead)
                 state.SetDead();
+
+            LateTask.New(() =>
+            {
+                Vector2 pos = Object.FindObjectsOfType<DeadBody>().First(x => x.ParentId == target.PlayerId).TruePosition;
+
+                if (Vector2.Distance(pos, Pelican.GetBlackRoomPS()) > 2f)
+                {
+                    foreach (PlayerState ps in Main.PlayerStates.Values)
+                    {
+                        if (!ps.IsDead && ps.Role.SeesArrowsToDeadBodies && !ps.SubRoles.Contains(CustomRoles.Blind) && ps.Player != null)
+                        {
+                            LocateArrow.Add(ps.Player.PlayerId, pos);
+                            NotifyRoles(SpecifySeer: ps.Player, SpecifyTarget: ps.Player);
+                        }
+                    }
+                }
+            }, 0.2f);
         }
     }
 

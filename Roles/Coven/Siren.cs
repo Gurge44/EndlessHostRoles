@@ -81,6 +81,11 @@ public class Siren : Coven
         Instances.Add(this);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.PhantomCooldown = AbilityCooldown.GetFloat();

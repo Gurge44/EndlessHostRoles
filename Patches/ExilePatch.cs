@@ -113,6 +113,7 @@ internal static class ExileControllerWrapUpPatch
 
         LateTask.New(() =>
         {
+            if (GameStates.IsEnded) return;
             PlayerControl player = id.GetPlayer();
             if (player != null) Utils.AfterPlayerDeathTasks(player, true);
         }, 2.5f, "AfterPlayerDeathTasks For Exiled Player");
@@ -136,7 +137,7 @@ internal static class ExileControllerWrapUpPatch
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
 
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded) return;
 
         bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
         bool ejectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;

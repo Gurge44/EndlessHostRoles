@@ -833,7 +833,8 @@ public static class CaptureTheFlag
                     if (Vector2.Distance(pos, blackRoomPS) > 2f) hasValue |= sender.TP(__instance, blackRoomPS);
                 }
             }
-            else if (Vector2.Distance(pos, blackRoomPS) <= 2f) { hasValue |= sender.TP(__instance, team.GetFlagBase().Position); }
+            else if (Vector2.Distance(pos, blackRoomPS) <= 2f)
+                hasValue |= sender.TP(__instance, team.GetFlagBase().Position);
 
             sender.SendMessage(dispose: !hasValue);
         }

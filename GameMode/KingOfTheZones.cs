@@ -255,15 +255,19 @@ public static class KingOfTheZones
 
         int numPlayers = ids.Count;
 
-        if (AutoSetNumTeams.GetBool() && numPlayers % NumTeams.GetInt() != 0 && (numPlayers <= 1 || Enumerable.Range(2, (int)Math.Sqrt(numPlayers) - 1).Any(x => numPlayers % x == 0)))
+        if (AutoSetNumTeams.GetBool() && numPlayers % NumTeams.GetInt() != 0)
         {
-            List<int> divisors = Enumerable.Range(2, 6).Where(x => numPlayers % x == 0).ToList();
-
-            if (divisors.Count > 0)
+            if (numPlayers is 2 or 3 or 5 or 7) NumTeams.SetValue(numPlayers - 2);
+            else if (numPlayers <= 1 || Enumerable.Range(2, (int)Math.Sqrt(numPlayers) - 1).Any(x => numPlayers % x == 0))
             {
-                int selectedTeamCount = PreferNumTeams.GetValue() == 0 ? divisors.Min() : divisors.Max();
-                NumTeams.SetValue(selectedTeamCount - 2);
-                Logger.Msg($"Auto set teams to {selectedTeamCount}", "KOTZ");
+                List<int> divisors = Enumerable.Range(2, 6).Where(x => numPlayers % x == 0).ToList();
+
+                if (divisors.Count > 0)
+                {
+                    int selectedTeamCount = PreferNumTeams.GetValue() == 0 ? divisors.Min() : divisors.Max();
+                    NumTeams.SetValue(selectedTeamCount - 2);
+                    Logger.Msg($"Auto set teams to {selectedTeamCount}", "KOTZ");
+                }
             }
         }
 

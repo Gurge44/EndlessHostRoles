@@ -15,9 +15,11 @@ public class Vulture : RoleBase
 
     public static HashSet<byte> UnreportablePlayers = [];
 
-    public static OptionItem ArrowsPointingToDeadBody;
+    private static OptionItem ArrowsPointingToDeadBody;
     private static OptionItem NumberOfReportsToWin;
     public static OptionItem CanVent;
+    private static OptionItem VentCooldown;
+    private static OptionItem MaxInVentTime;
     private static OptionItem VultureReportCD;
     private static OptionItem MaxEaten;
     private static OptionItem HasImpVision;
@@ -35,8 +37,8 @@ public class Vulture : RoleBase
         CustomRoles.Jester
     ];
 
-    private int BodyReportCount;
-    private long LastReport;
+    private long CooldownFinishTS;
+    private int TotalEaten;
     private byte VultureId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -56,7 +58,15 @@ public class Vulture : RoleBase
         CanVent = new BooleanOptionItem(Id + 12, "CanVent", true, TabGroup.NeutralRoles, true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
 
-        VultureReportCD = new FloatOptionItem(Id + 13, "VultureReportCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
+        VentCooldown = new FloatOptionItem(Id + 18, "VultureVentCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.NeutralRoles)
+            .SetParent(CanVent)
+            .SetValueFormat(OptionFormat.Seconds);
+
+        MaxInVentTime = new FloatOptionItem(Id + 19, "VultureMaxInVentTime", new(0f, 300f, 0.5f), 5f, TabGroup.NeutralRoles)
+            .SetParent(CanVent)
+            .SetValueFormat(OptionFormat.Seconds);
+
+        VultureReportCD = new FloatOptionItem(Id + 13, "VultureReportCooldown", new(0f, 180f, 1f), 20f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -82,15 +92,10 @@ public class Vulture : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        BodyReportCount = 0;
-        playerId.SetAbilityUseLimit(MaxEaten.GetInt());
-        LastReport = Utils.TimeStamp;
 
-        LateTask.New(() =>
-        {
-            PlayerControl player = playerId.GetPlayer();
-            if (player != null && player.Is(CustomRoles.Vulture) && GameStates.IsInTask) player.Notify(GetString("VultureCooldownUp"));
-        }, VultureReportCD.GetFloat() + 8f, "Vulture CD");
+        TotalEaten = 0;
+        playerId.SetAbilityUseLimit(MaxEaten.GetInt());
+        CooldownFinishTS = Utils.TimeStamp;
 
         VultureId = playerId;
     }
@@ -103,50 +108,53 @@ public class Vulture : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetVision(HasImpVision.GetBool());
-        AURoleOptions.EngineerCooldown = 0f;
-        AURoleOptions.EngineerInVentMaxTime = 0f;
+
+        AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+        AURoleOptions.EngineerInVentMaxTime = MaxInVentTime.GetFloat();
     }
 
-    public static void Clear()
+    public override void OnReportDeadBody()
     {
-        foreach (byte apc in PlayerIdList) LocateArrow.RemoveAllTarget(apc);
+        LocateArrow.RemoveAllTarget(VultureId);
     }
 
     public override void AfterMeetingTasks()
     {
-        Clear();
+        LocateArrow.RemoveAllTarget(VultureId);
 
-        foreach (byte apc in PlayerIdList)
+        foreach (byte id in PlayerIdList)
         {
-            PlayerControl player = Utils.GetPlayerById(apc);
-            if (player == null) continue;
+            PlayerControl pc = Utils.GetPlayerById(id);
+            if (pc == null) continue;
 
-            if (player.IsAlive())
+            if (pc.IsAlive())
             {
-                apc.SetAbilityUseLimit(MaxEaten.GetInt());
-                LastReport = Utils.TimeStamp;
-
-                LateTask.New(() =>
-                {
-                    if (GameStates.IsInTask) Utils.GetPlayerById(apc).Notify(GetString("VultureCooldownUp"));
-                }, VultureReportCD.GetFloat(), "Vulture CD");
-
-                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                id.SetAbilityUseLimit(MaxEaten.GetInt());
+                CooldownFinishTS = Utils.TimeStamp + VultureReportCD.GetInt();
             }
         }
     }
 
     public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (pc.GetAbilityUseLimit() <= 0 || target.Object == null || target.Object.Is(CustomRoles.Unreportable)) return true;
+        if (pc.GetAbilityUseLimit() < 1f || target.Object == null || target.Object.Is(CustomRoles.Unreportable)) return true;
 
-        if (Utils.TimeStamp - LastReport < VultureReportCD.GetFloat()) return true;
+        if (CooldownFinishTS > Utils.TimeStamp) return true;
 
         pc.RPCPlayCustomSound("Eat");
-        BodyReportCount++;
+        TotalEaten++;
+
+        if (TotalEaten >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
+        {
+            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
+            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+            return false;
+        }
+
         pc.RpcRemoveAbilityUse();
 
-        foreach (byte apc in PlayerIdList) LocateArrow.Remove(apc, target.Object.transform.position);
+        Vector2 bodyPos = Object.FindObjectsOfType<DeadBody>().First(x => x.ParentId == target.PlayerId).TruePosition;
+        foreach (byte seerId in Main.PlayerStates.Keys) LocateArrow.Remove(seerId, bodyPos);
 
         pc.Notify(GetString("VultureBodyReported"));
         UnreportablePlayers.Add(target.PlayerId);
@@ -156,25 +164,19 @@ public class Vulture : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != VultureId || target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-        return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+        if (seer.PlayerId != VultureId || seer.PlayerId != target.PlayerId || hud || meeting) return string.Empty;
+        string arrows = Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+        bool hasCooldown = CooldownFinishTS > Utils.TimeStamp;
+        if (arrows.Length > 0 && hasCooldown) arrows += "\n";
+        if (hasCooldown) arrows += string.Format(GetString("CDPT"), CooldownFinishTS - Utils.TimeStamp);
+        return arrows;
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!pc.IsAlive() || Main.HasJustStarted) return;
+        if (!pc.IsAlive() || !Main.IntroDestroyed) return;
 
-        byte playerId = pc.PlayerId;
-
-        if (BodyReportCount >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
-        {
-            BodyReportCount = NumberOfReportsToWin.GetInt();
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
-            CustomWinnerHolder.WinnerIds.Add(playerId);
-            return;
-        }
-
-        if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControls.Length - 1 <= NumberOfReportsToWin.GetInt() - BodyReportCount)
+        if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControls.Length - 1 <= NumberOfReportsToWin.GetInt() - TotalEaten)
         {
             CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
             pc.RpcSetCustomRole(role);

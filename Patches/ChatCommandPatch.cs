@@ -3135,7 +3135,7 @@ internal static class ChatCommands
 
         long now = Utils.TimeStamp;
 
-        if (LastSentCommand.TryGetValue(player.PlayerId, out long ts) && ts + 2 >= now)
+        if (LastSentCommand.TryGetValue(player.PlayerId, out long ts) && ts + 2 >= now && !player.IsModdedClient())
         {
             Logger.Warn("Chat message ignored, it was sent too soon after their last message", "ReceiveChat");
             return;

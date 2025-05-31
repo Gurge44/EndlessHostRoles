@@ -1494,6 +1494,25 @@ public static class Utils
         sb.Append("</size>");
 
         SendMessage("\n", playerId, sb.ToString());
+
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+
+        sb.Clear();
+
+        foreach ((byte id, PlayerState state) in Main.PlayerStates)
+        {
+            if (state.RoleHistory.Count > 0)
+            {
+                state.RoleHistory.Add(state.MainRole);
+                string join = string.Join(" > ", state.RoleHistory.ConvertAll(x => x.ToColoredString()));
+                sb.AppendLine($"{id.ColoredPlayerName()}: {join}");
+            }
+        }
+
+        if (sb.Length == 0) return;
+
+        sb.Insert(0, $"<size=70%>{GetString("RoleHistoryText")}\n");
+        SendMessage("\n", playerId, sb.ToString().Trim() + "</size>");
     }
 
     public static void ShowKillLog(byte playerId = byte.MaxValue)
@@ -2563,15 +2582,19 @@ public static class Utils
                 _ => selfName
             };
 
-            if (Pelican.IsEaten(seer.PlayerId)) selfName = $"{ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"))}";
+            if (Pelican.IsEaten(seer.PlayerId))
+                selfName = $"{ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"))}";
 
-            if (Deathpact.IsInActiveDeathpact(seer)) selfName = Deathpact.GetDeathpactString(seer);
+            if (Deathpact.IsInActiveDeathpact(seer))
+                selfName = Deathpact.GetDeathpactString(seer);
 
             // Devourer
-            if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !camouflageIsForMeeting) selfName = GetString("DevouredName");
+            if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !camouflageIsForMeeting)
+                selfName = GetString("DevouredName");
 
             // Camouflage
-            if (Camouflage.IsCamouflage && !camouflageIsForMeeting) selfName = $"<size=0>{selfName}</size>";
+            if (Camouflage.IsCamouflage && !camouflageIsForMeeting)
+                selfName = $"<size=0>{selfName}</size>";
 
             GameMode2:
 
@@ -2837,7 +2860,7 @@ public static class Utils
                             if (seer.KnowDeathReason(target) && !GameStates.IsLobby) targetDeathReason = $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>";
 
                             // Devourer
-                            if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !camouflageIsForMeeting)
+                            if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)) && !camouflageIsForMeeting)
                                 targetPlayerName = GetString("DevouredName");
 
                             // Camouflage
@@ -3185,6 +3208,9 @@ public static class Utils
                 }
 
                 AFKDetector.RecordPosition(pc);
+
+                if (Camouflage.IsCamouflage)
+                    Camouflage.RpcSetSkin(pc);
             }
             else
             {
@@ -3211,14 +3237,14 @@ public static class Utils
         if (Options.DiseasedCDReset.GetBool())
         {
             Main.KilledDiseased.SetAllValues(0);
-            Main.KilledDiseased.Keys.Select(x => x.GetPlayer()).Do(x => x?.ResetKillCooldown());
+            Main.KilledDiseased.Keys.ToValidPlayers().Do(x => x?.ResetKillCooldown());
             Main.KilledDiseased.Clear();
         }
 
         if (Options.AntidoteCDReset.GetBool())
         {
             Main.KilledAntidote.SetAllValues(0);
-            Main.KilledAntidote.Keys.Select(x => x.GetPlayer()).Do(x => x?.ResetKillCooldown());
+            Main.KilledAntidote.Keys.ToValidPlayers().Do(x => x?.ResetKillCooldown());
             Main.KilledAntidote.Clear();
         }
 
@@ -3235,7 +3261,8 @@ public static class Utils
         RoleBlockManager.Reset();
         PhantomRolePatch.AfterMeeting();
 
-        if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM)) LateTask.New(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
+        if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
+            LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
 
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
         EAC.InvalidReports.Clear();

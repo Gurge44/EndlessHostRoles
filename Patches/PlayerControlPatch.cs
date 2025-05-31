@@ -1192,7 +1192,6 @@ internal static class ReportDeadBodyPatch
         Grenadier.MadGrenadierBlinding.Clear();
         Divinator.DidVote.Clear();
         Oracle.DidVote.Clear();
-        Vulture.Clear();
 
         foreach (PlayerState state in Main.PlayerStates.Values)
         {
@@ -1856,7 +1855,7 @@ internal static class FixedUpdatePatch
             Suffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
 
             // Devourer
-            if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(lpId)))
+            if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)))
                 realName = GetString("DevouredName");
 
             // Camouflage

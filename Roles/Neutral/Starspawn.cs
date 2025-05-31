@@ -43,6 +43,11 @@ public class Starspawn : RoleBase
         HasUsedDayBreak = false;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();
