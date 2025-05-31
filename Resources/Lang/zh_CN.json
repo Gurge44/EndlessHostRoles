@@ -9526,7 +9526,7 @@
   "EveryoneDied": "无人生还",
   "ForceEndText": "房主终止了游戏",
   "BlackScreenFixCompleteNotify": "<#00ff00>黑屏修复代码已执行</color>",
-  "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>模组最小/最大内鬼数量自动设置为 </color><#ffffff>{0}</color></b>\\n<size=80%>因为你只修改了原版设置，被模组设置覆盖了。</size>",
+  "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>模组最小/最大内鬼数量自动设置为 </color><#ffffff>{0}</color></b>\\n<size=80%>因为你只修改了原版设置，被模组设置覆盖了</size>",
   "DiscoChangeInterval": "舞王更改颜色间隔",
   "Modifier": "\n游戏修改器: ",
   "Modifiers": "\n游戏修改器: ",
