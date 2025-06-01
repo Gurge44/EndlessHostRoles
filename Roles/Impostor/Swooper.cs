@@ -293,4 +293,9 @@ public class Swooper : RoleBase
     {
         return !IsThisRole(pc) || UsedRole != CustomRoles.Chameleon || pc.GetClosestVent()?.Id == ventId;
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.ImpostorVentButton?.OverrideText(Translator.GetString("SwooperButtonText"));
+    }
 }

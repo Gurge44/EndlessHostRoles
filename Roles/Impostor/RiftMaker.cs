@@ -171,4 +171,12 @@ public class RiftMaker : RoleBase
     {
         return $" <color=#777777>-</color> {(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")}{Marks.Count}/2</color>";
     }
+
+    if (UsePets.GetBool())
+            hud.PetButton?.OverrideText(GetString("RiftMakerButtonText"));
+        else
+        {
+            hud.AbilityButton?.OverrideText(GetString("RiftMakerButtonText"));
+        }
+    }
 }

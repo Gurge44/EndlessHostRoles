@@ -165,4 +165,9 @@ public class Altruist : RoleBase
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("AltruistButtonText"));
+    }
 }

@@ -273,6 +273,7 @@ public static class HudSpritePatch
                     break;
                 }
                 case CustomRoles.Agitater:
+                case CustomRoles.Potato:
                 {
                     newKillButton = CustomButton.Get("bombshell");
                     break;

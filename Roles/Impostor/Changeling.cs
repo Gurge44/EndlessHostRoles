@@ -123,4 +123,10 @@ internal class Changeling : RoleBase
     {
         return seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.ImpostorVentButton?.OverrideText(Translator.GetString("ChangelingVentButtonText"));
+        hud.AbilityButton?.OverrideText(Translator.GetString("ChangelingAbilityButtonText"));
+    }
 }
