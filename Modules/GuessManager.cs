@@ -563,11 +563,18 @@ public static class GuessManager
                 if (playerVoteArea.VotedFor != pc.PlayerId) continue;
 
                 playerVoteArea.UnsetVote();
+                meetingHud.SetDirtyBit(1U);
 
                 PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
+                if (voteAreaPlayer == null) continue;
 
-                if (!voteAreaPlayer.AmOwner) meetingHud.RpcClearVote(voteAreaPlayer.OwnerId);
-                else meetingHud.ClearVote();
+                if (!voteAreaPlayer.AmOwner)
+                {
+                    meetingHud.RpcClearVote(voteAreaPlayer.OwnerId);
+                    meetingHud.SetDirtyBit(1U);
+                }
+                else
+                    meetingHud.ClearVote();
             }
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.GuessKill, SendOption.Reliable);
@@ -595,7 +602,17 @@ public static class GuessManager
 
         PlayerVoteArea voteArea = MeetingHud.Instance.playerStates.First(x => x.TargetPlayerId == pc.PlayerId);
 
-        if (voteArea.DidVote) voteArea.UnsetVote();
+        if (voteArea.DidVote)
+        {
+            voteArea.UnsetVote();
+
+            if (AmongUsClient.Instance.AmHost)
+            {
+                meetingHud.SetDirtyBit(1U);
+                meetingHud.RpcClearVote(pc.OwnerId);
+                meetingHud.SetDirtyBit(1U);
+            }
+        }
 
         voteArea.AmDead = true;
         voteArea.Overlay.gameObject.SetActive(true);

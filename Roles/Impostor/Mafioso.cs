@@ -196,7 +196,7 @@ public class Mafioso : RoleBase
         if (before1CD != Pistol1CD || before2CD != Pistol2CD)
         {
             NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            if (pc.IsNonHostModClient()) SendRPCSyncPistolCD();
+            if (pc.IsNonHostModdedClient()) SendRPCSyncPistolCD();
         }
     }
 

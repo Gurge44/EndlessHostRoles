@@ -3200,6 +3200,7 @@ public static class Utils
 
                     LateTask.New(() =>
                     {
+                        if (pc.CurrentOutfit.PetId != "") return;
                         var sender = CustomRpcSender.Create("Reassign pet", SendOption.Reliable);
                         string petId = PetsHelper.GetPetId();
                         PetsHelper.SetPet(pc, petId, sender);

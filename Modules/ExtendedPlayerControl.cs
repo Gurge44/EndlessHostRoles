@@ -884,7 +884,7 @@ internal static class ExtendedPlayerControl
         return Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) ? state.TaskState : new();
     }
 
-    public static bool IsNonHostModClient(this PlayerControl pc)
+    public static bool IsNonHostModdedClient(this PlayerControl pc)
     {
         return pc.IsModdedClient() && !pc.IsHost();
     }

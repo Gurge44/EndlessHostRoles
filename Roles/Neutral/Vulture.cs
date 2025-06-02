@@ -37,6 +37,7 @@ public class Vulture : RoleBase
         CustomRoles.Jester
     ];
 
+    private long LastNotifyTS;
     private long CooldownFinishTS;
     private int TotalEaten;
     private byte VultureId;
@@ -58,11 +59,11 @@ public class Vulture : RoleBase
         CanVent = new BooleanOptionItem(Id + 12, "CanVent", true, TabGroup.NeutralRoles, true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
 
-        VentCooldown = new FloatOptionItem(Id + 18, "VultureVentCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.NeutralRoles)
+        VentCooldown = new FloatOptionItem(Id + 18, "VentCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(CanVent)
             .SetValueFormat(OptionFormat.Seconds);
 
-        MaxInVentTime = new FloatOptionItem(Id + 19, "VultureMaxInVentTime", new(0f, 300f, 0.5f), 5f, TabGroup.NeutralRoles)
+        MaxInVentTime = new FloatOptionItem(Id + 19, "MaxInVentTime", new(0f, 300f, 0.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(CanVent)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -96,6 +97,7 @@ public class Vulture : RoleBase
         TotalEaten = 0;
         playerId.SetAbilityUseLimit(MaxEaten.GetInt());
         CooldownFinishTS = Utils.TimeStamp;
+        LastNotifyTS = Utils.TimeStamp;
 
         VultureId = playerId;
     }
@@ -152,6 +154,7 @@ public class Vulture : RoleBase
         }
 
         pc.RpcRemoveAbilityUse();
+        CooldownFinishTS = Utils.TimeStamp + VultureReportCD.GetInt();
 
         Vector2 bodyPos = Object.FindObjectsOfType<DeadBody>().First(x => x.ParentId == target.PlayerId).TruePosition;
         foreach (byte seerId in Main.PlayerStates.Keys) LocateArrow.Remove(seerId, bodyPos);
@@ -180,6 +183,16 @@ public class Vulture : RoleBase
         {
             CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
             pc.RpcSetCustomRole(role);
+            pc.RpcChangeRoleBasis(role);
+            return;
+        }
+
+        long now = Utils.TimeStamp;
+
+        if (now != LastNotifyTS)
+        {
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            LastNotifyTS = now;
         }
     }
 

@@ -20,6 +20,7 @@ internal static class HotPotato
     private static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) HotPotatoState;
     private static Dictionary<byte, int> SurvivalTimes;
     private static float DefaultSpeed;
+    private static long LastPassTS;
 
     public static bool CanPassViaKillButton => HolderCanPassViaKillButton.GetBool();
 
@@ -64,6 +65,7 @@ internal static class HotPotato
     public static void OnGameStart()
     {
         HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt(), 1);
+        LastPassTS = Utils.TimeStamp;
     }
 
     public static int GetSurvivalTime(byte id)
@@ -97,7 +99,7 @@ internal static class HotPotato
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!CustomGameMode.HotPotato.IsActiveOrIntegrated() || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254) return;
+            if (!CustomGameMode.HotPotato.IsActiveOrIntegrated() || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || Utils.GameStartTimeStamp + 15 > Utils.TimeStamp) return;
 
             PlayerControl Holder = Utils.GetPlayerById(HotPotatoState.HolderID);
 
@@ -127,6 +129,8 @@ internal static class HotPotato
 
                 return;
             }
+
+            if (Utils.GameStartTimeStamp + 30 > now && LastPassTS == now) return;
 
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
             Vector2 pos = Holder.Pos();
@@ -190,6 +194,8 @@ internal static class HotPotato
             }
             catch (Exception ex) { Logger.Exception(ex, "HotPotatoManager.FixedUpdatePatch.PassHotPotato"); }
             finally { Utils.NotifyRoles(SpecifyTarget: target); }
+
+            LastPassTS = Utils.TimeStamp;
         }
     }
 }

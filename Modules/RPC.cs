@@ -1015,9 +1015,8 @@ internal static class RPCHandlerPatch
                     int chargePercent = reader.ReadInt32();
                     long lastUpdate = long.Parse(reader.ReadString());
                     (Main.PlayerStates[id].Role as Chronomancer)?.ReceiveRPC(isRampaging, chargePercent, lastUpdate);
-                }
-
                     break;
+                }
                 case CustomRPC.SetMedicalerProtectList:
                 {
                     Medic.ReceiveRPCForProtectList(reader);

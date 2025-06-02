@@ -643,7 +643,7 @@ public static class CustomRpcSenderExtensions
         else
             notifies[text] = expireTS;
 
-        bool returnValue = pc.IsNonHostModClient();
+        bool returnValue = pc.IsNonHostModdedClient();
 
         if (returnValue) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
         if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;

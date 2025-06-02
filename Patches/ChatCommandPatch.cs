@@ -2428,7 +2428,11 @@ internal static class ChatCommands
                 Main.NickName = args[1];
             else
             {
-                if (!Options.PlayerCanSetName.GetBool() && !IsPlayerVIP(player.FriendCode)) return;
+                if (!Options.PlayerCanSetName.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
+                {
+                    Utils.SendMessage(GetString("Message.OnlyVIPCanUse"), player.PlayerId, sendOption: SendOption.None);
+                    return;
+                }
 
                 if (GameStates.IsInGame)
                 {

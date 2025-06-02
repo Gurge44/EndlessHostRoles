@@ -115,13 +115,21 @@ public class Medic : RoleBase
         if (!Utils.DoRPC) return;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
+        writer.Write(1);
         writer.Write(ProtectList.Count);
-        ProtectList.Do(x => writer.Write(x));
+        ProtectList.ForEach(x => writer.Write(x));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void ReceiveRPCForProtectList(MessageReader reader)
     {
+        if (reader.ReadInt32() != 1)
+        {
+            byte id = reader.ReadByte();
+            Main.PlayerStates[id].InitTask(id.GetPlayer());
+            return;
+        }
+        
         int count = reader.ReadInt32();
         ProtectList = [];
         for (var i = 0; i < count; i++) ProtectList.Add(reader.ReadByte());
@@ -156,9 +164,6 @@ public class Medic : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null) return false;
-
-        if (!CanUseKillButton(killer)) return false;
-
         if (ProtectList.Contains(target.PlayerId)) return false;
 
         killer.RpcRemoveAbilityUse();
@@ -190,6 +195,20 @@ public class Medic : RoleBase
         {
             if (WhoCanSeeProtect.GetInt() is 1 or 3) Achievements.Type.ImUnstoppable.CompleteAfterGameEnd();
             else Achievements.Type.ImUnstoppable.Complete();
+        }
+
+        if (killer.GetAbilityUseLimit() < 1f)
+        {
+            killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+            killer.RpcResetTasks();
+
+            if (killer.IsNonHostModdedClient())
+            {
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
+                writer.Write(2);
+                writer.Write(killer.PlayerId);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+            }
         }
 
         return false;
@@ -230,6 +249,7 @@ public class Medic : RoleBase
             if (Utils.DoRPC)
             {
                 sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList);
+                sender.Write(1);
                 sender.Write(ProtectList.Count);
                 ProtectList.ForEach(x => sender.Write(x));
                 sender.EndRpc();
@@ -311,7 +331,7 @@ public class Medic : RoleBase
         {
             TempMarkProtectedList = [];
 
-            foreach (byte pc in ProtectList) Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
+            foreach (byte id in ProtectList) Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: target);
         }
     }
 

@@ -1107,7 +1107,7 @@ public static class GameSettingMenuPatch
 
         Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
 
-        CustomGameMode[] gms = Enum.GetValues<CustomGameMode>().SkipLast(1).ToArray();
+        CustomGameMode[] gms = Enum.GetValues<CustomGameMode>().SkipLast(2).ToArray();
         int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Length / 5f));
 
         System.Collections.Generic.Dictionary<CustomGameMode, Color> gmColors = new()

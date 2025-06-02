@@ -1077,6 +1077,7 @@ internal static class IntroCutsceneDestroyPatch
                     foreach (PlayerControl pc in aapc)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
+                        if (pc.CurrentOutfit.PetId != "") continue;
 
                         string petId = PetsHelper.GetPetId();
                         PetsHelper.SetPet(pc, petId, sender);

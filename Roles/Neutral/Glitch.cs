@@ -262,7 +262,7 @@ public class Glitch : RoleBase
 
         if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
 
-        if (player.IsNonHostModClient())
+        if (player.IsNonHostModdedClient())
             SendRPCSyncTimers();
 
         if (!player.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);

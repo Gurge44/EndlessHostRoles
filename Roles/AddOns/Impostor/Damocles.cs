@@ -82,7 +82,7 @@ public class Damocles : IAddon
                 Achievements.Type.OutOfTime.Complete();
         }
 
-        if (pc.IsNonHostModClient()) SendRPC(id);
+        if (pc.IsNonHostModdedClient()) SendRPC(id);
 
         if (!pc.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
