@@ -987,6 +987,9 @@ public static class Options
             File.WriteAllText(path, sb.ToString());
         }
         catch (Exception e) { Utils.ThrowException(e); }
+
+
+        //File.WriteAllText("./SystemSettings.txt", string.Join('\n', GroupedOptions[TabGroup.SystemSettings].Select(x => x.GetName().RemoveHtmlTags())));
 #endif
     }
 
