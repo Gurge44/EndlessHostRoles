@@ -146,6 +146,8 @@ public static class MushroomMixupSabotageSystemPatch
 
         if (Options.UsePets.GetBool()) __instance.petEmptyChance = 0;
 
+        ReportDeadBodyPatch.CanReport.SetAllValues(false);
+
         if (!Options.SabotageTimeControl.GetBool()) return;
 
         if ((MapNames)Main.NormalOptions.MapId is not MapNames.Fungle) return;
@@ -177,6 +179,7 @@ public static class MushroomMixupSabotageSystemPatch
                 var sender = CustomRpcSender.Create("MushroomMixupSabotageSystemPatch.Postfix", SendOption.Reliable);
                 Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => sender.RpcResetAbilityCooldown(x));
                 sender.SendMessage();
+                ReportDeadBodyPatch.CanReport.SetAllValues(true);
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -184,6 +187,8 @@ public static class MushroomMixupSabotageSystemPatch
                 if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
             }
+
+            ReportDeadBodyPatch.CanReport.SetAllValues(true);
         }
     }
 }

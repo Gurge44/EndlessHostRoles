@@ -351,7 +351,7 @@ public static class TheMindGame
 
         while (true)
         {
-            Pick = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => IRandom.Instance.Next(1, 4));
+            Pick = aapc.ToDictionary(x => x.PlayerId, _ => IRandom.Instance.Next(1, 4));
             ProceedingInCountdownEndTS = Utils.TimeStamp + TimeForEachPickInRound1;
             float timer = TimeForEachPickInRound1;
 
@@ -378,7 +378,7 @@ public static class TheMindGame
             {
                 Group group = Groups[pc.PlayerId];
                 int pick = Pick[pc.PlayerId];
-                bool sameAsSomeoneElse = GroupPlayers[group].FindFirst(x => x != pc.PlayerId && Pick[x] == pick, out byte otherId);
+                bool sameAsSomeoneElse = GroupPlayers[group].FindFirst(x => x != pc.PlayerId && Pick.TryGetValue(x, out int p) && p == pick, out byte otherId);
 
                 if (!sameAsSomeoneElse) Points[pc.PlayerId] += pick;
 
@@ -520,7 +520,7 @@ public static class TheMindGame
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 int pick = Pick[pc.PlayerId];
-                bool sameAsSomeoneElse = Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Pick[x.PlayerId] == pick, out PlayerControl otherPc);
+                bool sameAsSomeoneElse = Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Pick.TryGetValue(x.PlayerId, out int p) && p == pick, out PlayerControl otherPc);
 
                 if (!sameAsSomeoneElse)
                     Points[pc.PlayerId] += DoubleModifierActive.Contains(pc.PlayerId) ? pick * 2 : pick;

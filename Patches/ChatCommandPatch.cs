@@ -1202,7 +1202,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
+        if (!player.Is(CustomRoles.Messenger) || Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
 
         Main.Instance.StartCoroutine(SendOnMeeting());
         return;
@@ -1702,7 +1702,7 @@ internal static class ChatCommands
         }
 
         // Prevent Moderators from kicking other Moderators
-        if (IsPlayerModerator(kickedPlayer.FriendCode))
+        if (IsPlayerModerator(kickedPlayer.FriendCode) && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandKickMod"), player.PlayerId, sendOption: SendOption.None);
             return;

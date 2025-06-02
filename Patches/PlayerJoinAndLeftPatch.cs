@@ -380,7 +380,7 @@ internal static class InnerNetClientSpawnPatch
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
                     }
-                }, 7f, "Sync Lobby Timer RPC");
+                }, IRandom.Instance.Next(7, 13), "Sync Lobby Timer RPC");
             }
         }
 

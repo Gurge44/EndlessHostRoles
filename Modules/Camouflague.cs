@@ -128,8 +128,6 @@ public static class Camouflage
 
     private static IEnumerator UpdateCamouflageStatusAsync()
     {
-        var sender = CustomRpcSender.Create("Camouflage.RpcSetSkin", SendOption.Reliable);
-
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
@@ -138,12 +136,11 @@ public static class Camouflage
                 continue;
             }
 
-            RpcSetSkin(pc, sender: sender);
+            RpcSetSkin(pc);
 
             yield return null;
         }
 
-        sender.SendMessage();
         yield return Utils.NotifyEveryoneAsync(5);
     }
 

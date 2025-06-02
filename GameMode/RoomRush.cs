@@ -54,6 +54,7 @@ public static class RoomRush
             [(SystemTypes.Electrical, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.MedBay, SystemTypes.Security)] = 3,
             [(SystemTypes.Admin, SystemTypes.Security)] = 2,
+            [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.Storage, SystemTypes.Security)] = 2,
             [(SystemTypes.Storage, SystemTypes.MedBay)] = 2
         },
@@ -186,7 +187,7 @@ public static class RoomRush
 
     public static int GetSurvivalTime(byte id)
     {
-        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state)) return -1;
+        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || ChatCommands.Spectators.Contains(id) || (id == 0 && Main.GM.Value)) return -1;
 
         if (!state.IsDead) return 0;
 

@@ -1445,9 +1445,9 @@ public static class Options
         LoadingPercentage = 62;
 
         AutoWarnStopWords = new BooleanOptionItem(19316, "AutoWarnStopWords", false, TabGroup.SystemSettings);
-        MinWaitAutoStart = new FloatOptionItem(44420, "MinWaitAutoStart", new(0f, 10f, 0.5f), 1.5f, TabGroup.SystemSettings);
-        MaxWaitAutoStart = new FloatOptionItem(44421, "MaxWaitAutoStart", new(0f, 10f, 0.5f), 1.5f, TabGroup.SystemSettings);
-        PlayerAutoStart = new IntegerOptionItem(44422, "PlayerAutoStart", new(1, 15, 1), 14, TabGroup.SystemSettings);
+        MinWaitAutoStart = new FloatOptionItem(44420, "MinWaitAutoStart", new(0f, 10f, 0.5f), 2f, TabGroup.SystemSettings);
+        MaxWaitAutoStart = new FloatOptionItem(44421, "MaxWaitAutoStart", new(0f, 10f, 0.5f), 6f, TabGroup.SystemSettings);
+        PlayerAutoStart = new IntegerOptionItem(44422, "PlayerAutoStart", new(1, 15, 1), 5, TabGroup.SystemSettings);
 
         AutoStartTimer = new IntegerOptionItem(44423, "AutoStartTimer", new(10, 600, 1), 20, TabGroup.SystemSettings)
             .SetValueFormat(OptionFormat.Seconds);
@@ -1460,13 +1460,13 @@ public static class Options
         AutoGMPollCommandAfterJoin = new BooleanOptionItem(19309, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
             .SetHeader(true);
 
-        AutoGMPollCommandCooldown = new IntegerOptionItem(19307, "AutoGMPollCommandCooldown", new(10, 600, 5), 30, TabGroup.SystemSettings)
+        AutoGMPollCommandCooldown = new IntegerOptionItem(19307, "AutoGMPollCommandCooldown", new(10, 600, 5), 15, TabGroup.SystemSettings)
             .SetParent(AutoGMPollCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
         AutoDraftStartCommandAfterJoin = new BooleanOptionItem(19426, "AutoDraftStartCommandAfterJoin", false, TabGroup.SystemSettings);
 
-        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 120, TabGroup.SystemSettings)
+        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 

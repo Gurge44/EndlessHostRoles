@@ -868,7 +868,6 @@ public static class Utils
             case CustomRoles.Collector:
             case CustomRoles.ImperiusCurse:
             case CustomRoles.Provocateur:
-            case CustomRoles.Medic when !Options.UsePets.GetBool() || !Medic.UsePet.GetBool():
             case CustomRoles.BloodKnight:
             case CustomRoles.Camouflager:
             case CustomRoles.Totocalcio:

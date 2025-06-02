@@ -29,7 +29,7 @@ public static class GameStartManagerUpdatePatch
 public static class GameStartManagerPatch
 {
     public static long TimerStartTS;
-    private static TextMeshPro warningText;
+    private static TextMeshPro WarningText;
     public static float Timer => Math.Max(0, 597f - (Utils.TimeStamp - TimerStartTS));
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
@@ -85,10 +85,10 @@ public static class GameStartManagerPatch
                     ? $"<color={Main.HideColor.Value}>{Main.HideName.Value}</color>"
                     : $"<color={Main.ModColor}>{Main.HideName.Value}</color>";
 
-                warningText = Object.Instantiate(__instance.GameStartText, __instance.transform.parent);
-                warningText.name = "WarningText";
-                warningText.transform.localPosition = new(0f, __instance.transform.localPosition.y + 3f, -1f);
-                warningText.gameObject.SetActive(false);
+                WarningText = Object.Instantiate(__instance.GameStartText, __instance.transform.parent);
+                WarningText.name = "WarningText";
+                WarningText.transform.localPosition = new(0f, __instance.transform.localPosition.y + 3f, -1f);
+                WarningText.gameObject.SetActive(false);
 
                 if (!AmongUsClient.Instance.AmHost) return;
 
@@ -352,11 +352,11 @@ public static class GameStartManagerPatch
                 }
 
                 if (warningMessage == "")
-                    warningText.gameObject.SetActive(false);
+                    WarningText.gameObject.SetActive(false);
                 else
                 {
-                    warningText.text = warningMessage;
-                    warningText.gameObject.SetActive(true);
+                    WarningText.text = warningMessage;
+                    WarningText.gameObject.SetActive(true);
                 }
 
                 __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");

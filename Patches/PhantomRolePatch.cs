@@ -70,7 +70,7 @@ public static class PhantomRolePatch
                 return false;
             }
 
-            var sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}");
+            var sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}", SendOption.Reliable);
             sender.StartMessage(phantom.OwnerId);
 
             sender.StartRpc(phantom.NetId, RpcCalls.SetRole)
