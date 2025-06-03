@@ -3464,12 +3464,10 @@ public static class Utils
 
         if (!open) return;
 
-        if (PlayerControl.LocalPlayer != null) HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+        if (PlayerControl.LocalPlayer != null)
+            FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
-        ProcessStartInfo psi = new("Explorer.exe")
-            { Arguments = "/e,/select," + filename.Replace("/", "\\") };
-
-        Process.Start(psi);
+        Process.Start("explorer.exe", f.Replace("/", "\\"));
     }
 
     public static (int Doused, int All) GetDousedPlayerCount(byte playerId)
