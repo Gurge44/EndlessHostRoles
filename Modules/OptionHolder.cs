@@ -1100,7 +1100,7 @@ public static class Options
             {
                 Team.Impostor => (1, 3),
                 Team.Neutral => (0, 5),
-                Team.Coven => (0, 3),
+                Team.Coven => (0, 0),
                 _ => (0, 15)
             };
 
