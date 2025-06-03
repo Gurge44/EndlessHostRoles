@@ -83,6 +83,7 @@ public static class RoomRush
             [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.Security, SystemTypes.Comms)] = 2,
             [(SystemTypes.Security, SystemTypes.Electrical)] = 2,
+            [(SystemTypes.Office, SystemTypes.Specimens)] = 2,
             [(SystemTypes.Comms, SystemTypes.Electrical)] = 2
         },
         [MapNames.Airship] = new()
