@@ -301,10 +301,10 @@ public static class Utils
                 continue;
             }
 
-            if (targetRole == CustomRoles.CyberStar)
+            if (targetRole == CustomRoles.CyberStar && seer.IsAlive())
             {
-                if (!Options.ImpKnowCyberStarDead.GetBool() && seer.GetCustomRole().IsImpostor()) continue;
-                if (!Options.NeutralKnowCyberStarDead.GetBool() && seer.GetCustomRole().IsNeutral()) continue;
+                if (!Options.ImpKnowCyberStarDead.GetBool() && seer.IsImpostor()) continue;
+                if (!Options.NeutralKnowCyberStarDead.GetBool() && (seer.GetCustomRole().IsNeutral() || seer.Is(CustomRoles.Bloodlust))) continue;
 
                 seer.KillFlash();
                 seer.Notify(ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("OnCyberStarDead")));
@@ -827,6 +827,7 @@ public static class Utils
             case CustomRoles.Shifter:
             case CustomRoles.Technician:
             case CustomRoles.Tank:
+            case CustomRoles.Investor:
             case CustomRoles.Gaslighter:
             case CustomRoles.Impartial:
             case CustomRoles.Backstabber:

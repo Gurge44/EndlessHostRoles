@@ -185,6 +185,7 @@ public static class NameColorManager
             CustomRoles.Spirit when ((Spirit)seerRoleClass).Targets.Item1 == target.PlayerId || ((Spirit)seerRoleClass).Targets.Item2 == target.PlayerId => "000000",
             CustomRoles.Starspawn when ((Starspawn)seerRoleClass).IsolatedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Wyrd when ((Wyrd)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Investor when ((Investor)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             _ => color
         };
 

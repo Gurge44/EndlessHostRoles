@@ -1234,7 +1234,7 @@ internal static class ExtendedPlayerControl
 
         return Options.CurrentGameMode switch
         {
-            CustomGameMode.SoloKombat => true,
+            CustomGameMode.SoloKombat => SoloPVP.CanVent,
             CustomGameMode.FFA => true,
             CustomGameMode.MoveAndStop => false,
             CustomGameMode.HotPotato => false,

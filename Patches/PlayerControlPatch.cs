@@ -2051,6 +2051,7 @@ internal static class EnterVentPatch
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
+            case CustomGameMode.SoloKombat when !SoloPVP.CanVent:
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
         }

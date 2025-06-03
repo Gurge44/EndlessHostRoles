@@ -28,6 +28,8 @@ internal static class SoloPVP
     private static Dictionary<byte, long> LastHurt = [];
     private static Dictionary<byte, long> LastCountdownTime = [];
 
+    public static bool CanVent => KB_CanVent.GetBool();
+
     public static bool SoloAlive(this PlayerControl pc)
     {
         return PlayerHP.TryGetValue(pc.PlayerId, out float hp) && hp > 0f;
@@ -75,6 +77,10 @@ internal static class SoloPVP
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
+
+        KB_CanVent = new BooleanOptionItem(66_233_009, "KB_CanVent", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.SoloKombat)
+            .SetColor(new Color32(245, 82, 82, byte.MaxValue));
     }
 
     public static void Init()
@@ -386,6 +392,7 @@ internal static class SoloPVP
     private static OptionItem KB_RecoverPerSecond;
     private static OptionItem KB_ResurrectionWaitingTime;
     private static OptionItem KB_KillBonusMultiplier;
+    private static OptionItem KB_CanVent;
 
     // ReSharper restore InconsistentNaming
 }

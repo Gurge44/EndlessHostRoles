@@ -494,6 +494,9 @@ internal static class SetHudActivePatch
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 return;
+            case CustomGameMode.SoloKombat:
+                __instance.ImpostorVentButton?.ToggleVisible(SoloPVP.CanVent);
+                break;
         }
 
         PlayerControl player = PlayerControl.LocalPlayer;

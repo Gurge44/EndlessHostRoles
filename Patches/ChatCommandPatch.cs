@@ -259,9 +259,8 @@ internal static class ChatCommands
     {
         if (__instance.quickChatField.visible) return true;
 
-        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty);
-
-        if (__instance.freeChatField.textArea.text == string.Empty) return false;
+        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty).Replace("\r", string.Empty);
+        
         __instance.timeSinceLastMessage = 3f;
 
         string text = __instance.freeChatField.textArea.text.Trim();
@@ -329,7 +328,11 @@ internal static class ChatCommands
             Statistics.HasUsedAnyCommand = true;
         }
 
-        if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
+        if (CheckMute(PlayerControl.LocalPlayer.PlayerId))
+            goto Canceled;
+
+        if (text.IsNullOrWhiteSpace() || string.IsNullOrEmpty(text))
+            goto Canceled;
 
         goto Skip;
         Canceled:
@@ -3155,7 +3158,7 @@ internal static class ChatCommands
 
         if (text.StartsWith("\n")) text = text[1..];
 
-        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated() && !player.IsModdedClient())
             TheMindGame.OnChat(player, text.ToLower());
 
         CheckAnagramGuess(player.PlayerId, text.ToLower());

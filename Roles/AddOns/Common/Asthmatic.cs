@@ -103,11 +103,8 @@ internal class Asthmatic : IAddon
 
         Vector2 currentPosition = pc.transform.position;
 
-        if (CheckInvalidMovementPatch.ExemptedPlayers.Contains(pc.PlayerId) && CheckInvalidMovementPatch.LastPosition.TryGetValue(pc.PlayerId, out Vector2 position))
-        {
+        if (CheckInvalidMovementPatch.ExemptedPlayers.Remove(pc.PlayerId) && CheckInvalidMovementPatch.LastPosition.TryGetValue(pc.PlayerId, out Vector2 position))
             LastPosition[pc.PlayerId] = position;
-            return;
-        }
 
         if (!LastPosition.TryGetValue(pc.PlayerId, out Vector2 previousPosition))
         {
@@ -165,7 +162,7 @@ internal class Asthmatic : IAddon
         if (Main.PlayerStates.TryGetValue(id, out var state) && !state.IsDead)
         {
             if (Timers.TryGetValue(id, out Counter counter))
-                return $"{counter.ColoredArrow} {counter.ColoredTimerString}";
+                return $"{counter.ColoredArrow} <font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\">{counter.ColoredTimerString}</font>";
 
             if (id.IsPlayerModClient() && !id.IsHost() && LastSuffix.TryGetValue(id, out var lastSuffix))
                 return lastSuffix;

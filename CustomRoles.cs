@@ -300,6 +300,7 @@ public enum CustomRoles
     Imitator,
     Impartial,
     Innocent,
+    Investor,
     Jackal,
     Jester,
     Jinx,

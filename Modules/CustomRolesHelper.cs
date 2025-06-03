@@ -532,6 +532,7 @@ internal static class CustomRolesHelper
             CustomRoles.Pestilence => RoleTypes.Impostor,
             CustomRoles.Spiritcaller => RoleTypes.Impostor,
             CustomRoles.Doppelganger => RoleTypes.Impostor,
+            CustomRoles.Investor => RoleTypes.Impostor,
             CustomRoles.Wizard => RoleTypes.Phantom,
 
             CustomRoles.CovenLeader => RoleTypes.Impostor,
@@ -1477,6 +1478,7 @@ internal static class CustomRolesHelper
             CustomRoles.FFF => RoleOptionType.Neutral_Benign,
             CustomRoles.Revolutionist => RoleOptionType.Neutral_Benign,
             CustomRoles.Impartial => RoleOptionType.Neutral_Benign,
+            CustomRoles.Investor => RoleOptionType.Neutral_Benign,
             CustomRoles.Backstabber => RoleOptionType.Neutral_Benign,
             CustomRoles.Shifter => RoleOptionType.Neutral_Benign,
             CustomRoles.Sunnyboy => RoleOptionType.Neutral_Benign,

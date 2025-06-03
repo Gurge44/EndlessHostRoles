@@ -320,6 +320,15 @@ internal static class GameEndChecker
                 }
 
                 WinnerIds.RemoveWhere(x => Main.PlayerStates[x].MainRole == CustomRoles.Shifter);
+
+                // Investor win condition should be checked after all winners are set
+                byte[] winningInvestors = Main.PlayerStates.Values.Where(x => x.Role is Investor { IsWon: true }).Select(x => x.Player.PlayerId).ToArray();
+
+                if (winningInvestors.Length > 0)
+                {
+                    AdditionalWinnerTeams.Add(AdditionalWinners.Investor);
+                    WinnerIds.UnionWith(winningInvestors);
+                }
             }
 
             Camouflage.BlockCamouflage = true;
