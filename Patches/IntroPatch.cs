@@ -360,23 +360,28 @@ internal static class SetUpRoleTextPatch
         string disabledRoleStr = GetString("Rate0");
         var i = 0;
 
-        foreach (OptionItem o in OptionItem.AllOptions)
+        foreach ((TabGroup tab, OptionItem[] options) in Options.GroupedOptions)
         {
-            if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
-                sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
+            sb.Append($"\n----{GetString($"TabGroup.{tab}")}----\n");
 
-            if (i++ > 20)
+            foreach (OptionItem o in options)
             {
-                yield return null;
-                i = 0;
-            }
+                if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
+                    sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
-            continue;
+                if (i++ > 20)
+                {
+                    yield return null;
+                    i = 0;
+                }
 
-            bool AllParentsEnabled(OptionItem oi)
-            {
-                if (oi.Parent == null) return true;
-                return oi.Parent.GetBool() && AllParentsEnabled(oi.Parent);
+                continue;
+
+                bool AllParentsEnabled(OptionItem oi)
+                {
+                    if (oi.Parent == null) return true;
+                    return oi.Parent.GetBool() && AllParentsEnabled(oi.Parent);
+                }
             }
         }
 

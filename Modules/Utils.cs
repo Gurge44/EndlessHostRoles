@@ -1369,7 +1369,7 @@ public static class Utils
                 case "DisableAirshipDevices" when Main.CurrentMap != MapNames.Airship:
                 case "PolusReactorTimeLimit" when Main.CurrentMap != MapNames.Polus:
                 case "AirshipReactorTimeLimit" when Main.CurrentMap != MapNames.Airship:
-                case "ImpCanBeRole" or "CrewCanBeRole" or "NeutralCanBeRole" when f1:
+                case "ImpCanBeRole" or "CrewCanBeRole" or "NeutralCanBeRole" or "CovenCanBeRole" when f1:
                     continue;
             }
 
@@ -3837,8 +3837,13 @@ public static class Utils
         return name;
     }
 
+    private static (int AddonsProgress, int RolesProgress) QuickSetupProgress;
+
     public static void EnterQuickSetupRoles(bool addons)
     {
+        int progress = addons ? QuickSetupProgress.AddonsProgress : QuickSetupProgress.RolesProgress;
+        bool continuation = progress > 0;
+        
         int all = Options.CustomRoleSpawnChances.Keys.Count(x => addons ? x.IsAdditionRole() : !x.IsAdditionRole());
         var count = 0;
 
@@ -3847,6 +3852,8 @@ public static class Utils
             if (addons ? !role.IsAdditionRole() : role.IsAdditionRole() || role.IsVanilla() || role.IsForOtherGameMode()) continue;
 
             count++;
+
+            if (continuation && progress >= count) continue;
 
             string str = GetString($"{role}InfoLong");
             string infoLong;
@@ -3867,10 +3874,19 @@ public static class Utils
                 rotStr = ColorString(at.GetAddonTypeColor(), GetString($"ROT.AddonType.{at}"));
             }
 
+            Action increment = () =>
+            {
+                if (addons) QuickSetupProgress.AddonsProgress++;
+                else QuickSetupProgress.RolesProgress++;
+
+                if (addons && QuickSetupProgress.AddonsProgress >= all)
+                    QuickSetupProgress = (0, 0);
+            };
+
             Prompt.Show(
                 string.Format(GetString("Promt.EnableRole"), count, all, rotStr, role.ToColoredString(), infoLong),
-                () => option.SetValue(1),
-                () => option.SetValue(0));
+                (() => option.SetValue(1)) + increment,
+                (() => option.SetValue(0)) + increment);
         }
 
         if (addons) return;
