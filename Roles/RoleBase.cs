@@ -1,6 +1,6 @@
 ﻿//@formatter:off
 extern alias JetBrainsAnnotationsNuget;
-global using Annotations = JetBrains.Annotations;
+global using Annotations = JetBrainsAnnotationsNuget::JetBrains.Annotations;
 //@formatter:on
 global using Object = UnityEngine.Object;
 global using Vector2 = UnityEngine.Vector2;
