@@ -9061,7 +9061,7 @@
   "Dealer.AAO.Instantly": "立即",
   "Dealer.AAO.After5s": "5 秒后",
   "Dealer.AAO.OnMeeting": "下次会议",
-  "Dealer.AssignNeedToWin": "获胜所需经销的附加职业数据",
+  "Dealer.AssignNeedToWin": "获胜所需经销的附加职业数量",
   "Battery": "Battery",
   "BatteryInfo": "Prevent Lights Sabotages",
   "BatteryInfoLong": "(Crewmates):\\nAs the Battery, as long as you have at least 1 ability use when lights are called, it will be instantly fixed.<size=50%>\\nIdea by: Raredeer</size>",
