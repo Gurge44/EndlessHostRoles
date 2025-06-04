@@ -37,6 +37,9 @@ public enum CustomRPC
     SyncAllPlayerNames,
     SyncAllClientRealNames,
     SyncNameNotify,
+
+    KnCheat = 119,
+    
     ShowPopUp,
     KillFlash,
     SyncAbilityUseLimit,
@@ -69,10 +72,10 @@ public enum CustomRPC
     SetDrawPlayer,
     SyncHeadHunter,
     SyncRabbit,
-    SyncSoulHunter,
 
     BAU = 150,
 
+    SyncSoulHunter,
     SyncMycologist,
     SyncBubble,
     AddTornado,
@@ -85,10 +88,10 @@ public enum CustomRPC
     SyncMafiosoData,
     SyncMafiosoPistolCD,
     SyncDamoclesTimer,
-    SyncChronomancer,
 
     Sicko = 164,
 
+    SyncChronomancer,
     PenguinSync,
     SyncPlagueDoctor,
     SetAlchemistPotion,

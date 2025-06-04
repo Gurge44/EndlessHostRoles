@@ -210,7 +210,7 @@ public class Amnesiac : RoleBase
         CustomRoles role = RememberedRole.Value;
 
         amnesiac.RpcSetCustomRole(role);
-        hasValue |= amnesiac.RpcChangeRoleBasis(role, sender: sender);
+        amnesiac.RpcChangeRoleBasis(role);
 
         hasValue |= sender.Notify(amnesiac, amneNotifyString);
         hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));

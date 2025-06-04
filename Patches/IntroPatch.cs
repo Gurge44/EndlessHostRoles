@@ -999,52 +999,34 @@ internal static class IntroCutsceneDestroyPatch
         {
             if (Main.NormalOptions.MapId != 4)
             {
-                var writer = CustomRpcSender.Create("IntroPatch - SyncSettings", SendOption.Reliable);
-                var hasData = false;
-
                 foreach (PlayerControl pc in aapc)
                 {
-                    writer.SyncSettings(pc);
-                    writer.RpcResetAbilityCooldown(pc);
-                    hasData = true;
+                    pc.SyncSettings();
+                    pc.RpcResetAbilityCooldown();
 
                     if (pc.GetCustomRole().UsesPetInsteadOfKill())
                         pc.AddAbilityCD(10);
                     else
                         pc.AddAbilityCD(false);
-
-                    if (writer.stream.Length > 400)
-                    {
-                        writer.SendMessage();
-                        writer = CustomRpcSender.Create("IntroPatch - SyncSettings", SendOption.Reliable);
-                        hasData = false;
-                    }
                 }
-
-                writer.SendMessage(!hasData);
 
                 if (CustomGameMode.Standard.IsActiveOrIntegrated())
                 {
                     int kcd = Options.StartingKillCooldown.GetInt();
 
                     if (kcd is not 10 and > 0)
-                    {
-                        LateTask.New(() =>
-                        {
-                            var sender = CustomRpcSender.Create("Intro - FixKillCooldown", SendOption.Reliable);
-                            bool hasValue = aapc.Aggregate(false, (current, pc) => current || sender.SetKillCooldown(pc, kcd - 2));
-                            sender.SendMessage(!hasValue);
-                        }, 2f, "FixKillCooldownTask");
-                    }
+                        LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd - 2)), 2f, "FixKillCooldownTask");
                     else if (Options.FixFirstKillCooldown.GetBool())
                     {
                         LateTask.New(() =>
                         {
-                            var sender = CustomRpcSender.Create("Intro - FixKillCooldown", SendOption.Reliable);
-                            var hasValue = false;
-                            aapc.Do(x => x.ResetKillCooldown(false));
-                            aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => hasValue |= sender.SetKillCooldown(pc, Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
-                            sender.SendMessage(!hasValue);
+                            aapc.Do(x =>
+                            {
+                                x.ResetKillCooldown(false);
+
+                                if (Main.AllPlayerKillCooldown.TryGetValue(x.PlayerId, out float kc) && kc - 2f > 0f)
+                                    x.SetKillCooldown(kc - 2f);
+                            });
                         }, 2f, "FixKillCooldownTask");
                     }
                     else Utils.SyncAllSettings();
@@ -1077,31 +1059,20 @@ internal static class IntroCutsceneDestroyPatch
 
                 LateTask.New(() =>
                 {
-                    var sender = CustomRpcSender.Create("Pet Assign On Game Start", SendOption.Reliable);
-
                     foreach (PlayerControl pc in aapc)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
                         if (pc.CurrentOutfit.PetId != "") continue;
 
                         string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId, sender);
+                        PetsHelper.SetPet(pc, petId);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
-                    }
-
-                    sender.SendMessage();
-
-                    foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
-                    {
-                        playerInfo.MarkDirty();
-                        AmongUsClient.Instance.SendAllStreamedObjects();
                     }
                 }, 0.3f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
                 {
-                    var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                    var hasValue = sender.Notify(lp, GetString("GLHF"), 2f);
+                    lp.Notify(GetString("GLHF"), 2f);
 
                     foreach (PlayerControl pc in aapc)
                     {
@@ -1109,6 +1080,8 @@ internal static class IntroCutsceneDestroyPatch
 
                         try
                         {
+                            var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
+                            
                             if (AmongUsClient.Instance.AmClient)
                                 pc.Shapeshift(pc, false);
 
@@ -1119,19 +1092,10 @@ internal static class IntroCutsceneDestroyPatch
 
                             sender.Notify(pc, GetString("GLHF"), 2f);
 
-                            hasValue = true;
+                            sender.SendMessage();
                         }
                         catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
-
-                        if (sender.stream.Length > 400)
-                        {
-                            sender.SendMessage();
-                            sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                            hasValue = false;
-                        }
                     }
-
-                    sender.SendMessage(!hasValue);
                 }, 0.4f, "Show Pet For Everyone");
 
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
@@ -1142,19 +1106,18 @@ internal static class IntroCutsceneDestroyPatch
                 System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
                 if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
 
-                var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
-                spectators.ForEach(sender.RpcExileV2);
-                sender.SendMessage(spectators.Count == 0);
-                spectators.ForEach(x => Main.PlayerStates[x.PlayerId].SetDead());
+                spectators.ForEach(x =>
+                {
+                    x.RpcExileV2();
+                    Main.PlayerStates[x.PlayerId].SetDead();
+                });
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
             if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
             {
                 var map = RandomSpawn.SpawnMap.GetSpawnMap();
-                var sender = CustomRpcSender.Create("IntroPatch - RandomSpawns TP", SendOption.Reliable);
-                var hasValue = aapc.Aggregate(false, (current, player) => current || map.RandomTeleport(player, sender));
-                sender.SendMessage(dispose: !hasValue);
+                aapc.Do(map.RandomTeleport);
             }
 
             try
@@ -1195,11 +1158,8 @@ internal static class IntroCutsceneDestroyPatch
             if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
                 Main.Instance.StartCoroutine(TheMindGame.OnGameStart());
 
-            LateTask.New(() =>
-            {
-                if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
-                    CaptureTheFlag.OnGameStart();
-            }, 0.2f, log: false);
+            if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
+                Main.Instance.StartCoroutine(CaptureTheFlag.OnGameStart());
 
             Utils.CheckAndSetVentInteractions();
 
@@ -1217,8 +1177,8 @@ internal static class IntroCutsceneDestroyPatch
 
         LateTask.New(() =>
         {
-            if (Main.CurrentMap == MapNames.Airship && Vector2.Distance(PlayerControl.LocalPlayer.Pos(), new Vector2(-25f, 40f)) < 1f)
+            if (Main.CurrentMap == MapNames.Airship && Vector2.Distance(PlayerControl.LocalPlayer.Pos(), new Vector2(-25f, 40f)) < 8f)
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
-        }, 5f, "Airship Spawn FailSafe");
+        }, 4f, "Airship Spawn FailSafe");
     }
 }

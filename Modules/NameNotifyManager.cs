@@ -61,23 +61,7 @@ public static class NameNotifyManager
 
         if (toNotify.Count == 0 || !AmongUsClient.Instance.AmHost) return;
 
-        var sender = CustomRpcSender.Create("NameNotifyManager.OnFixedUpdate", SendOption.Reliable);
-        var hasValue = false;
-
-        toNotify.ToValidPlayers().ForEach(x =>
-        {
-            hasValue |= sender.NotifyRolesSpecific(x, x, out sender, out bool cleared);
-            if (cleared) hasValue = false;
-
-            if (sender.stream.Length > 400)
-            {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("NameNotifyManager.OnFixedUpdate", SendOption.Reliable);
-                hasValue = false;
-            }
-        });
-
-        sender.SendMessage(dispose: !hasValue);
+        toNotify.ToValidPlayers().ForEach(x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: x));
     }
 
     public static bool GetNameNotify(PlayerControl player, out string name)

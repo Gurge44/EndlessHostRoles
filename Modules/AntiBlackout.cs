@@ -41,8 +41,7 @@ public static class AntiBlackout
             }
 
             revived.Data.IsDead = false;
-            revived.Data.MarkDirty();
-            AmongUsClient.Instance.SendAllStreamedObjects();
+            revived.Data.SendGameData();
             revived.RpcChangeRoleBasis(CustomRoles.CrewmateEHR, forced: true);
         }
 
@@ -63,8 +62,7 @@ public static class AntiBlackout
                 if (pc.Data != null && !pc.Data.IsDead && !pc.Data.Disconnected && !pc.IsAlive())
                 {
                     pc.Data.IsDead = true;
-                    pc.Data.MarkDirty();
-                    AmongUsClient.Instance.SendAllStreamedObjects();
+                    pc.Data.SendGameData();
                 }
             }
             catch (Exception e) { Utils.ThrowException(e); }

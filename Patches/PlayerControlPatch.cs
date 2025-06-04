@@ -587,10 +587,10 @@ internal static class CheckMurderPatch
             ExtendedPlayerControl.RpcSetCustomRole(target.PlayerId, CustomRoles.Madmate);
             var sender = CustomRpcSender.Create("RpcCheckAndMurder - Madmate", SendOption.Reliable);
             sender.Notify(target, ColorString(GetRoleColor(CustomRoles.Madmate), GetString("BecomeMadmateCuzMadmateMode")));
-            sender.SetKillCooldown(killer);
-            sender.RpcGuardAndKill(killer, target);
             sender.RpcGuardAndKill(target, killer);
             sender.RpcGuardAndKill(target, target);
+            sender.RpcGuardAndKill(killer, target);
+            sender.SetKillCooldown(killer);
             sender.SendMessage();
             Logger.Info($"Add-on assigned: {target?.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Madmate}", $"Assign {CustomRoles.Madmate}");
             return false;
@@ -2268,15 +2268,11 @@ internal static class PlayerControlSetRolePatch
                 roleType = RoleTypes.ImpostorGhost;
             else
             {
-                var sender = CustomRpcSender.Create("Set Desync Ghost Role", SendOption.Reliable);
-
                 foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
                 {
                     Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                    sender.RpcSetRole(__instance, role, seer.OwnerId);
+                    __instance.RpcSetRoleDesync(role, seer.OwnerId);
                 }
-
-                sender.SendMessage();
 
                 return false;
             }

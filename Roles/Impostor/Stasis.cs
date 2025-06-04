@@ -121,7 +121,6 @@ public class Stasis : RoleBase
 
             for (var i = 0; i < time; i++)
             {
-                // ReSharper disable once AccessToModifiedClosure
                 imps.NotifyPlayers($"<#00ffa5>{Translator.GetString("Stasis.TimeFrozenNotify")}</color> <#888888>-</color> {time - i}", overrideAll: true);
                 yield return new WaitForSeconds(1f);
             }

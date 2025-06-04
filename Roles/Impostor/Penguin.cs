@@ -356,7 +356,7 @@ public class Penguin : RoleBase
                 if (!IsGoose)
                 {
                     AbductVictim.Data.IsDead = true;
-                    AbductVictim.Data.MarkDirty();
+                    AbductVictim.Data.SendGameData();
                 }
 
                 // If the penguin himself is on a ladder, kill him after getting off the ladder.

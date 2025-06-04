@@ -8,7 +8,6 @@ using EHR.Neutral;
 
 namespace EHR.Modules;
 
-// ReSharper disable AccessToModifiedClosure
 internal static class CustomRoleSelector
 {
     public static Dictionary<byte, CustomRoles> RoleResult;

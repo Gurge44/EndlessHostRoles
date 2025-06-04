@@ -186,17 +186,12 @@ public class Romantic : RoleBase
         {
             IsPartnerProtected = true;
 
-            var sender = CustomRpcSender.Create("Romantic.OnCheckMurder - 1", SendOption.Reliable);
-            var hasValue = false;
-
             RomanticPC.ResetKillCooldown();
-            hasValue |= sender.SetKillCooldown(RomanticPC);
+            RomanticPC.SetKillCooldown();
             RomanticPC.RPCPlayCustomSound("Shield");
 
-            hasValue |= sender.Notify(RomanticPC, GetString("RomanticProtectPartner"));
-            hasValue |= sender.Notify(Partner, GetString("RomanticIsProtectingYou"));
-
-            sender.SendMessage(!hasValue);
+            RomanticPC.Notify(GetString("RomanticProtectPartner"));
+            Partner.Notify(GetString("RomanticIsProtectingYou"));
 
             LateTask.New(() =>
             {
@@ -206,15 +201,10 @@ public class Romantic : RoleBase
 
                 if (!GameStates.IsInTask) return;
 
-                var sender2 = CustomRpcSender.Create("Romantic.OnCheckMurder - 2", SendOption.Reliable);
-                var hasValue = false;
+                RomanticPC.Notify(GetString("ProtectingOver"));
+                Partner.Notify(GetString("ProtectingOver"));
 
-                hasValue |= sender2.Notify(RomanticPC, GetString("ProtectingOver"));
-                hasValue |= sender2.Notify(Partner, GetString("ProtectingOver"));
-
-                hasValue |= sender2.SetKillCooldown(RomanticPC);
-
-                sender2.SendMessage(!hasValue);
+                RomanticPC.SetKillCooldown();
             }, ProtectDuration.GetFloat(), "RomanticProtecting");
         }
 

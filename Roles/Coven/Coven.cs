@@ -21,7 +21,6 @@ public abstract class Coven : RoleBase
 
     protected virtual void OnReceiveNecronomicon() { }
 
-    [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
     private static void GiveNecronomicon()
     {
         Dictionary<byte, PlayerState> psDict = Main.PlayerStates.Where(x => x.Value.Role is Coven { HasNecronomicon: false } coven && coven.NecronomiconReceivePriority != NecronomiconReceivePriorities.Never).ToDictionary(x => x.Key, x => x.Value);

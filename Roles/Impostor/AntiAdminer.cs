@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using Hazel;
 using Monitor = EHR.Crewmate.Monitor;
 
 namespace EHR.Impostor;
@@ -90,16 +89,10 @@ internal class AntiAdminer : RoleBase
 
         ExtraAbilityStartTimeStamp = Utils.TimeStamp;
 
-        var sender = CustomRpcSender.Create("AntiAdminer.OnShapeshift", SendOption.Reliable);
-        var hasValue = false;
+        shapeshifter.RpcResetAbilityCooldown();
+        Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
 
-        hasValue |= sender.RpcResetAbilityCooldown(shapeshifter);
-        hasValue |= sender.NotifyRolesSpecific(shapeshifter, shapeshifter, out sender, out bool cleared);
-        if (cleared) hasValue = false;
-
-        hasValue = PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive()).Aggregate(hasValue, (current, pc) => current || sender.Notify(pc, Translator.GetString("AAWarning"), Delay.GetFloat()));
-
-        sender.SendMessage(!hasValue);
+        PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive()).NotifyPlayers(Translator.GetString("AAWarning"), Delay.GetFloat());
         return false;
     }
 

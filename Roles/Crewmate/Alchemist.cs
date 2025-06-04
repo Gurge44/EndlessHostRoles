@@ -298,11 +298,8 @@ public class Alchemist : RoleBase
             switch (remainTime)
             {
                 case < 0:
-                    var sender = CustomRpcSender.Create("RpcExitVentDesync", SendOption.Reliable);
                     int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                    bool hasValue = Main.AllPlayerControls.Where(pc => player.PlayerId != pc.PlayerId).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
-                    sender.SendMessage(!hasValue);
-
+                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
                     player.Notify(GetString("SwooperInvisStateOut"));
                     SendRPC();
                     refresh = true;

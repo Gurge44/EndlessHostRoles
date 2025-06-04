@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -190,12 +189,8 @@ public class Swooper : RoleBase
             {
                 case < 0:
                     lastTime = now;
-
-                    var sender = CustomRpcSender.Create("RpcExitVentDesync", SendOption.Reliable);
                     int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                    bool hasValue = Main.AllPlayerControls.Without(player).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
-                    sender.SendMessage(!hasValue);
-
+                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
                     player.Notify(GetString("SwooperInvisStateOut"));
                     InvisTime = -10;
                     SendRPC();

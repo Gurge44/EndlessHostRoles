@@ -44,7 +44,7 @@ public class CustomRpcSender
 
     private CustomRpcSender() { }
 
-    public CustomRpcSender(string name, SendOption sendOption, bool isUnsafe, bool log)
+    private CustomRpcSender(string name, SendOption sendOption, bool isUnsafe, bool log)
     {
         stream = MessageWriter.Get(sendOption);
 
@@ -197,6 +197,12 @@ public class CustomRpcSender
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
             else
                 throw new InvalidOperationException(errorMsg);
+        }
+
+        if (stream.Length > 500)
+        {
+            doneStreams.Add(stream);
+            stream = MessageWriter.Get(sendOption);
         }
 
         if (targetClientId < 0)

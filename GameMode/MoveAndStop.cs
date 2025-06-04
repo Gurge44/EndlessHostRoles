@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
-using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -441,40 +440,32 @@ internal static class MoveAndStop
                     {
                         case Events.VentAccess:
                         {
-                            var sender = CustomRpcSender.Create("MoveAndStop - VentAccess", SendOption.Reliable);
-                            Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR, sender: sender));
-                            sender.SendMessage();
+                            Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
                             LateTask.New(() =>
                             {
-                                sender = CustomRpcSender.Create("MoveAndStop - VentAccess (Remove)", SendOption.Reliable);
                                 Main.AllAlivePlayerControls.Do(x =>
                                 {
-                                    x.RpcChangeRoleBasis(CustomRoles.Tasker, sender: sender);
+                                    x.RpcChangeRoleBasis(CustomRoles.Tasker);
 
                                     if (x.inVent || x.MyPhysics.Animations.IsPlayingEnterVentAnimation())
                                         LateTask.New(() => x.MyPhysics.RpcExitVent(x.GetClosestVent().Id), 1f, log: false);
                                 });
-                                sender.SendMessage();
                             }, duration, log: false);
 
                             break;
                         }
                         case Events.CommsSabotage:
                         {
-                            var sender = CustomRpcSender.Create("MoveAndStop - CommsSabotage", SendOption.Reliable);
-                            Main.AllAlivePlayerControls.Do(x => sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 128));
-                            sender.SendMessage();
+                            Main.AllAlivePlayerControls.Do(x => x.RpcDesyncRepairSystem(SystemTypes.Comms, 128));
 
                             LateTask.New(() =>
                             {
-                                sender = CustomRpcSender.Create("MoveAndStop - CommsSabotage (Remove)", SendOption.Reliable);
                                 Main.AllAlivePlayerControls.Do(x =>
                                 {
-                                    sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 16);
-                                    if (Main.NormalOptions.MapId is 1 or 5) sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 17);
+                                    x.RpcDesyncRepairSystem(SystemTypes.Comms, 16);
+                                    if (Main.NormalOptions.MapId is 1 or 5) x.RpcDesyncRepairSystem(SystemTypes.Comms, 17);
                                 });
-                                sender.SendMessage();
                             }, duration, log: false);
 
                             break;

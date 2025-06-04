@@ -91,20 +91,14 @@ internal class Necromancer : RoleBase
     {
         if (Deathknight.DeathknightId == byte.MaxValue && !target.Is(CustomRoles.Loyal) && !target.Is(CustomRoles.Curser) && !target.IsConverted())
         {
-            var sender = CustomRpcSender.Create("Necromancer.OnCheckMurder", SendOption.Reliable);
-            var hasValue = false;
-
-            hasValue |= target.RpcChangeRoleBasis(CustomRoles.Deathknight, sender: sender);
+            target.RpcChangeRoleBasis(CustomRoles.Deathknight);
             target.RpcSetCustomRole(CustomRoles.Deathknight);
 
-            hasValue |= sender.SetKillCooldown(killer);
+            killer.SetKillCooldown();
 
             target.ResetKillCooldown();
-            hasValue |= sender.Notify(target, GetString("RecruitedToDeathknight"), setName: false);
-            hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
-            if (cleared) hasValue = false;
-
-            sender.SendMessage(!hasValue);
+            target.Notify(GetString("RecruitedToDeathknight"));
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
             LateTask.New(() => target.SetKillCooldown(), 0.2f, log: false);
 
@@ -230,14 +224,13 @@ internal class Deathknight : RoleBase
             var hasValue = false;
 
             hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("DeathknightRecruitedPlayer")));
-            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("RecruitedByDeathknight")));
-
             hasValue |= sender.SetKillCooldown(killer);
-            hasValue |= sender.RpcGuardAndKill(target, killer);
-            hasValue |= sender.RpcGuardAndKill(target, target);
-
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
+
+            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("RecruitedByDeathknight")));
+            hasValue |= sender.RpcGuardAndKill(target, killer);
+            hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
             if (cleared) hasValue = false;
 

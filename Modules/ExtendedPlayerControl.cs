@@ -305,7 +305,7 @@ internal static class ExtendedPlayerControl
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
         var sender = CustomRpcSender.Create("RpcRevive", SendOption.Reliable);
-        player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole, sender: sender);
+        player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole);
         player.ResetKillCooldown();
         sender.RpcResetAbilityCooldown(player);
         sender.SyncGeneralOptions(player);
@@ -325,7 +325,7 @@ internal static class ExtendedPlayerControl
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
-    public static bool RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, CustomRpcSender sender = null, bool forced = false)
+    public static bool RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, bool forced = false)
     {
         if (!forced)
         {
@@ -381,8 +381,6 @@ internal static class ExtendedPlayerControl
         CustomRoles newRoleVN = newCustomRole.GetVNRole();
         RoleTypes newRoleDY = newCustomRole.GetDYRole();
 
-        CustomRpcSender writer = sender ?? CustomRpcSender.Create("RpcChangeRoleBasis", SendOption.Reliable);
-
         switch (oldRoleIsDesync, newRoleIsDesync)
         {
             // Desync role to normal role
@@ -403,7 +401,7 @@ internal static class ExtendedPlayerControl
 
                     // Set role type for seer
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                    writer.RpcSetRole(player, remeberRoleType, seerClientId);
+                    player.RpcSetRoleDesync(remeberRoleType, seerClientId);
 
                     if (self) continue;
 
@@ -424,13 +422,13 @@ internal static class ExtendedPlayerControl
                         if (!playerIsKiller && seer.Is(Team.Impostor)) remeberRoleType = RoleTypes.ImpostorGhost;
 
                         StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (seerCustomRole.IsDesyncRole() ? seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist : seerRoleType, seerCustomRole);
-                        writer.RpcSetRole(seer, remeberRoleType, playerClientId);
+                        seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
                         continue;
                     }
 
                     // Set role type for player
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (remeberRoleType, seerCustomRole);
-                    writer.RpcSetRole(seer, remeberRoleType, playerClientId);
+                    seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
                 }
 
                 break;
@@ -457,7 +455,7 @@ internal static class ExtendedPlayerControl
                         remeberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
 
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                    writer.RpcSetRole(player, remeberRoleType, seerClientId);
+                    player.RpcSetRoleDesync(remeberRoleType, seerClientId);
 
                     if (self) continue;
 
@@ -470,13 +468,13 @@ internal static class ExtendedPlayerControl
                         remeberRoleType = RoleTypes.CrewmateGhost;
 
                         StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (seerCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist, seerCustomRole);
-                        writer.RpcSetRole(seer, remeberRoleType, playerClientId);
+                        seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
                         continue;
                     }
 
                     // Set role type for player
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (remeberRoleType, seerCustomRole);
-                    writer.RpcSetRole(seer, remeberRoleType, playerClientId);
+                    seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
                 }
 
                 break;
@@ -498,14 +496,12 @@ internal static class ExtendedPlayerControl
                         remeberRoleType = newRoleType;
 
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                    writer.RpcSetRole(player, remeberRoleType, seerClientId);
+                    player.RpcSetRoleDesync(remeberRoleType, seerClientId);
                 }
 
                 break;
             }
         }
-
-        if (sender == null) writer.SendMessage();
 
         if (loggerRoleMap)
         {
@@ -1469,6 +1465,20 @@ internal static class ExtendedPlayerControl
     public static bool TPToRandomVent(this PlayerControl pc, bool log = true)
     {
         return Utils.TPToRandomVent(pc.NetTransform, log);
+    }
+
+    public static void SendGameData(this NetworkedPlayerInfo playerInfo)
+    {
+        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+        writer.StartMessage(5);
+        writer.Write(AmongUsClient.Instance.GameId);
+        writer.StartMessage(1);
+        writer.WritePacked(playerInfo.NetId);
+        playerInfo.Serialize(writer, false);
+        writer.EndMessage();
+        writer.EndMessage();
+        AmongUsClient.Instance.SendOrDisconnect(writer);
+        writer.Recycle();
     }
 
     public static void Kill(this PlayerControl killer, PlayerControl target)

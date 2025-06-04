@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
-using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -79,11 +78,9 @@ public static class Speedrun
         Utils.SendRPC(CustomRPC.SpeedrunSync, 2, pc.PlayerId);
         int kcd = KillCooldown.GetInt();
         Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
-        var sender = CustomRpcSender.Create("Speedrun.OnTaskFinish", SendOption.Reliable);
-        pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.NSerialKiller, sender: sender);
-        sender.Notify(pc, Translator.GetString("Speedrun_CompletedTasks"));
-        sender.SyncSettings(pc);
-        sender.SendMessage();
+        pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+        pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
+        pc.SyncSettings();
         LateTask.New(() => pc.SetKillCooldown(kcd), 0.2f, log: false);
     }
 

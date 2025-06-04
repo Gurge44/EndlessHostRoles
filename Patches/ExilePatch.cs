@@ -8,7 +8,6 @@ using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
-using Hazel;
 
 namespace EHR.Patches;
 
@@ -80,8 +79,6 @@ internal static class ExileControllerWrapUpPatch
 
         NiceSwapper.OnExileFinish();
 
-        var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpPostfix", SendOption.Reliable);
-
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (pc.Is(CustomRoles.Warlock))
@@ -91,18 +88,14 @@ internal static class ExileControllerWrapUpPatch
             }
 
             pc.ResetKillCooldown(false);
-            sender.RpcResetAbilityCooldown(pc);
+            pc.RpcResetAbilityCooldown();
             PetsHelper.RpcRemovePet(pc);
         }
-
-        sender.SendMessage();
 
         if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
         {
             var map = RandomSpawn.SpawnMap.GetSpawnMap();
-            sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpPostfix - 2", SendOption.Reliable);
-            var hasValue = Main.AllAlivePlayerControls.Aggregate(false, (current, player) => current || map.RandomTeleport(player, sender));
-            sender.SendMessage(dispose: !hasValue);
+            Main.AllAlivePlayerControls.Do(player => map.RandomTeleport(player));
         }
 
         FallFromLadder.Reset();
@@ -151,22 +144,9 @@ internal static class ExileControllerWrapUpPatch
             if (!string.IsNullOrEmpty(finalText))
             {
                 var r = IRandom.Instance;
-                var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
-                var hasValue = false;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    hasValue |= sender.Notify(pc, finalText, r.Next(7, 13));
-
-                    if (sender.stream.Length > 400)
-                    {
-                        sender.SendMessage();
-                        sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer - 2", ejectionNotify ? SendOption.None : SendOption.Reliable);
-                        hasValue = false;
-                    }
-                }
-
-                sender.SendMessage(dispose: !hasValue);
+                    pc.Notify(finalText, r.Next(7, 13));
             }
         }
 
@@ -181,9 +161,7 @@ internal static class ExileControllerWrapUpPatch
     {
         if (GameStates.IsEnded) return;
 
-        var sender = CustomRpcSender.Create("ExileControllerWrapUpPatch.WrapUpFinalizer", SendOption.Reliable);
-        Main.AfterMeetingDeathPlayers.Do(x => sender.RpcExileV2(x.Key.GetPlayer()));
-        sender.SendMessage(Main.AfterMeetingDeathPlayers.Count == 0);
+        Main.AfterMeetingDeathPlayers.Keys.ToValidPlayers().Do(x => x.RpcExileV2());
 
         foreach ((byte id, PlayerState.DeathReason deathReason) in Main.AfterMeetingDeathPlayers)
         {

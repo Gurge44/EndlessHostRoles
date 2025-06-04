@@ -10,7 +10,6 @@ using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
-// ReSharper disable AccessToModifiedClosure
 // ReSharper disable InconsistentNaming
 
 namespace EHR;

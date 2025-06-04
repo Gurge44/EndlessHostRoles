@@ -15,9 +15,6 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
-// ReSharper disable AccessToModifiedClosure
-
-
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CheckForEndVoting))]

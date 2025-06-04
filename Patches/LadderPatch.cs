@@ -8,7 +8,7 @@ namespace EHR;
 public class FallFromLadder
 {
     public static Dictionary<byte, Vector3> TargetLadderData;
-    private static int Chance => (Options.LadderDeathChance as StringOptionItem).GetChance();
+    private static int Chance => (Options.LadderDeathChance as StringOptionItem)?.GetChance() ?? 0;
 
     public static void Reset()
     {

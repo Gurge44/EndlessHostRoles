@@ -62,7 +62,6 @@ internal class Sentry : RoleBase
 
         Enum.GetValues<SimpleTeam>().Do(x =>
         {
-            // ReSharper disable once AccessToModifiedClosure
             TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
                 .SetParent(UsableDevicesForInfoView);
         });

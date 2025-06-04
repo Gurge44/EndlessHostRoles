@@ -815,8 +815,9 @@ public static class GuessManager
                 Teambutton.FindChild("ControllerHighlight").gameObject.SetActive(false);
                 Object.Instantiate(maskTemplate, TeambuttonParent);
                 TextMeshPro Teamlabel = Object.Instantiate(textTemplate, Teambutton);
-                Teambutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
-                RoleSelectButtons.Add((CustomRoleTypes)index, Teambutton.GetComponent<SpriteRenderer>());
+                var spriteRenderer = Teambutton.GetComponent<SpriteRenderer>();
+                spriteRenderer.sprite = CustomButton.Get("GuessPlate");
+                RoleSelectButtons.Add((CustomRoleTypes)index, spriteRenderer);
                 TeambuttonParent.localPosition = new(-3.10f + (tabCount++ * 1.47f), 2.225f, -200);
                 TeambuttonParent.localScale = new(0.53f, 0.53f, 1f);
 

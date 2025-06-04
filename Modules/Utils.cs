@@ -2298,7 +2298,7 @@ public static class Utils
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public static void NotifyRoles(bool ForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
+    public static void NotifyRoles(bool ForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false, SendOption SendOption = SendOption.Reliable)
     {
         if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (CustomGameMode.Standard.IsActiveOrIntegrated() || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
@@ -2306,18 +2306,18 @@ public static class Utils
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
         PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
 
-        var sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
+        var sender = CustomRpcSender.Create("NotifyRoles", SendOption);
         var hasValue = false;
 
         foreach (PlayerControl seer in seerList)
         {
-            hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared);
+            hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared, SendOption);
             if (senderWasCleared) hasValue = false;
 
             if (sender.stream.Length > 100)
             {
                 sender.SendMessage();
-                sender = CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
+                sender = CustomRpcSender.Create("NotifyRoles", SendOption);
                 hasValue = false;
             }
         }
@@ -2335,7 +2335,7 @@ public static class Utils
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
     }
 
-    public static bool WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, PlayerControl[] seerList, PlayerControl[] targetList, out bool senderWasCleared)
+    public static bool WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, PlayerControl[] seerList, PlayerControl[] targetList, out bool senderWasCleared, SendOption sendOption = SendOption.Reliable)
     {
         long now = TimeStamp;
         var hasValue = false;
@@ -2346,7 +2346,7 @@ public static class Utils
             if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby))
                 return false;
 
-            sender ??= CustomRpcSender.Create("NotifyRoles", SendOption.Reliable);
+            sender ??= CustomRpcSender.Create("NotifyRoles", sendOption);
 
             // During the intro scene, set the team name for non-modded clients and skip the rest.
             string selfName;
@@ -2943,7 +2943,7 @@ public static class Utils
         Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
     }
 
-    public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null)
+    public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null, SendOption sendOption = SendOption.Reliable)
     {
         if (newOutfit.Compare(pc.Data.DefaultOutfit)) return false;
 
@@ -2951,7 +2951,7 @@ public static class Utils
 
         if (newOutfit.Compare(pc.Data.DefaultOutfit)) return false;
 
-        var sender = writer ?? CustomRpcSender.Create($"Utils.RpcChangeSkin({pc.Data.PlayerName})", SendOption.Reliable);
+        CustomRpcSender sender = writer ?? CustomRpcSender.Create($"Utils.RpcChangeSkin({pc.Data.PlayerName})", sendOption);
 
         pc.SetName(newOutfit.PlayerName);
 
@@ -3012,6 +3012,34 @@ public static class Utils
         if (writer == null) sender.SendMessage();
 
         return true;
+    }
+
+    public static void SendGameData()
+    {
+        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+        writer.StartMessage(5);
+        writer.Write(AmongUsClient.Instance.GameId);
+
+        foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
+        {
+            if (writer.Length > 500)
+            {
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Clear(SendOption.Reliable);
+                writer.StartMessage(5);
+                writer.Write(AmongUsClient.Instance.GameId);
+            }
+
+            writer.StartMessage(1);
+            writer.WritePacked(playerinfo.NetId);
+            playerinfo.Serialize(writer, false);
+            writer.EndMessage();
+        }
+
+        writer.EndMessage();
+        AmongUsClient.Instance.SendOrDisconnect(writer);
+        writer.Recycle();
     }
 
     public static string GetGameStateData(bool clairvoyant = false)
@@ -3200,10 +3228,8 @@ public static class Utils
                     LateTask.New(() =>
                     {
                         if (pc.CurrentOutfit.PetId != "") return;
-                        var sender = CustomRpcSender.Create("Reassign pet", SendOption.Reliable);
                         string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId, sender);
-                        sender.SendMessage();
+                        PetsHelper.SetPet(pc, petId);
                     }, 3f, "No Pet Reassign");
                 }
 

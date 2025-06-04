@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using Hazel;
 
 namespace EHR.Coven;
 
@@ -120,9 +119,6 @@ public class Siren : Coven
     {
         PlayerControl[] nearbyPlayers = Utils.GetPlayersInRadius(SingRange.GetFloat(), pc.Pos()).Without(pc).ToArray();
 
-        var sender = CustomRpcSender.Create("Siren.OnVanish", SendOption.Reliable);
-        var hasValue = false;
-
         foreach (PlayerControl player in nearbyPlayers)
         {
             if (!Stages.TryGetValue(player.PlayerId, out var stage))
@@ -133,15 +129,13 @@ public class Siren : Coven
                 case 1:
                     EffectEndTS[player.PlayerId] = Utils.TimeStamp + Stage1EffectsLength.GetInt();
                     player.MarkDirtySettings();
-                    hasValue |= sender.NotifyRolesSpecific(pc, player, out sender, out bool cleared);
-                    if (cleared) hasValue = false;
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
                     break;
                 case 2:
                     ReportDeadBodyPatch.CanReport[player.PlayerId] = false;
                     EffectEndTS[player.PlayerId] = Utils.TimeStamp + Stage2EffectsLength.GetInt();
                     player.MarkDirtySettings();
-                    hasValue |= sender.NotifyRolesSpecific(pc, player, out sender, out cleared);
-                    if (cleared) hasValue = false;
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
                     break;
                 case 3:
                     player.RpcSetCustomRole(CustomRoles.Entranced);
@@ -149,7 +143,6 @@ public class Siren : Coven
             }
         }
 
-        sender.SendMessage(!hasValue);
         return false;
     }
 

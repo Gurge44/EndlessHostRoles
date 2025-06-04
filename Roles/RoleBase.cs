@@ -1,4 +1,6 @@
-﻿global using Object = UnityEngine.Object;
+﻿extern alias JetBrainsAnnotationsNuget;
+global using Annotations = JetBrains.Annotations;
+global using Object = UnityEngine.Object;
 global using Vector2 = UnityEngine.Vector2;
 global using File = System.IO.File;
 global using StringBuilder = System.Text.StringBuilder;

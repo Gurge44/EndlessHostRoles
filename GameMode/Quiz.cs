@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
-using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -439,9 +438,7 @@ public static class Quiz
                 AllowKills = true;
                 FFAEndTS = Utils.TimeStamp + FFAEventLength.GetInt();
                 var spectators = aapc.ExceptBy(dyingPlayers, x => x.PlayerId).ToArray();
-                var sender = CustomRpcSender.Create("Quiz.FFA-Event-RpcExileV2", SendOption.Reliable);
-                spectators.Do(sender.RpcExileV2);
-                sender.SendMessage();
+                spectators.Do(x => x.RpcExileV2());
                 Main.PlayerStates.Values.IntersectBy(spectators.Select(x => x.PlayerId), x => x.Player.PlayerId).Do(x => x.SetDead());
                 var stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
                 stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.NSerialKiller));
@@ -461,15 +458,15 @@ public static class Quiz
                 Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 
                 var location = RandomSpawn.SpawnMap.GetSpawnMap().Positions.IntersectBy(UsedRooms[Main.CurrentMap].Values, x => x.Key).RandomElement().Value;
-                sender = CustomRpcSender.Create("Quiz.FFA-Event-TP", SendOption.Reliable);
+                PlayerControl ffaSurvivor = stillLiving[0];
 
                 switch (stillLiving.Count)
                 {
                     case 0:
                         break;
                     case 1:
-                        stillLiving[0].RpcChangeRoleBasis(CustomRoles.QuizPlayer);
-                        if (!Chat) sender.TP(stillLiving[0], location);
+                        ffaSurvivor.RpcChangeRoleBasis(CustomRoles.QuizPlayer);
+                        ffaSurvivor.TP(location);
                         break;
                     default:
                         stillLiving.ForEach(x => x.Suicide());
@@ -482,16 +479,9 @@ public static class Quiz
                 {
                     Utils.SetChatVisibleForAll();
                     yield return new WaitForSeconds(1f);
-                    sender.TP(stillLiving[0], location);
-                }
-                else if (stillLiving.Count == 1)
-                {
-                    CheckInvalidMovementPatch.ExemptedPlayers.Add(stillLiving[0].PlayerId);
-                    CheckInvalidMovementPatch.LastPosition[stillLiving[0].PlayerId] = location;
                 }
 
-                spectators.Do(x => sender.TP(x, location));
-                sender.SendMessage();
+                spectators.Do(x => x.TP(location));
 
                 yield return new WaitForSeconds(2f);
                 if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;

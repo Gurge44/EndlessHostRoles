@@ -300,18 +300,33 @@ internal static class CheckTaskCompletionPatch
     }
 }
 
-[HarmonyPatch(typeof(HauntMenuMinigame), nameof(HauntMenuMinigame.SetFilterText))]
-public static class HauntMenuMinigameSetFilterTextPatch
+[HarmonyPatch(typeof(HauntMenuMinigame), nameof(HauntMenuMinigame.SetHauntTarget))]
+public static class HauntMenuMinigameSetHauntTargetPatch
 {
-    public static bool Prefix(HauntMenuMinigame __instance)
+    public static bool Prefix(HauntMenuMinigame __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
+        if (Options.CurrentGameMode == CustomGameMode.Quiz && Quiz.AllowKills) return false;
+
+        if (target == null)
         {
-            __instance.FilterText.text = __instance.HauntTarget.GetCustomRole().ToColoredString();
-            return false;
+            __instance.HauntTarget = null;
+            __instance.NameText.text = "";
+            __instance.FilterText.text = "";
+            __instance.HauntingText.enabled = false;
+        }
+        else
+        {
+            __instance.HauntTarget = target;
+            __instance.HauntingText.enabled = true;
+            __instance.NameText.text = target.Data?.GetPlayerName(PlayerOutfitType.Default);
+
+            if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
+                __instance.FilterText.text = __instance.HauntTarget.GetCustomRole().ToColoredString();
+            else
+                __instance.FilterText.text = "";
         }
 
-        return true;
+        return false;
     }
 }
 

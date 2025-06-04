@@ -57,9 +57,6 @@ internal static class DisableDevice
 
         if (!DoDisable && !rogueForce) return;
 
-        var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
-        var hasValue = false;
-
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             try
@@ -117,6 +114,9 @@ internal static class DisableDevice
 
                 doComms &= !ignore;
 
+                var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
+                var hasValue = false;
+
                 if (doComms && !pc.inVent)
                 {
                     if (!DesyncComms.Contains(pc.PlayerId)) DesyncComms.Add(pc.PlayerId);
@@ -133,11 +133,11 @@ internal static class DisableDevice
 
                     hasValue = true;
                 }
+
+                sender.SendMessage(!hasValue);
             }
             catch (Exception ex) { Logger.Exception(ex, "DisableDevice"); }
         }
-
-        sender.SendMessage(!hasValue);
     }
 }
 

@@ -124,10 +124,10 @@ public class Agitater : RoleBase
         var hasValue = false;
         hasValue |= sender.RpcGuardAndKill(killer, killer);
         hasValue |= sender.Notify(killer, GetString("AgitaterPassNotify"));
-        hasValue |= sender.Notify(target, GetString("AgitaterTargetNotify"));
-        AgitaterHasBombed = true;
         killer.ResetKillCooldown();
         hasValue |= sender.SetKillCooldown(killer);
+        hasValue |= sender.Notify(target, GetString("AgitaterTargetNotify"));
+        AgitaterHasBombed = true;
         sender.SendMessage(!hasValue);
 
         LateTask.New(() =>

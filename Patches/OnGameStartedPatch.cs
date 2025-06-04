@@ -1023,8 +1023,7 @@ internal static class StartGameHostPatch
                     yield return null;
 
             pc.Data.Disconnected = true;
-            pc.Data.MarkDirty();
-            AmongUsClient.Instance.SendAllStreamedObjects();
+            pc.Data.SendGameData();
         }
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
@@ -1044,26 +1043,17 @@ internal static class StartGameHostPatch
 
             bool disconnected = Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
             pc.Data.Disconnected = disconnected;
-
-            if (!disconnected)
-            {
-                pc.Data.MarkDirty();
-                AmongUsClient.Instance.SendAllStreamedObjects();
-            }
+            if (!disconnected) pc.Data.SendGameData();
         }
 
-        yield return new WaitForSeconds(7.8f);
-
-        var sender = CustomRpcSender.Create("OnGameStartedPatch - Reset All Cooldowns", SendOption.Reliable);
-        var hasValue = false;
-
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        LateTask.New(() =>
         {
-            hasValue |= sender.SetKillCooldown(pc, 10f);
-            hasValue |= sender.RpcResetAbilityCooldown(pc);
-        }
-
-        sender.SendMessage(!hasValue);
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
+                pc.SetKillCooldown(10f);
+                pc.RpcResetAbilityCooldown();
+            }
+        }, 7f, log: false);
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)
@@ -1142,7 +1132,7 @@ internal static class StartGameHostPatch
 
                             RoleTypes roleType = roleMap.Item1;
                             CustomRpcSender sender = senders[seer.PlayerId];
-                            sender.RpcSetRole(seer, roleType, targetClientId);
+                            seer.RpcSetRoleDesync(roleType, targetClientId);
                         }
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
@@ -1165,9 +1155,7 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
-            var sender = CustomRpcSender.Create("OnGameStartedPatch.SetRoleSelf", SendOption.Reliable);
-            sender.RpcSetRole(target, roleType, targetClientId);
-            sender.SendMessage();
+            target.RpcSetRoleDesync(roleType, targetClientId);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -1252,7 +1240,7 @@ internal static class StartGameHostPatch
                 {
                     try
                     {
-                        Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false, true)
+                        Senders[pc.PlayerId] = CustomRpcSender.Create($"{pc.name}'s SetRole Sender", SendOption.Reliable)
                             .StartMessage(pc.OwnerId);
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
