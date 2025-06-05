@@ -118,7 +118,7 @@ public static class NaturalDisasters
         BuildingCollapse.CollapsedRooms.Clear();
         BuildingCollapse.LastPosition.Clear();
 
-        if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return;
+        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return;
 
         Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values;
         if (rooms == null) return;
@@ -202,7 +202,7 @@ public static class NaturalDisasters
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
 
             UpdatePreparingDisasters();
 
@@ -249,9 +249,7 @@ public static class NaturalDisasters
             }
 
             long now = Utils.TimeStamp;
-
             int frequency = DisasterFrequency.GetInt();
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) frequency *= AllInOneGameMode.NaturalDisastersDisasterSpawnCooldownMultiplier.GetInt();
 
             if (now - LastDisaster >= frequency)
             {
@@ -273,19 +271,11 @@ public static class NaturalDisasters
 
                 SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
                 float warningTime = DisasterWarningTime.GetFloat();
-                if (Options.CurrentGameMode == CustomGameMode.AllInOne) warningTime *= AllInOneGameMode.NaturalDisastersWarningDurationMultiplier.GetInt();
                 PreparingDisasters.Add(new(position, warningTime, Sprite(disaster.Name), disaster.Name, room));
             }
 
             if (now - LastSync >= 10)
             {
-                if (Options.CurrentGameMode == CustomGameMode.AllInOne)
-                {
-                    BuildingCollapse.CollapsedRooms.Clear();
-                    Sinkhole.RemoveRandomSinkhole();
-                    Utils.NotifyRoles();
-                }
-
                 LastSync = now;
                 Utils.MarkEveryoneDirtySettings();
             }

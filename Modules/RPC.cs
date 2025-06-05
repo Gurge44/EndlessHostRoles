@@ -1197,7 +1197,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.FFAKill:
                 {
-                    if (!CustomGameMode.FFA.IsActiveOrIntegrated())
+                    if (Options.CurrentGameMode != CustomGameMode.FFA)
                     {
                         EAC.WarnHost();
                         EAC.Report(__instance, "FFA RPC when game mode is not FFA");

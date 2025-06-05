@@ -236,7 +236,7 @@ public abstract class OptionItem
         static bool Hidden(OptionItem oi)
         {
             CustomGameMode mode = EHR.Options.CurrentGameMode;
-            return oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode && !(mode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(oi.GameMode, out OptionItem option) && option.GetBool()));
+            return oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode);
         }
     }
 

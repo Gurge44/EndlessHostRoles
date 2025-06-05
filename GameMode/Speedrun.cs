@@ -52,14 +52,12 @@ public static class Speedrun
     {
         CanKill = [];
         Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 10);
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) Timers.AdjustAllValues(x => x * AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt());
         Utils.SendRPC(CustomRPC.SpeedrunSync, 1);
     }
 
     public static void ResetTimer(PlayerControl pc)
     {
         int timer = TimeLimit.GetInt();
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt();
         if (Main.CurrentMap is MapNames.Airship or MapNames.Fungle) timer += 5;
 
         if (TimeStacksUp.GetBool())
@@ -166,7 +164,7 @@ public static class Speedrun
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId >= 254) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId >= 254) return;
 
             if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
             {

@@ -270,6 +270,9 @@ internal static class ChangeRoleSettings
             ShipStatusBeginPatch.RolesIsAssigned = false;
             GameEndChecker.Ended = false;
 
+            ShipStatusFixedUpdatePatch.ClosestVent = [];
+            ShipStatusFixedUpdatePatch.CanUseClosestVent = [];
+
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned = [];
             Coven.Coven.CovenMeetingStartPatch.MeetingNum = 0;
 
@@ -377,7 +380,6 @@ internal static class ChangeRoleSettings
                 HotPotato.Init();
                 CustomHnS.Init();
                 Speedrun.Init();
-                AllInOneGameMode.Init();
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
@@ -633,7 +635,7 @@ internal static class StartGameHostPatch
 
             var random = IRandom.Instance;
 
-            if (CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 bool bloodlustSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable() && Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt() > 0;
                 bool physicistSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out IntegerOptionItem option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
@@ -774,7 +776,7 @@ internal static class StartGameHostPatch
                 Main.PlayerStates[kv.Key].SetMainRole(kv.Value);
             }
 
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
@@ -907,30 +909,27 @@ internal static class StartGameHostPatch
 
             EndOfSelectRolePatch:
 
-            Enum.GetValues<CustomGameMode>().DoIf(x => x.IsActiveOrIntegrated(), x =>
+            switch (Options.CurrentGameMode)
             {
-                switch (x)
-                {
-                    case CustomGameMode.HideAndSeek:
-                        CustomHnS.StartSeekerBlindTime();
-                        break;
-                    case CustomGameMode.CaptureTheFlag:
-                        CaptureTheFlag.Init();
-                        break;
-                    case CustomGameMode.NaturalDisasters:
-                        NaturalDisasters.OnGameStart();
-                        break;
-                    case CustomGameMode.RoomRush:
-                        RoomRush.OnGameStart();
-                        break;
-                    case CustomGameMode.KingOfTheZones:
-                        KingOfTheZones.Init();
-                        break;
-                    case CustomGameMode.Quiz:
-                        Quiz.Init();
-                        break;
-                }
-            });
+                case CustomGameMode.HideAndSeek:
+                    CustomHnS.StartSeekerBlindTime();
+                    break;
+                case CustomGameMode.CaptureTheFlag:
+                    CaptureTheFlag.Init();
+                    break;
+                case CustomGameMode.NaturalDisasters:
+                    NaturalDisasters.OnGameStart();
+                    break;
+                case CustomGameMode.RoomRush:
+                    RoomRush.OnGameStart();
+                    break;
+                case CustomGameMode.KingOfTheZones:
+                    KingOfTheZones.Init();
+                    break;
+                case CustomGameMode.Quiz:
+                    Quiz.Init();
+                    break;
+            }
 
             HudManager.Instance.SetHudActive(true);
 
@@ -986,9 +985,6 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.TheMindGame:
                     GameEndChecker.SetPredicateToTheMindGame();
-                    break;
-                case CustomGameMode.AllInOne:
-                    GameEndChecker.SetPredicateToAllInOne();
                     break;
             }
 
@@ -1132,7 +1128,7 @@ internal static class StartGameHostPatch
 
                             RoleTypes roleType = roleMap.Item1;
                             CustomRpcSender sender = senders[seer.PlayerId];
-                            seer.RpcSetRoleDesync(roleType, targetClientId);
+                            sender.RpcSetRole(seer, roleType, targetClientId);
                         }
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
@@ -1268,7 +1264,7 @@ internal static class StartGameHostPatch
 
             return;
 
-            bool ForceImp(byte id) => IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (CustomGameMode.Speedrun.IsActiveOrIntegrated() && Speedrun.CanKill.Contains(id));
+            bool ForceImp(byte id) => IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (Options.CurrentGameMode == CustomGameMode.Speedrun && Speedrun.CanKill.Contains(id));
         }
 
         public static void SendRpcForDesync()
@@ -1292,7 +1288,7 @@ internal static class StartGameHostPatch
                             PlayerControl player = Utils.GetPlayerById(playerId);
                             if (player == null || role.IsDesyncRole()) continue;
 
-                            if (CustomGameMode.Speedrun.IsActiveOrIntegrated() && Speedrun.CanKill.Contains(playerId)) continue;
+                            if (Options.CurrentGameMode == CustomGameMode.Speedrun && Speedrun.CanKill.Contains(playerId)) continue;
 
                             RoleTypes roleType = role.GetRoleTypes();
 

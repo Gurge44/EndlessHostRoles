@@ -97,7 +97,7 @@ internal static class CmdCheckMurderPatch
     {
         if (AmongUsClient.Instance.AmHost)
             __instance.CheckMurder(target);
-        else if (!CustomGameMode.FFA.IsActiveOrIntegrated())
+        else if (Options.CurrentGameMode != CustomGameMode.FFA)
         {
             MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, SendOption.Reliable);
             messageWriter.WriteNetObject(target);
@@ -231,11 +231,9 @@ internal static class CheckMurderPatch
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.AllInOne when CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !killer.Is(CustomRoles.Killer):
             case CustomGameMode.SoloKombat:
                 SoloPVP.OnPlayerAttack(killer, target);
                 return false;
-            case CustomGameMode.AllInOne when CustomGameMode.FFA.IsActiveOrIntegrated() && killer.Is(CustomRoles.Killer):
             case CustomGameMode.FFA:
                 FreeForAll.OnPlayerAttack(killer, target);
                 return false;
@@ -252,20 +250,6 @@ internal static class CheckMurderPatch
                 return false;
             case CustomGameMode.Quiz:
                 if (Quiz.AllowKills) killer.Kill(target);
-                return false;
-            case CustomGameMode.AllInOne:
-                if (killer.Is(CustomRoles.Killer) || (CustomGameMode.Quiz.IsActiveOrIntegrated() && Quiz.AllowKills))
-                    killer.Kill(target);
-
-                if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
-                    KingOfTheZones.OnCheckMurder(killer, target);
-
-                if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
-                    CaptureTheFlag.OnCheckMurder(killer, target);
-
-                if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
-                    CustomHnS.OnCheckMurder(killer, target);
-
                 return false;
             case CustomGameMode.Speedrun:
                 killer.Kill(target);
@@ -716,7 +700,7 @@ internal static class MurderPlayerPatch
 
         Chef.SpitOutFood(killer);
 
-        if (CustomGameMode.Speedrun.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode == CustomGameMode.Speedrun)
             Speedrun.ResetTimer(killer);
 
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
@@ -932,7 +916,7 @@ internal static class ReportDeadBodyPatch
     {
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
-        if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (Options.DisableReportWhenCC.GetBool() && Camouflage.IsCamouflage) return false;
 
         if (!CanReport[__instance.PlayerId])
@@ -1311,7 +1295,7 @@ internal static class FixedUpdatePatch
                 GhostRolesManager.AssignGhostRole(__instance);
         }
 
-        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && !CustomGameMode.RoomRush.IsActiveOrIntegrated() && !CustomGameMode.Quiz.IsActiveOrIntegrated())
+        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
         {
             int buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
             DeadBufferTime.TryAdd(id, buffer);
@@ -1588,7 +1572,7 @@ internal static class FixedUpdatePatch
 
         if (GameStates.IsInGame)
         {
-            if (!AmongUsClient.Instance.AmHost && !CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 roleText.text = string.Empty;
                 roleText.enabled = false;
@@ -1627,7 +1611,7 @@ internal static class FixedUpdatePatch
                 progressText = $"\n{progressText}";
             }
 
-            bool moveandstop = CustomGameMode.MoveAndStop.IsActiveOrIntegrated();
+            bool moveandstop = Options.CurrentGameMode == CustomGameMode.MoveAndStop;
 
             if (Main.VisibleTasksCount)
             {
@@ -1836,14 +1820,6 @@ internal static class FixedUpdatePatch
                 case CustomGameMode.TheMindGame:
                     additionalSuffixes.Add(TheMindGame.GetSuffix(seer, target));
                     break;
-                case CustomGameMode.AllInOne:
-                    if (alive && CustomGameMode.SoloKombat.IsActiveOrIntegrated()) additionalSuffixes.Add(SoloPVP.GetDisplayHealth(target, self));
-                    if (self && alive && CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) additionalSuffixes.Add("\n" + MoveAndStop.GetSuffixText(seer) + "\n");
-                    if (self && alive && !seer.Is(CustomRoles.Killer) && CustomGameMode.Speedrun.IsActiveOrIntegrated()) additionalSuffixes.Add(string.Format(GetString("DamoclesTimeLeft"), Speedrun.Timers[lpId]) + "\n");
-                    if (self && CustomGameMode.RoomRush.IsActiveOrIntegrated()) additionalSuffixes.Add(RoomRush.GetSuffix(seer).Replace("\n", " - ") + "\n");
-                    if (self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) additionalSuffixes.Add(KingOfTheZones.GetSuffix(seer) + "\n");
-                    if (self && CustomGameMode.Quiz.IsActiveOrIntegrated()) additionalSuffixes.Add(Quiz.GetSuffix(seer));
-                    break;
             }
 
             if (self && GameStartTimeStamp + 50 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
@@ -1861,7 +1837,7 @@ internal static class FixedUpdatePatch
             // Camouflage
             if (Camouflage.IsCamouflage) realName = $"<size=0>{realName}</size> ";
 
-            if (!self && CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
+            if (!self && Options.CurrentGameMode == CustomGameMode.KingOfTheZones && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                 realName = EmptyMessage;
 
             string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
@@ -2043,7 +2019,6 @@ internal static class EnterVentPatch
                 pc.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
                 pc.MyPhysics?.RpcExitVent(__instance.Id);
                 break;
-            case CustomGameMode.AllInOne when !CustomGameMode.SoloKombat.IsActiveOrIntegrated() && !CustomGameMode.RoomRush.IsActiveOrIntegrated():
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
             case CustomGameMode.CaptureTheFlag:
@@ -2129,7 +2104,7 @@ internal static class GameDataCompleteTaskPatch
     {
         if (GameStates.IsMeeting) return;
 
-        if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated() && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
+        if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
         {
             var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
             Hider.OnSpecificTaskComplete(pc, task);

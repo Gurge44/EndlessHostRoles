@@ -288,7 +288,7 @@ public static class KingOfTheZones
 
     public static IEnumerator GameStart()
     {
-        if (!CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) yield break;
+        if (Options.CurrentGameMode != CustomGameMode.KingOfTheZones) yield break;
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Length / 2;
@@ -652,7 +652,7 @@ public static class KingOfTheZones
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() || !Main.IntroDestroyed || !GameGoing) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.KingOfTheZones || !Main.IntroDestroyed || !GameGoing) return;
 
             long now = Utils.TimeStamp;
             if (LastUpdate == now) return;

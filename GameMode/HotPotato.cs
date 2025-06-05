@@ -99,7 +99,7 @@ internal static class HotPotato
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!CustomGameMode.HotPotato.IsActiveOrIntegrated() || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || Utils.GameStartTimeStamp + 15 > Utils.TimeStamp) return;
+            if (Options.CurrentGameMode != CustomGameMode.HotPotato || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || Utils.GameStartTimeStamp + 15 > Utils.TimeStamp) return;
 
             PlayerControl Holder = Utils.GetPlayerById(HotPotatoState.HolderID);
 
@@ -155,8 +155,6 @@ internal static class HotPotato
             if (resetTime)
             {
                 int time = Time.GetInt();
-                if (Options.CurrentGameMode == CustomGameMode.AllInOne) time *= AllInOneGameMode.HotPotatoTimerMultiplier.GetInt();
-
                 HotPotatoState.TimeLeft = time;
                 HotPotatoState.RoundNum++;
             }

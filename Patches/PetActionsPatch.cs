@@ -112,7 +112,7 @@ internal static class ExternalRpcPetPatch
             )
             return;
 
-        if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
         {
             CaptureTheFlag.TryPickUpFlag(pc);
             return;
@@ -151,7 +151,7 @@ internal static class ExternalRpcPetPatch
 
         if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
         {
-            if (!CustomGameMode.Speedrun.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode != CustomGameMode.Speedrun)
                 pc.AddKCDAsAbilityCD();
 
             if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(pc, target)) goto Skip;

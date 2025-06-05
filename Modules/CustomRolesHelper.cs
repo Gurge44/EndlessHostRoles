@@ -801,7 +801,7 @@ internal static class CustomRolesHelper
 
     public static bool PetActivatedAbility(this CustomRoles role)
     {
-        if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated()) return true;
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;
 
         if (!Options.UsePets.GetBool()) return false;
 

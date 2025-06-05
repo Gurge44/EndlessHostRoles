@@ -156,7 +156,7 @@ internal static class HudManagerPatch
                     __instance.SabotageButton
                 }.Do(x => x?.Hide());
             }
-            else if (!CustomGameMode.Standard.IsActiveOrIntegrated()) __instance.ReportButton?.Hide();
+            else if (Options.CurrentGameMode != CustomGameMode.Standard) __instance.ReportButton?.Hide();
 
             // The following will not be executed unless the game is in progress
             if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -167,7 +167,7 @@ internal static class HudManagerPatch
 
             if (SetHudActivePatch.IsActive)
             {
-                if (player.IsAlive() || !CustomGameMode.Standard.IsActiveOrIntegrated())
+                if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
                     if (player.Data.Role is ShapeshifterRole ssrole)
                     {
@@ -235,7 +235,7 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || ((!Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())))))
+                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())))
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)
@@ -257,7 +257,6 @@ internal static class HudManagerPatch
                         CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
-                        CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotato.GetSuffixText(player.PlayerId)}",
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
@@ -637,13 +636,13 @@ internal static class TaskPanelBehaviourPatch
         if (!role.IsVanilla())
         {
             string roleInfo = player.GetRoleInfo();
-            var RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
+            var roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
 
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 string[] splitted = roleInfo.Split(' ');
 
-                RoleWithInfo = splitted.Length <= 3
+                roleWithInfo = splitted.Length <= 3
                     ? $"<size=60%>{roleInfo}</size>\r\n"
                     : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
             }
@@ -651,10 +650,10 @@ internal static class TaskPanelBehaviourPatch
             {
                 string[] split = roleInfo.Split(' ');
                 int half = split.Length / 2;
-                RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
+                roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
             }
 
-            string finalText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
+            string finalText = Utils.ColorString(player.GetRoleColor(), roleWithInfo);
 
             switch (Options.CurrentGameMode)
             {

@@ -266,7 +266,7 @@ internal static class ChatCommands
         string text = __instance.freeChatField.textArea.text.Trim();
         var cancelVal = string.Empty;
 
-        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode == CustomGameMode.TheMindGame)
         {
             if (AmongUsClient.Instance.AmHost)
                 TheMindGame.OnChat(PlayerControl.LocalPlayer, text.ToLower());
@@ -562,7 +562,7 @@ internal static class ChatCommands
         }
 
         string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x).Replace(' ', '_')));
-        var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {GetString("GameModePoll.KeepCurrent").Replace(' ', '_')} {gmNames}";
+        var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
 
@@ -1949,7 +1949,13 @@ internal static class ChatCommands
             return;
         }
 
-        if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) return;
+        if (!GameStates.IsLobby) return;
+
+        if (!Options.PlayerCanTPInAndOut.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
+        {
+            Utils.SendMessage(GetString("Message.OnlyVIPCanUse"), player.PlayerId, sendOption: SendOption.None);
+            return;
+        }
 
         player.TP(new Vector2(-0.2f, 1.3f));
     }
@@ -1962,7 +1968,13 @@ internal static class ChatCommands
             return;
         }
 
-        if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) return;
+        if (!GameStates.IsLobby) return;
+
+        if (!Options.PlayerCanTPInAndOut.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
+        {
+            Utils.SendMessage(GetString("Message.OnlyVIPCanUse"), player.PlayerId, sendOption: SendOption.None);
+            return;
+        }
 
         player.TP(new Vector2(0.1f, 3.8f));
     }
@@ -3047,12 +3059,11 @@ internal static class ChatCommands
 
     private static void SendRolesInfo(string role, byte playerId, bool isDev = false, bool isUp = false)
     {
-        if (!CustomGameMode.Standard.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
             string text = GetString($"ModeDescribe.{Options.CurrentGameMode}");
-            bool allInOne = Options.CurrentGameMode == CustomGameMode.AllInOne;
-            Utils.SendMessage(allInOne ? "\n" : text, playerId, allInOne ? text : "", sendOption: SendOption.None);
-            if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) return;
+            Utils.SendMessage(text, playerId, sendOption: SendOption.None);
+            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
         }
 
         role = role.Trim().ToLower();
@@ -3124,8 +3135,7 @@ internal static class ChatCommands
             if (role.Equals(match, StringComparison.OrdinalIgnoreCase))
             {
                 string text = GetString($"ModeDescribe.{gameMode}");
-                bool allInOne = gameMode == CustomGameMode.AllInOne;
-                Utils.SendMessage(allInOne ? "\n" : text, playerId, allInOne ? text : gmString, sendOption: SendOption.None);
+                Utils.SendMessage(text, playerId, gmString, sendOption: SendOption.None);
                 return;
             }
         }
@@ -3158,7 +3168,7 @@ internal static class ChatCommands
 
         if (text.StartsWith("\n")) text = text[1..];
 
-        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated() && !player.IsModdedClient())
+        if (Options.CurrentGameMode == CustomGameMode.TheMindGame && !player.IsModdedClient())
             TheMindGame.OnChat(player, text.ToLower());
 
         CheckAnagramGuess(player.PlayerId, text.ToLower());

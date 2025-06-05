@@ -935,7 +935,7 @@ public static class GameSettingMenuPatch
         tabGroups = Options.CurrentGameMode switch
         {
             CustomGameMode.Standard => tabGroups,
-            CustomGameMode.HideAndSeek or CustomGameMode.AllInOne => tabGroups[..6],
+            CustomGameMode.HideAndSeek => tabGroups[..6],
             _ => tabGroups[..3]
         };
 
@@ -1107,7 +1107,7 @@ public static class GameSettingMenuPatch
 
         Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
 
-        CustomGameMode[] gms = Enum.GetValues<CustomGameMode>().SkipLast(2).ToArray();
+        CustomGameMode[] gms = Enum.GetValues<CustomGameMode>().SkipLast(1).ToArray();
         int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Length / 5f));
 
         System.Collections.Generic.Dictionary<CustomGameMode, Color> gmColors = new()
@@ -1124,8 +1124,7 @@ public static class GameSettingMenuPatch
             [CustomGameMode.RoomRush] = Team.Neutral.GetColor(),
             [CustomGameMode.KingOfTheZones] = Color.red,
             [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
-            [CustomGameMode.TheMindGame] = Color.yellow,
-            [CustomGameMode.AllInOne] = ColorUtility.TryParseHtmlString("#f542ad", out c) ? c : Color.white
+            [CustomGameMode.TheMindGame] = Color.yellow
         };
 
         GMButtons = [];

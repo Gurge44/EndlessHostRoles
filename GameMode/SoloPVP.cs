@@ -85,7 +85,7 @@ internal static class SoloPVP
 
     public static void Init()
     {
-        if (!CustomGameMode.SoloKombat.IsActiveOrIntegrated()) return;
+        if (Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
 
         PlayerHPMax = [];
         PlayerHP = [];
@@ -172,7 +172,7 @@ internal static class SoloPVP
 
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
-        if (!CustomGameMode.SoloKombat.IsActiveOrIntegrated() || player == null) return;
+        if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player == null) return;
 
         if (BackCountdown.TryGetValue(player.PlayerId, out int value))
         {
@@ -203,7 +203,7 @@ internal static class SoloPVP
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || !CustomGameMode.SoloKombat.IsActiveOrIntegrated() || !Main.IntroDestroyed) return;
+        if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.SoloKombat || !Main.IntroDestroyed) return;
 
         if (!killer.SoloAlive() || !target.SoloAlive() || target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return;
 
@@ -277,9 +277,6 @@ internal static class SoloPVP
         KBScore[killer.PlayerId]++;
         Utils.SendRPC(CustomRPC.SoloPVPSync, killer.PlayerId, KBScore[killer.PlayerId]);
 
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne)
-            Speedrun.ResetTimer(killer);
-
         float addRate = IRandom.Instance.Next(3, 5 + GetRankFromScore(killer.PlayerId)) / 100f;
         addRate *= KB_KillBonusMultiplier.GetFloat();
         if (killer.IsHost()) addRate /= 2f;
@@ -327,7 +324,7 @@ internal static class SoloPVP
         public static void Postfix(PlayerControl __instance)
         {
             byte id = __instance.PlayerId;
-            if (!GameStates.IsInTask || !Main.IntroDestroyed || !CustomGameMode.SoloKombat.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || id == 255) return;
+            if (!GameStates.IsInTask || !Main.IntroDestroyed || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost || id == 255) return;
 
             bool soloAlive = __instance.SoloAlive();
             bool inVent = __instance.inVent;

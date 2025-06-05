@@ -539,11 +539,6 @@ internal static class GameEndChecker
         Predicate = new TheMindGameGameEndPredicate();
     }
 
-    public static void SetPredicateToAllInOne()
-    {
-        Predicate = new AllInOneGameEndPredicate();
-    }
-
     private class NormalGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
@@ -1058,38 +1053,6 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return TheMindGame.CheckForGameEnd(out reason);
-        }
-    }
-
-    private class AllInOneGameEndPredicate : GameEndPredicate
-    {
-        public override bool CheckForGameEnd(out GameOverReason reason)
-        {
-            reason = GameOverReason.ImpostorsByKill;
-            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
-        }
-
-        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
-        {
-            reason = GameOverReason.ImpostorsByKill;
-
-            PlayerControl[] appc = Main.AllAlivePlayerControls;
-
-            switch (appc.Length)
-            {
-                case 1:
-                    PlayerControl winner = appc[0];
-                    Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "AllInOne");
-                    WinnerIds = [winner.PlayerId];
-                    Main.DoBlockNameChange = true;
-                    return true;
-                case 0:
-                    ResetAndSetWinner(CustomWinner.None);
-                    Logger.Warn("No players alive. Force ending the game", "AllInOne");
-                    return true;
-                default:
-                    return false;
-            }
         }
     }
 

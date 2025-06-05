@@ -77,7 +77,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        if (CustomGameMode.RoomRush.IsActiveOrIntegrated()) return true;
+        if (Options.CurrentGameMode == CustomGameMode.RoomRush) return true;
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return false;
@@ -918,7 +918,7 @@ internal static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.AllInOne ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -1180,8 +1180,6 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
                 return true;
-            case CustomGameMode.AllInOne:
-                return !AllInOneGameMode.Taskers.Contains(pc.PlayerId);
         }
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
@@ -1240,7 +1238,6 @@ internal static class ExtendedPlayerControl
             CustomGameMode.RoomRush => false,
             CustomGameMode.Quiz => false,
             CustomGameMode.TheMindGame => false,
-            CustomGameMode.AllInOne => false,
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
             CustomGameMode.Standard when pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool() => true,
@@ -1514,7 +1511,7 @@ internal static class ExtendedPlayerControl
 
         Main.DiedThisRound.Add(target.PlayerId);
 
-        if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && CustomGameMode.Standard.IsActiveOrIntegrated())
+        if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && Options.CurrentGameMode == CustomGameMode.Standard)
             Achievements.Type.InnocentKiller.Complete();
 
         if (Options.AnonymousBodies.GetBool())

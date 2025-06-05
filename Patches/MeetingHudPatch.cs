@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
 using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
@@ -501,7 +500,7 @@ internal static class CheckForEndVotingPatch
 
         EndOfSession:
 
-        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode == CustomGameMode.TheMindGame)
             name = TheMindGame.GetEjectionMessage(exileId);
 
         name = name.Replace("color=", string.Empty) + "<size=0>";

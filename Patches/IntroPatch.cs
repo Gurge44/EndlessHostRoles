@@ -258,16 +258,6 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("TMGPlayerInfo");
                     break;
                 }
-                case CustomGameMode.AllInOne:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("AllInOne");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("AllInOneInfo");
-                    break;
-                }
                 default:
                 {
                     CustomRoles role = lp.GetCustomRole();
@@ -464,7 +454,7 @@ internal static class BeginCrewmatePatch
             }
         }
 
-        if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFATeamMode.GetBool() && FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
+        if (Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool() && FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
         {
             teamToDisplay = new();
 
@@ -875,15 +865,6 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("TMGPlayerInfo");
                 break;
             }
-            case CustomGameMode.AllInOne:
-            {
-                __instance.TeamTitle.text = GetString("AllInOne");
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(245, 66, 173, byte.MaxValue);
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
-                __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = GetString("AllInOneInfo");
-                break;
-            }
         }
 
         return;
@@ -1010,7 +991,7 @@ internal static class IntroCutsceneDestroyPatch
                         pc.AddAbilityCD(false);
                 }
 
-                if (CustomGameMode.Standard.IsActiveOrIntegrated())
+                if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
                     int kcd = Options.StartingKillCooldown.GetInt();
 
@@ -1053,7 +1034,7 @@ internal static class IntroCutsceneDestroyPatch
                 LateTask.New(() => lp.SetKillCooldown(), 0.2f, log: false);
             }, 0.1f, log: false);
 
-            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.AllInOne)
+            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag)
             {
                 Main.ProcessShapeshifts = false;
 
@@ -1114,7 +1095,7 @@ internal static class IntroCutsceneDestroyPatch
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
+            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.CaptureTheFlag && Options.CurrentGameMode != CustomGameMode.KingOfTheZones)
             {
                 var map = RandomSpawn.SpawnMap.GetSpawnMap();
                 aapc.Do(map.RandomTeleport);
@@ -1143,23 +1124,27 @@ internal static class IntroCutsceneDestroyPatch
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
-                Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
-
-            if (CustomGameMode.HotPotato.IsActiveOrIntegrated())
-                HotPotato.OnGameStart();
-
-            if (CustomGameMode.Quiz.IsActiveOrIntegrated())
-                Main.Instance.StartCoroutine(Quiz.OnGameStart());
-
-            if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
-                MoveAndStop.OnGameStart();
-
-            if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
-                Main.Instance.StartCoroutine(TheMindGame.OnGameStart());
-
-            if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
-                Main.Instance.StartCoroutine(CaptureTheFlag.OnGameStart());
+            switch (Options.CurrentGameMode)
+            {
+                case CustomGameMode.KingOfTheZones:
+                    Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
+                    break;
+                case CustomGameMode.HotPotato:
+                    HotPotato.OnGameStart();
+                    break;
+                case CustomGameMode.Quiz:
+                    Main.Instance.StartCoroutine(Quiz.OnGameStart());
+                    break;
+                case CustomGameMode.MoveAndStop:
+                    MoveAndStop.OnGameStart();
+                    break;
+                case CustomGameMode.TheMindGame:
+                    Main.Instance.StartCoroutine(TheMindGame.OnGameStart());
+                    break;
+                case CustomGameMode.CaptureTheFlag:
+                    Main.Instance.StartCoroutine(CaptureTheFlag.OnGameStart());
+                    break;
+            }
 
             Utils.CheckAndSetVentInteractions();
 

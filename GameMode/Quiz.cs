@@ -514,7 +514,7 @@ public static class Quiz
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Quiz.IsActiveOrIntegrated() || !Main.IntroDestroyed) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Quiz || !Main.IntroDestroyed) return;
 
             long now = Utils.TimeStamp;
             if (LastUpdate == now) return;

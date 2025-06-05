@@ -152,7 +152,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.AllInOne:
                 case CustomGameMode.FFA:
                     if (FreeForAll.FFALowerVisionList.ContainsKey(player.PlayerId))
                     {
@@ -162,7 +161,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     }
                     else SetMaxVision();
 
-                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                     break;
                 case CustomGameMode.CaptureTheFlag:
                     CaptureTheFlag.ApplyGameOptions();
@@ -171,7 +169,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.NaturalDisasters:
                     SetMaxVision();
                     NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
-                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.RoomRush;
                     break;
                 case CustomGameMode.RoomRush when RoomRush.VentLimit[player.PlayerId] > 0:
                     AURoleOptions.EngineerCooldown = 0.01f;

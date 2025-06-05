@@ -205,7 +205,7 @@ public static class RoomRush
 
     public static void OnGameStart()
     {
-        if (!CustomGameMode.RoomRush.IsActiveOrIntegrated()) return;
+        if (Options.CurrentGameMode != CustomGameMode.RoomRush) return;
 
         Main.Instance.StartCoroutine(GameStartTasks());
     }
@@ -235,12 +235,6 @@ public static class RoomRush
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
-
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne)
-        {
-            yield return new WaitForSeconds(2f);
-            goto Skip;
-        }
 
         bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 2;
 
@@ -324,8 +318,6 @@ public static class RoomRush
             yield return new WaitForSeconds(1f);
         }
 
-        Skip:
-
         if (ventLimit > 0)
             aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
@@ -398,7 +390,6 @@ public static class RoomRush
         }
 
         TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6);
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= AllInOneGameMode.RoomRushTimeLimitMultiplier.GetInt();
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "RoomRush");
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
@@ -508,7 +499,7 @@ public static class RoomRush
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameGoing || Main.HasJustStarted || !CustomGameMode.RoomRush.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
+            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
 
             long now = Utils.TimeStamp;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -606,7 +597,7 @@ public static class RoomRush
 
 public class RRPlayer : RoleBase
 {
-    public override bool IsEnable => CustomGameMode.RoomRush.IsActiveOrIntegrated();
+    public override bool IsEnable => Options.CurrentGameMode == CustomGameMode.RoomRush;
 
     public override void Init() { }
 

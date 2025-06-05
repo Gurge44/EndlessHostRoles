@@ -185,7 +185,7 @@ public static class Statistics
     {
         try
         {
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated() || Main.AllPlayerControls.Length <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= MinPlayers) return;
 
             PlayerControl lp = PlayerControl.LocalPlayer;
 
@@ -262,7 +262,7 @@ public static class Statistics
     {
         try
         {
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated() || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= MinPlayers) return;
 
             if (killer.IsLocalPlayer())
             {
@@ -317,7 +317,7 @@ public static class Statistics
     {
         try
         {
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated() || Main.AllPlayerControls.Length <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= MinPlayers) return;
 
             if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
             {

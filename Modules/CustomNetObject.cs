@@ -554,7 +554,7 @@ internal static class RawSetNamePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
     {
-        if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return true;
+        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return true;
 
         var exception = false;
 

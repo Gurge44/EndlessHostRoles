@@ -175,7 +175,7 @@ public class PlayerState(byte playerId)
             if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal))
                 jackal.SidekickId = PlayerId;
 
-            if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.IsInTask && !AntiBlackout.SkipTasks)
+            if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                 Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 
             if (Options.UsePets.GetBool() && Player.CurrentOutfit.PetId == "")
@@ -189,7 +189,7 @@ public class PlayerState(byte playerId)
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
-        if (!Main.IntroDestroyed || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+        if (!Main.IntroDestroyed || PlayerControl.LocalPlayer.PlayerId != PlayerId || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         RoleChangeTimes++;
         if (RoleChangeTimes >= 4) Achievements.Type.Transformer.Complete();
@@ -461,7 +461,7 @@ public class TaskState
             {
                 bool alive = player.IsAlive();
 
-                if (alive && CustomGameMode.Speedrun.IsActiveOrIntegrated())
+                if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)
                 {
                     if (CompletedTasksCount + 1 >= AllTasksCount)
                         Speedrun.OnTaskFinish(player);

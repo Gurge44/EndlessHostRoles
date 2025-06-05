@@ -202,11 +202,15 @@ public static class ChatManager
                 break;
         }
 
-        if (CustomGameMode.FFA.IsActiveOrIntegrated() && GameStates.InGame && !message.StartsWith('/'))
-            FreeForAll.UpdateLastChatMessage(player.GetRealName(), message);
-
-        if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.InGame && operate != 1 && Banshee.On)
-            Banshee.OnReceiveChat();
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.FFA when GameStates.InGame && !message.StartsWith('/'):
+                FreeForAll.UpdateLastChatMessage(player.GetRealName(), message);
+                break;
+            case CustomGameMode.Standard when GameStates.InGame && operate != 1 && Banshee.On:
+                Banshee.OnReceiveChat();
+                break;
+        }
     }
 
     public static void AddChatHistory(PlayerControl player, string message)

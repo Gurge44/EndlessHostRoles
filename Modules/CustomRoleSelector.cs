@@ -50,19 +50,6 @@ internal static class CustomRoleSelector
 
             bool hns = Options.CurrentGameMode == CustomGameMode.HideAndSeek;
 
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne)
-            {
-                CustomGameMode prioritizedGameMode = AllInOneGameMode.GetPrioritizedGameModeForRoles();
-
-                if (GameModeRoles.TryGetValue(prioritizedGameMode, out CustomRoles allInOneRole))
-                {
-                    AssignRoleToEveryone(allInOneRole);
-                    return;
-                }
-
-                hns = prioritizedGameMode == CustomGameMode.HideAndSeek;
-            }
-
             if (hns)
             {
                 CustomHnS.AssignRoles();
@@ -948,7 +935,7 @@ internal static class CustomRoleSelector
 
     public static void SelectAddonRoles()
     {
-        if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         foreach (byte id in Main.SetAddOns.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetAddOns.Remove(id);
 

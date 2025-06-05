@@ -30,7 +30,6 @@ public enum CustomGameMode
     KingOfTheZones = 0x0B,
     Quiz = 0x0C,
     TheMindGame = 0x0D,
-    AllInOne = 0x0E,
     All = int.MaxValue
 }
 
@@ -79,8 +78,7 @@ public static class Options
         "RoomRush",
         "KingOfTheZones",
         "Quiz",
-        "TheMindGame",
-        "AllInOne"
+        "TheMindGame"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -837,14 +835,8 @@ public static class Options
         10 => CustomGameMode.KingOfTheZones,
         11 => CustomGameMode.Quiz,
         12 => CustomGameMode.TheMindGame,
-        13 => CustomGameMode.AllInOne,
         _ => CustomGameMode.Standard
     };
-
-    public static bool IsActiveOrIntegrated(this CustomGameMode customGameMode)
-    {
-        return CurrentGameMode == customGameMode || (CurrentGameMode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(customGameMode, out OptionItem option) && option.GetBool());
-    }
 
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize))]
     [HarmonyPostfix]
@@ -1568,8 +1560,6 @@ public static class Options
         #region Gamemodes
 
         MainLoadingText = "Building Settings for Other Gamemodes";
-
-        AllInOneGameMode.SetupCustomOption();
 
         // SoloKombat
         SoloPVP.SetupCustomOption();

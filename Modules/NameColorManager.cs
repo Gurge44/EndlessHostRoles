@@ -52,16 +52,13 @@ public static class NameColorManager
             case CustomGameMode.TheMindGame:
                 color = "#ffffff";
                 return true;
-            case CustomGameMode.AllInOne:
             case CustomGameMode.HotPotato:
-                (byte HolderID, byte LastHolderID) = HotPotato.GetState();
+                (byte holderID, byte lastHolderID) = HotPotato.GetState();
 
-                if (target.PlayerId == HolderID)
+                if (target.PlayerId == holderID)
                     color = "#000000";
-                else if (target.PlayerId == LastHolderID)
+                else if (target.PlayerId == lastHolderID)
                     color = "#00ffff";
-                else if (Options.CurrentGameMode == CustomGameMode.AllInOne && Speedrun.CanKill.Contains(target.PlayerId))
-                    color = Main.ImpostorColor;
                 else
                     color = "#ffffff";
 

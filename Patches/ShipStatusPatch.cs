@@ -82,7 +82,7 @@ internal static class RepairSystemPatch
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
 
-        if ((!CustomGameMode.Standard.IsActiveOrIntegrated() || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
+        if ((Options.CurrentGameMode != CustomGameMode.Standard || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
         if (player.Is(CustomRoles.Fool) && systemType is SystemTypes.Comms or SystemTypes.Electrical) return false;
 
         switch (player.GetCustomRole())
@@ -241,7 +241,7 @@ internal static class CloseDoorsPatch
 {
     public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.AllInOne;
+        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame;
 
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
@@ -290,7 +290,7 @@ internal static class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || !CustomGameMode.Standard.IsActiveOrIntegrated())
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || Options.CurrentGameMode != CustomGameMode.Standard)
         {
             __result = false;
             return false;
@@ -663,6 +663,50 @@ internal static class VentilationSystemDeterioratePatch
 
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
+        }
+    }
+}
+
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
+internal static class ShipStatusFixedUpdatePatch
+{
+    public static Dictionary<byte, int> ClosestVent = [];
+    public static Dictionary<byte, bool> CanUseClosestVent = [];
+
+    private static int Count;
+
+    public static void Postfix(ShipStatus __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.InGame || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
+
+        if (Utils.GameStartTimeStamp + 30 > Utils.TimeStamp) return;
+
+        if (Count++ < 40) return;
+        Count = 0;
+
+        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
+        if (ventilationSystem == null) return;
+
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        {
+            Vent closestVent = pc.GetClosestVent();
+            if (closestVent == null) continue;
+
+            int ventId = closestVent.Id;
+            bool canUseVent = pc.CanUseVent(ventId);
+
+            if (!ClosestVent.TryGetValue(pc.PlayerId, out int lastVentId) || !CanUseClosestVent.TryGetValue(pc.PlayerId, out bool lastCanUseVent))
+            {
+                ClosestVent[pc.PlayerId] = ventId;
+                CanUseClosestVent[pc.PlayerId] = canUseVent;
+                continue;
+            }
+
+            if (ventId != lastVentId || canUseVent != lastCanUseVent)
+                VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, pc);
+
+            ClosestVent[pc.PlayerId] = ventId;
+            CanUseClosestVent[pc.PlayerId] = canUseVent;
         }
     }
 }
