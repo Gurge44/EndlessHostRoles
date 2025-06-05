@@ -1324,7 +1324,7 @@ internal static class ChatCommands
             if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
             {
                 int winnerIndex = winners[0].Key - 65;
-                if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex - 1);
+                if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex);
             }
         }
 

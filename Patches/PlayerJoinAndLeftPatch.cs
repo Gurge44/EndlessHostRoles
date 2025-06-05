@@ -9,6 +9,7 @@ using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
+using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -90,7 +91,7 @@ internal static class OnGameJoinedPatch
                 else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType} (IsOnlineGame: {GameStates.IsOnlineGame})", "OnGameJoinedPatch");
             }, 5f, "NotifyLobbyCreated");
 
-            if (Options.AutoGMPollCommandAfterJoin.GetBool())
+            if (Options.AutoGMPollCommandAfterJoin.GetBool() && !Options.AutoGMRotationEnabled)
             {
                 Main.Instance.StartCoroutine(CoRoutine());
 
@@ -125,6 +126,40 @@ internal static class OnGameJoinedPatch
                     }
 
                     ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "/draftstart", ["/draftstart"]);
+                }
+            }
+
+            if (Options.AutoGMRotationEnabled)
+            {
+                Main.Instance.StartCoroutine(CoRoutine());
+
+                IEnumerator CoRoutine()
+                {
+                    float timer;
+                    if (Options.AutoGMPollCommandAfterJoin.GetBool()) timer = Options.AutoGMPollCommandCooldown.GetInt();
+                    else if (Main.AutoStart.Value) timer = (Options.MinWaitAutoStart.GetFloat() * 60) - 65;
+                    else timer = 30f;
+
+                    Logger.Info($"Auto GM Rotation timer: {timer}", "Auto GM Rotation");
+
+                    HudManagerPatch.AutoGMRotationCooldownTimerEndTS = Utils.TimeStamp + (int)timer;
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsLobby) yield break;
+                        timer -= Time.deltaTime;
+                        yield return null;
+                    }
+
+                    if (Options.AutoGMRotationEnabled)
+                    {
+                        CustomGameMode nextGM = Options.AutoGMRotationCompiled[Options.AutoGMRotationIndex];
+
+                        if (nextGM == CustomGameMode.All) ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
+                        else Options.GameMode.SetValue((int)nextGM - 1);
+
+                        Logger.Info($"Auto GM Rotation: Next Game Mode = {nextGM}", "Auto GM Rotation");
+                    }
                 }
             }
         }

@@ -225,9 +225,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Stressed);
                 break;
             case CustomRoles.Madmate:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Options.MadmateCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -248,9 +245,6 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Charmed:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Succubus.CharmedCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -271,9 +265,6 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Undead:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Necromancer.UndeadCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -294,9 +285,6 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Entranced:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Siren.EntrancedCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -320,9 +308,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Mare);
                 break;
             case CustomRoles.Recruit:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Jackal.SidekickCountMode.GetInt() switch
                 {
                     0 => CountTypes.Jackal,
@@ -343,9 +328,6 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Contagious:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,

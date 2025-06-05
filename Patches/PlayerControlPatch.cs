@@ -1937,14 +1937,18 @@ internal static class PlayerStartPatch
 {
     public static void Postfix(PlayerControl._Start_d__82 __instance, ref bool __result)
     {
-        if (__result || __instance.__4__this.PlayerId >= 254) return;
-        TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
-        TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
-        roleText.transform.localPosition = new(0f, 0.2f, 0f);
-        roleText.fontSize -= 0.9f;
-        roleText.text = "RoleText";
-        roleText.gameObject.name = "RoleText";
-        roleText.enabled = false;
+        try
+        {
+            if (__result || __instance.__4__this.PlayerId >= 254) return;
+            TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
+            TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
+            roleText.transform.localPosition = new(0f, 0.2f, 0f);
+            roleText.fontSize -= 0.9f;
+            roleText.text = "RoleText";
+            roleText.gameObject.name = "RoleText";
+            roleText.enabled = false;
+        }
+        catch { }
     }
 }
 
@@ -2322,6 +2326,9 @@ public static class PlayerControlFixMixedUpOutfitPatch
         if (!__instance.IsAlive()) return;
 
         __instance.cosmetics.ToggleNameVisible(true);
+
+        if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
+            ReportDeadBodyPatch.CanReport.SetAllValues(true);
     }
 }
 

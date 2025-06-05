@@ -140,6 +140,19 @@ internal static class EndGamePatch
 
                     break;
             }
+
+            if (Options.AutoGMRotationEnabled)
+            {
+                Options.AutoGMRotationIndex++;
+
+                if (Options.AutoGMRotationIndex >= Options.AutoGMRotationCompiled.Count)
+                {
+                    bool includesRandomChoice = Options.AutoGMRotationSlots.Exists(x => x.Slot.GetValue() == 2);
+
+                    if (includesRandomChoice) Options.CompileAutoGMRotationSettings();
+                    else Options.AutoGMRotationIndex = 0;
+                }
+            }
         }
     }
 }

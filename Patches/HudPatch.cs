@@ -20,10 +20,11 @@ internal static class HudManagerPatch
     private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
     private static TextMeshPro SettingsText;
+    private static TextMeshPro AutoGMRotationStatusText;
+
+    public static long AutoGMRotationCooldownTimerEndTS;
     private static long LastNullError;
-
     public static Color? CooldownTimerFlashColor = null;
-
     public static string AchievementUnlockedText = string.Empty;
 
     public static void ClearLowerInfoText()
@@ -144,6 +145,55 @@ internal static class HudManagerPatch
                     OverriddenRolesText.text = string.Empty;
 
                 OverriddenRolesText.enabled = OverriddenRolesText.text != string.Empty;
+
+
+                if (Options.AutoGMRotationEnabled)
+                {
+                    if (AutoGMRotationStatusText == null)
+                    {
+                        AutoGMRotationStatusText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
+                        AutoGMRotationStatusText.alignment = TextAlignmentOptions.Left;
+                        AutoGMRotationStatusText.verticalAlignment = VerticalAlignmentOptions.Top;
+                        AutoGMRotationStatusText.transform.localPosition = new(-2.5f, 2.5f, 0);
+                        AutoGMRotationStatusText.overflowMode = TextOverflowModes.Overflow;
+                        AutoGMRotationStatusText.enableWordWrapping = false;
+                        AutoGMRotationStatusText.color = Color.white;
+                        AutoGMRotationStatusText.fontSize = AutoGMRotationStatusText.fontSizeMax = AutoGMRotationStatusText.fontSizeMin = 2.5f;
+                    }
+
+                    bool includesRandomChoice = Options.AutoGMRotationSlots.Exists(x => x.Slot.GetValue() == 2);
+                    int index = Options.AutoGMRotationIndex;
+                    List<CustomGameMode> list = Options.AutoGMRotationCompiled;
+
+                    CustomGameMode previousGM = index == 0 ? list[^1] : list[index - 1];
+                    CustomGameMode currentGM = list[index];
+                    CustomGameMode nextGM = index == list.Count - 1 ? list[0] : list[index + 1];
+                    CustomGameMode nextNextGM = index >= list.Count - 2 ? list[1] : list[index + 2];
+
+                    var sb = new StringBuilder(GetString("AutoGMRotationStatusText"));
+                    sb.AppendLine();
+                    sb.AppendLine("....");
+                    if (!includesRandomChoice || index > 0) sb.AppendLine($"> {ToString(previousGM)}");
+                    sb.AppendLine($"<b>{GetString("AutoGMRotationStatusText.NextGM")}: {ToString(currentGM)}</b>");
+                    if (!includesRandomChoice || index < list.Count - 1) sb.AppendLine(ToString(nextGM));
+                    if (!includesRandomChoice || index < list.Count - 2) sb.AppendLine(ToString(nextNextGM));
+                    sb.AppendLine("....");
+
+                    string ToString(CustomGameMode gm) => gm == CustomGameMode.All
+                        ? GetString("AutoGMRotationStatusText.GMPoll")
+                        : Utils.ColorString(Main.GameModeColors[gm], GetString(gm.ToString()));
+
+                    long timerSecondsLeft = AutoGMRotationCooldownTimerEndTS - Utils.TimeStamp;
+                    if (timerSecondsLeft > 0) sb.AppendLine(string.Format(GetString("AutoGMRotationStatusText.CooldownTimer"), timerSecondsLeft));
+
+                    AutoGMRotationStatusText.text = sb.ToString().Trim();
+                    AutoGMRotationStatusText.enabled = AutoGMRotationStatusText.text != string.Empty && GameStates.IsLobby;
+                }
+                else if (AutoGMRotationStatusText != null)
+                {
+                    AutoGMRotationStatusText.text = string.Empty;
+                    AutoGMRotationStatusText.enabled = false;
+                }
             }
             else if (GameStates.IsLobby)
             {

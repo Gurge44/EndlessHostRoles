@@ -90,6 +90,26 @@ public static class Options
     public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
     public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
 
+
+    public static OptionItem EnableAutoGMRotation;
+    public static readonly Dictionary<int, Dictionary<CustomGameMode, OptionItem>> AutoGMRotationRandomGroups = [];
+    public static readonly List<(OptionItem Slot, OptionItem Count, OptionItem ExplicitChoice, OptionItem RandomGroupChoice)> AutoGMRotationSlots = [];
+    public const int MaxAutoGMRotationRandomGroups = 5;
+    public static List<CustomGameMode> AutoGMRotationCompiled = [];
+    public static bool AutoGMRotationRecompileOnClose;
+    public static int AutoGMRotationIndex;
+
+    public static bool AutoGMRotationEnabled => EnableAutoGMRotation.GetBool() && AutoGMRotationCompiled.Count >= 2;
+
+    public enum AutoGMRoationSlotOptions
+    {
+        Unused,
+        Explicit,
+        Random,
+        Poll
+    }
+    
+
     public static readonly string[] Rates =
     [
         "Rate0",
@@ -865,6 +885,8 @@ public static class Options
             toChange.ForEach(x => Main.RoleColors[x] = "#8cffff");
         }
 
+        CompileAutoGMRotationSettings();
+
 #if DEBUG
         // Used for generating the table of roles for the README
         try
@@ -1588,6 +1610,9 @@ public static class Options
 
         yield return null;
 
+        #endregion
+
+        #region Game Settings
 
         LoadingPercentage = 65;
         MainLoadingText = "Building game settings";
@@ -2092,6 +2117,9 @@ public static class Options
 
         LoadingPercentage = 78;
 
+        #endregion
+
+        #region Task Settings
 
         UsePets = new BooleanOptionItem(23850, "UsePets", false, TabGroup.TaskSettings)
             .SetHeader(true)
@@ -2499,6 +2527,10 @@ public static class Options
         LoadingPercentage = 92;
         MainLoadingText = "Building game settings";
 
+        #endregion
+
+        #region More Game Settings
+
         new TextOptionItem(100037, "MenuTitle.Meeting", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
@@ -2646,8 +2678,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
-        DraftMaxRolesPerPlayer = new IntegerOptionItem(19430, "DraftMaxRolesPerPlayer", new(1, 30, 1), 5, TabGroup.SystemSettings)
-            .SetHeader(true)
+        DraftMaxRolesPerPlayer = new IntegerOptionItem(19430, "DraftMaxRolesPerPlayer", new(1, 30, 1), 5, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
@@ -2678,6 +2709,9 @@ public static class Options
 
         AFKDetector.SetupCustomOption();
 
+        #endregion
+
+        #region CTA
 
         new TextOptionItem(100027, "MenuTitle.CTA", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -2692,11 +2726,137 @@ public static class Options
 
         yield return null;
 
+
+        id = 69000;
+
+        EnableAutoGMRotation = new BooleanOptionItem(id++, "EnableAutoGMRotation", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        EventHandler<OptionItem.UpdateValueEventArgs> setRecompileNeeded = (_, _) => AutoGMRotationRecompileOnClose = true;
+        EventHandler<OptionItem.UpdateValueEventArgs> allSlotHandlers = (_, _) => { };
+
+        for (var index = 0; index < 20; index++)
+        {
+            OptionItem slot = new StringOptionItem(id++, "AutoGMRotationSlot", Enum.GetNames<AutoGMRoationSlotOptions>().Select(x => $"AGMR.{x}").ToArray(), 0, TabGroup.SystemSettings)
+                .SetParent(EnableAutoGMRotation)
+                .SetHeader(index == 0)
+                .AddReplacement(("{index}", (index + 1).ToString()))
+                .RegisterUpdateValueEvent(setRecompileNeeded);
+
+            OptionItem explicitGM = new StringOptionItem(id++, "GameMode", GameModes, 0, TabGroup.SystemSettings)
+                .SetParent(slot)
+                .RegisterUpdateValueEvent(setRecompileNeeded);
+
+            OptionItem randomGroup = new IntegerOptionItem(id++, "AGMR.Slot.RandomGroupId", new(1, MaxAutoGMRotationRandomGroups, 1), 1, TabGroup.SystemSettings)
+                .SetParent(slot)
+                .RegisterUpdateValueEvent(setRecompileNeeded);
+
+            OptionItem count = new IntegerOptionItem(id++, "AGMR.Slot.Count", new(1, 15, 1), 1, TabGroup.SystemSettings)
+                .SetParent(slot)
+                .SetValueFormat(OptionFormat.Multiplier)
+                .RegisterUpdateValueEvent(setRecompileNeeded);
+
+            EventHandler<OptionItem.UpdateValueEventArgs> slotHandler = (_, _) =>
+            {
+                explicitGM.SetHidden(slot.GetValue() != 1);
+                randomGroup.SetHidden(slot.GetValue() != 2);
+            };
+            slot.RegisterUpdateValueEvent(slotHandler);
+            allSlotHandlers += slotHandler;
+
+            AutoGMRotationSlots.Add((slot, count, explicitGM, randomGroup));
+        }
+
+        for (var index = 1; index <= MaxAutoGMRotationRandomGroups; index++)
+        {
+            new TextOptionItem(100030 + index, "MenuTitle.AGMR.RandomGroup", TabGroup.SystemSettings)
+                .SetHeader(true)
+                .SetParent(EnableAutoGMRotation)
+                .AddReplacement(("{index}", index.ToString()));
+
+            Dictionary<CustomGameMode, OptionItem> dict = [];
+
+            foreach (CustomGameMode customGameMode in Enum.GetValues<CustomGameMode>()[..^1])
+            {
+                OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, $"AGMR.RandomGroup.GMChance.{customGameMode}", new(0, 100, 5), 50, TabGroup.SystemSettings)
+                    .SetParent(EnableAutoGMRotation)
+                    .SetValueFormat(OptionFormat.Percent)
+                    .SetColor(Main.GameModeColors[customGameMode])
+                    .RegisterUpdateValueEvent(setRecompileNeeded);
+
+                dict[customGameMode] = chanceToSelectGMInGroup;
+            }
+
+            AutoGMRotationRandomGroups[index] = dict;
+        }
+
+
+        yield return null;
+
         OptionSaver.Load();
 
         IsLoaded = true;
 
         PostLoadTasks();
+
+        allSlotHandlers(null, new(0, 0));
+    }
+
+    public static void CompileAutoGMRotationSettings()
+    {
+        if (!EnableAutoGMRotation.GetBool())
+        {
+            AutoGMRotationCompiled = [];
+            return;
+        }
+
+        AutoGMRotationCompiled = [];
+
+        foreach ((OptionItem slot, OptionItem count, OptionItem explicitChoice, OptionItem randomGroupChoice) in AutoGMRotationSlots)
+        {
+            int times = count.GetInt();
+
+            switch ((AutoGMRoationSlotOptions)slot.GetValue())
+            {
+                case AutoGMRoationSlotOptions.Unused:
+                    continue;
+                case AutoGMRoationSlotOptions.Explicit:
+                    CustomGameMode gm = explicitChoice.GetInt() switch
+                    {
+                        1 => CustomGameMode.SoloKombat,
+                        2 => CustomGameMode.FFA,
+                        3 => CustomGameMode.MoveAndStop,
+                        4 => CustomGameMode.HotPotato,
+                        5 => CustomGameMode.HideAndSeek,
+                        6 => CustomGameMode.Speedrun,
+                        7 => CustomGameMode.CaptureTheFlag,
+                        8 => CustomGameMode.NaturalDisasters,
+                        9 => CustomGameMode.RoomRush,
+                        10 => CustomGameMode.KingOfTheZones,
+                        11 => CustomGameMode.Quiz,
+                        12 => CustomGameMode.TheMindGame,
+                        _ => CustomGameMode.Standard
+                    };
+                    AutoGMRotationCompiled.AddRange(Enumerable.Repeat(gm, times));
+                    break;
+                case AutoGMRoationSlotOptions.Random:
+                    int groupId = randomGroupChoice.GetInt();
+                    Dictionary<CustomGameMode, OptionItem> options = AutoGMRotationRandomGroups[groupId];
+                    List<CustomGameMode> pool = options.Where(x => IRandom.Instance.Next(100) < x.Value.GetInt()).Select(x => x.Key).ToList();
+                    if (pool.Count == 0) pool = options.Where(x => x.Value.GetInt() > 0).Select(x => x.Key).ToList();
+                    if (pool.Count == 0) pool = options.Keys.ToList();
+                    for (var i = 0; i < times; i++) AutoGMRotationCompiled.Add(pool.RandomElement());
+                    break;
+                case AutoGMRoationSlotOptions.Poll:
+                    AutoGMRotationCompiled.AddRange(Enumerable.Repeat(CustomGameMode.All, times));
+                    break;
+            }
+        }
+
+        AutoGMRotationIndex = 0;
+        AutoGMRotationRecompileOnClose = false;
+
+        Logger.Info($"Auto GM Rotation compilation result: {string.Join(", ", AutoGMRotationCompiled)}", "OptionHolder");
     }
 
     public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)

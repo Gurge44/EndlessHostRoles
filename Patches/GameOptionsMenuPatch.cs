@@ -1110,23 +1110,6 @@ public static class GameSettingMenuPatch
         CustomGameMode[] gms = Enum.GetValues<CustomGameMode>().SkipLast(1).ToArray();
         int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Length / 5f));
 
-        System.Collections.Generic.Dictionary<CustomGameMode, Color> gmColors = new()
-        {
-            [CustomGameMode.Standard] = Color.white,
-            [CustomGameMode.SoloKombat] = ColorUtility.TryParseHtmlString("#f55252", out var c) ? c : Color.white,
-            [CustomGameMode.FFA] = Color.cyan,
-            [CustomGameMode.MoveAndStop] = ColorUtility.TryParseHtmlString("#00ffa5", out c) ? c : Color.white,
-            [CustomGameMode.HotPotato] = ColorUtility.TryParseHtmlString("#e8cd46", out c) ? c : Color.white,
-            [CustomGameMode.HideAndSeek] = ColorUtility.TryParseHtmlString("#345eeb", out c) ? c : Color.white,
-            [CustomGameMode.Speedrun] = Utils.GetRoleColor(CustomRoles.Speedrunner),
-            [CustomGameMode.CaptureTheFlag] = ColorUtility.TryParseHtmlString("#1313c2", out c) ? c : Color.white,
-            [CustomGameMode.NaturalDisasters] = ColorUtility.TryParseHtmlString("#03fc4a", out c) ? c : Color.white,
-            [CustomGameMode.RoomRush] = Team.Neutral.GetColor(),
-            [CustomGameMode.KingOfTheZones] = Color.red,
-            [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
-            [CustomGameMode.TheMindGame] = Color.yellow
-        };
-
         GMButtons = [];
 
         for (var index = 0; index < gms.Length; index++)
@@ -1141,7 +1124,7 @@ public static class GameSettingMenuPatch
             gmButtonTmp.alignment = TextAlignmentOptions.Center;
             gmButtonTmp.DestroyTranslator();
             gmButtonTmp.text = Translator.GetString(gm.ToString()).ToUpper();
-            gmButtonTmp.color = gmColors[gm];
+            gmButtonTmp.color = Main.GameModeColors[gm];
             gmButtonTmp.transform.localPosition = new(gameSettingsLabelPos.x + (!russian ? 3.35f : 3.65f), gameSettingsLabelPos.y - 1.62f, gameSettingsLabelPos.z);
             gmButtonTmp.transform.localScale = new(1f, 1f, 1f);
 
@@ -1152,7 +1135,7 @@ public static class GameSettingMenuPatch
                 Options.GameMode.SetValue((int)gm - 1);
                 GameOptionsMenuPatch.ReloadUI();
             }));
-            gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = gmColors[gm];
+            gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = Main.GameModeColors[gm];
 
             GMButtons.Add(gmButton);
         }
@@ -1377,6 +1360,13 @@ public static class GameSettingMenuPatch
                 impLimits.MaxSetting.SetValue(numImpostors);
                 Logger.SendInGame(string.Format(Translator.GetString("MinMaxModdedImpCountsSettingsChangedAuto"), numImpostors));
             }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try
+        {
+            if (Options.AutoGMRotationRecompileOnClose)
+                Options.CompileAutoGMRotationSettings();
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
