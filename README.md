@@ -212,11 +212,16 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 |-----------|-----------------|--------------------|--------------------|--------------------|
 | /color    | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
 | /rename   | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
+| /tpin     | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
+| /tpout    | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
 | /kick     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /ban      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /say      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /poll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /mute     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /ds       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /gmpoll   | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /fix      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | Lobby tag | :x:             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 <br>
