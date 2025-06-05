@@ -103,8 +103,11 @@ public static class Speedrun
         int apc = Main.AllPlayerControls.Length;
         int killers = CanKill.Count;
 
+        string arrows = TargetArrow.GetAllArrows(pc);
+        arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
+
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time);
+        if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time) + arrows;
         return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, time);
     }
 
@@ -160,6 +163,7 @@ public static class Speedrun
     private static class FixedUpdatePatch
     {
         private static long LastUpdate;
+        private static bool Arrow;
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
@@ -179,9 +183,36 @@ public static class Speedrun
             LastUpdate = now;
 
             Timers.AdjustAllValues(x => x - 1);
-            Utils.NotifyRoles();
 
             CanKill.RemoveWhere(x => x.GetPlayer() == null || !x.GetPlayer().IsAlive());
+
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+            switch (Arrow, aapc.Length == 2)
+            {
+                case (false, true):
+                {
+                    PlayerControl pc1 = aapc[0];
+                    PlayerControl pc2 = aapc[1];
+
+                    if (CanKill.Contains(pc1.PlayerId) && CanKill.Contains(pc2.PlayerId) && Timers[pc1.PlayerId] == Timers[pc2.PlayerId])
+                    {
+                        TargetArrow.Add(pc1.PlayerId, pc2.PlayerId);
+                        TargetArrow.Add(pc2.PlayerId, pc1.PlayerId);
+                        Arrow = true;
+                    }
+
+                    break;
+                }
+                case (true, false):
+                {
+                    Main.PlayerStates.Keys.Do(TargetArrow.RemoveAllTarget);
+                    Arrow = false;
+                    break;
+                }
+            }
+
+            Utils.NotifyRoles();
         }
     }
 }

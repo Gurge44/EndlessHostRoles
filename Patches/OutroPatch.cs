@@ -504,12 +504,10 @@ internal static class SetEverythingUpPatch
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            string winCounts = Utils.GetWinCountsString();
-
-            if (winCounts != string.Empty)
+            if (Statistics.WinCountsForOutro != string.Empty)
             {
                 sb.Append("\n\n\n");
-                sb.Append(winCounts);
+                sb.Append(Statistics.WinCountsForOutro);
             }
         }
 

@@ -448,13 +448,13 @@ internal static class CheckForEndVotingPatch
 
         if (crole == CustomRoles.Jester)
         {
-            name = string.Format(GetString("ExiledJester"), realName, coloredRole);
+            if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool()) name = string.Format(GetString("ExiledJester"), realName, coloredRole);
             DecidedWinner = true;
         }
 
         if (Executioner.CheckExileTarget(exiledPlayer, true))
         {
-            name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
+            if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool()) name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
             DecidedWinner = true;
         }
 
@@ -462,10 +462,13 @@ internal static class CheckForEndVotingPatch
         {
             if (!(!Options.InnocentCanWinByImp.GetBool() && crole.IsImpostor()))
             {
-                if (DecidedWinner)
-                    name += string.Format(GetString("ExiledInnocentTargetAddBelow"));
-                else
-                    name = string.Format(GetString("ExiledInnocentTargetInOneLine"), realName, coloredRole);
+                if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool())
+                {
+                    if (DecidedWinner)
+                        name += string.Format(GetString("ExiledInnocentTargetAddBelow"));
+                    else
+                        name = string.Format(GetString("ExiledInnocentTargetInOneLine"), realName, coloredRole);
+                }
 
                 DecidedWinner = true;
             }

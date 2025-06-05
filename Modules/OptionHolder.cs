@@ -699,6 +699,10 @@ public static class Options
     public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem MessageRpcSizeLimit;
     public static OptionItem DraftMaxRolesPerPlayer;
+    public static OptionItem LargerRoleTextSize;
+    public static OptionItem ShowTaskCountWhenAlive;
+    public static OptionItem ShowTaskCountWhenDead;
+    public static OptionItem ShowDifferentEjectionMessageForSomeRoles;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
@@ -1650,6 +1654,10 @@ public static class Options
             .SetHeader(true);
 
         ConfirmLoversOnEject = new BooleanOptionItem(19815, "ConfirmLoversOnEject", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 238, 232, byte.MaxValue));
+
+        ShowDifferentEjectionMessageForSomeRoles = new BooleanOptionItem(19817, "ShowDifferentEjectionMessageForSomeRoles", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
 
@@ -2682,6 +2690,18 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
+        LargerRoleTextSize = new BooleanOptionItem(24451, "LargerRoleTextSize", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
+        ShowTaskCountWhenAlive = new BooleanOptionItem(24452, "ShowTaskCountWhenAlive", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
+        ShowTaskCountWhenDead = new BooleanOptionItem(24453, "ShowTaskCountWhenDead", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -2781,8 +2801,7 @@ public static class Options
                 OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, $"AGMR.RandomGroup.GMChance.{customGameMode}", new(0, 100, 5), 50, TabGroup.SystemSettings)
                     .SetParent(EnableAutoGMRotation)
                     .SetValueFormat(OptionFormat.Percent)
-                    .SetColor(Main.GameModeColors[customGameMode])
-                    .RegisterUpdateValueEvent(setRecompileNeeded);
+                    .SetColor(Main.GameModeColors[customGameMode]);
 
                 dict[customGameMode] = chanceToSelectGMInGroup;
             }

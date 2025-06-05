@@ -1111,13 +1111,20 @@ public static class Utils
     {
         try
         {
-            if ((playerId == 0 && Main.GM.Value) || ChatCommands.Spectators.Contains(playerId)) return string.Empty;
+            if ((playerId == 0 && Main.GM.Value) || ChatCommands.Spectators.Contains(playerId) || !Main.PlayerStates.TryGetValue(playerId, out PlayerState state)) return string.Empty;
 
-            TaskState taskState = Main.PlayerStates[playerId].TaskState;
+            switch (state.IsDead)
+            {
+                case false when !Options.ShowTaskCountWhenAlive.GetBool():
+                case true when !Options.ShowTaskCountWhenDead.GetBool():
+                    return string.Empty;
+            }
+
+            TaskState taskState = state.TaskState;
             if (!taskState.HasTasks) return string.Empty;
 
             NetworkedPlayerInfo info = GetPlayerInfoById(playerId);
-            Color taskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(Main.PlayerStates[playerId].MainRole).ShadeColor(0.5f);
+            Color taskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(state.MainRole).ShadeColor(0.5f);
             Color nonCompleteColor = HasTasks(info) ? Color.yellow : Color.white;
 
             if (Workhorse.IsThisRole(playerId)) nonCompleteColor = Workhorse.RoleColor;
@@ -1545,24 +1552,6 @@ public static class Utils
 
         string result = Main.LastAddOns.Values.Join(delimiter: "\n");
         SendMessage("\n", playerId, result);
-    }
-
-    public static string GetWinCountsString()
-    {
-        if (!Main.NumWinsPerGM.TryGetValue(Options.CurrentGameMode, out Dictionary<string, int> dictionary) || dictionary.Count == 0) return string.Empty;
-
-        StringBuilder sb = new();
-        sb.AppendLine($"<#ffffff><u>{GetString("WinsCountTitle")}:</u></color>");
-        var any = false;
-
-        foreach ((string hashedpuid, int wins) in dictionary)
-        {
-            if (!Main.AllPlayerControls.FindFirst(x => x.GetClient().GetHashedPuid() == hashedpuid, out PlayerControl player)) continue;
-            sb.AppendLine($"{player.PlayerId.ColoredPlayerName()}: {wins}");
-            any = true;
-        }
-
-        return any ? sb.ToString().Trim() : string.Empty;
     }
 
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)

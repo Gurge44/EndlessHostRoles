@@ -16,6 +16,9 @@ internal static class HotPotato
     private static OptionItem HolderSpeed;
     private static OptionItem Range;
     private static OptionItem HolderCanPassViaKillButton;
+    private static OptionItem ExtraTimeOnAirship;
+    private static OptionItem ExtraTimeOnFungle;
+    private static OptionItem HolderHasArrowToNearestPlayerIfPlayersLessThan;
 
     private static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) HotPotatoState;
     private static Dictionary<byte, int> SurvivalTimes;
@@ -51,11 +54,26 @@ internal static class HotPotato
             .SetGameMode(CustomGameMode.HotPotato)
             .SetColor(new Color32(232, 205, 70, byte.MaxValue))
             .SetHeader(true);
+
+        ExtraTimeOnAirship = new IntegerOptionItem(69_213_005, "HotPotato_ExtraTimeOnAirship", new(0, 60, 1), 15, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.HotPotato)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(232, 205, 70, byte.MaxValue));
+
+        ExtraTimeOnFungle = new IntegerOptionItem(69_213_006, "HotPotato_ExtraTimeOnFungle", new(0, 60, 1), 10, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.HotPotato)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(232, 205, 70, byte.MaxValue));
+
+        HolderHasArrowToNearestPlayerIfPlayersLessThan = new IntegerOptionItem(69_213_007, "HotPotato_HolderHasArrowToNearestPlayerIfPlayersLessThan", new(2, 15, 1), 5, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.HotPotato)
+            .SetValueFormat(OptionFormat.Players)
+            .SetColor(new Color32(232, 205, 70, byte.MaxValue));
     }
 
     public static void Init()
     {
-        HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt(), 1);
+        HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 8, 1);
         SurvivalTimes = [];
         foreach (PlayerControl pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
 
@@ -64,7 +82,14 @@ internal static class HotPotato
 
     public static void OnGameStart()
     {
-        HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt(), 1);
+        int time = Time.GetInt();
+        time += Main.CurrentMap switch
+        {
+            MapNames.Airship => ExtraTimeOnAirship.GetInt(),
+            MapNames.Fungle => ExtraTimeOnFungle.GetInt(),
+            _ => 0
+        };
+        HotPotatoState = (byte.MaxValue, byte.MaxValue, time, 1);
         LastPassTS = Utils.TimeStamp;
     }
 
@@ -136,7 +161,7 @@ internal static class HotPotato
             Vector2 pos = Holder.Pos();
             if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2) && Vector2.Distance(x.Pos(), pos) <= Range.GetFloat())) return;
 
-            float wait = aapc.Length <= 2 ? 0.4f : 0.05f;
+            float wait = aapc.Length <= 2 ? 0.4f : 0f;
             UpdateDelay += UnityEngine.Time.fixedDeltaTime;
             if (UpdateDelay < wait) return;
 
@@ -150,18 +175,26 @@ internal static class HotPotato
 
         public static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
         {
-            if (!Main.IntroDestroyed || Main.AllAlivePlayerControls.Length < 2) return;
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+            if (!Main.IntroDestroyed || aapc.Length < 2) return;
 
             if (resetTime)
             {
                 int time = Time.GetInt();
+                time += Main.CurrentMap switch
+                {
+                    MapNames.Airship => ExtraTimeOnAirship.GetInt(),
+                    MapNames.Fungle => ExtraTimeOnFungle.GetInt(),
+                    _ => 0
+                };
                 HotPotatoState.TimeLeft = time;
                 HotPotatoState.RoundNum++;
             }
 
             try
             {
-                target ??= Main.AllAlivePlayerControls.RandomElement();
+                target ??= aapc.RandomElement();
 
                 HotPotatoState.LastHolderID = HotPotatoState.HolderID;
                 HotPotatoState.HolderID = target.PlayerId;
@@ -174,6 +207,12 @@ internal static class HotPotato
                     LateTask.New(() => target.SetKillCooldown(1f), 0.2f, log: false);
                 }
 
+                if (aapc.Length < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapc.Length > 1)
+                {
+                    Vector2 pos = target.Pos();
+                    TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);
+                }
+
                 Main.AllPlayerSpeed[target.PlayerId] = HolderSpeed.GetFloat();
                 target.MarkDirtySettings();
 
@@ -182,6 +221,8 @@ internal static class HotPotato
                 if (LastHolder != null)
                 {
                     if (CanPassViaKillButton) LastHolder.RpcChangeRoleBasis(CustomRoles.Potato);
+
+                    TargetArrow.RemoveAllTarget(HotPotatoState.LastHolderID);
 
                     Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = DefaultSpeed;
                     LastHolder.MarkDirtySettings();

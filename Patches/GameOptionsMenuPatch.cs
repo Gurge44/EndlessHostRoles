@@ -96,14 +96,14 @@ public static class GameOptionsMenuPatch
     {
         if (ModGameOptionsMenu.TabIndex < 3) return true;
 
+        var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
+
         __instance.scrollBar.SetYBoundsMax(CalculateScrollBarYBoundsMax());
         __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
         return false;
 
         IEnumerator CoRoutine()
         {
-            var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
-
             var num = 2.0f;
             const float posX = 0.952f;
             const float posZ = -2.0f;
@@ -113,7 +113,7 @@ public static class GameOptionsMenuPatch
                 OptionItem option = OptionItem.AllOptions[index];
                 if (option.Tab != modTab) continue;
 
-                bool enabled = !option.IsCurrentlyHidden() && (option.Parent == null || (!option.Parent.IsCurrentlyHidden() && option.Parent.GetBool())) && (option.Parent?.Parent == null || (!option.Parent.Parent.IsCurrentlyHidden() && option.Parent.Parent.GetBool())) && (option.Parent?.Parent?.Parent == null || (!option.Parent.Parent.Parent.IsCurrentlyHidden() && option.Parent.Parent.Parent.GetBool()));
+                bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
 
                 if (option is TextOptionItem)
                 {
@@ -174,8 +174,6 @@ public static class GameOptionsMenuPatch
                 if (index % 100 == 0) yield return null;
             }
 
-            yield return null;
-
             __instance.ControllerSelectable.Clear();
 
             foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>())
@@ -188,9 +186,9 @@ public static class GameOptionsMenuPatch
 
             foreach (OptionItem option in OptionItem.AllOptions)
             {
-                if (option.Tab != (TabGroup)(ModGameOptionsMenu.TabIndex - 3)) continue;
+                if (option.Tab != modTab) continue;
 
-                bool enabled = !option.IsCurrentlyHidden() && (option.Parent == null || (!option.Parent.IsCurrentlyHidden() && option.Parent.GetBool()));
+                bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
 
                 if (option is TextOptionItem)
                     num -= 0.63f;
@@ -203,6 +201,16 @@ public static class GameOptionsMenuPatch
             }
 
             return -num - 1.65f;
+        }
+
+        bool AllParentsEnabledAndVisible(OptionItem o)
+        {
+            while (true)
+            {
+                if (o == null) return true;
+                if (o.IsCurrentlyHidden() || !o.GetBool()) return false;
+                o = o.Parent;
+            }
         }
     }
 
@@ -1196,11 +1204,13 @@ public static class GameSettingMenuPatch
 
             HiddenBySearch.Do(x => x.SetHidden(false));
             string text = textField.textArea.text.Trim().ToLower();
-            System.Collections.Generic.List<OptionItem> result = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3)).ToList();
+            var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
+            OptionItem[] optionItems = Options.GroupedOptions[modTab];
+            System.Collections.Generic.List<OptionItem> result = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
             HiddenBySearch = result;
-            System.Collections.Generic.List<OptionItem> searchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !result.Contains(x)).ToList();
+            System.Collections.Generic.List<OptionItem> searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
 
-            if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu gameSettings) || gameSettings == null)
+            if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue(modTab, out GameOptionsMenu gameSettings) || gameSettings == null)
             {
                 HiddenBySearch.Clear();
                 Logger.SendInGame(Translator.GetString("SearchNoResult"));

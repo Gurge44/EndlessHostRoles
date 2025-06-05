@@ -1943,7 +1943,7 @@ internal static class PlayerStartPatch
             TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
             TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
             roleText.transform.localPosition = new(0f, 0.2f, 0f);
-            roleText.fontSize -= 0.9f;
+            if (!Options.LargerRoleTextSize.GetBool()) roleText.fontSize -= 0.9f;
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
             roleText.enabled = false;
