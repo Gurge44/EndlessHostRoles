@@ -13,7 +13,7 @@ public class SabotageMaster : RoleBase
     private const int Id = 7000;
     private static List<byte> PlayerIdList = [];
 
-    public static OptionItem SkillLimit;
+    private static OptionItem SkillLimit;
     private static OptionItem FixesDoors;
     private static OptionItem FixesReactors;
     private static OptionItem FixesOxygens;
@@ -26,6 +26,8 @@ public class SabotageMaster : RoleBase
     private static OptionItem CanFixSabotageFromAnywhereWithPet;
     private static OptionItem MaxFixedViaPet;
     public static OptionItem CanVent;
+    private static OptionItem VentCooldown;
+    private static OptionItem MaxInVentTime;
 
     private static bool DoorsProgressing;
     private bool fixedSabotage;
@@ -83,6 +85,14 @@ public class SabotageMaster : RoleBase
 
         CanVent = new BooleanOptionItem(Id + 22, "CanVent", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+
+        VentCooldown = new FloatOptionItem(Id + 23, "VentCooldown", new(0f, 60f, 0.1f), 10f, TabGroup.CrewmateRoles)
+            .SetParent(CanVent)
+            .SetValueFormat(OptionFormat.Seconds);
+
+        MaxInVentTime = new FloatOptionItem(Id + 24, "MaxInVentTime", new(0f, 60f, 0.1f), 10f, TabGroup.CrewmateRoles)
+            .SetParent(CanVent)
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
@@ -108,8 +118,8 @@ public class SabotageMaster : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (!CanVent.GetBool()) return;
-        AURoleOptions.EngineerCooldown = 0f;
-        AURoleOptions.EngineerInVentMaxTime = 0f;
+        AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+        AURoleOptions.EngineerInVentMaxTime = MaxInVentTime.GetFloat();
     }
 
     public override string GetProgressText(byte playerId, bool comms)

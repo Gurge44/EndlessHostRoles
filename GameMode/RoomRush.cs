@@ -240,7 +240,7 @@ public static class RoomRush
 
         if (showTutorial)
         {
-            var readingTime = 4;
+            var readingTime = 2;
 
             StringBuilder sb = new(Translator.GetString("RR_Tutorial_Basics"));
             sb.AppendLine();
@@ -376,7 +376,7 @@ public static class RoomRush
                     : Options.DecontaminationTimeOnMiraHQ.GetInt()
                 : 3;
 
-            time += decontaminationTime * (polus ? 2 : 4);
+            time += decontaminationTime * (polus ? 3 : 4);
         }
 
         switch (map)
@@ -384,7 +384,7 @@ public static class RoomRush
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
                 break;
-            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical):
+            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
                 time -= (int)(5 * speed);
                 break;
         }
