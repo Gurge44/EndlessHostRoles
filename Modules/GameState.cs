@@ -108,7 +108,7 @@ public class PlayerState(byte playerId)
         try { Utils.RemovePlayerFromPreviousRoleData(Player); }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        if (Main.IntroDestroyed && MainRole != CustomRoles.NotAssigned)
+        if (Main.IntroDestroyed && MainRole != CustomRoles.NotAssigned && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
             RoleHistory.Add(MainRole);
 
         bool previousHasTasks = Utils.HasTasks(Player.Data, false);
