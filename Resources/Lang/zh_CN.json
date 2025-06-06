@@ -3494,7 +3494,7 @@
   "DetourInfoLong": "(船员职业):\\n当有人对逃避者使用击杀时,击杀的目标会转移到最近的玩家身上,而不是逃避者.",
   "Monitor": "通讯员",
   "MonitorInfo": "追踪设备的调度情况",
-  "MonitorInfoLong": "(Crewmates):\\nAs the Telecommunication, you are notified when someone uses cameras, vitals, doorlogs, or admin (you will know who specifically). If you have ability uses left, you can vent/pet to open all closed doors on the map.",
+  "MonitorInfoLong": "(船员职业):\\n当有人使用监控、生命体征、日志或管理室的定位地图时，通信员会收到通知并知道具体是谁，通信员还可以通过通风管道/抚摸宠物打开地图上所有关闭的门。",
   "Werewolf": "月下狼人",
   "WerewolfInfo": "咬死所有人!!!",
   "WerewolfInfoLong": "(中立职业):\\n月下狼人需要跳管以进入狂暴.只能在狂暴期间进行击杀.",
