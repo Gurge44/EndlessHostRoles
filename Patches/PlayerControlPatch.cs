@@ -1942,8 +1942,9 @@ internal static class PlayerStartPatch
             if (__result || __instance.__4__this.PlayerId >= 254) return;
             TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
             TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
-            roleText.transform.localPosition = new(0f, 0.2f, 0f);
-            if (!Options.LargerRoleTextSize.GetBool()) roleText.fontSize -= 0.9f;
+            bool largerFontSize = Options.LargerRoleTextSize.GetBool();
+            roleText.transform.localPosition = new(0f, largerFontSize ? 0.4f : 0.2f, 0f);
+            if (!largerFontSize) roleText.fontSize -= 0.9f;
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
             roleText.enabled = false;

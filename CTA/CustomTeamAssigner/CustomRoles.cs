@@ -170,7 +170,6 @@ public enum CustomRoles
     Dictator,
     Doctor,
     DonutDelivery,
-    Doormaster,
     DoubleAgent,
     DovesOfNeace,
     Drainer,
