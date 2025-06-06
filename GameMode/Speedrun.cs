@@ -103,7 +103,7 @@ public static class Speedrun
         int apc = Main.AllPlayerControls.Length;
         int killers = CanKill.Count;
 
-        string arrows = TargetArrow.GetAllArrows(pc);
+        string arrows = TargetArrow.GetAllArrows(pc.PlayerId);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
 
         // ReSharper disable once ConvertIfStatementToReturnStatement

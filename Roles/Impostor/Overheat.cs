@@ -89,7 +89,7 @@ public class Overheat : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        float kcd = Options.DefaultKillCooldown;
+        float kcd = Options.AdjustedDefaultKillCooldown;
         kcd -= KCDDecreasePerIncreasedTemperature.GetFloat() * (Temperature - StartingTemperature);
         Main.AllPlayerKillCooldown[id] = kcd;
     }

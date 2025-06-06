@@ -343,7 +343,7 @@ internal static class EffectExtenstions
                 }
 
                     break;
-                case Effect.GhostPlayer when TimeSinceLastMeeting > Options.DefaultKillCooldown:
+                case Effect.GhostPlayer when TimeSinceLastMeeting > Options.AdjustedDefaultKillCooldown:
                 {
                     PlayerControl killer = PickRandomPlayer();
                     PlayerControl[] allPc = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId).ToArray();

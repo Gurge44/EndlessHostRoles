@@ -74,9 +74,9 @@ public class Gaslighter : RoleBase
         {
             Round.Kill => KillCooldown.GetFloat(),
             Round.Knight => Monarch.KnightCooldown.GetFloat(),
-            Round.Curse => Options.DefaultKillCooldown,
+            Round.Curse => Options.AdjustedDefaultKillCooldown,
             Round.Shield => Medic.CD.GetFloat(),
-            _ => Options.DefaultKillCooldown
+            _ => Options.AdjustedDefaultKillCooldown
         };
     }
 

@@ -424,7 +424,6 @@ public class Main : BasePlugin
                 { CustomRoles.Dealer, "#f57242" },
                 { CustomRoles.Escort, "#ff94e6" },
                 { CustomRoles.Spy, "#34495E" },
-                { CustomRoles.Doormaster, "#7FB3D5" },
                 { CustomRoles.Tether, "#138D75" },
                 { CustomRoles.Ricochet, "#EDBB99" },
                 { CustomRoles.SpeedBooster, "#00ffff" },

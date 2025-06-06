@@ -331,7 +331,13 @@ internal static class ChangeRoleSettings
 
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown;
+                Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown + Main.CurrentMap switch
+                {
+                    MapNames.Polus => Options.ExtraKillCooldownOnPolus.GetFloat(),
+                    MapNames.Airship => Options.ExtraKillCooldownOnAirship.GetFloat(),
+                    MapNames.Fungle => Options.ExtraKillCooldownOnFungle.GetFloat(),
+                    _ => 0f
+                };
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;

@@ -207,6 +207,16 @@ public static class Options
 
     public static float DefaultKillCooldown = Main.NormalOptions == null ? 25f : Main.NormalOptions.KillCooldown;
 
+    public static float AdjustedDefaultKillCooldown => !GameStates.InGame
+        ? DefaultKillCooldown
+        : DefaultKillCooldown + Main.CurrentMap switch
+        {
+            MapNames.Polus => ExtraKillCooldownOnPolus?.GetFloat() ?? 0f,
+            MapNames.Airship => ExtraKillCooldownOnAirship?.GetFloat() ?? 0f,
+            MapNames.Fungle => ExtraKillCooldownOnFungle?.GetFloat() ?? 0f,
+            _ => 0f
+        };
+
     public static OptionItem ModLanguage;
 
     public static readonly Dictionary<GameStateInfo, OptionItem> GameStateSettings = [];
@@ -434,6 +444,9 @@ public static class Options
     public static OptionItem ChangeDecontaminationTime;
     public static OptionItem DecontaminationTimeOnMiraHQ;
     public static OptionItem DecontaminationTimeOnPolus;
+    public static OptionItem ExtraKillCooldownOnPolus;
+    public static OptionItem ExtraKillCooldownOnAirship;
+    public static OptionItem ExtraKillCooldownOnFungle;
 
     public static OptionItem MafiaShapeshiftCD;
     public static OptionItem MafiaShapeshiftDur;
@@ -1783,6 +1796,18 @@ public static class Options
         // Decontamination time on Polus
         DecontaminationTimeOnPolus = new FloatOptionItem(60505, "DecontaminationTimeOnPolus", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
             .SetParent(ChangeDecontaminationTime)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        ExtraKillCooldownOnPolus = new FloatOptionItem(60506, "ExtraKillCooldownOnPolus", new(0f, 60f, 0.5f), 0f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        ExtraKillCooldownOnAirship = new FloatOptionItem(60507, "ExtraKillCooldownOnAirship", new(0f, 60f, 0.5f), 0f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        ExtraKillCooldownOnFungle = new FloatOptionItem(60508, "ExtraKillCooldownOnFungle", new(0f, 60f, 0.5f), 0f, TabGroup.GameSettings)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 

@@ -17,7 +17,7 @@ public class DarkHide : RoleBase
     private static OptionItem CanVent;
     public static OptionItem SnatchesWin;
 
-    private float CurrentKillCooldown = Options.DefaultKillCooldown;
+    private float CurrentKillCooldown = Options.AdjustedDefaultKillCooldown;
     public bool IsWinKill;
 
     public override bool IsEnable => PlayerIdList.Count > 0;

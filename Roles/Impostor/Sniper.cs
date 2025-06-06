@@ -279,7 +279,7 @@ public class Sniper : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (Options.UsePhantomBasis.GetBool())
-            AURoleOptions.PhantomCooldown = bulletCount > 0 ? Options.DefaultKillCooldown : 255f;
+            AURoleOptions.PhantomCooldown = bulletCount > 0 ? Options.AdjustedDefaultKillCooldown : 255f;
         else
         {
             if (Options.UsePets.GetBool()) return;

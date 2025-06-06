@@ -73,7 +73,7 @@ internal static class ExileControllerWrapUpPatch
                 Main.PlayerStates[exiled.PlayerId].SetDead();
         }
 
-        if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown) Main.RefixCooldownDelay = Options.DefaultKillCooldown - 3f;
+        if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown) Main.RefixCooldownDelay = Options.AdjustedDefaultKillCooldown - 3f;
 
         Witch.RemoveSpelledPlayer();
 

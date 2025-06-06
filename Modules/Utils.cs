@@ -2820,7 +2820,8 @@ public static class Utils
                                 if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.Speedrun)
                                     additionalSuffixes.Add(GetString("DiedR1Warning"));
 
-                                additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
+                                if (!forMeeting)
+                                    additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));
 
@@ -3082,7 +3083,7 @@ public static class Utils
     {
         if (role.UsesPetInsteadOfKill())
         {
-            var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Options.DefaultKillCooldown);
+            var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Options.AdjustedDefaultKillCooldown);
             Main.AbilityCD[playerId] = (TimeStamp, kcd);
             SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, kcd);
             return;
@@ -3091,10 +3092,10 @@ public static class Utils
         int cd = role switch
         {
             CustomRoles.Mole => Mole.CD.GetInt(),
-            CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),
+            CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
-            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.DefaultKillCooldown),
-            CustomRoles.Paranoia => (int)Math.Round(Options.DefaultKillCooldown),
+            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
+            CustomRoles.Paranoia => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),

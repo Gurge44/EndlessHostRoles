@@ -135,8 +135,16 @@ internal static class OnGameJoinedPatch
 
                 IEnumerator CoRoutine()
                 {
+                    yield return new WaitForSeconds(10f);
+
+                    try { Utils.SendMessage(HudManagerPatch.BuildAutoGMRotationStatusText(true), title: GetString("AutoGMRotationStatusText")); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
+                    CustomGameMode nextGM = Options.AutoGMRotationCompiled[Options.AutoGMRotationIndex];
+                    
                     float timer;
-                    if (Options.AutoGMPollCommandAfterJoin.GetBool()) timer = Options.AutoGMPollCommandCooldown.GetInt();
+                    if (nextGM != CustomGameMode.All) timer = 0f;
+                    else if (Options.AutoGMPollCommandAfterJoin.GetBool()) timer = Options.AutoGMPollCommandCooldown.GetInt();
                     else if (Main.AutoStart.Value) timer = (Options.MinWaitAutoStart.GetFloat() * 60) - 65;
                     else timer = 30f;
 
@@ -153,8 +161,6 @@ internal static class OnGameJoinedPatch
 
                     if (Options.AutoGMRotationEnabled)
                     {
-                        CustomGameMode nextGM = Options.AutoGMRotationCompiled[Options.AutoGMRotationIndex];
-
                         if (nextGM == CustomGameMode.All) ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
                         else Options.GameMode.SetValue((int)nextGM - 1);
 

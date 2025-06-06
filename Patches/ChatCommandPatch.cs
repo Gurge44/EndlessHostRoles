@@ -1255,17 +1255,18 @@ internal static class ChatCommands
         }
 
         int splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
-        string[] answers = args.Skip(splitIndex).ToArray();
+        string[] answers = args[splitIndex..];
 
-        string msg = string.Join(" ", args.Take(splitIndex).Skip(1)) + "\n";
+        string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
 
         PollTimer = gmPoll ? 60f : 45f;
+        Color[] gmPollColors = gmPoll ? Main.GameModeColors.Values.ToArray() : [];
 
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
             var choiceLetter = (char)(i + 65);
-            msg += Utils.ColorString(RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
+            msg += Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
             PollVotes[choiceLetter] = 0;
             PollAnswers[choiceLetter] = $"<size=70%>〖 {answers[i]} 〗</size>";
         }
@@ -1324,7 +1325,7 @@ internal static class ChatCommands
             if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
             {
                 int winnerIndex = winners[0].Key - 65;
-                if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex);
+                Options.GameMode.SetValue(winnerIndex);
             }
         }
 

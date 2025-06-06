@@ -596,8 +596,6 @@ public static class CustomRpcSenderExtensions
         if (target.Is(CustomRoles.Glitch) && Main.PlayerStates[target.PlayerId].Role is Glitch gc)
         {
             gc.LastHack = Utils.TimeStamp;
-            gc.LastMimic = Utils.TimeStamp;
-            gc.MimicCDTimer = 10;
             gc.HackCDTimer = 10;
 
             return false;

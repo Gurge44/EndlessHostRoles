@@ -86,7 +86,7 @@ public class Penguin : RoleBase
             MeetingKill = OptionMeetingKill.GetBool();
             SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
             VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
-            Cooldown = Options.DefaultKillCooldown;
+            Cooldown = Options.AdjustedDefaultKillCooldown;
         }
         else
         {

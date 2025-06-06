@@ -60,7 +60,7 @@ public class Gangster : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = CanRecruit(id) ? KillCooldown.GetFloat() : Options.DefaultKillCooldown;
+        Main.AllPlayerKillCooldown[id] = CanRecruit(id) ? KillCooldown.GetFloat() : Options.AdjustedDefaultKillCooldown;
     }
 
     public static bool CanRecruit(byte id)

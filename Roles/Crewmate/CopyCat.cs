@@ -17,7 +17,7 @@ public class CopyCat : RoleBase
     public static OptionItem UsePet;
 
     public PlayerControl CopyCatPC;
-    private float CurrentKillCooldown = DefaultKillCooldown;
+    private float CurrentKillCooldown = AdjustedDefaultKillCooldown;
     private float TempLimit;
 
     public override bool IsEnable => Instances.Count > 0;
@@ -49,7 +49,7 @@ public class CopyCat : RoleBase
     public override void Init()
     {
         Instances = [];
-        CurrentKillCooldown = DefaultKillCooldown;
+        CurrentKillCooldown = AdjustedDefaultKillCooldown;
     }
 
     public override void Add(byte playerId)

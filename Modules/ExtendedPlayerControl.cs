@@ -661,7 +661,7 @@ internal static class ExtendedPlayerControl
 
     public static void AddKCDAsAbilityCD(this PlayerControl pc)
     {
-        AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd) ? kcd : Options.DefaultKillCooldown));
+        AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd) ? kcd : Options.AdjustedDefaultKillCooldown));
     }
 
     public static void AddAbilityCD(this PlayerControl pc, bool includeDuration = true)
@@ -830,8 +830,6 @@ internal static class ExtendedPlayerControl
         if (target.Is(CustomRoles.Glitch) && Main.PlayerStates[target.PlayerId].Role is Glitch gc)
         {
             gc.LastHack = TimeStamp;
-            gc.LastMimic = TimeStamp;
-            gc.MimicCDTimer = 10;
             gc.HackCDTimer = 10;
         }
         else if (PlayerControl.LocalPlayer == target)

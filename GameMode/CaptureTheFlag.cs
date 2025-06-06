@@ -182,11 +182,9 @@ public static class CaptureTheFlag
 
     public static string GetSuffixText(PlayerControl seer, PlayerControl target)
     {
-        if (!ValidTag) return string.Empty;
+        if (!ValidTag || seer.PlayerId != target.PlayerId) return string.Empty;
 
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
-
-        string arrows = TargetArrow.GetAllArrows(seer);
+        string arrows = TargetArrow.GetAllArrows(seer.PlayerId);
         arrows = arrows.Length > 0 ? $"{arrows}\n" : string.Empty;
 
         var str = $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" | ", "\n")}</size>\n";
