@@ -4379,7 +4379,7 @@
   "WeathermanInfoLong": "(中立职业):\\n天气人可以通过使用宠物/隐身随机生成自然灾害。这些灾害与自然灾害游戏模式中的相同. \\n\\n利用这些灾难杀死所有人来赢得胜利！",
   "Postman": "邮递员",
   "PostmanInfo": "太空快递!使命必达!",
-  "PostmanInfoLong": "(中立职业):\\n邮递员的工作是给每个人送邮件.你总是有一个目标,你需要向你的目标使用击杀按钮,把邮件交给他们.当你把邮件发给每个人后,你的获胜条件就满足了.无论发生什么,你都会和获胜的队伍一起获胜.",
+  "PostmanInfoLong": "(Neutral):\\nAs the Postman, your job is to deliver mail to everyone. You'll always have a target, and you need to click your kill button on that target to deliver the mail to them. If you deliver to the wrong target, you die. When you've delivered mail to everyone, your win condition is satisfied. You'll win with the winning team, no matter what happens.",
   "PostmanKillButtonText": "送达",
   "PostmanDiesWhenTargetDies": "<color=#00b893>邮递员</color>自杀因为他们的目标已经死了",
   "PostmanCorrectDeliver": "<color=#00ff00>成功邮递</color>",
