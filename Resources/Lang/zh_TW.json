@@ -4379,7 +4379,7 @@
   "WeathermanInfoLong": "(Neutrals):\\nAs the Weatherman, you can spawn a random natural disaster by using your pet/vanish button. The disasters are the same as in the Natural Disasters game mode.\\n\\nUse these disasters to kill everyone to win!",
   "Postman": "郵差",
   "PostmanInfo": "使命必達!",
-  "PostmanInfoLong": "(中立陣營):\\n郵差需要將郵件遞送給每個人。你一直都會有一個目標，使用擊殺按鈕來向目標送信。你將信送給所有玩家後就能夠跟勝利的陣營一起獲勝(不論死活)",
+  "PostmanInfoLong": "(Neutral):\\nAs the Postman, your job is to deliver mail to everyone. You'll always have a target, and you need to click your kill button on that target to deliver the mail to them. If you deliver to the wrong target, you die. When you've delivered mail to everyone, your win condition is satisfied. You'll win with the winning team, no matter what happens.",
   "PostmanKillButtonText": "遞送",
   "PostmanDiesWhenTargetDies": "<color=#00b893>郵差</color>會在目標死亡後死亡",
   "PostmanCorrectDeliver": "<color=#00ff00>送信成功</color>",
