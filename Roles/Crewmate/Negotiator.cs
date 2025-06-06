@@ -32,7 +32,7 @@ public class Negotiator : RoleBase
             .AutoSetupOption(ref MinVotingTimeLeftToNegotiate, 10, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref LowVision, 0.4f, new FloatValueRule(0f, 1f, 0.05f), OptionFormat.Multiplier)
             .AutoSetupOption(ref LowSpeed, 0.9f, new FloatValueRule(0.1f, 2f, 0.1f), OptionFormat.Multiplier)
-            .AutoSetupOption(ref AbilityUseLimit, 0, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 0f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.4f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityChargesWhenFinishedTasks, 0.2f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .CreateVoteCancellingSetting(ref CancelVote);
@@ -52,7 +52,7 @@ public class Negotiator : RoleBase
         TargetId = byte.MaxValue;
         Penalty = default(NegotiationType);
         PermanentPenalties = [];
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)

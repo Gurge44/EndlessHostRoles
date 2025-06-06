@@ -38,7 +38,7 @@ public class Hangman : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
             .SetValueFormat(OptionFormat.Times);
 
-        HangmanAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
+        HangmanAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -51,7 +51,7 @@ public class Hangman : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(HangmanLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(HangmanLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

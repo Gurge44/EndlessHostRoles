@@ -36,13 +36,13 @@ public class Occultist : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(645250)
-            .AutoSetupOption(ref AbilityUseLimit, 0, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 0f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref ReviveTime, 5, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref ArrowsToBodies, false)
             .AutoSetupOption(ref RevivedPlayersBodiesCanBeReported, false)
             .AutoSetupOption(ref RevivedPlayers, 0, RevivedPlayersModes)
             .AutoSetupOption(ref CanReviveImpostorsAndMadmates, true)
-            .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.4f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times);
+            .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.5f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times);
     }
 
     public override void Init()
@@ -57,7 +57,7 @@ public class Occultist : RoleBase
         On = true;
         OccultistPC = playerId.GetPlayer();
         InRevivingMode = true;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     private void SwitchAction()

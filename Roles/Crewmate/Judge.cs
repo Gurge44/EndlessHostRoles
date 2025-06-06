@@ -68,7 +68,7 @@ public class Judge : RoleBase
         PlayerIdList.Add(playerId);
         MeetingUseLimit[playerId] = TrialLimitPerMeeting.GetInt();
         TotalUseLimit[playerId] = TrialLimitPerGame.GetInt();
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)

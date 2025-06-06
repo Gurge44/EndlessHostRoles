@@ -17,7 +17,7 @@ public class Inquirer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
             .SetValueFormat(OptionFormat.Percent);
 
-        AbilityUseLimit = new IntegerOptionItem(649713, "AbilityUseLimit", new(0, 10, 1), 1, TabGroup.CrewmateRoles)
+        AbilityUseLimit = new FloatOptionItem(649713, "AbilityUseLimit", new(0, 20, 0.05f), 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
             .SetValueFormat(OptionFormat.Times);
 
@@ -34,6 +34,6 @@ public class Inquirer : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 }

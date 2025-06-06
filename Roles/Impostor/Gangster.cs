@@ -50,7 +50,7 @@ public class Gangster : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(RecruitLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(RecruitLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

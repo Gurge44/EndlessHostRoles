@@ -77,7 +77,7 @@ public class Spiritcaller : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(SpiritMax.GetInt());
+        playerId.SetAbilityUseLimit(SpiritMax.GetFloat());
         ProtectTimeStamp = 0;
     }
 

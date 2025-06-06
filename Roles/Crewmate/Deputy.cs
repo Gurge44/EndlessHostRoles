@@ -46,7 +46,7 @@ public class Deputy : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(HandcuffMax.GetInt());
+        playerId.SetAbilityUseLimit(HandcuffMax.GetFloat());
     }
 
     public override void Remove(byte playerId)

@@ -52,7 +52,7 @@ internal class TimeMaster : RoleBase
     {
         On = true;
         BackTrack = [];
-        playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetInt());
+        playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetFloat());
     }
 
     public override void Init()

@@ -65,7 +65,7 @@ public class Druid : RoleBase
     {
         PlayerIdList.Add(playerId);
         DruidPC = GetPlayerById(playerId);
-        playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
         lastUpdate = TimeStamp;
         TriggerIds = [];
     }

@@ -27,7 +27,7 @@ public class Dreamweaver : Coven
     {
         StartSetup(650080)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 10, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 5f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
             .AutoSetupOption(ref CanVentAfterNecronomicon, false);
     }
@@ -42,7 +42,7 @@ public class Dreamweaver : Coven
         On = true;
         InsanePlayers = [];
         DreamweaverId = playerId;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

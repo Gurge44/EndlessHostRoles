@@ -95,7 +95,7 @@ public class ParityCop : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetInt());
+        playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetFloat());
         RoundCheckLimit.Add(playerId, ParityCheckLimitPerMeeting.GetInt());
     }
 

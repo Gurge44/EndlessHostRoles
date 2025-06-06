@@ -157,7 +157,7 @@ public class Dad : RoleBase
         Arrows = string.Empty;
         StartingSpeed = Main.AllPlayerSpeed[playerId];
         DrunkPlayers = [];
-        playerId.SetAbilityUseLimit(StartingMoney.GetInt());
+        playerId.SetAbilityUseLimit(StartingMoney.GetFloat());
         Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 1, Shop.Id);
     }
 

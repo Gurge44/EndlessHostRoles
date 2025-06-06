@@ -25,7 +25,7 @@ public class Astral : RoleBase
         StartSetup(651400)
             .AutoSetupOption(ref AbilityCooldown, 30, new IntegerValueRule(0, 120, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref AbilityDuration, 10, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityUseLimit, 1, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.3f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityChargesWhenFinishedTasks, 0.2f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times);
     }
@@ -40,7 +40,7 @@ public class Astral : RoleBase
         On = true;
         BackTS = 0;
         AstralId = playerId;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

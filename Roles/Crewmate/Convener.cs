@@ -18,7 +18,7 @@ internal class Convener : RoleBase
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Convener);
         CD = Options.CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Convener);
 
-        Limit = new IntegerOptionItem(Id + 3, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
+        Limit = new FloatOptionItem(Id + 3, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
             .SetValueFormat(OptionFormat.Times);
 
@@ -34,7 +34,7 @@ internal class Convener : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(Limit.GetInt());
+        playerId.SetAbilityUseLimit(Limit.GetFloat());
     }
 
     public override void Init()

@@ -41,7 +41,7 @@ internal class Veteran : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(VeteranSkillMaxOfUseage.GetInt());
+        playerId.SetAbilityUseLimit(VeteranSkillMaxOfUseage.GetFloat());
     }
 
     public override void Init()

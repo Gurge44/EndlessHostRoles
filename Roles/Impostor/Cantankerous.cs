@@ -39,7 +39,7 @@ public class Cantankerous : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(StartingPoints.GetInt());
+        playerId.SetAbilityUseLimit(StartingPoints.GetFloat());
     }
 
     public override void Remove(byte playerId)

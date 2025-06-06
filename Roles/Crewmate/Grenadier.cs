@@ -49,7 +49,7 @@ internal class Grenadier : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(GrenadierSkillMaxOfUseage.GetInt());
+        playerId.SetAbilityUseLimit(GrenadierSkillMaxOfUseage.GetFloat());
     }
 
     public override void Init()

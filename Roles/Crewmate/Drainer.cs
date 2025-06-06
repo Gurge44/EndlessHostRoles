@@ -27,7 +27,7 @@ public class Drainer : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimit = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles)
+        UseLimit = new FloatOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 0.05f), 1, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
             .SetValueFormat(OptionFormat.Times);
 
@@ -49,7 +49,7 @@ public class Drainer : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(UseLimit.GetInt());
+        playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)

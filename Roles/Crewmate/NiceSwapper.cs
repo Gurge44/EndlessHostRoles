@@ -59,7 +59,7 @@ public class NiceSwapper : RoleBase
     public override void Add(byte playerId)
     {
         NiceSwapperId = playerId;
-        playerId.SetAbilityUseLimit(SwapMax.GetInt());
+        playerId.SetAbilityUseLimit(SwapMax.GetFloat());
     }
 
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)

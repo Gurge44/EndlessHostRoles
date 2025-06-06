@@ -31,7 +31,7 @@ public class Venter : RoleBase, IHideAndSeekRole
             .SetColor(new(105, 65, 65, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
 
-        UseLimit = new IntegerOptionItem(69_213_1007, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.ImpostorRoles)
+        UseLimit = new FloatOptionItem(69_213_1007, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(105, 65, 65, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);

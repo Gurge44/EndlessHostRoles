@@ -46,7 +46,7 @@ internal class Lighter : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(LighterSkillMaxOfUseage.GetInt());
+        playerId.SetAbilityUseLimit(LighterSkillMaxOfUseage.GetFloat());
         IsAbilityActive = false;
         ActivateTimeStamp = 0;
     }

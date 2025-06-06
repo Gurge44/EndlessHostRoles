@@ -26,7 +26,7 @@ public class Curser : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(645450)
-            .AutoSetupOption(ref AbilityUseLimit, 3, new IntegerValueRule(1, 20, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 3f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityCooldown, 15f, new FloatValueRule(0.5f, 90f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref ImpostorVision, false)
             .AutoSetupOption(ref CanVent, false)
@@ -47,7 +47,7 @@ public class Curser : RoleBase
         LowerVisionPlayers = [];
         LowerSpeedPlayers = [];
         KnownFactionPlayers = [];
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)

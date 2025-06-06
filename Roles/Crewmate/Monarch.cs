@@ -40,7 +40,7 @@ public class Monarch : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(KnightMax.GetInt());
+        playerId.SetAbilityUseLimit(KnightMax.GetFloat());
     }
 
     public override void Remove(byte playerId)

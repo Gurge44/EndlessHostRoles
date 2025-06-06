@@ -26,11 +26,11 @@ public class Nonplus : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimit = new IntegerOptionItem(id + 4, "AbilityUseLimit", new(0, 20, 1), 0, tab)
+        UseLimit = new FloatOptionItem(id + 4, "AbilityUseLimit", new(0, 20, 0.05f), 0, tab)
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Times);
 
-        NonplusAbilityUseGainWithEachKill = new FloatOptionItem(id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, tab)
+        NonplusAbilityUseGainWithEachKill = new FloatOptionItem(id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1.5f, tab)
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -43,7 +43,7 @@ public class Nonplus : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(UseLimit.GetInt());
+        playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

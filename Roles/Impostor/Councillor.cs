@@ -38,7 +38,7 @@ public class Councillor : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Seconds);
 
-        AbilityUseLimit = new IntegerOptionItem(Id + 13, "AbilityUseLimit", new(0, 15, 1), 0, TabGroup.ImpostorRoles)
+        AbilityUseLimit = new FloatOptionItem(Id + 13, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Times);
 
@@ -60,7 +60,7 @@ public class Councillor : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetColor(Color.green);
 
-        CouncillorAbilityUseGainWithEachKill = new FloatOptionItem(Id + 17, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles)
+        CouncillorAbilityUseGainWithEachKill = new FloatOptionItem(Id + 17, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -78,7 +78,7 @@ public class Councillor : RoleBase
         CouncillorId = playerId;
         MeetingKillLimit[playerId] = MurderLimitPerMeeting.GetInt();
         TotalKillLimit[playerId] = MurderLimitPerGame.GetInt();
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)
