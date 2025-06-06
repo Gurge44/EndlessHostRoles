@@ -3145,7 +3145,8 @@ public static class Utils
 
         if (cd == -1) return;
 
-        if (Main.PlayerStates[playerId].SubRoles.Contains(CustomRoles.Energetic)) cd = (int)Math.Round(cd * 0.75f);
+        if (Main.PlayerStates[playerId].SubRoles.Contains(CustomRoles.Energetic))
+            cd = (int)Math.Round(cd * 0.75f);
 
         Main.AbilityCD[playerId] = (TimeStamp, cd);
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, cd);

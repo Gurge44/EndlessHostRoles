@@ -1029,7 +1029,6 @@ internal static class CustomRolesHelper
             CustomRoles.Swift when pc.Is(CustomRoles.Magnet) => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Amnesiac) && Amnesiac.RememberMode.GetValue() == 0 => false,
             CustomRoles.Rookie when !pc.CanUseKillButton() => false,
-            CustomRoles.Energetic when !Options.UsePets.GetBool() => false,
             CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,
             CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistEHR) || pc.Is(CustomRoles.Sunnyboy) => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,

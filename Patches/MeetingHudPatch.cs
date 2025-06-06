@@ -476,9 +476,7 @@ internal static class CheckForEndVotingPatch
 
         if (tiebreaker) name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
 
-        if (DecidedWinner)
-            name += "<size=0>";
-        else
+        if (!DecidedWinner)
         {
             bool showImpRemain = Options.ShowImpRemainOnEject.GetBool();
             bool showNKRemain = Options.ShowNKRemainOnEject.GetBool();
@@ -1391,6 +1389,6 @@ internal static class ExileControllerBeginPatch
     public static void Postfix(ExileController __instance, [HarmonyArgument(0)] ExileController.InitProperties init)
     {
         if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && init is { outfit: not null })
-            __instance.completeString = CheckForEndVotingPatch.EjectionText;
+            __instance.completeString = CheckForEndVotingPatch.EjectionText[..^8];
     }
 }
