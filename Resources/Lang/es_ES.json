@@ -4379,7 +4379,7 @@
   "WeathermanInfoLong": "(Neutrals):\\nAs the Weatherman, you can spawn a random natural disaster by using your pet/vanish button. The disasters are the same as in the Natural Disasters game mode.\\n\\nUse these disasters to kill everyone to win!",
   "Postman": "Cartero",
   "PostmanInfo": "¡Entrega Correo a Todos!",
-  "PostmanInfoLong": "(Neutral):\\nComo el Cartero, tu trabajo es entregar correo a todos. Siempre tendrás un objetivo, y debes presionar tu botón de matar en tu objetivo para entregarle el correo. Cuando hayas entregado correo a todos, tu condición de victoria está satisfecha. Ganarás con el equipo ganador, sin importar que pase.",
+  "PostmanInfoLong": "(Neutral):\\nAs the Postman, your job is to deliver mail to everyone. You'll always have a target, and you need to click your kill button on that target to deliver the mail to them. If you deliver to the wrong target, you die. When you've delivered mail to everyone, your win condition is satisfied. You'll win with the winning team, no matter what happens.",
   "PostmanKillButtonText": "Entregar",
   "PostmanDiesWhenTargetDies": "<color=#00b893>Cartero</color> muere cuando el objetivo actual muere",
   "PostmanCorrectDeliver": "<color=#00ff00>Entrega exitosa.</color>",
