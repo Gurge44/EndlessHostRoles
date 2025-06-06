@@ -4379,7 +4379,7 @@
   "WeathermanInfoLong": "(Neutrals):\\nAs the Weatherman, you can spawn a random natural disaster by using your pet/vanish button. The disasters are the same as in the Natural Disasters game mode.\\n\\nUse these disasters to kill everyone to win!",
   "Postman": "郵便配達員",
   "PostmanInfo": "みんなにメールを届けよう！",
-  "PostmanInfoLong": "(<color=#046300>良性な</color> <color=#ffab1b>ニュートラル</color>):\\n<size=75%>郵便配達員として、あなたの仕事は 全員にメールを届けることです。\\nあなたは常にターゲットがおり、そして あなたは あなたのキルボタンで そのターゲットの 彼にメールを届ける必要があります。\\nあなたは 全員にメールを届けたとき、あなたの勝利条件が満たされます。\\nあなたは 何が起来ても関係なく、勝利チームと ともに勝利します。</size>",
+  "PostmanInfoLong": "(Neutral):\\nAs the Postman, your job is to deliver mail to everyone. You'll always have a target, and you need to click your kill button on that target to deliver the mail to them. If you deliver to the wrong target, you die. When you've delivered mail to everyone, your win condition is satisfied. You'll win with the winning team, no matter what happens.",
   "PostmanKillButtonText": "届ける",
   "PostmanDiesWhenTargetDies": "現在のターゲットが死んだとき <color=#00b893>郵便配達員</color>も死ぬ",
   "PostmanCorrectDeliver": "<color=#00ff00>配達に成功した。</color>",
