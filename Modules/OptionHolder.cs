@@ -1019,7 +1019,65 @@ public static class Options
         catch (Exception e) { Utils.ThrowException(e); }
 
 
-        //File.WriteAllText("./SystemSettings.txt", string.Join('\n', GroupedOptions[TabGroup.SystemSettings].Select(x => x.GetName().RemoveHtmlTags())));
+        try
+        {
+            var sb = new StringBuilder();
+
+            foreach ((TabGroup tab, OptionItem[] options) in GroupedOptions)
+            {
+                sb.AppendLine($"## {Translator.GetString($"TabGroup.{tab}")}");
+                
+                sb.AppendLine("| Setting Name | Possible Values | Default Value |");
+                sb.AppendLine("|--------------|-----------------|---------------|");
+
+                foreach (OptionItem option in options)
+                {
+                    if (IsRoleOption() || option.GameMode is not CustomGameMode.Standard and not CustomGameMode.All) continue;
+
+                    bool IsRoleOption()
+                    {
+                        OptionItem o = option;
+                        while (true)
+                        {
+                            if (o == null) return false;
+                            if (Enum.TryParse<CustomRoles>(o.Name, out _)) return true;
+                            o = o.Parent;
+                        }
+                    }
+                    
+                    string name = option.GetName().RemoveHtmlTags();
+
+                    IList<string> values = option switch
+                    {
+                        BooleanOptionItem => ["✔️", "❌"],
+                        IntegerOptionItem ioi => [$"{ioi.Rule.MinValue} - {ioi.Rule.MaxValue}", $"± {ioi.Rule.Step}"],
+                        FloatOptionItem foi => [$"{foi.Rule.MinValue} - {foi.Rule.MaxValue}", $"± {foi.Rule.Step}"],
+                        StringOptionItem soi => soi.noTranslation ? soi.Selections : soi.Selections.Select(x => Translator.GetString(x)).ToArray(),
+                        _ => []
+                    };
+                    
+                    if (values.Count == 0) continue;
+                    
+                    string possibleValues = string.Join("<br>", values.Select(x => $"`{x}`"));
+                    
+                    string defaultValue = option switch
+                    {
+                        BooleanOptionItem b => b.GetBool() ? "✔️" : "❌",
+                        IntegerOptionItem i => i.GetInt().ToString(),
+                        FloatOptionItem f => f.GetFloat().ToString("F2"),
+                        StringOptionItem s => s.noTranslation ? s.Selections[s.DefaultValue] : Translator.GetString(s.Selections[s.DefaultValue]),
+                        _ => string.Empty
+                    };
+
+                    sb.AppendLine($"| {name} | {possibleValues} | `{defaultValue}` |");
+                }
+            }
+            
+            const string path = "./settings.txt";
+            if (!File.Exists(path)) File.Create(path).Close();
+            File.WriteAllText(path, sb.ToString());
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
 #endif
     }
 
