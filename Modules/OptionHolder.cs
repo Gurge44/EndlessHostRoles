@@ -1965,8 +1965,7 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 74;
-
-
+        
         DisableMeeting = new BooleanOptionItem(22700, "DisableMeeting", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
