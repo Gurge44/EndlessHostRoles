@@ -23,7 +23,7 @@ internal class DovesOfNeace : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
             .SetValueFormat(OptionFormat.Times);
 
-        DovesOfNeaceAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(7712, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        DovesOfNeaceAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(7712, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
             .SetValueFormat(OptionFormat.Times);
 
@@ -36,7 +36,7 @@ internal class DovesOfNeace : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(DovesOfNeaceMaxOfUseage.GetInt());
+        playerId.SetAbilityUseLimit(DovesOfNeaceMaxOfUseage.GetFloat());
     }
 
     public override void Init()

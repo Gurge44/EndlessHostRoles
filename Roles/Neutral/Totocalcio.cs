@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
@@ -15,7 +14,7 @@ public class Totocalcio : RoleBase
     public static List<byte> PlayerIdList = [];
 
     private static OptionItem MaxBetTimes;
-    public static OptionItem BetCooldown;
+    private static OptionItem BetCooldown;
     private static OptionItem BetCooldownIncrese;
     private static OptionItem MaxBetCooldown;
     private static OptionItem KnowTargetRole;
@@ -85,18 +84,18 @@ public class Totocalcio : RoleBase
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        byte PlayerId = reader.ReadByte();
-        if (Main.PlayerStates[PlayerId].Role is not Totocalcio tc) return;
+        byte playerId = reader.ReadByte();
+        if (Main.PlayerStates[playerId].Role is not Totocalcio tc) return;
 
-        int Times = reader.ReadInt32();
-        byte Target = reader.ReadByte();
-        tc.BetTimes = Times;
-        if (Target != byte.MaxValue) tc.BetPlayer = Target;
+        int times = reader.ReadInt32();
+        byte target = reader.ReadByte();
+        tc.BetTimes = times;
+        if (target != byte.MaxValue) tc.BetPlayer = target;
     }
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead && BetTimes >= 1;
+        return player.IsAlive() && BetTimes >= 1;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -113,7 +112,7 @@ public class Totocalcio : RoleBase
         }
 
         float cd = BetCooldown.GetFloat();
-        cd += Main.AllPlayerControls.Count(x => !x.IsAlive()) * BetCooldownIncrese.GetFloat();
+        cd += (MaxBetTimes.GetInt() - BetTimes) * BetCooldownIncrese.GetFloat();
         cd = Math.Min(cd, MaxBetCooldown.GetFloat());
         Main.AllPlayerKillCooldown[id] = cd;
     }
@@ -132,7 +131,6 @@ public class Totocalcio : RoleBase
         if (killer.PlayerId == target.PlayerId) return true;
 
         if (BetPlayer == target.PlayerId) return false;
-
         if (BetTimes < 1) return false;
 
         BetTimes--;
@@ -154,7 +152,7 @@ public class Totocalcio : RoleBase
         killer.Notify(GetString("TotocalcioBetPlayer"));
         if (BetTargetKnowTotocalcio.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Totocalcio), GetString("TotocalcioBetOnYou")));
 
-        Logger.Info($"Target selected：{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Totocalcio");
+        Logger.Info($"Target selected: {killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Totocalcio");
         return false;
     }
 

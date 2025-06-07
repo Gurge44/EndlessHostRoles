@@ -110,7 +110,8 @@ public static class CollectionExtensions
     /// <param name="collection">The collection to iterate over</param>
     /// <param name="action">The action to execute for each element</param>
     /// <typeparam name="T">The type of the elements in the collection</typeparam>
-    public static void Do<T>(this IEnumerable<T> collection, Action<T> action)
+    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
+    public static void Do<T>(this IEnumerable<T> collection, [Annotations.InstantHandle] Action<T> action)
     {
         if (collection is List<T> list)
         {
@@ -130,7 +131,8 @@ public static class CollectionExtensions
     /// <param name="predicate">The predicate to check for each element</param>
     /// <param name="action">The action to execute for each element that satisfies the predicate</param>
     /// <typeparam name="T">The type of the elements in the collection</typeparam>
-    public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = true)
+    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
+    public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, [Annotations.InstantHandle] Action<T> action, bool fast = true)
     {
         if (fast)
         {
@@ -232,6 +234,7 @@ public static class CollectionExtensions
     /// </param>
     /// <typeparam name="T">The type of the elements in the collection</typeparam>
     /// <returns><c>true</c> if the collection contains any elements that satisfy the predicate, <c>false</c> otherwise</returns>
+    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
     public static bool FindFirst<T>(this IEnumerable<T> collection, Func<T, bool> predicate, out T element)
     {
         if (collection is List<T> list)

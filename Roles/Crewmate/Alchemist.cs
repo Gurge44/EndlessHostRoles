@@ -164,6 +164,7 @@ public class Alchemist : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (OnCoEnterVent(pc.MyPhysics, vent.Id)) return;
         DrinkPotion(pc, vent.Id);
     }
 
@@ -186,8 +187,7 @@ public class Alchemist : RoleBase
 
                 break;
             case 2: // Suicide
-                if (!isPet) player.MyPhysics.RpcExitVent(ventId);
-                LateTask.New(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 1f : 0.1f, "Alchemist Suicide");
+                LateTask.New(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 2f : 0.1f, "Alchemist Suicide");
                 break;
             case 3: // TP to random player
                 LateTask.New(() =>
@@ -231,7 +231,6 @@ public class Alchemist : RoleBase
 
                 break;
             case 10 when !player.Is(CustomRoles.Nimble):
-                if (!isPet) player.MyPhysics.RpcExitVent(ventId);
                 player.Notify(GetString("AlchemistNoPotion"));
                 break;
         }
@@ -265,24 +264,23 @@ public class Alchemist : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override void OnCoEnterVent(PlayerPhysics instance, int ventId)
+    bool OnCoEnterVent(PlayerPhysics instance, int ventId)
     {
-        if (PotionID != 6) return;
+        if (PotionID != 6) return false;
 
         PotionID = 10;
         PlayerControl pc = instance.myPlayer;
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost) return false;
 
-        LateTask.New(() =>
-        {
-            ventedId = ventId;
+        ventedId = ventId;
 
-            instance.RpcExitVentDesync(ventId, pc);
+        instance.RpcExitVentDesync(ventId, pc);
 
-            InvisTime = Utils.TimeStamp;
-            SendRPC();
-            pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
-        }, 0.5f, "Alchemist Invis");
+        InvisTime = Utils.TimeStamp;
+        SendRPC();
+        pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
+
+        return true;
     }
 
     public override void OnFixedUpdate(PlayerControl player)
@@ -300,11 +298,8 @@ public class Alchemist : RoleBase
             switch (remainTime)
             {
                 case < 0:
-                    var sender = CustomRpcSender.Create("RpcExitVentDesync", SendOption.Reliable);
                     int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                    bool hasValue = Main.AllPlayerControls.Where(pc => player.PlayerId != pc.PlayerId).Aggregate(false, (current, pc) => current || sender.RpcExitVentDesync(player.MyPhysics, ventId, pc));
-                    sender.SendMessage(!hasValue);
-
+                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
                     player.Notify(GetString("SwooperInvisStateOut"));
                     SendRPC();
                     refresh = true;

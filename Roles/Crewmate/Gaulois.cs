@@ -22,7 +22,7 @@ public class Gaulois : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Gaulois);
 
-        CD = new FloatOptionItem(Id + 5, "AbilityCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
+        CD = new FloatOptionItem(Id + 5, "AbilityCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -46,7 +46,7 @@ public class Gaulois : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

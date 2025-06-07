@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -53,7 +52,7 @@ internal class TimeMaster : RoleBase
     {
         On = true;
         BackTrack = [];
-        playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetInt());
+        playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetFloat());
     }
 
     public override void Init()
@@ -88,8 +87,6 @@ internal class TimeMaster : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        pc.MyPhysics?.RpcExitVent(vent.Id);
-
         if (pc.GetAbilityUseLimit() < 1) return;
         pc.RpcRemoveAbilityUse();
 
@@ -110,47 +107,31 @@ internal class TimeMaster : RoleBase
             ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
             string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
-            var sender = CustomRpcSender.Create("TimeMaster.Rewind", SendOption.Reliable);
-            var hasValue = false;
-
+            
             foreach (PlayerControl player in Main.AllPlayerControls)
             {
-                player.ReactorFlash(flashDuration: length * delay);
-                hasValue |= sender.Notify(player, notify, Math.Max(length * delay, 4f));
+                if (player.inVent || player.MyPhysics?.Animations?.IsPlayingEnterVentAnimation() == true) player.MyPhysics?.RpcExitVent(player.GetClosestVent().Id);
+                player.ReactorFlash(flashDuration: length * delay + 0.55f);
+                player.Notify(notify, Math.Max((length * delay) + 0.55f, 4f));
                 player.MarkDirtySettings();
-
-                if (sender.stream.Length > 400)
-                {
-                    sender.SendMessage();
-                    sender = CustomRpcSender.Create("TimeMaster.Rewind", SendOption.Reliable);
-                    hasValue = false;
-                }
             }
 
-            sender.SendMessage(dispose: !hasValue);
+            yield return new WaitForSeconds(0.55f);
 
             for (long i = now - 1; i >= now - length; i--)
             {
                 if (!BackTrack.TryGetValue(i, out Dictionary<byte, Vector2> track)) continue;
-
-                sender = CustomRpcSender.Create("TimeMaster.Rewind - 2", SendOption.Reliable);
-                hasValue = false;
 
                 foreach ((byte playerId, Vector2 pos) in track)
                 {
                     PlayerControl player = playerId.GetPlayer();
                     if (player == null || !player.IsAlive()) continue;
 
-                    hasValue |= sender.TP(player, pos);
+                    player.TP(pos);
                 }
-
-                sender.SendMessage(dispose: !hasValue);
 
                 yield return new WaitForSeconds(delay);
             }
-
-            sender = CustomRpcSender.Create("TimeMaster.Rewind - 3", SendOption.Reliable);
-            hasValue = false;
 
             foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
             {
@@ -159,19 +140,10 @@ internal class TimeMaster : RoleBase
                 if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
                 {
                     ps.Player.RpcRevive();
-                    hasValue |= sender.TP(ps.Player, deadBody.TruePosition);
-                    hasValue |= sender.Notify(ps.Player, Translator.GetString("RevivedByTimeMaster"), 15f);
-
-                    if (sender.stream.Length > 400)
-                    {
-                        sender.SendMessage();
-                        sender = CustomRpcSender.Create("TimeMaster.Rewind - 3", SendOption.Reliable);
-                        hasValue = false;
-                    }
+                    ps.Player.TP(deadBody.TruePosition);
+                    ps.Player.Notify(Translator.GetString("RevivedByTimeMaster"), 15f);
                 }
             }
-
-            sender.SendMessage(dispose: !hasValue);
 
             Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
             ReportDeadBodyPatch.CanReport.SetAllValues(true);

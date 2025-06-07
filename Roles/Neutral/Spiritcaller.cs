@@ -77,7 +77,7 @@ public class Spiritcaller : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(SpiritMax.GetInt());
+        playerId.SetAbilityUseLimit(SpiritMax.GetFloat());
         ProtectTimeStamp = 0;
     }
 
@@ -117,18 +117,18 @@ public class Spiritcaller : RoleBase
             target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
             var writer = CustomRpcSender.Create("SpiritCallerSendMessage", SendOption.Reliable);
-            writer.StartMessage(target.GetClientId());
+            writer.StartMessage(target.OwnerId);
 
-            writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+            writer.StartRpc(target.NetId, RpcCalls.SetName)
                 .Write(target.Data.NetId)
                 .Write(GetString("SpiritcallerNoticeTitle"))
                 .EndRpc();
 
-            writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
+            writer.StartRpc(target.NetId, RpcCalls.SendChat)
                 .Write(GetString("SpiritcallerNoticeMessage"))
                 .EndRpc();
 
-            writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+            writer.StartRpc(target.NetId, RpcCalls.SetName)
                 .Write(target.Data.NetId)
                 .Write(target.Data.PlayerName)
                 .EndRpc();

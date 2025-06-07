@@ -9,7 +9,6 @@ using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
-using Hazel;
 using InnerNet;
 
 namespace EHR;
@@ -93,6 +92,8 @@ public class PlayerState(byte playerId)
     public RoleBase Role = new VanillaRole();
 
     private int RoleChangeTimes = -1;
+
+    public List<CustomRoles> RoleHistory = [];
     public bool IsDead { get; set; }
 
     // ReSharper disable once InconsistentNaming
@@ -106,6 +107,9 @@ public class PlayerState(byte playerId)
     {
         try { Utils.RemovePlayerFromPreviousRoleData(Player); }
         catch (Exception e) { Utils.ThrowException(e); }
+
+        if (Main.IntroDestroyed && MainRole != CustomRoles.NotAssigned && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
+            RoleHistory.Add(MainRole);
 
         bool previousHasTasks = Utils.HasTasks(Player.Data, false);
 
@@ -171,15 +175,11 @@ public class PlayerState(byte playerId)
             if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal))
                 jackal.SidekickId = PlayerId;
 
-            if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.IsInTask && !AntiBlackout.SkipTasks)
+            if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && !AntiBlackout.SkipTasks)
                 Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
 
-            if (Options.UsePets.GetBool())
-            {
-                var sender = CustomRpcSender.Create("PlayerState.SetMainRole", SendOption.Reliable);
-                PetsHelper.SetPet(Player, PetsHelper.GetPetId(), sender);
-                sender.SendMessage();
-            }
+            if (Options.UsePets.GetBool() && Player.CurrentOutfit.PetId == "")
+                PetsHelper.SetPet(Player, PetsHelper.GetPetId());
 
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
@@ -189,10 +189,10 @@ public class PlayerState(byte playerId)
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
-        if (!Main.IntroDestroyed || PlayerControl.LocalPlayer.PlayerId != PlayerId || !CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+        if (!Main.IntroDestroyed || PlayerControl.LocalPlayer.PlayerId != PlayerId || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         RoleChangeTimes++;
-        if (RoleChangeTimes >= 3) Achievements.Type.Transformer.Complete();
+        if (RoleChangeTimes >= 4) Achievements.Type.Transformer.Complete();
     }
 
     public void SetSubRole(CustomRoles role, bool replaceAll = false)
@@ -225,9 +225,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Stressed);
                 break;
             case CustomRoles.Madmate:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Options.MadmateCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -248,9 +245,6 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Charmed:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Succubus.CharmedCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -271,9 +265,6 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Undead:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Necromancer.UndeadCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -294,9 +285,6 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Entranced:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Siren.EntrancedCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -320,9 +308,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Mare);
                 break;
             case CustomRoles.Recruit:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Jackal.SidekickCountMode.GetInt() switch
                 {
                     0 => CountTypes.Jackal,
@@ -343,9 +328,6 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Contagious:
-                TaskState.HasTasks = false;
-                TaskState.AllTasksCount = 0;
-
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -461,7 +443,7 @@ public class TaskState
             {
                 bool alive = player.IsAlive();
 
-                if (alive && CustomGameMode.Speedrun.IsActiveOrIntegrated())
+                if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)
                 {
                     if (CompletedTasksCount + 1 >= AllTasksCount)
                         Speedrun.OnTaskFinish(player);
@@ -612,7 +594,7 @@ public static class GameStates
     /**********TOP ZOOM.cs***********/
     public static bool IsShip => ShipStatus.Instance != null;
     public static bool IsCanMove => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.CanMove;
-    public static bool IsDead => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.Data != null && PlayerControl.LocalPlayer.Data.IsDead;
+    public static bool IsDead => PlayerControl.LocalPlayer != null && !PlayerControl.LocalPlayer.IsAlive();
 }
 
 public static class MeetingStates

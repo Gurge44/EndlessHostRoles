@@ -68,7 +68,7 @@ public class Judge : RoleBase
         PlayerIdList.Add(playerId);
         MeetingUseLimit[playerId] = TrialLimitPerMeeting.GetInt();
         TotalUseLimit[playerId] = TrialLimitPerGame.GetInt();
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -234,7 +234,7 @@ public class Judge : RoleBase
 
         PlayerControl target = Utils.GetPlayerById(id);
 
-        if (target == null || target.Data.IsDead)
+        if (target == null || !target.IsAlive())
         {
             error = GetString("TrialNull");
             return false;

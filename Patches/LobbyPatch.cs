@@ -16,11 +16,11 @@ public static class LobbyFixedUpdatePatch
     {
         if (Paint == null)
         {
-            GameObject LeftBox = GameObject.Find("Leftbox");
+            GameObject leftBox = GameObject.Find("Leftbox");
 
-            if (LeftBox != null)
+            if (leftBox != null)
             {
-                Paint = Object.Instantiate(LeftBox, LeftBox.transform.parent.transform);
+                Paint = Object.Instantiate(leftBox, leftBox.transform.parent.transform);
                 Paint.name = "Lobby Paint";
                 Paint.transform.localPosition = new(0.042f, -2.59f, -10.5f);
                 var renderer = Paint.GetComponent<SpriteRenderer>();
@@ -79,16 +79,16 @@ internal static class LobbyBehaviourUpdatePatch
     {
         // ReSharper disable once ConvertToLocalFunction
         Func<ISoundPlayer, bool> lobbybgm = x => x.Name.Equals("MapTheme");
-        ISoundPlayer MapThemeSound = SoundManager.Instance.soundPlayers.Find(lobbybgm);
+        ISoundPlayer mapThemeSound = SoundManager.Instance.soundPlayers.Find(lobbybgm);
 
         if (!Main.LobbyMusic.Value)
         {
-            if (MapThemeSound == null) return;
+            if (mapThemeSound == null) return;
             SoundManager.Instance.StopNamedSound("MapTheme");
         }
         else
         {
-            if (MapThemeSound != null) return;
+            if (mapThemeSound != null) return;
             SoundManager.Instance.CrossFadeSound("MapTheme", __instance.MapTheme, 0.5f);
         }
     }

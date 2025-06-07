@@ -62,12 +62,11 @@ internal class Sentry : RoleBase
 
         Enum.GetValues<SimpleTeam>().Do(x =>
         {
-            // ReSharper disable once AccessToModifiedClosure
             TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
                 .SetParent(UsableDevicesForInfoView);
         });
 
-        AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
+        AbilityUseLimit = new FloatOptionItem(++id, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
 
         AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
@@ -83,7 +82,7 @@ internal class Sentry : RoleBase
         SentryPC = Utils.GetPlayerById(playerId);
         MonitoredRoom = null;
         DeadBodiesInRoom = [];
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
         UsingDevice = [];
     }
 

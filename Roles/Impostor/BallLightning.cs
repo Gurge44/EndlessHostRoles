@@ -27,11 +27,11 @@ public class BallLightning : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BallLightning);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ConvertTime = new FloatOptionItem(Id + 12, "BallLightningConvertTime", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
+        ConvertTime = new FloatOptionItem(Id + 12, "BallLightningConvertTime", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
             .SetValueFormat(OptionFormat.Seconds);
 

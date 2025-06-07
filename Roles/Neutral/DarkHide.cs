@@ -17,7 +17,7 @@ public class DarkHide : RoleBase
     private static OptionItem CanVent;
     public static OptionItem SnatchesWin;
 
-    private float CurrentKillCooldown = Options.DefaultKillCooldown;
+    private float CurrentKillCooldown = Options.AdjustedDefaultKillCooldown;
     public bool IsWinKill;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -100,7 +100,7 @@ public class DarkHide : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead;
+        return player.IsAlive();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -123,7 +123,7 @@ public class DarkHide : RoleBase
 
         var sender = CustomRpcSender.Create("DarkHide.OnCheckMurder", SendOption.Reliable);
         DRpcSetKillCount(killer, sender);
-        sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, killer.GetClientId());
+        sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, killer.OwnerId);
         sender.Write((byte)SystemTypes.Electrical);
         sender.WriteNetObject(killer);
         sender.EndRpc();
@@ -132,7 +132,7 @@ public class DarkHide : RoleBase
         {
             if (target.PlayerId == killer.PlayerId || target.Data.Disconnected) continue;
 
-            sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, target.GetClientId());
+            sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, target.OwnerId);
             sender.Write((byte)SystemTypes.Electrical);
             sender.WriteNetObject(target);
             sender.EndRpc();

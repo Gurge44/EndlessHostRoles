@@ -18,7 +18,7 @@ public class Cantankerous : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Cantankerous);
 
-        KCD = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
+        KCD = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -39,7 +39,7 @@ public class Cantankerous : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(StartingPoints.GetInt());
+        playerId.SetAbilityUseLimit(StartingPoints.GetFloat());
     }
 
     public override void Remove(byte playerId)

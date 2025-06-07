@@ -20,7 +20,7 @@ internal class BoobyTrap : RoleBase
     {
         SetupRoleOptions(16500, TabGroup.ImpostorRoles, CustomRoles.BoobyTrap);
 
-        BtKillCooldown = new FloatOptionItem(16510, "KillCooldown", new(2.5f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
+        BtKillCooldown = new FloatOptionItem(16510, "KillCooldown", new(2.5f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap])
             .SetValueFormat(OptionFormat.Seconds);
 

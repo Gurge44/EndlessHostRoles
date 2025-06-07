@@ -44,7 +44,7 @@ public static class AFKDetector
     {
         if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId)) return;
 
-        float waitingTime = 10f;
+        float waitingTime = 15f;
         if (MeetingStates.FirstMeeting) waitingTime += 5f;
         if (!pc.IsAlive()) waitingTime += 5f;
         if (pc.Is(CustomRoles.Truant) && !MeetingStates.FirstMeeting) waitingTime += Options.TruantWaitingTime.GetFloat();
@@ -129,7 +129,7 @@ public static class AFKDetector
                 Utils.NotifyRoles(SpecifyTarget: pc);
                 break;
             case Consequence.Kick:
-                AmongUsClient.Instance.KickPlayer(pc.GetClientId(), false);
+                AmongUsClient.Instance.KickPlayer(pc.OwnerId, false);
                 Logger.SendInGame(string.Format(Translator.GetString("AFKKick"), pc.PlayerId.ColoredPlayerName()));
                 break;
             case Consequence.Suicide:

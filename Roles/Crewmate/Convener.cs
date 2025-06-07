@@ -18,7 +18,7 @@ internal class Convener : RoleBase
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Convener);
         CD = Options.CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Convener);
 
-        Limit = new IntegerOptionItem(Id + 3, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
+        Limit = new FloatOptionItem(Id + 3, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
             .SetValueFormat(OptionFormat.Times);
 
@@ -34,7 +34,7 @@ internal class Convener : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(Limit.GetInt());
+        playerId.SetAbilityUseLimit(Limit.GetFloat());
     }
 
     public override void Init()
@@ -55,22 +55,19 @@ internal class Convener : RoleBase
         PullEveryone(pc, isPet: true);
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        PullEveryone(physics.myPlayer, ventId);
+        PullEveryone(pc);
     }
 
-    private static void PullEveryone(PlayerControl pc, int ventId = 0, bool isPet = false)
+    private static void PullEveryone(PlayerControl pc, bool isPet = false)
     {
         if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
         if (isPet)
             Utils.TPAll(pc.Pos());
         else
-        {
-            LateTask.New(() => pc.MyPhysics.RpcExitVent(ventId), 1f, "Convener RpcBootFromVent");
-            LateTask.New(() => Utils.TPAll(pc.Pos()), 1.5f, "Convener TP");
-        }
+            LateTask.New(() => Utils.TPAll(pc.Pos()), 2f, "Convener TP");
 
         pc.RpcRemoveAbilityUse();
     }

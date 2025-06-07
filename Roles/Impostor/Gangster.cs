@@ -25,7 +25,7 @@ public class Gangster : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gangster);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 2.5f), 7.5f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 0.5f), 7.5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -50,7 +50,7 @@ public class Gangster : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(RecruitLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(RecruitLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -60,7 +60,7 @@ public class Gangster : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = CanRecruit(id) ? KillCooldown.GetFloat() : Options.DefaultKillCooldown;
+        Main.AllPlayerKillCooldown[id] = CanRecruit(id) ? KillCooldown.GetFloat() : Options.AdjustedDefaultKillCooldown;
     }
 
     public static bool CanRecruit(byte id)
@@ -87,17 +87,16 @@ public class Gangster : RoleBase
             var sender = CustomRpcSender.Create("Gangster.OnCheckMurder", SendOption.Reliable);
             var hasValue = false;
 
-            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("GangsterSuccessfullyRecruited")), setName: false);
-            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")), setName: false);
-
             killer.ResetKillCooldown();
+            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("GangsterSuccessfullyRecruited")), setName: false);
             hasValue |= sender.SyncSettings(killer);
             hasValue |= sender.SetKillCooldown(killer);
-            hasValue |= sender.RpcGuardAndKill(target, killer);
-            hasValue |= sender.RpcGuardAndKill(target, target);
-
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
+
+            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")), setName: false);
+            hasValue |= sender.RpcGuardAndKill(target, killer);
+            hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
             if (cleared) hasValue = false;
 

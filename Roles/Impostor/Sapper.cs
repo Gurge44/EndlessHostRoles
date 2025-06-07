@@ -26,7 +26,7 @@ public class Sapper : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sapper);
 
-        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "SapperCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "SapperCD", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
             .SetValueFormat(OptionFormat.Seconds);
 

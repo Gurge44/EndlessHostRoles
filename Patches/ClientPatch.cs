@@ -1,9 +1,6 @@
 using AmongUs.Data;
 using EHR.Modules;
-using EHR.Patches;
 using HarmonyLib;
-using Hazel;
-using Il2CppSystem.Collections.Generic;
 using InnerNet;
 using TMPro;
 using UnityEngine;
@@ -140,74 +137,6 @@ internal static class InnerNetObjectSerializePatch
     public static void Prefix()
     {
         if (AmongUsClient.Instance.AmHost) Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
-    }
-}
-
-[HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.Serialize))]
-internal static class NetworkedPlayerInfoSerializePatch
-{
-    public static int IgnorePatchTimes;
-
-    public static bool Prefix(NetworkedPlayerInfo __instance, MessageWriter writer, bool initialState, ref bool __result)
-    {
-        if (IgnorePatchTimes > 0)
-        {
-            IgnorePatchTimes--;
-            return true;
-        }
-
-        writer.Write(__instance.PlayerId);
-        writer.WritePacked(__instance.ClientId);
-        writer.Write((byte)__instance.Outfits.Count);
-
-        foreach (KeyValuePair<PlayerOutfitType, NetworkedPlayerInfo.PlayerOutfit> keyValuePair in __instance.Outfits)
-        {
-            writer.Write((byte)keyValuePair.Key);
-
-            if (keyValuePair.Key is PlayerOutfitType.Default)
-            {
-                NetworkedPlayerInfo.PlayerOutfit oldOutfit = keyValuePair.Value;
-                NetworkedPlayerInfo.PlayerOutfit playerOutfit = new();
-                Main.AllClientRealNames.TryGetValue(__instance.ClientId, out string name);
-
-                if (CheckForEndVotingPatch.TempExiledPlayer != null && CheckForEndVotingPatch.TempExiledPlayer.ClientId == __instance.ClientId)
-                    name = CheckForEndVotingPatch.EjectionText;
-
-                playerOutfit.Set(name ?? " ", oldOutfit.ColorId, oldOutfit.HatId, oldOutfit.SkinId, oldOutfit.VisorId, oldOutfit.PetId, oldOutfit.NamePlateId);
-                playerOutfit.Serialize(writer);
-            }
-            else
-                keyValuePair.Value.Serialize(writer);
-        }
-
-        writer.WritePacked(__instance.PlayerLevel);
-        byte b = 0;
-        if (__instance.Disconnected) b |= 1;
-        if (__instance.IsDead) b |= 4;
-        writer.Write(b);
-        writer.Write((ushort)__instance.Role.Role);
-        writer.Write(false);
-
-        if (__instance.Tasks != null)
-        {
-            writer.Write((byte)__instance.Tasks.Count);
-
-            for (var i = 0; i < __instance.Tasks.Count; i++)
-                __instance.Tasks[i].Serialize(writer);
-        }
-        else
-            writer.Write(0);
-
-        writer.Write(__instance.FriendCode ?? string.Empty);
-
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-            writer.Write(__instance.Puid ?? string.Empty);
-        else
-            writer.Write(string.Empty);
-
-        if (!initialState) __instance.ClearDirtyBits();
-        __result = true;
-        return false;
     }
 }
 

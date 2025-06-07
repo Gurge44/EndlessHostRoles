@@ -19,11 +19,11 @@ internal class Nullifier : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Nullifier);
 
-        NullCD = new FloatOptionItem(Id + 10, "NullCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        NullCD = new FloatOptionItem(Id + 10, "NullCD", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
             .SetValueFormat(OptionFormat.Seconds);
 
-        KCD = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        KCD = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
             .SetValueFormat(OptionFormat.Seconds);
 

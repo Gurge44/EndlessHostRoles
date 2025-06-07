@@ -143,7 +143,7 @@ public class Stressed : IAddon
                 Achievements.Type.OutOfTime.Complete();
         }
 
-        if (pc.IsNonHostModClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
+        if (pc.IsNonHostModdedClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
 
         if (!pc.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }

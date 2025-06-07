@@ -23,10 +23,10 @@ public class Deputy : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Deputy);
 
-        HandcuffCooldown = new FloatOptionItem(Id + 10, "DeputyHandcuffCooldown", new(0f, 60f, 2.5f), 17.5f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
+        HandcuffCooldown = new FloatOptionItem(Id + 10, "DeputyHandcuffCooldown", new(0f, 60f, 0.5f), 17.5f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
             .SetValueFormat(OptionFormat.Seconds);
 
-        DeputyHandcuffCDForTarget = new FloatOptionItem(Id + 14, "DeputyHandcuffCDForTarget", new(0f, 180f, 2.5f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
+        DeputyHandcuffCDForTarget = new FloatOptionItem(Id + 14, "DeputyHandcuffCDForTarget", new(0f, 180f, 0.5f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
             .SetValueFormat(OptionFormat.Seconds);
 
         HandcuffMax = new IntegerOptionItem(Id + 12, "DeputyHandcuffMax", new(1, 20, 1), 4, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
@@ -46,7 +46,7 @@ public class Deputy : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(HandcuffMax.GetInt());
+        playerId.SetAbilityUseLimit(HandcuffMax.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -61,7 +61,7 @@ public class Deputy : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+        return player.IsAlive() && player.GetAbilityUseLimit() >= 1;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

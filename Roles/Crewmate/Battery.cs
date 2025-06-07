@@ -13,7 +13,7 @@ public class Battery : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(651900)
-            .AutoSetupOption(ref AbilityUseLimit, 1, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.5f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityChargesWhenFinishedTasks, 0.2f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times);
     }
@@ -26,6 +26,6 @@ public class Battery : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 }

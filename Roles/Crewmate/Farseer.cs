@@ -36,7 +36,7 @@ public class Farseer : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Farseer);
 
-        FarseerCooldown = new FloatOptionItem(Id + 10, "FarseerRevealCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
+        FarseerCooldown = new FloatOptionItem(Id + 10, "FarseerRevealCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
             .SetValueFormat(OptionFormat.Seconds);
 

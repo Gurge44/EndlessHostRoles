@@ -108,9 +108,9 @@ public class Mafioso : RoleBase
     {
         Main.AllPlayerKillCooldown[playerId] = Tier switch
         {
-            0 => (float)Math.Round(DefaultKillCooldown * 1.25, 2),
-            1 => DefaultKillCooldown,
-            2 => (float)Math.Round(DefaultKillCooldown * 0.85, 2),
+            0 => (float)Math.Round(AdjustedDefaultKillCooldown * 1.25, 2),
+            1 => AdjustedDefaultKillCooldown,
+            2 => (float)Math.Round(AdjustedDefaultKillCooldown * 0.85, 2),
             _ => 1f
         };
     }
@@ -196,7 +196,7 @@ public class Mafioso : RoleBase
         if (before1CD != Pistol1CD || before2CD != Pistol2CD)
         {
             NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            if (pc.IsNonHostModClient()) SendRPCSyncPistolCD();
+            if (pc.IsNonHostModdedClient()) SendRPCSyncPistolCD();
         }
     }
 
@@ -206,7 +206,7 @@ public class Mafioso : RoleBase
 
         if (Pistol1CD > 0 && Pistol2CD > 0) return false;
 
-        int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
+        int KCD = Tier >= 4 ? (int)Math.Round(AdjustedDefaultKillCooldown) : (int)Math.Round(AdjustedDefaultKillCooldown * 1.5);
         KCD++;
 
         if (Pistol1CD <= 0)
@@ -241,7 +241,7 @@ public class Mafioso : RoleBase
         if (!IsEnable) return;
 
         PreviouslyUsedVents.Clear();
-        int KCD = Tier >= 4 ? (int)Math.Round(DefaultKillCooldown) : (int)Math.Round(DefaultKillCooldown * 1.5);
+        int KCD = Tier >= 4 ? (int)Math.Round(AdjustedDefaultKillCooldown) : (int)Math.Round(AdjustedDefaultKillCooldown * 1.5);
         KCD++;
         Pistol1CD = KCD;
         Pistol2CD = KCD;

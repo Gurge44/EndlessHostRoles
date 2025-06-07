@@ -37,15 +37,15 @@ public class Deathpact : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Deathpact);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DeathPactCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.ImpostorRoles)
+        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DeathPactCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
             .SetValueFormat(OptionFormat.Seconds);
 
-        DeathpactDuration = new FloatOptionItem(Id + 13, "DeathpactDuration", new(0f, 180f, 2.5f), 17.5f, TabGroup.ImpostorRoles)
+        DeathpactDuration = new FloatOptionItem(Id + 13, "DeathpactDuration", new(0f, 180f, 0.5f), 17.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -180,7 +180,7 @@ public class Deathpact : RoleBase
     {
         if (Main.PlayerStates[deathpact.PlayerId].Role is not Deathpact { IsEnable: true } dp) return true;
 
-        if (dp.PlayersInDeathpact.Any(a => a.Data.Disconnected || a.Data.IsDead))
+        if (dp.PlayersInDeathpact.Any(a => a.Data.Disconnected || !a.IsAlive()))
         {
             ClearDeathpact(deathpact.PlayerId);
             deathpact.Notify(GetString("DeathpactAverted"));
@@ -318,7 +318,7 @@ public class Deathpact : RoleBase
             if (KillDeathpactPlayersOnMeeting.GetBool())
             {
                 PlayerControl deathpactPlayer = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == deathpact);
-                if (deathpactPlayer == null || deathpactPlayer.Data.IsDead) continue;
+                if (deathpactPlayer == null || !deathpactPlayer.IsAlive()) continue;
 
                 foreach (PlayerControl player in PlayersInDeathpact) KillPlayerInDeathpact(deathpactPlayer, player);
             }

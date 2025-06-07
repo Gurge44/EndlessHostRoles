@@ -22,7 +22,7 @@ public class HeadHunter : RoleBase
     private static OptionItem MinKCD;
     private static OptionItem MaxKCD;
     private byte HeadHunterId;
-    public float KCD = DefaultKillCooldown;
+    public float KCD = AdjustedDefaultKillCooldown;
 
     public List<byte> Targets = [];
 

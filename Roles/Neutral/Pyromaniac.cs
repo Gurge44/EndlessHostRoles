@@ -26,10 +26,10 @@ public class Pyromaniac : RoleBase
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac])
             .SetValueFormat(OptionFormat.Seconds);
 
-        DouseCooldown = new FloatOptionItem(Id + 11, "PyroDouseCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac])
+        DouseCooldown = new FloatOptionItem(Id + 11, "PyroDouseCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac])
             .SetValueFormat(OptionFormat.Seconds);
 
-        BurnCooldown = new FloatOptionItem(Id + 12, "PyroBurnCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac])
+        BurnCooldown = new FloatOptionItem(Id + 12, "PyroBurnCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac])
             .SetValueFormat(OptionFormat.Seconds);
 
         CanVent = new BooleanOptionItem(Id + 13, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Pyromaniac]);

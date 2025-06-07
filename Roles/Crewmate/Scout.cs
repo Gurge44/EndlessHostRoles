@@ -68,7 +68,7 @@ public class Scout : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(TrackLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(TrackLimitOpt.GetFloat());
         TrackerTarget.Add(playerId, []);
         TrackerId = playerId;
     }

@@ -146,6 +146,9 @@ public static class MushroomMixupSabotageSystemPatch
 
         if (Options.UsePets.GetBool()) __instance.petEmptyChance = 0;
 
+        ReportDeadBodyPatch.CanReport.SetAllValues(false);
+        Logger.Info("Disable Reporting", "MushroomMixupSabotageSystem");
+
         if (!Options.SabotageTimeControl.GetBool()) return;
 
         if ((MapNames)Main.NormalOptions.MapId is not MapNames.Fungle) return;
@@ -174,9 +177,9 @@ public static class MushroomMixupSabotageSystemPatch
             LateTask.New(() =>
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
-                var sender = CustomRpcSender.Create("MushroomMixupSabotageSystemPatch.Postfix", SendOption.Reliable);
-                Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => sender.RpcResetAbilityCooldown(x));
-                sender.SendMessage();
+                Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => x.RpcResetAbilityCooldown());
+                ReportDeadBodyPatch.CanReport.SetAllValues(true);
+                Logger.Info("Enable Reporting", "MushroomMixupSabotageSystem");
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -184,6 +187,9 @@ public static class MushroomMixupSabotageSystemPatch
                 if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
             }
+
+            ReportDeadBodyPatch.CanReport.SetAllValues(true);
+            Logger.Info("Enable Reporting", "MushroomMixupSabotageSystem");
         }
     }
 }
@@ -313,7 +319,7 @@ public static class SabotageSystemTypeRepairDamagePatch
 
     public static bool Prefix(SabotageSystemType __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
-        if (!CustomGameMode.Standard.IsActiveOrIntegrated()) return false;
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
 
         SystemTypes systemTypes;
         {

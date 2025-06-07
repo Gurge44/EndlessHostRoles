@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
-using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -179,7 +178,7 @@ internal static class MoveAndStop
         MapNames.Airship => ExtraGreenTimeOnAirhip.GetInt(),
         MapNames.Fungle => ExtraGreenTimeOnFungle.GetInt(),
         _ => 0
-    } + (Options.CurrentGameMode == CustomGameMode.AllInOne ? IRandom.Instance.Next(AllInOneGameMode.MoveAndStopMinGreenTimeBonus.GetInt(), AllInOneGameMode.MoveAndStopMaxGreenTimeBonus.GetInt() + 1) : 0);
+    };
 
     private static IntegerValueRule CounterValueRule => new(1, 100, 1);
     private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);
@@ -191,7 +190,6 @@ internal static class MoveAndStop
 
     private static int StartingGreenTime(PlayerControl pc)
     {
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) return 40;
         bool tutorial = EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode);
 
         var time = 10;
@@ -339,7 +337,7 @@ internal static class MoveAndStop
 
     public static void Init()
     {
-        if (!CustomGameMode.MoveAndStop.IsActiveOrIntegrated()) return;
+        if (Options.CurrentGameMode != CustomGameMode.MoveAndStop) return;
 
         FixedUpdatePatch.LastSuffix = [];
         FixedUpdatePatch.Limit = [];
@@ -398,7 +396,7 @@ internal static class MoveAndStop
         string text = IsEventActive ? $"{string.Format(GetString("MoveAndStop_EventActive"), GetString($"MoveAndStop_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}\n" : "\n";
         text += IsEventActive && Event.Type == Events.FrozenTimers ? FixedUpdatePatch.LastSuffix[pc.PlayerId].Trim() : timers.ToString();
 
-        if (TimeSinceStart < 20 && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode) && Options.CurrentGameMode != CustomGameMode.AllInOne)
+        if (TimeSinceStart < 20 && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode))
             text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
 
         return text;
@@ -420,7 +418,7 @@ internal static class MoveAndStop
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameStates.IsInTask || !CustomGameMode.MoveAndStop.IsActiveOrIntegrated() || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || !Main.IntroDestroyed || __instance.PlayerId >= 254) return;
+            if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || !Main.IntroDestroyed || __instance.PlayerId >= 254) return;
 
             PlayerControl pc = __instance;
             long now = Utils.TimeStamp;
@@ -441,40 +439,32 @@ internal static class MoveAndStop
                     {
                         case Events.VentAccess:
                         {
-                            var sender = CustomRpcSender.Create("MoveAndStop - VentAccess", SendOption.Reliable);
-                            Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR, sender: sender));
-                            sender.SendMessage();
+                            Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
                             LateTask.New(() =>
                             {
-                                sender = CustomRpcSender.Create("MoveAndStop - VentAccess (Remove)", SendOption.Reliable);
                                 Main.AllAlivePlayerControls.Do(x =>
                                 {
-                                    x.RpcChangeRoleBasis(CustomRoles.Tasker, sender: sender);
+                                    x.RpcChangeRoleBasis(CustomRoles.Tasker);
 
                                     if (x.inVent || x.MyPhysics.Animations.IsPlayingEnterVentAnimation())
                                         LateTask.New(() => x.MyPhysics.RpcExitVent(x.GetClosestVent().Id), 1f, log: false);
                                 });
-                                sender.SendMessage();
                             }, duration, log: false);
 
                             break;
                         }
                         case Events.CommsSabotage:
                         {
-                            var sender = CustomRpcSender.Create("MoveAndStop - CommsSabotage", SendOption.Reliable);
-                            Main.AllAlivePlayerControls.Do(x => sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 128));
-                            sender.SendMessage();
+                            Main.AllAlivePlayerControls.Do(x => x.RpcDesyncRepairSystem(SystemTypes.Comms, 128));
 
                             LateTask.New(() =>
                             {
-                                sender = CustomRpcSender.Create("MoveAndStop - CommsSabotage (Remove)", SendOption.Reliable);
                                 Main.AllAlivePlayerControls.Do(x =>
                                 {
-                                    sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 16);
-                                    if (Main.NormalOptions.MapId is 1 or 5) sender.RpcDesyncRepairSystem(x, SystemTypes.Comms, 17);
+                                    x.RpcDesyncRepairSystem(SystemTypes.Comms, 16);
+                                    if (Main.NormalOptions.MapId is 1 or 5) x.RpcDesyncRepairSystem(SystemTypes.Comms, 17);
                                 });
-                                sender.SendMessage();
                             }, duration, log: false);
 
                             break;

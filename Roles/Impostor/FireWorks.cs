@@ -104,7 +104,7 @@ public class FireWorks : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        if (pc == null || pc.Data.IsDead) return false;
+        if (pc == null || !pc.IsAlive()) return false;
 
         try { return CanKill.GetBool() || (state & FireWorksState.CanUseKill) != 0; }
         catch { return false; }
@@ -125,7 +125,7 @@ public class FireWorks : RoleBase
     public override bool OnShapeshift(PlayerControl pc, PlayerControl _, bool shapeshifting)
     {
         Logger.Info("FireWorks ShapeShift", "FireWorks");
-        if (pc == null || pc.Data.IsDead || !shapeshifting || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (pc == null || !pc.IsAlive() || !shapeshifting || Pelican.IsEaten(pc.PlayerId)) return false;
 
         UseAbility(pc);
 
@@ -135,7 +135,7 @@ public class FireWorks : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         Logger.Info("FireWorks Vanish", "FireWorks");
-        if (pc == null || pc.Data.IsDead || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
 
         UseAbility(pc);
 
@@ -191,9 +191,7 @@ public class FireWorks : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         var retText = string.Empty;
-        if (seer == null || seer.Data.IsDead || seer.PlayerId != target.PlayerId) return retText;
-
-        if (Main.PlayerStates[seer.PlayerId].Role is not FireWorks fw) return retText;
+        if (seer == null || !seer.IsAlive() || seer.PlayerId != target.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not FireWorks fw) return retText;
 
         if (fw.state == FireWorksState.WaitTime && Main.AliveImpostorCount <= 1)
         {

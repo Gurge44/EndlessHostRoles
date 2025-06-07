@@ -56,7 +56,7 @@ public class Jackal : RoleBase
         ResetKillCooldownWhenSbGetKilled = new BooleanOptionItem(Id + 7, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
 
-        ResetKillCooldownOn = new FloatOptionItem(Id + 8, "ResetKillCooldownOn", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles)
+        ResetKillCooldownOn = new FloatOptionItem(Id + 8, "ResetKillCooldownOn", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(ResetKillCooldownWhenSbGetKilled)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -75,7 +75,7 @@ public class Jackal : RoleBase
         SKCanKill = new BooleanOptionItem(Id + 13, "SKCanKill", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
 
-        KillCooldownSK = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles)
+        KillCooldownSK = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.NeutralRoles)
             .SetParent(SKCanKill)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -164,20 +164,19 @@ public class Jackal : RoleBase
 
         killer.RpcRemoveAbilityUse();
         target.RpcSetCustomRole(CustomRoles.Sidekick);
-        hasValue |= target.RpcChangeRoleBasis(CustomRoles.Sidekick, sender: sender);
+        target.RpcChangeRoleBasis(CustomRoles.Sidekick);
         SidekickId = target.PlayerId;
 
         Main.ResetCamPlayerList.Add(target.PlayerId);
 
         hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("GangsterSuccessfullyRecruited")), setName: false);
-        hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")), setName: false);
-
         hasValue |= sender.SetKillCooldown(killer, 3f);
-        hasValue |= sender.RpcGuardAndKill(target, killer);
-        hasValue |= sender.RpcGuardAndKill(target, target);
-
         hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
         if (cleared) hasValue = false;
+
+        hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")), setName: false);
+        hasValue |= sender.RpcGuardAndKill(target, killer);
+        hasValue |= sender.RpcGuardAndKill(target, target);
         hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
         if (cleared) hasValue = false;
 

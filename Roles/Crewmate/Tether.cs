@@ -54,7 +54,7 @@ public class Tether : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
         Target = byte.MaxValue;
         TetherId = playerId;
     }
@@ -103,7 +103,6 @@ public class Tether : RoleBase
                 if (GameStates.IsInTask) pc.TP(Utils.GetPlayerById(Target).Pos());
             }, isPet ? 0.1f : 2f, "Tether TP");
         }
-        else if (!isPet) LateTask.New(() => pc.MyPhysics?.RpcExitVent(ventId), 0.5f, "Tether No Target Boot From Vent");
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

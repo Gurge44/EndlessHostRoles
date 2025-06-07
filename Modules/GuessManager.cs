@@ -497,7 +497,7 @@ public static class GuessManager
                         }
                     }
 
-                    string Name = dp.GetRealName();
+                    string name = dp.GetRealName();
                     if (!Options.DisableKillAnimationOnGuess.GetBool()) CustomSoundsManager.RPCPlayCustomSoundAll("Gunfire");
 
                     LateTask.New(() =>
@@ -521,7 +521,7 @@ public static class GuessManager
                         GuessManagerRole.OnGuess(dp, pc);
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        LateTask.New(() => { Utils.SendMessage(string.Format(GetString("GuessKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))); }, 0.6f, "Guess Msg");
+                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("GuessKill"), Main.AllPlayerNames.GetValueOrDefault(dp.PlayerId, name)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))), 0.6f, "Guess Msg");
 
                         if (pc.Is(CustomRoles.Doomsayer) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("DoomsayerGuessCountMsg"), Doomsayer.GuessingToWin[pc.PlayerId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doomsayer), GetString("DoomsayerGuessCountTitle"))), 0.7f, "Doomsayer Guess Msg 2");
                         if (pc.Is(CustomRoles.TicketsStealer) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("TicketsStealerGetTicket"), (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Options.TicketsPerKill.GetFloat()))), 0.7f, log: false);
@@ -563,11 +563,18 @@ public static class GuessManager
                 if (playerVoteArea.VotedFor != pc.PlayerId) continue;
 
                 playerVoteArea.UnsetVote();
+                meetingHud.SetDirtyBit(1U);
 
                 PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
+                if (voteAreaPlayer == null) continue;
 
-                if (!voteAreaPlayer.AmOwner) meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
-                else meetingHud.ClearVote();
+                if (!voteAreaPlayer.AmOwner)
+                {
+                    meetingHud.RpcClearVote(voteAreaPlayer.OwnerId);
+                    meetingHud.SetDirtyBit(1U);
+                }
+                else
+                    meetingHud.ClearVote();
             }
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.GuessKill, SendOption.Reliable);
@@ -595,7 +602,17 @@ public static class GuessManager
 
         PlayerVoteArea voteArea = MeetingHud.Instance.playerStates.First(x => x.TargetPlayerId == pc.PlayerId);
 
-        if (voteArea.DidVote) voteArea.UnsetVote();
+        if (voteArea.DidVote)
+        {
+            voteArea.UnsetVote();
+
+            if (AmongUsClient.Instance.AmHost)
+            {
+                meetingHud.SetDirtyBit(1U);
+                meetingHud.RpcClearVote(pc.OwnerId);
+                meetingHud.SetDirtyBit(1U);
+            }
+        }
 
         voteArea.AmDead = true;
         voteArea.Overlay.gameObject.SetActive(true);
@@ -798,8 +815,9 @@ public static class GuessManager
                 Teambutton.FindChild("ControllerHighlight").gameObject.SetActive(false);
                 Object.Instantiate(maskTemplate, TeambuttonParent);
                 TextMeshPro Teamlabel = Object.Instantiate(textTemplate, Teambutton);
-                Teambutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
-                RoleSelectButtons.Add((CustomRoleTypes)index, Teambutton.GetComponent<SpriteRenderer>());
+                var spriteRenderer = Teambutton.GetComponent<SpriteRenderer>();
+                spriteRenderer.sprite = CustomButton.Get("GuessPlate");
+                RoleSelectButtons.Add((CustomRoleTypes)index, spriteRenderer);
                 TeambuttonParent.localPosition = new(-3.10f + (tabCount++ * 1.47f), 2.225f, -200);
                 TeambuttonParent.localScale = new(0.53f, 0.53f, 1f);
 
@@ -918,7 +936,7 @@ public static class GuessManager
 
                 if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) continue;
 
-                if (!CustomGameMode.Standard.IsActiveOrIntegrated() || CustomHnS.AllHnSRoles.Contains(role)) continue;
+                if (Options.CurrentGameMode != CustomGameMode.Standard || CustomHnS.AllHnSRoles.Contains(role)) continue;
 
                 CreateRole(role);
             }

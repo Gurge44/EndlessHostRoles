@@ -14,7 +14,7 @@ internal class Bloodlust : IAddon
     {
         SetupAdtRoleOptions(Id, CustomRoles.Bloodlust);
 
-        KCD = new FloatOptionItem(Id + 6, "KillCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.Addons)
+        KCD = new FloatOptionItem(Id + 6, "KillCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodlust])
             .SetValueFormat(OptionFormat.Seconds);
 

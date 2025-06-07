@@ -73,7 +73,7 @@ public class Wizard : RoleBase
             .AutoSetupOption(ref VisionStep, 0.15f, new FloatValueRule(0.05f, 0.5f, 0.05f), OptionFormat.Multiplier)
             .AutoSetupOption(ref KCDStep, 5f, new FloatValueRule(0.5f, 10f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref AbilityCooldown, 15, new IntegerValueRule(0, 120, 1), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityUseLimit, 1, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.3f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityChargesWhenFinishedTasks, 0.2f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .CreateOverrideTasksData();
@@ -114,7 +114,7 @@ public class Wizard : RoleBase
         SelectedBuff = default(Buff);
         TaskMode = false;
         Count = 0;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -243,7 +243,7 @@ public class Wizard : RoleBase
                 TaskMode = false;
                 break;
             case false when !pc.IsAlive():
-                pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId());
+                pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.OwnerId);
                 TaskMode = true;
                 break;
             case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():

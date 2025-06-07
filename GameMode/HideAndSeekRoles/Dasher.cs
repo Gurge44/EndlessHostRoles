@@ -26,13 +26,13 @@ public class Dasher : RoleBase, IHideAndSeekRole
     {
         Options.SetupRoleOptions(69_211_801, TabGroup.ImpostorRoles, CustomRoles.Dasher, CustomGameMode.HideAndSeek);
 
-        Vision = new FloatOptionItem(69_211_803, "DasherVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+        Vision = new FloatOptionItem(69_211_803, "DasherVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(245, 66, 176, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
 
-        Speed = new FloatOptionItem(69_213_804, "DasherSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+        Speed = new FloatOptionItem(69_213_804, "DasherSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(245, 66, 176, byte.MaxValue))
@@ -56,7 +56,7 @@ public class Dasher : RoleBase, IHideAndSeekRole
             .SetColor(new(245, 66, 176, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
 
-        UseLimit = new IntegerOptionItem(69_213_808, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.ImpostorRoles)
+        UseLimit = new FloatOptionItem(69_213_808, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(245, 66, 176, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);

@@ -34,14 +34,14 @@ internal class Bomber : RoleBase
         BomberCanKill = new BooleanOptionItem(2015, "CanKill", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
 
-        BomberKillCD = new FloatOptionItem(2020, "KillCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
+        BomberKillCD = new FloatOptionItem(2020, "KillCooldown", new(0f, 180f, 0.5f), 40f, TabGroup.ImpostorRoles)
             .SetParent(BomberCanKill)
             .SetValueFormat(OptionFormat.Seconds);
 
         CooldownsResetEachOther = new BooleanOptionItem(2021, "BomberCooldownsResetEachOther", false, TabGroup.ImpostorRoles)
             .SetParent(BomberCanKill);
 
-        BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
+        BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 0.5f), 40f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -55,7 +55,7 @@ internal class Bomber : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
             .SetValueFormat(OptionFormat.Percent);
 
-        NukeCooldown = new FloatOptionItem(2035, "NukeCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
+        NukeCooldown = new FloatOptionItem(2035, "NukeCooldown", new(5f, 180f, 0.5f), 60f, TabGroup.ImpostorRoles)
             .SetParent(NukerChance)
             .SetValueFormat(OptionFormat.Seconds);
 

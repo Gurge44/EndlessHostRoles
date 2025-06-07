@@ -72,111 +72,113 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 | Crewmates         | Impostors       | Neutrals          | Coven         | Add-ons        |
 |-------------------|-----------------|-------------------|---------------|----------------|
-| Addict            | Abyssbringer    | Dealer            | Coven Member  | Aide           |
-| Adrenaline        | Anonymous       | Agitator          | Coven Leader  | Allergic       |
-| Adventurer        | Anti-Adminer    | Amnesiac          | Spellcaster   | Anchor         |
-| Aid               | Arrogance       | Amogus            | Potion Master | Antidote       |
-| Alchemist         | Assumer         | Arsonist          | Poache        | Anti-TP        |
-| Altruist          | Augmenter       | Auditor           | Reaper        | Asthmatic      |
-| Analyst           | Bard            | Backstabber       | Death         | Autopsy        |
-| Ankylosaurus      | Blackmailer     | Bandit            | Voodoo Master | Avenger        |
-| Autocrat          | Bomber          | Bargainer         | Goddess       | Bait           |
-| Bane              | Bounty Hunter   | Beehive           | Augur         | Beartrap       |
-| Battery           | Butcher         | Blood Knight      | Dreamweaver   | Bewilder       |
-| Beacon            | Camouflager     | Bubble            | Banshee       | Blind          |
-| Benefactor        | Capitalist      | Chemist           | Illusionist   | Blocked        |
-| Bodyguard         | Cantankerous    | Cherokious        | Timelord      | Bloodlust      |
-| Camera Man        | Changeling      | Collector         | Enchanter     | Bloodmoon      |
-| Car               | Chronomancer    | Curser            | Siren         | Busy           |
-| Catcher           | Cleaner         | Deathknight       |               | Charmed        |
-| Celebrity         | Commander       | Demon             |               | Circumvent     |
-| Chameleon         | Consigliere     | Doppelganger      |               | Cleansed       |
-| Chef              | Consort         | Doomsayer         |               | Clumsy         |
-| Clairvoyant       | Councillor      | Eclipse           |               | Contagious     |
-| Cleanser          | Crewpostor      | Enderman          |               | Damocles       |
-| Convener          | Cursed Wolf     | Evolver           |               | Deadlined      |
-| Copycat           | Deathpact       | Executioner       |               | Deadly Quota   |
-| Coroner           | Devourer        | Follower          |               | Disco          |
-| Crusader          | Disperser       | Gaslighter        |               | Diseased       |
-| Dad               | Duellist        | The Glitch        |               | Dynamo         |
-| Demolitionist     | Dazzler         | God               |               | Disregarded    |
-| Deputy            | Echo            | Hater             |               | Double Shot    |
-| Detective         | Escapist        | Head Hunter       |               | Egoist         |
-| Detour            | Evil Eraser     | Hex Master        |               | Energetic      |
-| Dictator          | Evil Guesser    | Hookshot          |               | Entranced      |
-| Doctor            | Evil Tracker    | Imitator          |               | Evil Spirit    |
-| Donut Delivery    | Fireworker      | Impartial         |               | Finder         |
-| Door Master       | Forger          | Innocent          |               | Flash          |
-| Double Agent      | Framer          | Jackal            |               | Fragile        |
-| Pacifist          | Freezer         | Jester            |               | Fool           |
-| Drainer           | Gambler         | Jinx              |               | Giant          |
-| Druid             | Gangster        | Juggernaut        |               | Glow           |
-| Electric          | Generator       | Lawyer            |               | Gravestone     |
-| Enigma            | Godfather       | Magician          |               | Guardian Angel |
-| Escort            | Greedy          | Magistrate        |               | Guesser        |
-| Express           | Hangman         | Vector            |               | Haste          |
-| Investigator      | Hitman          | Maverick          |               | Haunter        |
-| Fortune Teller    | Hypnotist       | Medusa            |               | Insane         |
-| Gaulois           | Hypocrite       | Mycologist        |               | Introvert      |
-| Goose             | Inhibitor       | Necro-Guesser     |               | Knighted       |
-| Grappler          | Kamikaze        | Necromancer       |               | Last Impostor  |
-| Grenadier         | Kidnapper       | Nonplus           |               | Lazy           |
-| Guess Manager     | Killing Machine | Note Killer       |               | Lovers         |
-| Guardian          | Lightning       | Opportunist       |               | Loyal          |
-| Ignitor           | Librarian       | Patroller         |               | Lucky          |
-| Insight           | Lurker          | Pawn              |               | Madmate        |
-| Inspector         | Mafioso         | Pelican           |               | Magnet         |
-| Inquirer          | Mastermind      | Pestilence        |               | Mare           |
-| Jailor            | Nemesis         | Specter           |               | Messenger      |
-| Journalist        | Mercenary       | Pickpocket        |               | Mimic          |
-| Judge             | Miner           | Plaguebearer      |               | Minion         |
-| Lazy Guy          | Morphling       | Infection         |               | Mischievous    |
-| Leery             | Ninja           | Poisoner          |               | Necroview      |
-| Lighter           | Nuker           | Postman           |               | Nimble         |
-| Lookout           | Nullifier       | Predator          |               | Noisy          |
-| Luckey            | Occultist       | Provocateur       |               | Oblivious      |
-| Lyncher           | Overheat        | Pursuer           |               | Onbound        |
-| Markseeker        | Parasite        | Pyromaniac        |               | Spurt          |
-| Marshall          | Penguin         | Quiz Master       |               | Sleep          |
-| Mathematician     | Puppeteer       | Reckless          |               | Phantasm       |
-| Mayor             | Quick Shooter   | Revolutionist     |               | Physicist      |
-| Mechanic          | Renegade        | Ritualist         |               | Rascal         |
-| Medic             | Rift Maker      | Rogue             |               | Reach          |
-| Medium            | Saboteur        | Romantic          |               | Recruit        |
-| Merchant          | Sapper          | Room Rusher       |               | Rookie         |
-| Telecommunication | Scavenger       | Roulette Grandeur |               | Trainee        |
-| Mole              | Silencer        | Ruthless Romantic |               | Schizophrenic  |
-| Monarch           | Sniper          | Samurai           |               | Seer           |
-| Mortician         | Soul Catcher    | Schrödinger's Cat |               | Shy            |
-| Nice Eraser       | Stasis          | Seamstress        |               | Sleuth         |
-| Nice Guesser      | Swapster        | Serial Killer     |               | Sonar          |
-| Hacker            | Swiftclaw       | Shifter           |               | Stained        |
-| Swapper           | Swooper         | Sidekick          |               | Taskcounter    |
-| Nightmare         | Stealth         | Simon             |               | Stealer        |
-| Negotiator        | Time Thief      | Soul Hunter       |               | Stressed       |
-| Observer          | Trapster        | Spirit            |               | Swift          |
-| Oracle            | Trickster       | Spiritcaller      |               | Sunglasses     |
-| Oxyman            | Twister         | Sprayer           |               | Tiebreaker     |
-| Paranoid          | Undertaker      | Stalker           |               | Torch          |
-| Perceiver         | Vampire         | Starspawn         |               | Truant         |
-| President         | Ventriloquist   | Cultist           |               | Undead         |
-| Psychic           | Vindicator      | Sunnyboy          |               | Underdog       |
-| Rabbit            | Visionary       | Technician        |               | Unlucky        |
-| Randomizer        | Warlock         | Tank              |               | Warden         |
-| Rhapsode          | Wasp            | Terrorist         |               | Watcher        |
-| Ricochet          | Wildling        | Tiger             |               | Workhorse      |
-| Safeguard         | Wiper           | Traitor           |               | YouTuber       |
-| Scout             | Witch           | Tremor            |               |                |
-| Security Guard    | Yin Yanger      | Vengeance         |               |                |
-| Sentinel          | Zombie          | Vengeful Romantic |               |                |
-| Sentry            |                 | Virus             |               |                |
-| Sheriff           |                 | Vortex            |               |                |
-| Shiftguard        |                 | Vulture           |               |                |
-| Snitch            |                 | Wraith            |               |                |
-| Socialite         |                 | Werewolf          |               |                |
-| Soothsayer        |                 | Weapon Master     |               |                |
-| Spiritualist      |                 | Weatherman        |               |                |
-| Speedrunner       |                 | Workaholic        |               |                |
+| Addict            | Abyssbringer    | Dealer            | Augur         | Aide           |
+| Adrenaline        | Anonymous       | Agitator          | Banshee       | Allergic       |
+| Adventurer        | Anti-Adminer    | Amnesiac          | Coven Leader  | Anchor         |
+| Aid               | Arrogance       | Amogus            | Coven Member  | Antidote       |
+| Alchemist         | Assumer         | Arsonist          | Death         | Anti-TP        |
+| Altruist          | Augmenter       | Auditor           | Dreamweaver   | Asthmatic      |
+| Analyst           | Bard            | Backstabber       | Enchanter     | Autopsy        |
+| Ankylosaurus      | Blackmailer     | Bandit            | Goddess       | Avenger        |
+| Astral            | Bomber          | Bargainer         | Illusionist   | Bait           |
+| Autocrat          | Bounty Hunter   | Beehive           | Poache        | Beartrap       |
+| Bane              | Butcher         | Blood Knight      | Potion Master | Bewilder       |
+| Battery           | Camouflager     | Bubble            | Reaper        | Blind          |
+| Beacon            | Capitalist      | Chemist           | Siren         | Blocked        |
+| Benefactor        | Cantankerous    | Cherokious        | Spellcaster   | Bloodlust      |
+| Bodyguard         | Changeling      | Collector         | Timelord      | Bloodmoon      |
+| Camera Man        | Chronomancer    | Curser            | Voodoo Master | Busy           |
+| Car               | Cleaner         | Deathknight       | Wyrd          | Charmed        |
+| Catcher           | Commander       | Demon             |               | Circumvent     |
+| Celebrity         | Consigliere     | Doppelganger      |               | Cleansed       |
+| Chameleon         | Consort         | Doomsayer         |               | Clumsy         |
+| Chef              | Councillor      | Eclipse           |               | Contagious     |
+| Clairvoyant       | Crewpostor      | Enderman          |               | Damocles       |
+| Cleanser          | Cursed Wolf     | Evolver           |               | Deadlined      |
+| Convener          | Deathpact       | Executioner       |               | Deadly Quota   |
+| Copycat           | Devourer        | Follower          |               | Disco          |
+| Coroner           | Disperser       | Gaslighter        |               | Diseased       |
+| Crusader          | Duellist        | The Glitch        |               | Dynamo         |
+| Dad               | Dazzler         | God               |               | Disregarded    |
+| Demolitionist     | Echo            | Hater             |               | Double Shot    |
+| Deputy            | Escapist        | Head Hunter       |               | Egoist         |
+| Detective         | Evil Eraser     | Hex Master        |               | Energetic      |
+| Detour            | Evil Guesser    | Hookshot          |               | Entranced      |
+| Dictator          | Evil Tracker    | Imitator          |               | Evil Spirit    |
+| Doctor            | Fireworker      | Impartial         |               | Finder         |
+| Donut Delivery    | Forger          | Innocent          |               | Flash          |
+| Door Master       | Framer          | Jackal            |               | Fragile        |
+| Double Agent      | Freezer         | Jester            |               | Fool           |
+| Pacifist          | Gambler         | Jinx              |               | Giant          |
+| Drainer           | Gangster        | Juggernaut        |               | Glow           |
+| Druid             | Generator       | Lawyer            |               | Gravestone     |
+| Electric          | Godfather       | Magician          |               | Guardian Angel |
+| Enigma            | Greedy          | Magistrate        |               | Guesser        |
+| Escort            | Hangman         | Vector            |               | Haste          |
+| Express           | Hitman          | Maverick          |               | Haunter        |
+| Investigator      | Hypnotist       | Medusa            |               | Insane         |
+| Fortune Teller    | Hypocrite       | Mycologist        |               | Introvert      |
+| Gaulois           | Inhibitor       | Necro-Guesser     |               | Knighted       |
+| Goose             | Kamikaze        | Necromancer       |               | Last Impostor  |
+| Grappler          | Kidnapper       | Nonplus           |               | Lazy           |
+| Grenadier         | Killing Machine | Note Killer       |               | Lovers         |
+| Guess Manager     | Lightning       | Opportunist       |               | Loyal          |
+| Guardian          | Librarian       | Patroller         |               | Lucky          |
+| Helper            | Lurker          | Pawn              |               | Madmate        |
+| Ignitor           | Mafioso         | Pelican           |               | Magnet         |
+| Insight           | Mastermind      | Pestilence        |               | Mare           |
+| Inspector         | Nemesis         | Specter           |               | Messenger      |
+| Inquirer          | Mercenary       | Pickpocket        |               | Mimic          |
+| Jailor            | Miner           | Plaguebearer      |               | Minion         |
+| Journalist        | Morphling       | Infection         |               | Mischievous    |
+| Judge             | Ninja           | Poisoner          |               | Necroview      |
+| Lazy Guy          | Nuker           | Postman           |               | Nimble         |
+| Leery             | Nullifier       | Predator          |               | Noisy          |
+| Lighter           | Occultist       | Provocateur       |               | Oblivious      |
+| Lookout           | Overheat        | Pursuer           |               | Onbound        |
+| Luckey            | Parasite        | Pyromaniac        |               | Spurt          |
+| Lyncher           | Penguin         | Quiz Master       |               | Sleep          |
+| Markseeker        | Puppeteer       | Reckless          |               | Phantasm       |
+| Marshall          | Quick Shooter   | Revolutionist     |               | Physicist      |
+| Mathematician     | Renegade        | Ritualist         |               | Rascal         |
+| Mayor             | Rift Maker      | Rogue             |               | Reach          |
+| Mechanic          | Saboteur        | Romantic          |               | Recruit        |
+| Medic             | Sapper          | Room Rusher       |               | Rookie         |
+| Medium            | Scavenger       | Roulette Grandeur |               | Trainee        |
+| Merchant          | Silencer        | Ruthless Romantic |               | Schizophrenic  |
+| Telecommunication | Sniper          | Samurai           |               | Seer           |
+| Mole              | Soul Catcher    | Schrödinger's Cat |               | Shy            |
+| Monarch           | Stasis          | Seamstress        |               | Sleuth         |
+| Mortician         | Swapster        | Serial Killer     |               | Sonar          |
+| Nice Eraser       | Swiftclaw       | Shifter           |               | Stained        |
+| Nice Guesser      | Swooper         | Sidekick          |               | Taskcounter    |
+| Hacker            | Stealth         | Simon             |               | Stealer        |
+| Swapper           | Time Thief      | Soul Hunter       |               | Stressed       |
+| Nightmare         | Trapster        | Spirit            |               | Swift          |
+| Negotiator        | Trickster       | Spiritcaller      |               | Sunglasses     |
+| Observer          | Twister         | Sprayer           |               | Tiebreaker     |
+| Oracle            | Undertaker      | Stalker           |               | Torch          |
+| Oxyman            | Vampire         | Starspawn         |               | Truant         |
+| Paranoid          | Ventriloquist   | Cultist           |               | Undead         |
+| Perceiver         | Vindicator      | Sunnyboy          |               | Underdog       |
+| President         | Visionary       | Technician        |               | Unlucky        |
+| Psychic           | Warlock         | Tank              |               | Warden         |
+| Rabbit            | Wasp            | Terrorist         |               | Watcher        |
+| Randomizer        | Wildling        | Tiger             |               | Workhorse      |
+| Rhapsode          | Wiper           | Traitor           |               | YouTuber       |
+| Ricochet          | Witch           | Tremor            |               |                |
+| Safeguard         | Yin Yanger      | Vengeance         |               |                |
+| Scout             | Zombie          | Vengeful Romantic |               |                |
+| Security Guard    |                 | Virus             |               |                |
+| Sentinel          |                 | Vortex            |               |                |
+| Sentry            |                 | Vulture           |               |                |
+| Sheriff           |                 | Wraith            |               |                |
+| Shiftguard        |                 | Werewolf          |               |                |
+| Snitch            |                 | Weapon Master     |               |                |
+| Socialite         |                 | Weatherman        |               |                |
+| Soothsayer        |                 | Workaholic        |               |                |
+| Spiritualist      |                 |                   |               |                |
+| Speedrunner       |                 |                   |               |                |
 | Speed Booster     |                 |                   |               |                |
 | Spy               |                 |                   |               |                |
 | Super Star        |                 |                   |               |                |
@@ -198,7 +200,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Witness           |                 |                   |               |                |
 | Wizard            |                 |                   |               |                |
 |                   |                 |                   |               |                |
-| 125               | 97              | 105               | 16            | 94             |
+| 127               | 97              | 105               | 17            | 94             |
 
 ## VIP and Moderator perks
 
@@ -210,11 +212,16 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 |-----------|-----------------|--------------------|--------------------|--------------------|
 | /color    | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
 | /rename   | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
+| /tpin     | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
+| /tpout    | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
 | /kick     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /ban      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /say      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /poll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /mute     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /ds       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /gmpoll   | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /fix      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | Lobby tag | :x:             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 <br>
@@ -267,15 +274,15 @@ Source language: English
 | /v<br>/version                                 | View the current version of EHR                                                               | –                                                                                                                                                                                                                                                                                                                            | :green_circle: Modded Clients    | :purple_square: Always                  | :x:                |
 | /cs<br>/changesetting                          | Change the game settings                                                                      | &#x1F538; **name** – The setting's name to change (leave blank to view all settings)<br>&#x1F538; **?** – (leave blank to view what to put here)<br>&#x1F539; **?** – (leave blank to view what to put here)<br>                                                                                                             | :yellow_circle: Host             | :green_square: In Lobby                 | :x:                |
 | /win<br>/winner                                | View the winners of the last game                                                             | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :green_square: In Lobby                 | :x:                |
-| /l<br>/lastresult                              | View the roles of players in the last game                                                    | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :green_square: In Lobby                 | :x:                |
+| /l<br>/lastresult                              | View the roles and add-ons of players in the last game                                        | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :green_square: In Lobby                 | :x:                |
 | /rn<br>/rename                                 | Gives you a new name                                                                          | &#x1F538; **name** – Your new name<br>                                                                                                                                                                                                                                                                                       | :purple_circle: Everyone         | :green_square: In Lobby                 | :x:                |
 | /hn<br>/hidename                               | Hides your name                                                                               | –                                                                                                                                                                                                                                                                                                                            | :yellow_circle: Host             | :green_square: In Lobby                 | :x:                |
 | /level                                         | Changes your level                                                                            | &#x1F538; **level** – Your new level<br>                                                                                                                                                                                                                                                                                     | :yellow_circle: Host             | :green_square: In Lobby                 | :x:                |
 | /n<br>/now                                     | View the current settings                                                                     | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :purple_square: Always                  | :x:                |
 | /dis<br>/disconnect                            | Get rid of all players in the specified team                                                  | &#x1F538; **team** – The team to get rid of (imp/crew)<br>                                                                                                                                                                                                                                                                   | :yellow_circle: Host             | :white_large_square: In Game            | :x:                |
 | /r                                             | View the list of roles or the description of a specific role                                  | &#x1F539; **role** – The role to view (leave blank to view all roles)<br>                                                                                                                                                                                                                                                    | :purple_circle: Everyone         | :purple_square: Always                  | :x:                |
-| /up                                            | [DEPRECATED] Use /setrole instead                                                             | &#x1F538; **role** – The role to set<br>                                                                                                                                                                                                                                                                                     | :yellow_circle: Host             | :green_square: In Lobby                 | :x:                |
-| /setrole<br>/setaddon                          | Set a player's role or add-on for the next game                                               | &#x1F538; **id** – The player's ID whose role you want to set<br>&#x1F538; **role** – The role to set<br>                                                                                                                                                                                                                    | :yellow_circle: Host             | :green_square: In Lobby                 | :x:                |
+| /up                                            | [DEPRECATED] Use /setrole or /setaddon instead                                                | &#x1F538; **role** – The role to set<br>                                                                                                                                                                                                                                                                                     | :yellow_circle: Host             | :green_square: In Lobby                 | :x:                |
+| /setrole<br>/setaddon                          | Set a player's role/add-on for the next game                                                  | &#x1F538; **id** – The player's ID whose role you want to set<br>&#x1F538; **role** – The role to set<br>                                                                                                                                                                                                                    | :yellow_circle: Host             | :green_square: In Lobby                 | :x:                |
 | /h<br>/help                                    | View the list of commands                                                                     | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :purple_square: Always                  | :x:                |
 | /gamestate<br>/gstate<br>/gs<br>/kcount<br>/kc | View the number of remaining impostors and neutral killers                                    | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :white_large_square: In Game            | :x:                |
 | /addmod                                        | Makes the specified player a moderator                                                        | &#x1F538; **id** – The player's ID to make a moderator<br>                                                                                                                                                                                                                                                                   | :yellow_circle: Host             | :purple_square: Always                  | :x:                |
@@ -289,7 +296,7 @@ Source language: English
 | /t<br>/template                                | Send a message template (from template.txt)                                                   | &#x1F538; **tag** – The tag of the template to send<br>                                                                                                                                                                                                                                                                      | :purple_circle: Everyone         | :purple_square: Always                  | :x:                |
 | /mw<br>/messagewait                            | Set the buffer time for system messages                                                       | &#x1F538; **duration** – The duration in seconds<br>                                                                                                                                                                                                                                                                         | :yellow_circle: Host             | :purple_square: Always                  | :x:                |
 | /death<br>/d                                   | View who killed you and their role                                                            | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :red_square: After Death                | :x:                |
-| /say<br>/s                                     | Send a message as the host                                                                    | &#x1F538; **message** – The message to send<br>                                                                                                                                                                                                                                                                              | :red_circle: Host And Moderators | :purple_square: Always                  | :heavy_check_mark: |
+| /say<br>/s                                     | Send a message as the host/moderator                                                          | &#x1F538; **message** – The message to send<br>                                                                                                                                                                                                                                                                              | :red_circle: Host And Moderators | :purple_square: Always                  | :heavy_check_mark: |
 | /vote                                          | Vote for a player                                                                             | &#x1F538; **id** – The player's ID to vote for<br>                                                                                                                                                                                                                                                                           | :purple_circle: Everyone         | :yellow_square: In Meetings             | :heavy_check_mark: |
 | /ask                                           | Ask a question as the Mathematician                                                           | &#x1F538; **number1** – The first number in the question<br>&#x1F538; **number2** – The second number in the question<br>                                                                                                                                                                                                    | :purple_circle: Everyone         | :yellow_square: In Meetings             | :heavy_check_mark: |
 | /ans<br>/answer                                | Answer a math question asked by the Mathematician                                             | &#x1F538; **number** – The answer to the question<br>                                                                                                                                                                                                                                                                        | :purple_circle: Everyone         | :yellow_square: In Meetings             | :x:                |
@@ -331,7 +338,7 @@ Source language: English
 | /achievements                                  | See which achievements you have unlocked and which you haven't                                | –                                                                                                                                                                                                                                                                                                                            | :green_circle: Modded Clients    | :purple_square: Always                  | :x:                |
 | /dn<br>/deathnote                              | Guess someone's real name as the Note Killer.                                                 | &#x1F538; **name** – The real name to guess. If it's correct, you kill the player with this name.<br>                                                                                                                                                                                                                        | :purple_circle: Everyone         | :yellow_square: In Meetings             | :heavy_check_mark: |
 | /w<br>/whisper                                 | Whisper a message to a player.                                                                | &#x1F538; **id** – The player's ID to whisper to<br>&#x1F538; **message** – The message to whisper<br>                                                                                                                                                                                                                       | :purple_circle: Everyone         | :yellow_square: In Meetings             | :heavy_check_mark: |
-| /spectate                                      | Makes you a spectator for the next game. You should just enable Game Master as the host.      | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :green_square: In Lobby                 | :x:                |
+| /spectate                                      | Makes you a spectator for the next game. You should just enable Game Master as the host.      | &#x1F539; **id** – The player's ID who will be forced to spectate (leave blank to use it on yourself)<br>                                                                                                                                                                                                                    | :purple_circle: Everyone         | :green_square: In Lobby                 | :x:                |
 | /anagram                                       | Get a random scrambled word, then try to guess the original word.                             | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :purple_square: Always                  | :x:                |
 | /rl<br>/rolelist                               | View the limits of how many of each faction and subcategory of roles will spawn.              | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone         | :purple_square: Always                  | :x:                |
 | /jt<br>/jailtalk                               | Talk to the Jailor as a jailed player or vice versa.                                          | &#x1F538; **message** – The message to send to the Jailor/jailed player<br>                                                                                                                                                                                                                                                  | :purple_circle: Everyone         | :yellow_square: In Meetings             | :heavy_check_mark: |
@@ -363,20 +370,19 @@ Source language: English
 
 ## Credit to these mods and their developers for the code and help:
 
-### :star: [TOHER/TOHRE/TOHEN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
+### :star: [Town Of Host Re-Edited](https://github.com/Loonie-Toons/) :
 
 >
 > - Our repo is forked from TOHRE (from a long time ago)
-> - Thanks: Better Anti-Blackout
-> - Thanks: Phantom-basis fix for desynced roles
+> - Ported PhantomRolePatch.cs (partially broken)
 >
 
-### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
+### :star: [Town Of Host Edited / Town Of Next](https://github.com/KARPED1EM/TownOfHostEdited) :
 
 >
-> - Our repo is a continuation of TOHE
-> - TONX reference: Modify character limit for chat messages
-> - TONX reference: Modify and apply cool animations on Main Menu
+> - Our repo is a continuation of Town Of Host Edited
+> - Town Of Next reference: Modify character limit for chat messages
+> - Town Of Next reference: Modify and apply cool animations on Main Menu
 >
 
 ### :star: [TOH](https://github.com/tukasa0001/TownOfHost) :
@@ -459,6 +465,8 @@ Source language: English
 > - Reference: Part of the code used for the Endless Host Roles Image in the Main Menu
 > - Reference: Custom Net Objects
 > - Reference: Block vent interaction for players who cannot use vents
+> - Reference: Better Chat Clearing Mechanic
+> - Reference: Setting Chat Visible For Specific Clients During The Game
 >
 
 ### :star: [Reactor](https://github.com/NuclearPowered/Reactor) :

@@ -6,6 +6,11 @@ internal class Monitor : RoleBase
 
     public static OptionItem CanCheckCamera;
     public static OptionItem CanVent;
+    public static OptionItem VentCooldown;
+    public static OptionItem UseLimitOpt;
+    public static OptionItem AbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
+
     public static bool On;
 
     public override bool IsEnable => On;
@@ -18,6 +23,7 @@ internal class Monitor : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
     }
 
     public override void SetupCustomOption()
@@ -27,7 +33,23 @@ internal class Monitor : RoleBase
         CanCheckCamera = new BooleanOptionItem(Id + 10, "CanCheckCamera", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Monitor]);
 
-        CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.CrewmateRoles)
+        CanVent = new BooleanOptionItem(Id + 14, "CanVent", false, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Monitor]);
+
+        VentCooldown = new FloatOptionItem(Id + 15, "AbilityCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Monitor])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Monitor])
+            .SetValueFormat(OptionFormat.Times);
+
+        AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Monitor])
+            .SetValueFormat(OptionFormat.Times);
+
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Monitor])
+            .SetValueFormat(OptionFormat.Times);
     }
 }

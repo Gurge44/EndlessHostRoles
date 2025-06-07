@@ -56,11 +56,11 @@ public class Romantic : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ProtectCooldown = new FloatOptionItem(Id + 11, "RomanticProtectCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.NeutralRoles)
+        ProtectCooldown = new FloatOptionItem(Id + 11, "RomanticProtectCooldown", new(0f, 60f, 0.5f), 25f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ProtectDuration = new FloatOptionItem(Id + 12, "RomanticProtectDuration", new(0f, 60f, 2.5f), 10f, TabGroup.NeutralRoles)
+        ProtectDuration = new FloatOptionItem(Id + 12, "RomanticProtectDuration", new(0f, 60f, 0.5f), 10f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -79,7 +79,7 @@ public class Romantic : RoleBase
         PartnerHasArrows = new BooleanOptionItem(Id + 17, "RomanticPartnerHasArrows", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
 
-        VengefulKCD = new FloatOptionItem(Id + 18, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+        VengefulKCD = new FloatOptionItem(Id + 18, "VengefulKCD", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -89,7 +89,7 @@ public class Romantic : RoleBase
         VengefulHasImpVision = new BooleanOptionItem(Id + 20, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
 
-        RuthlessKCD = new FloatOptionItem(Id + 21, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+        RuthlessKCD = new FloatOptionItem(Id + 21, "RuthlessKCD", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -186,17 +186,12 @@ public class Romantic : RoleBase
         {
             IsPartnerProtected = true;
 
-            var sender = CustomRpcSender.Create("Romantic.OnCheckMurder - 1", SendOption.Reliable);
-            var hasValue = false;
-
             RomanticPC.ResetKillCooldown();
-            hasValue |= sender.SetKillCooldown(RomanticPC);
+            RomanticPC.SetKillCooldown();
             RomanticPC.RPCPlayCustomSound("Shield");
 
-            hasValue |= sender.Notify(RomanticPC, GetString("RomanticProtectPartner"));
-            hasValue |= sender.Notify(Partner, GetString("RomanticIsProtectingYou"));
-
-            sender.SendMessage(!hasValue);
+            RomanticPC.Notify(GetString("RomanticProtectPartner"));
+            Partner.Notify(GetString("RomanticIsProtectingYou"));
 
             LateTask.New(() =>
             {
@@ -206,15 +201,10 @@ public class Romantic : RoleBase
 
                 if (!GameStates.IsInTask) return;
 
-                var sender2 = CustomRpcSender.Create("Romantic.OnCheckMurder - 2", SendOption.Reliable);
-                var hasValue = false;
+                RomanticPC.Notify(GetString("ProtectingOver"));
+                Partner.Notify(GetString("ProtectingOver"));
 
-                hasValue |= sender2.Notify(RomanticPC, GetString("ProtectingOver"));
-                hasValue |= sender2.Notify(Partner, GetString("ProtectingOver"));
-
-                hasValue |= sender2.SetKillCooldown(RomanticPC);
-
-                sender2.SendMessage(!hasValue);
+                RomanticPC.SetKillCooldown();
             }, ProtectDuration.GetFloat(), "RomanticProtecting");
         }
 
@@ -366,7 +356,7 @@ public class VengefulRomantic : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead && !HasKilledKiller;
+        return player.IsAlive() && !HasKilledKiller;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using EHR.Modules;
 using Hazel;
 using InnerNet;
 
@@ -66,6 +67,8 @@ internal class OverKiller : RoleBase
                     return;
                 }
 
+
+                RPCHandlerPatch.WhiteListFromRateLimitUntil(target.PlayerId, Utils.TimeStamp + 5);
 
                 Vector2 ops = target.Pos();
                 Vector2 originPos = killer.Pos();

@@ -20,6 +20,18 @@ using static EHR.Utils;
 
 namespace EHR;
 
+[HarmonyPatch(typeof(GameManager), nameof(GameManager.RpcEndGame))]
+static class RpcEndGamePatch
+{
+    public static bool Prefix() => false;
+}
+
+[HarmonyPatch(typeof(LogicGameFlowHnS), nameof(LogicGameFlowHnS.CheckEndCriteria))]
+static class HnsEndPatch
+{
+    public static bool Prefix() => false;
+}
+
 [HarmonyPatch(typeof(LogicGameFlowNormal), nameof(LogicGameFlowNormal.CheckEndCriteria))]
 internal static class GameEndChecker
 {
@@ -308,6 +320,15 @@ internal static class GameEndChecker
                 }
 
                 WinnerIds.RemoveWhere(x => Main.PlayerStates[x].MainRole == CustomRoles.Shifter);
+
+                // Investor win condition should be checked after all winners are set
+                byte[] winningInvestors = Main.PlayerStates.Values.Where(x => x.Role is Investor { IsWon: true }).Select(x => x.Player.PlayerId).ToArray();
+
+                if (winningInvestors.Length > 0)
+                {
+                    AdditionalWinnerTeams.Add(AdditionalWinners.Investor);
+                    WinnerIds.UnionWith(winningInvestors);
+                }
             }
 
             Camouflage.BlockCamouflage = true;
@@ -331,11 +352,11 @@ internal static class GameEndChecker
             .Select(x => new Message("\n", x.PlayerId, msg))
             .SendMultipleMessages();
 
+        Statistics.OnGameEnd();
+
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         var self = AmongUsClient.Instance;
         self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());
-
-        Statistics.OnGameEnd();
     }
 
     private static IEnumerator CoEndGame(InnerNetClient self, GameOverReason reason)
@@ -402,7 +423,11 @@ internal static class GameEndChecker
         }
 
         // Start End Game
-        GameManager.Instance.RpcEndGame(reason, false);
+        GameManager.Instance.ShouldCheckForGameEnd = false;
+        MessageWriter msg = self.StartEndGame();
+        msg.Write((byte)reason);
+        msg.Write(false);
+        self.FinishEndGame(msg);
     }
 
     private static bool WouldWinIfCrewLost(PlayerState state)
@@ -512,11 +537,6 @@ internal static class GameEndChecker
     public static void SetPredicateToTheMindGame()
     {
         Predicate = new TheMindGameGameEndPredicate();
-    }
-
-    public static void SetPredicateToAllInOne()
-    {
-        Predicate = new AllInOneGameEndPredicate();
     }
 
     private class NormalGameEndPredicate : GameEndPredicate
@@ -1036,38 +1056,6 @@ internal static class GameEndChecker
         }
     }
 
-    private class AllInOneGameEndPredicate : GameEndPredicate
-    {
-        public override bool CheckForGameEnd(out GameOverReason reason)
-        {
-            reason = GameOverReason.ImpostorsByKill;
-            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
-        }
-
-        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
-        {
-            reason = GameOverReason.ImpostorsByKill;
-
-            PlayerControl[] appc = Main.AllAlivePlayerControls;
-
-            switch (appc.Length)
-            {
-                case 1:
-                    PlayerControl winner = appc[0];
-                    Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "AllInOne");
-                    WinnerIds = [winner.PlayerId];
-                    Main.DoBlockNameChange = true;
-                    return true;
-                case 0:
-                    ResetAndSetWinner(CustomWinner.None);
-                    Logger.Warn("No players alive. Force ending the game", "AllInOne");
-                    return true;
-                default:
-                    return false;
-            }
-        }
-    }
-
     public abstract class GameEndPredicate
     {
         /// <summary>Checks the game ending condition and stores the value in CustomWinnerHolder. </summary>
@@ -1144,17 +1132,11 @@ internal static class GameEndChecker
 }
 
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckEndGameViaTasks))]
-internal static class CheckGameEndPatch
+internal static class CheckEndGameViaTasksPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (GameEndChecker.ShouldNotCheck)
-        {
-            __result = false;
-            return false;
-        }
-
-        __result = GameEndChecker.Predicate?.CheckGameEndByTask(out _) ?? false;
+        __result = false;
         return false;
     }
 }

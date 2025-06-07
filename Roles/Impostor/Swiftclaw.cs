@@ -18,7 +18,7 @@ internal class Swiftclaw : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swiftclaw);
 
-        DashCD = new FloatOptionItem(Id + 2, "SwiftclawDashCD", new(0f, 180f, 2.5f), 15f, TabGroup.ImpostorRoles)
+        DashCD = new FloatOptionItem(Id + 2, "SwiftclawDashCD", new(0f, 180f, 0.5f), 15f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swiftclaw])
             .SetValueFormat(OptionFormat.Seconds);
 

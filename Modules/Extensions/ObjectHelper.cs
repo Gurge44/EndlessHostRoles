@@ -13,7 +13,7 @@ public static class ObjectHelper
     {
         if (obj == null) return;
 
-        obj.ForEachChild((Il2CppSystem.Action<GameObject>)DestroyTranslator); // False error
+        obj.ForEachChild((Il2CppSystem.Action<GameObject>)(x => DestroyTranslator(x)));
         TextTranslatorTMP[] translator = obj.GetComponentsInChildren<TextTranslatorTMP>(true);
         translator?.Do(Object.Destroy);
     }

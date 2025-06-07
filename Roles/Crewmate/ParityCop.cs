@@ -95,7 +95,7 @@ public class ParityCop : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetInt());
+        playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetFloat());
         RoundCheckLimit.Add(playerId, ParityCheckLimitPerMeeting.GetInt());
     }
 
@@ -339,7 +339,7 @@ public class ParityCop : RoleBase
 
         string[] nums = msg.Split(" ");
 
-        if (nums.Length != 2 || !int.TryParse(nums[0], out int num1) || !int.TryParse(nums[1], out int num2))
+        if (nums.Length < 2 || !int.TryParse(nums[0], out int num1) || !int.TryParse(nums[1], out int num2))
         {
             Logger.Msg($"nums.Length {nums.Length}, nums0 {nums[0]}, nums1 {nums[1]}", "ParityCop");
             id1 = byte.MaxValue;
@@ -354,7 +354,7 @@ public class ParityCop : RoleBase
         PlayerControl target1 = Utils.GetPlayerById(id1);
         PlayerControl target2 = Utils.GetPlayerById(id2);
 
-        if (target1 == null || target1.Data.IsDead || target2 == null || target2.Data.IsDead)
+        if (target1 == null || !target1.IsAlive() || target2 == null || !target2.IsAlive())
         {
             error = GetString("ParityCheckNull");
             return false;
@@ -403,7 +403,7 @@ public class ParityCop : RoleBase
             FirstPick.Add(lpcId, playerId);
     }
 
-    public static void CreateParityCopButton(MeetingHud __instance)
+    private static void CreateParityCopButton(MeetingHud __instance)
     {
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
@@ -415,7 +415,7 @@ public class ParityCop : RoleBase
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
             var renderer = targetBox.GetComponent<SpriteRenderer>();
-            renderer.sprite = CustomButton.Get("ParityCopIcon");
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.ParityCopIcon.png", 170f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener((Action)(() => ParityCopOnClick(pva.TargetPlayerId /*, __instance*/)));

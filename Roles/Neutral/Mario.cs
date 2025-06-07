@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -78,6 +79,7 @@ internal class Mario : RoleBase
     {
         MarioVentCount.TryAdd(pc.PlayerId, 0);
         MarioVentCount[pc.PlayerId]++;
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         pc.RPCPlayCustomSound("MarioJump");
 
@@ -87,5 +89,12 @@ internal class Mario : RoleBase
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        byte id = reader.ReadByte();
+        MarioVentCount.TryAdd(id, 0);
+        MarioVentCount[id]++;
     }
 }

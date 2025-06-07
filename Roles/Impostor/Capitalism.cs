@@ -18,7 +18,7 @@ internal class Capitalism : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CapitalismKillCooldown = new FloatOptionItem(16611, "KillCooldown", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        CapitalismKillCooldown = new FloatOptionItem(16611, "KillCooldown", new(2.5f, 60f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -51,7 +51,7 @@ internal class Capitalism : RoleBase
             CapitalismAddTask[target.PlayerId]++;
             CapitalismAssignTask.TryAdd(target.PlayerId, 0);
             CapitalismAssignTask[target.PlayerId]++;
-            Logger.Info($"{killer.GetRealName()} added a task for：{target.GetRealName()}", "Capitalism Add Task");
+            Logger.Info($"{killer.GetRealName()} added a task for: {target.GetRealName()}", "Capitalism Add Task");
             killer.SetKillCooldown(CapitalismSkillCooldown.GetFloat());
         });
     }

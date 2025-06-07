@@ -16,11 +16,11 @@ public class Framer : RoleBase
     {
         Options.SetupRoleOptions(647196, TabGroup.ImpostorRoles, CustomRoles.Framer);
 
-        AbilityUseLimit = new IntegerOptionItem(647198, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.ImpostorRoles)
+        AbilityUseLimit = new FloatOptionItem(647198, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Framer])
             .SetValueFormat(OptionFormat.Times);
 
-        FramerAbilityUseGainWithEachKill = new FloatOptionItem(647199, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles)
+        FramerAbilityUseGainWithEachKill = new FloatOptionItem(647199, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Framer])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -34,7 +34,7 @@ public class Framer : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

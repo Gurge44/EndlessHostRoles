@@ -19,19 +19,19 @@ public class Venter : RoleBase, IHideAndSeekRole
     {
         Options.SetupRoleOptions(69_211_1001, TabGroup.ImpostorRoles, CustomRoles.Venter, CustomGameMode.HideAndSeek);
 
-        Vision = new FloatOptionItem(69_211_1003, "VenterVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+        Vision = new FloatOptionItem(69_211_1003, "VenterVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(105, 65, 65, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
 
-        Speed = new FloatOptionItem(69_213_1004, "VenterSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+        Speed = new FloatOptionItem(69_213_1004, "VenterSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(105, 65, 65, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
 
-        UseLimit = new IntegerOptionItem(69_213_1007, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.ImpostorRoles)
+        UseLimit = new FloatOptionItem(69_213_1007, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(105, 65, 65, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
@@ -53,11 +53,11 @@ public class Venter : RoleBase, IHideAndSeekRole
         return pc.IsAlive();
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (physics.myPlayer.GetAbilityUseLimit() < 1f)
-            LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, "Venter no uses boot from vent");
+        if (pc.GetAbilityUseLimit() < 1f)
+            pc.MyPhysics?.RpcBootFromVent(vent.Id);
         else
-            physics.myPlayer.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse();
     }
 }

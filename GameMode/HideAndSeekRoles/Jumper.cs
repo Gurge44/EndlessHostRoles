@@ -47,7 +47,7 @@ public class Jumper : RoleBase, IHideAndSeekRole
             .SetColor(new(221, 245, 66, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jumper]);
 
-        UseLimit = new IntegerOptionItem(69_213_507, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.CrewmateRoles)
+        UseLimit = new FloatOptionItem(69_213_507, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.CrewmateRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(221, 245, 66, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jumper]);
@@ -70,11 +70,11 @@ public class Jumper : RoleBase, IHideAndSeekRole
         AURoleOptions.EngineerInVentMaxTime = MaxInVentTime.GetFloat();
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (physics.myPlayer.GetAbilityUseLimit() < 1f)
-            LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, "Jumper no uses boot from vent");
+        if (pc.GetAbilityUseLimit() < 1f)
+            pc.MyPhysics?.RpcBootFromVent(vent.Id);
         else
-            physics.myPlayer.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse();
     }
 }

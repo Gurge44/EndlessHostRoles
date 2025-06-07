@@ -301,7 +301,7 @@ internal static class CustomHnS
 
     public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
     {
-        if (GameStates.IsLobby || !CustomGameMode.HideAndSeek.IsActiveOrIntegrated() || Main.HasJustStarted || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
+        if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
 
         string dangerMeter = GetDangerMeter(seer);
 
@@ -466,15 +466,13 @@ internal static class CustomHnS
         }
     }
 
-    public static void OnCoEnterVent(PlayerPhysics physics, int ventId) { }
-
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     private static class FixedUpdatePatch
     {
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.HideAndSeek.IsActiveOrIntegrated() || Main.HasJustStarted) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return;
 
             long now = Utils.TimeStamp;
             if (LastUpdate == now) return;

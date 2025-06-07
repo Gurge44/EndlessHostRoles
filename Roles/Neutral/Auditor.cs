@@ -32,7 +32,7 @@ public class Auditor : RoleBase
             .AutoSetupOption(ref LoweredVision, 0.3f, new FloatValueRule(0.05f, 1.25f, 0.05f), OptionFormat.Multiplier)
             .AutoSetupOption(ref LoweredVisionDuration, 10, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref StealAllChargesInsteadOfOne, false)
-            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 20, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 5f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref SmokebombCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref AuditCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds);
     }
@@ -52,7 +52,12 @@ public class Auditor : RoleBase
         Mode = Modes.Auditing;
         LoweredVisionPlayers = [];
         RevealedPlayers = [];
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
+    }
+
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -110,10 +115,10 @@ public class Auditor : RoleBase
         return false;
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (AbilityTrigger != AbilityTriggers.Vent) return;
-        SwitchMode(physics.myPlayer);
+        SwitchMode(pc);
     }
 
     public override void OnPet(PlayerControl pc)

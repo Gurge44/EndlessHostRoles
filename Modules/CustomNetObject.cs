@@ -10,7 +10,7 @@ using InnerNet;
 using TMPro;
 using UnityEngine;
 
-// Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/CustomObjects
+// Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/AllObjects
 // Huge thanks to Rabek009 for this code!
 
 namespace EHR
@@ -51,7 +51,6 @@ namespace EHR
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
-                NetworkedPlayerInfoSerializePatch.IgnorePatchTimes = 2;
                 writer.StartMessage(1);
                 {
                     writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
@@ -84,7 +83,13 @@ namespace EHR
 
         public void TP(Vector2 position)
         {
-            playerControl.NetTransform.RpcSnapTo(position);
+            if (AmongUsClient.Instance.AmClient) playerControl.NetTransform.SnapTo(position, (ushort)(playerControl.NetTransform.lastSequenceId + 1U));
+            ushort num = (ushort)(playerControl.NetTransform.lastSequenceId + 2U);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(playerControl.NetTransform.NetId, 21, SendOption.None);
+            NetHelpers.WriteVector2(position, messageWriter);
+            messageWriter.Write(num);
+            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+
             Position = position;
         }
 
@@ -95,7 +100,22 @@ namespace EHR
 
             try
             {
-                playerControl.Despawn();
+                if (playerControl != null)
+                {
+                    MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                    writer.StartMessage(5);
+                    writer.Write(AmongUsClient.Instance.GameId);
+                    writer.StartMessage(5);
+                    writer.WritePacked(playerControl.NetId);
+                    writer.EndMessage();
+                    writer.EndMessage();
+                    AmongUsClient.Instance.SendOrDisconnect(writer);
+                    writer.Recycle();
+
+                    AmongUsClient.Instance.RemoveNetObject(playerControl);
+                    Object.Destroy(playerControl.gameObject);
+                }
+                
                 AllObjects.Remove(this);
             }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -125,7 +145,7 @@ namespace EHR
                 sender.SendMessage();
             }, 0.4f);
 
-            MessageWriter writer = MessageWriter.Get();
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(6);
             writer.Write(AmongUsClient.Instance.GameId);
             writer.WritePacked(player.GetClientId());
@@ -148,7 +168,7 @@ namespace EHR
             playerControl.isNew = false;
             playerControl.notRealPlayer = true;
             AmongUsClient.Instance.NetIdCnt += 1U;
-            MessageWriter msg = MessageWriter.Get();
+            MessageWriter msg = MessageWriter.Get(SendOption.Reliable);
             msg.StartMessage(5);
             msg.Write(AmongUsClient.Instance.GameId);
             msg.StartMessage(4);
@@ -230,7 +250,6 @@ namespace EHR
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
-                NetworkedPlayerInfoSerializePatch.IgnorePatchTimes = 2;
                 writer.StartMessage(1);
                 {
                     writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
@@ -341,98 +360,7 @@ namespace EHR
         }
     }
 
-    /*
-        internal sealed class Explosion : CustomNetObject
-        {
-            private readonly float Duration;
 
-            private readonly float Size;
-            private int Frame;
-            private float Timer;
-
-            public Explosion(float size, float duration, Vector2 position)
-            {
-                Size = size;
-                Duration = duration;
-                Timer = -0.1f;
-                Frame = 0;
-                CreateNetObject($"<size={Size}><line-height=67%><font=\"VCR SDF\"><br><#0000>███<#ff0000>█<#0000>███<br><#ff0000>█<#0000>█<#ff0000>███<#0000>█<#ff0000>█<br>█<#ff8000>██<#ffff00>█<#ff8000>██<#ffff00>█<br>██<#ff8000>█<#ffff00>█<#ff8000>█<#ffff00>██<br><#ff8000>█<#ffff80>██<#ffff00>█<#ffff80>██<#ff8000>█<br><#0000>█<#ff8000>█<#ffff80>███<#ff8000>█<#0000>█<br>██<#ff8000>███<#0000>██", position);
-            }
-
-            protected override void OnFixedUpdate()
-            {
-                base.OnFixedUpdate();
-
-                Timer += Time.deltaTime;
-                if (Timer >= Duration / 5f && Frame == 0)
-                {
-                    RpcChangeSprite($"<size={Size}><line-height=67%><font=\"VCR SDF\"><br><#0000>█<#ff0000>█<#0000>█<#ff0000>█<#0000>█<#ff0000>█<#0000>█<br><#ff0000>█<#ff8000>█<#ff0000>█<#ff8000>█<#ff0000>█<#ff8000>█<#ff0000>█<br><#ff8000>██<#ffff00>█<#ff8000>█<#ffff00>█<#ff8000>██<br><#ffff00>███████<br><#ff8000>█<#ffff00>█████<#ff8000>█<br>██<#ffff00>█<#ff8000>█<#ffff00>█<#ff8000>██<br><#ff0000>█<#0000>█<#ff8000>█<#ff0000>█<#ff8000>█<#0000>█<#ff0000>█");
-                    Frame = 1;
-                }
-
-                if (Timer >= Duration / 5f * 2f && Frame == 1)
-                {
-                    RpcChangeSprite($"<size={Size}><line-height=67%><font=\"VCR SDF\"><br><#0000>█<#c0c0c0>█<#ff0000>█<#000000>█<#ff0000>█<#c0c0c0>█<#0000>█<br><#c0c0c0>█<#808080>█<#ff0000>█<#ff8000>█<#ff0000>█<#c0c0c0>██<br><#ff0000>██<#ff8000>█<#ffff00>█<#ff8000>█<#ff0000>██<br><#c0c0c0>█<#ff8000>█<#ffff00>█<#ffff80>█<#ffff00>█<#ff8000>█<#808080>█<br><#ff0000>██<#ff8000>█<#ffff00>█<#ff8000>█<#ff0000>██<br><#c0c0c0>█<#808080>█<#ff0000>█<#ff8000>█<#ff0000>█<#000000>█<#c0c0c0>█<br><#0000>█<#c0c0c0>█<#ff0000>█<#c0c0c0>█<#ff0000>█<#c0c0c0>█<#0000>█");
-                    Frame = 2;
-                }
-
-                if (Timer >= Duration / 5f * 3f && Frame == 2)
-                {
-                    RpcChangeSprite($"<size={Size}><line-height=67%><font=\"VCR SDF\"><br><#ff0000>█<#ff8000>█<#0000>█<#808080>█<#0000>█<#ff8000>█<#ff0000>█<br><#ff8000>█<#0000>█<#ffff00>█<#c0c0c0>█<#ffff00>█<#0000>█<#ff8000>█<br><#0000>█<#ffff00>█<#c0c0c0>███<#ffff00>█<#0000>█<br><#808080>█<#c0c0c0>█████<#808080>█<br><#0000>█<#ffff00>█<#c0c0c0>███<#ffff00>█<#0000>█<br><#ff8000>█<#0000>█<#ffff00>█<#c0c0c0>█<#ffff00>█<#0000>█<#ff8000>█<br><#ff0000>█<#ff8000>█<#0000>█<#808080>█<#0000>█<#ff8000>█<#ff0000>█");
-                    Frame = 3;
-                }
-
-                if (Timer >= Duration / 5f * 4f && Frame == 3)
-                {
-                    RpcChangeSprite($"<size={Size}><line-height=67%><font=\"VCR SDF\"><br><#0000>█<#808080>█<#0000>██<#c0c0c0>█<#0000>█<#808080>█<br><#ffff00>█<#0000>██<#c0c0c0>█<#0000>█<#808080>█<#0000>█<br>█<#808080>█<#c0c0c0>████<#0000>█<br>█<#c0c0c0>██████<br>█<#0000>█<#c0c0c0>███<#808080>█<#0000>█<br>█<#c0c0c0>█<#0000>█<#c0c0c0>█<#0000>█<#c0c0c0>██<br><#808080>█<#0000>█<#c0c0c0>█<#0000>█<#808080>█<#0000>█<#ffff00>█");
-                    Frame = 4;
-                }
-
-                if (Timer >= Duration && Frame == 4)
-                {
-                    Despawn();
-                }
-            }
-        }
-
-        internal sealed class TrapArea : CustomNetObject
-        {
-            private readonly float Size;
-            public readonly List<byte> VisibleList;
-            private readonly float WaitDuration;
-            private int State;
-            private float Timer;
-
-            public TrapArea(float radius, float waitDuration, Vector2 position, List<byte> visibleList)
-            {
-                VisibleList = visibleList;
-                Size = radius * 25f;
-                Timer = -0.1f;
-                WaitDuration = waitDuration;
-                State = 0;
-                CreateNetObject($"<size={Size}><font=\"VCR SDF\"><#c7c7c769>●", position);
-                Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
-            }
-
-            protected override void OnFixedUpdate()
-            {
-                base.OnFixedUpdate();
-
-                Timer += Time.deltaTime;
-                if (Timer >= WaitDuration * 0.75f && State == 0)
-                {
-                    RpcChangeSprite($"<size={Size}><font=\"VCR SDF\"><#fff70069>●");
-                    State = 1;
-                }
-
-                if (Timer >= WaitDuration * 0.95f && State == 1)
-                {
-                    RpcChangeSprite($"<size={Size}><font=\"VCR SDF\"><#ff000069>●");
-                    State = 2;
-                }
-            }
-        }
-    */
     internal sealed class TornadoObject : CustomNetObject
     {
         private readonly long SpawnTimeStamp;
@@ -626,7 +554,7 @@ internal static class RawSetNamePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
     {
-        if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return true;
+        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return true;
 
         var exception = false;
 

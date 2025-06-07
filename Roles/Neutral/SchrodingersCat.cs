@@ -44,7 +44,7 @@ internal class SchrodingersCat : RoleBase
         var hasValue = false;
 
         target.RpcSetCustomRole(killerRole);
-        hasValue |= target.RpcChangeRoleBasis(killerRole, sender: sender);
+        target.RpcChangeRoleBasis(killerRole);
 
         hasValue |= sender.SetKillCooldown(killer, 5f);
 

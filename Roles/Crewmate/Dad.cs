@@ -157,7 +157,7 @@ public class Dad : RoleBase
         Arrows = string.Empty;
         StartingSpeed = Main.AllPlayerSpeed[playerId];
         DrunkPlayers = [];
-        playerId.SetAbilityUseLimit(StartingMoney.GetInt());
+        playerId.SetAbilityUseLimit(StartingMoney.GetFloat());
         Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 1, Shop.Id);
     }
 
@@ -228,48 +228,47 @@ public class Dad : RoleBase
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (ventId == Shop.Id || UsingAbilities.Contains(Ability.Sleep)) return;
+        if (vent.Id == Shop.Id || UsingAbilities.Contains(Ability.Sleep)) return;
 
         if (AbilityAlcoholRequirement[SelectedAbility].GetInt() > Alcohol)
         {
-            physics.myPlayer.Notify(Translator.GetString("Dad.AbilityNotAvailable"));
+            pc.Notify(Translator.GetString("Dad.AbilityNotAvailable"));
             return;
         }
 
         switch (SelectedAbility)
         {
             case Ability.GoForMilk:
-                LateTask.New(() => physics.RpcExitVent(ventId), 1f, log: false);
-                LateTask.New(() => physics.myPlayer.TP(Pelican.GetBlackRoomPS()), 2f, log: false);
+                LateTask.New(() => pc.TP(Pelican.GetBlackRoomPS()), 2f, log: false);
                 Main.AllAlivePlayerControls.NotifyPlayers(Translator.GetString("Dad.GoForMilkNotify"), 10f);
                 UsingAbilities.Add(SelectedAbility);
                 break;
             case Ability.SuperVision:
                 SuperVisionTS = Utils.TimeStamp;
                 UsingAbilities.Add(SelectedAbility);
-                physics.myPlayer.MarkDirtySettings();
+                pc.MarkDirtySettings();
                 break;
             case Ability.Sniffing:
                 AllDeadBodies.Do(x => LocateArrow.Add(DadId, x));
-                Arrows = LocateArrow.GetArrows(physics.myPlayer);
+                Arrows = LocateArrow.GetArrows(pc);
                 LocateArrow.RemoveAllTarget(DadId);
-                Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 2, Arrows);
                 break;
             case Ability.Sleep:
                 Main.AllPlayerSpeed[DadId] = Main.MinSpeed;
                 UsingAbilities.Add(SelectedAbility);
-                physics.myPlayer.MarkDirtySettings();
+                pc.MarkDirtySettings();
                 break;
             case Ability.Rage:
                 UsingAbilities.Add(SelectedAbility);
                 break;
             case Ability.GiveDrink:
-                Vector2 pos = physics.myPlayer.Pos();
-                DrunkPlayers = Main.AllAlivePlayerControls.Without(physics.myPlayer).Where(x => Vector2.Distance(x.Pos(), pos) <= GivingDrinkRange.GetFloat()).Select(x => x.PlayerId).ToList();
-                Utils.NotifyRoles(SpecifySeer: physics.myPlayer);
+                Vector2 pos = pc.Pos();
+                DrunkPlayers = Main.AllAlivePlayerControls.Without(pc).Where(x => Vector2.Distance(x.Pos(), pos) <= GivingDrinkRange.GetFloat()).Select(x => x.PlayerId).ToList();
+                Utils.NotifyRoles(SpecifySeer: pc);
                 break;
             case Ability.BecomeGodOfAlcohol:
                 Alcohol = 1;
@@ -278,7 +277,7 @@ public class Dad : RoleBase
         }
 
         Alcohol -= AbilityAlcoholDecreaseOptions[SelectedAbility].GetInt();
-        NotifyIfNecessary(physics.myPlayer);
+        NotifyIfNecessary(pc);
     }
 
     public override void OnExitVent(PlayerControl pc, Vent vent)

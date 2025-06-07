@@ -314,10 +314,8 @@ public class Magician : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (pc == null) return;
-
         if (!GameStates.IsInTask) return;
-
-        if (Pelican.IsEaten(pc.PlayerId) || pc.Data.IsDead) return;
+        if (Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive()) return;
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
@@ -360,7 +358,7 @@ public class Magician : RoleBase
 
         if (BlindPpl.Count > 0)
         {
-            foreach (KeyValuePair<byte, long> x in BlindPpl.Where(x => x.Value + BlindDur.GetInt() < TimeStamp))
+            foreach (KeyValuePair<byte, long> x in BlindPpl.Where(x => x.Value + BlindDur.GetInt() < TimeStamp).ToArray())
             {
                 BlindPpl.Remove(x.Key);
                 GetPlayerById(x.Key).MarkDirtySettings();
@@ -369,7 +367,7 @@ public class Magician : RoleBase
 
         if (Bombs.Count > 0)
         {
-            foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < TimeStamp))
+            foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < TimeStamp).ToArray())
             {
                 var b = false;
                 IEnumerable<PlayerControl> players = GetPlayersInRadius(BombRadius.GetFloat(), bomb.Key);

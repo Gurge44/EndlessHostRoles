@@ -47,7 +47,7 @@ public static class OptionShower
             sb.Append($"<color=#ff0000>{GetString("Message.HideGameSettings")}</color>");
         else
         {
-            if (CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
                 sb.Append(GetString("ActiveRolesList")).Append('\n');
@@ -80,7 +80,7 @@ public static class OptionShower
 
             var index = 0;
 
-            if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek)
             {
                 foreach (KeyValuePair<CustomRoles, StringOptionItem> kvp in Options.CustomRoleSpawnChances)
                 {

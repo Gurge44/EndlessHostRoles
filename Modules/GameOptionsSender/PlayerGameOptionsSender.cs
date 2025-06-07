@@ -120,7 +120,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
             {
                 Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[(Index)i];
-                if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.GetClientId());
+                if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.OwnerId);
             }
         }
         catch (Exception ex) { Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray"); }
@@ -152,7 +152,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.AllInOne:
                 case CustomGameMode.FFA:
                     if (FreeForAll.FFALowerVisionList.ContainsKey(player.PlayerId))
                     {
@@ -162,7 +161,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     }
                     else SetMaxVision();
 
-                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.NaturalDisasters;
                     break;
                 case CustomGameMode.CaptureTheFlag:
                     CaptureTheFlag.ApplyGameOptions();
@@ -171,7 +169,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.NaturalDisasters:
                     SetMaxVision();
                     NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
-                    if (Options.CurrentGameMode == CustomGameMode.AllInOne) goto case CustomGameMode.RoomRush;
                     break;
                 case CustomGameMode.RoomRush when RoomRush.VentLimit[player.PlayerId] > 0:
                     AURoleOptions.EngineerCooldown = 0.01f;
@@ -293,12 +290,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     break;
             }
 
-            if (state.Role.SeesArrowsToDeadBodies && !player.Is(CustomRoles.Blind))
-            {
-                AURoleOptions.NoisemakerImpostorAlert = true;
-                AURoleOptions.NoisemakerAlertDuration = 300f;
-            }
-
             Siren.ApplyGameOptionsForOthers(opt, player.PlayerId);
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
             President.OnAnyoneApplyGameOptions(opt);
@@ -336,6 +327,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             if (Randomizer.HasSuperVision(player)) SetMaxVision();
             else if (Randomizer.IsBlind(player)) SetBlind();
+
+            RoleTypes roleTypes = player.GetRoleTypes();
 
             foreach (CustomRoles subRole in state.SubRoles)
             {
@@ -398,33 +391,72 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                         opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision / 2f);
                         opt.SetFloat(FloatOptionNames.ImpostorFlashlightSize, Main.DefaultImpostorVision / 2f);
                         break;
-                    case CustomRoles.Nimble when player.GetRoleTypes() == RoleTypes.Engineer:
+                    case CustomRoles.Nimble when roleTypes == RoleTypes.Engineer:
                         AURoleOptions.EngineerCooldown = Nimble.NimbleCD.GetFloat();
                         AURoleOptions.EngineerInVentMaxTime = Nimble.NimbleInVentTime.GetFloat();
                         break;
-                    case CustomRoles.Physicist when player.GetRoleTypes() == RoleTypes.Scientist:
+                    case CustomRoles.Physicist when roleTypes == RoleTypes.Scientist:
                         AURoleOptions.ScientistCooldown = Physicist.PhysicistCD.GetFloat();
                         AURoleOptions.ScientistBatteryCharge = Physicist.PhysicistViewDuration.GetFloat();
                         break;
-                    case CustomRoles.Finder when player.GetRoleTypes() == RoleTypes.Tracker:
+                    case CustomRoles.Finder when roleTypes == RoleTypes.Tracker:
                         AURoleOptions.TrackerCooldown = Finder.FinderCD.GetFloat();
                         AURoleOptions.TrackerDuration = Finder.FinderDuration.GetFloat();
                         AURoleOptions.TrackerDelay = Finder.FinderDelay.GetFloat();
                         break;
-                    case CustomRoles.Noisy when player.GetRoleTypes() == RoleTypes.Noisemaker:
+                    case CustomRoles.Noisy when roleTypes == RoleTypes.Noisemaker:
                         AURoleOptions.NoisemakerImpostorAlert = Noisy.NoisyImpostorAlert.GetBool();
                         AURoleOptions.NoisemakerAlertDuration = Noisy.NoisyAlertDuration.GetFloat();
                         break;
                 }
             }
 
-            if (Magician.BlindPpl.ContainsKey(player.PlayerId)) SetBlind();
+            bool energeticIncreaseSpeed = false, energeticDecreaseCooldown = false;
 
-            if (player.IsCrewmate() && Main.PlayerStates.Values.Any(s => s.Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Lantern))) SetMaxVision();
+            if (state.SubRoles.Contains(CustomRoles.Energetic))
+            {
+                switch (roleTypes)
+                {
+                    case RoleTypes.Impostor:
+                        energeticDecreaseCooldown = true;
+                        break;
+                    case RoleTypes.Scientist:
+                        AURoleOptions.ScientistCooldown *= 0.75f;
+                        break;
+                    case RoleTypes.Engineer:
+                        AURoleOptions.EngineerCooldown *= 0.75f;
+                        break;
+                    case RoleTypes.GuardianAngel:
+                        AURoleOptions.GuardianAngelCooldown *= 0.75f;
+                        break;
+                    case RoleTypes.Shapeshifter:
+                        AURoleOptions.ShapeshifterCooldown *= 0.75f;
+                        break;
+                    case RoleTypes.Phantom:
+                        AURoleOptions.PhantomCooldown *= 0.75f;
+                        break;
+                    case RoleTypes.Tracker:
+                        AURoleOptions.TrackerCooldown *= 0.75f;
+                        break;
+                    case RoleTypes.CrewmateGhost:
+                    case RoleTypes.ImpostorGhost:
+                        break;
+                    default:
+                        energeticIncreaseSpeed = true;
+                        break;
+                }
+            }
 
-            if (Chemist.Instances.Any(x => x.IsBlinding && player.PlayerId != x.ChemistPC.PlayerId)) SetBlind();
+            if (Magician.BlindPpl.ContainsKey(player.PlayerId))
+                SetBlind();
 
-            if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out bool changed) && changed && player.GetRoleTypes() != RoleTypes.Shapeshifter)
+            if (player.IsCrewmate() && Main.PlayerStates.Values.Any(s => s.Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Lantern)))
+                SetMaxVision();
+
+            if (Chemist.Instances.Any(x => x.IsBlinding && player.PlayerId != x.ChemistPC.PlayerId))
+                SetBlind();
+
+            if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out bool changed) && changed && roleTypes != RoleTypes.Shapeshifter)
             {
                 AURoleOptions.ShapeshifterCooldown = 300f;
                 AURoleOptions.ShapeshifterDuration = 1f;
@@ -438,11 +470,15 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             AURoleOptions.EngineerCooldown = Mathf.Max(0.01f, AURoleOptions.EngineerCooldown);
 
             if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float killCooldown))
+            {
+                if (energeticDecreaseCooldown) killCooldown *= 0.75f;
                 AURoleOptions.KillCooldown = Mathf.Max(0.01f, killCooldown);
+            }
 
             if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out float speed))
             {
                 const float limit = 3f;
+                if (energeticIncreaseSpeed) speed *= 1.25f;
                 if (Mathf.Approximately(speed, 0f)) speed = Main.MinSpeed;
                 AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, -limit, limit);
             }

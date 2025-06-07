@@ -56,7 +56,7 @@ public class Jet : RoleBase, IHideAndSeekRole
             .SetColor(new(66, 245, 75, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);
 
-        UseLimit = new IntegerOptionItem(69_213_708, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.CrewmateRoles)
+        UseLimit = new FloatOptionItem(69_213_708, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.CrewmateRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(66, 245, 75, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);

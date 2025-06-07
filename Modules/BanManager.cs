@@ -151,14 +151,14 @@ public static class BanManager
             Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
         }
 
-        if (GameStates.CurrentServerType == GameStates.ServerType.Modded) return;
+        if (GameStates.CurrentServerType == GameStates.ServerType.Modded || GameStates.IsLocalGame) return;
 
         string friendcode = player.FriendCode.Replace(':', '#');
 
         if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
             Logger.Info($"{player.PlayerName} banned by EAC because their friend code is too short.", "EAC");
             return;
         }
@@ -167,7 +167,7 @@ public static class BanManager
         {
             // This is part of eac, so that's why it will say banned by EAC list.
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
             Logger.Info($"{player.PlayerName} EAC Banned because friendcode contains more than 1 #", "EAC");
             return;
         }
@@ -178,7 +178,7 @@ public static class BanManager
         if (Regex.IsMatch(friendcode[..friendcode.IndexOf("#", StringComparison.Ordinal)], pattern))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
             Logger.Info($"{player.PlayerName} was banned because of a spoofed friend code", "EAC");
             return;
         }
@@ -196,7 +196,6 @@ public static class BanManager
             AmongUsClient.Instance.KickPlayer(player.Id, true);
             Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
             Logger.Info($"{player.PlayerName} is on the EAC ban list", "BAN");
-            return;
         }
     }
 

@@ -42,7 +42,7 @@ internal class Provocateur : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+        Main.AllPlayerKillCooldown[id] = Options.AdjustedDefaultKillCooldown;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

@@ -17,10 +17,10 @@ namespace EHR;
 [HarmonyPatch(typeof(IntroCutscene._ShowRole_d__41), nameof(IntroCutscene._ShowRole_d__41.MoveNext))]
 static class ShowRoleMoveNextPatch
 {
-    public static void Postfix(IntroCutscene._ShowRole_d__41 __instance)
+    public static void Postfix(IntroCutscene._ShowRole_d__41 __instance, ref bool __result)
     {
-        if (AmongUsClient.Instance.AmHost) return;
-        
+        if (AmongUsClient.Instance.AmHost || __instance.__1__state != 1 || !__result) return;
+
         GameStates.InGame = true;
         SetUpRoleTextPatch.Postfix(__instance.__4__this);
     }
@@ -72,16 +72,18 @@ static class CoShowIntroPatch
             __instance.IsIntroDisplayed = true;
             __instance.LobbyTimerExtensionUI.HideAll();
             __instance.SetMapButtonEnabled(false);
-            DestroyableSingleton<HudManager>.Instance.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
 
-            yield return DestroyableSingleton<HudManager>.Instance.ShowEmblem(true);
+            HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+            hudManager.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
+
+            yield return hudManager.ShowEmblem(true);
             yield return CoBegin(Object.Instantiate(__instance.IntroPrefab, __instance.transform));
 
             PlayerControl.LocalPlayer.SetKillTimer(10f);
-            (ShipStatus.Instance.Systems[SystemTypes.Sabotage].Cast<SabotageSystemType>()).SetInitialSabotageCooldown();
+            (ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>()).SetInitialSabotageCooldown();
 
             if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType systemType) && systemType.TryCast<IDoorSystem>() != null)
-                (systemType.Cast<IDoorSystem>()).SetInitialSabotageCooldown();
+                (systemType.CastFast<IDoorSystem>()).SetInitialSabotageCooldown();
 
             yield return ShipStatus.Instance.PrespawnStep();
             PlayerControl.LocalPlayer.AdjustLighting();
@@ -115,7 +117,7 @@ static class CoShowIntroPatch
             else
             {
                 int adjustedNumImpostors = GameManager.Instance.LogicOptions.GetAdjustedNumImpostors(GameData.Instance.PlayerCount);
-                introCutscene.ImpostorText.text = adjustedNumImpostors == 1 ? DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsS) : DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsP, adjustedNumImpostors);
+                introCutscene.ImpostorText.text = adjustedNumImpostors == 1 ? FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsS) : FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsP, adjustedNumImpostors);
                 introCutscene.ImpostorText.text = introCutscene.ImpostorText.text.Replace("[FF1919FF]", "<color=#FF1919FF>");
                 introCutscene.ImpostorText.text = introCutscene.ImpostorText.text.Replace("[]", "</color>");
             }
@@ -256,16 +258,6 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("TMGPlayerInfo");
                     break;
                 }
-                case CustomGameMode.AllInOne:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#f542ad", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("AllInOne");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("AllInOneInfo");
-                    break;
-                }
                 default:
                 {
                     CustomRoles role = lp.GetCustomRole();
@@ -358,23 +350,28 @@ internal static class SetUpRoleTextPatch
         string disabledRoleStr = GetString("Rate0");
         var i = 0;
 
-        foreach (OptionItem o in OptionItem.AllOptions)
+        foreach ((TabGroup tab, OptionItem[] options) in Options.GroupedOptions)
         {
-            if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
-                sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
+            sb.Append($"\n----{GetString($"TabGroup.{tab}")}----\n");
 
-            if (i++ > 20)
+            foreach (OptionItem o in options)
             {
-                yield return null;
-                i = 0;
-            }
+                if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
+                    sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
-            continue;
+                if (i++ > 20)
+                {
+                    yield return null;
+                    i = 0;
+                }
 
-            bool AllParentsEnabled(OptionItem oi)
-            {
-                if (oi.Parent == null) return true;
-                return oi.Parent.GetBool() && AllParentsEnabled(oi.Parent);
+                continue;
+
+                bool AllParentsEnabled(OptionItem oi)
+                {
+                    if (oi.Parent == null) return true;
+                    return oi.Parent.GetBool() && AllParentsEnabled(oi.Parent);
+                }
             }
         }
 
@@ -457,7 +454,7 @@ internal static class BeginCrewmatePatch
             }
         }
 
-        if (CustomGameMode.FFA.IsActiveOrIntegrated() && FreeForAll.FFATeamMode.GetBool() && FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
+        if (Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool() && FreeForAll.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
         {
             teamToDisplay = new();
 
@@ -868,15 +865,6 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("TMGPlayerInfo");
                 break;
             }
-            case CustomGameMode.AllInOne:
-            {
-                __instance.TeamTitle.text = GetString("AllInOne");
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(245, 66, 173, byte.MaxValue);
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
-                __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = GetString("AllInOneInfo");
-                break;
-            }
         }
 
         return;
@@ -992,52 +980,34 @@ internal static class IntroCutsceneDestroyPatch
         {
             if (Main.NormalOptions.MapId != 4)
             {
-                var writer = CustomRpcSender.Create("IntroPatch - SyncSettings", SendOption.Reliable);
-                var hasData = false;
-
                 foreach (PlayerControl pc in aapc)
                 {
-                    writer.SyncSettings(pc);
-                    writer.RpcResetAbilityCooldown(pc);
-                    hasData = true;
+                    pc.SyncSettings();
+                    pc.RpcResetAbilityCooldown();
 
                     if (pc.GetCustomRole().UsesPetInsteadOfKill())
                         pc.AddAbilityCD(10);
                     else
                         pc.AddAbilityCD(false);
-
-                    if (writer.stream.Length > 400)
-                    {
-                        writer.SendMessage();
-                        writer = CustomRpcSender.Create("IntroPatch - SyncSettings", SendOption.Reliable);
-                        hasData = false;
-                    }
                 }
 
-                writer.SendMessage(!hasData);
-
-                if (CustomGameMode.Standard.IsActiveOrIntegrated())
+                if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
                     int kcd = Options.StartingKillCooldown.GetInt();
 
                     if (kcd is not 10 and > 0)
-                    {
-                        LateTask.New(() =>
-                        {
-                            var sender = CustomRpcSender.Create("Intro - FixKillCooldown", SendOption.Reliable);
-                            bool hasValue = aapc.Aggregate(false, (current, pc) => current || sender.SetKillCooldown(pc, kcd - 2));
-                            sender.SendMessage(!hasValue);
-                        }, 2f, "FixKillCooldownTask");
-                    }
+                        LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd - 2)), 2f, "FixKillCooldownTask");
                     else if (Options.FixFirstKillCooldown.GetBool())
                     {
                         LateTask.New(() =>
                         {
-                            var sender = CustomRpcSender.Create("Intro - FixKillCooldown", SendOption.Reliable);
-                            var hasValue = false;
-                            aapc.Do(x => x.ResetKillCooldown(false));
-                            aapc.Where(x => Main.AllPlayerKillCooldown[x.PlayerId] - 2f > 0f).Do(pc => hasValue |= sender.SetKillCooldown(pc, Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
-                            sender.SendMessage(!hasValue);
+                            aapc.Do(x =>
+                            {
+                                x.ResetKillCooldown(false);
+
+                                if (Main.AllPlayerKillCooldown.TryGetValue(x.PlayerId, out float kc) && kc - 2f > 0f)
+                                    x.SetKillCooldown(kc - 2f);
+                            });
                         }, 2f, "FixKillCooldownTask");
                     }
                     else Utils.SyncAllSettings();
@@ -1064,36 +1034,26 @@ internal static class IntroCutsceneDestroyPatch
                 LateTask.New(() => lp.SetKillCooldown(), 0.2f, log: false);
             }, 0.1f, log: false);
 
-            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.AllInOne)
+            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag)
             {
                 Main.ProcessShapeshifts = false;
 
                 LateTask.New(() =>
                 {
-                    var sender = CustomRpcSender.Create("Pet Assign On Game Start", SendOption.Reliable);
-
                     foreach (PlayerControl pc in aapc)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
+                        if (pc.CurrentOutfit.PetId != "") continue;
 
                         string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId, sender);
+                        PetsHelper.SetPet(pc, petId);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
-                    }
-
-                    sender.SendMessage();
-
-                    foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
-                    {
-                        playerInfo.MarkDirty();
-                        AmongUsClient.Instance.SendAllStreamedObjects();
                     }
                 }, 0.3f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
                 {
-                    var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                    var hasValue = sender.Notify(lp, GetString("GLHF"), 2f);
+                    lp.Notify(GetString("GLHF"), 2f);
 
                     foreach (PlayerControl pc in aapc)
                     {
@@ -1101,6 +1061,8 @@ internal static class IntroCutsceneDestroyPatch
 
                         try
                         {
+                            var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
+                            
                             if (AmongUsClient.Instance.AmClient)
                                 pc.Shapeshift(pc, false);
 
@@ -1111,19 +1073,10 @@ internal static class IntroCutsceneDestroyPatch
 
                             sender.Notify(pc, GetString("GLHF"), 2f);
 
-                            hasValue = true;
+                            sender.SendMessage();
                         }
                         catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
-
-                        if (sender.stream.Length > 400)
-                        {
-                            sender.SendMessage();
-                            sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                            hasValue = false;
-                        }
                     }
-
-                    sender.SendMessage(!hasValue);
                 }, 0.4f, "Show Pet For Everyone");
 
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
@@ -1134,23 +1087,18 @@ internal static class IntroCutsceneDestroyPatch
                 System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
                 if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
 
-                var sender = CustomRpcSender.Create("Set Spectators Dead", SendOption.Reliable);
-                spectators.ForEach(sender.RpcExileV2);
-                sender.SendMessage(spectators.Count == 0);
                 spectators.ForEach(x =>
                 {
+                    x.RpcExileV2();
                     Main.PlayerStates[x.PlayerId].SetDead();
-                    Utils.AfterPlayerDeathTasks(x);
                 });
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && !CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated() && !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
+            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.CaptureTheFlag && Options.CurrentGameMode != CustomGameMode.KingOfTheZones)
             {
                 var map = RandomSpawn.SpawnMap.GetSpawnMap();
-                var sender = CustomRpcSender.Create("IntroPatch - RandomSpawns TP", SendOption.Reliable);
-                var hasValue = aapc.Aggregate(false, (current, player) => current || map.RandomTeleport(player, sender));
-                sender.SendMessage(dispose: !hasValue);
+                aapc.Do(map.RandomTeleport);
             }
 
             try
@@ -1176,26 +1124,27 @@ internal static class IntroCutsceneDestroyPatch
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            if (CustomGameMode.KingOfTheZones.IsActiveOrIntegrated())
-                Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
-
-            if (CustomGameMode.HotPotato.IsActiveOrIntegrated())
-                HotPotato.OnGameStart();
-
-            if (CustomGameMode.Quiz.IsActiveOrIntegrated())
-                Main.Instance.StartCoroutine(Quiz.OnGameStart());
-
-            if (CustomGameMode.MoveAndStop.IsActiveOrIntegrated())
-                MoveAndStop.OnGameStart();
-
-            if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
-                Main.Instance.StartCoroutine(TheMindGame.OnGameStart());
-
-            LateTask.New(() =>
+            switch (Options.CurrentGameMode)
             {
-                if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
-                    CaptureTheFlag.OnGameStart();
-            }, 0.2f, log: false);
+                case CustomGameMode.KingOfTheZones:
+                    Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
+                    break;
+                case CustomGameMode.HotPotato:
+                    HotPotato.OnGameStart();
+                    break;
+                case CustomGameMode.Quiz:
+                    Main.Instance.StartCoroutine(Quiz.OnGameStart());
+                    break;
+                case CustomGameMode.MoveAndStop:
+                    MoveAndStop.OnGameStart();
+                    break;
+                case CustomGameMode.TheMindGame:
+                    Main.Instance.StartCoroutine(TheMindGame.OnGameStart());
+                    break;
+                case CustomGameMode.CaptureTheFlag:
+                    Main.Instance.StartCoroutine(CaptureTheFlag.OnGameStart());
+                    break;
+            }
 
             Utils.CheckAndSetVentInteractions();
 
@@ -1210,5 +1159,11 @@ internal static class IntroCutsceneDestroyPatch
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");
+
+        LateTask.New(() =>
+        {
+            if (Main.CurrentMap == MapNames.Airship && Vector2.Distance(PlayerControl.LocalPlayer.Pos(), new Vector2(-25f, 40f)) < 8f)
+                PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
+        }, 4f, "Airship Spawn FailSafe");
     }
 }

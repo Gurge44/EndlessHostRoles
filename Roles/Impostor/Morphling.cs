@@ -19,7 +19,7 @@ public class Morphling : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Morphling);
 
-        KillCooldown = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 60f, 0.5f), 10f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Morphling])
             .SetValueFormat(OptionFormat.Seconds);
 

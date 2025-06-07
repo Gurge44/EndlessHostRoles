@@ -152,7 +152,7 @@ public class Psychic : RoleBase
         EndOfSelect:
 
         Logger.Info($"Requires {CanSeeNum.GetInt()} red names, of which {ENum} evil names are required. After calculation, {RedPlayer.Count} red names are displayed.", "Psychic");
-        RedPlayer.Do(x => Logger.Info($"Red for Psychic：{x}: {Main.AllPlayerNames[x]}", "Psychic"));
+        RedPlayer.Do(x => Logger.Info($"Red for Psychic: {x}: {Main.AllPlayerNames[x]}", "Psychic"));
         SendRPC();
     }
 }

@@ -100,7 +100,7 @@ public class Snitch : RoleBase
 
     public static void CheckTask(PlayerControl snitch)
     {
-        if (!snitch.IsAlive() || snitch.Is(CustomRoles.Madmate)) return;
+        if (!snitch.IsAlive() || snitch.Is(CustomRoles.Madmate) || snitch.IsConverted()) return;
 
         byte snitchId = snitch.PlayerId;
         TaskState snitchTask = snitch.GetTaskState();

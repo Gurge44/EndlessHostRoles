@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using EHR.Crewmate;
 using EHR.Modules;
-using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -33,7 +32,7 @@ public class Mastermind : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mastermind);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
             .SetValueFormat(OptionFormat.Seconds);
 
         // Manipulation Cooldown = Kill Cooldown + Delay + Time Limit
@@ -142,7 +141,7 @@ public class Mastermind : RoleBase
 
             long time = TimeLimit.GetInt() - (TimeStamp - x.Value);
 
-            player.Notify(string.Format(GetString("ManipulateNotify"), time), 3f);
+            player.Notify(string.Format(GetString("ManipulateNotify"), time), 3f, true);
         }
     }
 
@@ -183,23 +182,13 @@ public class Mastermind : RoleBase
             return false;
         }
 
-        var sender = CustomRpcSender.Create("Mastermind.ForceKillForManipulatedPlayer", SendOption.Reliable);
-
-        const MurderResultFlags resultFlags = (MurderResultFlags)(8 | 1);
-        if (AmongUsClient.Instance.AmClient) killer.MurderPlayer(target, resultFlags);
-        sender.AutoStartRpc(killer.NetId, 12);
-        sender.WriteNetObject(target);
-        sender.Write((int)resultFlags);
-        sender.EndRpc();
-
-        sender.Notify(killer, GetString("MastermindTargetSurvived"));
-        killer.RpcChangeRoleBasis(killer.GetCustomRole(), sender: sender);
-
-        sender.SendMessage();
+        killer.Kill(target);
+        killer.Notify(GetString("MastermindTargetSurvived"));
+        killer.RpcChangeRoleBasis(killer.GetCustomRole());
 
         LateTask.New(() =>
         {
-            float kcd = TempKCDs.TryGetValue(killer.PlayerId, out float cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, DefaultKillCooldown);
+            float kcd = TempKCDs.TryGetValue(killer.PlayerId, out float cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, AdjustedDefaultKillCooldown);
             killer.SetKillCooldown(kcd);
             TempKCDs.Remove(killer.PlayerId);
         }, 0.1f, "Set KCD for Manipulated Kill");

@@ -71,7 +71,7 @@ public class Succubus : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(CharmMax.GetInt());
+        playerId.SetAbilityUseLimit(CharmMax.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -86,7 +86,7 @@ public class Succubus : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
+        return player.IsAlive() && player.GetAbilityUseLimit() >= 1;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -113,14 +113,13 @@ public class Succubus : RoleBase
             var hasValue = false;
 
             hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("SuccubusCharmedPlayer")));
-            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("CharmedBySuccubus")));
-
             hasValue |= sender.SetKillCooldown(killer);
-            hasValue |= sender.RpcGuardAndKill(target, killer);
-            hasValue |= sender.RpcGuardAndKill(target, target);
-
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
+
+            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Succubus), GetString("CharmedBySuccubus")));
+            hasValue |= sender.RpcGuardAndKill(target, killer);
+            hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
             if (cleared) hasValue = false;
 

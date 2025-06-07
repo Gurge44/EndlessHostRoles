@@ -29,7 +29,7 @@ public class EvilDiviner : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilDiviner);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -37,7 +37,7 @@ public class EvilDiviner : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
             .SetValueFormat(OptionFormat.Times);
 
-        EdAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
+        EdAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
             .SetValueFormat(OptionFormat.Times);
     }

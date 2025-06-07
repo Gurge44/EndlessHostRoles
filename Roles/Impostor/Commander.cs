@@ -85,9 +85,9 @@ internal class Commander : RoleBase
         }
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (!Options.UsePets.GetBool()) CycleMode(physics.myPlayer);
+        if (!Options.UsePets.GetBool()) CycleMode(pc);
     }
 
     public override void OnPet(PlayerControl pc)

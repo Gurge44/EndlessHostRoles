@@ -14,11 +14,11 @@ public class Ventriloquist : RoleBase
     {
         Options.SetupRoleOptions(649650, TabGroup.ImpostorRoles, CustomRoles.Ventriloquist);
 
-        UseLimit = new IntegerOptionItem(649652, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.ImpostorRoles)
+        UseLimit = new FloatOptionItem(649652, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Ventriloquist])
             .SetValueFormat(OptionFormat.Times);
 
-        VentriloquistAbilityUseGainWithEachKill = new FloatOptionItem(649653, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
+        VentriloquistAbilityUseGainWithEachKill = new FloatOptionItem(649653, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 2f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Ventriloquist])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -32,6 +32,6 @@ public class Ventriloquist : RoleBase
     {
         On = true;
         Target = byte.MaxValue;
-        playerId.SetAbilityUseLimit(UseLimit.GetInt());
+        playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
 }

@@ -22,7 +22,7 @@ public class Hacker : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hacker);
 
-        KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -30,7 +30,7 @@ public class Hacker : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
 
-        HackerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles)
+        HackerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -44,7 +44,7 @@ public class Hacker : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(HackLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(HackLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

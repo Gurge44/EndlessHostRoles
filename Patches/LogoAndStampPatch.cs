@@ -6,7 +6,7 @@ using static EHR.Translator;
 
 namespace EHR;
 
-// Credit：https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/LogoAndStampPatch.cs
+// Credit: https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/LogoAndStampPatch.cs
 [HarmonyPatch]
 public static class CredentialsPatch
 {

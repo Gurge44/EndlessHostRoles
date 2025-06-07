@@ -46,7 +46,7 @@ internal class Ventguard : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(VentguardMaxGuards.GetInt());
+        playerId.SetAbilityUseLimit(VentguardMaxGuards.GetFloat());
     }
 
     public override void Init()

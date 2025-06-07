@@ -9,6 +9,7 @@ using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
+using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -90,7 +91,7 @@ internal static class OnGameJoinedPatch
                 else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType} (IsOnlineGame: {GameStates.IsOnlineGame})", "OnGameJoinedPatch");
             }, 5f, "NotifyLobbyCreated");
 
-            if (Options.AutoGMPollCommandAfterJoin.GetBool())
+            if (Options.AutoGMPollCommandAfterJoin.GetBool() && !Options.AutoGMRotationEnabled)
             {
                 Main.Instance.StartCoroutine(CoRoutine());
 
@@ -125,6 +126,46 @@ internal static class OnGameJoinedPatch
                     }
 
                     ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "/draftstart", ["/draftstart"]);
+                }
+            }
+
+            if (Options.AutoGMRotationEnabled)
+            {
+                Main.Instance.StartCoroutine(CoRoutine());
+
+                IEnumerator CoRoutine()
+                {
+                    yield return new WaitForSeconds(10f);
+
+                    try { Utils.SendMessage(HudManagerPatch.BuildAutoGMRotationStatusText(true), title: GetString("AutoGMRotationStatusText")); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
+                    CustomGameMode nextGM = Options.AutoGMRotationCompiled[Options.AutoGMRotationIndex];
+                    
+                    float timer;
+                    if (nextGM != CustomGameMode.All) timer = 0f;
+                    else if (Options.AutoGMPollCommandAfterJoin.GetBool()) timer = Options.AutoGMPollCommandCooldown.GetInt();
+                    else if (Main.AutoStart.Value) timer = (Options.MinWaitAutoStart.GetFloat() * 60) - 65;
+                    else timer = 30f;
+
+                    Logger.Info($"Auto GM Rotation timer: {timer}", "Auto GM Rotation");
+
+                    HudManagerPatch.AutoGMRotationCooldownTimerEndTS = Utils.TimeStamp + (int)timer;
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsLobby) yield break;
+                        timer -= Time.deltaTime;
+                        yield return null;
+                    }
+
+                    if (Options.AutoGMRotationEnabled)
+                    {
+                        if (nextGM == CustomGameMode.All) ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
+                        else Options.GameMode.SetValue((int)nextGM - 1);
+
+                        Logger.Info($"Auto GM Rotation: Next Game Mode = {nextGM}", "Auto GM Rotation");
+                    }
                 }
             }
         }
@@ -235,9 +276,9 @@ internal static class OnPlayerLeftPatch
         {
             if (GameStates.IsInGame && data != null && data.Character != null)
             {
-                if (CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
+                if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
 
-                if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
+                if (data.Character.Is(CustomRoles.Lovers) && data.Character.IsAlive())
                 {
                     foreach (PlayerControl lovers in Main.LoversPlayers)
                     {
@@ -307,7 +348,7 @@ internal static class OnPlayerLeftPatch
                         if (GameStates.IsOnlineGame)
                         {
                             var message = new DespawnGameDataMessage(netid);
-                            AmongUsClient.Instance.LateBroadcastReliableMessage(message.Cast<IGameDataMessage>());
+                            AmongUsClient.Instance.LateBroadcastReliableMessage(message.CastFast<IGameDataMessage>());
                         }
                     }, 2.5f, "Repeat Despawn", false);
                 }
@@ -380,7 +421,7 @@ internal static class InnerNetClientSpawnPatch
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
                     }
-                }, 7f, "Sync Lobby Timer RPC");
+                }, IRandom.Instance.Next(7, 13), "Sync Lobby Timer RPC");
             }
         }
 

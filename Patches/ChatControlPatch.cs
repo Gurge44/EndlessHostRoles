@@ -202,11 +202,15 @@ public static class ChatManager
                 break;
         }
 
-        if (CustomGameMode.FFA.IsActiveOrIntegrated() && GameStates.InGame && !message.StartsWith('/'))
-            FreeForAll.UpdateLastChatMessage(player.GetRealName(), message);
-
-        if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.InGame && operate != 1 && Banshee.On)
-            Banshee.OnReceiveChat();
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.FFA when GameStates.InGame && !message.StartsWith('/'):
+                FreeForAll.UpdateLastChatMessage(player.GetRealName(), message);
+                break;
+            case CustomGameMode.Standard when GameStates.InGame && operate != 1 && Banshee.On:
+                Banshee.OnReceiveChat();
+                break;
+        }
     }
 
     public static void AddChatHistory(PlayerControl player, string message)
@@ -262,13 +266,13 @@ public static class ChatManager
     {
         if (GameStates.IsLobby && senderPlayer.IsHost() && Main.AllPlayerNames.TryGetValue(senderPlayer.PlayerId, out var name))
         {
-            writer.AutoStartRpc(senderPlayer.NetId, (byte)RpcCalls.SetName, targetClientId)
+            writer.AutoStartRpc(senderPlayer.NetId, RpcCalls.SetName, targetClientId)
                 .Write(senderPlayer.Data.NetId)
                 .Write(name)
                 .EndRpc();
         }
 
-        writer.AutoStartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat, targetClientId)
+        writer.AutoStartRpc(senderPlayer.NetId, RpcCalls.SendChat, targetClientId)
             .Write(senderMessage)
             .EndRpc();
     }
@@ -289,7 +293,7 @@ public static class ChatManager
             bool toLocalPlayer = receiver.IsLocalPlayer();
             if (toLocalPlayer || receiver == null) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
             if (toLocalPlayer) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, receiver.GetClientId());
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, receiver.OwnerId);
             writer.Write("<size=32767>.");
             writer.Write(true);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

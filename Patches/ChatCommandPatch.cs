@@ -259,15 +259,14 @@ internal static class ChatCommands
     {
         if (__instance.quickChatField.visible) return true;
 
-        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty);
-
-        if (__instance.freeChatField.textArea.text == string.Empty) return false;
+        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty).Replace("\r", string.Empty);
+        
         __instance.timeSinceLastMessage = 3f;
 
         string text = __instance.freeChatField.textArea.text.Trim();
         var cancelVal = string.Empty;
 
-        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode == CustomGameMode.TheMindGame)
         {
             if (AmongUsClient.Instance.AmHost)
                 TheMindGame.OnChat(PlayerControl.LocalPlayer, text.ToLower());
@@ -329,7 +328,11 @@ internal static class ChatCommands
             Statistics.HasUsedAnyCommand = true;
         }
 
-        if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
+        if (CheckMute(PlayerControl.LocalPlayer.PlayerId))
+            goto Canceled;
+
+        if (text.IsNullOrWhiteSpace() || string.IsNullOrEmpty(text))
+            goto Canceled;
 
         goto Skip;
         Canceled:
@@ -559,7 +562,7 @@ internal static class ChatCommands
         }
 
         string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x).Replace(' ', '_')));
-        var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {GetString("GameModePoll.KeepCurrent").Replace(' ', '_')} {gmNames}";
+        var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
 
@@ -963,13 +966,15 @@ internal static class ChatCommands
         allRoles.RemoveAll(x => x.IsNonNK());
         allRoles.RemoveAll(x => x.IsCoven());
 
+        int maxRolesPerPlayer = Options.DraftMaxRolesPerPlayer.GetInt();
+
         DraftRoles = allRoles
-            .Take(allPlayerIds.Length * 5)
+            .Take(allPlayerIds.Length * maxRolesPerPlayer)
             .CombineWith(impRoles, nkRoles, nnkRoles, covenRoles)
             .Shuffle()
             .Partition(allPlayerIds.Length)
             .Zip(allPlayerIds)
-            .ToDictionary(x => x.Second, x => x.First.Take(5).ToList());
+            .ToDictionary(x => x.Second, x => x.First.Take(maxRolesPerPlayer).ToList());
 
         Main.Instance.StartCoroutine(RepeatedlySendMessage());
         return;
@@ -989,7 +994,7 @@ internal static class ChatCommands
 
                 messages.SendMultipleMessages(index == 0 ? SendOption.Reliable : SendOption.None);
 
-                yield return new WaitForSeconds(30f);
+                yield return new WaitForSeconds(20f);
                 if (DraftResult.Count >= DraftRoles.Count || !GameStates.IsLobby || GameStates.InGame) yield break;
             }
         }
@@ -1031,6 +1036,8 @@ internal static class ChatCommands
         CustomRoles role = roles[chosenIndex - 1];
         DraftResult[player.PlayerId] = role;
         Utils.SendMessage(string.Format(GetString("DraftChosen"), role.ToColoredString()), player.PlayerId, GetString("DraftTitle"));
+
+        if (DraftResult.Count >= DraftRoles.Count) Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, GetString("EveryoneDrafted"));
     }
 
     private static void MuteCommand(PlayerControl player, string text, string[] args)
@@ -1198,7 +1205,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
+        if (!player.Is(CustomRoles.Messenger) || Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
 
         Main.Instance.StartCoroutine(SendOnMeeting());
         return;
@@ -1248,17 +1255,18 @@ internal static class ChatCommands
         }
 
         int splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
-        string[] answers = args.Skip(splitIndex).ToArray();
+        string[] answers = args[splitIndex..];
 
-        string msg = string.Join(" ", args.Take(splitIndex).Skip(1)) + "\n";
+        string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
 
         PollTimer = gmPoll ? 60f : 45f;
+        Color[] gmPollColors = gmPoll ? Main.GameModeColors.Values.ToArray() : [];
 
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
             var choiceLetter = (char)(i + 65);
-            msg += Utils.ColorString(RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
+            msg += Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
             PollVotes[choiceLetter] = 0;
             PollAnswers[choiceLetter] = $"<size=70%>〖 {answers[i]} 〗</size>";
         }
@@ -1317,7 +1325,7 @@ internal static class ChatCommands
             if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
             {
                 int winnerIndex = winners[0].Key - 65;
-                if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex - 1);
+                Options.GameMode.SetValue(winnerIndex);
             }
         }
 
@@ -1698,14 +1706,14 @@ internal static class ChatCommands
         }
 
         // Prevent Moderators from kicking other Moderators
-        if (IsPlayerModerator(kickedPlayer.FriendCode))
+        if (IsPlayerModerator(kickedPlayer.FriendCode) && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandKickMod"), player.PlayerId, sendOption: SendOption.None);
             return;
         }
 
         // Kick the specified Player
-        AmongUsClient.Instance.KickPlayer(kickedPlayer.GetClientId(), args[0] == "/ban");
+        AmongUsClient.Instance.KickPlayer(kickedPlayer.OwnerId, args[0] == "/ban");
         string kickedPlayerName = kickedPlayer.GetRealName();
         var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
         if (GameStates.IsInGame) textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
@@ -1861,10 +1869,7 @@ internal static class ChatCommands
         PlayerControl votedPlayer = voteId.GetPlayer();
         if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
 
-        if (!player.IsHost())
-            MeetingHud.Instance.CastVote(player.PlayerId, voteId);
-        else
-            MeetingHud.Instance.CmdCastVote(player.PlayerId, voteId);
+        MeetingHud.Instance.CastVote(player.PlayerId, voteId);
     }
 
     private static void SayCommand(PlayerControl player, string text, string[] args)
@@ -1945,7 +1950,13 @@ internal static class ChatCommands
             return;
         }
 
-        if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) return;
+        if (!GameStates.IsLobby) return;
+
+        if (!Options.PlayerCanTPInAndOut.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
+        {
+            Utils.SendMessage(GetString("Message.OnlyVIPCanUse"), player.PlayerId, sendOption: SendOption.None);
+            return;
+        }
 
         player.TP(new Vector2(-0.2f, 1.3f));
     }
@@ -1958,7 +1969,13 @@ internal static class ChatCommands
             return;
         }
 
-        if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) return;
+        if (!GameStates.IsLobby) return;
+
+        if (!Options.PlayerCanTPInAndOut.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
+        {
+            Utils.SendMessage(GetString("Message.OnlyVIPCanUse"), player.PlayerId, sendOption: SendOption.None);
+            return;
+        }
 
         player.TP(new Vector2(0.1f, 3.8f));
     }
@@ -2321,12 +2338,20 @@ internal static class ChatCommands
         {
             case "crew":
                 GameManager.Instance.enabled = false;
-                GameManager.Instance.RpcEndGame(GameOverReason.CrewmateDisconnect, false);
+                GameManager.Instance.ShouldCheckForGameEnd = false;
+                MessageWriter msg = AmongUsClient.Instance.StartEndGame();
+                msg.Write((byte)6);
+                msg.Write(false);
+                AmongUsClient.Instance.FinishEndGame(msg);
                 break;
 
             case "imp":
                 GameManager.Instance.enabled = false;
-                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
+                GameManager.Instance.ShouldCheckForGameEnd = false;
+                MessageWriter msg2 = AmongUsClient.Instance.StartEndGame();
+                msg2.Write((byte)5);
+                msg2.Write(false);
+                AmongUsClient.Instance.FinishEndGame(msg2);
                 break;
 
             default:
@@ -2419,7 +2444,11 @@ internal static class ChatCommands
                 Main.NickName = args[1];
             else
             {
-                if (!Options.PlayerCanSetName.GetBool() && !IsPlayerVIP(player.FriendCode)) return;
+                if (!Options.PlayerCanSetName.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
+                {
+                    Utils.SendMessage(GetString("Message.OnlyVIPCanUse"), player.PlayerId, sendOption: SendOption.None);
+                    return;
+                }
 
                 if (GameStates.IsInGame)
                 {
@@ -3031,12 +3060,11 @@ internal static class ChatCommands
 
     private static void SendRolesInfo(string role, byte playerId, bool isDev = false, bool isUp = false)
     {
-        if (!CustomGameMode.Standard.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
             string text = GetString($"ModeDescribe.{Options.CurrentGameMode}");
-            bool allInOne = Options.CurrentGameMode == CustomGameMode.AllInOne;
-            Utils.SendMessage(allInOne ? "\n" : text, playerId, allInOne ? text : "", sendOption: SendOption.None);
-            if (!CustomGameMode.HideAndSeek.IsActiveOrIntegrated()) return;
+            Utils.SendMessage(text, playerId, sendOption: SendOption.None);
+            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
         }
 
         role = role.Trim().ToLower();
@@ -3108,8 +3136,7 @@ internal static class ChatCommands
             if (role.Equals(match, StringComparison.OrdinalIgnoreCase))
             {
                 string text = GetString($"ModeDescribe.{gameMode}");
-                bool allInOne = gameMode == CustomGameMode.AllInOne;
-                Utils.SendMessage(allInOne ? "\n" : text, playerId, allInOne ? text : gmString, sendOption: SendOption.None);
+                Utils.SendMessage(text, playerId, gmString, sendOption: SendOption.None);
                 return;
             }
         }
@@ -3126,7 +3153,7 @@ internal static class ChatCommands
 
         long now = Utils.TimeStamp;
 
-        if (LastSentCommand.TryGetValue(player.PlayerId, out long ts) && ts + 2 >= now)
+        if (LastSentCommand.TryGetValue(player.PlayerId, out long ts) && ts + 2 >= now && !player.IsModdedClient())
         {
             Logger.Warn("Chat message ignored, it was sent too soon after their last message", "ReceiveChat");
             return;
@@ -3142,7 +3169,7 @@ internal static class ChatCommands
 
         if (text.StartsWith("\n")) text = text[1..];
 
-        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode == CustomGameMode.TheMindGame && !player.IsModdedClient())
             TheMindGame.OnChat(player, text.ToLower());
 
         CheckAnagramGuess(player.PlayerId, text.ToLower());
@@ -3264,16 +3291,16 @@ internal static class ChatUpdatePatch
             player.SetName(name);
         }
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(title)
             .EndRpc();
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SendChat, clientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SendChat, clientId)
             .Write(msg)
             .EndRpc();
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, clientId)
             .Write(player.Data.NetId)
             .Write(player.Data.PlayerName)
             .EndRpc();

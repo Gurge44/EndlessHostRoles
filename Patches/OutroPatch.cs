@@ -69,7 +69,7 @@ internal static class EndGamePatch
 
             byte killerId = value.GetRealKiller();
             bool gmIsFm = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.AllInOne;
+            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -139,6 +139,19 @@ internal static class EndGamePatch
                         playedFCs.UnionWith(Main.AllPlayerControls.Select(x => x.FriendCode));
 
                     break;
+            }
+
+            if (Options.AutoGMRotationEnabled)
+            {
+                Options.AutoGMRotationIndex++;
+
+                if (Options.AutoGMRotationIndex >= Options.AutoGMRotationCompiled.Count)
+                {
+                    bool includesRandomChoice = Options.AutoGMRotationSlots.Exists(x => x.Slot.GetValue() == 2);
+
+                    if (includesRandomChoice) Options.CompileAutoGMRotationSettings();
+                    else Options.AutoGMRotationIndex = 0;
+                }
             }
         }
     }
@@ -258,14 +271,6 @@ internal static class SetEverythingUpPatch
                 __instance.BackgroundBar.material.color = Color.yellow;
                 winnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
                 winnerText.color = Color.yellow;
-                goto EndOfText;
-            }
-            case CustomGameMode.AllInOne:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = new Color32(245, 66, 173, 255);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
             }
         }
@@ -499,12 +504,10 @@ internal static class SetEverythingUpPatch
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            string winCounts = Utils.GetWinCountsString();
-
-            if (winCounts != string.Empty)
+            if (Statistics.WinCountsForOutro != string.Empty)
             {
                 sb.Append("\n\n\n");
-                sb.Append(winCounts);
+                sb.Append(Statistics.WinCountsForOutro);
             }
         }
 

@@ -39,7 +39,7 @@ internal class SecurityGuard : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(SecurityGuardSkillMaxOfUseage.GetInt());
+        playerId.SetAbilityUseLimit(SecurityGuardSkillMaxOfUseage.GetFloat());
     }
 
     public override void Init()

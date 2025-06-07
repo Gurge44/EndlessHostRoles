@@ -103,52 +103,23 @@ public class PotionMaster : Coven
         long now = Utils.TimeStamp;
         List<byte> toRemove = ShieldedPlayers.Where(x => now >= x.Value).Select(x => x.Key).ToList();
 
-        var sender = CustomRpcSender.Create("PotionMaster.OnFixedUpdate", SendOption.Reliable);
-        var hasValue = false;
-
         toRemove.ForEach(x =>
         {
             ShieldedPlayers.Remove(x);
             PlayerControl player = x.GetPlayer();
-
-            hasValue |= sender.NotifyRolesSpecific(pc, player, out sender, out bool cleared);
-            if (cleared) hasValue = false;
-            sender = RestartMessageIfTooLong();
-
-            hasValue |= sender.NotifyRolesSpecific(player, player, out sender, out cleared);
-            if (cleared) hasValue = false;
-            sender = RestartMessageIfTooLong();
-
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
+            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 2, x);
         });
 
         foreach (byte shieldedId in ShieldedPlayers.Keys)
         {
             PlayerControl player = shieldedId.GetPlayer();
-
-            hasValue |= sender.NotifyRolesSpecific(pc, player, out sender, out bool cleared);
-            if (cleared) hasValue = false;
-            sender = RestartMessageIfTooLong();
-
-            hasValue |= sender.NotifyRolesSpecific(player, player, out sender, out cleared);
-            if (cleared) hasValue = false;
-            sender = RestartMessageIfTooLong();
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
+            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
 
-        sender.SendMessage(dispose: !hasValue);
         return;
-
-        CustomRpcSender RestartMessageIfTooLong()
-        {
-            if (sender.stream.Length > 400)
-            {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("PotionMaster.OnFixedUpdate", SendOption.Reliable);
-                hasValue = false;
-            }
-
-            return sender;
-        }
     }
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)

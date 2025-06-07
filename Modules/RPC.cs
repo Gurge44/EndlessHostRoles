@@ -37,6 +37,9 @@ public enum CustomRPC
     SyncAllPlayerNames,
     SyncAllClientRealNames,
     SyncNameNotify,
+
+    KnCheat = 119,
+    
     ShowPopUp,
     KillFlash,
     SyncAbilityUseLimit,
@@ -69,10 +72,10 @@ public enum CustomRPC
     SetDrawPlayer,
     SyncHeadHunter,
     SyncRabbit,
-    SyncSoulHunter,
 
     BAU = 150,
 
+    SyncSoulHunter,
     SyncMycologist,
     SyncBubble,
     AddTornado,
@@ -85,10 +88,10 @@ public enum CustomRPC
     SyncMafiosoData,
     SyncMafiosoPistolCD,
     SyncDamoclesTimer,
-    SyncChronomancer,
 
     Sicko = 164,
 
+    SyncChronomancer,
     PenguinSync,
     SyncPlagueDoctor,
     SetAlchemistPotion,
@@ -171,7 +174,54 @@ public enum Sounds
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal static class RPCHandlerPatch
 {
-    public static readonly Dictionary<byte, int> NumRPCsThisSecond = [];
+    private static readonly Dictionary<byte, Dictionary<RpcCalls, int>> NumRPCsThisSecond = [];
+    private static readonly Dictionary<byte, long> RateLimitWhiteList = [];
+
+    // By Rabek009
+    public static Dictionary<RpcCalls, int> RpcRateLimit = new()
+    {
+        [RpcCalls.PlayAnimation] = 3,
+        [RpcCalls.CompleteTask] = 2,
+        [RpcCalls.CheckColor] = 10,
+        [RpcCalls.SendChat] = 2,
+        [RpcCalls.SetScanner] = 10,
+        [RpcCalls.SetStartCounter] = 15,
+        [RpcCalls.EnterVent] = 3,
+        [RpcCalls.ExitVent] = 3,
+        [RpcCalls.SnapTo] = 8,
+        [RpcCalls.ClimbLadder] = 1,
+        [RpcCalls.UsePlatform] = 20,
+        [RpcCalls.SendQuickChat] = 1,
+        [RpcCalls.SetHatStr] = 10,
+        [RpcCalls.SetSkinStr] = 10,
+        [RpcCalls.SetPetStr] = 10,
+        [RpcCalls.SetVisorStr] = 10,
+        [RpcCalls.SetNamePlateStr] = 10,
+        [RpcCalls.CheckMurder] = 25,
+        [RpcCalls.CheckProtect] = 25,
+        [RpcCalls.Pet] = 40,
+        [RpcCalls.CancelPet] = 40,
+        [RpcCalls.CheckZipline] = 1,
+        [RpcCalls.CheckSpore] = 5,
+        [RpcCalls.CheckShapeshift] = 10,
+        [RpcCalls.CheckVanish] = 10,
+        [RpcCalls.CheckAppear] = 10
+    };
+
+    public static void WhiteListFromRateLimitUntil(byte id, long timestamp)
+    {
+        if (RateLimitWhiteList.TryGetValue(id, out var ts) && ts > timestamp) return;
+        RateLimitWhiteList[id] = timestamp;
+    }
+
+    public static void RemoveExpiredWhiteList()
+    {
+        long ts = Utils.TimeStamp;
+
+        foreach (var key in RateLimitWhiteList.Keys.ToArray())
+            if (RateLimitWhiteList[key] < ts)
+                RateLimitWhiteList.Remove(key);
+    }
 
     private static bool TrustedRpc(byte id)
     {
@@ -188,8 +238,17 @@ internal static class RPCHandlerPatch
 
         if (__instance != null)
         {
-            if (NumRPCsThisSecond.TryAdd(__instance.PlayerId, 0)) LateTask.New(() => NumRPCsThisSecond.Remove(__instance.PlayerId), 1f, log: false);
-            NumRPCsThisSecond[__instance.PlayerId] += rpcType is RpcCalls.CheckMurder or RpcCalls.CheckProtect ? 1 : 2;
+            if (NumRPCsThisSecond.TryAdd(__instance.PlayerId, [])) LateTask.New(() => NumRPCsThisSecond.Remove(__instance.PlayerId), 1f, log: false);
+            Dictionary<RpcCalls, int> calls = NumRPCsThisSecond[__instance.PlayerId];
+            if (!calls.TryAdd(rpcType, 1)) calls[rpcType]++;
+
+            if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
+            {
+                AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
+                Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName));
+                Logger.Warn($"Sent {calls[rpcType]} RPCs of type {rpcType} ({callId}), which exceeds the limit of {limit}. Kicking player.", "Kick");
+                return false;
+            }
 
             switch (rpcType)
             {
@@ -226,16 +285,9 @@ internal static class RPCHandlerPatch
 
                 if (!EAC.ReceiveInvalidRpc(__instance, callId)) return false;
 
-                AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                 Logger.Warn($"The RPC received from {__instance.Data?.PlayerName} is not trusted, so they were kicked.", "Kick");
                 Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance.Data?.PlayerName));
-                return false;
-            }
-
-            if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && NumRPCsThisSecond.TryGetValue(__instance.PlayerId, out int times) && times > 50)
-            {
-                AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
-                Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName));
                 return false;
             }
         }
@@ -265,7 +317,7 @@ internal static class RPCHandlerPatch
 
                     if (reader.ReadString() != Main.ForkId)
                     {
-                        AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                        AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                         Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName));
                     }
 
@@ -326,7 +378,7 @@ internal static class RPCHandlerPatch
                                     string msg = string.Format(GetString("KickBecauseDiffrentVersionOrMod"), __instance.Data?.PlayerName);
                                     Logger.Warn(msg, "Version Kick");
                                     Logger.SendInGame(msg);
-                                    AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                                    AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                                 }
                             }, 5f, "Kick");
                         }
@@ -340,7 +392,7 @@ internal static class RPCHandlerPatch
 
                         LateTask.New(() =>
                         {
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance?.OwnerId ?? -1);
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }, 1f, "Retry Version Check Task");
                     }
@@ -966,9 +1018,8 @@ internal static class RPCHandlerPatch
                     int chargePercent = reader.ReadInt32();
                     long lastUpdate = long.Parse(reader.ReadString());
                     (Main.PlayerStates[id].Role as Chronomancer)?.ReceiveRPC(isRampaging, chargePercent, lastUpdate);
-                }
-
                     break;
+                }
                 case CustomRPC.SetMedicalerProtectList:
                 {
                     Medic.ReceiveRPCForProtectList(reader);
@@ -1146,7 +1197,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.FFAKill:
                 {
-                    if (!CustomGameMode.FFA.IsActiveOrIntegrated())
+                    if (Options.CurrentGameMode != CustomGameMode.FFA)
                     {
                         EAC.WarnHost();
                         EAC.Report(__instance, "FFA RPC when game mode is not FFA");
@@ -1290,7 +1341,7 @@ internal static class RPC
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, SendOption.Reliable, pc.GetClientId());
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, SendOption.Reliable, pc.OwnerId);
         writer.Write(msg);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -1366,7 +1417,14 @@ internal static class RPC
             try { GameManager.Instance.LogicFlow.CheckEndCriteria(); }
             catch { }
 
-            try { GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false); }
+            try
+            {
+                GameManager.Instance.ShouldCheckForGameEnd = false;
+                MessageWriter msg = AmongUsClient.Instance.StartEndGame();
+                msg.Write((byte)5);
+                msg.Write(false);
+                AmongUsClient.Instance.FinishEndGame(msg);
+            }
             catch { }
         }
     }

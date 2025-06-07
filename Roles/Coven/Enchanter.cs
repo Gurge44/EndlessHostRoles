@@ -22,7 +22,7 @@ public class Enchanter : Coven
     {
         StartSetup(650120)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityUseLimit, 2, new IntegerValueRule(1, 10, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 2f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
             .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
@@ -36,7 +36,7 @@ public class Enchanter : Coven
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

@@ -118,7 +118,7 @@ public static class NaturalDisasters
         BuildingCollapse.CollapsedRooms.Clear();
         BuildingCollapse.LastPosition.Clear();
 
-        if (!CustomGameMode.NaturalDisasters.IsActiveOrIntegrated()) return;
+        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return;
 
         Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values;
         if (rooms == null) return;
@@ -126,7 +126,7 @@ public static class NaturalDisasters
         float[] x = rooms.Select(r => r.x).ToArray();
         float[] y = rooms.Select(r => r.y).ToArray();
 
-        const float extend = 3.5f;
+        const float extend = 5f;
         MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
 
         GameStartTimeStamp = Utils.TimeStamp;
@@ -157,7 +157,7 @@ public static class NaturalDisasters
 
     public static void RecordDeath(PlayerControl pc, PlayerState.DeathReason deathReason)
     {
-        SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - GameStartTimeStamp);
+        SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - GameStartTimeStamp - 15);
 
         string message = Translator.GetString($"ND_DRLaughMessage.{deathReason}");
         message = Utils.ColorString(DeathReasonColor(deathReason), message);
@@ -202,7 +202,7 @@ public static class NaturalDisasters
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.NaturalDisasters.IsActiveOrIntegrated() || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
 
             UpdatePreparingDisasters();
 
@@ -249,9 +249,7 @@ public static class NaturalDisasters
             }
 
             long now = Utils.TimeStamp;
-
             int frequency = DisasterFrequency.GetInt();
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) frequency *= AllInOneGameMode.NaturalDisastersDisasterSpawnCooldownMultiplier.GetInt();
 
             if (now - LastDisaster >= frequency)
             {
@@ -273,19 +271,11 @@ public static class NaturalDisasters
 
                 SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
                 float warningTime = DisasterWarningTime.GetFloat();
-                if (Options.CurrentGameMode == CustomGameMode.AllInOne) warningTime *= AllInOneGameMode.NaturalDisastersWarningDurationMultiplier.GetInt();
                 PreparingDisasters.Add(new(position, warningTime, Sprite(disaster.Name), disaster.Name, room));
             }
 
             if (now - LastSync >= 10)
             {
-                if (Options.CurrentGameMode == CustomGameMode.AllInOne)
-                {
-                    BuildingCollapse.CollapsedRooms.Clear();
-                    Sinkhole.RemoveRandomSinkhole();
-                    Utils.NotifyRoles();
-                }
-
                 LastSync = now;
                 Utils.MarkEveryoneDirtySettings();
             }
@@ -474,7 +464,7 @@ public static class NaturalDisasters
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
-            DurationAfterFlowComplete = new IntegerOptionItem(id + 1, "ND_VolcanoEruption.DurationAfterFlowComplete", new(1, 120, 1), 10, TabGroup.GameSettings)
+            DurationAfterFlowComplete = new IntegerOptionItem(id + 1, "ND_VolcanoEruption.DurationAfterFlowComplete", new(1, 120, 1), 5, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -513,10 +503,9 @@ public static class NaturalDisasters
         private static OptionItem DurationOpt;
         private static OptionItem GoesThroughWalls;
         private static OptionItem MovingSpeed;
+        private static OptionItem AngleChangeFrequency;
 
         private float Angle = RandomAngle();
-        private int Count = 2;
-
         private long LastAngleChange = Utils.TimeStamp;
 
         public Tornado(Vector2 position, NaturalDisaster naturalDisaster) : base(position)
@@ -534,7 +523,7 @@ public static class NaturalDisasters
             const int id = 69_216_300;
             Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
 
-            DurationOpt = new IntegerOptionItem(id, "ND_Tornado.DurationOpt", new(1, 120, 1), 40, TabGroup.GameSettings)
+            DurationOpt = new IntegerOptionItem(id, "ND_Tornado.DurationOpt", new(1, 120, 1), 20, TabGroup.GameSettings)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
@@ -544,10 +533,15 @@ public static class NaturalDisasters
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color);
 
-            MovingSpeed = new FloatOptionItem(id + 2, "ND_Tornado.MovingSpeed", new(0f, 0.5f, 0.05f), 0.1f, TabGroup.GameSettings)
+            MovingSpeed = new FloatOptionItem(id + 2, "ND_Tornado.MovingSpeed", new(0f, 10f, 0.25f), 2f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Multiplier);
+
+            AngleChangeFrequency = new IntegerOptionItem(id + 3, "ND_Tornado.AngleChangeFrequency", new(1, 30, 1), 5, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetColor(color)
+                .SetValueFormat(OptionFormat.Seconds);
         }
 
         public override void Update()
@@ -555,7 +549,7 @@ public static class NaturalDisasters
             if (RemoveIfExpired()) return;
 
             const float eyeRange = Range / 4f;
-            const float dragRange = Range * 1.25f;
+            const float dragRange = Range * 1.5f;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
@@ -568,35 +562,33 @@ public static class NaturalDisasters
                         continue;
                     case <= dragRange:
                         Vector2 direction = (Position - pos).normalized;
-                        Vector2 newPosition = pos + (direction * 0.1f);
+                        Vector2 newPosition = pos + (direction * 0.15f);
                         pc.TP(newPosition, true);
                         continue;
                 }
             }
 
-            if (Count++ < 3) return;
-
-            Count = 0;
-
             float angle;
             long now = Utils.TimeStamp;
 
-            if (LastAngleChange + 7 <= now)
+            if (LastAngleChange + AngleChangeFrequency.GetInt() <= now)
             {
                 angle = RandomAngle();
                 LastAngleChange = now;
                 Angle = angle;
             }
-            else angle = Angle;
+            else
+                angle = Angle;
 
-            Vector2 newPos = Position + (new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * MovingSpeed.GetFloat());
+            float speed = MovingSpeed.GetFloat() * Time.fixedDeltaTime;
+            Vector2 addVector = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+            Vector2 newPos = Position + addVector * speed;
 
-            if ((!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos, Constants.ShipOnlyMask, false)) ||
+            if ((!GoesThroughWalls.GetBool() && PhysicsHelpers.AnythingBetween(NetObject.playerControl.Collider, Position, newPos + addVector * 2, Constants.ShipOnlyMask, false)) ||
                 newPos.x < MapBounds.X.Left || newPos.x > MapBounds.X.Right || newPos.y < MapBounds.Y.Bottom || newPos.y > MapBounds.Y.Top)
             {
                 Angle = RandomAngle();
                 LastAngleChange = now;
-                Count = 2;
                 return;
             }
 
@@ -773,8 +765,6 @@ public static class NaturalDisasters
 
         private readonly MovingDirection Direction;
 
-        private int Count = 1;
-
         public Tsunami(Vector2 position, NaturalDisaster naturalDisaster) : base(position)
         {
             NetObject = naturalDisaster;
@@ -793,7 +783,7 @@ public static class NaturalDisasters
             const int id = 69_216_600;
             Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
 
-            MovingSpeed = new FloatOptionItem(id, "ND_Tsunami.MovingSpeed", new(0.05f, 0.5f, 0.05f), 0.1f, TabGroup.GameSettings)
+            MovingSpeed = new FloatOptionItem(id, "ND_Tsunami.MovingSpeed", new(0.25f, 10f, 0.25f), 2f, TabGroup.GameSettings)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
@@ -821,11 +811,7 @@ public static class NaturalDisasters
                     pc.Suicide(PlayerState.DeathReason.Drowned);
             }
 
-            if (Count++ < 2) return;
-
-            Count = 0;
-
-            float speed = MovingSpeed.GetFloat();
+            float speed = MovingSpeed.GetFloat() * Time.fixedDeltaTime;
             Vector2 newPos = Position;
 
             switch (Direction)

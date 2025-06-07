@@ -16,7 +16,7 @@ internal class Freezer : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Freezer);
 
-        FreezeCooldown = new FloatOptionItem(Id + 2, "FreezeCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        FreezeCooldown = new FloatOptionItem(Id + 2, "FreezeCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
             .SetValueFormat(OptionFormat.Seconds);
 

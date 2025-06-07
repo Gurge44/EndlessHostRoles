@@ -26,8 +26,6 @@ public static class ModGameOptionsMenu
 [HarmonyPatch(typeof(GameOptionsMenu))]
 public static class GameOptionsMenuPatch
 {
-    public static long UIReloadTS;
-
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize))]
     [HarmonyPrefix]
     private static bool InitializePrefix(GameOptionsMenu __instance)
@@ -98,14 +96,14 @@ public static class GameOptionsMenuPatch
     {
         if (ModGameOptionsMenu.TabIndex < 3) return true;
 
+        var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
+
         __instance.scrollBar.SetYBoundsMax(CalculateScrollBarYBoundsMax());
         __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
         return false;
 
         IEnumerator CoRoutine()
         {
-            var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
-
             var num = 2.0f;
             const float posX = 0.952f;
             const float posZ = -2.0f;
@@ -115,7 +113,7 @@ public static class GameOptionsMenuPatch
                 OptionItem option = OptionItem.AllOptions[index];
                 if (option.Tab != modTab) continue;
 
-                bool enabled = !option.IsCurrentlyHidden() && (option.Parent == null || (!option.Parent.IsCurrentlyHidden() && option.Parent.GetBool())) && (option.Parent?.Parent == null || (!option.Parent.Parent.IsCurrentlyHidden() && option.Parent.Parent.GetBool())) && (option.Parent?.Parent?.Parent == null || (!option.Parent.Parent.Parent.IsCurrentlyHidden() && option.Parent.Parent.Parent.GetBool()));
+                bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
 
                 if (option is TextOptionItem)
                 {
@@ -132,7 +130,7 @@ public static class GameOptionsMenuPatch
 
                     if (enabled) num -= 0.63f;
                 }
-                else if (option.IsHeader && enabled) num -= 0.25f;
+                else if (option.IsHeader && enabled) num -= 0.18f;
 
                 if (option is TextOptionItem) continue;
 
@@ -176,8 +174,6 @@ public static class GameOptionsMenuPatch
                 if (index % 100 == 0) yield return null;
             }
 
-            yield return null;
-
             __instance.ControllerSelectable.Clear();
 
             foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>())
@@ -190,21 +186,31 @@ public static class GameOptionsMenuPatch
 
             foreach (OptionItem option in OptionItem.AllOptions)
             {
-                if (option.Tab != (TabGroup)(ModGameOptionsMenu.TabIndex - 3)) continue;
+                if (option.Tab != modTab) continue;
 
-                bool enabled = !option.IsCurrentlyHidden() && (option.Parent == null || (!option.Parent.IsCurrentlyHidden() && option.Parent.GetBool()));
+                bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
 
                 if (option is TextOptionItem)
                     num -= 0.63f;
                 else if (enabled)
                 {
-                    if (option.IsHeader) num -= 0.25f;
+                    if (option.IsHeader) num -= 0.18f;
 
                     num -= 0.45f;
                 }
             }
 
             return -num - 1.65f;
+        }
+
+        bool AllParentsEnabledAndVisible(OptionItem o)
+        {
+            while (true)
+            {
+                if (o == null) return true;
+                if (o.IsCurrentlyHidden() || !o.GetBool()) return false;
+                o = o.Parent;
+            }
         }
     }
 
@@ -255,21 +261,6 @@ public static class GameOptionsMenuPatch
             case OptionTypes.Checkbox:
             {
                 optionBehaviour.transform.FindChild("Toggle").localPosition = new(1.46f, -0.042f);
-                break;
-            }
-            case OptionTypes.String when option is BooleanOptionItem:
-            {
-                Transform plusButton = optionBehaviour.transform.FindChild("PlusButton");
-                Transform minusButton = optionBehaviour.transform.FindChild("MinusButton");
-                minusButton.GetComponentInChildren<TextMeshPro>().text = "↔";
-                minusButton.localPosition += new Vector3(0.9f, 0f, 0f);
-                plusButton.localPosition += new Vector3(500f, 500f, 500f);
-                Transform valueTMP = optionBehaviour.transform.FindChild("Value_TMP (1)");
-                valueTMP.localPosition += new Vector3(0.32f, 0f, 0f);
-                valueTMP.GetComponent<RectTransform>().sizeDelta = new(2.3f, 0.4f);
-                Transform valueBox = optionBehaviour.transform.FindChild("ValueBox");
-                valueBox.localScale -= new Vector3(0.35f, 0f, 0f);
-                valueBox.localPosition += new Vector3(0.32f, 0f, 0f);
                 break;
             }
             case OptionTypes.String:
@@ -337,7 +328,7 @@ public static class GameOptionsMenuPatch
                 categoryHeaderMasked.gameObject.SetActive(enabled);
                 if (enabled) num -= 0.63f;
             }
-            else if (option.IsHeader && enabled) num -= 0.25f;
+            else if (option.IsHeader && enabled) num -= 0.18f;
 
             if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out OptionBehaviour optionBehaviour))
             {
@@ -361,14 +352,10 @@ public static class GameOptionsMenuPatch
 
         switch (item)
         {
-            // ToggleOption doesn't work for Steam users.... no idea why
-            // So instead, we use a StringOption with two values and a button to swap it
-            case BooleanOptionItem booleanOptionItem:
-                var stringGameSettingBoolean = ScriptableObject.CreateInstance<StringGameSetting>();
-                stringGameSettingBoolean.Type = OptionTypes.String;
-                stringGameSettingBoolean.Values = new StringNames[2];
-                stringGameSettingBoolean.Index = booleanOptionItem.GetInt();
-                baseGameSetting = stringGameSettingBoolean;
+            case BooleanOptionItem:
+                var checkboxGameSetting = ScriptableObject.CreateInstance<CheckboxGameSetting>();
+                checkboxGameSetting.Type = OptionTypes.Checkbox;
+                baseGameSetting = checkboxGameSetting;
                 break;
             case IntegerOptionItem integerOptionItem:
                 var intGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
@@ -423,8 +410,6 @@ public static class GameOptionsMenuPatch
     // From MoreGamemodes, by Rabek009
     public static void ReloadUI()
     {
-        UIReloadTS = Utils.TimeStamp;
-
         int tab = ModGameOptionsMenu.TabIndex;
         if (GameSettingMenu.Instance == null) return;
         GameSettingMenu.Instance.Close();
@@ -449,6 +434,8 @@ public static class GameOptionsMenuPatch
             if (GameSettingMenu.Instance == null) return;
             GameSettingMenu.Instance.ChangeTab(tab, false);
         }, 0.01f);
+
+        LateTask.New(() => GameObject.Find("PlayerOptionsMenu(Clone)")?.transform.FindChild("What Is This?")?.gameObject.SetActive(false), 0.02f);
     }
 }
 
@@ -471,14 +458,17 @@ public static class ToggleOptionPatch
         return true;
     }
 
-    [HarmonyPatch(nameof(ToggleOption.UpdateValue))]
+    // For some reason, ToggleOption.UpdateValue isn't called for Steam users
+    [HarmonyPatch(nameof(ToggleOption.Toggle))]
     [HarmonyPrefix]
-    private static bool UpdateValuePrefix(ToggleOption __instance)
+    private static bool TogglePrefix(ToggleOption __instance)
     {
         if (ModGameOptionsMenu.OptionList.TryGetValue(__instance, out int index))
         {
+            __instance.CheckMark.enabled = !__instance.CheckMark.enabled;
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetBool() ? 1 : 0);
+            __instance.OnValueChanged.Invoke(__instance);
             NotificationPopperPatch.AddSettingsChangeMessage(index, item, true);
             return false;
         }
@@ -809,7 +799,6 @@ public static class StringOptionPatch
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
             string name = item.GetName();
-            if (item.Name == "GameMode" && GameSettingMenu.Instance) GameOptionsMenuPatch.ReloadUI();
 
             string name1 = name;
 
@@ -860,25 +849,12 @@ public static class StringOptionPatch
             __instance.MinusBtn.SetInteractable(true);
             __instance.PlusBtn.SetInteractable(true);
 
-            if (__instance.oldValue != __instance.Value)
+            if (__instance.oldValue != __instance.Value && OptionItem.AllOptions[index] is StringOptionItem stringOptionItem)
             {
-                switch (OptionItem.AllOptions[index])
-                {
-                    case StringOptionItem stringOptionItem:
-                    {
-                        __instance.oldValue = __instance.Value;
-                        string selection = stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)];
-                        if (!stringOptionItem.noTranslation) selection = Translator.GetString(selection);
-                        __instance.ValueText.text = selection;
-                        break;
-                    }
-                    case BooleanOptionItem booleanOptionItem:
-                    {
-                        __instance.oldValue = __instance.Value;
-                        __instance.ValueText.text = Translator.GetString(booleanOptionItem.GetBool() ? "ColoredOn" : "ColoredOff");
-                        break;
-                    }
-                }
+                __instance.oldValue = __instance.Value;
+                string selection = stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)];
+                if (!stringOptionItem.noTranslation) selection = Translator.GetString(selection);
+                __instance.ValueText.text = selection;
             }
 
             return false;
@@ -967,7 +943,7 @@ public static class GameSettingMenuPatch
         tabGroups = Options.CurrentGameMode switch
         {
             CustomGameMode.Standard => tabGroups,
-            CustomGameMode.HideAndSeek or CustomGameMode.AllInOne => tabGroups[..6],
+            CustomGameMode.HideAndSeek => tabGroups[..6],
             _ => tabGroups[..3]
         };
 
@@ -1084,15 +1060,19 @@ public static class GameSettingMenuPatch
         }));
 
         minus.activeTextColor = minus.inactiveTextColor = minus.disabledTextColor = minus.selectedTextColor = Color.white;
-
         minus.transform.localPosition = new(-2f, -3.37f, -4f);
-        minus.inactiveSprites.GetComponent<SpriteRenderer>().sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
-        minus.activeSprites.GetComponent<SpriteRenderer>().sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
-        minus.selectedSprites.GetComponent<SpriteRenderer>().sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
 
-        minus.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color32(55, 59, 60, 255);
-        minus.activeSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 255, 165, 255);
-        minus.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 165, 255, 255);
+        var inactiveSprites = minus.inactiveSprites.GetComponent<SpriteRenderer>();
+        var activeSprites = minus.activeSprites.GetComponent<SpriteRenderer>();
+        var selectedSprites = minus.selectedSprites.GetComponent<SpriteRenderer>();
+
+        inactiveSprites.sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+        activeSprites.sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+        selectedSprites.sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+
+        inactiveSprites.color = new Color32(55, 59, 60, 255);
+        activeSprites.color = new Color32(0, 255, 165, 255);
+        selectedSprites.color = new Color32(0, 165, 255, 255);
 
 
         GameObject plusFab = Object.Instantiate(gMinus, preset.transform);
@@ -1138,24 +1118,6 @@ public static class GameSettingMenuPatch
         CustomGameMode[] gms = Enum.GetValues<CustomGameMode>().SkipLast(1).ToArray();
         int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Length / 5f));
 
-        System.Collections.Generic.Dictionary<CustomGameMode, Color> gmColors = new()
-        {
-            [CustomGameMode.Standard] = Color.white,
-            [CustomGameMode.SoloKombat] = ColorUtility.TryParseHtmlString("#f55252", out var c) ? c : Color.white,
-            [CustomGameMode.FFA] = Color.cyan,
-            [CustomGameMode.MoveAndStop] = ColorUtility.TryParseHtmlString("#00ffa5", out c) ? c : Color.white,
-            [CustomGameMode.HotPotato] = ColorUtility.TryParseHtmlString("#e8cd46", out c) ? c : Color.white,
-            [CustomGameMode.HideAndSeek] = ColorUtility.TryParseHtmlString("#345eeb", out c) ? c : Color.white,
-            [CustomGameMode.Speedrun] = Utils.GetRoleColor(CustomRoles.Speedrunner),
-            [CustomGameMode.CaptureTheFlag] = ColorUtility.TryParseHtmlString("#1313c2", out c) ? c : Color.white,
-            [CustomGameMode.NaturalDisasters] = ColorUtility.TryParseHtmlString("#03fc4a", out c) ? c : Color.white,
-            [CustomGameMode.RoomRush] = Team.Neutral.GetColor(),
-            [CustomGameMode.KingOfTheZones] = Color.red,
-            [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
-            [CustomGameMode.TheMindGame] = Color.yellow,
-            [CustomGameMode.AllInOne] = ColorUtility.TryParseHtmlString("#f542ad", out c) ? c : Color.white
-        };
-
         GMButtons = [];
 
         for (var index = 0; index < gms.Length; index++)
@@ -1165,12 +1127,12 @@ public static class GameSettingMenuPatch
             var gmButton = Object.Instantiate(gMinus, gameSettingsLabel.transform, true);
             gmButton.transform.localPosition = new Vector3((((index / 7) - ((totalCols - 1) / 2f)) * 1.4f) + 0.86f, gameSettingsLabelPos.y - 1.9f - (0.22f * (index % 7)), -1f);
 
-            gmButton.transform.localScale = new(0.4f, 0.3f, 1f);
+            gmButton.transform.localScale = new(russian ? 0.5f : 0.4f, russian ? 0.37f : 0.3f, 1f);
             var gmButtonTmp = gmButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             gmButtonTmp.alignment = TextAlignmentOptions.Center;
             gmButtonTmp.DestroyTranslator();
             gmButtonTmp.text = Translator.GetString(gm.ToString()).ToUpper();
-            gmButtonTmp.color = gmColors[gm];
+            gmButtonTmp.color = Main.GameModeColors[gm];
             gmButtonTmp.transform.localPosition = new(gameSettingsLabelPos.x + (!russian ? 3.35f : 3.65f), gameSettingsLabelPos.y - 1.62f, gameSettingsLabelPos.z);
             gmButtonTmp.transform.localScale = new(1f, 1f, 1f);
 
@@ -1180,15 +1142,14 @@ public static class GameSettingMenuPatch
             {
                 Options.GameMode.SetValue((int)gm - 1);
                 GameOptionsMenuPatch.ReloadUI();
-                LateTask.New(() => GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(false), 0.02f);
             }));
-            gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = gmColors[gm];
+            gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = Main.GameModeColors[gm];
 
             GMButtons.Add(gmButton);
         }
 
 
-        FreeChatInputField freeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
+        FreeChatInputField freeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField; // FastDestroyableSingleton DOES NOT WORK HERE!!!! IF YOU USE THAT, IT BREAKS THE ENTIRE SETTINGS MENU
         FreeChatInputField field = Object.Instantiate(freeChatField, parentLeftPanel.parent);
         field.transform.localScale = new(0.3f, 0.59f, 1);
         field.transform.localPosition = new(-0.7f, -2.5f, -5f);
@@ -1199,21 +1160,29 @@ public static class GameSettingMenuPatch
 
         Transform button = field.transform.FindChild("ChatSendButton");
 
-        Object.Destroy(button.FindChild("Normal").FindChild("Icon").GetComponent<SpriteRenderer>());
-        Object.Destroy(button.FindChild("Hover").FindChild("Icon").GetComponent<SpriteRenderer>());
-        Object.Destroy(button.FindChild("Disabled").FindChild("Icon").GetComponent<SpriteRenderer>());
+        Transform buttonNormal = button.FindChild("Normal");
+        Transform buttonHover = button.FindChild("Hover");
+        Transform buttonDisabled = button.FindChild("Disabled");
+
+        Object.Destroy(buttonNormal.FindChild("Icon").GetComponent<SpriteRenderer>());
+        Object.Destroy(buttonHover.FindChild("Icon").GetComponent<SpriteRenderer>());
+        Object.Destroy(buttonDisabled.FindChild("Icon").GetComponent<SpriteRenderer>());
         Object.Destroy(button.transform.FindChild("Text").GetComponent<TextMeshPro>());
 
-        button.FindChild("Normal").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconActive.png", 100f);
-        button.FindChild("Hover").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconHover.png", 100f);
-        button.FindChild("Disabled").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIcon.png", 100f);
+        Transform buttonNormalBackground = buttonNormal.FindChild("Background");
+        Transform buttonHoverBackground = buttonHover.FindChild("Background");
+        Transform buttonDisabledBackground = buttonDisabled.FindChild("Background");
+
+        buttonNormalBackground.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconActive.png", 100f);
+        buttonHoverBackground.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconHover.png", 100f);
+        buttonDisabledBackground.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIcon.png", 100f);
 
         if (russian)
         {
             Vector3 fixedScale = new(0.7f, 1f, 1f);
-            button.FindChild("Normal").FindChild("Background").transform.localScale = fixedScale;
-            button.FindChild("Hover").FindChild("Background").transform.localScale = fixedScale;
-            button.FindChild("Disabled").FindChild("Background").transform.localScale = fixedScale;
+            buttonNormalBackground.transform.localScale = fixedScale;
+            buttonHoverBackground.transform.localScale = fixedScale;
+            buttonDisabledBackground.transform.localScale = fixedScale;
         }
 
 
@@ -1235,20 +1204,22 @@ public static class GameSettingMenuPatch
 
             HiddenBySearch.Do(x => x.SetHidden(false));
             string text = textField.textArea.text.Trim().ToLower();
-            System.Collections.Generic.List<OptionItem> Result = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3)).ToList();
-            HiddenBySearch = Result;
-            System.Collections.Generic.List<OptionItem> SearchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !Result.Contains(x)).ToList();
+            var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
+            OptionItem[] optionItems = Options.GroupedOptions[modTab];
+            System.Collections.Generic.List<OptionItem> result = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
+            HiddenBySearch = result;
+            System.Collections.Generic.List<OptionItem> searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
 
-            if (SearchWinners.Count == 0 || !ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu GameSettings) || GameSettings == null)
+            if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue(modTab, out GameOptionsMenu gameSettings) || gameSettings == null)
             {
                 HiddenBySearch.Clear();
                 Logger.SendInGame(Translator.GetString("SearchNoResult"));
                 return;
             }
 
-            Result.ForEach(x => x.SetHidden(true));
+            result.ForEach(x => x.SetHidden(true));
 
-            GameOptionsMenuPatch.ReCreateSettings(GameSettings);
+            GameOptionsMenuPatch.ReCreateSettings(gameSettings);
             textField.Clear();
         }
     }
@@ -1289,8 +1260,8 @@ public static class GameSettingMenuPatch
         {
             HiddenBySearch.Do(x => x.SetHidden(false));
 
-            if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu GameSettings) && GameSettings != null)
-                GameOptionsMenuPatch.ReCreateSettings(GameSettings);
+            if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu gameSettings) && gameSettings != null)
+                GameOptionsMenuPatch.ReCreateSettings(gameSettings);
 
             HiddenBySearch.Clear();
         }
@@ -1399,6 +1370,13 @@ public static class GameSettingMenuPatch
                 impLimits.MaxSetting.SetValue(numImpostors);
                 Logger.SendInGame(string.Format(Translator.GetString("MinMaxModdedImpCountsSettingsChangedAuto"), numImpostors));
             }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try
+        {
+            if (Options.AutoGMRotationRecompileOnClose)
+                Options.CompileAutoGMRotationSettings();
         }
         catch (Exception e) { Utils.ThrowException(e); }
 

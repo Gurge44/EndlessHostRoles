@@ -100,7 +100,7 @@ internal static class AddTasksFromListPatch
             };
         }
 
-        if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool() && CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+        if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard) return;
 
         List<NormalPlayerTask> disabledTasks = [];
 
@@ -120,9 +120,9 @@ internal static class AddTasksFromListPatch
 
         bool IsTaskAlwaysDisabled(TaskTypes type) => type switch
         {
-            TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun or CustomGameMode.AllInOne,
-            TaskTypes.VentCleaning => CustomGameMode.RoomRush.IsActiveOrIntegrated(),
-            TaskTypes.RunDiagnostics => CustomGameMode.Speedrun.IsActiveOrIntegrated(),
+            TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun,
+            TaskTypes.VentCleaning => Options.CurrentGameMode == CustomGameMode.RoomRush,
+            TaskTypes.RunDiagnostics => Options.CurrentGameMode == CustomGameMode.Speedrun,
             _ => false
         };
     }

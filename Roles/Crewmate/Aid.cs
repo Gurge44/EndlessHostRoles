@@ -53,7 +53,7 @@ public class Aid : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
         TargetId = byte.MaxValue;
         AidId = playerId;
     }
@@ -108,10 +108,8 @@ public class Aid : RoleBase
         if (change && GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: pc);
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        PlayerControl pc = physics.myPlayer;
-
         if (pc.GetAbilityUseLimit() >= 1 && TargetId != byte.MaxValue)
         {
             pc.RpcRemoveAbilityUse();
@@ -123,7 +121,7 @@ public class Aid : RoleBase
             TargetId = byte.MaxValue;
         }
 
-        LateTask.New(() => physics.RpcExitVent(ventId), 1f, log: false);
+        pc.MyPhysics?.RpcExitVent(vent.Id);
     }
 
     public override void OnReportDeadBody()

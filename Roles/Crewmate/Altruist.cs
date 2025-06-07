@@ -142,9 +142,9 @@ public class Altruist : RoleBase
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        OnPet(physics.myPlayer);
+        OnPet(pc);
     }
 
     public override void OnReportDeadBody()

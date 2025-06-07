@@ -39,7 +39,7 @@ public class Pursuer : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(PursuerSkillLimitTimes.GetInt());
+        playerId.SetAbilityUseLimit(PursuerSkillLimitTimes.GetFloat());
         clientList = [];
     }
 

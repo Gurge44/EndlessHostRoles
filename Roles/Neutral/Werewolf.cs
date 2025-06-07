@@ -17,13 +17,18 @@ public class Werewolf : RoleBase
     private static OptionItem HasImpostorVision;
     private static OptionItem RampageCD;
     private static OptionItem RampageDur;
+    private static OptionItem RampageCDAfterNoKillRampage;
+    private static OptionItem ResetToNormalCooldownAfterMeetings;
 
     private static int CD;
     private static long LastFixedTime;
-    private long lastTime;
 
+    private int KillsInLastRampage;
+    private long lastTime;
     private long RampageTime;
     private byte WWId;
+
+    private float UsedCooldown => KillsInLastRampage == 0 ? RampageCDAfterNoKillRampage.GetFloat() : RampageCD.GetFloat();
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -48,6 +53,13 @@ public class Werewolf : RoleBase
         RampageDur = new FloatOptionItem(Id + 13, "WWRampageDur", new(0f, 180f, 1f), 12f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
+
+        RampageCDAfterNoKillRampage = new FloatOptionItem(Id + 14, "WWRampageCDAfterNoKillRampage", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        ResetToNormalCooldownAfterMeetings = new BooleanOptionItem(Id + 15, "ResetToNormalCooldownAfterMeetings", false, TabGroup.NeutralRoles)
+            .SetParent(RampageCDAfterNoKillRampage);
     }
 
     public override void Init()
@@ -66,6 +78,7 @@ public class Werewolf : RoleBase
 
         RampageTime = -10;
         lastTime = Utils.TimeStamp + 12;
+        KillsInLastRampage = -10;
         CD = 0;
 
         LateTask.New(() =>
@@ -140,13 +153,13 @@ public class Werewolf : RoleBase
         {
             if (!player.IsModdedClient())
             {
-                long cooldown = lastTime + (long)RampageCD.GetFloat() - now;
+                long cooldown = lastTime + (long)UsedCooldown - now;
                 if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, true);
 
                 CD = (int)cooldown;
             }
 
-            if (lastTime + (long)RampageCD.GetFloat() < now)
+            if (lastTime + (long)UsedCooldown < now)
             {
                 lastTime = -10;
                 bool otherTrigger = UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool();
@@ -221,12 +234,24 @@ public class Werewolf : RoleBase
         {
             if (CanRampage)
             {
+                KillsInLastRampage = 0;
                 RampageTime = Utils.TimeStamp;
                 SendRPC();
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
                 if (!pc.IsModdedClient()) pc.RpcChangeRoleBasis(CustomRoles.Werewolf);
             }
         }, 0.5f, "Werewolf Vent");
+    }
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        KillsInLastRampage++;
+    }
+
+    public override void OnReportDeadBody()
+    {
+        if (ResetToNormalCooldownAfterMeetings.GetBool())
+            KillsInLastRampage = -10;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -242,7 +267,7 @@ public class Werewolf : RoleBase
         }
         else if (ww.lastTime != -10)
         {
-            long cooldown = ww.lastTime + (long)RampageCD.GetFloat() - Utils.TimeStamp;
+            long cooldown = ww.lastTime + (long)UsedCooldown - Utils.TimeStamp;
             str.Append(string.Format(GetString("WWCD"), cooldown + 1));
         }
         else

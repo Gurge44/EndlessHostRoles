@@ -15,7 +15,7 @@ internal class Witness : RoleBase
     {
         SetupRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness);
 
-        WitnessCD = new FloatOptionItem(8552, "AbilityCD", new(0f, 60f, 2.5f), 10f, TabGroup.CrewmateRoles)
+        WitnessCD = new FloatOptionItem(8552, "AbilityCD", new(0f, 60f, 0.5f), 10f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
             .SetValueFormat(OptionFormat.Seconds);
 

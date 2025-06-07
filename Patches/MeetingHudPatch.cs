@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
 using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
@@ -14,9 +13,6 @@ using Hazel;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
-
-// ReSharper disable AccessToModifiedClosure
-
 
 namespace EHR.Patches;
 
@@ -101,7 +97,7 @@ internal static class CheckForEndVotingPatch
                     if (voteTarget == null || !voteTarget.IsAlive() || voteTarget.Data == null || voteTarget.Data.Disconnected)
                     {
                         pva.UnsetVote();
-                        __instance.RpcClearVote(pc.GetClientId());
+                        __instance.RpcClearVote(pc.OwnerId);
                         __instance.UpdateButtons();
                         pva.VotedFor = byte.MaxValue;
                     }
@@ -452,13 +448,13 @@ internal static class CheckForEndVotingPatch
 
         if (crole == CustomRoles.Jester)
         {
-            name = string.Format(GetString("ExiledJester"), realName, coloredRole);
+            if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool()) name = string.Format(GetString("ExiledJester"), realName, coloredRole);
             DecidedWinner = true;
         }
 
         if (Executioner.CheckExileTarget(exiledPlayer, true))
         {
-            name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
+            if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool()) name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
             DecidedWinner = true;
         }
 
@@ -466,10 +462,13 @@ internal static class CheckForEndVotingPatch
         {
             if (!(!Options.InnocentCanWinByImp.GetBool() && crole.IsImpostor()))
             {
-                if (DecidedWinner)
-                    name += string.Format(GetString("ExiledInnocentTargetAddBelow"));
-                else
-                    name = string.Format(GetString("ExiledInnocentTargetInOneLine"), realName, coloredRole);
+                if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool())
+                {
+                    if (DecidedWinner)
+                        name += string.Format(GetString("ExiledInnocentTargetAddBelow"));
+                    else
+                        name = string.Format(GetString("ExiledInnocentTargetInOneLine"), realName, coloredRole);
+                }
 
                 DecidedWinner = true;
             }
@@ -477,9 +476,7 @@ internal static class CheckForEndVotingPatch
 
         if (tiebreaker) name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
 
-        if (DecidedWinner)
-            name += "<size=0>";
-        else
+        if (!DecidedWinner)
         {
             bool showImpRemain = Options.ShowImpRemainOnEject.GetBool();
             bool showNKRemain = Options.ShowNKRemainOnEject.GetBool();
@@ -504,7 +501,7 @@ internal static class CheckForEndVotingPatch
 
         EndOfSession:
 
-        if (CustomGameMode.TheMindGame.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode == CustomGameMode.TheMindGame)
             name = TheMindGame.GetEjectionMessage(exileId);
 
         name = name.Replace("color=", string.Empty) + "<size=0>";
@@ -708,7 +705,7 @@ internal static class MeetingHudStartPatch
                 roleDescMsgs.Add(new(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString()));
             }
 
-            LateTask.New(() => roleDescMsgs.SendMultipleMessages(SendOption.None), 6f, "Send Role Descriptions Round 1");
+            LateTask.New(() => roleDescMsgs.SendMultipleMessages(SendOption.None), 7f, "Send Role Descriptions Round 1");
         }
 
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting)
@@ -797,7 +794,7 @@ internal static class MeetingHudStartPatch
             }
         }
 
-        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 6f, "Meeting Start Notify");
+        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 8f, "Meeting Start Notify");
 
         Main.CyberStarDead.Clear();
         Express.SpeedNormal.Clear();
@@ -934,8 +931,11 @@ internal static class MeetingHudStartPatch
                 Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
             }
 
-            TemplateManager.SendTemplate("OnMeeting", noErr: true, sendOption: SendOption.None);
-            if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, sendOption: SendOption.None);
+            LateTask.New(() =>
+            {
+                TemplateManager.SendTemplate("OnMeeting", noErr: true, sendOption: SendOption.None);
+                if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, sendOption: SendOption.None);
+            }, 2f, log: false);
 
             NotifyRoleSkillOnMeetingStart();
 
@@ -1259,7 +1259,7 @@ internal static class MeetingHudCastVotePatch
             voteCanceled = true;
         }
 
-        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(skip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
+        Logger.Info($"{pc_src.GetNameWithRole()} => {(skip ? "Skip" : pc_target.GetNameWithRole())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
 
         return skip || !voteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
     }
@@ -1268,28 +1268,30 @@ internal static class MeetingHudCastVotePatch
     {
         if (!ShouldCancelVoteList.TryGetValue(srcPlayerId, out (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC) info)) return;
 
-        try { info.SourcePVA.UnsetVote(); }
+        try
+        {
+            info.SourcePVA.UnsetVote();
+            info.MeetingHud.SetDirtyBit(1U);
+        }
         catch { }
 
-        info.MeetingHud.RpcClearVote(info.SourcePC.GetClientId());
+        info.MeetingHud.RpcClearVote(info.SourcePC.OwnerId);
+        info.MeetingHud.SetDirtyBit(1U);
 
         info.SourcePVA.VotedFor = byte.MaxValue;
 
         ShouldCancelVoteList.Remove(srcPlayerId);
+
+        Logger.Info($"Vote for {info.SourcePC.GetNameWithRole()} canceled", "MeetingHudCastVotePatch.Postfix");
     }
 }
 
-[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CmdCastVote))]
-internal static class MeetingHudCmdCastVotePatch
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSendChatNote))]
+static class SendChatNotePatch
 {
-    public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
+    public static bool Prefix()
     {
-        return MeetingHudCastVotePatch.Prefix(__instance, srcPlayerId, suspectPlayerId);
-    }
-
-    public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)
-    {
-        MeetingHudCastVotePatch.Postfix(srcPlayerId);
+        return !Options.DisablePlayerVotedMessage.GetBool();
     }
 }
 
@@ -1387,6 +1389,6 @@ internal static class ExileControllerBeginPatch
     public static void Postfix(ExileController __instance, [HarmonyArgument(0)] ExileController.InitProperties init)
     {
         if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && init is { outfit: not null })
-            __instance.completeString = CheckForEndVotingPatch.EjectionText;
+            __instance.completeString = CheckForEndVotingPatch.EjectionText[..^8];
     }
 }

@@ -33,7 +33,7 @@ public class BountyHunter : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BountyHunter);
 
-        OptionTargetChangeTime = new FloatOptionItem(Id + 10, "BountyTargetChangeTime", new(10f, 180f, 2.5f), 50f, TabGroup.ImpostorRoles)
+        OptionTargetChangeTime = new FloatOptionItem(Id + 10, "BountyTargetChangeTime", new(10f, 180f, 0.5f), 50f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -41,7 +41,7 @@ public class BountyHunter : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
             .SetValueFormat(OptionFormat.Seconds);
 
-        OptionFailureKillCooldown = new FloatOptionItem(Id + 12, "BountyFailureKillCooldown", new(0f, 180f, 2.5f), 35f, TabGroup.ImpostorRoles)
+        OptionFailureKillCooldown = new FloatOptionItem(Id + 12, "BountyFailureKillCooldown", new(0f, 180f, 0.5f), 35f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -207,7 +207,7 @@ public class BountyHunter : RoleBase
 
                 if (Utils.GetPlayerById(id).GetCustomRole() == CustomRoles.BountyHunter)
                 {
-                    Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+                    Main.AllPlayerKillCooldown[id] = Options.AdjustedDefaultKillCooldown;
                     Utils.GetPlayerById(id).SyncSettings();
                 }
             }

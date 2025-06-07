@@ -47,7 +47,7 @@ public class Mediumshiper : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(ContactLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(ContactLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -66,7 +66,7 @@ public class Mediumshiper : RoleBase
 
             pc.RpcRemoveAbilityUse();
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
-            Logger.Info($"Medium Connection：{pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
+            Logger.Info($"Medium Connection: {pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
         }
     }
 

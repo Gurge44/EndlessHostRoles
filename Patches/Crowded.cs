@@ -259,7 +259,7 @@ internal static class Crowded
             __instance.UpdateMaxPlayersButtons(targetOptions);
             __instance.UpdateLanguageButton((uint)targetOptions.Keywords);
             __instance.MapMenu.UpdateMapButtons(targetOptions.MapId);
-            __instance.GameModeText.text = DestroyableSingleton<TranslationController>.Instance.GetString(GameModesHelpers.ModeToName[GameOptionsManager.Instance.CurrentGameOptions.GameMode]);
+            __instance.GameModeText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(GameModesHelpers.ModeToName[GameOptionsManager.Instance.CurrentGameOptions.GameMode]);
             return false;
         }
     }

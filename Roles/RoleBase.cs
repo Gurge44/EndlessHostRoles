@@ -1,4 +1,8 @@
-﻿global using Object = UnityEngine.Object;
+﻿//@formatter:off
+extern alias JetBrainsAnnotationsNuget;
+global using Annotations = JetBrainsAnnotationsNuget::JetBrains.Annotations;
+//@formatter:on
+global using Object = UnityEngine.Object;
 global using Vector2 = UnityEngine.Vector2;
 global using File = System.IO.File;
 global using StringBuilder = System.Text.StringBuilder;
@@ -42,7 +46,7 @@ public abstract class RoleBase : IComparable<RoleBase>
     // Some virtual methods that trigger actions, like venting, petting, CheckMurder, etc. These are not abstract because they have a default implementation. These should also have the same name as the methods in the derived classes.
     public virtual void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+        Main.AllPlayerKillCooldown[id] = Options.AdjustedDefaultKillCooldown;
     }
 
     public virtual bool CanUseKillButton(PlayerControl pc)
@@ -75,8 +79,6 @@ public abstract class RoleBase : IComparable<RoleBase>
     public virtual void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad) { }
 
     public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount) { }
-
-    public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId) { }
 
     public virtual void OnEnterVent(PlayerControl pc, Vent vent) { }
 

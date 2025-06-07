@@ -20,10 +20,11 @@ internal static class HudManagerPatch
     private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
     private static TextMeshPro SettingsText;
+    private static TextMeshPro AutoGMRotationStatusText;
+
+    public static long AutoGMRotationCooldownTimerEndTS;
     private static long LastNullError;
-
     public static Color? CooldownTimerFlashColor = null;
-
     public static string AchievementUnlockedText = string.Empty;
 
     public static void ClearLowerInfoText()
@@ -144,6 +145,30 @@ internal static class HudManagerPatch
                     OverriddenRolesText.text = string.Empty;
 
                 OverriddenRolesText.enabled = OverriddenRolesText.text != string.Empty;
+
+
+                if (Options.AutoGMRotationEnabled)
+                {
+                    if (AutoGMRotationStatusText == null)
+                    {
+                        AutoGMRotationStatusText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
+                        AutoGMRotationStatusText.alignment = TextAlignmentOptions.Left;
+                        AutoGMRotationStatusText.verticalAlignment = VerticalAlignmentOptions.Top;
+                        AutoGMRotationStatusText.transform.localPosition = new(-2.5f, 2.5f, 0);
+                        AutoGMRotationStatusText.overflowMode = TextOverflowModes.Overflow;
+                        AutoGMRotationStatusText.enableWordWrapping = false;
+                        AutoGMRotationStatusText.color = Color.white;
+                        AutoGMRotationStatusText.fontSize = AutoGMRotationStatusText.fontSizeMax = AutoGMRotationStatusText.fontSizeMin = 2.5f;
+                    }
+
+                    AutoGMRotationStatusText.text = BuildAutoGMRotationStatusText(false);
+                    AutoGMRotationStatusText.enabled = AutoGMRotationStatusText.text != string.Empty && GameStates.IsLobby;
+                }
+                else if (AutoGMRotationStatusText != null)
+                {
+                    AutoGMRotationStatusText.text = string.Empty;
+                    AutoGMRotationStatusText.enabled = false;
+                }
             }
             else if (GameStates.IsLobby)
             {
@@ -156,7 +181,7 @@ internal static class HudManagerPatch
                     __instance.SabotageButton
                 }.Do(x => x?.Hide());
             }
-            else if (!CustomGameMode.Standard.IsActiveOrIntegrated()) __instance.ReportButton?.Hide();
+            else if (Options.CurrentGameMode != CustomGameMode.Standard) __instance.ReportButton?.Hide();
 
             // The following will not be executed unless the game is in progress
             if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -167,7 +192,7 @@ internal static class HudManagerPatch
 
             if (SetHudActivePatch.IsActive)
             {
-                if (player.IsAlive() || !CustomGameMode.Standard.IsActiveOrIntegrated())
+                if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
                     if (player.Data.Role is ShapeshifterRole ssrole)
                     {
@@ -235,7 +260,7 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && CustomGameMode.Standard.IsActiveOrIntegrated() && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || ((!Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())))))
+                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())))
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)
@@ -257,14 +282,13 @@ internal static class HudManagerPatch
                         CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
-                        CustomGameMode.AllInOne => $"{NaturalDisasters.SuffixText()}\n{HotPotato.GetSuffixText(player.PlayerId)}",
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
 
                     string GetAddonSuffixes()
                     {
-                        IEnumerable<string> suffixes = state.SubRoles.Select(s => s switch
+                        string[] suffixes = state.SubRoles.Select(s => s switch
                         {
                             CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
                             CustomRoles.Spurt => Spurt.GetSuffix(player, true),
@@ -272,22 +296,24 @@ internal static class HudManagerPatch
                             CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
                             CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
                             _ => string.Empty
-                        });
+                        }).Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
-                        return string.Join(string.Empty, suffixes);
+                        return suffixes.Length > 0
+                            ? $"\n{string.Join('\n', suffixes)}"
+                            : string.Empty;
                     }
 
-                    string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out (long StartTimeStamp, int TotalCooldown) CD)
+                    string cdHUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out (long StartTimeStamp, int TotalCooldown) CD)
                         ? string.Empty
                         : string.Format(GetString("CDPT"), CD.TotalCooldown - (Utils.TimeStamp - CD.StartTimeStamp) + 1);
 
-                    bool hasCD = CD_HUDText != string.Empty;
+                    bool hasCD = cdHUDText != string.Empty;
 
                     if (hasCD)
                     {
-                        if (CooldownTimerFlashColor.HasValue) CD_HUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, CD_HUDText.RemoveHtmlTags())}</b>";
+                        if (CooldownTimerFlashColor.HasValue) cdHUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, cdHUDText.RemoveHtmlTags())}</b>";
 
-                        LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
+                        LowerInfoText.text = $"{cdHUDText}\n{LowerInfoText.text}";
                     }
 
                     if (AchievementUnlockedText != string.Empty)
@@ -380,6 +406,39 @@ internal static class HudManagerPatch
             Utils.ThrowException(e);
         }
         catch (Exception e) { Utils.ThrowException(e); }
+    }
+
+    public static string BuildAutoGMRotationStatusText(bool chatMessage)
+    {
+        bool includesRandomChoice = Options.AutoGMRotationSlots.Exists(x => x.Slot.GetValue() == 2);
+        int index = Options.AutoGMRotationIndex;
+        List<CustomGameMode> list = Options.AutoGMRotationCompiled;
+
+        CustomGameMode previousGM = index == 0 ? list[^1] : list[index - 1];
+        CustomGameMode currentGM = list[index];
+        CustomGameMode nextGM = index == list.Count - 1 ? list[0] : list[index + 1];
+        CustomGameMode nextNextGM = index >= list.Count - 2 ? list[1] : list[index + 2];
+
+        var sb = new StringBuilder();
+        if (!chatMessage) sb.AppendLine(GetString("AutoGMRotationStatusText"));
+        sb.AppendLine("....");
+        if (!includesRandomChoice || index > 0) sb.AppendLine($"> {ToString(previousGM)}");
+        sb.AppendLine($"<b>{GetString("AutoGMRotationStatusText.NextGM")}: {ToString(currentGM)}</b>");
+        if (!includesRandomChoice || index < list.Count - 1) sb.AppendLine(ToString(nextGM));
+        if (!includesRandomChoice || index < list.Count - 2) sb.AppendLine(ToString(nextNextGM));
+        sb.AppendLine("....");
+
+        if (!chatMessage)
+        {
+            long timerSecondsLeft = AutoGMRotationCooldownTimerEndTS - Utils.TimeStamp;
+            if (timerSecondsLeft > 0) sb.AppendLine(string.Format(GetString("AutoGMRotationStatusText.CooldownTimer"), timerSecondsLeft));
+        }
+
+        return sb.ToString().Trim();
+
+        string ToString(CustomGameMode gm) => gm == CustomGameMode.All
+            ? GetString("AutoGMRotationStatusText.GMPoll")
+            : Utils.ColorString(Main.GameModeColors[gm], GetString(gm.ToString()));
     }
 }
 
@@ -492,6 +551,9 @@ internal static class SetHudActivePatch
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 return;
+            case CustomGameMode.SoloKombat:
+                __instance.ImpostorVentButton?.ToggleVisible(SoloPVP.CanVent);
+                break;
         }
 
         PlayerControl player = PlayerControl.LocalPlayer;
@@ -632,13 +694,13 @@ internal static class TaskPanelBehaviourPatch
         if (!role.IsVanilla())
         {
             string roleInfo = player.GetRoleInfo();
-            var RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
+            var roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
 
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 string[] splitted = roleInfo.Split(' ');
 
-                RoleWithInfo = splitted.Length <= 3
+                roleWithInfo = splitted.Length <= 3
                     ? $"<size=60%>{roleInfo}</size>\r\n"
                     : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
             }
@@ -646,10 +708,10 @@ internal static class TaskPanelBehaviourPatch
             {
                 string[] split = roleInfo.Split(' ');
                 int half = split.Length / 2;
-                RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
+                roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
             }
 
-            string finalText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
+            string finalText = Utils.ColorString(player.GetRoleColor(), roleWithInfo);
 
             switch (Options.CurrentGameMode)
             {

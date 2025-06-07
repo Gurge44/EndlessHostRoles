@@ -26,11 +26,11 @@ public class Dazzler : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Dazzler);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DazzleCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
+        ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DazzleCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -45,7 +45,7 @@ public class Dazzler : RoleBase
         ResetDazzledVisionOnDeath = new BooleanOptionItem(Id + 15, "DazzlerResetDazzledVisionOnDeath", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler]);
 
-        DazzlerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+        DazzlerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -60,7 +60,7 @@ public class Dazzler : RoleBase
     {
         PlayerIdList.Add(playerId);
         PlayersDazzled = [];
-        playerId.SetAbilityUseLimit(DazzleLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(DazzleLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

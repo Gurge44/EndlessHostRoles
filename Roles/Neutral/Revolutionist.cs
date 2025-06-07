@@ -152,40 +152,39 @@ internal class Revolutionist : RoleBase
             }
             else
             {
-                PlayerControl rv_target = RevolutionistTimer[playerId].Player;
-                float rv_time = RevolutionistTimer[playerId].Timer;
+                float rvTime = RevolutionistTimer[playerId].Timer;
 
-                if (!rv_target.IsAlive())
+                if (!rvTarget.IsAlive())
                     RevolutionistTimer.Remove(playerId);
-                else if (rv_time >= RevolutionistDrawTime.GetFloat())
+                else if (rvTime >= RevolutionistDrawTime.GetFloat())
                 {
                     player.SetKillCooldown();
                     RevolutionistTimer.Remove(playerId);
-                    IsDraw[(playerId, rv_target.PlayerId)] = true;
-                    player.RpcSetDrawPlayer(rv_target, true);
-                    Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target, ForceLoop: true);
+                    IsDraw[(playerId, rvTarget.PlayerId)] = true;
+                    player.RpcSetDrawPlayer(rvTarget, true);
+                    Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget, ForceLoop: true);
                     RPC.ResetCurrentDrawTarget(playerId);
 
                     if (IRandom.Instance.Next(1, 100) <= RevolutionistKillProbability.GetInt())
                     {
-                        rv_target.SetRealKiller(player);
-                        Main.PlayerStates[rv_target.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
-                        player.Kill(rv_target);
-                        Main.PlayerStates[rv_target.PlayerId].SetDead();
-                        Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {rv_target.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
+                        rvTarget.SetRealKiller(player);
+                        Main.PlayerStates[rvTarget.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
+                        player.Kill(rvTarget);
+                        Main.PlayerStates[rvTarget.PlayerId].SetDead();
+                        Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {rvTarget.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
                     }
                 }
                 else
                 {
                     float range = NormalGameOptionsV09.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
-                    float dis = Vector2.Distance(player.transform.position, rv_target.transform.position);
+                    float dis = Vector2.Distance(player.transform.position, rvTarget.transform.position);
 
                     if (dis <= range)
-                        RevolutionistTimer[playerId] = (rv_target, rv_time + Time.fixedDeltaTime);
+                        RevolutionistTimer[playerId] = (rvTarget, rvTime + Time.fixedDeltaTime);
                     else
                     {
                         RevolutionistTimer.Remove(playerId);
-                        Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target);
+                        Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget);
                         RPC.ResetCurrentDrawTarget(playerId);
 
                         Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
@@ -232,13 +231,13 @@ internal class Revolutionist : RoleBase
         }
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (AmongUsClient.Instance.IsGameStarted && physics.myPlayer.IsDrawDone())
+        if (AmongUsClient.Instance.IsGameStarted && pc.IsDrawDone())
         {
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Revolutionist);
-            Utils.GetDrawPlayerCount(physics.myPlayer.PlayerId, out List<PlayerControl> x);
-            CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
+            Utils.GetDrawPlayerCount(pc.PlayerId, out List<PlayerControl> x);
+            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
             foreach (PlayerControl apc in x) CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
         }
     }

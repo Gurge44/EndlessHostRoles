@@ -104,6 +104,7 @@ public class SwordsMan : RoleBase
         Killed.Add(killer.PlayerId);
         SetKillCooldown(killer.PlayerId);
         killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+        killer.RpcResetTasks();
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
     }
 }

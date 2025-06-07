@@ -23,8 +23,8 @@ internal class Blackmailer : RoleBase
     {
         StartSetup(12190)
             .AutoSetupOption(ref AbilityExpires, 0, new[] { "BMAE.AfterMeeting", "BMAE.Never" })
-            .AutoSetupOption(ref AbilityUseLimit, 1, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
-            .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.4f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.8f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times)
             .AutoSetupOption(ref MaxBlackmailedPlayersPerMeeting, 1, new IntegerValueRule(1, 14, 1), OptionFormat.Players)
             .AutoSetupOption(ref MaxBlackmailedPlayersAtOnce, 1, new IntegerValueRule(1, 14, 1), OptionFormat.Players)
             .AutoSetupOption(ref WhoSeesBlackmailedPlayers, 1, new[] { "BMWSBP.Blackmailer", "BMWSBP.BlackmailerAndBlackmailed", "BMWSBP.Impostors", "BMWSBP.Everyone" });
@@ -35,7 +35,7 @@ internal class Blackmailer : RoleBase
         On = true;
         BlackmailedPlayerIds = [];
         NumBlackmailedThisRound = 0;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Init()
@@ -79,24 +79,24 @@ internal class Blackmailer : RoleBase
             KeyValuePair<byte, PlayerState> bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
             if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0) return;
 
-            byte? bmVotedForTemp = MeetingHud.Instance.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
+            MeetingHud meetingHud = MeetingHud.Instance;
+
+            byte? bmVotedForTemp = meetingHud.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
             if (bmVotedForTemp == null) return;
 
             var bmVotedFor = (byte)bmVotedForTemp;
 
-            MeetingHud.Instance.playerStates.DoIf(x => bm.BlackmailedPlayerIds.Contains(x.TargetPlayerId), x =>
+            meetingHud.playerStates.DoIf(x => bm.BlackmailedPlayerIds.Contains(x.TargetPlayerId), x =>
             {
                 if (x.DidVote)
                 {
                     x.UnsetVote();
-                    MeetingHud.Instance.RpcClearVote(x.TargetPlayerId.GetPlayer().GetClientId());
+                    meetingHud.SetDirtyBit(1U);
+                    meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
+                    meetingHud.SetDirtyBit(1U);
                 }
 
-                if (x.TargetPlayerId.IsHost())
-                    MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
-                else
-                    MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
-
+                meetingHud.CastVote(x.TargetPlayerId, bmVotedFor);
                 x.VotedFor = bmVotedFor;
             });
         }

@@ -41,7 +41,7 @@ internal static class ControllerManagerUpdatePatch
 
             if (KeysDown(KeyCode.LeftAlt, KeyCode.Return)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
 
-            if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting) && CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 if (Input.GetKey(KeyCode.F1))
                 {
@@ -182,7 +182,7 @@ internal static class ControllerManagerUpdatePatch
             if (KeysDown(KeyCode.F2, KeyCode.LeftControl))
             {
                 Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
-                Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
+                Logger.SendInGame($"In-game output log: {Logger.IsAlsoInGame}");
             }
         }
         catch { }
@@ -279,7 +279,7 @@ internal static class ControllerManagerUpdatePatch
     {
         if (keys.Any(Input.GetKeyDown) && keys.All(Input.GetKey))
         {
-            Logger.Info($"Shortcut Key：{keys.Where(Input.GetKeyDown).First()} in [{string.Join(",", keys)}]", "GetKeysDown");
+            Logger.Info($"Shortcut Key: {keys.Where(Input.GetKeyDown).First()} in [{string.Join(",", keys)}]", "GetKeysDown");
             return true;
         }
 

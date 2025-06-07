@@ -15,19 +15,26 @@ public static class Statistics
     public static int VentTimes;
     public static bool HasUsedAnyCommand;
 
+    public static string WinCountsForOutro = string.Empty;
+
     public static void OnGameEnd()
     {
-        if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || Main.AllPlayerControls.Length <= MinPlayers) return;
-
-        PlayerControl lp = PlayerControl.LocalPlayer;
-        CustomRoles role = lp.GetCustomRole();
-        List<CustomRoles> addons = lp.GetCustomSubRoles();
-
         try
         {
+            PlayerControl[] apc = Main.AllPlayerControls;
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+            if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || apc.Length <= MinPlayers) return;
+
+            PlayerControl lp = PlayerControl.LocalPlayer;
+            CustomRoles role = lp.GetCustomRole();
+            List<CustomRoles> addons = lp.GetCustomSubRoles();
+
             bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || (CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust));
 
             CustomGameMode gm = Options.CurrentGameMode;
+
+            WinCountsForOutro = string.Empty;
 
             if (gm != CustomGameMode.Standard)
             {
@@ -36,6 +43,22 @@ public static class Statistics
                     Main.NumWinsPerGM.TryAdd(gm, []);
                     Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), false);
                     Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
+
+                    if (Main.NumWinsPerGM[gm].Count != 0)
+                    {
+                        StringBuilder sb = new();
+                        sb.AppendLine($"<#ffffff><u>{Translator.GetString("WinsCountTitle")}:</u></color>");
+                        var any = false;
+
+                        foreach ((string hashedpuid, int wins) in Main.NumWinsPerGM[gm])
+                        {
+                            if (!apc.FindFirst(x => x.GetClient().GetHashedPuid() == hashedpuid, out PlayerControl player)) continue;
+                            sb.AppendLine($"{player.PlayerId.ColoredPlayerName()}: {wins}");
+                            any = true;
+                        }
+
+                        WinCountsForOutro = any ? sb.ToString().Trim() : string.Empty;
+                    }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
@@ -66,10 +89,10 @@ public static class Statistics
                 case CustomGameMode.CaptureTheFlag:
                     if (won) Achievements.Type.YourFlagIsMine.CompleteAfterGameEnd();
 
-                    if (Main.AllPlayerControls.Select(x => (pc: x, time: CaptureTheFlag.GetFlagTime(x.PlayerId))).MaxBy(x => x.time).pc.PlayerId == lp.PlayerId)
+                    if (apc.Select(x => (pc: x, time: CaptureTheFlag.GetFlagTime(x.PlayerId))).MaxBy(x => x.time).pc.PlayerId == lp.PlayerId)
                         Achievements.Type.FlagMaster.CompleteAfterGameEnd();
 
-                    if (Main.AllPlayerControls.Select(x => (pc: x, time: CaptureTheFlag.GetTagCount(x.PlayerId))).MaxBy(x => x.time).pc.PlayerId == lp.PlayerId)
+                    if (apc.Select(x => (pc: x, time: CaptureTheFlag.GetTagCount(x.PlayerId))).MaxBy(x => x.time).pc.PlayerId == lp.PlayerId)
                         Achievements.Type.Tag.CompleteAfterGameEnd();
 
                     return;
@@ -87,7 +110,7 @@ public static class Statistics
             if (Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId) >= 7)
                 Achievements.Type.TheKillingMachine2Point0.CompleteAfterGameEnd();
 
-            if (won && lp.IsCrewmate() && Main.AllAlivePlayerControls.Length == 1)
+            if (won && lp.IsCrewmate() && aapc.Length == 1)
                 Achievements.Type.TheLastSurvivor.CompleteAfterGameEnd();
 
             if (addons.Contains(CustomRoles.Spurt) && Spurt.LocalPlayerAvoidsZeroAndOneHundredPrecent)
@@ -96,7 +119,7 @@ public static class Statistics
             if (Utils.GameStartTimeStamp + 90 > Utils.TimeStamp)
                 Achievements.Type.Speedrun.CompleteAfterGameEnd();
 
-            if (won && CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor && lp.IsMadmate() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()))
+            if (won && CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor && lp.IsMadmate() && !aapc.Any(x => x.IsImpostor()))
                 Achievements.Type.Carried.CompleteAfterGameEnd();
 
             if (won && lp.IsNeutralKiller())
@@ -107,7 +130,7 @@ public static class Statistics
                 if (Main.PlayerStates.Values.All(x => x.GetRealKiller() != lp.PlayerId))
                     Achievements.Type.InnocentImpostor.CompleteAfterGameEnd();
 
-                if (Main.NormalOptions.NumImpostors > 1 && Main.AllPlayerControls.Where(x => x.IsImpostor()).All(x => x.IsAlive()))
+                if (Main.NormalOptions.NumImpostors > 1 && apc.Where(x => x.IsImpostor()).All(x => x.IsAlive()))
                     Achievements.Type.ImpostorGang.CompleteAfterGameEnd();
             }
 
@@ -116,7 +139,7 @@ public static class Statistics
                 case CustomWinner.None when Main.PlayerStates.Values.FindFirst(x => x.SubRoles.Contains(CustomRoles.Avanger), out PlayerState state) && state.GetRealKiller().GetPlayer().Is(CustomRoles.OverKiller):
                     Achievements.Type.FuriousAvenger.CompleteAfterGameEnd();
                     break;
-                case CustomWinner.Crewmate when won && Main.AllPlayerControls.Count(x => x.IsImpostor() || x.IsNeutralKiller()) >= 2 && MeetingStates.MeetingNum < 3:
+                case CustomWinner.Crewmate when won && apc.Count(x => x.IsImpostor() || x.IsNeutralKiller()) >= 2 && MeetingStates.MeetingNum < 3:
                     Achievements.Type.BrainStorm.CompleteAfterGameEnd();
                     break;
                 case CustomWinner.Lovers when won && role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor:
@@ -185,7 +208,7 @@ public static class Statistics
     {
         try
         {
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated() || Main.AllPlayerControls.Length <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= MinPlayers) return;
 
             PlayerControl lp = PlayerControl.LocalPlayer;
 
@@ -262,7 +285,7 @@ public static class Statistics
     {
         try
         {
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated() || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= MinPlayers) return;
 
             if (killer.IsLocalPlayer())
             {
@@ -317,7 +340,7 @@ public static class Statistics
     {
         try
         {
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated() || Main.AllPlayerControls.Length <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= MinPlayers) return;
 
             if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
             {

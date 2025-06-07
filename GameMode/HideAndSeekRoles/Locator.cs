@@ -26,13 +26,13 @@ public class Locator : RoleBase, IHideAndSeekRole
     {
         Options.SetupRoleOptions(69_211_901, TabGroup.ImpostorRoles, CustomRoles.Locator, CustomGameMode.HideAndSeek);
 
-        Vision = new FloatOptionItem(69_211_903, "LocatorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+        Vision = new FloatOptionItem(69_211_903, "LocatorVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(245, 158, 66, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
 
-        Speed = new FloatOptionItem(69_213_904, "LocatorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+        Speed = new FloatOptionItem(69_213_904, "LocatorSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new(245, 158, 66, byte.MaxValue))

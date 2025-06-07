@@ -18,11 +18,11 @@ public class Consort : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Consort);
 
-        CD = new FloatOptionItem(Id + 10, "RoleBlockCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        CD = new FloatOptionItem(Id + 10, "RoleBlockCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Consort])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimit = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.ImpostorRoles)
+        UseLimit = new FloatOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Consort])
             .SetValueFormat(OptionFormat.Times);
 
@@ -39,7 +39,7 @@ public class Consort : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(UseLimit.GetInt());
+        playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)

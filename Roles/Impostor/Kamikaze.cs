@@ -26,7 +26,7 @@ internal class Kamikaze : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Kamikaze);
 
-        MarkCD = new FloatOptionItem(Id + 2, "KamikazeMarkCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        MarkCD = new FloatOptionItem(Id + 2, "KamikazeMarkCD", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -34,7 +34,7 @@ internal class Kamikaze : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
             .SetValueFormat(OptionFormat.Times);
 
-        KamikazeAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+        KamikazeAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -51,7 +51,7 @@ internal class Kamikaze : RoleBase
     {
         PlayerIdList.Add(playerId);
         MarkedPlayers = [];
-        playerId.SetAbilityUseLimit(KamikazeLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(KamikazeLimitOpt.GetFloat());
         On = true;
         KamikazeId = playerId;
     }
@@ -104,8 +104,8 @@ internal class Kamikaze : RoleBase
                     {
                         victim.SetRealKiller(kamikazePc);
                         PlayerState state = Main.PlayerStates[victim.PlayerId];
-                        state.IsDead = true;
                         state.deathReason = PlayerState.DeathReason.Kamikazed;
+                        state.SetDead();
                         Medic.IsDead(victim);
 
                         if (kamikazePc.Is(CustomRoles.Damocles))

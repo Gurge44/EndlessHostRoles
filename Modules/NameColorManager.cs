@@ -52,16 +52,13 @@ public static class NameColorManager
             case CustomGameMode.TheMindGame:
                 color = "#ffffff";
                 return true;
-            case CustomGameMode.AllInOne:
             case CustomGameMode.HotPotato:
-                (byte HolderID, byte LastHolderID) = HotPotato.GetState();
+                (byte holderID, byte lastHolderID) = HotPotato.GetState();
 
-                if (target.PlayerId == HolderID)
+                if (target.PlayerId == holderID)
                     color = "#000000";
-                else if (target.PlayerId == LastHolderID)
+                else if (target.PlayerId == lastHolderID)
                     color = "#00ffff";
-                else if (Options.CurrentGameMode == CustomGameMode.AllInOne && Speedrun.CanKill.Contains(target.PlayerId))
-                    color = Main.ImpostorColor;
                 else
                     color = "#ffffff";
 
@@ -185,6 +182,7 @@ public static class NameColorManager
             CustomRoles.Spirit when ((Spirit)seerRoleClass).Targets.Item1 == target.PlayerId || ((Spirit)seerRoleClass).Targets.Item2 == target.PlayerId => "000000",
             CustomRoles.Starspawn when ((Starspawn)seerRoleClass).IsolatedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Wyrd when ((Wyrd)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Investor when ((Investor)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             _ => color
         };
 
@@ -232,8 +230,8 @@ public static class NameColorManager
         return seer == target
                || (Main.GodMode.Value && seer.AmOwner)
                || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop
-               || (Main.PlayerStates[seer.Data.PlayerId].IsDead && seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!Utils.IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(seer.PlayerId)))
-               || (seer.Is(CustomRoles.Mimic) && Main.PlayerStates[target.Data.PlayerId].IsDead && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
+               || (seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!Utils.IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(seer.PlayerId)))
+               || (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
                || target.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.GM)
                || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)

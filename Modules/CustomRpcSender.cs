@@ -44,7 +44,7 @@ public class CustomRpcSender
 
     private CustomRpcSender() { }
 
-    public CustomRpcSender(string name, SendOption sendOption, bool isUnsafe, bool log)
+    private CustomRpcSender(string name, SendOption sendOption, bool isUnsafe, bool log)
     {
         stream = MessageWriter.Get(sendOption);
 
@@ -74,6 +74,18 @@ public class CustomRpcSender
     public static CustomRpcSender Create(string name = "No Name Sender", SendOption sendOption = SendOption.None, bool isUnsafe = false, bool log = true)
     {
         return new(name, sendOption, isUnsafe, log);
+    }
+
+    public CustomRpcSender AutoStartRpc(
+        uint targetNetId,
+        RpcCalls rpcCall,
+        int targetClientId = -1,
+        [CallerFilePath] string callerPath = "",
+        [CallerLineNumber] int callerLine = 0)
+    {
+        // ReSharper disable ExplicitCallerInfoArgument
+        return AutoStartRpc(targetNetId, (byte)rpcCall, targetClientId, callerPath, callerLine);
+        // ReSharper restore ExplicitCallerInfoArgument
     }
 
     public CustomRpcSender AutoStartRpc(
@@ -185,6 +197,12 @@ public class CustomRpcSender
                 Logger.Warn(errorMsg, "CustomRpcSender.Warn");
             else
                 throw new InvalidOperationException(errorMsg);
+        }
+
+        if (stream.Length > 500)
+        {
+            doneStreams.Add(stream);
+            stream = MessageWriter.Get(sendOption);
         }
 
         if (targetClientId < 0)
@@ -378,7 +396,7 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetRole, targetClientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetRole, targetClientId)
             .Write((ushort)role)
             .Write(true)
             .EndRpc();
@@ -428,7 +446,7 @@ public static class CustomRpcSenderExtensions
                 break;
         }
 
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, targetClientId)
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, targetClientId)
             .Write(player.Data.NetId)
             .Write(name)
             .Write(false)
@@ -448,7 +466,7 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        sender.AutoStartRpc(physics.NetId, (byte)RpcCalls.ExitVent, clientId);
+        sender.AutoStartRpc(physics.NetId, RpcCalls.ExitVent, clientId);
         sender.WritePacked(ventId);
         sender.EndRpc();
 
@@ -487,7 +505,7 @@ public static class CustomRpcSenderExtensions
         // Other Clients
         if (!killer.IsHost())
         {
-            sender.AutoStartRpc(killer.NetId, (byte)RpcCalls.MurderPlayer, killer.GetClientId());
+            sender.AutoStartRpc(killer.NetId, RpcCalls.MurderPlayer, killer.OwnerId);
             sender.WriteNetObject(target);
             sender.Write((int)MurderResultFlags.FailedProtected);
             sender.EndRpc();
@@ -546,7 +564,7 @@ public static class CustomRpcSenderExtensions
                 PlayerControl.LocalPlayer.SetKillTimer(time);
             else
             {
-                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, player.GetClientId());
+                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, player.OwnerId);
                 sender.Write(time);
                 sender.EndRpc();
 
@@ -578,8 +596,6 @@ public static class CustomRpcSenderExtensions
         if (target.Is(CustomRoles.Glitch) && Main.PlayerStates[target.PlayerId].Role is Glitch gc)
         {
             gc.LastHack = Utils.TimeStamp;
-            gc.LastMimic = Utils.TimeStamp;
-            gc.MimicCDTimer = 10;
             gc.HackCDTimer = 10;
 
             return false;
@@ -592,7 +608,7 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.ProtectPlayer, target.GetClientId());
+        sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.OwnerId);
         sender.WriteNetObject(target);
         sender.Write(0);
         sender.EndRpc();
@@ -602,7 +618,7 @@ public static class CustomRpcSenderExtensions
 
     public static void RpcDesyncRepairSystem(this CustomRpcSender sender, PlayerControl target, SystemTypes systemType, int amount)
     {
-        sender.AutoStartRpc(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, target.GetClientId());
+        sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, target.OwnerId);
         sender.Write((byte)systemType);
         sender.WriteNetObject(target);
         sender.Write((byte)amount);
@@ -612,7 +628,7 @@ public static class CustomRpcSenderExtensions
     public static void RpcExileV2(this CustomRpcSender sender, PlayerControl player)
     {
         player.Exiled();
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.Exiled);
+        sender.AutoStartRpc(player.NetId, RpcCalls.Exiled);
         sender.EndRpc();
         LateTask.New(() => FixedUpdatePatch.LoversSuicide(player.PlayerId), Utils.CalculatePingDelay() * 2f, log: false);
     }
@@ -631,7 +647,7 @@ public static class CustomRpcSenderExtensions
         else
             notifies[text] = expireTS;
 
-        bool returnValue = pc.IsNonHostModClient();
+        bool returnValue = pc.IsNonHostModdedClient();
 
         if (returnValue) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
         if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
@@ -673,7 +689,7 @@ public static class CustomRpcSenderExtensions
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
 
-        sender.AutoStartRpc(nt.NetId, (byte)RpcCalls.SnapTo);
+        sender.AutoStartRpc(nt.NetId, RpcCalls.SnapTo);
         sender.WriteVector2(location);
         sender.Write(newSid);
         sender.EndRpc();
@@ -696,7 +712,7 @@ public static class CustomRpcSenderExtensions
     {
         senderWasCleared = false;
         newSender = sender;
-        if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || CustomGameMode.Standard.IsActiveOrIntegrated())) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
+        if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
         var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
         newSender = sender;
         return hasValue;

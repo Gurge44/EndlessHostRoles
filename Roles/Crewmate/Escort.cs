@@ -20,11 +20,11 @@ public class Escort : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort);
 
-        CD = new FloatOptionItem(Id + 10, "RoleBlockCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
+        CD = new FloatOptionItem(Id + 10, "RoleBlockCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimit = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.CrewmateRoles)
+        UseLimit = new FloatOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
             .SetValueFormat(OptionFormat.Times);
 
@@ -43,7 +43,7 @@ public class Escort : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(UseLimit.GetInt());
+        playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)

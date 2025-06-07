@@ -94,7 +94,7 @@ public class Amnesiac : RoleBase
 
     public override bool CanUseKillButton(PlayerControl player)
     {
-        return !player.Data.IsDead && RememberMode.GetValue() == 1;
+        return player.IsAlive() && RememberMode.GetValue() == 1;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -210,7 +210,7 @@ public class Amnesiac : RoleBase
         CustomRoles role = RememberedRole.Value;
 
         amnesiac.RpcSetCustomRole(role);
-        hasValue |= amnesiac.RpcChangeRoleBasis(role, sender: sender);
+        amnesiac.RpcChangeRoleBasis(role);
 
         hasValue |= sender.Notify(amnesiac, amneNotifyString);
         hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));

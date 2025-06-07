@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
-using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -53,14 +52,12 @@ public static class Speedrun
     {
         CanKill = [];
         Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 10);
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) Timers.AdjustAllValues(x => x * AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt());
         Utils.SendRPC(CustomRPC.SpeedrunSync, 1);
     }
 
     public static void ResetTimer(PlayerControl pc)
     {
         int timer = TimeLimit.GetInt();
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) timer *= AllInOneGameMode.SpeedrunTimeLimitMultiplier.GetInt();
         if (Main.CurrentMap is MapNames.Airship or MapNames.Fungle) timer += 5;
 
         if (TimeStacksUp.GetBool())
@@ -79,11 +76,9 @@ public static class Speedrun
         Utils.SendRPC(CustomRPC.SpeedrunSync, 2, pc.PlayerId);
         int kcd = KillCooldown.GetInt();
         Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
-        var sender = CustomRpcSender.Create("Speedrun.OnTaskFinish", SendOption.Reliable);
-        pc.RpcChangeRoleBasis(Options.CurrentGameMode == CustomGameMode.AllInOne ? CustomRoles.Killer : CustomRoles.NSerialKiller, sender: sender);
-        sender.Notify(pc, Translator.GetString("Speedrun_CompletedTasks"));
-        sender.SyncSettings(pc);
-        sender.SendMessage();
+        pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+        pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
+        pc.SyncSettings();
         LateTask.New(() => pc.SetKillCooldown(kcd), 0.2f, log: false);
     }
 
@@ -108,8 +103,11 @@ public static class Speedrun
         int apc = Main.AllPlayerControls.Length;
         int killers = CanKill.Count;
 
+        string arrows = TargetArrow.GetAllArrows(pc.PlayerId);
+        arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
+
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time);
+        if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time) + arrows;
         return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, time);
     }
 
@@ -165,11 +163,12 @@ public static class Speedrun
     private static class FixedUpdatePatch
     {
         private static long LastUpdate;
+        private static bool Arrow;
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.Speedrun.IsActiveOrIntegrated() || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId >= 254) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId >= 254) return;
 
             if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
             {
@@ -184,9 +183,36 @@ public static class Speedrun
             LastUpdate = now;
 
             Timers.AdjustAllValues(x => x - 1);
-            Utils.NotifyRoles();
 
             CanKill.RemoveWhere(x => x.GetPlayer() == null || !x.GetPlayer().IsAlive());
+
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+            switch (Arrow, aapc.Length == 2)
+            {
+                case (false, true):
+                {
+                    PlayerControl pc1 = aapc[0];
+                    PlayerControl pc2 = aapc[1];
+
+                    if (CanKill.Contains(pc1.PlayerId) && CanKill.Contains(pc2.PlayerId) && Timers[pc1.PlayerId] == Timers[pc2.PlayerId])
+                    {
+                        TargetArrow.Add(pc1.PlayerId, pc2.PlayerId);
+                        TargetArrow.Add(pc2.PlayerId, pc1.PlayerId);
+                        Arrow = true;
+                    }
+
+                    break;
+                }
+                case (true, false):
+                {
+                    Main.PlayerStates.Keys.Do(TargetArrow.RemoveAllTarget);
+                    Arrow = false;
+                    break;
+                }
+            }
+
+            Utils.NotifyRoles();
         }
     }
 }

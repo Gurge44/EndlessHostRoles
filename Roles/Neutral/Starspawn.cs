@@ -23,7 +23,7 @@ public class Starspawn : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(645700)
-            .AutoSetupOption(ref AbilityUseLimit, 2, new IntegerValueRule(1, 10, 1), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 2f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0.5f, 120f, 0.5f), OptionFormat.Seconds);
     }
 
@@ -38,9 +38,14 @@ public class Starspawn : RoleBase
     {
         On = true;
         Instances.Add(this);
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
         IsolatedPlayers = [];
         HasUsedDayBreak = false;
+    }
+
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

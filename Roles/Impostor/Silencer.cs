@@ -30,7 +30,7 @@ public class Silencer : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Silencer);
 
-        SkillCooldown = new FloatOptionItem(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        SkillCooldown = new FloatOptionItem(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer])
             .SetValueFormat(OptionFormat.Seconds);
 

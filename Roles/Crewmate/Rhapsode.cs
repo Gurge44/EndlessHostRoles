@@ -40,7 +40,7 @@ public class Rhapsode : RoleBase
         ExcludeCrewmates = new BooleanOptionItem(++id, "Rhapsode.ExcludeCrewmates", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rhapsode]);
 
-        AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
+        AbilityUseLimit = new FloatOptionItem(++id, "AbilityUseLimit", new(0, 20, 0.05f), 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rhapsode])
             .SetValueFormat(OptionFormat.Times);
 
@@ -67,7 +67,7 @@ public class Rhapsode : RoleBase
         AbilityActive = false;
         ActivateTimeStamp = 0;
         LastUpdate = 0;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -83,9 +83,9 @@ public class Rhapsode : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        ActivateAbility(physics.myPlayer);
+        ActivateAbility(pc);
     }
 
     public override void OnPet(PlayerControl pc)

@@ -56,7 +56,7 @@ public class Oracle : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(CheckLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

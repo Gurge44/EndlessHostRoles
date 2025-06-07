@@ -56,10 +56,10 @@ public class Tank : RoleBase
         return CanBeKilled.GetBool();
     }
 
-    public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        EnteredVents.Add(ventId);
-        Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
+        EnteredVents.Add(vent.Id);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public override string GetProgressText(byte playerId, bool comms)

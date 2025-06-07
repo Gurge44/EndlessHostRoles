@@ -70,7 +70,7 @@ internal static class ChangeRoleSettings
 
             if (DestroyableSingleton<GameStartManager>.InstanceExists)
             {
-                amongUsClient.DisconnectHandlers.Remove(FastDestroyableSingleton<GameStartManager>.Instance.Cast<IDisconnectHandler>());
+                amongUsClient.DisconnectHandlers.Remove(FastDestroyableSingleton<GameStartManager>.Instance.CastFast<IDisconnectHandler>());
                 Object.Destroy(FastDestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
 
@@ -252,6 +252,8 @@ internal static class ChangeRoleSettings
             ChatCommands.LastSpectators.Clear();
             ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 
+            RPCHandlerPatch.RemoveExpiredWhiteList();
+
             try
             {
                 (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
@@ -267,6 +269,9 @@ internal static class ChangeRoleSettings
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
             GameEndChecker.Ended = false;
+
+            ShipStatusFixedUpdatePatch.ClosestVent = [];
+            ShipStatusFixedUpdatePatch.CanUseClosestVent = [];
 
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned = [];
             Coven.Coven.CovenMeetingStartPatch.MeetingNum = 0;
@@ -326,7 +331,13 @@ internal static class ChangeRoleSettings
 
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
+                Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown + Main.CurrentMap switch
+                {
+                    MapNames.Polus => Options.ExtraKillCooldownOnPolus.GetFloat(),
+                    MapNames.Airship => Options.ExtraKillCooldownOnAirship.GetFloat(),
+                    MapNames.Fungle => Options.ExtraKillCooldownOnFungle.GetFloat(),
+                    _ => 0f
+                };
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
@@ -334,7 +345,7 @@ internal static class ChangeRoleSettings
                 RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
                 NetworkedPlayerInfo.PlayerOutfit outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
-                Main.ClientIdList.Add(pc.GetClientId());
+                Main.ClientIdList.Add(pc.OwnerId);
 
                 try { Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId]; }
                 catch (Exception e) { Utils.ThrowException(e); }
@@ -375,7 +386,6 @@ internal static class ChangeRoleSettings
                 HotPotato.Init();
                 CustomHnS.Init();
                 Speedrun.Init();
-                AllInOneGameMode.Init();
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
@@ -584,7 +594,7 @@ internal static class StartGameHostPatch
             {
                 if (totalSeconds < (double)num)
                 {
-                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 70.0), StringNames.LoadingBarGameStartWaitingPlayers);
+                    loadingBarManager.SetLoadingPercent(10 + (float)(totalSeconds / (double)num * 80.0), StringNames.LoadingBarGameStartWaitingPlayers);
 
                     int timeoutIn = num - (int)totalSeconds;
                     loadingBarManager.loadingBar.loadingText.text = string.Format(GetString("LoadingBarText.2"), clientsReady, allClientsCount, timeoutIn);
@@ -631,7 +641,7 @@ internal static class StartGameHostPatch
 
             var random = IRandom.Instance;
 
-            if (CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 bool bloodlustSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out IntegerOptionItem option0) ? option0.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable() && Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt() > 0;
                 bool physicistSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out IntegerOptionItem option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
@@ -772,7 +782,7 @@ internal static class StartGameHostPatch
                 Main.PlayerStates[kv.Key].SetMainRole(kv.Value);
             }
 
-            if (!CustomGameMode.Standard.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
@@ -905,30 +915,27 @@ internal static class StartGameHostPatch
 
             EndOfSelectRolePatch:
 
-            Enum.GetValues<CustomGameMode>().DoIf(x => x.IsActiveOrIntegrated(), x =>
+            switch (Options.CurrentGameMode)
             {
-                switch (x)
-                {
-                    case CustomGameMode.HideAndSeek:
-                        CustomHnS.StartSeekerBlindTime();
-                        break;
-                    case CustomGameMode.CaptureTheFlag:
-                        CaptureTheFlag.Init();
-                        break;
-                    case CustomGameMode.NaturalDisasters:
-                        NaturalDisasters.OnGameStart();
-                        break;
-                    case CustomGameMode.RoomRush:
-                        RoomRush.OnGameStart();
-                        break;
-                    case CustomGameMode.KingOfTheZones:
-                        KingOfTheZones.Init();
-                        break;
-                    case CustomGameMode.Quiz:
-                        Quiz.Init();
-                        break;
-                }
-            });
+                case CustomGameMode.HideAndSeek:
+                    CustomHnS.StartSeekerBlindTime();
+                    break;
+                case CustomGameMode.CaptureTheFlag:
+                    CaptureTheFlag.Init();
+                    break;
+                case CustomGameMode.NaturalDisasters:
+                    NaturalDisasters.OnGameStart();
+                    break;
+                case CustomGameMode.RoomRush:
+                    RoomRush.OnGameStart();
+                    break;
+                case CustomGameMode.KingOfTheZones:
+                    KingOfTheZones.Init();
+                    break;
+                case CustomGameMode.Quiz:
+                    Quiz.Init();
+                    break;
+            }
 
             HudManager.Instance.SetHudActive(true);
 
@@ -985,9 +992,6 @@ internal static class StartGameHostPatch
                 case CustomGameMode.TheMindGame:
                     GameEndChecker.SetPredicateToTheMindGame();
                     break;
-                case CustomGameMode.AllInOne:
-                    GameEndChecker.SetPredicateToAllInOne();
-                    break;
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
@@ -1019,13 +1023,13 @@ internal static class StartGameHostPatch
             if (pc.Data == null)
                 while (pc.Data == null)
                     yield return null;
+
             pc.Data.Disconnected = true;
-            pc.Data.MarkDirty();
-            AmongUsClient.Instance.SendAllStreamedObjects();
+            pc.Data.SendGameData();
         }
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(80f, 100f, 4f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.AllPlayerControls.Do(SetRoleSelf);
@@ -1041,26 +1045,17 @@ internal static class StartGameHostPatch
 
             bool disconnected = Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
             pc.Data.Disconnected = disconnected;
-
-            if (!disconnected)
-            {
-                pc.Data.MarkDirty();
-                AmongUsClient.Instance.SendAllStreamedObjects();
-            }
+            if (!disconnected) pc.Data.SendGameData();
         }
 
-        yield return new WaitForSeconds(7.8f);
-
-        var sender = CustomRpcSender.Create("OnGameStartedPatch - Reset All Cooldowns", SendOption.Reliable);
-        var hasValue = false;
-
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        LateTask.New(() =>
         {
-            hasValue |= sender.SetKillCooldown(pc, 10f);
-            hasValue |= sender.RpcResetAbilityCooldown(pc);
-        }
-
-        sender.SendMessage(!hasValue);
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
+                pc.SetKillCooldown(10f);
+                pc.RpcResetAbilityCooldown();
+            }
+        }, 7f, log: false);
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)
@@ -1068,7 +1063,7 @@ internal static class StartGameHostPatch
         return BasisChangingAddons.TryGetValue(role, out List<byte> list) && list.Contains(id);
     }
 
-    private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), (RoleTypes, CustomRoles)> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
+    private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), (RoleTypes, CustomRoles)> rolesMap, RoleTypes baseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
     {
         try
         {
@@ -1079,7 +1074,7 @@ internal static class StartGameHostPatch
 
             Main.PlayerStates[player.PlayerId].SetMainRole(role);
 
-            RoleTypes selfRole = isHost ? BaseRole == RoleTypes.Shapeshifter ? RoleTypes.Shapeshifter : hostBaseRole : BaseRole;
+            RoleTypes selfRole = isHost ? baseRole == RoleTypes.Shapeshifter ? RoleTypes.Shapeshifter : hostBaseRole : baseRole;
             RoleTypes othersRole = isHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
             // Set Desync role for self and for others
@@ -1162,9 +1157,7 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
-            var sender = CustomRpcSender.Create("OnGameStartedPatch.SetRoleSelf", SendOption.Reliable);
-            sender.RpcSetRole(target, roleType, targetClientId);
-            sender.SendMessage();
+            target.RpcSetRoleDesync(roleType, targetClientId);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -1249,8 +1242,8 @@ internal static class StartGameHostPatch
                 {
                     try
                     {
-                        Senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false, true)
-                            .StartMessage(pc.GetClientId());
+                        Senders[pc.PlayerId] = CustomRpcSender.Create($"{pc.name}'s SetRole Sender", SendOption.Reliable)
+                            .StartMessage(pc.OwnerId);
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }
@@ -1277,7 +1270,7 @@ internal static class StartGameHostPatch
 
             return;
 
-            bool ForceImp(byte id) => IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (CustomGameMode.Speedrun.IsActiveOrIntegrated() && Speedrun.CanKill.Contains(id));
+            bool ForceImp(byte id) => IsBasisChangingPlayer(id, CustomRoles.Bloodlust) || (Options.CurrentGameMode == CustomGameMode.Speedrun && Speedrun.CanKill.Contains(id));
         }
 
         public static void SendRpcForDesync()
@@ -1301,7 +1294,7 @@ internal static class StartGameHostPatch
                             PlayerControl player = Utils.GetPlayerById(playerId);
                             if (player == null || role.IsDesyncRole()) continue;
 
-                            if (CustomGameMode.Speedrun.IsActiveOrIntegrated() && Speedrun.CanKill.Contains(playerId)) continue;
+                            if (Options.CurrentGameMode == CustomGameMode.Speedrun && Speedrun.CanKill.Contains(playerId)) continue;
 
                             RoleTypes roleType = role.GetRoleTypes();
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -18,7 +17,7 @@ public class CopyCat : RoleBase
     public static OptionItem UsePet;
 
     public PlayerControl CopyCatPC;
-    private float CurrentKillCooldown = DefaultKillCooldown;
+    private float CurrentKillCooldown = AdjustedDefaultKillCooldown;
     private float TempLimit;
 
     public override bool IsEnable => Instances.Count > 0;
@@ -50,7 +49,7 @@ public class CopyCat : RoleBase
     public override void Init()
     {
         Instances = [];
-        CurrentKillCooldown = DefaultKillCooldown;
+        CurrentKillCooldown = AdjustedDefaultKillCooldown;
     }
 
     public override void Add(byte playerId)
@@ -129,17 +128,12 @@ public class CopyCat : RoleBase
         {
             TempLimit = pc.GetAbilityUseLimit();
 
-            var sender = CustomRpcSender.Create("Copycat.OnCheckMurder", SendOption.Reliable);
-            var hasValue = false;
-
             pc.RpcSetCustomRole(role);
-            hasValue |= pc.RpcChangeRoleBasis(role, sender: sender);
+            pc.RpcChangeRoleBasis(role);
             pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());
 
-            hasValue |= sender.Notify(pc, string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
-            hasValue |= sender.SyncSettings(pc);
-
-            sender.SendMessage(!hasValue);
+            pc.Notify(string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
+            pc.SyncSettings();
 
             LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
             return false;

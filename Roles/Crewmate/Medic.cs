@@ -83,7 +83,7 @@ public class Medic : RoleBase
 
         UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Medic);
 
-        CD = new FloatOptionItem(Id + 13, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
+        CD = new FloatOptionItem(Id + 13, "AbilityCooldown", new(0f, 180f, 0.5f), 7.5f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -114,13 +114,21 @@ public class Medic : RoleBase
         if (!Utils.DoRPC) return;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
+        writer.Write(1);
         writer.Write(ProtectList.Count);
-        ProtectList.Do(x => writer.Write(x));
+        ProtectList.ForEach(x => writer.Write(x));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void ReceiveRPCForProtectList(MessageReader reader)
     {
+        if (reader.ReadInt32() != 1)
+        {
+            byte id = reader.ReadByte();
+            Main.PlayerStates[id].InitTask(id.GetPlayer());
+            return;
+        }
+        
         int count = reader.ReadInt32();
         ProtectList = [];
         for (var i = 0; i < count; i++) ProtectList.Add(reader.ReadByte());
@@ -155,9 +163,6 @@ public class Medic : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null) return false;
-
-        if (!CanUseKillButton(killer)) return false;
-
         if (ProtectList.Contains(target.PlayerId)) return false;
 
         killer.RpcRemoveAbilityUse();
@@ -191,60 +196,58 @@ public class Medic : RoleBase
             else Achievements.Type.ImUnstoppable.Complete();
         }
 
+        if (killer.GetAbilityUseLimit() < 1f)
+        {
+            killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+            killer.RpcResetTasks();
+
+            if (killer.IsNonHostModdedClient())
+            {
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
+                writer.Write(2);
+                writer.Write(killer.PlayerId);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+            }
+        }
+
         return false;
     }
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null) return false;
-
         if (!ProtectList.Contains(target.PlayerId)) return false;
 
-        var sender = CustomRpcSender.Create("Medic.OnAnyoneCheckMurder", SendOption.Reliable);
-        var hasValue = false;
-
-        hasValue |= sender.SetKillCooldown(killer, ResetCooldown.GetFloat());
-        hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out bool cleared);
-        if (cleared) hasValue = false;
+        killer.SetKillCooldown(ResetCooldown.GetFloat());
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
         switch (KnowShieldBroken.GetInt())
         {
             case 0:
-                hasValue |= sender.RpcGuardAndKill(target, target);
-                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => hasValue |= sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
-                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => hasValue |= sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
+                target.RpcGuardAndKill();
+                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && x.IsAlive()).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic"));
+                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
                 break;
             case 1:
-                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => hasValue |= sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
+                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && x.IsAlive()).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic"));
                 break;
             case 2:
-                hasValue |= sender.RpcGuardAndKill(target, target);
-                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => hasValue |= sender.Notify(x, Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
+                target.RpcGuardAndKill();
+                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
                 break;
         }
 
         if (ShieldBreaksOnKillAttempt.GetBool())
         {
             ProtectList.Remove(target.PlayerId);
-
-            if (Utils.DoRPC)
-            {
-                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList);
-                sender.Write(ProtectList.Count);
-                ProtectList.Do(x => sender.Write(x));
-                sender.EndRpc();
-                hasValue = true;
-            }
+            SendRPCForProtectList();
 
             if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.Immediately)
             {
                 TempMarkProtectedList.Remove(target.PlayerId);
-                hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out cleared);
-                if (cleared) hasValue = false;
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             }
         }
-
-        sender.SendMessage(!hasValue);
 
         if (killer.IsLocalPlayer())
         {
@@ -313,7 +316,7 @@ public class Medic : RoleBase
         {
             TempMarkProtectedList = [];
 
-            foreach (byte pc in ProtectList) Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
+            foreach (byte id in ProtectList) Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: target);
         }
     }
 
@@ -332,11 +335,8 @@ public class Medic : RoleBase
             bool seerHasMark = TempMarkProtectedList.Contains(seer.PlayerId);
             bool targetHasMark = TempMarkProtectedList.Contains(target.PlayerId);
 
-            if (self && (seerProtected || seerHasMark) && targetSeesProtection) return shieldMark;
-
-            if (seerIsMedic && (targetProtected || targetHasMark) && medicSeesProtection) return shieldMark;
-
-            if (seer.Data.IsDead && targetProtected && !seerIsMedic) return shieldMark;
+            if (self && (seerProtected || seerHasMark) && targetSeesProtection || seerIsMedic && (targetProtected || targetHasMark) && medicSeesProtection || !seer.IsAlive() && targetProtected && !seerIsMedic)
+                return shieldMark;
         }
 
         return string.Empty;

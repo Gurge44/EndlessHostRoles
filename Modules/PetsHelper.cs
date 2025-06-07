@@ -9,20 +9,22 @@ public static class PetsHelper
         const string petId = "";
         if (!GameStates.IsInGame || !Options.RemovePetsAtDeadPlayers.GetBool() || pc == null || !pc.Data.IsDead || pc.IsAlive() || pc.CurrentOutfit.PetId == petId) return;
 
-        var sender = CustomRpcSender.Create("PetsHelper.RpcRemovePet", SendOption.Reliable);
-        SetPet(pc, petId, sender);
-        sender.SendMessage();
+        SetPet(pc, petId);
     }
 
-    public static void SetPet(PlayerControl pc, string petId, CustomRpcSender sender)
+    public static void SetPet(PlayerControl pc, string petId)
     {
+        var sender = CustomRpcSender.Create("PetsHelper.SetPet", SendOption.Reliable);
+        
         pc.SetPet(petId);
         pc.Data.DefaultOutfit.PetSequenceId += 10;
 
-        sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
+        sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr)
             .Write(petId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();
+
+        sender.SendMessage();
     }
 
     public static string GetPetId()

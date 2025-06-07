@@ -22,7 +22,7 @@ public class Crusader : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Crusader);
 
-        SkillCooldown = new FloatOptionItem(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
+        SkillCooldown = new FloatOptionItem(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -42,7 +42,7 @@ public class Crusader : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(SkillLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(SkillLimitOpt.GetFloat());
         CurrentKillCooldown = SkillCooldown.GetFloat();
     }
 

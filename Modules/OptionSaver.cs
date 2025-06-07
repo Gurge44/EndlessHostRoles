@@ -35,7 +35,6 @@ public static class OptionSaver
         }
 
         if (!OptionSaverFileInfo.Exists) OptionSaverFileInfo.Create().Dispose();
-
         if (!DefaultPresetFileInfo.Exists) DefaultPresetFileInfo.Create().Dispose();
     }
 
@@ -48,9 +47,11 @@ public static class OptionSaver
         {
             if (option.IsSingleValue)
             {
-                if (!singleOptions.TryAdd(option.Id, option.SingleValue)) EHR.Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
+                if (!singleOptions.TryAdd(option.Id, option.SingleValue))
+                    EHR.Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
             }
-            else if (!presetOptions.TryAdd(option.Id, option.AllValues)) EHR.Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
+            else if (!presetOptions.TryAdd(option.Id, option.AllValues))
+                EHR.Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
         }
 
         DefaultPresetNumber = singleOptions[0];

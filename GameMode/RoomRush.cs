@@ -54,6 +54,7 @@ public static class RoomRush
             [(SystemTypes.Electrical, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.MedBay, SystemTypes.Security)] = 3,
             [(SystemTypes.Admin, SystemTypes.Security)] = 2,
+            [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.Storage, SystemTypes.Security)] = 2,
             [(SystemTypes.Storage, SystemTypes.MedBay)] = 2
         },
@@ -82,6 +83,7 @@ public static class RoomRush
             [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.Security, SystemTypes.Comms)] = 2,
             [(SystemTypes.Security, SystemTypes.Electrical)] = 2,
+            [(SystemTypes.Office, SystemTypes.Specimens)] = 2,
             [(SystemTypes.Comms, SystemTypes.Electrical)] = 2
         },
         [MapNames.Airship] = new()
@@ -186,7 +188,7 @@ public static class RoomRush
 
     public static int GetSurvivalTime(byte id)
     {
-        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state)) return -1;
+        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || ChatCommands.Spectators.Contains(id) || (id == 0 && Main.GM.Value)) return -1;
 
         if (!state.IsDead) return 0;
 
@@ -203,7 +205,7 @@ public static class RoomRush
 
     public static void OnGameStart()
     {
-        if (!CustomGameMode.RoomRush.IsActiveOrIntegrated()) return;
+        if (Options.CurrentGameMode != CustomGameMode.RoomRush) return;
 
         Main.Instance.StartCoroutine(GameStartTasks());
     }
@@ -234,17 +236,11 @@ public static class RoomRush
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne)
-        {
-            yield return new WaitForSeconds(2f);
-            goto Skip;
-        }
-
         bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 2;
 
         if (showTutorial)
         {
-            var readingTime = 4;
+            var readingTime = 2;
 
             StringBuilder sb = new(Translator.GetString("RR_Tutorial_Basics"));
             sb.AppendLine();
@@ -322,15 +318,8 @@ public static class RoomRush
             yield return new WaitForSeconds(1f);
         }
 
-        Skip:
-
         if (ventLimit > 0)
-        {
-            var sender = CustomRpcSender.Create("Room Rush - Venting RpcChangeRoleBasis", SendOption.Reliable);
-            if (Options.CurrentGameMode == CustomGameMode.AllInOne) aapc.DoIf(x => x.GetRoleMap().RoleType is RoleTypes.Crewmate or RoleTypes.Noisemaker or RoleTypes.Scientist or RoleTypes.Tracker, x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR, sender: sender));
-            else aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR, sender: sender));
-            sender.SendMessage();
-        }
+            aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
         Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
@@ -387,7 +376,7 @@ public static class RoomRush
                     : Options.DecontaminationTimeOnMiraHQ.GetInt()
                 : 3;
 
-            time += decontaminationTime * (polus ? 2 : 4);
+            time += decontaminationTime * (polus ? 3 : 4);
         }
 
         switch (map)
@@ -395,13 +384,12 @@ public static class RoomRush
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
                 break;
-            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical):
+            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
                 time -= (int)(5 * speed);
                 break;
         }
 
         TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6);
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne) TimeLeft *= AllInOneGameMode.RoomRushTimeLimitMultiplier.GetInt();
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "RoomRush");
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
@@ -511,7 +499,7 @@ public static class RoomRush
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameGoing || Main.HasJustStarted || !CustomGameMode.RoomRush.IsActiveOrIntegrated() || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
+            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
 
             long now = Utils.TimeStamp;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -609,7 +597,7 @@ public static class RoomRush
 
 public class RRPlayer : RoleBase
 {
-    public override bool IsEnable => CustomGameMode.RoomRush.IsActiveOrIntegrated();
+    public override bool IsEnable => Options.CurrentGameMode == CustomGameMode.RoomRush;
 
     public override void Init() { }
 

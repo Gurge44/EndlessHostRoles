@@ -40,7 +40,7 @@ public class Whisperer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
+        AbilityUseLimit = new FloatOptionItem(++id, "AbilityUseLimit", new(0, 20, 0.05f), 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
             .SetValueFormat(OptionFormat.Times);
 
@@ -68,7 +68,7 @@ public class Whisperer : RoleBase
         Instances.Add(this);
         WhispererId = playerId;
         CurrentlyQuestioning = (string.Empty, 0);
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)

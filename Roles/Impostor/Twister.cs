@@ -32,7 +32,7 @@ public class Twister : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
             .SetValueFormat(OptionFormat.Times);
 
-        TwisterAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles)
+        TwisterAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -44,7 +44,7 @@ public class Twister : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerId.SetAbilityUseLimit(TwisterLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(TwisterLimitOpt.GetFloat());
         On = true;
     }
 

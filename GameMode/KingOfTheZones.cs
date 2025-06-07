@@ -255,15 +255,19 @@ public static class KingOfTheZones
 
         int numPlayers = ids.Count;
 
-        if (AutoSetNumTeams.GetBool() && numPlayers % NumTeams.GetInt() != 0 && (numPlayers <= 1 || Enumerable.Range(2, (int)Math.Sqrt(numPlayers) - 1).Any(x => numPlayers % x == 0)))
+        if (AutoSetNumTeams.GetBool() && numPlayers % NumTeams.GetInt() != 0)
         {
-            List<int> divisors = Enumerable.Range(2, 6).Where(x => numPlayers % x == 0).ToList();
-
-            if (divisors.Count > 0)
+            if (numPlayers is 2 or 3 or 5 or 7) NumTeams.SetValue(numPlayers - 2);
+            else if (numPlayers <= 1 || Enumerable.Range(2, (int)Math.Sqrt(numPlayers) - 1).Any(x => numPlayers % x == 0))
             {
-                int selectedTeamCount = PreferNumTeams.GetValue() == 0 ? divisors.Min() : divisors.Max();
-                NumTeams.SetValue(selectedTeamCount - 2);
-                Logger.Msg($"Auto set teams to {selectedTeamCount}", "KOTZ");
+                List<int> divisors = Enumerable.Range(2, 6).Where(x => numPlayers % x == 0).ToList();
+
+                if (divisors.Count > 0)
+                {
+                    int selectedTeamCount = PreferNumTeams.GetValue() == 0 ? divisors.Min() : divisors.Max();
+                    NumTeams.SetValue(selectedTeamCount - 2);
+                    Logger.Msg($"Auto set teams to {selectedTeamCount}", "KOTZ");
+                }
             }
         }
 
@@ -284,7 +288,7 @@ public static class KingOfTheZones
 
     public static IEnumerator GameStart()
     {
-        if (!CustomGameMode.KingOfTheZones.IsActiveOrIntegrated()) yield break;
+        if (Options.CurrentGameMode != CustomGameMode.KingOfTheZones) yield break;
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Length / 2;
@@ -293,9 +297,6 @@ public static class KingOfTheZones
         int teams = NumTeams.GetInt();
         int zones = NumZones.GetInt();
 
-        var writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
-        var hasData = false;
-
         foreach ((byte id, KOTZTeam team) in PlayerTeams)
         {
             try
@@ -303,6 +304,9 @@ public static class KingOfTheZones
                 PlayerControl player = id.GetPlayer();
                 if (player == null) continue;
                 string name = Main.AllPlayerNames[id];
+
+                var writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
+                var hasData = false;
 
                 try
                 {
@@ -322,36 +326,21 @@ public static class KingOfTheZones
                 hasData |= writer.Notify(player, $"<#ffffff>{notify}</color>", 100f);
                 Logger.Info($"{name} assigned to {team} team", "KOTZ");
 
-                if (writer.stream.Length > 400)
-                {
-                    writer.SendMessage();
-                    writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
-                    hasData = false;
-                }
-
                 try
                 {
                     int targetClientId = player.OwnerId;
                     PlayerTeams.DoIf(
                         x => x.Key != id && x.Value == team,
-                        // ReSharper disable once AccessToModifiedClosure
                         x => writer.RpcSetRole(x.Key.GetPlayer(), RoleTypes.Impostor, targetClientId, changeRoleMap: true));
-
-                    if (writer.stream.Length > 400)
-                    {
-                        writer.SendMessage();
-                        writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
-                        hasData = false;
-                    }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
+
+                writer.SendMessage(!hasData);
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            yield return null;
+            yield return new WaitForSeconds(0.1f);
         }
-
-        writer.SendMessage(dispose: !hasData);
 
         yield return new WaitForSeconds(showTutorial ? 8f : 2f);
         NameNotifyManager.Reset();
@@ -430,7 +419,6 @@ public static class KingOfTheZones
                 yield return StartingCountdown();
         }
 
-        var sender = CustomRpcSender.Create("KOTZ.GameStart.RandomSpawns", SendOption.Reliable);
         KeyValuePair<SystemTypes, Vector2>[] spawnsConst = RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).ToArray();
         List<KeyValuePair<SystemTypes, Vector2>> spawns = spawnsConst.ToList();
 
@@ -438,18 +426,16 @@ public static class KingOfTheZones
         {
             try
             {
-                sender.SetKillCooldown(player, TagCooldown.GetInt());
+                player.SetKillCooldown(TagCooldown.GetInt());
 
                 KeyValuePair<SystemTypes, Vector2> spawn = spawns.RandomElement();
-                sender.TP(player, spawn.Value);
+                player.TP(spawn.Value);
                 spawns.RemoveAll(x => x.Key == spawn.Key);
 
                 if (spawns.Count == 0) spawns = spawnsConst.ToList();
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
-
-        sender.SendMessage();
 
         TimeLeft = GameEndsByTimeLimit.GetBool() ? MaxGameLength.GetInt() : 0;
         GameStartTS = Utils.TimeStamp;
@@ -505,15 +491,13 @@ public static class KingOfTheZones
     {
         if (!Main.IntroDestroyed || !GameGoing || PlayerTeams[killer.PlayerId] == PlayerTeams[target.PlayerId] || SpawnProtectionTimes.ContainsKey(target.PlayerId) || new[] { killer, target }.Any(x => RespawnTimes.ContainsKey(x.PlayerId))) return;
 
-        var sender = CustomRpcSender.Create("KOTZ.OnCheckMurder", SendOption.Reliable);
-        sender.SetKillCooldown(killer, GetKillCooldown(killer));
-        sender.SetKillCooldown(target, GetKillCooldown(target));
+        killer.SetKillCooldown(GetKillCooldown(killer));
+        target.SetKillCooldown(GetKillCooldown(target));
 
         RespawnTimes[target.PlayerId] = Utils.TimeStamp + RespawnTime.GetInt() + 1;
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         target.MarkDirtySettings();
-        sender.TP(target, Pelican.GetBlackRoomPS());
-        sender.SendMessage();
+        target.TP(Pelican.GetBlackRoomPS());
         return;
 
         static float GetKillCooldown(PlayerControl player)
@@ -668,7 +652,7 @@ public static class KingOfTheZones
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !CustomGameMode.KingOfTheZones.IsActiveOrIntegrated() || !Main.IntroDestroyed || !GameGoing) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.KingOfTheZones || !Main.IntroDestroyed || !GameGoing) return;
 
             long now = Utils.TimeStamp;
             if (LastUpdate == now) return;
