@@ -2895,7 +2895,9 @@ internal static class ChatCommands
 
         return text switch
         {
-            "管理員" or "管理" or "gm" => GetString("GM"),
+            // There is no need to use these now
+            
+            /*"管理員" or "管理" or "gm" => GetString("GM"),
             "賞金獵人" or "赏金" or "bh" or "bounty" => GetString("BountyHunter"),
             "自爆兵" or "自爆" => GetString("Bomber"),
             "邪惡的追踪者" or "邪恶追踪者" or "追踪" or "et" => GetString("EvilTracker"),
@@ -3013,8 +3015,8 @@ internal static class ChatCommands
             "sch" => GetString("SchrodingersCat"),
             "glitch" => GetString("Glitch"),
             "безумный" or "mad" => GetString("Madmate"),
-            "анти админер" or "anti adminer" => GetString("AntiAdminer"),
-            _ => text
+            "анти админер" or "anti adminer" => GetString("AntiAdminer"),*/
+            _ => text,
         };
     }
 
