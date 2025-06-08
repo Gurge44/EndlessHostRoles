@@ -39,7 +39,7 @@ public class Traitor : RoleBase
         CanGetImpostorOnlyAddons = new BooleanOptionItem(Id + 16, "CanGetImpostorOnlyAddons", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
 
-        LegacyTraitor = new BooleanOptionItem(Id + 17, "LegacyTraitor", false, TabGroup.NeutralRoles)
+        LegacyTraitor = new BooleanOptionItem(Id + 17, "UseLegacyVersion", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
 
         TraitorShapeshiftCD = new FloatOptionItem(Id + 19, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.NeutralRoles)
