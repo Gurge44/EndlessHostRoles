@@ -1157,7 +1157,10 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
-            target.RpcSetRoleDesync(roleType, targetClientId);
+            bool forceDisplayCrewmate = target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel);
+            if (forceDisplayCrewmate) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;
+
+            target.RpcSetRoleDesync(forceDisplayCrewmate ? RoleTypes.Crewmate : roleType, targetClientId);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -1217,6 +1220,7 @@ internal static class StartGameHostPatch
         public static Dictionary<byte, RoleTypes> StoragedData = [];
         public static Dictionary<(byte SeerID, byte TargetID), (RoleTypes RoleType, CustomRoles CustomRole)> RoleMap = [];
         public static List<CustomRpcSender> OverriddenSenderList = [];
+        public static Dictionary<byte, RoleTypes> OverriddenTeamRevealScreen = [];
 
         public static void Initialize()
         {
@@ -1225,6 +1229,7 @@ internal static class StartGameHostPatch
             RoleMap = [];
             StoragedData = [];
             OverriddenSenderList = [];
+            OverriddenTeamRevealScreen = [];
         }
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
@@ -1425,6 +1430,28 @@ internal static class StartGameHostPatch
                 StoragedData = null;
             }
             catch (Exception e) { Utils.ThrowException(e); }
+        }
+
+        public static void SetActualSelfRolesAfterOverride()
+        {
+            foreach ((byte id, RoleTypes roleTypes) in OverriddenTeamRevealScreen)
+            {
+                PlayerControl pc = id.GetPlayer();
+                if (pc == null || !pc.IsAlive()) continue;
+
+                int targetClientId = pc.OwnerId;
+                if (targetClientId == -1) continue;
+
+                pc.RpcSetRoleDesync(roleTypes, targetClientId);
+
+                LateTask.New(() =>
+                {
+                    pc.RpcResetAbilityCooldown();
+                    pc.SetKillCooldown();
+                }, 0.2f, log: false);
+            }
+
+            OverriddenTeamRevealScreen = null;
         }
     }
 }

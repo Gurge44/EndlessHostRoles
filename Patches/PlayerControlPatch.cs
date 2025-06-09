@@ -882,7 +882,9 @@ internal static class ShapeshiftPatch
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (pc.Is(CustomRoles.Shiftguard)) pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : GetString("ShiftguardNotifyUnshift"));
+            PlainShipRoom plainShipRoom = pc.GetPlainShipRoom();
+            string room = GetString(plainShipRoom != null ? plainShipRoom.RoomId.ToString() : "Outside");
+            if (pc.Is(CustomRoles.Shiftguard)) pc.Notify($"[<#00ffa5>{room}</color>] {GetString(shapeshifting ? "ShiftguardNotifySS" : "ShiftguardNotifyUnshift")}");
 
             switch (Main.PlayerStates[pc.PlayerId].Role)
             {

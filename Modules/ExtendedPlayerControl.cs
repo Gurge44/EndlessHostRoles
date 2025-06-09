@@ -77,7 +77,14 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        if (Options.CurrentGameMode == CustomGameMode.RoomRush) return true;
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.RoomRush:
+                return true;
+            case CustomGameMode.Standard when Main.AllAlivePlayerControls.Length == 2:
+                return false;
+        }
+
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return false;
@@ -325,11 +332,11 @@ internal static class ExtendedPlayerControl
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
-    public static bool RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, bool forced = false)
+    public static void RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false, bool forced = false)
     {
         if (!forced)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return false;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
 
             if (AntiBlackout.SkipTasks || ExileController.Instance)
             {
@@ -339,7 +346,7 @@ internal static class ExtendedPlayerControl
                 string callerClassName = callerMethod?.DeclaringType?.FullName;
                 Logger.Warn($"{callerClassName}.{callerMethodName} tried to change the role basis of {player.GetNameWithRole()} during anti-blackout processing or ejection screen showing, delaying the code to run after these tasks are complete", "RpcChangeRoleBasis");
                 Main.Instance.StartCoroutine(DelayBasisChange());
-                return false;
+                return;
 
                 IEnumerator DelayBasisChange()
                 {
@@ -521,8 +528,6 @@ internal static class ExtendedPlayerControl
         if (!forced) Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
 
         Main.ChangedRole = true;
-
-        return true;
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/Utils.cs

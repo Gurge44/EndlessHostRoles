@@ -582,6 +582,7 @@ public static class Options
     // Sabotage
     public static OptionItem CommsCamouflage;
     public static OptionItem CommsCamouflageDisableOnFungle;
+    public static OptionItem CommsCamouflageDisableOnMira;
     public static OptionItem CommsCamouflageLimit;
     public static OptionItem CommsCamouflageLimitSetChance;
     public static OptionItem CommsCamouflageLimitChance;
@@ -711,6 +712,7 @@ public static class Options
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
     public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem MessageRpcSizeLimit;
+    public static OptionItem KickSlowJoiningPlayers;
     public static OptionItem DraftMaxRolesPerPlayer;
     public static OptionItem LargerRoleTextSize;
     public static OptionItem ShowTaskCountWhenAlive;
@@ -1582,6 +1584,9 @@ public static class Options
         MessageRpcSizeLimit = new IntegerOptionItem(19425, "MessageRpcSizeLimit", new(500, 100000, 100), 1400, TabGroup.SystemSettings)
             .SetHeader(true);
 
+        KickSlowJoiningPlayers = new BooleanOptionItem(19428, "KickSlowJoiningPlayers", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .SetHeader(true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
@@ -1829,6 +1834,11 @@ public static class Options
             .SetColor(new Color32(243, 96, 96, byte.MaxValue));
 
         CommsCamouflageDisableOnFungle = new BooleanOptionItem(22202, "CommsCamouflageDisableOnFungle", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(CommsCamouflage)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+        CommsCamouflageDisableOnMira = new BooleanOptionItem(22201, "CommsCamouflageDisableOnMira", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(CommsCamouflage)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue));

@@ -824,8 +824,8 @@ internal static class MeetingHudStartPatch
     {
         SoundManager.Instance.ChangeAmbienceVolume(0f);
 
-        GuessManager.textTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
-        GuessManager.textTemplate.enabled = false;
+        GuessManager.TextTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
+        GuessManager.TextTemplate.enabled = false;
 
         PlayerControl seer = PlayerControl.LocalPlayer;
 

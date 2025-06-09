@@ -210,25 +210,24 @@ internal static class OnPlayerJoinedPatch
         {
             try
             {
-                if (AmongUsClient.Instance.AmHost)
+                if (!AmongUsClient.Instance.AmHost) return;
+
+                if (Options.KickSlowJoiningPlayers.GetBool() && ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || ((client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length <= 15)))
                 {
-                    if ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || ((client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length <= 15))
-                    {
-                        Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
-                        AmongUsClient.Instance.KickPlayer(client.Id, false);
-                        Logger.Info($"Kicked client {client.Id}/{client.PlayerName} since its PlayerControl was not spawned in time.", "OnPlayerJoinedPatchPostfix");
-                        return;
-                    }
-
-                    if (!Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
-                    {
-                        MessageWriter retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
-                        AmongUsClient.Instance.FinishRpcImmediately(retry);
-                    }
-
-                    if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 17)
-                        Disco.ChangeColor(client.Character);
+                    Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
+                    AmongUsClient.Instance.KickPlayer(client.Id, false);
+                    Logger.Info($"Kicked client {client.Id}/{client.PlayerName} since its PlayerControl was not spawned in time.", "OnPlayerJoinedPatchPostfix");
+                    return;
                 }
+
+                if (!Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
+                {
+                    MessageWriter retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
+                    AmongUsClient.Instance.FinishRpcImmediately(retry);
+                }
+
+                if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 17)
+                    Disco.ChangeColor(client.Character);
             }
             catch { }
         }, 4.5f, "green bean kick late task", false);
@@ -237,7 +236,7 @@ internal static class OnPlayerJoinedPatch
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid())) BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
 
-            AmongUsClient.Instance.KickPlayer(client.Id, true);
+            AmongUsClient.Instance.KickPlayer(client.Id, false);
             Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
             Logger.Info($"TempBanned a player {client.PlayerName} without a friend code", "Temp Ban");
         }
@@ -570,7 +569,7 @@ internal static class SetColorPatch
         {
             LateTask.New(() =>
             {
-                if (__instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
+                if (Options.KickSlowJoiningPlayers.GetBool() && __instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
                 {
                     ClientData client = __instance.GetClient();
 
