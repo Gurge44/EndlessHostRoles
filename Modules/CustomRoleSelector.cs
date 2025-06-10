@@ -93,7 +93,7 @@ internal static class CustomRoleSelector
         foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
 
             switch (role)
             {
@@ -121,12 +121,6 @@ internal static class CustomRoleSelector
             }
 
             int count = role.GetCount();
-
-            if (role == CustomRoles.Randomizer && Options.AprilFoolsMode.GetBool())
-            {
-                chance = 100;
-                count = 15;
-            }
 
             RoleAssignInfo info = new(role, chance, count);
 

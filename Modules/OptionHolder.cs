@@ -2279,6 +2279,7 @@ public static class Options
 
         AprilFoolsMode = new BooleanOptionItem(23860, "AprilFoolsMode", Main.IsAprilFools, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
+            .SetHidden(true)
             .SetHeader(true)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 

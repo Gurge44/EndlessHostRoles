@@ -1899,7 +1899,9 @@ internal static class FixedUpdatePatch
         if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Exists(player => !player.IsAlive() && player.PlayerId == deathId) && !force)) return;
 
         Main.IsLoversDead = true;
-        PlayerControl partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && player.IsAlive());
+        PlayerControl partnerPlayer = Main.LoversPlayers.FirstOrDefault(player => player.PlayerId != deathId && player.IsAlive());
+
+        if (partnerPlayer == null) return;
 
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {
@@ -2312,9 +2314,6 @@ public static class PlayerControlFixMixedUpOutfitPatch
         if (!__instance.IsAlive()) return;
 
         __instance.cosmetics.ToggleNameVisible(true);
-
-        if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
-            ReportDeadBodyPatch.CanReport.SetAllValues(true);
     }
 }
 

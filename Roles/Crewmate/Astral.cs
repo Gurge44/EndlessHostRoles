@@ -49,6 +49,9 @@ public class Astral : RoleBase
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = 1f;
+
+        try { AURoleOptions.GuardianAngelCooldown = 900f; }
+        catch { }
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -68,6 +71,9 @@ public class Astral : RoleBase
 
         pc.Exiled();
         CustomRpcSender.Create("Astral", (SendOption)1).AutoStartRpc(pc.NetId, 4).EndRpc().SendMessage();
+        LateTask.New(() => pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.OwnerId), 0.2f, log: false);
+        LateTask.New(pc.RpcResetAbilityCooldown, 0.4f, log: false);
+        pc.MarkDirtySettings();
 
         BackTS = Utils.TimeStamp + AbilityDuration.GetInt() + 1;
         Utils.SendRPC(CustomRPC.SyncRoleData, AstralId, BackTS);

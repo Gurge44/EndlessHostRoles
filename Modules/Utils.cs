@@ -1506,7 +1506,6 @@ public static class Utils
         {
             if (state.RoleHistory.Count > 0)
             {
-                state.RoleHistory.Add(state.MainRole);
                 string join = string.Join(" > ", state.RoleHistory.ConvertAll(x => x.ToColoredString()));
                 sb.AppendLine($"{id.ColoredPlayerName()}: {join}");
             }

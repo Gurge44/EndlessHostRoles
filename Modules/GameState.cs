@@ -111,6 +111,8 @@ public class PlayerState(byte playerId)
         if (Main.IntroDestroyed && MainRole != CustomRoles.NotAssigned && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
             RoleHistory.Add(MainRole);
 
+        Divinator.OnRoleChange(PlayerId, MainRole, role);
+
         bool previousHasTasks = Utils.HasTasks(Player.Data, false);
 
         countTypes = role.GetCountTypes();

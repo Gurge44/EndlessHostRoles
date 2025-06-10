@@ -110,7 +110,13 @@ static class CoShowIntroPatch
             introCutscene.ImpostorTitle.gameObject.SetActive(false);
 
             List<PlayerControl> show = IntroCutscene.SelectTeamToShow((Func<NetworkedPlayerInfo, bool>)(pcd => !PlayerControl.LocalPlayer.Data.Role.IsImpostor || pcd.Role.TeamType == PlayerControl.LocalPlayer.Data.Role.TeamType));
-            if (show == null || show.Count < 1) Logger.Error("IntroCutscene :: CoBegin() :: teamToShow is EMPTY or NULL", "BASE GAME LOGGER");
+
+            if (show == null || show.Count < 1)
+            {
+                Logger.Error("IntroCutscene :: CoBegin() :: teamToShow is EMPTY or NULL", "BASE GAME LOGGER");
+                show = new();
+                show.Add(PlayerControl.LocalPlayer);
+            }
 
             if (PlayerControl.LocalPlayer.Data.Role.IsImpostor)
                 introCutscene.ImpostorText.gameObject.SetActive(false);

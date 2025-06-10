@@ -25,7 +25,7 @@ public class Divinator : RoleBase
 
     public static readonly List<byte> DidVote = [];
 
-    private static Dictionary<byte, HashSet<CustomRoles>> AllPlayerRoleList = [];
+    private static Dictionary<byte, List<CustomRoles>> AllPlayerRoleList = [];
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -87,7 +87,7 @@ public class Divinator : RoleBase
                 .ToArray();
 
             roleList.Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()));
-            AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList.ToHashSet());
+            AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList);
 
             Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key} ({x.Key.GetPlayer().GetNameWithRole()}): {string.Join(", ", x.Value)}")), "Divinator Roles");
         }, 8f, log: false);
@@ -134,5 +134,18 @@ public class Divinator : RoleBase
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;
+    }
+
+    public static void OnRoleChange(byte id, CustomRoles previousRole, CustomRoles newRole)
+    {
+        try
+        {
+            if (!AllPlayerRoleList.TryGetValue(id, out List<CustomRoles> list)) return;
+
+            int index = list.IndexOf(previousRole);
+            list.Remove(previousRole);
+            list.Insert(index, newRole);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
