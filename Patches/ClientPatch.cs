@@ -134,9 +134,16 @@ internal static class SetResolutionManager
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendAllStreamedObjects))]
 internal static class InnerNetObjectSerializePatch
 {
+    private static int Count;
+    
     public static void Prefix()
     {
-        if (AmongUsClient.Instance.AmHost) Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        if (Count++ < 10) return;
+        Count = 0;
+
+        Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
     }
 }
 

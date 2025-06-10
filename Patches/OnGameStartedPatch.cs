@@ -926,9 +926,6 @@ internal static class StartGameHostPatch
                 case CustomGameMode.NaturalDisasters:
                     NaturalDisasters.OnGameStart();
                     break;
-                case CustomGameMode.RoomRush:
-                    RoomRush.OnGameStart();
-                    break;
                 case CustomGameMode.KingOfTheZones:
                     KingOfTheZones.Init();
                     break;

@@ -981,7 +981,7 @@ internal static class ChatCommands
 
         IEnumerator RepeatedlySendMessage()
         {
-            for (var index = 0; index < 5; index++)
+            for (var index = 0; index < 4; index++)
             {
                 List<Message> messages = [];
 

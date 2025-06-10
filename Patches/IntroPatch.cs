@@ -1150,6 +1150,9 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.CaptureTheFlag:
                     Main.Instance.StartCoroutine(CaptureTheFlag.OnGameStart());
                     break;
+                case CustomGameMode.RoomRush:
+                    Main.Instance.StartCoroutine(RoomRush.GameStartTasks());
+                    break;
             }
 
             Utils.CheckAndSetVentInteractions();

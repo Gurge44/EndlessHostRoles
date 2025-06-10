@@ -40,7 +40,7 @@ internal static class OnGameJoinedPatch
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
 
-        LateTask.New(Achievements.ShowWaitingAchievements, 5f, log: false);
+        LateTask.New(Achievements.ShowWaitingAchievements, 8f, log: false);
 
         if (AmongUsClient.Instance.AmHost)
         {

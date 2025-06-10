@@ -210,7 +210,7 @@ public static class RoomRush
         Main.Instance.StartCoroutine(GameStartTasks());
     }
 
-    private static IEnumerator GameStartTasks()
+    public static IEnumerator GameStartTasks()
     {
         GameGoing = false;
 
@@ -231,7 +231,7 @@ public static class RoomRush
 
         Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
-        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 18f : 14f);
+        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 4f : 0.2f);
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
