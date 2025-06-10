@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 
@@ -61,9 +59,6 @@ public static class CaptureTheFlag
     private static int RoundsPlayed => TeamData.Values.Sum(x => x.RoundsWon);
     public static bool IsDeathPossible => TaggedPlayersGet.GetValue() == 1;
     public static float KCD => TagCooldown.GetFloat();
-
-    private static NetworkedPlayerInfo.PlayerOutfit YellowOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 5, "", "", "", "pet_coaltonpet", "");
-    private static NetworkedPlayerInfo.PlayerOutfit BlueOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 1, "", "", "", "pet_coaltonpet", "");
 
     private static (Vector2 Position, string RoomName) BlueFlagBase => Main.CurrentMap switch
     {
@@ -301,8 +296,6 @@ public static class CaptureTheFlag
         int blueCount = players.Count / 2;
         HashSet<byte> bluePlayers = [];
         HashSet<byte> yellowPlayers = [];
-        NetworkedPlayerInfo.PlayerOutfit blueOutfit = BlueOutfit;
-        NetworkedPlayerInfo.PlayerOutfit yellowOutfit = YellowOutfit;
 
         for (var i = 0; i < blueCount; i++)
         {
@@ -310,9 +303,7 @@ public static class CaptureTheFlag
             players.Remove(player);
             PlayerTeams[player.PlayerId] = CTFTeam.Blue;
             bluePlayers.Add(player.PlayerId);
-            blueOutfit.PlayerName = player.GetRealName();
-            blueOutfit.PetId = player.Data.DefaultOutfit.PetId;
-            Utils.RpcChangeSkin(player, blueOutfit);
+            player.RpcSetColor(1);
             yield return null;
         }
 
@@ -320,9 +311,7 @@ public static class CaptureTheFlag
         {
             PlayerTeams[player.PlayerId] = CTFTeam.Yellow;
             yellowPlayers.Add(player.PlayerId);
-            yellowOutfit.PlayerName = player.GetRealName();
-            yellowOutfit.PetId = player.Data.DefaultOutfit.PetId;
-            Utils.RpcChangeSkin(player, yellowOutfit);
+            player.RpcSetColor(5);
             yield return null;
         }
 
@@ -688,10 +677,9 @@ public static class CaptureTheFlag
         public float FlagTime { get; set; }
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.CaptureTheFlag || !Main.IntroDestroyed || __instance.PlayerId >= 254 || WinnerData.Team != "No one wins" || Utils.GameStartTimeStamp + 15 > Utils.TimeStamp) return;
@@ -726,7 +714,16 @@ public static class CaptureTheFlag
             int colorId = blue ? 1 : 5;
 
             if (__instance.CurrentOutfit.ColorId != colorId)
-                Utils.RpcChangeSkin(__instance, blue ? BlueOutfit : YellowOutfit, sendOption: SendOption.None);
+            {
+                __instance.SetColor(colorId);
+
+                CustomRpcSender.Create("Color")
+                    .AutoStartRpc(__instance.NetId, 8)
+                    .Write(__instance.Data.NetId)
+                    .Write((byte)colorId)
+                    .EndRpc()
+                    .SendMessage();
+            }
 
             Vector2 pos = __instance.Pos();
             Vector2 blackRoomPS = Pelican.GetBlackRoomPS();

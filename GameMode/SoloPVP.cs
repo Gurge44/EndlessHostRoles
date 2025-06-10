@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
-using HarmonyLib;
 using UnityEngine;
 using static EHR.RandomSpawn;
 
@@ -315,16 +313,15 @@ internal static class SoloPVP
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
             byte id = __instance.PlayerId;
-            if (!GameStates.IsInTask || !Main.IntroDestroyed || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost || id == 255) return;
+            if (!GameStates.IsInTask || !Main.IntroDestroyed || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost || id >= 254) return;
 
             bool soloAlive = __instance.SoloAlive();
             bool inVent = __instance.inVent;

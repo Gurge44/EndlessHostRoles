@@ -184,7 +184,6 @@ internal static class DisconnectInternalPatch
         ErrorText.Instance.CheatDetected = false;
         ErrorText.Instance.SBDetected = false;
         ErrorText.Instance.Clear();
-        Cloud.StopConnect();
     }
 }
 
@@ -537,21 +536,24 @@ internal static class PlayerControlCheckNamePatch
     }
 }
 
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
+//[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
 internal static class InnerNetClientFixedUpdatePatch
 {
     private static float Timer;
 
     public static void Postfix()
     {
-        if (GameStates.IsLocalGame || !Options.KickNotJoinedPlayersRegularly.GetBool() || Main.AllPlayerControls.Length < 7) return;
+        try
+        {
+            if (GameStates.IsLocalGame || !GameStates.IsLobby || !Options.KickNotJoinedPlayersRegularly.GetBool() || Main.AllPlayerControls.Length < 7) return;
 
-        Timer += Time.fixedDeltaTime;
-        if (Timer < 25f) return;
+            Timer += Time.fixedDeltaTime;
+            if (Timer < 25f) return;
+            Timer = 0f;
 
-        Timer = 0f;
-
-        AmongUsClient.Instance.KickNotJoinedPlayers();
+            AmongUsClient.Instance.KickNotJoinedPlayers();
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 

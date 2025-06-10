@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -407,15 +405,14 @@ internal static class MoveAndStop
         return AllPlayerTimers.TryGetValue(id, out MoveAndStopPlayerData data) ? data.Lives : 0;
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         public static bool DoChecks;
         private static long LastFixedUpdate;
         public static Dictionary<byte, string> LastSuffix = [];
         public static Dictionary<byte, float> Limit = [];
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || !Main.IntroDestroyed || __instance.PlayerId >= 254) return;

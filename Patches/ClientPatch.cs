@@ -140,7 +140,7 @@ internal static class InnerNetObjectSerializePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (Count++ < 10) return;
+        if (Count++ < 3) return;
         Count = 0;
 
         Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());

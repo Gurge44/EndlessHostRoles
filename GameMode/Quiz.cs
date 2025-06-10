@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
@@ -506,12 +505,11 @@ public static class Quiz
         Hard
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastUpdate;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Quiz || !Main.IntroDestroyed) return;

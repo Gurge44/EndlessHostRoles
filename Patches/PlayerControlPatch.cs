@@ -1235,7 +1235,7 @@ internal static class ReportDeadBodyPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
 internal static class FixedUpdatePatch
 {
     private static readonly StringBuilder Mark = new(20);
@@ -1248,7 +1248,7 @@ internal static class FixedUpdatePatch
     private static long LastErrorTS;
     private static readonly Dictionary<byte, TextMeshPro> RoleTextTMPs = [];
 
-    public static void Postfix(PlayerControl __instance)
+    public static void Postfix(PlayerControl __instance, bool lowLoad)
     {
         if (__instance == null || __instance.PlayerId >= 254) return;
 
@@ -1299,21 +1299,14 @@ internal static class FixedUpdatePatch
 
         if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
         {
-            int buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
+            int buffer = Options.DeepLowLoad.GetBool() ? 150 : 60;
             DeadBufferTime.TryAdd(id, buffer);
             DeadBufferTime[id]--;
             if (DeadBufferTime[id] > 0) return;
-
             DeadBufferTime[id] = buffer;
         }
 
-        if (Options.LowLoadMode.GetBool())
-        {
-            BufferTime.TryAdd(id, Options.DeepLowLoad.GetBool() ? 30 : 10);
-            BufferTime[id]--;
-        }
-
-        try { DoPostfix(__instance); }
+        try { DoPostfix(__instance, lowLoad); }
         catch (Exception ex)
         {
             long now = TimeStamp;
@@ -1332,22 +1325,12 @@ internal static class FixedUpdatePatch
         }
     }
 
-    private static void DoPostfix(PlayerControl __instance)
+    private static void DoPostfix(PlayerControl __instance, bool lowLoad)
     {
         PlayerControl player = __instance;
         byte playerId = player.PlayerId;
         byte lpId = PlayerControl.LocalPlayer.PlayerId;
         bool localPlayer = playerId == lpId; // Updates that are independent of the player are only executed for the local player.
-
-        var lowLoad = false;
-
-        if (Options.LowLoadMode.GetBool())
-        {
-            if (BufferTime[playerId] > 0)
-                lowLoad = true;
-            else
-                BufferTime[playerId] = Options.DeepLowLoad.GetBool() ? 30 : 10;
-        }
 
         bool inTask = GameStates.IsInTask;
         bool alive = player.IsAlive();

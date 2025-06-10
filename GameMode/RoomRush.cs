@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 
@@ -491,15 +489,14 @@ public static class RoomRush
         }
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastUpdate = Utils.TimeStamp;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
-        public static void Postfix(PlayerControl __instance)
+        public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
+            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
 
             long now = Utils.TimeStamp;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;

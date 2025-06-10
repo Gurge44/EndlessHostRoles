@@ -3454,7 +3454,7 @@ public static class Utils
 
     public static void DumpLog(bool open = true)
     {
-        CustomLogger.Instance.Finish(clear: true);
+        CustomLogger.Instance.Finish();
         
         var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
         var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";

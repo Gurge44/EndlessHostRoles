@@ -172,7 +172,7 @@ public class CustomLogger
         """;
 
     private static CustomLogger PrivateInstance;
-    private float timer = 3f;
+    private float timer = 1f;
 
     private readonly StringBuilder Builder;
 
@@ -219,8 +219,6 @@ public class CustomLogger
                         """;
 
         Builder.Append(logEntry);
-
-        timer = 3f;
     }
 
     private IEnumerator InactivityCheck()
@@ -234,13 +232,12 @@ public class CustomLogger
         Finish(false);
     }
 
-    public void Finish(bool dump = true, bool clear = false)
+    public void Finish(bool dump = true)
     {
         var append = Builder.ToString();
         if (string.IsNullOrEmpty(append.Trim())) return;
         if (dump) append += HtmlFooter;
         File.AppendAllText(LOGFilePath, append);
         PrivateInstance = null;
-        if (clear) File.WriteAllText(LOGFilePath, HtmlHeader);
     }
 }

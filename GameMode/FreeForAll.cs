@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
-using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -377,12 +375,11 @@ internal static class FreeForAll
         Main.AllAlivePlayerControls.NotifyPlayers(LatestChatMessage);
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
             if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.FFA || !AmongUsClient.Instance.AmHost) return;

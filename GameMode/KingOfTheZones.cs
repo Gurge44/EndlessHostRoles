@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -310,8 +308,7 @@ public static class KingOfTheZones
 
                 try
                 {
-                    NetworkedPlayerInfo.PlayerOutfit skin = new NetworkedPlayerInfo.PlayerOutfit().Set(name, team.GetColorId(), "", "", "", "", "");
-                    hasData |= Utils.RpcChangeSkin(player, skin, writer);
+                    player.RpcSetColor(team.GetColorId());
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
 
@@ -339,7 +336,7 @@ public static class KingOfTheZones
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return null;
         }
 
         yield return new WaitForSeconds(showTutorial ? 8f : 2f);
@@ -644,12 +641,11 @@ public static class KingOfTheZones
         Orange
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastUpdate;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.KingOfTheZones || !Main.IntroDestroyed || !GameGoing) return;
@@ -812,8 +808,7 @@ public static class KingOfTheZones
                     byte colorId = PlayerTeams[player.PlayerId].GetColorId();
                     if (player.CurrentOutfit.ColorId == colorId) continue;
 
-                    string name = Main.AllPlayerNames[player.PlayerId];
-                    Utils.RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, colorId, "", "", "", "", ""));
+                    player.RpcSetColor(colorId);
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
