@@ -1924,7 +1924,7 @@ internal static class PlayerStartPatch
     {
         try
         {
-            if (__result || __instance.__4__this.PlayerId >= 254) return;
+            if (__result || __instance == null || __instance.__4__this == null || __instance.__4__this.PlayerId >= 254 || __instance.__4__this.cosmetics == null) return;
             TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
             TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
             bool largerFontSize = Options.LargerRoleTextSize.GetBool();
