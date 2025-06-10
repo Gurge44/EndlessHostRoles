@@ -790,6 +790,8 @@ public class Main : BasePlugin
             [CustomGameMode.TheMindGame] = Color.yellow
         };
 
+        StartCoroutine(ModNewsFetcher.FetchNews());
+
         Logger.Msg("========= EHR loaded! =========", "Plugin Load");
         Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
     }
