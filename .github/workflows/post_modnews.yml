@@ -1,0 +1,27 @@
+name: Post ModNews on Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  send-mod-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: pip install requests markdown
+
+      - name: Run script and send ModNews
+        env:
+          MODNEWS_API_URL: ${{ secrets.MODNEWS_API_URL }}
+          MODNEWS_API_TOKEN: ${{ secrets.MODNEWS_API_TOKEN }}
+        run: python release_to_modnews.py
