@@ -2075,11 +2075,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
-        DisableTaskWinIfAllCrewsAreDead = new BooleanOptionItem(22651, "DisableTaskWinIfAllCrewsAreDead", false, TabGroup.GameSettings)
+        DisableTaskWinIfAllCrewsAreDead = new BooleanOptionItem(22651, "DisableTaskWinIfAllCrewsAreDead", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
-        DisableTaskWinIfAllCrewsAreConverted = new BooleanOptionItem(22652, "DisableTaskWinIfAllCrewsAreConverted", false, TabGroup.GameSettings)
+        DisableTaskWinIfAllCrewsAreConverted = new BooleanOptionItem(22652, "DisableTaskWinIfAllCrewsAreConverted", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
