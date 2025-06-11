@@ -155,17 +155,16 @@ internal static class ChangeRoleSettings
 
         try
         {
-            Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
-
-            if (Options.DisableVanillaRoles.GetBool())
+            new[]
             {
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
-            }
+                RoleTypes.GuardianAngel,
+                RoleTypes.Scientist,
+                RoleTypes.Engineer,
+                RoleTypes.Shapeshifter,
+                RoleTypes.Noisemaker,
+                RoleTypes.Phantom,
+                RoleTypes.Tracker
+            }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
             if (Main.NormalOptions.MapId > 5) Logger.SendInGame(GetString("UnsupportedMap"));
 
@@ -624,12 +623,8 @@ internal static class StartGameHostPatch
 
         UpdateRoleTypeNums();
 
-        foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
-        {
-            int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
-            roleNum += roleType.Value;
-            RoleOpt.SetRoleRate(roleType.Key, roleNum, roleType.Value > 0 ? 100 : RoleOpt.GetChancePerGame(roleType.Key));
-        }
+        foreach ((RoleTypes roleTypes, int roleNum) in RoleTypeNums)
+            RoleOpt.SetRoleRate(roleTypes, roleNum, roleNum > 0 ? 100 : RoleOpt.GetChancePerGame(roleTypes));
 
         Statistics.OnRoleSelectionComplete();
 
@@ -881,7 +876,8 @@ internal static class StartGameHostPatch
             {
                 try
                 {
-                    if (pc.Data.Role.Role == RoleTypes.Shapeshifter) Main.CheckShapeshift.Add(pc.PlayerId, false);
+                    if (pc.Data.Role.Role == RoleTypes.Shapeshifter)
+                        Main.CheckShapeshift[pc.PlayerId] = false;
 
                     if (pc.AmOwner && pc.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
                     {
@@ -942,7 +938,7 @@ internal static class StartGameHostPatch
 
             foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
             {
-                int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
+                var roleNum = 0;
                 roleNum -= roleType.Value;
                 RoleOpt.SetRoleRate(roleType.Key, roleNum, RoleOpt.GetChancePerGame(roleType.Key));
             }

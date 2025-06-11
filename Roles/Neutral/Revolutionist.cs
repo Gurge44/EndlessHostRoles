@@ -223,7 +223,7 @@ internal class Revolutionist : RoleBase
                         if (player.IsLocalPlayer())
                             Achievements.Type.OutOfTime.Complete();
                     }
-                    else RevolutionistCountdown.Add(playerId, countdown);
+                    else RevolutionistCountdown[playerId] = countdown;
                 }
                 else RevolutionistLastTime.TryAdd(playerId, RevolutionistStart[playerId]);
             }

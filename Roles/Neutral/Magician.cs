@@ -451,7 +451,7 @@ public class Magician : RoleBase
             if (target_dot < 0.995) continue;
 
             float err = target_pos.magnitude;
-            targets.Add(target, err);
+            targets[target] = err;
         }
 
         return targets;

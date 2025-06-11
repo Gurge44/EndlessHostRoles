@@ -220,6 +220,7 @@ internal static class TextBoxTMPSetTextPatch
                     bool IsValidArg() =>
                         argName switch
                         {
+                            "{sourcepreset}" or "{targetpreset}" => int.TryParse(arg, out int preset) && preset is >= 1 and <= 10,
                             "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out byte id) && Main.AllPlayerControls.Any(x => x.PlayerId == id),
                             "{team}" => arg is "crew" or "imp",
                             "{role}" or "[role]" => ChatCommands.GetRoleByName(arg, out _),

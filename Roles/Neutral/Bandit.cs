@@ -72,7 +72,7 @@ public class Bandit : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        TotalSteals.Add(playerId, 0);
+        TotalSteals[playerId] = 0;
         Targets[playerId] = [];
     }
 

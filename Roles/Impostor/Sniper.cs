@@ -172,12 +172,12 @@ public class Sniper : RoleBase
             if (PrecisionShooting)
             {
                 float err = Vector3.Cross(dir, targetPos).magnitude;
-                if (err < 0.5) targets.Add(target, err);
+                if (err < 0.5) targets[target] = err;
             }
             else
             {
                 float err = targetPos.magnitude;
-                targets.Add(target, err);
+                targets[target] = err;
             }
         }
 

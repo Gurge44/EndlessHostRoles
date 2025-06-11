@@ -276,7 +276,7 @@ public static class NameColorManager
         PlayerState state = Main.PlayerStates[seerId];
         if (state.TargetColorData.TryGetValue(targetId, out string value) && colorCode == value) return;
 
-        state.TargetColorData.Add(targetId, colorCode);
+        state.TargetColorData[targetId] = colorCode;
 
         SendRPC(seerId, targetId, colorCode);
     }

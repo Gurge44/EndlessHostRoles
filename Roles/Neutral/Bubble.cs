@@ -106,14 +106,14 @@ internal class Bubble : RoleBase
         else if (remove)
             EncasedPlayers.Remove(id);
         else
-            EncasedPlayers.Add(id, TimeStamp);
+            EncasedPlayers[id] = TimeStamp;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsEnable || target == null) return false;
 
-        EncasedPlayers.Add(target.PlayerId, TimeStamp);
+        EncasedPlayers[target.PlayerId] = TimeStamp;
         SendRPC(target.PlayerId);
         BubblePC.SetKillCooldown();
         return false;

@@ -342,6 +342,7 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp($"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))}\n{GetString("CantGuessJailed")}");
 
+                        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} tried to guess jailed player {target.GetNameWithRole().RemoveHtmlTags()}", "Guesser");
                         return true;
                     }
 
@@ -350,6 +351,7 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("JailedCanOnlyGuessJailor"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp($"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))}\n{GetString("JailedCanOnlyGuessJailor")}");
 
+                        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} tried to guess {target.GetNameWithRole().RemoveHtmlTags()} while jailed", "Guesser");
                         return true;
                     }
 
@@ -360,18 +362,18 @@ public static class GuessManager
                     }
 
                     // Check whether Add-on guessing is allowed
-                    if (!forceAllowGuess)
+                    if (!forceAllowGuess && role.IsAdditionRole())
                     {
                         switch (pc.GetCustomRole())
                         {
                             // Assassin & Nice Guesser Can't Guess Addons
-                            case CustomRoles.EvilGuesser when role.IsAdditionRole() && !Options.EGCanGuessAdt.GetBool():
-                            case CustomRoles.NiceGuesser when role.IsAdditionRole() && !Options.GGCanGuessAdt.GetBool():
+                            case CustomRoles.EvilGuesser when !Options.EGCanGuessAdt.GetBool():
+                            case CustomRoles.NiceGuesser when !Options.GGCanGuessAdt.GetBool():
                                 ShowMessage("GuessAdtRole");
                                 return true;
                             // Guesser (Add-on) Can't Guess Add-ons
                             default:
-                                if (role.IsAdditionRole() && pc.Is(CustomRoles.Guesser) && !Guesser.GCanGuessAdt.GetBool())
+                                if (pc.Is(CustomRoles.Guesser) && !Guesser.GCanGuessAdt.GetBool())
                                 {
                                     ShowMessage("GuessAdtRole");
                                     return true;
@@ -381,18 +383,15 @@ public static class GuessManager
                         }
 
                         // Guesser Mode Can/Can't Guess Addons
-                        if (Options.GuesserMode.GetBool())
+                        if (Options.GuesserMode.GetBool() && !Options.CanGuessAddons.GetBool())
                         {
-                            if (role.IsAdditionRole() && !Options.CanGuessAddons.GetBool())
+                            if ((Options.ImpostorsCanGuess.GetBool() && pc.Is(CustomRoleTypes.Impostor) && !(pc.GetCustomRole() == CustomRoles.EvilGuesser || pc.Is(CustomRoles.Guesser))) ||
+                                (Options.CrewmatesCanGuess.GetBool() && pc.Is(CustomRoleTypes.Crewmate) && !(pc.GetCustomRole() == CustomRoles.NiceGuesser || pc.Is(CustomRoles.Guesser))) ||
+                                (Options.CovenCanGuess.GetBool() && pc.Is(CustomRoleTypes.Coven) && !(pc.GetCustomRole() == CustomRoles.Augur || pc.Is(CustomRoles.Guesser))) ||
+                                ((Options.NeutralKillersCanGuess.GetBool() || Options.PassiveNeutralsCanGuess.GetBool()) && pc.Is(CustomRoleTypes.Neutral) && !(pc.GetCustomRole() is CustomRoles.Ritualist or CustomRoles.Doomsayer || pc.Is(CustomRoles.Guesser))))
                             {
-                                if ((Options.ImpostorsCanGuess.GetBool() && pc.Is(CustomRoleTypes.Impostor) && !(pc.GetCustomRole() == CustomRoles.EvilGuesser || pc.Is(CustomRoles.Guesser))) ||
-                                    (Options.CrewmatesCanGuess.GetBool() && pc.Is(CustomRoleTypes.Crewmate) && !(pc.GetCustomRole() == CustomRoles.NiceGuesser || pc.Is(CustomRoles.Guesser))) ||
-                                    (Options.CovenCanGuess.GetBool() && pc.Is(CustomRoleTypes.Coven) && !(pc.GetCustomRole() == CustomRoles.Augur || pc.Is(CustomRoles.Guesser))) ||
-                                    ((Options.NeutralKillersCanGuess.GetBool() || Options.PassiveNeutralsCanGuess.GetBool()) && pc.Is(CustomRoleTypes.Neutral) && !(pc.GetCustomRole() is CustomRoles.Ritualist or CustomRoles.Doomsayer || pc.Is(CustomRoles.Guesser))))
-                                {
-                                    ShowMessage("GuessAdtRole");
-                                    return true;
-                                }
+                                ShowMessage("GuessAdtRole");
+                                return true;
                             }
                         }
                     }
@@ -541,8 +540,12 @@ public static class GuessManager
 
         void ShowMessage(string str)
         {
-            if (!isUI) Utils.SendMessage(GetString(str), pc.PlayerId);
-            else pc.ShowPopUp(GetString(str));
+            string text = GetString(str);
+
+            if (!isUI) Utils.SendMessage(text, pc.PlayerId);
+            else pc.ShowPopUp(text);
+
+            Logger.Info($"Shown/Sent: {text}", "Guesser Message");
         }
     }
 
@@ -1088,15 +1091,16 @@ public static class GuessManager
 
         private static void InitializeGuesserPlayers()
         {
-            Dictionary<Team, List<byte>> players = Main.AllPlayerControls
+            Dictionary<Team, List<PlayerControl>> players = Main.AllPlayerControls
                 .GroupBy(x => x.GetTeam())
-                .ToDictionary(x => x.Key, x => x.Select(p => p.PlayerId).Shuffle());
+                .ToDictionary(x => x.Key, x => x.Shuffle());
 
             foreach ((Team team, (OptionItem minSetting, OptionItem maxSetting)) in Options.NumGuessersOnEachTeam)
             {
-                if (!players.TryGetValue(team, out List<byte> teamPlayers)) continue;
+                if (!players.TryGetValue(team, out List<PlayerControl> teamPlayers)) continue;
                 int num = IRandom.Instance.Next(minSetting.GetInt(), maxSetting.GetInt() + 1);
-                Guessers.UnionWith(teamPlayers.Take(num));
+                if (team == Team.Neutral) teamPlayers.Sort((x, y) => y.IsNeutralKiller().CompareTo(x.IsNeutralKiller()));
+                Guessers.UnionWith(teamPlayers.Take(num).Select(x => x.PlayerId));
             }
         }
     }

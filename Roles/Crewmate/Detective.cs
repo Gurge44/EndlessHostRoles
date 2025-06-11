@@ -62,6 +62,6 @@ internal class Detective : RoleBase
             msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKillTime"), (int)timeSpanSeconds);
         }
 
-        DetectiveNotify.Add(player.PlayerId, msg);
+        DetectiveNotify[player.PlayerId] = msg;
     }
 }

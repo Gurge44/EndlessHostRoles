@@ -68,7 +68,7 @@ internal static class GeneratorStatic
                 OptionItem option = new IntegerOptionItem(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
 
-                ActionCostSettings.Add(action, option);
+                ActionCostSettings[action] = option;
             }
         }
 

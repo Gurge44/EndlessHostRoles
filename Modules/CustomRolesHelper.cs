@@ -1266,28 +1266,7 @@ internal static class CustomRolesHelper
 
     public static int GetCount(this CustomRoles role)
     {
-        if (role.IsVanilla())
-        {
-            if (Options.DisableVanillaRoles.GetBool()) return 0;
-
-            IRoleOptionsCollection roleOpt = Main.NormalOptions.RoleOptions;
-
-            return role switch
-            {
-                CustomRoles.Engineer => roleOpt.GetNumPerGame(RoleTypes.Engineer),
-                CustomRoles.Noisemaker => roleOpt.GetNumPerGame(RoleTypes.Noisemaker),
-                CustomRoles.Tracker => roleOpt.GetNumPerGame(RoleTypes.Tracker),
-                CustomRoles.Scientist => roleOpt.GetNumPerGame(RoleTypes.Scientist),
-                CustomRoles.Impostor => roleOpt.GetNumPerGame(RoleTypes.Impostor),
-                CustomRoles.Phantom => roleOpt.GetNumPerGame(RoleTypes.Phantom),
-                CustomRoles.Shapeshifter => roleOpt.GetNumPerGame(RoleTypes.Shapeshifter),
-                CustomRoles.GuardianAngel => roleOpt.GetNumPerGame(RoleTypes.GuardianAngel),
-                CustomRoles.Crewmate => roleOpt.GetNumPerGame(RoleTypes.Crewmate),
-                _ => 0
-            };
-        }
-
-        return Options.GetRoleCount(role);
+        return role.IsVanilla() ? 0 : Options.GetRoleCount(role);
     }
 
     public static int GetMode(this CustomRoles role)

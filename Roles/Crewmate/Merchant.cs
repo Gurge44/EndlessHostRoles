@@ -88,8 +88,8 @@ internal class Merchant : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        AddonsSold.Add(playerId, 0);
-        BribedKiller.Add(playerId, []);
+        AddonsSold[playerId] = 0;
+        BribedKiller[playerId] = [];
     }
 
     public override void Remove(byte playerId)

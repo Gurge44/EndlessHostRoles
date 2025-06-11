@@ -1230,6 +1230,8 @@ internal static class ReportDeadBodyPatch
 
         Camouflage.CamoTimesThisRound = 0;
 
+        NumSnapToCallsThisRound = 0;
+
         if (HudManagerPatch.AchievementUnlockedText == string.Empty)
             HudManagerPatch.ClearLowerInfoText();
     }

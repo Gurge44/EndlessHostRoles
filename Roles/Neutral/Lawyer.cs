@@ -78,10 +78,10 @@ public class Lawyer : RoleBase
                     return;
                 }
 
-                PlayerControl SelectedTarget = targetList.RandomElement();
-                Target.Add(playerId, SelectedTarget.PlayerId);
-                SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-                Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
+                PlayerControl selectedTarget = targetList.RandomElement();
+                Target[playerId] = selectedTarget.PlayerId;
+                SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
+                Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
             }
         }
         catch (Exception ex) { Logger.Error(ex.ToString(), "Lawyer.Add"); }

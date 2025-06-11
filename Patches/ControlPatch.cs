@@ -146,24 +146,29 @@ internal static class ControllerManagerUpdatePatch
                     {
                         yield return new WaitForSeconds(0.1f);
 
-                        FastDestroyableSingleton<HudManager>.Instance.ShowPopUp(string.Format(GetString("ResettingOptions"), 0, OptionItem.AllOptions.Count));
-                        FastDestroyableSingleton<HudManager>.Instance.Dialogue.BackButton.gameObject.SetActive(false);
+                        string format = GetString("ResettingOptions");
+                        HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+                        hudManager.ShowPopUp(string.Format(format, 0, OptionItem.AllOptions.Count));
+                        hudManager.Dialogue.BackButton.gameObject.SetActive(false);
 
                         for (var index = 0; index < OptionItem.AllOptions.Count; index++)
                         {
                             OptionItem option = OptionItem.AllOptions[index];
-                            if (option.Id > 0) option.SetValue(option.DefaultValue);
+                            if (option.Id > 0) option.SetValue(option.DefaultValue, false, false);
 
-                            if (index % 10 == 0)
+                            if (index % 100 == 0)
                             {
-                                FastDestroyableSingleton<HudManager>.Instance.Dialogue.target.text = string.Format(GetString("ResettingOptions"), index, OptionItem.AllOptions.Count);
+                                hudManager.Dialogue.target.text = string.Format(format, index, OptionItem.AllOptions.Count);
                                 yield return null;
                             }
                         }
 
-                        FastDestroyableSingleton<HudManager>.Instance.Dialogue.BackButton.gameObject.SetActive(true);
-                        FastDestroyableSingleton<HudManager>.Instance.Dialogue.Hide();
+                        hudManager.Dialogue.BackButton.gameObject.SetActive(true);
+                        hudManager.Dialogue.Hide();
 
+                        OptionItem.SyncAllOptions();
+                        OptionSaver.Save();
+                        
                         IsResetting = false;
                     }
                 }

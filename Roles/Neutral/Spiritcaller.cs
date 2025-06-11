@@ -162,7 +162,7 @@ public class Spiritcaller : RoleBase
         if (SpiritCauseVisionTime.GetFloat() > 0 && !PlayersHaunted.ContainsKey(target.PlayerId))
         {
             long time = Utils.TimeStamp + (long)SpiritCauseVisionTime.GetFloat();
-            PlayersHaunted.Add(target.PlayerId, time);
+            PlayersHaunted[target.PlayerId] = time;
         }
 
         if (SpiritFreezeTime.GetFloat() > 0)

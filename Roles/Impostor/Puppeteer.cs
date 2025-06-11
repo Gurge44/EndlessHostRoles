@@ -122,7 +122,7 @@ internal class Puppeteer : RoleBase
         if (!PuppeteerMaxPuppets.TryGetValue(killer.PlayerId, out int usesLeft))
         {
             usesLeft = PuppeteerMaxPuppetsOpt.GetInt();
-            PuppeteerMaxPuppets.Add(killer.PlayerId, usesLeft);
+            PuppeteerMaxPuppets[killer.PlayerId] = usesLeft;
         }
 
         if (PuppeteerCanKillNormally.GetBool())
@@ -191,22 +191,20 @@ internal class Puppeteer : RoleBase
                 foreach (PlayerControl target in Main.AllAlivePlayerControls)
                 {
                     if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence)) continue;
-
                     if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
-
                     if (target.Is(CustomRoleTypes.Impostor) && !PuppeteerPuppetCanKillImpostors.GetBool()) continue;
 
                     float dis = Vector2.Distance(puppeteerPos, target.transform.position);
-                    targetDistance.Add(target.PlayerId, dis);
+                    targetDistance[target.PlayerId] = dis;
                 }
 
                 if (targetDistance.Count > 0)
                 {
                     KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float KillRange = NormalGameOptionsV09.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+                    float killRange = NormalGameOptionsV09.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
 
-                    if (min.Value <= KillRange && player.CanMove && target.CanMove)
+                    if (min.Value <= killRange && player.CanMove && target.CanMove)
                     {
                         if (player.RpcCheckAndMurder(target, true))
                         {

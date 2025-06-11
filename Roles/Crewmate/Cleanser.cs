@@ -53,7 +53,7 @@ public class Cleanser : RoleBase
         PlayerIdList.Add(playerId);
         CleanserTarget = byte.MaxValue;
         CleanserUses = 0;
-        DidVote.Add(playerId, false);
+        DidVote[playerId] = false;
         CleanserId = playerId;
     }
 

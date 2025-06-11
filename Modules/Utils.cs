@@ -121,9 +121,12 @@ public static class Utils
         foreach (PlayerControl pc in Main.AllAlivePlayerControls) TP(pc.NetTransform, location, log);
     }
 
+    public static int NumSnapToCallsThisRound;
+
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool noCheckState = false, bool log = true)
     {
         PlayerControl pc = nt.myPlayer;
+        var sendOption = SendOption.Reliable;
 
         if (!noCheckState)
         {
@@ -135,10 +138,19 @@ public static class Utils
                 return false;
             }
 
-            if (Vector2.Distance(pc.Pos(), location) < 0.1f)
+            switch (Vector2.Distance(pc.Pos(), location))
             {
-                if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
-                return false;
+                case < 0.3f:
+                {
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
+                    return false;
+                }
+                case < 1.5f when !GameStates.IsLobby:
+                {
+                    if (log) Logger.Msg($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Changed to SendOption.None", "TP");
+                    sendOption = SendOption.None;
+                    break;
+                }
             }
         }
 
@@ -152,8 +164,17 @@ public static class Utils
                 return false;
         }
 
+        if (NumSnapToCallsThisRound > 80)
+        {
+            if (log) Logger.Warn($"Too many SnapTo calls this round ({NumSnapToCallsThisRound}) - Changed to SendOption.None", "TP");
+            sendOption = SendOption.None;
+        }
+
+        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+            sendOption = SendOption.Reliable;
+
         var newSid = (ushort)(nt.lastSequenceId + 8);
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, sendOption);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -163,6 +184,7 @@ public static class Utils
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
 
+        if (sendOption == SendOption.Reliable) NumSnapToCallsThisRound++;
         return true;
     }
 

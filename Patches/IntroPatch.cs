@@ -982,6 +982,8 @@ internal static class IntroCutsceneDestroyPatch
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
+        Utils.NumSnapToCallsThisRound = aapc.Length;
+
         if (AmongUsClient.Instance.AmHost)
         {
             if (Main.NormalOptions.MapId != 4)

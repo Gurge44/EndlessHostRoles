@@ -251,7 +251,6 @@ public static class Options
     public static OptionItem DisableShapeshiftAnimations;
     public static OptionItem DisableAllShapeshiftAnimations;
     public static OptionItem DisableKillAnimationOnGuess;
-    public static OptionItem DisableVanillaRoles;
     public static OptionItem SabotageCooldownControl;
     public static OptionItem SabotageCooldown;
     public static OptionItem CEMode;
@@ -2064,10 +2063,6 @@ public static class Options
 
         DisableAllShapeshiftAnimations = new BooleanOptionItem(22605, "DisableAllShapeshiftAnimations", false, TabGroup.GameSettings)
             .SetParent(DisableShapeshiftAnimations)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-
-        DisableVanillaRoles = new BooleanOptionItem(22600, "DisableVanillaRoles", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
