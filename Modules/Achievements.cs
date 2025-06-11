@@ -208,6 +208,7 @@ public static class Achievements
             };
 
             request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
             yield return request.SendWebRequest();
 
             Logger.Msg(request.result != UnityWebRequest.Result.Success ? $"Error saving achievements: {request.error}" : "Achievements saved successfully", "Achievements.SaveAllData");
@@ -234,6 +235,7 @@ public static class Achievements
                 var url = $"{ApiLoadEndpoint}?userId={userId}";
 
                 UnityWebRequest request = UnityWebRequest.Get(url);
+                request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
                 yield return request.SendWebRequest();
 
                 if (request.result != UnityWebRequest.Result.Success)

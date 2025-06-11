@@ -16,13 +16,16 @@ namespace EHR;
 public class ModNews
 {
     // ReSharper disable UnassignedField.Global
-    public int Number;
-    public string Date;
-    public string Title;
-    public string SubTitle;
-    public string ShortTitle;
-    public string Text;
+    // ReSharper disable UnusedAutoPropertyAccessor.Global
+    public int Number { get; set; }
+    public string Date { get; set; }
+    public string Title { get; set; }
+    public string SubTitle { get; set; }
+    public string ShortTitle { get; set; }
+
+    public string Text { get; set; }
     // ReSharper restore UnassignedField.Global
+    // ReSharper restore UnusedAutoPropertyAccessor.Global
 
     public Announcement ToAnnouncement()
     {
@@ -52,7 +55,7 @@ public static class ModNewsFetcher
     public static IEnumerator FetchNews()
     {
         UnityWebRequest request = UnityWebRequest.Get(NewsUrl);
-        request.SetRequestHeader("User-Agent", "EndlessHostRoles-Mod");
+        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
 
         yield return request.SendWebRequest();
 
@@ -66,6 +69,7 @@ public static class ModNewsFetcher
         {
             List<ModNews> newsList = ModNews.FromJson(request.downloadHandler.text);
             ModNewsHistory.AllModNews = newsList.OrderByDescending(n => DateTime.Parse(n.Date)).ToList();
+            Logger.Info($"Successfully fetched {ModNewsHistory.AllModNews.Count} mod news items.", "ModNewsFetcher");
         }
         catch (Exception ex) { Utils.ThrowException(ex); }
     }

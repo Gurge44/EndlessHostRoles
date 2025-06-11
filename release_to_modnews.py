@@ -1,4 +1,6 @@
 import os
+import re
+from datetime import datetime
 
 import markdown
 import requests
@@ -19,32 +21,65 @@ def fetch_latest_release():
     for i, release in enumerate(releases):
         tag = release["tag_name"]
         title = f"Endless Host Roles {tag}"
-        subtitle = f"★★★★Release {tag}★★★★"
-        short_title = f"★EHR {tag}"
+        subtitle = f"Update if you haven't already!"
+        short_title = f"∞ EHR {tag}"
         date = release["published_at"]
         body_md = release["body"]
 
         body_html = markdown.markdown(body_md)
         body_html = (
             body_html
-            .replace("</p>", "</p>\n")
-            .replace("<li>", " - ")
+            .replace("&gt;", ">")
+            .replace("&amp;", "&")
+            .replace("<code>", "<mark=#00000033>")
+            .replace("</code>", "</mark>")
+            .replace("[!CAUTION]", "<b><u>CAUTION!</u></b>\n")
+            .replace("[!WARNING]", "<b><u>WARNING!</u></b>\n")
+            .replace("[!IMPORTANT]", "<b><u>IMPORTANT:</u></b>\n")
+            .replace("[!NOTE]", "<b><u>Note:</u></b>\n")
+            .replace("[!TIP]", "<b><u>Tip:</u></b>\n")
+            .replace("<blockquote>", "\n<size=70%>")
+            .replace("</blockquote>", "</size>\n")
+            .replace("<em>", "<i>")
+            .replace("</em>", "</i>")
+            .replace("<p>", "\n")
+            .replace("</p>", "\n")
+            .replace("<li>", "  - ")
             .replace("</li>", "\n")
             .replace("<ul>", "")
             .replace("</ul>", "")
-            .replace("<strong>", "<b>").replace("</strong>", "</b>")
+            .replace("<strong>", "<b>")
+            .replace("</strong>", "</b>")
+            .replace("<hr />", "---------------------------------------------------------------------------")
+            .replace("<h6>", "<b>")
+            .replace("</h6>", "</b>")
+            .replace("<h5>", "<b>")
+            .replace("</h5>", "</b>")
+            .replace("<h4>", "<b>")
+            .replace("</h4>", "</b>")
+            .replace("<h3>", "\n<size=110%><b>")
+            .replace("</h3>", "</b></size>\n")
+            .replace("<h2>", "\n\n<size=125%><b>")
+            .replace("</h2>", "</b></size>\n\n")
+            .replace("<h1>", "\n\n<size=150%><b>")
+            .replace("</h1>", "</b></size>\n\n")
         )
+        body_html = re.sub(r'<a\s+href="[^"]*">(.*?)</a>', r'\1', body_html)
 
-        intro_line = f"<size=150%>Welcome to EHR {tag}.</size>\n"
-        subtitle_line = f"<size=125%>{subtitle}</size>\n\n"
+        for _ in range(10):
+            body_html = re.sub(r'\n\s*\n\s*\n+', '\n\n', body_html)
+            body_html = re.sub(r'^\s*-\s*$\n?', '', body_html, flags=re.MULTILINE)
+
+        dt = datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
+        formatted_date = dt.strftime("%Y-%m-%dT00:00:00Z")
 
         mod_news = {
             "Number": 100000 + i,
             "Title": title,
             "SubTitle": subtitle,
             "ShortTitle": short_title,
-            "Text": intro_line + subtitle_line + body_html,
-            "Date": date
+            "Text": body_html,
+            "Date": formatted_date
         }
 
         mod_news_list.append(mod_news)
