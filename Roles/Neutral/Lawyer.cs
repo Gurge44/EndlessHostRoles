@@ -29,7 +29,7 @@ public class Lawyer : RoleBase
         CustomRoles.Jester,
         CustomRoles.Opportunist,
         CustomRoles.Convict,
-        CustomRoles.CyberStar,
+        CustomRoles.SuperStar,
         CustomRoles.Bodyguard,
         CustomRoles.Dictator,
         CustomRoles.Mayor,

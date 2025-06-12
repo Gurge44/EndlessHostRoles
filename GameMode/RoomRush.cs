@@ -43,9 +43,10 @@ public static class RoomRush
     {
         [MapNames.Skeld] = new()
         {
+            [(SystemTypes.Admin, SystemTypes.Weapons)] = 2,
             [(SystemTypes.Admin, SystemTypes.Nav)] = 2,
             [(SystemTypes.Admin, SystemTypes.Comms)] = 2,
-            [(SystemTypes.Admin, SystemTypes.Shields)] = 3,
+            [(SystemTypes.Admin, SystemTypes.Shields)] = 2,
             [(SystemTypes.Admin, SystemTypes.LifeSupp)] = 4,
             [(SystemTypes.Electrical, SystemTypes.MedBay)] = 3,
             [(SystemTypes.Electrical, SystemTypes.Security)] = 3,

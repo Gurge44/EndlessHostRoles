@@ -128,7 +128,7 @@ public class Main : BasePlugin
     public static HashSet<byte> DiedThisRound = [];
     public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
-    public static List<byte> CyberStarDead = [];
+    public static List<byte> SuperStarDead = [];
     public static List<byte> BaitAlive = [];
     public static Dictionary<byte, int> KilledDiseased = [];
     public static Dictionary<byte, int> KilledAntidote = [];
@@ -353,7 +353,6 @@ public class Main : BasePlugin
                 { CustomRoles.Sheriff, "#ffb347" },
                 { CustomRoles.CopyCat, "#ffb2ab" },
                 { CustomRoles.SuperStar, "#f6f657" },
-                { CustomRoles.CyberStar, "#ee4a55" },
                 { CustomRoles.Ventguard, "#ffa5ff" },
                 { CustomRoles.Demolitionist, "#5e2801" },
                 { CustomRoles.Express, "#00ffff" },

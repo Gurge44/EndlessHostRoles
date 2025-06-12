@@ -336,9 +336,9 @@ public static class Options
     public static OptionItem DQNumOfKillsNeeded;
     public static OptionItem ParanoiaNumOfUseButton;
     public static OptionItem ParanoiaVentCooldown;
-    public static OptionItem ImpKnowCyberStarDead;
-    public static OptionItem NeutralKnowCyberStarDead;
-    public static OptionItem CovenKnowCyberStarDead;
+    public static OptionItem ImpKnowSuperStarDead;
+    public static OptionItem NeutralKnowSuperStarDead;
+    public static OptionItem CovenKnowSuperStarDead;
     public static OptionItem DemolitionistVentTime;
     public static OptionItem DemolitionistKillerDiesOnMeetingCall;
     public static OptionItem ExpressSpeed;

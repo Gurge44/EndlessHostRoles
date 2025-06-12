@@ -1839,7 +1839,7 @@ internal static class FixedUpdatePatch
 
                 var offset = 0.2f;
 
-                if (NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
+                if (self && NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
                 {
                     int count = notify.Count(x => x == '\n');
                     for (var i = 0; i < count; i++) offset += 0.15f;

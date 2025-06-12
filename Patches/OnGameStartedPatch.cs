@@ -183,7 +183,7 @@ internal static class ChangeRoleSettings
             Main.AllPlayerSpeed = [];
             Main.KillTimers = [];
             Main.SleuthMsgs = [];
-            Main.CyberStarDead = [];
+            Main.SuperStarDead = [];
             Main.KilledDiseased = [];
             Main.KilledAntidote = [];
             Main.BaitAlive = [];

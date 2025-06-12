@@ -323,20 +323,21 @@ public static class Utils
                 continue;
             }
 
-            if (targetRole == CustomRoles.CyberStar && seer.IsAlive())
+            if (targetRole == CustomRoles.SuperStar && seer.IsAlive())
             {
-                if (!Options.ImpKnowCyberStarDead.GetBool() && seer.IsImpostor()) continue;
-                if (!Options.NeutralKnowCyberStarDead.GetBool() && (seer.GetCustomRole().IsNeutral() || seer.Is(CustomRoles.Bloodlust))) continue;
+                if (!Options.ImpKnowSuperStarDead.GetBool() && seer.IsImpostor()) continue;
+                if (!Options.NeutralKnowSuperStarDead.GetBool() && (seer.GetCustomRole().IsNeutral() || seer.Is(CustomRoles.Bloodlust))) continue;
+                if (!Options.CovenKnowSuperStarDead.GetBool() && seer.Is(CustomRoleTypes.Coven)) continue;
 
                 seer.KillFlash();
-                seer.Notify(ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("OnCyberStarDead")));
+                seer.Notify(ColorString(GetRoleColor(CustomRoles.SuperStar), GetString("OnSuperStarDead")));
             }
         }
 
         switch (targetRole)
         {
-            case CustomRoles.CyberStar when !Main.CyberStarDead.Contains(target.PlayerId):
-                Main.CyberStarDead.Add(target.PlayerId);
+            case CustomRoles.SuperStar when !Main.SuperStarDead.Contains(target.PlayerId):
+                Main.SuperStarDead.Add(target.PlayerId);
                 break;
             case CustomRoles.Demolitionist:
                 Demolitionist.OnDeath(killer, target);
@@ -992,7 +993,6 @@ public static class Utils
                    pc.Is(CustomRoles.Needy) ||
                    pc.Is(CustomRoles.Loyal) ||
                    pc.Is(CustomRoles.SuperStar) ||
-                   pc.Is(CustomRoles.CyberStar) ||
                    pc.Is(CustomRoles.Egoist) ||
                    pc.Is(CustomRoles.DualPersonality)
                );
@@ -3328,18 +3328,19 @@ public static class Utils
                 case CustomRoles.PlagueDoctor when !disconnect && !onMeeting:
                     PlagueDoctor.OnPDdeath(targetRealKiller, target);
                     break;
-                case CustomRoles.CyberStar when !disconnect:
+                case CustomRoles.SuperStar when !disconnect:
                     if (onMeeting)
                     {
                         (
                             from pc in Main.AllPlayerControls
-                            where (Options.ImpKnowCyberStarDead.GetBool() || !pc.GetCustomRole().IsImpostor()) && (Options.NeutralKnowCyberStarDead.GetBool() || !pc.GetCustomRole().IsNeutral())
-                            select new Message(string.Format(GetString("CyberStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")))
+                            where (Options.ImpKnowSuperStarDead.GetBool() || !pc.GetCustomRole().IsImpostor()) && (Options.NeutralKnowSuperStarDead.GetBool() || !pc.GetCustomRole().IsNeutral()) && (Options.CovenKnowSuperStarDead.GetBool() || !pc.Is(CustomRoleTypes.Coven))
+                            select new Message(string.Format(GetString("SuperStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.SuperStar), GetString("SuperStarNewsTitle")))
                         ).SendMultipleMessages();
                     }
                     else
                     {
-                        if (!Main.CyberStarDead.Contains(target.PlayerId)) Main.CyberStarDead.Add(target.PlayerId);
+                        if (!Main.SuperStarDead.Contains(target.PlayerId))
+                            Main.SuperStarDead.Add(target.PlayerId);
                     }
 
                     break;

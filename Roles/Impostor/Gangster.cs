@@ -131,7 +131,6 @@ public class Gangster : RoleBase
                    pc.Is(CustomRoles.Needy) ||
                    pc.Is(CustomRoles.Lazy) ||
                    pc.Is(CustomRoles.Loyal) ||
-                   pc.Is(CustomRoles.CyberStar) ||
                    pc.Is(CustomRoles.Egoist)
                );
     }

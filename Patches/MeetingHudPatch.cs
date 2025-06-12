@@ -743,13 +743,13 @@ internal static class MeetingHudStartPatch
         {
             if (pc.Is(CustomRoles.Mafia) && !pc.IsAlive()) AddMsg(GetString("MafiaDeadMsg"), pc.PlayerId);
 
-            foreach (byte csId in Main.CyberStarDead)
+            foreach (byte csId in Main.SuperStarDead)
             {
-                if (!Options.ImpKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsImpostor()) continue;
+                if (!Options.ImpKnowSuperStarDead.GetBool() && pc.GetCustomRole().IsImpostor()) continue;
+                if (!Options.NeutralKnowSuperStarDead.GetBool() && pc.GetCustomRole().IsNeutral()) continue;
+                if (!Options.CovenKnowSuperStarDead.GetBool() && pc.Is(CustomRoleTypes.Coven)) continue;
 
-                if (!Options.NeutralKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsNeutral()) continue;
-
-                AddMsg(string.Format(GetString("CyberStarDead"), Main.AllPlayerNames[csId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")));
+                AddMsg(string.Format(GetString("SuperStarDead"), Main.AllPlayerNames[csId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), GetString("SuperStarNewsTitle")));
             }
 
             if (pc != null && Silencer.ForSilencer.Contains(pc.PlayerId))
@@ -796,7 +796,7 @@ internal static class MeetingHudStartPatch
 
         if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 8f, "Meeting Start Notify");
 
-        Main.CyberStarDead.Clear();
+        Main.SuperStarDead.Clear();
         Express.SpeedNormal.Clear();
         Express.SpeedUp.Clear();
         Detective.DetectiveNotify.Clear();

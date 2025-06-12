@@ -2966,7 +2966,6 @@ internal static class ChatCommands
             "偵探" or "det" => GetString("Detective"),
             "幸運兒" or "幸运" => GetString("Luckey"),
             "大明星" or "明星" or "ss" => GetString("SuperStar"),
-            "網紅" or "cel" or "celeb" => GetString("CyberStar"),
             "demo" => GetString("Demolitionist"),
             "俠客" => GetString("SwordsMan"),
             "正義賭怪" or "正义的赌怪" or "好赌" or "正义赌" or "ng" => GetString("NiceGuesser"),

@@ -150,7 +150,6 @@ public enum CustomRoles
     CameraMan,
     Car,
     Catcher,
-    CyberStar, // Celebrity
     Chameleon,
     Chef,
     Clairvoyant,
