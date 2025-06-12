@@ -191,6 +191,7 @@ internal static class ChatCommands
             new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true, false),
             new(["dn", "deathnote", "заметкамертвого", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, true, [GetString("CommandArgs.DeathNote.Name")]),
             new(["w", "whisper", "шепот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
+            new(["hw", "hwhisper"], "{id} {message}", GetString("CommandDescription.HWhisper"), Command.UsageLevels.Host, Command.UsageTimes.Always, HWhisperCommand, true, true, [GetString("CommandArgs.HWhisper.Id"), GetString("CommandArgs.HWhisper.Message")]),
             new(["spectate", "спектейт", "观战", "espectar"], "[id]", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false, [GetString("CommandArgs.Spectate.Id")]),
             new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true, false),
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
@@ -585,7 +586,7 @@ internal static class ChatCommands
             return;
         }
 
-        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x).Replace(' ', '_')));
+        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>()[..^1].Select(x => GetString(x).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
@@ -598,7 +599,7 @@ internal static class ChatCommands
             return;
         }
 
-        string info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..].SkipLast(1)
+        string info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..^1]
             .Select(x => (GameMode: x, Color: Main.RoleColors.GetValueOrDefault(CustomRoleSelector.GameModeRoles.TryGetValue(x, out CustomRoles role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
             .Select(x => $"<{x.Color}><u><b>{GetString($"{x.GameMode}")}</b></u></color><size=75%>\n{GetString($"ModeDescribe.{x.GameMode}").Split("\n\n")[0]}</size>"));
 
@@ -816,6 +817,17 @@ internal static class ChatCommands
 
         string msg = args[2..].Join(delimiter: " ");
         string title = string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName(), player.PlayerId);
+
+        Utils.SendMessage(msg, targetId, title);
+        ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
+    }
+
+    private static void HWhisperCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
+
+        string msg = args[2..].Join(delimiter: " ");
+        string title = string.Format(GetString("HWhisperTitle"), player.PlayerId.ColoredPlayerName());
 
         Utils.SendMessage(msg, targetId, title);
         ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
@@ -2442,7 +2454,7 @@ internal static class ChatCommands
             return;
         }
 
-        Main.HideName.Value = args.Length > 1 ? args.Skip(1).Join(delimiter: " ") : Main.HideName.DefaultValue.ToString();
+        Main.HideName.Value = args.Length > 1 ? string.Join(' ', args[1..]) : Main.HideName.DefaultValue.ToString();
 
         GameStartManagerPatch.GameStartManagerStartPatch.HideName.text =
             ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
@@ -2480,7 +2492,7 @@ internal static class ChatCommands
                     return;
                 }
 
-                string name = args.Skip(1).Join(delimiter: " ");
+                string name = string.Join(' ', args[1..]);
 
                 if (name.Length is > 50 or < 1)
                 {

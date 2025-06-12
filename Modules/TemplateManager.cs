@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -106,13 +105,13 @@ public static class TemplateManager
 
         while (sr.ReadLine() is { } text)
         {
-            string[] tmp = text.Split(":");
+            string[] tmp = text.Split(':');
 
             if (tmp.Length > 1 && tmp[1] != "")
             {
                 tags.Add(tmp[0]);
                 if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase))
-                    sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
+                    sendList.Add(string.Join(':', tmp[1..]).Replace("\\n", "\n"));
             }
         }
 

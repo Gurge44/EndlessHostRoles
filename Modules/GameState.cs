@@ -372,7 +372,7 @@ public class PlayerState(byte playerId)
         if (AmongUsClient.Instance.AmHost)
         {
             if (Enchanter.EnchantedPlayers.Contains(PlayerId))
-                deathReason = Enum.GetValues<DeathReason>().SkipLast(8).RandomElement();
+                deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
 
             RPC.SendDeathReason(PlayerId, deathReason);
             Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));

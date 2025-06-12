@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using UnityEngine;
 
@@ -223,20 +222,21 @@ public abstract class OptionItem
 
     public bool IsCurrentlyHidden()
     {
-        int lastParent = Id;
-
-        for (var i = 0; i < 5; i++)
+        for (OptionItem current = this; current != null; current = current.Parent)
         {
-            if (AllOptions.First(x => x.Id == lastParent).Parent == null) break;
-            lastParent = AllOptions.First(x => x.Id == lastParent).Parent.Id;
+            if (Hidden(current))
+                return true;
         }
 
-        return Hidden(this) || (Parent != null && Hidden(Parent)) || Hidden(AllOptions.First(x => x.Id == lastParent));
+        return false;
 
         static bool Hidden(OptionItem oi)
         {
             CustomGameMode mode = EHR.Options.CurrentGameMode;
-            return oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode);
+            const CustomGameMode nd = CustomGameMode.NaturalDisasters;
+            return (oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode) ||
+                    (oi.Name == "IntegrateNaturalDisasters" && mode == nd)) &&
+                   !(oi.GameMode == nd && EHR.Options.IntegrateNaturalDisasters.GetBool());
         }
     }
 

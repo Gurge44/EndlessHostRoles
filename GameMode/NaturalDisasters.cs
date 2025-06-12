@@ -118,7 +118,7 @@ public static class NaturalDisasters
         BuildingCollapse.CollapsedRooms.Clear();
         BuildingCollapse.LastPosition.Clear();
 
-        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return;
+        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) return;
 
         Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values;
         if (rooms == null) return;
@@ -201,7 +201,7 @@ public static class NaturalDisasters
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
 
             UpdatePreparingDisasters();
 
@@ -273,8 +273,15 @@ public static class NaturalDisasters
                 PreparingDisasters.Add(new(position, warningTime, Sprite(disaster.Name), disaster.Name, room));
             }
 
-            if (now - LastSync >= 10)
+            if (now - LastSync >= 15)
             {
+                if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
+                {
+                    BuildingCollapse.CollapsedRooms.Clear();
+                    Sinkhole.RemoveRandomSinkhole();
+                    Utils.NotifyRoles();
+                }
+                
                 LastSync = now;
                 Utils.MarkEveryoneDirtySettings();
             }

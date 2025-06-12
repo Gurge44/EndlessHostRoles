@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 namespace EHR;
@@ -254,11 +253,11 @@ public static class Translator
 
                 while (sr.ReadLine() is { } text)
                 {
-                    string[] tmp = text.Split(":");
+                    string[] tmp = text.Split(':');
 
                     if (tmp.Length > 1 && tmp[1] != "")
                     {
-                        try { TranslateMaps[tmp[0]][(int)lang] = tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n").Replace("\\r", "\r"); }
+                        try { TranslateMaps[tmp[0]][(int)lang] = string.Join(':', tmp[1..]).Replace("\\n", "\n").Replace("\\r", "\r"); }
                         catch (KeyNotFoundException) { Logger.Warn($"Invalid Key: {tmp[0]}", "LoadCustomTranslation"); }
                     }
                 }

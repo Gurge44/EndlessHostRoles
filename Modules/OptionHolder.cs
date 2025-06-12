@@ -716,6 +716,7 @@ public static class Options
     public static OptionItem LargerRoleTextSize;
     public static OptionItem ShowTaskCountWhenAlive;
     public static OptionItem ShowTaskCountWhenDead;
+    public static OptionItem IntegrateNaturalDisasters;
     public static OptionItem ShowDifferentEjectionMessageForSomeRoles;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
@@ -2789,6 +2790,11 @@ public static class Options
         ShowTaskCountWhenDead = new BooleanOptionItem(24453, "ShowTaskCountWhenDead", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
+        IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .RegisterUpdateValueEvent((_, _) => GameOptionsMenuPatch.ReloadUI());
 
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)

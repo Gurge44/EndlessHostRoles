@@ -99,5 +99,4 @@ public static class ModNewsHistory
         for (var i = 0; i < finalAllNews.Count; i++)
             aRange[i] = finalAllNews[i];
     }
-
 }

@@ -80,21 +80,24 @@ public static class FixedUpdateCaller
                     {
                         case CustomGameMode.HideAndSeek:
                             CustomHnS.FixedUpdatePatch.Postfix();
-                            break;
+                            goto default;
                         case CustomGameMode.FFA:
                             FreeForAll.FixedUpdatePatch.Postfix();
-                            break;
+                            goto default;
                         case CustomGameMode.KingOfTheZones:
                             KingOfTheZones.FixedUpdatePatch.Postfix();
-                            break;
+                            goto default;
                         case CustomGameMode.NaturalDisasters:
                             NaturalDisasters.FixedUpdatePatch.Postfix();
                             break;
                         case CustomGameMode.Quiz:
                             Quiz.FixedUpdatePatch.Postfix();
-                            break;
+                            goto default;
                         case CustomGameMode.RoomRush:
                             RoomRush.FixedUpdatePatch.Postfix();
+                            goto default;
+                        default:
+                            if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                             break;
                     }
                 }
