@@ -508,7 +508,7 @@ namespace EHR
 
             if (room != null)
             {
-                name = $"<#ffff00>{name}</color>";
+                name = $"<#ff0000>{name}</color>";
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {

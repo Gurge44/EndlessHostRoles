@@ -269,8 +269,7 @@ public static class NaturalDisasters
                 };
 
                 SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
-                float warningTime = DisasterWarningTime.GetFloat();
-                PreparingDisasters.Add(new(position, warningTime, Sprite(disaster.Name), disaster.Name, room));
+                AddPreparingDisaster(position, disaster.Name, room);
             }
 
             if (now - LastSync >= 15)
