@@ -9518,7 +9518,7 @@
   "ForceEnd": "Прервано",
   "EveryoneDied": "Все умерли",
   "ForceEndText": "Хост остановил игру",
-  "BlackScreenFixCompleteNotify": "<#00ff00>Попытка починить чёрный экран была выполнена</color>",
+  "BlackScreenFixCompleteNotify": "<#00ff00>Произошла попытка починить чёрный экран</color>",
   "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>Мин/Макс кол-во Предателей автоматически установлено на </color><#ffffff>{0}</color></b>\\n<size=80%>в связи с тем, что вы изменили только ванильную настройку, которая была изменена модифицированной.</size>",
   "DiscoChangeInterval": "Диско меняет цвет каждые",
   "Modifier": "\nАтрибут: ",
