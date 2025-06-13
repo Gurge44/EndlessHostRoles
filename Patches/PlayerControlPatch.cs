@@ -1898,6 +1898,7 @@ internal static class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
         if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Exists(player => !player.IsAlive() && player.PlayerId == deathId) && !force)) return;
 
         Main.IsLoversDead = true;

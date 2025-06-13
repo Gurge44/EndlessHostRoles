@@ -82,9 +82,11 @@ public class Lawyer : RoleBase
                 Target[playerId] = selectedTarget.PlayerId;
                 SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
+
+                LateTask.New(() => playerId.GetPlayer()?.Notify(string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 18f, log: false);
             }
         }
-        catch (Exception ex) { Logger.Error(ex.ToString(), "Lawyer.Add"); }
+        catch (Exception ex) { Utils.ThrowException(ex); }
     }
 
     public override void Remove(byte playerId)
@@ -148,13 +150,15 @@ public class Lawyer : RoleBase
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: lawyer);
     }
 
-    public override bool KnowRole(PlayerControl player, PlayerControl target)
+    public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
-        if (base.KnowRole(player, target)) return true;
+        if (base.KnowRole(seer, target)) return true;
 
-        if (!KnowTargetRole.GetBool()) return false;
+        if (TargetKnowsLawyer.GetBool() && Target.ContainsValue(seer.PlayerId) && Target.GetKeyByValue(seer.PlayerId) == target.PlayerId)
+            return true;
 
-        return player.Is(CustomRoles.Lawyer) && Target.TryGetValue(player.PlayerId, out byte tar) && tar == target.PlayerId;
+        if (!seer.Is(CustomRoles.Lawyer) || !KnowTargetRole.GetBool()) return false;
+        return Target.TryGetValue(seer.PlayerId, out byte tar) && tar == target.PlayerId;
     }
 
     public static string LawyerMark(PlayerControl seer, PlayerControl target)
@@ -187,6 +191,7 @@ public class Lawyer : RoleBase
 
     public override void OnReportDeadBody()
     {
-        if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool() && Target.TryGetValue(LawyerId, out byte target)) LateTask.New(() => Utils.SendMessage("\n", target, string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 10f, log: false);
+        if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool() && Target.TryGetValue(LawyerId, out byte target))
+            LateTask.New(() => Utils.SendMessage("\n", target, string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 10f, log: false);
     }
 }

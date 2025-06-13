@@ -92,8 +92,10 @@ internal class Blackmailer : RoleBase
                 {
                     x.UnsetVote();
                     meetingHud.SetDirtyBit(1U);
+                    AmongUsClient.Instance.SendAllStreamedObjects();
                     meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
                     meetingHud.SetDirtyBit(1U);
+                    AmongUsClient.Instance.SendAllStreamedObjects();
                 }
 
                 meetingHud.CastVote(x.TargetPlayerId, bmVotedFor);

@@ -178,9 +178,17 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.KingOfTheZones:
-                case CustomGameMode.Quiz:
                     SetMaxVision();
                     break;
+                case CustomGameMode.Quiz:
+                    try
+                    {
+                        AURoleOptions.GuardianAngelCooldown = 900f;
+                        AURoleOptions.ProtectionDurationSeconds = 0.01f;
+                    }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
+                    goto case CustomGameMode.RoomRush;
                 case CustomGameMode.MoveAndStop:
                     try
                     {

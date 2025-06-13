@@ -197,8 +197,10 @@ public class NiceSwapper : RoleBase
             {
                 x.UnsetVote();
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.CastVote(x.TargetPlayerId, SwapTargets.Item2);
                 x.VotedFor = SwapTargets.Item2;
             });
@@ -207,8 +209,10 @@ public class NiceSwapper : RoleBase
             {
                 x.UnsetVote();
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.CastVote(x.TargetPlayerId, SwapTargets.Item1);
                 x.VotedFor = SwapTargets.Item1;
             });

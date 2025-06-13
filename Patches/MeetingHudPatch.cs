@@ -27,6 +27,13 @@ internal static class CheckForEndVotingPatch
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
+        if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
+        {
+            Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
+            LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
+            return false;
+        }
+
         if (Medic.PlayerIdList.Count > 0) Medic.OnCheckMark();
 
         // Meeting Skip with vote counting
@@ -220,13 +227,6 @@ internal static class CheckForEndVotingPatch
                         VoterId = ps.TargetPlayerId,
                         VotedForId = ps.VotedFor
                     });
-            }
-
-            if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
-            {
-                Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
-                LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
-                return false;
             }
 
             Blackmailer.OnCheckForEndVoting();
@@ -1272,11 +1272,13 @@ internal static class MeetingHudCastVotePatch
         {
             info.SourcePVA.UnsetVote();
             info.MeetingHud.SetDirtyBit(1U);
+            AmongUsClient.Instance.SendAllStreamedObjects();
         }
         catch { }
 
         info.MeetingHud.RpcClearVote(info.SourcePC.OwnerId);
         info.MeetingHud.SetDirtyBit(1U);
+        AmongUsClient.Instance.SendAllStreamedObjects();
 
         info.SourcePVA.VotedFor = byte.MaxValue;
 

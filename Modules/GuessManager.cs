@@ -568,6 +568,7 @@ public static class GuessManager
 
                 playerVoteArea.UnsetVote();
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
 
                 PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
                 if (voteAreaPlayer == null) continue;
@@ -576,6 +577,7 @@ public static class GuessManager
                 {
                     meetingHud.RpcClearVote(voteAreaPlayer.OwnerId);
                     meetingHud.SetDirtyBit(1U);
+                    AmongUsClient.Instance.SendAllStreamedObjects();
                 }
                 else
                     meetingHud.ClearVote();
@@ -613,8 +615,10 @@ public static class GuessManager
             if (AmongUsClient.Instance.AmHost)
             {
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.RpcClearVote(pc.OwnerId);
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
             }
         }
 
