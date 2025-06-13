@@ -2497,7 +2497,7 @@ internal static class ChatCommands
 
         if (args.Length < 2) return;
 
-        if (args[1].Length is > 50 or < 1)
+        if (args[1].Length is > 15 or < 1)
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
         else
         {

@@ -2325,7 +2325,7 @@
   "Message.SetLevel": "Your game level is set to: {0}",
   "Message.SetColor": "Your color is set to: {0}",
   "Message.AllowLevelRange": "The game level can be set in the range: 0-100",
-  "Message.AllowNameLength": "Nickname can be set length: 1-10",
+  "Message.AllowNameLength": "Maximum name length: 15 characters",
   "Message.OnlyVIPCanUse": "According to the host's settings, only VIP players can use this command",
   "Message.OnlyCanUseInLobby": "Sorry, this command can only be used in the lobby",
   "Message.CanNotUseInLobby": "Sorry, this command cannot be used in the lobby",
