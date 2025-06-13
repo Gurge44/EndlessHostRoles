@@ -518,7 +518,7 @@ public static class GuessManager
                             Doomsayer.CheckCountGuess(pc);
                         }
 
-                        GuessManagerRole.OnGuess(dp, pc);
+                        MeetingManager.OnGuess(dp, pc);
                         Utils.AfterPlayerDeathTasks(dp, true);
 
                         LateTask.New(() => Utils.SendMessage(string.Format(GetString("GuessKill"), Main.AllPlayerNames.GetValueOrDefault(dp.PlayerId, name)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))), 0.6f, "Guess Msg");

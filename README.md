@@ -122,7 +122,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Goose             | Kamikaze        | Necromancer       |               | Last Impostor  |
 | Grappler          | Kidnapper       | Nonplus           |               | Lazy           |
 | Grenadier         | Killing Machine | Note Killer       |               | Lovers         |
-| Guess Manager     | Lightning       | Opportunist       |               | Loyal          |
+| Meeting Manager   | Lightning       | Opportunist       |               | Loyal          |
 | Guardian          | Librarian       | Patroller         |               | Lucky          |
 | Helper            | Lurker          | Pawn              |               | Madmate        |
 | Ignitor           | Mafioso         | Pelican           |               | Magnet         |

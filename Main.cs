@@ -414,7 +414,7 @@ public class Main : BasePlugin
                 { CustomRoles.Altruist, "#300000" },
                 { CustomRoles.Bane, "#745da3" },
                 { CustomRoles.Benefactor, "#4aeaff" },
-                { CustomRoles.GuessManagerRole, "#d4ff00" },
+                { CustomRoles.MeetingManager, "#d4ff00" },
                 { CustomRoles.Drainer, "#149627" },
                 { CustomRoles.NiceHacker, "#75fa4c" },
                 { CustomRoles.Aid, "#D7BDE2" },

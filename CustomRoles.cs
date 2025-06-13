@@ -183,7 +183,7 @@ public enum CustomRoles
     Goose,
     Grappler,
     Grenadier,
-    GuessManagerRole,
+    MeetingManager,
     Guardian,
     Helper,
     Ignitor,

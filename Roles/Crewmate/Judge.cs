@@ -201,9 +201,10 @@ public class Judge : RoleBase
                         dp.SetRealKiller(pc);
                         dp.RpcGuesserMurderPlayer();
 
+                        MeetingManager.OnTrial(dp, pc);
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        LateTask.New(() => { Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))); }, 0.6f, "Guess Msg");
+                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))), 0.6f, "Guess Msg");
                     }, 0.2f, "Trial Kill");
                 }
 

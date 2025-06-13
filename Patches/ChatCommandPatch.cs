@@ -433,6 +433,8 @@ internal static class ChatCommands
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
         ((Pawn)state.Role).ChosenRole = role;
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void ForgeCommand(PlayerControl player, string text, string[] args)
@@ -454,6 +456,8 @@ internal static class ChatCommands
 
         Forger.Forges[targetId] = forgeRole;
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ForgeSuccess"), (int)Math.Round(player.GetAbilityUseLimit(), 1), targetId.ColoredPlayerName(), forgeRole.ToColoredString()));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void ChemistInfoCommand(PlayerControl player, string text, string[] args)
@@ -631,6 +635,8 @@ internal static class ChatCommands
 
         if (amJailor) Utils.SendMessage(message, jailor.JailorTarget, title);
         else Jailor.PlayerIdList.ForEach(x => Utils.SendMessage(message, x, title, sendOption: SendOption.None));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void RoleListCommand(PlayerControl player, string text, string[] args)
@@ -820,6 +826,8 @@ internal static class ChatCommands
 
         Utils.SendMessage(msg, targetId, title);
         ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void HWhisperCommand(PlayerControl player, string text, string[] args)
@@ -887,6 +895,8 @@ internal static class ChatCommands
         Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), coloredName));
 
         NoteKiller.Kills++;
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void AchievementsCommand(PlayerControl player, string text, string[] args)
@@ -1126,6 +1136,8 @@ internal static class ChatCommands
         if (!Negotiator.On || !player.IsAlive() || args.Length < 2 || !int.TryParse(args[1], out int index)) return;
 
         Negotiator.ReceiveCommand(player, index);
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void OSCommand(PlayerControl player, string text, string[] args)
@@ -1153,12 +1165,13 @@ internal static class ChatCommands
             return;
         }
 
-        if (player.Is(CustomRoles.Journalist) && player.IsAlive())
-        {
-            if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
+        if (!player.Is(CustomRoles.Journalist) || !player.IsAlive()) return;
 
-            Journalist.OnReceiveCommand(player, args);
-        }
+        if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
+
+        Journalist.OnReceiveCommand(player, args);
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void AssumeCommand(PlayerControl player, string text, string[] args)
@@ -1176,6 +1189,8 @@ internal static class ChatCommands
         if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
         Assumer.Assume(player.PlayerId, id, num);
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void DeleteVIPCommand(PlayerControl player, string text, string[] args)
@@ -1778,6 +1793,8 @@ internal static class ChatCommands
 
         LateTask.New(() => Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId), 0.2f, log: false);
         player.RpcRemoveAbilityUse();
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void ChatCommand(PlayerControl player, string text, string[] args)
@@ -1803,6 +1820,8 @@ internal static class ChatCommands
         ChatManager.AddChatHistory(tg, msg);
 
         player.RpcRemoveAbilityUse();
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void TargetCommand(PlayerControl player, string text, string[] args)
@@ -1820,6 +1839,8 @@ internal static class ChatCommands
         var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
         vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void QSCommand(PlayerControl player, string text, string[] args)
@@ -1836,6 +1857,8 @@ internal static class ChatCommands
         if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out string msg)) return;
 
         Utils.SendMessage(msg, player.PlayerId, GetString("QuizMaster.QuestionSample.Title"));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void QACommand(PlayerControl player, string text, string[] args)
@@ -1852,6 +1875,8 @@ internal static class ChatCommands
         if (qm.Target != player.PlayerId) return;
 
         qm.Answer(args[1].ToUpper());
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void AnswerCommand(PlayerControl player, string text, string[] args)
