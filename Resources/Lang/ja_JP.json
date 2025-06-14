@@ -4371,7 +4371,7 @@
   "Wiper.CurrentRoom": "<#00ffa5>現在の部屋:</color> <b>{0}</b>",
   "Curser": "カーサー",
   "CurserInfo": "他人の命を 悪くさせる",
-  "CurserInfoLong": "(<color=#4B0082>拒絶された</color> <color=#ffab1b>ニュートラル</color>):\\n<size=75%>カーサーとして、あなたが あなたのキルボタンを誰かに使うとき、あなたは 彼に シングルクリックをして 彼の陣営を明かすことができ、そして ダブルクリックで 次の効果の一つを彼に与えます:<size=80%>\\n- -1 の能力使用\\n- +1 の<#ffab1b>有害な</color> <#ff9ace>属性</color>\\n- 永続的な低下の視力\\n- 永続的な低下の速度</size>\\nあなたは <#8cffff>クルーメイト</color>が敗北した場合に 勝利します。</size>\n",
+  "CurserInfoLong": "(<color=#A10E49>拒絶された</color> <color=#ffab1b>ニュートラル</color>):\\n<size=75%>カーサーとして、あなたが あなたのキルボタンを誰かに使うとき、あなたは 彼に シングルクリックをして 彼の陣営を明かすことができ、そして ダブルクリックで 次の効果の一つを彼に与えます:<size=80%>\\n- -1 の能力使用\\n- +1 の<#ffab1b>有害な</color> <#ff9ace>属性</color>\\n- 永続的な低下の視力\\n- 永続的な低下の速度</size>\\nあなたは <#8cffff>クルーメイト</color>が敗北した場合に 勝利します。</size>",
   "Curser.LowerVision": "永続の 低下時の視力",
   "Curser.LowerSpeed": "永続の 低下時の速度",
   "Curser.Notify.0": "あなたは あなたのターゲットから 能力使用を削除した",
