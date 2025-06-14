@@ -1868,7 +1868,7 @@
   "KickCommandKickedRole": "他的職業是",
   "ModeratorTag": "<#8000ff>管理員</color>",
   "VIPTag": "<#ffff00>VIP</color>",
-  "EnableAFKDetector": "啟用防掛機檢測",
+  "EnableAFKDetector": "Enable AFK Detector (Also Used To Detect And Fix Black Screens)",
   "AFKWarning": "<#ffff00><size=90%>立刻移動來避免被偵測為掛機玩家</color> <#ffffff>({0})</size></color>",
   "AFKSuffix": "<#ffa500>(掛機)</color>",
   "AFKConsequence": "掛機玩家的後果",
