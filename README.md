@@ -19,7 +19,7 @@
 </p>
 <p align="center">
 
-<a href="https://sites.google.com/view/ehr-au" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
+<a href="https://ehr-wiki.netlify.app" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
 <a href="https://discord.gg/m3ayxfumC8" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
 <a href="https://github.com/Gurge44/EndlessHostRoles/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
 
@@ -32,7 +32,7 @@
 
 # Installation
 
-- Follow the manual guide on our website: [EHR](https://sites.google.com/view/ehr-au)
+- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.netlify.app/guides/installation/)
 - Or watch the tutorial by AnonWorks: [YouTube](https://youtu.be/AOLqWCbbrHM?si=nRRsNgz5-Z8XvFrs)
 
 <br>
@@ -261,7 +261,7 @@ Source language: English
 - If this wasn't convincing enough, you can always try EHR and see if you like it better than TOHE.
 - In the end, it's your choice, and I respect it.
 
-#### There are more game changing features, which you can find on our website: [EHR](https://sites.google.com/view/ehr-au)
+#### There are more game changing features, which you can find on our website: [EHR Wiki](https://ehr-wiki.netlify.app/)
 
 <br>
 
