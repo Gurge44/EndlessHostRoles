@@ -921,7 +921,16 @@ internal static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        try
+        {
+            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame;
+            return $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        }
+        catch (Exception e)
+        {
+            ThrowException(e);
+            return player == null || player.Data == null ? "Unknown Player" : player.Data.PlayerName;
+        }
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -1607,11 +1616,13 @@ internal static class ExtendedPlayerControl
 
     public static bool IsLocalPlayer(this PlayerControl pc)
     {
+        if (pc == null) return false;
         return pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
     }
 
     public static bool IsLocalPlayer(this NetworkedPlayerInfo npi)
     {
+        if (npi == null) return false;
         return npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
     }
 

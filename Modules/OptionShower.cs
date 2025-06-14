@@ -56,7 +56,7 @@ public static class OptionShower
                 {
                     if (kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool())
                     {
-                        sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  ×{kvp.Key.GetCount()}\n");
+                        sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  x{kvp.Key.GetCount()}\n");
                         count++;
 
                         if (count > MaxLinesPerPage)

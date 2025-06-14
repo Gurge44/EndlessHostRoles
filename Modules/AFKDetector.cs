@@ -44,7 +44,7 @@ public static class AFKDetector
     {
         if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId)) return;
 
-        float waitingTime = 15f;
+        var waitingTime = 10f;
         if (MeetingStates.FirstMeeting) waitingTime += 5f;
         if (!pc.IsAlive()) waitingTime += 5f;
         if (pc.Is(CustomRoles.Truant) && !MeetingStates.FirstMeeting) waitingTime += Options.TruantWaitingTime.GetFloat();

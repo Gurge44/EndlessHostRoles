@@ -14,7 +14,7 @@ using static EHR.Translator;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
+//[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 internal static class HudManagerPatch
 {
     private static TextMeshPro LowerInfoText;
@@ -30,18 +30,6 @@ internal static class HudManagerPatch
     public static void ClearLowerInfoText()
     {
         LowerInfoText.text = string.Empty;
-    }
-
-    public static bool Prefix(HudManager __instance)
-    {
-        if (PlayerControl.LocalPlayer != null) return true;
-
-        __instance.taskDirtyTimer += Time.deltaTime;
-        if (__instance.taskDirtyTimer <= 0.25) return false;
-
-        __instance.taskDirtyTimer = 0.0f;
-        __instance.TaskPanel?.SetTaskText(string.Empty);
-        return false;
     }
 
     public static void Postfix(HudManager __instance)
@@ -69,15 +57,21 @@ internal static class HudManagerPatch
 
             if (GameStates.IsLobby)
             {
-                if (PingTrackerUpdatePatch.Instance != null)
+                if (PingTrackerUpdatePatch.Instance != null && SettingsText == null)
                 {
-                    if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
-
-                    SettingsText = Object.Instantiate(PingTrackerUpdatePatch.Instance.text, __instance.transform, true);
+                    SettingsText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
+                    SettingsText.name = "EHR_SettingsText";
                     SettingsText.alignment = TextAlignmentOptions.TopLeft;
                     SettingsText.verticalAlignment = VerticalAlignmentOptions.Top;
-                    SettingsText.transform.position = AspectPosition.ComputeWorldPosition(Camera.main, AspectPosition.EdgeAlignments.LeftTop, new(0.38f, 0f, 0f));
-                    SettingsText.fontSize = SettingsText.fontSizeMin = SettingsText.fontSizeMax = 1.5f;
+                    SettingsText.transform.position = AspectPosition.ComputeWorldPosition(Camera.main, AspectPosition.EdgeAlignments.LeftTop, new(0.38f, 0.3f, 0f));
+                    SettingsText.fontSize = SettingsText.fontSizeMin = SettingsText.fontSizeMax = 1.2f;
+                    SettingsText.overflowMode = TextOverflowModes.Overflow;
+                    SettingsText.enableWordWrapping = false;
+                }
+                else if (PingTrackerUpdatePatch.Instance == null && SettingsText != null)
+                {
+                    Object.Destroy(SettingsText.gameObject);
+                    SettingsText = null;
                 }
 
                 if (SettingsText != null)
@@ -86,7 +80,11 @@ internal static class HudManagerPatch
                     SettingsText.enabled = SettingsText.text != string.Empty;
                 }
             }
-            else if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
+            else if (SettingsText != null)
+            {
+                Object.Destroy(SettingsText.gameObject);
+                SettingsText = null;
+            }
 
             if (AmongUsClient.Instance.AmHost)
             {

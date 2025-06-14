@@ -3474,9 +3474,9 @@ public static class Utils
         return t.PadRight(Mathf.Max(num - (bc - t.Length), 0));
     }
 
-    public static void DumpLog(bool open = true)
+    public static void DumpLog(bool open = true, bool finish = true)
     {
-        CustomLogger.Instance.Finish();
+        if (finish) CustomLogger.Instance.Finish();
         
         var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
         var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
@@ -3707,6 +3707,7 @@ public static class Utils
 
     public static string RemoveHtmlTags(this string str)
     {
+        if (string.IsNullOrEmpty(str)) return string.Empty;
         return Regex.Replace(str, "<[^>]*?>", string.Empty);
     }
 

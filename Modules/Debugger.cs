@@ -179,7 +179,7 @@ public class CustomLogger
     private CustomLogger()
     {
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
-        else if (new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
+        else if (Options.IsLoaded && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
         {
             ClearLog(false);
             PrivateInstance ??= new();
@@ -197,7 +197,7 @@ public class CustomLogger
         if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
         {
             PrivateInstance?.Finish();
-            Utils.DumpLog(false);
+            Utils.DumpLog(false, false);
         }
 
         File.WriteAllText(LOGFilePath, HtmlHeader);

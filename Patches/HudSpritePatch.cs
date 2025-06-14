@@ -3,7 +3,6 @@ using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Neutral;
 using EHR.Patches;
-using HarmonyLib;
 using UnityEngine;
 
 namespace EHR;
@@ -16,8 +15,8 @@ public static class CustomButton
     }
 }
 
-[HarmonyPriority(520)]
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
+//[HarmonyPriority(520)]
+//[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 public static class HudSpritePatch
 {
     private static Sprite Kill;

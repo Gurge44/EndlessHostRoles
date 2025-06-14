@@ -74,7 +74,7 @@ public static class LobbyPatch
 }
 
 // https://github.com/SuperNewRoles/SuperNewRoles/blob/master/SuperNewRoles/Patches/LobbyBehaviourPatch.cs
-[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
+//[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
 internal static class LobbyBehaviourUpdatePatch
 {
     public static void Postfix(LobbyBehaviour __instance)

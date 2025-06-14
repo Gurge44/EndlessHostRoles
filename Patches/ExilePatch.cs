@@ -122,7 +122,7 @@ internal static class ExileControllerWrapUpPatch
             {
                 if (GameStates.IsEnded) return;
                 AntiBlackout.RevertToActualRoleTypes();
-            }, Math.Max(1f, Utils.CalculatePingDelay() * 2f), "Revert AntiBlackout Measures");
+            }, Math.Max(1f, Utils.CalculatePingDelay()), "Revert AntiBlackout Measures");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;

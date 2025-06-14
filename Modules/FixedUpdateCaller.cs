@@ -1,6 +1,8 @@
 ﻿using System;
+using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
+using UnityEngine;
 
 namespace EHR.Modules;
 
@@ -14,16 +16,37 @@ public static class FixedUpdateCaller
     {
         try
         {
+            PingTrackerUpdatePatch.LastFPS.Add(1.0f / Time.deltaTime);
+            if (PingTrackerUpdatePatch.LastFPS.Count > 10) PingTrackerUpdatePatch.LastFPS.RemoveAt(0);
+            
             InnerNetClientFixedUpdatePatch.Postfix();
 
-            if (ShipStatus.Instance)
+            var shipStatus = ShipStatus.Instance;
+
+            if (shipStatus)
             {
                 ShipFixedUpdatePatch.Postfix();
-                ShipStatusFixedUpdatePatch.Postfix(ShipStatus.Instance);
+                ShipStatusFixedUpdatePatch.Postfix(shipStatus);
             }
 
-            if (LobbyBehaviour.Instance)
+            var lobbyBehaviour = LobbyBehaviour.Instance;
+
+            if (lobbyBehaviour)
+            {
                 LobbyFixedUpdatePatch.Postfix();
+                LobbyBehaviourUpdatePatch.Postfix(lobbyBehaviour);
+            }
+
+            HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+
+            if (hudManager)
+            {
+                HudManagerPatch.Postfix(hudManager);
+                Zoom.Postfix();
+                HudSpritePatch.Postfix(hudManager);
+            }
+
+            if (!PlayerControl.LocalPlayer) return;
 
             bool lobby = GameStates.IsLobby;
 
