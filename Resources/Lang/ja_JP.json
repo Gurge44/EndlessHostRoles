@@ -1562,7 +1562,7 @@
   "UseVoteCancellingAfterVote": "能力使用後 通常の投票ができる (投票)",
   "AbilityOnCooldown": "<color=#ffff00>能力のクールダウン中！</color>",
   "KillCooldownOnStrangle": "絞首後のキルのクールダウン",
-  "CDPT": "<color=#00ffa5>CD:</color> <color=#ffffff><b>{0}</b>s</color>",
+  "CDPT": "<color=#00ffa5>Cooldown:</color> <color=#ffffff><b>{0}</b>s</color>",
   "HackCD": "<color=#39FF14>ハック CD:</color> <color=#ffffff><b>{0}</b>s</color>",
   "MimicCD": "<color=#ffff00>変装 CD:</color> <color=#ffffff><b>{0}</b>s</color>",
   "MimicDur": "<color=#ffff00>変装 持続時間:</color> <color=#ffffff><b>{0}</b>s</color>",
