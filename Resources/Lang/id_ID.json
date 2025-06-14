@@ -1868,7 +1868,7 @@
   "KickCommandKickedRole": "Their role was",
   "ModeratorTag": "<#8000ff>Moderator</color>",
   "VIPTag": "<#ffff00>VIP</color>",
-  "EnableAFKDetector": "Aktifkan Pendeteksi AFK",
+  "EnableAFKDetector": "Enable AFK Detector (Also Used To Detect And Fix Black Screens)",
   "AFKWarning": "<#ffff00><size=90%>Mohon bergerak agar tidak dianggap AFK</color> <#ffffff>({0})</size></color>",
   "AFKSuffix": "<#ffa500>(AFK)</color>",
   "AFKConsequence": "Konsekuensi bagi pemain yang AFK",
