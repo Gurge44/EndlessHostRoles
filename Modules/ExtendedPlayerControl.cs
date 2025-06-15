@@ -371,10 +371,10 @@ internal static class ExtendedPlayerControl
                 CustomGameMode.Speedrun when newCustomRole == CustomRoles.Runner => Speedrun.CanKill.Contains(playerId) ? RoleTypes.Impostor : RoleTypes.Crewmate,
                 CustomGameMode.Standard when StartGameHostPatch.BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out KeyValuePair<CustomRoles, List<byte>> kvp) => kvp.Key switch
                 {
-                    CustomRoles.Bloodlust when newRoleType is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist => RoleTypes.Impostor,
-                    CustomRoles.Nimble when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Engineer,
+                    CustomRoles.Bloodlust when newRoleType is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.Tracker or RoleTypes.Noisemaker => RoleTypes.Impostor,
+                    CustomRoles.Nimble when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker or RoleTypes.Tracker => RoleTypes.Engineer,
                     CustomRoles.Physicist when newRoleType == RoleTypes.Crewmate => RoleTypes.Scientist,
-                    CustomRoles.Finder when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Tracker,
+                    CustomRoles.Finder when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker => RoleTypes.Tracker,
                     CustomRoles.Noisy when newRoleType == RoleTypes.Crewmate => RoleTypes.Noisemaker,
                     _ => newRoleType
                 },

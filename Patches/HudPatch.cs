@@ -478,6 +478,15 @@ internal static class ToggleHighlightPatch
     }
 }
 
+[HarmonyPatch(typeof(KillButton), nameof(KillButton.SetTarget))]
+internal static class KillButtonSetTargetPatch
+{
+    public static bool Prefix()
+    {
+        return false;
+    }
+}
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
 internal static class SetVentOutlinePatch
 {
@@ -487,8 +496,9 @@ internal static class SetVentOutlinePatch
     public static void Postfix(Vent __instance, [HarmonyArgument(1)] ref bool mainTarget)
     {
         Color color = PlayerControl.LocalPlayer.GetRoleColor();
-        __instance.myRend.material.SetColor(OutlineColor, color);
-        __instance.myRend.material.SetColor(AddColor, mainTarget ? color : Color.clear);
+        Material material = __instance.myRend.material;
+        material.SetColor(OutlineColor, color);
+        material.SetColor(AddColor, mainTarget ? color : Color.clear);
     }
 }
 

@@ -1150,7 +1150,7 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
-            bool forceDisplayCrewmate = target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel);
+            bool forceDisplayCrewmate = Options.CurrentGameMode == CustomGameMode.Standard && target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel);
             if (forceDisplayCrewmate) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;
 
             target.RpcSetRoleDesync(forceDisplayCrewmate ? RoleTypes.Crewmate : roleType, targetClientId);
@@ -1435,7 +1435,19 @@ internal static class StartGameHostPatch
                 int targetClientId = pc.OwnerId;
                 if (targetClientId == -1) continue;
 
-                pc.RpcSetRoleDesync(roleTypes, targetClientId);
+                RoleTypes actualRoleType = BasisChangingAddons.FindFirst(x => x.Value.Contains(id), out KeyValuePair<CustomRoles, List<byte>> kvp)
+                    ? kvp.Key switch
+                    {
+                        CustomRoles.Bloodlust when roleTypes is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.Tracker or RoleTypes.Noisemaker => RoleTypes.Impostor,
+                        CustomRoles.Nimble when roleTypes is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker or RoleTypes.Tracker => RoleTypes.Engineer,
+                        CustomRoles.Physicist when roleTypes == RoleTypes.Crewmate => RoleTypes.Scientist,
+                        CustomRoles.Finder when roleTypes is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker => RoleTypes.Tracker,
+                        CustomRoles.Noisy when roleTypes == RoleTypes.Crewmate => RoleTypes.Noisemaker,
+                        _ => roleTypes
+                    }
+                    : roleTypes;
+
+                pc.RpcSetRoleDesync(actualRoleType, targetClientId);
 
                 LateTask.New(() =>
                 {

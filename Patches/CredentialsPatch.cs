@@ -73,8 +73,9 @@ internal static class PingTrackerUpdatePatch
             Color fpscolor = fps switch
             {
                 < 10f => Color.red,
-                < 30f => Color.yellow,
-                _ => Color.green
+                < 25f => Color.yellow,
+                < 50f => Color.green,
+                _ => new Color32(0, 165, 255, 255)
             };
 
             AppendSeparator();

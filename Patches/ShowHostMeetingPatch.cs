@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -25,7 +26,7 @@ public static class ShowHostMeetingPatch
                 NetworkedPlayerInfo.PlayerOutfit outfit = Main.PlayerStates[host.Data.PlayerId].NormalOutfit;
 
                 HostControl = host;
-                HostName = outfit.PlayerName;
+                HostName = Main.AllPlayerNames.GetValueOrDefault(host.PlayerId, outfit.PlayerName);
                 HostColor = outfit.ColorId;
             }
         }
@@ -39,7 +40,7 @@ public static class ShowHostMeetingPatch
         PlayerControl host = AmongUsClient.Instance.GetHost().Character;
 
         HostControl = host;
-        HostName = host.CurrentOutfit.PlayerName;
+        HostName = Main.AllPlayerNames.GetValueOrDefault(host.PlayerId, host.CurrentOutfit.PlayerName);
         HostColor = host.CurrentOutfit.ColorId;
     }
 

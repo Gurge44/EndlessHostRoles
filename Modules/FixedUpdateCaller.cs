@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
@@ -48,9 +49,34 @@ public static class FixedUpdateCaller
 
             if (!PlayerControl.LocalPlayer) return;
 
+            try
+            {
+                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
+                {
+                    List<PlayerControl> players = PlayerControl.LocalPlayer.GetPlayersInAbilityRangeSorted();
+                    PlayerControl closest = players.Count == 0 ? null : players[0];
+
+                    KillButton killButton = hudManager.KillButton;
+
+                    if (killButton.currentTarget && killButton.currentTarget != closest)
+                        killButton.currentTarget.ToggleHighlight(false, RoleTeamTypes.Impostor);
+
+                    killButton.currentTarget = closest;
+
+                    if (killButton.currentTarget)
+                    {
+                        killButton.currentTarget.ToggleHighlight(true, RoleTeamTypes.Impostor);
+                        killButton.SetEnabled();
+                    }
+                    else
+                        killButton.SetDisabled();
+                }
+            }
+            catch { }
+
             bool lobby = GameStates.IsLobby;
 
-            if (lobby || (Main.IntroDestroyed && !GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks))
+            if (lobby || (Main.IntroDestroyed && GameStates.InGame && !GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks))
             {
                 NonLowLoadPlayerIndex++;
 

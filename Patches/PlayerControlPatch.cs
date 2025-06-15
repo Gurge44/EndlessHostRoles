@@ -1337,17 +1337,6 @@ internal static class FixedUpdatePatch
         bool inTask = GameStates.IsInTask;
         bool alive = player.IsAlive();
 
-        try
-        {
-            if (__instance.AmOwner && inTask && __instance.CanUseKillButton() && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) && !__instance.Data.IsDead)))
-            {
-                List<PlayerControl> players = __instance.GetPlayersInAbilityRangeSorted();
-                PlayerControl closest = players.Count == 0 ? null : players[0];
-                FastDestroyableSingleton<HudManager>.Instance.KillButton.SetTarget(closest);
-            }
-        }
-        catch { }
-
         if (localPlayer)
         {
             Zoom.OnFixedUpdate();
