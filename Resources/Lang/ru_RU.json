@@ -1278,7 +1278,7 @@
   "RemainingText.NKSingle": "Нейтральный Убийца",
   "RemainingText.NKPlural": "Нейтральных убийц",
   "RemainingText.CovenSingle": "Ковен",
-  "RemainingText.CovenPlural": "Ковены",
+  "RemainingText.CovenPlural": "Ковена",
   "RemainingText.Suffix": " остались",
   "GSInfo.ImpCount": "<#ff1919>Предателей</color>: {0}",
   "GSInfo.MadmateCount": "<#ff1919>Безумцев</color>: {0}",
