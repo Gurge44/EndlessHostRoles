@@ -279,6 +279,7 @@ public class Swooper : RoleBase
         if (!IsInvis) return true;
         if (!killer.RpcCheckAndMurder(target, true)) return false;
 
+        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         target.Suicide(PlayerState.DeathReason.Swooped, killer);
         killer.SetKillCooldown();
         return false;
