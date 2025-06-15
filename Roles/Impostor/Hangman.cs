@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Impostor;
@@ -79,6 +80,7 @@ public class Hangman : RoleBase
 
             if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return false;
 
+            RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             killer.RpcRemoveAbilityUse();
             target.Data.IsDead = true;
             target.SetRealKiller(killer);
