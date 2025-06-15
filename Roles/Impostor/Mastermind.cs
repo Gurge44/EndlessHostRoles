@@ -79,6 +79,7 @@ public class Mastermind : RoleBase
 
         return killer.CheckDoubleTrigger(target, () =>
         {
+            killer.RPCPlayCustomSound("Line");
             killer.SetKillCooldown(ManipulateCD);
             ManipulateDelays.TryAdd(target.PlayerId, TimeStamp);
             NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
