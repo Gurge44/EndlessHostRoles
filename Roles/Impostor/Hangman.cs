@@ -80,7 +80,7 @@ public class Hangman : RoleBase
 
             if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return false;
 
-            RPC.PlaySoundRPC(killer, Sounds.KillSound);
+            RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             killer.RpcRemoveAbilityUse();
             target.Data.IsDead = true;
             target.SetRealKiller(killer);
