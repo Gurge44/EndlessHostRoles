@@ -23,6 +23,7 @@ public static class RoomRush
     private static OptionItem PointsToWin;
 
     private static Dictionary<byte, int> Points = [];
+    private static int PointsToWinValue;
 
     public static readonly HashSet<string> HasPlayedFriendCodes = [];
     public static Dictionary<byte, int> VentLimit = [];
@@ -62,15 +63,14 @@ public static class RoomRush
             [(SystemTypes.Launchpad, SystemTypes.Reactor)] = 2,
             [(SystemTypes.Greenhouse, SystemTypes.Laboratory)] = 2,
             [(SystemTypes.Office, SystemTypes.Laboratory)] = 2,
-            [(SystemTypes.Storage, SystemTypes.Comms)] = 5,
-            [(SystemTypes.Cafeteria, SystemTypes.Comms)] = 3,
+            [(SystemTypes.Storage, SystemTypes.Comms)] = 4,
+            [(SystemTypes.Cafeteria, SystemTypes.Comms)] = 2,
             [(SystemTypes.Balcony, SystemTypes.Comms)] = 2,
-            [(SystemTypes.Storage, SystemTypes.MedBay)] = 4,
-            [(SystemTypes.Cafeteria, SystemTypes.MedBay)] = 3,
-            [(SystemTypes.Balcony, SystemTypes.MedBay)] = 5,
+            [(SystemTypes.Storage, SystemTypes.MedBay)] = 3,
+            [(SystemTypes.Cafeteria, SystemTypes.MedBay)] = 2,
+            [(SystemTypes.Balcony, SystemTypes.MedBay)] = 3,
             [(SystemTypes.Storage, SystemTypes.LockerRoom)] = 2,
-            [(SystemTypes.Balcony, SystemTypes.LockerRoom)] = 2,
-            [(SystemTypes.Launchpad, SystemTypes.Storage)] = 2
+            [(SystemTypes.Balcony, SystemTypes.LockerRoom)] = 2
         },
         [MapNames.Polus] = new()
         {
@@ -179,7 +179,7 @@ public static class RoomRush
             .SetGameMode(gameMode)
             .SetColor(color);
 
-        PointsToWin = new IntegerOptionItem(id, "RR_PointsToWin", new(5, 500, 5), 70, TabGroup.GameSettings)
+        PointsToWin = new IntegerOptionItem(id, "RR_PointsToWin", new(1, 100, 1), 10, TabGroup.GameSettings)
             .SetParent(WinByPointsInsteadOfDeaths)
             .SetGameMode(gameMode)
             .SetColor(color);
@@ -199,14 +199,7 @@ public static class RoomRush
     public static string GetPoints(byte id)
     {
         if (!WinByPointsInsteadOfDeaths.GetBool()) return string.Empty;
-        return Points.TryGetValue(id, out int points) ? $"{points}/{PointsToWin.GetInt()}" : string.Empty;
-    }
-
-    public static void OnGameStart()
-    {
-        if (Options.CurrentGameMode != CustomGameMode.RoomRush) return;
-
-        Main.Instance.StartCoroutine(GameStartTasks());
+        return Points.TryGetValue(id, out int points) ? $"{points}/{PointsToWinValue}" : string.Empty;
     }
 
     public static IEnumerator GameStartTasks()
@@ -235,6 +228,8 @@ public static class RoomRush
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
+        PointsToWinValue = PointsToWin.GetInt() * aapc.Length;
+
         bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 2;
 
         if (showTutorial)
@@ -250,7 +245,7 @@ public static class RoomRush
             {
                 sb.AppendLine(Translator.GetString("RR_Tutorial_PointsSystem"));
                 sb.AppendLine(Translator.GetString("RR_Tutorial_TimeLimitLastPoints"));
-                sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_PointsToWin"), PointsToWin.GetInt()));
+                sb.AppendLine(string.Format(Translator.GetString("RR_Tutorial_PointsToWin"), PointsToWinValue));
                 readingTime += 12;
             }
             else
@@ -440,12 +435,12 @@ public static class RoomRush
 
         if (WinByPointsInsteadOfDeaths.GetBool() && Points.TryGetValue(seer.PlayerId, out int points))
         {
-            sb.Append(string.Format(Translator.GetString("RR_Points"), points, PointsToWin.GetInt()));
+            sb.Append(string.Format(Translator.GetString("RR_Points"), points, PointsToWinValue));
 
             int highestPoints = Points.Values.Max();
             bool tie = Points.Values.Count(x => x == highestPoints) > 1;
 
-            if (tie && highestPoints >= PointsToWin.GetInt())
+            if (tie && highestPoints >= PointsToWinValue)
             {
                 byte tieWith = Points.First(x => x.Key != seer.PlayerId && x.Value == highestPoints).Key;
                 sb.Append("\n" + string.Format(Translator.GetString("RR_Tie"), tieWith.ColoredPlayerName()));
@@ -507,7 +502,7 @@ public static class RoomRush
                 int highestPoints = Points.Values.Max();
                 bool tie = Points.Values.Count(x => x == highestPoints) > 1;
 
-                if (!tie && highestPoints >= PointsToWin.GetInt())
+                if (!tie && highestPoints >= PointsToWinValue)
                 {
                     byte winner = Points.GetKeyByValue(highestPoints);
                     Logger.Info($"{Main.AllPlayerNames[winner]} has reached the points goal, ending the game", "RoomRush");

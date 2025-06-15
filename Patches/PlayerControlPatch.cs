@@ -239,7 +239,7 @@ internal static class CheckMurderPatch
                 return false;
             case CustomGameMode.HotPotato:
                 (byte holderID, byte lastHolderID) = HotPotato.GetState();
-                if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && lastHolderID != target.PlayerId)
+                if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControls.Length <= 2))
                     HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                 return false;
             case CustomGameMode.TheMindGame:

@@ -4892,7 +4892,7 @@
   "RR_DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom": "Don't Lower Time Limit When the First Two Players Enter the Correct Room",
   "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut": "Don't Kill Players Outside the Room When the Time Runs Out",
   "RR_WinByPointsInsteadOfDeaths": "Instead of deaths, count the places each time in points and the first player to get a certain amount of points wins",
-  "RR_PointsToWin": "Points to Win",
+  "RR_PointsToWin": "Points to Win - Multiplied by how many players are in the game",
   "RR_Tutorial_Basics": "The current game mode is <#ffab1b>Room Rush</color>.\\n<size=90%>The goal is to get to the specified rooms as fast as possible.</size>",
   "RR_Tutorial_RoomIndication_ArrowAndName": "<size=90%>Both the name of the room and an arrow\\npointing to it are displayed below your name.</size>",
   "RR_Tutorial_RoomIndication_ArrowOnly": "<size=90%>An arrow pointing to the room is displayed below your name.</size>",
