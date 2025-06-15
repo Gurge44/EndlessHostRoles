@@ -19,7 +19,7 @@ internal class Visionary : RoleBase
     {
         Options.SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
 
-        UseLimit = new IntegerOptionItem(16152, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.ImpostorRoles)
+        UseLimit = new FloatOptionItem(16152, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
             .SetValueFormat(OptionFormat.Times);
 
@@ -48,7 +48,7 @@ internal class Visionary : RoleBase
             return;
         }
 
-        playerId.SetAbilityUseLimit(UseLimit.GetInt());
+        playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
 
     public override void Init()

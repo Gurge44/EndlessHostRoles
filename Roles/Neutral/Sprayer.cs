@@ -82,7 +82,7 @@ internal class Sprayer : RoleBase
     public override void Add(byte playerId)
     {
         SprayerId = playerId;
-        playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls) TrappedCount[pc.PlayerId] = 0;
     }

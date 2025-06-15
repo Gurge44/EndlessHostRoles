@@ -39,7 +39,7 @@ internal class NiceEraser : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(EraseLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

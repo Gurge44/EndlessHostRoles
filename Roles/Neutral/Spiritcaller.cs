@@ -77,7 +77,7 @@ public class Spiritcaller : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(SpiritMax.GetInt());
+        playerId.SetAbilityUseLimit(SpiritMax.GetFloat());
         ProtectTimeStamp = 0;
     }
 
@@ -162,7 +162,7 @@ public class Spiritcaller : RoleBase
         if (SpiritCauseVisionTime.GetFloat() > 0 && !PlayersHaunted.ContainsKey(target.PlayerId))
         {
             long time = Utils.TimeStamp + (long)SpiritCauseVisionTime.GetFloat();
-            PlayersHaunted.Add(target.PlayerId, time);
+            PlayersHaunted[target.PlayerId] = time;
         }
 
         if (SpiritFreezeTime.GetFloat() > 0)

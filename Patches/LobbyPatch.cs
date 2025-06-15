@@ -7,26 +7,30 @@ using UnityEngine;
 
 namespace EHR;
 
-[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.FixedUpdate))]
+//[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.FixedUpdate))]
 public static class LobbyFixedUpdatePatch
 {
     private static GameObject Paint;
 
     public static void Postfix()
     {
-        if (Paint == null)
+        try
         {
-            GameObject leftBox = GameObject.Find("Leftbox");
-
-            if (leftBox != null)
+            if (Paint == null)
             {
-                Paint = Object.Instantiate(leftBox, leftBox.transform.parent.transform);
-                Paint.name = "Lobby Paint";
-                Paint.transform.localPosition = new(0.042f, -2.59f, -10.5f);
-                var renderer = Paint.GetComponent<SpriteRenderer>();
-                renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
+                GameObject leftBox = GameObject.Find("Leftbox");
+
+                if (leftBox != null)
+                {
+                    Paint = Object.Instantiate(leftBox, leftBox.transform.parent.transform);
+                    Paint.name = "Lobby Paint";
+                    Paint.transform.localPosition = new(0.042f, -2.59f, -10.5f);
+                    var renderer = Paint.GetComponent<SpriteRenderer>();
+                    renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
+                }
             }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 
@@ -46,9 +50,7 @@ public static class HostInfoPanelSetUpPatch
         {
             if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
 
-            string name = AmongUsClient.Instance.GetHost().PlayerName;
-            string[] split = name.Split('\n');
-            name = Options.GetSuffixMode() == SuffixModes.None ? split[^1] : split[^2];
+            string name = AmongUsClient.Instance.GetHost().PlayerName.Split('\n')[^1];
             if (name == string.Empty) return;
 
             string text = AmongUsClient.Instance.AmHost
@@ -72,7 +74,7 @@ public static class LobbyPatch
 }
 
 // https://github.com/SuperNewRoles/SuperNewRoles/blob/master/SuperNewRoles/Patches/LobbyBehaviourPatch.cs
-[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
+//[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
 internal static class LobbyBehaviourUpdatePatch
 {
     public static void Postfix(LobbyBehaviour __instance)

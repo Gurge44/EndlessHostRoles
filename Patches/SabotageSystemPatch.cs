@@ -148,6 +148,7 @@ public static class MushroomMixupSabotageSystemPatch
 
         ReportDeadBodyPatch.CanReport.SetAllValues(false);
         Logger.Info("Disable Reporting", "MushroomMixupSabotageSystem");
+        LateTask.New(() => ReportDeadBodyPatch.CanReport.SetAllValues(true), Options.SabotageTimeControl.GetBool() ? Options.FungleMushroomMixupDuration.GetFloat() : 10f, "Enable Reporting After Mushroom Mixup");
 
         if (!Options.SabotageTimeControl.GetBool()) return;
 
@@ -178,8 +179,6 @@ public static class MushroomMixupSabotageSystemPatch
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
                 Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => x.RpcResetAbilityCooldown());
-                ReportDeadBodyPatch.CanReport.SetAllValues(true);
-                Logger.Info("Enable Reporting", "MushroomMixupSabotageSystem");
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -187,9 +186,6 @@ public static class MushroomMixupSabotageSystemPatch
                 if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
             }
-
-            ReportDeadBodyPatch.CanReport.SetAllValues(true);
-            Logger.Info("Enable Reporting", "MushroomMixupSabotageSystem");
         }
     }
 }

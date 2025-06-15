@@ -32,7 +32,7 @@ public class Investor : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(652600)
-            .AutoSetupOption(ref AbilityUseLimit, 5, new IntegerValueRule(1, 15, 1), OptionFormat.Players)
+            .AutoSetupOption(ref AbilityUseLimit, 5f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Players)
             .AutoSetupOption(ref AbilityCooldown, 15, new IntegerValueRule(1, 120, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref PercentNeed, 50, new IntegerValueRule(5, 100, 5), OptionFormat.Percent);
     }

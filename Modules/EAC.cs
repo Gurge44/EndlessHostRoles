@@ -885,7 +885,7 @@ internal static class StartGameHostPatchEAC
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
 internal static class CheckInvalidMovementPatch
 {
     private static readonly Dictionary<byte, long> LastCheck = [];

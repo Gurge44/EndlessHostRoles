@@ -59,7 +59,7 @@ public class NiceSwapper : RoleBase
     public override void Add(byte playerId)
     {
         NiceSwapperId = playerId;
-        playerId.SetAbilityUseLimit(SwapMax.GetInt());
+        playerId.SetAbilityUseLimit(SwapMax.GetFloat());
     }
 
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
@@ -84,7 +84,7 @@ public class NiceSwapper : RoleBase
         {
             case 1:
                 Utils.SendMessage(GuessManager.GetFormatString(), pc.PlayerId);
-                return true;
+                break;
             case 2:
             {
                 if (!pc.IsAlive())
@@ -117,11 +117,11 @@ public class NiceSwapper : RoleBase
 
                 bool targetIsntSelected = SwapTargets.Item1 != target.PlayerId && SwapTargets.Item2 != target.PlayerId; // Whether the picked target isn't already being swapped
 
-                bool Vote1Empty = SwapTargets.Item1 == byte.MaxValue && targetIsntSelected; // Whether the first swapping slot is suitable to swap this target
-                bool Vote2Available = SwapTargets.Item1 != byte.MaxValue && SwapTargets.Item2 == byte.MaxValue && targetIsntSelected; // Whether the second swapping slot is suitable to swap this target
+                bool vote1Empty = SwapTargets.Item1 == byte.MaxValue && targetIsntSelected; // Whether the first swapping slot is suitable to swap this target
+                bool vote2Available = SwapTargets.Item1 != byte.MaxValue && SwapTargets.Item2 == byte.MaxValue && targetIsntSelected; // Whether the second swapping slot is suitable to swap this target
                 bool selfCheck = CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId;
 
-                if (Vote1Empty && selfCheck) // Take first slot
+                if (vote1Empty && selfCheck) // Take the first slot
                 {
                     SwapTargets.Item1 = target.PlayerId;
 
@@ -130,7 +130,7 @@ public class NiceSwapper : RoleBase
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
                 }
 
-                else if (Vote2Available && selfCheck) // Take second slot
+                else if (vote2Available && selfCheck) // Take the second slot
                 {
                     SwapTargets.Item2 = target.PlayerId;
 
@@ -165,6 +165,16 @@ public class NiceSwapper : RoleBase
                         pc.ShowPopUp(GetString("CantSwapSelf"));
                 }
 
+
+                if (CustomRoles.MeetingManager.RoleExist())
+                {
+                    PlayerControl pc1 = SwapTargets.Item1.GetPlayer();
+                    PlayerControl pc2 = SwapTargets.Item2.GetPlayer();
+
+                    if (pc1 != null && pc2 != null)
+                        MeetingManager.OnSwap(pc1, pc2);
+                }
+
                 break;
             }
         }
@@ -197,18 +207,22 @@ public class NiceSwapper : RoleBase
             {
                 x.UnsetVote();
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.CastVote(x.TargetPlayerId, SwapTargets.Item2);
                 x.VotedFor = SwapTargets.Item2;
             });
 
-            playerStates.DoIf(votedFor2.Contains, x =>
+            votedFor2.ForEach(x =>
             {
                 x.UnsetVote();
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
                 meetingHud.SetDirtyBit(1U);
+                AmongUsClient.Instance.SendAllStreamedObjects();
                 meetingHud.CastVote(x.TargetPlayerId, SwapTargets.Item1);
                 x.VotedFor = SwapTargets.Item1;
             });
@@ -256,8 +270,8 @@ public class NiceSwapper : RoleBase
 
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
-        byte PlayerId = reader.ReadByte();
-        SwapMsg(pc, $"/sw {PlayerId}", true);
+        byte playerId = reader.ReadByte();
+        SwapMsg(pc, $"/sw {playerId}", true);
     }
 
     private static void SwapperOnClick(byte playerId, MeetingHud __instance)

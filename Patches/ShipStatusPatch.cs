@@ -14,21 +14,25 @@ using UnityEngine;
 
 namespace EHR;
 
-[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
+//[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
 internal static class ShipFixedUpdatePatch
 {
     public static void Postfix( /*ShipStatus __instance*/)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
-
-        if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
-            Main.RefixCooldownDelay -= Time.fixedDeltaTime;
-        else if (!float.IsNaN(Main.RefixCooldownDelay))
+        try
         {
-            Utils.MarkEveryoneDirtySettingsV4();
-            Main.RefixCooldownDelay = float.NaN;
-            Logger.Info("Refix Cooldown", "CoolDown");
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
+                Main.RefixCooldownDelay -= Time.fixedDeltaTime;
+            else if (!float.IsNaN(Main.RefixCooldownDelay))
+            {
+                Utils.MarkEveryoneDirtySettingsV4();
+                Main.RefixCooldownDelay = float.NaN;
+                Logger.Info("Refix Cooldown", "CoolDown");
+            }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 
@@ -667,7 +671,7 @@ internal static class VentilationSystemDeterioratePatch
     }
 }
 
-[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
+//[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
 internal static class ShipStatusFixedUpdatePatch
 {
     public static Dictionary<byte, int> ClosestVent = [];
@@ -677,36 +681,44 @@ internal static class ShipStatusFixedUpdatePatch
 
     public static void Postfix(ShipStatus __instance)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.InGame || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
-
-        if (Utils.GameStartTimeStamp + 30 > Utils.TimeStamp) return;
-
-        if (Count++ < 40) return;
-        Count = 0;
-
-        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
-        if (ventilationSystem == null) return;
-
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        try
         {
-            Vent closestVent = pc.GetClosestVent();
-            if (closestVent == null) continue;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.InGame || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
-            int ventId = closestVent.Id;
-            bool canUseVent = pc.CanUseVent(ventId);
+            if (Utils.GameStartTimeStamp + 30 > Utils.TimeStamp) return;
 
-            if (!ClosestVent.TryGetValue(pc.PlayerId, out int lastVentId) || !CanUseClosestVent.TryGetValue(pc.PlayerId, out bool lastCanUseVent))
+            if (Count++ < 40) return;
+            Count = 0;
+
+            var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
+            if (ventilationSystem == null) return;
+
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                ClosestVent[pc.PlayerId] = ventId;
-                CanUseClosestVent[pc.PlayerId] = canUseVent;
-                continue;
+                try
+                {
+                    Vent closestVent = pc.GetClosestVent();
+                    if (closestVent == null) continue;
+
+                    int ventId = closestVent.Id;
+                    bool canUseVent = pc.CanUseVent(ventId);
+
+                    if (!ClosestVent.TryGetValue(pc.PlayerId, out int lastVentId) || !CanUseClosestVent.TryGetValue(pc.PlayerId, out bool lastCanUseVent))
+                    {
+                        ClosestVent[pc.PlayerId] = ventId;
+                        CanUseClosestVent[pc.PlayerId] = canUseVent;
+                        continue;
+                    }
+
+                    if (ventId != lastVentId || canUseVent != lastCanUseVent)
+                        VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, pc);
+
+                    ClosestVent[pc.PlayerId] = ventId;
+                    CanUseClosestVent[pc.PlayerId] = canUseVent;
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
             }
-
-            if (ventId != lastVentId || canUseVent != lastCanUseVent)
-                VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem, pc);
-
-            ClosestVent[pc.PlayerId] = ventId;
-            CanUseClosestVent[pc.PlayerId] = canUseVent;
         }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }

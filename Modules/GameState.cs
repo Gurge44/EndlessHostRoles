@@ -111,6 +111,8 @@ public class PlayerState(byte playerId)
         if (Main.IntroDestroyed && MainRole != CustomRoles.NotAssigned && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
             RoleHistory.Add(MainRole);
 
+        Divinator.OnRoleChange(PlayerId, MainRole, role);
+
         bool previousHasTasks = Utils.HasTasks(Player.Data, false);
 
         countTypes = role.GetCountTypes();
@@ -370,7 +372,7 @@ public class PlayerState(byte playerId)
         if (AmongUsClient.Instance.AmHost)
         {
             if (Enchanter.EnchantedPlayers.Contains(PlayerId))
-                deathReason = Enum.GetValues<DeathReason>().SkipLast(8).RandomElement();
+                deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
 
             RPC.SendDeathReason(PlayerId, deathReason);
             Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));

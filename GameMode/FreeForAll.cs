@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -16,7 +15,6 @@ internal static class FreeForAll
     private static Dictionary<byte, long> FFADecreasedSpeedList = [];
     public static Dictionary<byte, long> FFALowerVisionList = [];
 
-    private static Dictionary<byte, float> OriginalSpeed = [];
     public static Dictionary<byte, int> KillCount = [];
     public static int RoundTime;
 
@@ -137,7 +135,6 @@ internal static class FreeForAll
         FFALowerVisionList = [];
         FFAShieldedList = [];
 
-        OriginalSpeed = [];
         KillCount = [];
         RoundTime = FFAGameTime.GetInt() + 8;
 
@@ -259,20 +256,10 @@ internal static class FreeForAll
                                 Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                                 break;
                             case 1:
-                                if (FFAIncreasedSpeedList.ContainsKey(killer.PlayerId))
-                                {
-                                    FFAIncreasedSpeedList.Remove(killer.PlayerId);
-                                    FFAIncreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
-                                }
-                                else
-                                {
-                                    FFAIncreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                                    OriginalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
-                                    Main.AllPlayerSpeed[killer.PlayerId] = FFAIncreasedSpeed.GetFloat();
-                                }
-
-                                killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
+                                FFAIncreasedSpeedList[killer.PlayerId] = Utils.TimeStamp;
+                                Main.AllPlayerSpeed[killer.PlayerId] = FFAIncreasedSpeed.GetFloat();
                                 Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
+                                killer.Notify(GetString("FFA-Event-GetIncreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
                                 mark = true;
                                 break;
                             case 2:
@@ -296,15 +283,8 @@ internal static class FreeForAll
                         switch (effectID)
                         {
                             case 0:
-                                if (FFADecreasedSpeedList.Remove(killer.PlayerId))
-                                    FFADecreasedSpeedList.Add(killer.PlayerId, Utils.TimeStamp);
-                                else
-                                {
-                                    FFADecreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                                    OriginalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
-                                    Main.AllPlayerSpeed[killer.PlayerId] = FFADecreasedSpeed.GetFloat();
-                                }
-
+                                FFADecreasedSpeedList[killer.PlayerId] = Utils.TimeStamp;
+                                Main.AllPlayerSpeed[killer.PlayerId] = FFADecreasedSpeed.GetFloat();
                                 killer.Notify(GetString("FFA-Event-GetDecreasedSpeed"), FFAModifiedSpeedDuration.GetFloat());
                                 Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                                 mark = true;
@@ -377,12 +357,11 @@ internal static class FreeForAll
         Main.AllAlivePlayerControls.NotifyPlayers(LatestChatMessage);
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
             if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.FFA || !AmongUsClient.Instance.AmHost) return;
@@ -444,8 +423,7 @@ internal static class FreeForAll
                 {
                     Logger.Info(pc.GetRealName() + "'s decreased speed expired", "FFA");
                     FFADecreasedSpeedList.Remove(pc.PlayerId);
-                    Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed[pc.PlayerId];
-                    OriginalSpeed.Remove(pc.PlayerId);
+                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     sync = true;
                 }
 
@@ -453,8 +431,7 @@ internal static class FreeForAll
                 {
                     Logger.Info(pc.GetRealName() + "'s increased speed expired", "FFA");
                     FFAIncreasedSpeedList.Remove(pc.PlayerId);
-                    Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed[pc.PlayerId];
-                    OriginalSpeed.Remove(pc.PlayerId);
+                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     sync = true;
                 }
 

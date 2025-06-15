@@ -34,7 +34,7 @@ public class Disperser : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
 
-        DisperserAbilityUseGainWithEachKill = new FloatOptionItem(Id + 8, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
+        DisperserAbilityUseGainWithEachKill = new FloatOptionItem(Id + 8, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.7f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -46,7 +46,7 @@ public class Disperser : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerId.SetAbilityUseLimit(DisperserLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(DisperserLimitOpt.GetFloat());
         On = true;
     }
 

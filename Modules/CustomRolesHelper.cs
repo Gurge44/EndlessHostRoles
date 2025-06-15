@@ -111,7 +111,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sniper => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Jester => Jester.JesterCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Mayor => Mayor.MayorHasPortableButton.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
-            CustomRoles.Monitor => Monitor.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Monitor => Monitor.CanVent.GetBool() || !UsePets ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Vulture => Vulture.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Opportunist => Opportunist.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Vindicator => CustomRoles.Impostor,
@@ -197,7 +197,6 @@ internal static class CustomRolesHelper
             CustomRoles.Assassin => CustomRoles.Phantom,
             CustomRoles.Undertaker => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Luckey => CustomRoles.Crewmate,
-            CustomRoles.CyberStar => CustomRoles.Crewmate,
             CustomRoles.Demolitionist => CustomRoles.Crewmate,
             CustomRoles.Ventguard => CustomRoles.Engineer,
             CustomRoles.Express => CustomRoles.Crewmate,
@@ -222,7 +221,7 @@ internal static class CustomRolesHelper
             CustomRoles.Dad => CustomRoles.Engineer,
             CustomRoles.Drainer => CustomRoles.Engineer,
             CustomRoles.Benefactor => CustomRoles.Crewmate,
-            CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
+            CustomRoles.MeetingManager => CustomRoles.Crewmate,
             CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
             CustomRoles.Astral => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -260,7 +259,6 @@ internal static class CustomRolesHelper
             CustomRoles.Spy => CustomRoles.Crewmate,
             CustomRoles.Ricochet => CustomRoles.Crewmate,
             CustomRoles.Tether => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
-            CustomRoles.Doormaster => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Aid => UsePets && Aid.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Socialite => UsePets && Socialite.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Escort => UsePets && Escort.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
@@ -460,7 +458,7 @@ internal static class CustomRolesHelper
             CustomRoles.Gamer => RoleTypes.Impostor,
             CustomRoles.HexMaster => RoleTypes.Impostor,
             CustomRoles.Wraith => RoleTypes.Impostor,
-            CustomRoles.Glitch => RoleTypes.Impostor,
+            CustomRoles.Glitch => RoleTypes.Shapeshifter,
             CustomRoles.Jailor => UsePets && Jailor.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Juggernaut => RoleTypes.Impostor,
             CustomRoles.Jinx => RoleTypes.Impostor,
@@ -1029,7 +1027,6 @@ internal static class CustomRolesHelper
             CustomRoles.Swift when pc.Is(CustomRoles.Magnet) => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Amnesiac) && Amnesiac.RememberMode.GetValue() == 0 => false,
             CustomRoles.Rookie when !pc.CanUseKillButton() => false,
-            CustomRoles.Energetic when !Options.UsePets.GetBool() => false,
             CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,
             CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistEHR) || pc.Is(CustomRoles.Sunnyboy) => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,
@@ -1268,28 +1265,7 @@ internal static class CustomRolesHelper
 
     public static int GetCount(this CustomRoles role)
     {
-        if (role.IsVanilla())
-        {
-            if (Options.DisableVanillaRoles.GetBool()) return 0;
-
-            IRoleOptionsCollection roleOpt = Main.NormalOptions.RoleOptions;
-
-            return role switch
-            {
-                CustomRoles.Engineer => roleOpt.GetNumPerGame(RoleTypes.Engineer),
-                CustomRoles.Noisemaker => roleOpt.GetNumPerGame(RoleTypes.Noisemaker),
-                CustomRoles.Tracker => roleOpt.GetNumPerGame(RoleTypes.Tracker),
-                CustomRoles.Scientist => roleOpt.GetNumPerGame(RoleTypes.Scientist),
-                CustomRoles.Impostor => roleOpt.GetNumPerGame(RoleTypes.Impostor),
-                CustomRoles.Phantom => roleOpt.GetNumPerGame(RoleTypes.Phantom),
-                CustomRoles.Shapeshifter => roleOpt.GetNumPerGame(RoleTypes.Shapeshifter),
-                CustomRoles.GuardianAngel => roleOpt.GetNumPerGame(RoleTypes.GuardianAngel),
-                CustomRoles.Crewmate => roleOpt.GetNumPerGame(RoleTypes.Crewmate),
-                _ => 0
-            };
-        }
-
-        return Options.GetRoleCount(role);
+        return role.IsVanilla() ? 0 : Options.GetRoleCount(role);
     }
 
     public static int GetMode(this CustomRoles role)
@@ -1324,6 +1300,15 @@ internal static class CustomRolesHelper
     public static bool IsEnable(this CustomRoles role)
     {
         return role.GetCount() > 0;
+    }
+
+    public static bool IsDevFavoriteRole(this CustomRoles role)
+    {
+        return role is CustomRoles.Adventurer or CustomRoles.Chef or CustomRoles.Detour or CustomRoles.NiceHacker or CustomRoles.NiceSwapper or CustomRoles.Sentinel or CustomRoles.Sentry or CustomRoles.Tornado or CustomRoles.Tunneler or CustomRoles.Whisperer or CustomRoles.Wizard or
+                       CustomRoles.Abyssbringer or CustomRoles.Assumer or CustomRoles.Chronomancer or CustomRoles.Echo or CustomRoles.Escapee or CustomRoles.Hypnotist or CustomRoles.Librarian or CustomRoles.Mafioso or CustomRoles.Mastermind or CustomRoles.SerialKiller or CustomRoles.Penguin or CustomRoles.RiftMaker or CustomRoles.Sapper or CustomRoles.Wiper or
+                       CustomRoles.Bargainer or CustomRoles.Bubble or CustomRoles.Doomsayer or CustomRoles.Enderman or CustomRoles.Evolver or CustomRoles.HeadHunter or CustomRoles.Impartial or CustomRoles.Patroller or CustomRoles.Pawn or CustomRoles.PlagueDoctor or CustomRoles.Postman or CustomRoles.Pyromaniac or CustomRoles.Revolutionist or CustomRoles.Rogue or CustomRoles.Romantic or CustomRoles.RoomRusher or CustomRoles.RouleteGrandeur or CustomRoles.Simon or CustomRoles.SoulHunter or CustomRoles.Sprayer or CustomRoles.Technician or CustomRoles.Tank or CustomRoles.Tiger or CustomRoles.Tremor or CustomRoles.Vengeance or CustomRoles.Vortex or CustomRoles.Werewolf or CustomRoles.WeaponMaster or
+                       CustomRoles.Reaper or CustomRoles.VoodooMaster or CustomRoles.Dreamweaver or CustomRoles.Banshee or
+                       CustomRoles.Allergic or CustomRoles.Bloodlust or CustomRoles.Damocles or CustomRoles.Deadlined or CustomRoles.DeadlyQuota or CustomRoles.Dynamo or CustomRoles.DoubleShot or CustomRoles.Energetic or CustomRoles.Haste or CustomRoles.Introvert or CustomRoles.Messenger or CustomRoles.Nimble or CustomRoles.Reach or CustomRoles.Seer or CustomRoles.Stressed;
     }
 
     public static CountTypes GetCountTypes(this CustomRoles role)
@@ -1408,7 +1393,7 @@ internal static class CustomRolesHelper
         {
             RoleOptionType.Impostor_Killing => Utils.GetRoleColor(CustomRoles.Witness),
             RoleOptionType.Impostor_Support => Utils.GetRoleColor(CustomRoles.Bubble),
-            RoleOptionType.Impostor_Concealing => Utils.GetRoleColor(CustomRoles.CyberStar),
+            RoleOptionType.Impostor_Concealing => Utils.GetRoleColor(CustomRoles.CopyCat),
             RoleOptionType.Impostor_Miscellaneous => Palette.ImpostorRed,
             RoleOptionType.Crewmate_Miscellaneous => Palette.CrewmateBlue,
             RoleOptionType.Crewmate_Investigate => Utils.GetRoleColor(CustomRoles.Detective),
@@ -1638,7 +1623,6 @@ internal static class CustomRolesHelper
             CustomRoles.NoisemakerEHR => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
-            CustomRoles.CyberStar => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Demolitionist => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Express => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Needy => RoleOptionType.Crewmate_Miscellaneous,
@@ -1666,7 +1650,7 @@ internal static class CustomRolesHelper
             CustomRoles.Enigma => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Farseer => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Divinator => RoleOptionType.Crewmate_Investigate,
-            CustomRoles.GuessManagerRole => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.MeetingManager => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Ignitor => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Insight => RoleOptionType.Crewmate_Investigate,
             CustomRoles.ParityCop => RoleOptionType.Crewmate_Investigate,
@@ -1674,7 +1658,6 @@ internal static class CustomRolesHelper
             CustomRoles.Leery => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Lighter => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Lookout => RoleOptionType.Crewmate_Investigate,
-            CustomRoles.Lyncher => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Markseeker => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Mediumshiper => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Monitor => RoleOptionType.Crewmate_Investigate,
@@ -1710,7 +1693,6 @@ internal static class CustomRolesHelper
             CustomRoles.Crusader => RoleOptionType.Crewmate_Support,
             CustomRoles.Deputy => RoleOptionType.Crewmate_Support,
             CustomRoles.DonutDelivery => RoleOptionType.Crewmate_Support,
-            CustomRoles.Doormaster => RoleOptionType.Crewmate_Support,
             CustomRoles.DovesOfNeace => RoleOptionType.Crewmate_Support,
             CustomRoles.Electric => RoleOptionType.Crewmate_Support,
             CustomRoles.Escort => RoleOptionType.Crewmate_Support,
@@ -1748,6 +1730,7 @@ internal static class CustomRolesHelper
             CustomRoles.Detour => RoleOptionType.Crewmate_Power,
             CustomRoles.Dictator => RoleOptionType.Crewmate_Power,
             CustomRoles.Guardian => RoleOptionType.Crewmate_Power,
+            CustomRoles.Lyncher => RoleOptionType.Crewmate_Power,
             CustomRoles.Marshall => RoleOptionType.Crewmate_Power,
             CustomRoles.Mayor => RoleOptionType.Crewmate_Power,
             CustomRoles.NiceEraser => RoleOptionType.Crewmate_Power,

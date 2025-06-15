@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Neutral;
 using static EHR.Options;
@@ -8,7 +9,7 @@ namespace EHR.Impostor;
 internal class Cleaner : RoleBase
 {
     public static bool On;
-    public static List<byte> CleanerBodies = [];
+    public static HashSet<byte> CleanerBodies = [];
     private static OptionItem CleanerKillCooldown;
     private static OptionItem KillCooldownAfterCleaning;
     private static OptionItem CannotCleanWhenKCDIsntUp;
@@ -19,6 +20,8 @@ internal class Cleaner : RoleBase
     private float KCDAfterClean;
     private float KillCooldown;
     private bool WaitForKCDUp;
+
+    private bool WasOnCooldown;
 
     public override bool IsEnable => On;
 
@@ -60,6 +63,8 @@ internal class Cleaner : RoleBase
             KCDAfterClean = KillCooldownAfterCleaning.GetFloat();
             WaitForKCDUp = CannotCleanWhenKCDIsntUp.GetBool();
         }
+
+        WasOnCooldown = false;
     }
 
     public override void Init()
@@ -97,7 +102,6 @@ internal class Cleaner : RoleBase
     {
         if (WaitForKCDUp && Main.KillTimers[cleaner.PlayerId] > 0f) return true;
 
-        CleanerBodies.Remove(target.PlayerId);
         CleanerBodies.Add(target.PlayerId);
 
         cleaner.Notify(Translator.GetString("CleanerCleanBody"));
@@ -106,5 +110,24 @@ internal class Cleaner : RoleBase
         Logger.Info($"{cleaner.GetRealName()} cleans up the corpse of {target.Object.GetRealName()}", "Cleaner/Medusa");
 
         return false;
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive()) return;
+
+        bool onCooldown = Main.KillTimers[pc.PlayerId] > 0f;
+
+        if (WasOnCooldown != onCooldown)
+        {
+            WasOnCooldown = onCooldown;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+    {
+        if (!seer.Is(CustomRoles.Cleaner) || seer.PlayerId != target.PlayerId || hud || meeting || !WaitForKCDUp || Main.KillTimers[seer.PlayerId] <= 0f) return string.Empty;
+        return seer.IsHost() ? string.Format(Translator.GetString("CleanerKCDNotUpTimer"), (int)Math.Ceiling(Main.KillTimers[seer.PlayerId])) : Translator.GetString("CleanerKCDNotUp");
     }
 }

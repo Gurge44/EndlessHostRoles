@@ -55,7 +55,7 @@ public class Adrenaline : RoleBase
         Timer = 0;
         Utils.SendRPC(CustomRPC.SyncRoleData, playerId, Timer);
         DefaultSpeed = Main.AllPlayerSpeed[playerId];
-        playerId.SetAbilityUseLimit(MaxSurvives.GetInt());
+        playerId.SetAbilityUseLimit(MaxSurvives.GetFloat());
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)

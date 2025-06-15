@@ -27,6 +27,13 @@ internal static class CheckForEndVotingPatch
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
+        if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
+        {
+            Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
+            LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
+            return false;
+        }
+
         if (Medic.PlayerIdList.Count > 0) Medic.OnCheckMark();
 
         // Meeting Skip with vote counting
@@ -220,13 +227,6 @@ internal static class CheckForEndVotingPatch
                         VoterId = ps.TargetPlayerId,
                         VotedForId = ps.VotedFor
                     });
-            }
-
-            if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
-            {
-                Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
-                LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
-                return false;
             }
 
             Blackmailer.OnCheckForEndVoting();
@@ -476,9 +476,7 @@ internal static class CheckForEndVotingPatch
 
         if (tiebreaker) name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
 
-        if (DecidedWinner)
-            name += "<size=0>";
-        else
+        if (!DecidedWinner)
         {
             bool showImpRemain = Options.ShowImpRemainOnEject.GetBool();
             bool showNKRemain = Options.ShowNKRemainOnEject.GetBool();
@@ -745,13 +743,13 @@ internal static class MeetingHudStartPatch
         {
             if (pc.Is(CustomRoles.Mafia) && !pc.IsAlive()) AddMsg(GetString("MafiaDeadMsg"), pc.PlayerId);
 
-            foreach (byte csId in Main.CyberStarDead)
+            foreach (byte csId in Main.SuperStarDead)
             {
-                if (!Options.ImpKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsImpostor()) continue;
+                if (!Options.ImpKnowSuperStarDead.GetBool() && pc.GetCustomRole().IsImpostor()) continue;
+                if (!Options.NeutralKnowSuperStarDead.GetBool() && pc.GetCustomRole().IsNeutral()) continue;
+                if (!Options.CovenKnowSuperStarDead.GetBool() && pc.Is(CustomRoleTypes.Coven)) continue;
 
-                if (!Options.NeutralKnowCyberStarDead.GetBool() && pc.GetCustomRole().IsNeutral()) continue;
-
-                AddMsg(string.Format(GetString("CyberStarDead"), Main.AllPlayerNames[csId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")));
+                AddMsg(string.Format(GetString("SuperStarDead"), Main.AllPlayerNames[csId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), GetString("SuperStarNewsTitle")));
             }
 
             if (pc != null && Silencer.ForSilencer.Contains(pc.PlayerId))
@@ -798,7 +796,7 @@ internal static class MeetingHudStartPatch
 
         if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 8f, "Meeting Start Notify");
 
-        Main.CyberStarDead.Clear();
+        Main.SuperStarDead.Clear();
         Express.SpeedNormal.Clear();
         Express.SpeedUp.Clear();
         Detective.DetectiveNotify.Clear();
@@ -826,8 +824,8 @@ internal static class MeetingHudStartPatch
     {
         SoundManager.Instance.ChangeAmbienceVolume(0f);
 
-        GuessManager.textTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
-        GuessManager.textTemplate.enabled = false;
+        GuessManager.TextTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
+        GuessManager.TextTemplate.enabled = false;
 
         PlayerControl seer = PlayerControl.LocalPlayer;
 
@@ -1274,11 +1272,13 @@ internal static class MeetingHudCastVotePatch
         {
             info.SourcePVA.UnsetVote();
             info.MeetingHud.SetDirtyBit(1U);
+            AmongUsClient.Instance.SendAllStreamedObjects();
         }
         catch { }
 
         info.MeetingHud.RpcClearVote(info.SourcePC.OwnerId);
         info.MeetingHud.SetDirtyBit(1U);
+        AmongUsClient.Instance.SendAllStreamedObjects();
 
         info.SourcePVA.VotedFor = byte.MaxValue;
 
@@ -1391,6 +1391,6 @@ internal static class ExileControllerBeginPatch
     public static void Postfix(ExileController __instance, [HarmonyArgument(0)] ExileController.InitProperties init)
     {
         if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && init is { outfit: not null })
-            __instance.completeString = CheckForEndVotingPatch.EjectionText;
+            __instance.completeString = CheckForEndVotingPatch.EjectionText[..^8];
     }
 }

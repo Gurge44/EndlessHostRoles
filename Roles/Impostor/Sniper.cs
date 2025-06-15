@@ -172,12 +172,12 @@ public class Sniper : RoleBase
             if (PrecisionShooting)
             {
                 float err = Vector3.Cross(dir, targetPos).magnitude;
-                if (err < 0.5) targets.Add(target, err);
+                if (err < 0.5) targets[target] = err;
             }
             else
             {
                 float err = targetPos.magnitude;
-                targets.Add(target, err);
+                targets[target] = err;
             }
         }
 
@@ -279,7 +279,7 @@ public class Sniper : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (Options.UsePhantomBasis.GetBool())
-            AURoleOptions.PhantomCooldown = bulletCount > 0 ? Options.DefaultKillCooldown : 255f;
+            AURoleOptions.PhantomCooldown = bulletCount > 0 ? Options.AdjustedDefaultKillCooldown : 255f;
         else
         {
             if (Options.UsePets.GetBool()) return;

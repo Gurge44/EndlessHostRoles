@@ -155,17 +155,16 @@ internal static class ChangeRoleSettings
 
         try
         {
-            Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
-
-            if (Options.DisableVanillaRoles.GetBool())
+            new[]
             {
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
-                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
-            }
+                RoleTypes.GuardianAngel,
+                RoleTypes.Scientist,
+                RoleTypes.Engineer,
+                RoleTypes.Shapeshifter,
+                RoleTypes.Noisemaker,
+                RoleTypes.Phantom,
+                RoleTypes.Tracker
+            }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
             if (Main.NormalOptions.MapId > 5) Logger.SendInGame(GetString("UnsupportedMap"));
 
@@ -184,7 +183,7 @@ internal static class ChangeRoleSettings
             Main.AllPlayerSpeed = [];
             Main.KillTimers = [];
             Main.SleuthMsgs = [];
-            Main.CyberStarDead = [];
+            Main.SuperStarDead = [];
             Main.KilledDiseased = [];
             Main.KilledAntidote = [];
             Main.BaitAlive = [];
@@ -331,7 +330,13 @@ internal static class ChangeRoleSettings
 
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown;
+                Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown + Main.CurrentMap switch
+                {
+                    MapNames.Polus => Options.ExtraKillCooldownOnPolus.GetFloat(),
+                    MapNames.Airship => Options.ExtraKillCooldownOnAirship.GetFloat(),
+                    MapNames.Fungle => Options.ExtraKillCooldownOnFungle.GetFloat(),
+                    _ => 0f
+                };
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
@@ -618,12 +623,8 @@ internal static class StartGameHostPatch
 
         UpdateRoleTypeNums();
 
-        foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
-        {
-            int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
-            roleNum += roleType.Value;
-            RoleOpt.SetRoleRate(roleType.Key, roleNum, roleType.Value > 0 ? 100 : RoleOpt.GetChancePerGame(roleType.Key));
-        }
+        foreach ((RoleTypes roleTypes, int roleNum) in RoleTypeNums)
+            RoleOpt.SetRoleRate(roleTypes, roleNum, roleNum > 0 ? 100 : RoleOpt.GetChancePerGame(roleTypes));
 
         Statistics.OnRoleSelectionComplete();
 
@@ -875,7 +876,8 @@ internal static class StartGameHostPatch
             {
                 try
                 {
-                    if (pc.Data.Role.Role == RoleTypes.Shapeshifter) Main.CheckShapeshift.Add(pc.PlayerId, false);
+                    if (pc.Data.Role.Role == RoleTypes.Shapeshifter)
+                        Main.CheckShapeshift[pc.PlayerId] = false;
 
                     if (pc.AmOwner && pc.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
                     {
@@ -920,9 +922,6 @@ internal static class StartGameHostPatch
                 case CustomGameMode.NaturalDisasters:
                     NaturalDisasters.OnGameStart();
                     break;
-                case CustomGameMode.RoomRush:
-                    RoomRush.OnGameStart();
-                    break;
                 case CustomGameMode.KingOfTheZones:
                     KingOfTheZones.Init();
                     break;
@@ -939,7 +938,7 @@ internal static class StartGameHostPatch
 
             foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
             {
-                int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
+                var roleNum = 0;
                 roleNum -= roleType.Value;
                 RoleOpt.SetRoleRate(roleType.Key, roleNum, RoleOpt.GetChancePerGame(roleType.Key));
             }
@@ -1151,7 +1150,10 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
-            target.RpcSetRoleDesync(roleType, targetClientId);
+            bool forceDisplayCrewmate = Options.CurrentGameMode == CustomGameMode.Standard && target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel);
+            if (forceDisplayCrewmate) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;
+
+            target.RpcSetRoleDesync(forceDisplayCrewmate ? RoleTypes.Crewmate : roleType, targetClientId);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -1211,6 +1213,7 @@ internal static class StartGameHostPatch
         public static Dictionary<byte, RoleTypes> StoragedData = [];
         public static Dictionary<(byte SeerID, byte TargetID), (RoleTypes RoleType, CustomRoles CustomRole)> RoleMap = [];
         public static List<CustomRpcSender> OverriddenSenderList = [];
+        public static Dictionary<byte, RoleTypes> OverriddenTeamRevealScreen = [];
 
         public static void Initialize()
         {
@@ -1219,6 +1222,7 @@ internal static class StartGameHostPatch
             RoleMap = [];
             StoragedData = [];
             OverriddenSenderList = [];
+            OverriddenTeamRevealScreen = [];
         }
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
@@ -1419,6 +1423,40 @@ internal static class StartGameHostPatch
                 StoragedData = null;
             }
             catch (Exception e) { Utils.ThrowException(e); }
+        }
+
+        public static void SetActualSelfRolesAfterOverride()
+        {
+            foreach ((byte id, RoleTypes roleTypes) in OverriddenTeamRevealScreen)
+            {
+                PlayerControl pc = id.GetPlayer();
+                if (pc == null || !pc.IsAlive()) continue;
+
+                int targetClientId = pc.OwnerId;
+                if (targetClientId == -1) continue;
+
+                RoleTypes actualRoleType = BasisChangingAddons.FindFirst(x => x.Value.Contains(id), out KeyValuePair<CustomRoles, List<byte>> kvp)
+                    ? kvp.Key switch
+                    {
+                        CustomRoles.Bloodlust when roleTypes is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.Tracker or RoleTypes.Noisemaker => RoleTypes.Impostor,
+                        CustomRoles.Nimble when roleTypes is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker or RoleTypes.Tracker => RoleTypes.Engineer,
+                        CustomRoles.Physicist when roleTypes == RoleTypes.Crewmate => RoleTypes.Scientist,
+                        CustomRoles.Finder when roleTypes is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker => RoleTypes.Tracker,
+                        CustomRoles.Noisy when roleTypes == RoleTypes.Crewmate => RoleTypes.Noisemaker,
+                        _ => roleTypes
+                    }
+                    : roleTypes;
+
+                pc.RpcSetRoleDesync(actualRoleType, targetClientId);
+
+                LateTask.New(() =>
+                {
+                    pc.RpcResetAbilityCooldown();
+                    pc.SetKillCooldown();
+                }, 0.2f, log: false);
+            }
+
+            OverriddenTeamRevealScreen = null;
         }
     }
 }

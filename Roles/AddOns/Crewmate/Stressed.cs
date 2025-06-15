@@ -106,8 +106,8 @@ public class Stressed : IAddon
                         continue;
                     }
 
-                    Timers.Add(pc.PlayerId, StartingTime);
-                    LastUpdates.Add(pc.PlayerId, now + 1);
+                    Timers[pc.PlayerId] = StartingTime;
+                    LastUpdates[pc.PlayerId] = now + 1;
                 }
             }
 

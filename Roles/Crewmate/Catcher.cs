@@ -51,7 +51,7 @@ public class Catcher : RoleBase
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Players);
 
-        AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 3, tab)
+        AbilityUseLimit = new FloatOptionItem(++id, "AbilityUseLimit", new(0, 20, 0.05f), 3, tab)
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Times);
 
@@ -77,7 +77,7 @@ public class Catcher : RoleBase
         DelayStartTS = 0;
         LastUpdate = Utils.TimeStamp;
         CaughtRoles = [];
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using Monitor = EHR.Crewmate.Monitor;
 
 namespace EHR.Impostor;
@@ -109,8 +110,10 @@ internal class AntiAdminer : RoleBase
             return;
         }
 
-        AURoleOptions.EngineerCooldown = 0f;
-        AURoleOptions.EngineerInVentMaxTime = 0f;
+        bool canVent = Monitor.CanVent.GetBool();
+
+        AURoleOptions.EngineerCooldown = canVent ? 0f : Monitor.VentCooldown.GetFloat();
+        AURoleOptions.EngineerInVentMaxTime = canVent ? 0f : 1f;
     }
 
     public override void OnFixedUpdate(PlayerControl player)
@@ -146,7 +149,7 @@ internal class AntiAdminer : RoleBase
 
         Dictionary<byte, HashSet<Device>> oldPlayersNearDevices = PlayersNearDevices.ToDictionary(x => x.Key, x => x.Value);
         PlayersNearDevices = [];
-        bool Admin = false, Camera = false, DoorLog = false, Vital = false;
+        bool admin = false, camera = false, doorLog = false, vital = false;
         float usableDistance = DisableDevice.UsableDistance;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -155,108 +158,108 @@ internal class AntiAdminer : RoleBase
 
             try
             {
-                Vector2 PlayerPos = pc.Pos();
+                Vector2 playerPos = pc.Pos();
 
                 switch (Main.NormalOptions.MapId)
                 {
                     case 0:
-                        if (!Options.DisableSkeldAdmin.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["SkeldAdmin"]) <= usableDistance)
+                        if (!Options.DisableSkeldAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["SkeldAdmin"]) <= usableDistance)
                         {
-                            Admin = true;
+                            admin = true;
                             AddDeviceUse(pc.PlayerId, Device.Admin);
                         }
 
-                        if (!Options.DisableSkeldCamera.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["SkeldCamera"]) <= usableDistance)
+                        if (!Options.DisableSkeldCamera.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["SkeldCamera"]) <= usableDistance)
                         {
-                            Camera = true;
+                            camera = true;
                             AddDeviceUse(pc.PlayerId, Device.Camera);
                         }
 
                         break;
                     case 1:
-                        if (!Options.DisableMiraHQAdmin.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["MiraHQAdmin"]) <= usableDistance)
+                        if (!Options.DisableMiraHQAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["MiraHQAdmin"]) <= usableDistance)
                         {
-                            Admin = true;
+                            admin = true;
                             AddDeviceUse(pc.PlayerId, Device.Admin);
                         }
 
-                        if (!Options.DisableMiraHQDoorLog.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["MiraHQDoorLog"]) <= usableDistance)
+                        if (!Options.DisableMiraHQDoorLog.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["MiraHQDoorLog"]) <= usableDistance)
                         {
-                            DoorLog = true;
+                            doorLog = true;
                             AddDeviceUse(pc.PlayerId, Device.DoorLog);
                         }
 
                         break;
                     case 2:
-                        if (!Options.DisablePolusAdmin.GetBool() && (Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusLeftAdmin"]) <= usableDistance || Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusRightAdmin"]) <= usableDistance))
+                        if (!Options.DisablePolusAdmin.GetBool() && (Vector2.Distance(playerPos, DisableDevice.DevicePos["PolusLeftAdmin"]) <= usableDistance || Vector2.Distance(playerPos, DisableDevice.DevicePos["PolusRightAdmin"]) <= usableDistance))
                         {
-                            Admin = true;
+                            admin = true;
                             AddDeviceUse(pc.PlayerId, Device.Admin);
                         }
 
-                        if (!Options.DisablePolusCamera.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusCamera"]) <= usableDistance)
+                        if (!Options.DisablePolusCamera.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["PolusCamera"]) <= usableDistance)
                         {
-                            Camera = true;
+                            camera = true;
                             AddDeviceUse(pc.PlayerId, Device.Camera);
                         }
 
-                        if (!Options.DisablePolusVital.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusVital"]) <= usableDistance)
+                        if (!Options.DisablePolusVital.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["PolusVital"]) <= usableDistance)
                         {
-                            Vital = true;
+                            vital = true;
                             AddDeviceUse(pc.PlayerId, Device.Vitals);
                         }
 
                         break;
                     case 3:
-                        if (!Options.DisableSkeldAdmin.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["DleksAdmin"]) <= usableDistance)
+                        if (!Options.DisableSkeldAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["DleksAdmin"]) <= usableDistance)
                         {
-                            Admin = true;
+                            admin = true;
                             AddDeviceUse(pc.PlayerId, Device.Admin);
                         }
 
-                        if (!Options.DisableSkeldCamera.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["DleksCamera"]) <= usableDistance)
+                        if (!Options.DisableSkeldCamera.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["DleksCamera"]) <= usableDistance)
                         {
-                            Camera = true;
+                            camera = true;
                             AddDeviceUse(pc.PlayerId, Device.Camera);
                         }
 
                         break;
                     case 4:
-                        if (!Options.DisableAirshipCockpitAdmin.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipCockpitAdmin"]) <= usableDistance)
+                        if (!Options.DisableAirshipCockpitAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["AirshipCockpitAdmin"]) <= usableDistance)
                         {
-                            Admin = true;
+                            admin = true;
                             AddDeviceUse(pc.PlayerId, Device.Admin);
                         }
 
-                        if (!Options.DisableAirshipRecordsAdmin.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipRecordsAdmin"]) <= usableDistance)
+                        if (!Options.DisableAirshipRecordsAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["AirshipRecordsAdmin"]) <= usableDistance)
                         {
-                            Admin = true;
+                            admin = true;
                             AddDeviceUse(pc.PlayerId, Device.Admin);
                         }
 
-                        if (!Options.DisableAirshipCamera.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipCamera"]) <= usableDistance)
+                        if (!Options.DisableAirshipCamera.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["AirshipCamera"]) <= usableDistance)
                         {
-                            Camera = true;
+                            camera = true;
                             AddDeviceUse(pc.PlayerId, Device.Camera);
                         }
 
-                        if (!Options.DisableAirshipVital.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipVital"]) <= usableDistance)
+                        if (!Options.DisableAirshipVital.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["AirshipVital"]) <= usableDistance)
                         {
-                            Vital = true;
+                            vital = true;
                             AddDeviceUse(pc.PlayerId, Device.Vitals);
                         }
 
                         break;
                     case 5:
-                        if (!Options.DisableFungleCamera.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["FungleCamera"]) <= usableDistance)
+                        if (!Options.DisableFungleCamera.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["FungleCamera"]) <= usableDistance)
                         {
-                            Camera = true;
+                            camera = true;
                             AddDeviceUse(pc.PlayerId, Device.Camera);
                         }
 
-                        if (!Options.DisableFungleVital.GetBool() && Vector2.Distance(PlayerPos, DisableDevice.DevicePos["FungleVital"]) <= usableDistance)
+                        if (!Options.DisableFungleVital.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["FungleVital"]) <= usableDistance)
                         {
-                            Vital = true;
+                            vital = true;
                             AddDeviceUse(pc.PlayerId, Device.Vitals);
                         }
 
@@ -268,17 +271,17 @@ internal class AntiAdminer : RoleBase
 
         var change = false;
 
-        change |= IsAdminWatch != Admin;
-        IsAdminWatch = Admin;
-        change |= IsVitalWatch != Vital;
-        IsVitalWatch = Vital;
-        change |= IsDoorLogWatch != DoorLog;
-        IsDoorLogWatch = DoorLog;
+        change |= IsAdminWatch != admin;
+        IsAdminWatch = admin;
+        change |= IsVitalWatch != vital;
+        IsVitalWatch = vital;
+        change |= IsDoorLogWatch != doorLog;
+        IsDoorLogWatch = doorLog;
 
         if (IsMonitor ? Monitor.CanCheckCamera.GetBool() : CanCheckCamera.GetBool())
         {
-            change |= IsCameraWatch != Camera;
-            IsCameraWatch = Camera;
+            change |= IsCameraWatch != camera;
+            IsCameraWatch = camera;
         }
 
         if (IsMonitor) notify |= oldPlayersNearDevices.Count != PlayersNearDevices.Count || oldPlayersNearDevices.Any(x => !PlayersNearDevices.TryGetValue(x.Key, out HashSet<Device> c) || !x.Value.SetEquals(c));
@@ -295,6 +298,37 @@ internal class AntiAdminer : RoleBase
                 PlayersNearDevices[id] = [device];
             else devices.Add(device);
         }
+    }
+
+    public override void OnPet(PlayerControl pc)
+    {
+        if (!IsMonitor) return;
+        OpenDoors(pc);
+    }
+
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
+    {
+        if (!IsMonitor) return;
+        OpenDoors(pc);
+    }
+
+    private void OpenDoors(PlayerControl pc)
+    {
+        if (!IsMonitor) return;
+        if (pc == null) return;
+
+        if (pc.GetAbilityUseLimit() >= 1)
+        {
+            pc.RpcRemoveAbilityUse();
+            DoorsReset.OpenAllDoors();
+        }
+        else
+            pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+    }
+
+    public override bool CanUseVent(PlayerControl pc, int ventId)
+    {
+        return !pc.Is(CustomRoles.Monitor) || pc.Is(CustomRoles.Nimble) || Monitor.CanVent.GetBool() || pc.GetClosestVent()?.Id == ventId;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

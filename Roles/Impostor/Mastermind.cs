@@ -79,6 +79,7 @@ public class Mastermind : RoleBase
 
         return killer.CheckDoubleTrigger(target, () =>
         {
+            killer.RPCPlayCustomSound("Line");
             killer.SetKillCooldown(ManipulateCD);
             ManipulateDelays.TryAdd(target.PlayerId, TimeStamp);
             NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -188,7 +189,7 @@ public class Mastermind : RoleBase
 
         LateTask.New(() =>
         {
-            float kcd = TempKCDs.TryGetValue(killer.PlayerId, out float cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, DefaultKillCooldown);
+            float kcd = TempKCDs.TryGetValue(killer.PlayerId, out float cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, AdjustedDefaultKillCooldown);
             killer.SetKillCooldown(kcd);
             TempKCDs.Remove(killer.PlayerId);
         }, 0.1f, "Set KCD for Manipulated Kill");

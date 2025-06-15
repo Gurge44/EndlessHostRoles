@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using static EHR.Options;
 
 namespace EHR.Crewmate;
 
@@ -9,10 +10,19 @@ internal class SuperStar : RoleBase
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(6000, TabGroup.CrewmateRoles, CustomRoles.SuperStar);
+        SetupRoleOptions(6000, TabGroup.CrewmateRoles, CustomRoles.SuperStar);
 
-        Options.EveryOneKnowSuperStar = new BooleanOptionItem(6010, "EveryOneKnowSuperStar", true, TabGroup.CrewmateRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SuperStar]);
+        EveryOneKnowSuperStar = new BooleanOptionItem(6010, "EveryOneKnowSuperStar", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SuperStar]);
+
+        ImpKnowSuperStarDead = new BooleanOptionItem(5303, "ImpKnowSuperStarDead", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SuperStar]);
+
+        NeutralKnowSuperStarDead = new BooleanOptionItem(5304, "NeutralKnowSuperStarDead", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SuperStar]);
+
+        CovenKnowSuperStarDead = new BooleanOptionItem(5305, "CovenKnowSuperStarDead", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SuperStar]);
     }
 
     public override void Add(byte playerId)
@@ -32,6 +42,6 @@ internal class SuperStar : RoleBase
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
-        return base.KnowRole(seer, target) || (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool());
+        return base.KnowRole(seer, target) || (target.Is(CustomRoles.SuperStar) && EveryOneKnowSuperStar.GetBool());
     }
 }

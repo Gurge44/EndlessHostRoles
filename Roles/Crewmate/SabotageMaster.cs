@@ -86,11 +86,11 @@ public class SabotageMaster : RoleBase
         CanVent = new BooleanOptionItem(Id + 22, "CanVent", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
 
-        VentCooldown = new FloatOptionItem(Id + 23, "VentCooldown", new(0f, 60f, 0.1f), 10f, TabGroup.CrewmateRoles)
+        VentCooldown = new FloatOptionItem(Id + 23, "VentCooldown", new(0f, 60f, 0.5f), 0f, TabGroup.CrewmateRoles)
             .SetParent(CanVent)
             .SetValueFormat(OptionFormat.Seconds);
 
-        MaxInVentTime = new FloatOptionItem(Id + 24, "MaxInVentTime", new(0f, 60f, 0.1f), 10f, TabGroup.CrewmateRoles)
+        MaxInVentTime = new FloatOptionItem(Id + 24, "MaxInVentTime", new(0f, 60f, 0.5f), 0f, TabGroup.CrewmateRoles)
             .SetParent(CanVent)
             .SetValueFormat(OptionFormat.Seconds);
     }

@@ -882,7 +882,9 @@ internal static class ShapeshiftPatch
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (pc.Is(CustomRoles.Shiftguard)) pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : GetString("ShiftguardNotifyUnshift"));
+            PlainShipRoom plainShipRoom = pc.GetPlainShipRoom();
+            string room = GetString(plainShipRoom != null ? plainShipRoom.RoomId.ToString() : "Outside");
+            if (pc.Is(CustomRoles.Shiftguard)) pc.Notify($"[<#00ffa5>{room}</color>] {GetString(shapeshifting ? "ShiftguardNotifySS" : "ShiftguardNotifyUnshift")}");
 
             switch (Main.PlayerStates[pc.PlayerId].Role)
             {
@@ -1228,12 +1230,14 @@ internal static class ReportDeadBodyPatch
 
         Camouflage.CamoTimesThisRound = 0;
 
+        NumSnapToCallsThisRound = 0;
+
         if (HudManagerPatch.AchievementUnlockedText == string.Empty)
             HudManagerPatch.ClearLowerInfoText();
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
 internal static class FixedUpdatePatch
 {
     private static readonly StringBuilder Mark = new(20);
@@ -1246,7 +1250,7 @@ internal static class FixedUpdatePatch
     private static long LastErrorTS;
     private static readonly Dictionary<byte, TextMeshPro> RoleTextTMPs = [];
 
-    public static void Postfix(PlayerControl __instance)
+    public static void Postfix(PlayerControl __instance, bool lowLoad)
     {
         if (__instance == null || __instance.PlayerId >= 254) return;
 
@@ -1297,21 +1301,14 @@ internal static class FixedUpdatePatch
 
         if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
         {
-            int buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
+            int buffer = Options.DeepLowLoad.GetBool() ? 150 : 60;
             DeadBufferTime.TryAdd(id, buffer);
             DeadBufferTime[id]--;
             if (DeadBufferTime[id] > 0) return;
-
             DeadBufferTime[id] = buffer;
         }
 
-        if (Options.LowLoadMode.GetBool())
-        {
-            BufferTime.TryAdd(id, Options.DeepLowLoad.GetBool() ? 30 : 10);
-            BufferTime[id]--;
-        }
-
-        try { DoPostfix(__instance); }
+        try { DoPostfix(__instance, lowLoad); }
         catch (Exception ex)
         {
             long now = TimeStamp;
@@ -1330,36 +1327,15 @@ internal static class FixedUpdatePatch
         }
     }
 
-    private static void DoPostfix(PlayerControl __instance)
+    private static void DoPostfix(PlayerControl __instance, bool lowLoad)
     {
         PlayerControl player = __instance;
         byte playerId = player.PlayerId;
         byte lpId = PlayerControl.LocalPlayer.PlayerId;
         bool localPlayer = playerId == lpId; // Updates that are independent of the player are only executed for the local player.
 
-        var lowLoad = false;
-
-        if (Options.LowLoadMode.GetBool())
-        {
-            if (BufferTime[playerId] > 0)
-                lowLoad = true;
-            else
-                BufferTime[playerId] = Options.DeepLowLoad.GetBool() ? 30 : 10;
-        }
-
         bool inTask = GameStates.IsInTask;
         bool alive = player.IsAlive();
-
-        try
-        {
-            if (__instance.AmOwner && inTask && __instance.CanUseKillButton() && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) && !__instance.Data.IsDead)))
-            {
-                List<PlayerControl> players = __instance.GetPlayersInAbilityRangeSorted();
-                PlayerControl closest = players.Count == 0 ? null : players[0];
-                FastDestroyableSingleton<HudManager>.Instance.KillButton.SetTarget(closest);
-            }
-        }
-        catch { }
 
         if (localPlayer)
         {
@@ -1530,7 +1506,7 @@ internal static class FixedUpdatePatch
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Assassin) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
-                        Main.AllPlayerKillCooldown[pc.PlayerId] = Options.DefaultKillCooldown * 2;
+                        Main.AllPlayerKillCooldown[pc.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
                 }
             }
 
@@ -1852,7 +1828,7 @@ internal static class FixedUpdatePatch
 
                 var offset = 0.2f;
 
-                if (NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
+                if (self && NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
                 {
                     int count = notify.Count(x => x == '\n');
                     for (var i = 0; i < count; i++) offset += 0.15f;
@@ -1911,10 +1887,13 @@ internal static class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
         if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Exists(player => !player.IsAlive() && player.PlayerId == deathId) && !force)) return;
 
         Main.IsLoversDead = true;
-        PlayerControl partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && player.IsAlive());
+        PlayerControl partnerPlayer = Main.LoversPlayers.FirstOrDefault(player => player.PlayerId != deathId && player.IsAlive());
+
+        if (partnerPlayer == null) return;
 
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {
@@ -1939,11 +1918,12 @@ internal static class PlayerStartPatch
     {
         try
         {
-            if (__result || __instance.__4__this.PlayerId >= 254) return;
+            if (__result || __instance == null || __instance.__4__this == null || __instance.__4__this.PlayerId >= 254 || __instance.__4__this.cosmetics == null) return;
             TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
             TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
-            roleText.transform.localPosition = new(0f, 0.2f, 0f);
-            if (!Options.LargerRoleTextSize.GetBool()) roleText.fontSize -= 0.9f;
+            bool largerFontSize = Options.LargerRoleTextSize.GetBool();
+            roleText.transform.localPosition = new(0f, largerFontSize ? 0.4f : 0.2f, 0f);
+            if (!largerFontSize) roleText.fontSize -= 0.9f;
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
             roleText.enabled = false;
@@ -2326,9 +2306,6 @@ public static class PlayerControlFixMixedUpOutfitPatch
         if (!__instance.IsAlive()) return;
 
         __instance.cosmetics.ToggleNameVisible(true);
-
-        if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
-            ReportDeadBodyPatch.CanReport.SetAllValues(true);
     }
 }
 

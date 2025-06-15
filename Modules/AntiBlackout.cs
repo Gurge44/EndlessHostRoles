@@ -40,8 +40,6 @@ public static class AntiBlackout
                 return;
             }
 
-            revived.Data.IsDead = false;
-            revived.Data.SendGameData();
             revived.RpcChangeRoleBasis(CustomRoles.CrewmateEHR, forced: true);
         }
 
@@ -59,10 +57,12 @@ public static class AntiBlackout
         {
             try
             {
-                if (pc.Data != null && !pc.Data.IsDead && !pc.Data.Disconnected && !pc.IsAlive())
+                NetworkedPlayerInfo data = pc.Data;
+
+                if (data != null && !data.IsDead && !data.Disconnected && !pc.IsAlive())
                 {
-                    pc.Data.IsDead = true;
-                    pc.Data.SendGameData();
+                    data.IsDead = true;
+                    data.SendGameData();
                 }
             }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -103,9 +103,10 @@ public static class AntiBlackout
                     {
                         // Ensure that the players who are considered dead by the mod are actually dead in the game.
                         pc.Exiled();
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, 4, SendOption.Reliable);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
                         if (pc.HasDesyncRole()) pc.FixBlackScreen();
+                        if (pc.HasGhostRole()) pc.RpcResetAbilityCooldown();
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

@@ -41,7 +41,7 @@ internal class CursedWolf : RoleBase
         }
         else
         {
-            KillCooldown = Options.DefaultKillCooldown;
+            KillCooldown = Options.AdjustedDefaultKillCooldown;
             CanVent = true;
             HasImpostorVision = true;
             KillAttacker = Options.killAttacker.GetBool();

@@ -99,7 +99,7 @@ public class PlagueDoctor : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+        Main.AllPlayerKillCooldown[id] = Options.AdjustedDefaultKillCooldown;
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

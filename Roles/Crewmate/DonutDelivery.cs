@@ -36,7 +36,7 @@ public class DonutDelivery : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimit = new IntegerOptionItem(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles)
+        UseLimit = new FloatOptionItem(Id + 12, "AbilityUseLimit", new(0, 20, 0.05f), 5, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
             .SetValueFormat(OptionFormat.Times);
 
@@ -74,7 +74,7 @@ public class DonutDelivery : RoleBase
         Instances.Add(this);
         Players = [];
         DonutDeliveryId = playerId;
-        playerId.SetAbilityUseLimit(UseLimit.GetInt());
+        playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)

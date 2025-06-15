@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using HarmonyLib;
 using UnityEngine;
 
 namespace EHR;
 
 // Credit: https://github.com/tugaru1975/TownOfPlus/TOPmods/Zoom.cs 
 // Credit: https://github.com/Yumenopai/TownOfHost_Y
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
+//[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 public static class Zoom
 {
     private static bool ResetButtons;

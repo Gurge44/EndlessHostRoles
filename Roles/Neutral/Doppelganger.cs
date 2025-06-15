@@ -83,7 +83,7 @@ public class Doppelganger : RoleBase
     {
         PlayerIdList.Add(playerId);
         DGId = playerId;
-        TotalSteals.Add(playerId, 0);
+        TotalSteals[playerId] = 0;
         PlayerControl pc = Utils.GetPlayerById(playerId);
 
         if (playerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0)

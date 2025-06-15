@@ -81,7 +81,7 @@ public class Virus : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(InfectMax.GetInt());
+        playerId.SetAbilityUseLimit(InfectMax.GetFloat());
     }
 
     public override void Remove(byte playerId)

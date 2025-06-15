@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
@@ -354,35 +354,76 @@ public static class Quiz
 
     private static int GetRandomQuestionIndex()
     {
-        HashSet<int> asked = AskedQuestions[CurrentDifficulty];
-        int max = TotalQuestions[CurrentDifficulty];
-        int index = Enumerable.Range(1, max).Except(asked).RandomElement();
-        asked.Add(index);
-        if (asked.Count >= max) asked.Clear();
-        return index;
+        var tries = 0;
+
+        while (true)
+        {
+            if (tries++ > 10)
+            {
+                Utils.ThrowException(new("Could not find a random question index after 10 tries"));
+                Utils.ErrorEnd("Quiz.GetRandomQuestionIndex: Could not find a random question index after 10 tries");
+                return 1;
+            }
+
+            try
+            {
+                HashSet<int> asked = AskedQuestions[CurrentDifficulty];
+                int max = TotalQuestions[CurrentDifficulty];
+                int index = Enumerable.Range(1, max).Except(asked).RandomElement();
+                asked.Add(index);
+                if (asked.Count >= max) asked.Clear();
+                return index;
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+                Logger.Error($"Could not get a random question index for difficulty {CurrentDifficulty}. Retrying...", "Quiz");
+            }
+        }
     }
 
     private static (string Question, List<string> Answers, int CorrectAnswerIndex) GetQuestion(int questionIndex)
     {
-        string baseString = $"Quiz.Questions.{CurrentDifficulty}.{questionIndex}";
-        string question = GetString(baseString);
-        Dictionary<char, string> answers = new[] { 'A', 'B', 'C', 'D', 'E' }.ToDictionary(x => x, x => GetString($"{baseString}.Answer.{x}"));
+        var tries = 0;
 
-        string correctAnswer;
-
-        if (CurrentDifficulty == Difficulty.Test)
+        while (true)
         {
-            MapNames map = Main.CurrentMap;
-            if (map == MapNames.Dleks) map = MapNames.Skeld;
-            if (map > MapNames.Dleks) map--;
-            correctAnswer = answers[(char)((int)map + 65)];
-        }
-        else
-            correctAnswer = answers[GetString($"{baseString}.CorrectAnswer")[0]];
+            if (tries++ > 10)
+            {
+                Utils.ThrowException(new("Could not get a question after 10 tries"));
+                Utils.ErrorEnd("Quiz.GetQuestion: Could not get a question after 10 tries");
+                return ("Error: Could not get a question after 10 tries", [], 0);
+            }
 
-        List<string> shuffledAnswers = answers.Values.Shuffle();
-        int correctAnswerIndex = shuffledAnswers.IndexOf(correctAnswer);
-        return (question, shuffledAnswers, correctAnswerIndex);
+            try
+            {
+                var baseString = $"Quiz.Questions.{CurrentDifficulty}.{questionIndex}";
+                string question = GetString(baseString);
+                Dictionary<char, string> answers = new[] { 'A', 'B', 'C', 'D', 'E' }.ToDictionary(x => x, x => GetString($"{baseString}.Answer.{x}"));
+
+                string correctAnswer;
+
+                if (CurrentDifficulty == Difficulty.Test)
+                {
+                    MapNames map = Main.CurrentMap;
+                    if (map == MapNames.Dleks) map = MapNames.Skeld;
+                    if (map > MapNames.Dleks) map--;
+                    correctAnswer = answers[(char)((int)map + 65)];
+                }
+                else
+                    correctAnswer = answers[GetString($"{baseString}.CorrectAnswer")[0]];
+
+                List<string> shuffledAnswers = answers.Values.Shuffle();
+                int correctAnswerIndex = shuffledAnswers.IndexOf(correctAnswer);
+                return (question, shuffledAnswers, correctAnswerIndex);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+                Logger.Error($"Question index {questionIndex} for difficulty {CurrentDifficulty} could not be found. Retrying...", "Quiz");
+                questionIndex = GetRandomQuestionIndex();
+            }
+        }
     }
 
     private static IEnumerator EndQuestion()
@@ -438,7 +479,15 @@ public static class Quiz
                 AllowKills = true;
                 FFAEndTS = Utils.TimeStamp + FFAEventLength.GetInt();
                 var spectators = aapc.ExceptBy(dyingPlayers, x => x.PlayerId).ToArray();
-                spectators.Do(x => x.RpcExileV2());
+
+                foreach (PlayerControl spectator in spectators)
+                {
+                    spectator.RpcExileV2();
+                    spectator.RpcSetRoleDesync(RoleTypes.GuardianAngel, spectator.OwnerId);
+                }
+
+                yield return new WaitForSeconds(0.2f);
+                spectators.Do(x => x.RpcResetAbilityCooldown());
                 Main.PlayerStates.Values.IntersectBy(spectators.Select(x => x.PlayerId), x => x.Player.PlayerId).Do(x => x.SetDead());
                 var stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
                 stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.NSerialKiller));
@@ -506,12 +555,11 @@ public static class Quiz
         Hard
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastUpdate;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Quiz || !Main.IntroDestroyed) return;

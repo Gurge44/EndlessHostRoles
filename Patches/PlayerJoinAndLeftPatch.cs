@@ -40,7 +40,7 @@ internal static class OnGameJoinedPatch
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
 
-        LateTask.New(Achievements.ShowWaitingAchievements, 5f, log: false);
+        LateTask.New(Achievements.ShowWaitingAchievements, 8f, log: false);
 
         if (AmongUsClient.Instance.AmHost)
         {
@@ -135,8 +135,16 @@ internal static class OnGameJoinedPatch
 
                 IEnumerator CoRoutine()
                 {
+                    yield return new WaitForSeconds(10f);
+
+                    try { Utils.SendMessage(HudManagerPatch.BuildAutoGMRotationStatusText(true), title: GetString("AutoGMRotationStatusText")); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
+                    CustomGameMode nextGM = Options.AutoGMRotationCompiled[Options.AutoGMRotationIndex];
+                    
                     float timer;
-                    if (Options.AutoGMPollCommandAfterJoin.GetBool()) timer = Options.AutoGMPollCommandCooldown.GetInt();
+                    if (nextGM != CustomGameMode.All) timer = 0f;
+                    else if (Options.AutoGMPollCommandAfterJoin.GetBool()) timer = Options.AutoGMPollCommandCooldown.GetInt();
                     else if (Main.AutoStart.Value) timer = (Options.MinWaitAutoStart.GetFloat() * 60) - 65;
                     else timer = 30f;
 
@@ -153,8 +161,6 @@ internal static class OnGameJoinedPatch
 
                     if (Options.AutoGMRotationEnabled)
                     {
-                        CustomGameMode nextGM = Options.AutoGMRotationCompiled[Options.AutoGMRotationIndex];
-
                         if (nextGM == CustomGameMode.All) ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
                         else Options.GameMode.SetValue((int)nextGM - 1);
 
@@ -178,7 +184,6 @@ internal static class DisconnectInternalPatch
         ErrorText.Instance.CheatDetected = false;
         ErrorText.Instance.SBDetected = false;
         ErrorText.Instance.Clear();
-        Cloud.StopConnect();
     }
 }
 
@@ -204,25 +209,24 @@ internal static class OnPlayerJoinedPatch
         {
             try
             {
-                if (AmongUsClient.Instance.AmHost)
+                if (!AmongUsClient.Instance.AmHost) return;
+
+                if (Options.KickSlowJoiningPlayers.GetBool() && ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || ((client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length <= 15)))
                 {
-                    if ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || ((client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length <= 15))
-                    {
-                        Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
-                        AmongUsClient.Instance.KickPlayer(client.Id, false);
-                        Logger.Info($"Kicked client {client.Id}/{client.PlayerName} since its PlayerControl was not spawned in time.", "OnPlayerJoinedPatchPostfix");
-                        return;
-                    }
-
-                    if (!Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
-                    {
-                        MessageWriter retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
-                        AmongUsClient.Instance.FinishRpcImmediately(retry);
-                    }
-
-                    if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 17)
-                        Disco.ChangeColor(client.Character);
+                    Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
+                    AmongUsClient.Instance.KickPlayer(client.Id, false);
+                    Logger.Info($"Kicked client {client.Id}/{client.PlayerName} since its PlayerControl was not spawned in time.", "OnPlayerJoinedPatchPostfix");
+                    return;
                 }
+
+                if (!Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
+                {
+                    MessageWriter retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
+                    AmongUsClient.Instance.FinishRpcImmediately(retry);
+                }
+
+                if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 17)
+                    Disco.ChangeColor(client.Character);
             }
             catch { }
         }, 4.5f, "green bean kick late task", false);
@@ -231,7 +235,7 @@ internal static class OnPlayerJoinedPatch
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid())) BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
 
-            AmongUsClient.Instance.KickPlayer(client.Id, true);
+            AmongUsClient.Instance.KickPlayer(client.Id, false);
             Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
             Logger.Info($"TempBanned a player {client.PlayerName} without a friend code", "Temp Ban");
         }
@@ -532,21 +536,24 @@ internal static class PlayerControlCheckNamePatch
     }
 }
 
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
+//[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
 internal static class InnerNetClientFixedUpdatePatch
 {
     private static float Timer;
 
     public static void Postfix()
     {
-        if (GameStates.IsLocalGame || !Options.KickNotJoinedPlayersRegularly.GetBool() || Main.AllPlayerControls.Length < 7) return;
+        try
+        {
+            if (GameStates.IsLocalGame || !GameStates.IsLobby || !Options.KickNotJoinedPlayersRegularly.GetBool() || Main.AllPlayerControls.Length < 7) return;
 
-        Timer += Time.fixedDeltaTime;
-        if (Timer < 25f) return;
+            Timer += Time.fixedDeltaTime;
+            if (Timer < 25f) return;
+            Timer = 0f;
 
-        Timer = 0f;
-
-        AmongUsClient.Instance.KickNotJoinedPlayers();
+            AmongUsClient.Instance.KickNotJoinedPlayers();
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 
@@ -564,7 +571,7 @@ internal static class SetColorPatch
         {
             LateTask.New(() =>
             {
-                if (__instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
+                if (Options.KickSlowJoiningPlayers.GetBool() && __instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
                 {
                     ClientData client = __instance.GetClient();
 

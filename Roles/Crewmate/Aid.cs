@@ -53,7 +53,7 @@ public class Aid : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
         TargetId = byte.MaxValue;
         AidId = playerId;
     }

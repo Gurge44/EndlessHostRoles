@@ -50,7 +50,7 @@ public class Gangster : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(RecruitLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(RecruitLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -60,7 +60,7 @@ public class Gangster : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = CanRecruit(id) ? KillCooldown.GetFloat() : Options.DefaultKillCooldown;
+        Main.AllPlayerKillCooldown[id] = CanRecruit(id) ? KillCooldown.GetFloat() : Options.AdjustedDefaultKillCooldown;
     }
 
     public static bool CanRecruit(byte id)
@@ -131,7 +131,6 @@ public class Gangster : RoleBase
                    pc.Is(CustomRoles.Needy) ||
                    pc.Is(CustomRoles.Lazy) ||
                    pc.Is(CustomRoles.Loyal) ||
-                   pc.Is(CustomRoles.CyberStar) ||
                    pc.Is(CustomRoles.Egoist)
                );
     }

@@ -73,7 +73,7 @@ internal static class ExileControllerWrapUpPatch
                 Main.PlayerStates[exiled.PlayerId].SetDead();
         }
 
-        if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown) Main.RefixCooldownDelay = Options.DefaultKillCooldown - 3f;
+        if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown) Main.RefixCooldownDelay = Options.AdjustedDefaultKillCooldown - 3f;
 
         Witch.RemoveSpelledPlayer();
 
@@ -122,7 +122,7 @@ internal static class ExileControllerWrapUpPatch
             {
                 if (GameStates.IsEnded) return;
                 AntiBlackout.RevertToActualRoleTypes();
-            }, Math.Max(1f, Utils.CalculatePingDelay() * 2f), "Revert AntiBlackout Measures");
+            }, Math.Max(1f, Utils.CalculatePingDelay()), "Revert AntiBlackout Measures");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;

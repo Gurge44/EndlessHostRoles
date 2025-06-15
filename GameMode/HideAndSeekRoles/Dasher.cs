@@ -56,7 +56,7 @@ public class Dasher : RoleBase, IHideAndSeekRole
             .SetColor(new(245, 66, 176, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
 
-        UseLimit = new IntegerOptionItem(69_213_808, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.ImpostorRoles)
+        UseLimit = new FloatOptionItem(69_213_808, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(245, 66, 176, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);

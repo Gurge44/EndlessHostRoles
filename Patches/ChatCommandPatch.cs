@@ -191,6 +191,7 @@ internal static class ChatCommands
             new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true, false),
             new(["dn", "deathnote", "заметкамертвого", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, true, [GetString("CommandArgs.DeathNote.Name")]),
             new(["w", "whisper", "шепот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
+            new(["hw", "hwhisper"], "{id} {message}", GetString("CommandDescription.HWhisper"), Command.UsageLevels.Host, Command.UsageTimes.Always, HWhisperCommand, true, true, [GetString("CommandArgs.HWhisper.Id"), GetString("CommandArgs.HWhisper.Message")]),
             new(["spectate", "спектейт", "观战", "espectar"], "[id]", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false, [GetString("CommandArgs.Spectate.Id")]),
             new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true, false),
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
@@ -198,7 +199,7 @@ internal static class ChatCommands
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
             new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
             new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
-            new(["addtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
+            new(["addtag", "createtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
             new(["daybreak", "db", "дейбрейк", "破晓"], "", GetString("CommandDescription.DayBreak"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DayBreakCommand, true, true),
             new(["fix", "blackscreenfix", "fixblackscreen", "ф", "исправить", "修复"], "{id}", GetString("CommandDescription.Fix"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InGame, FixCommand, true, false, [GetString("CommandArgs.Fix.Id")]),
@@ -206,6 +207,7 @@ internal static class ChatCommands
             new(["ci", "chemistinfo", "химик", "化学家"], "", GetString("CommandDescription.ChemistInfo"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ChemistInfoCommand, true, false),
             new(["forge"], "{id} {role}", GetString("CommandDescription.Forge"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ForgeCommand, true, true, [GetString("CommandArgs.Forge.Id"), GetString("CommandArgs.Forge.Role")]),
             new(["choose", "pick", "выбрать", "选择", "escolher"], "{role}", GetString("CommandDescription.Choose"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChooseCommand, true, true, [GetString("CommandArgs.Choose.Role")]),
+            new(["copypreset", "presetcopy", "копипаст", "复制预设", "copiar"], "{sourcepreset} {targetpreset}", GetString("CommandDescription.CopyPreset"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, CopyPresetCommand, true, false, [GetString("CommandArgs.CopyPreset.SourcePreset"), GetString("CommandArgs.CopyPreset.TargetPreset")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -394,6 +396,29 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void CopyPresetCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 3 || !int.TryParse(args[1], out int sourcePresetId) || sourcePresetId is < 1 or > 10 || (!int.TryParse(args[2], out int targetPreset) && targetPreset is < 1 or > 10)) return;
+
+        Prompt.Show(string.Format(GetString("Promt.CopyPreset"), sourcePresetId, targetPreset), Copy, () => { });
+        return;
+
+        void Copy()
+        {
+            sourcePresetId--;
+            targetPreset--;
+
+            foreach (OptionItem optionItem in OptionItem.AllOptions)
+            {
+                if (optionItem.IsSingleValue) continue;
+                optionItem.AllValues[targetPreset] = optionItem.AllValues[sourcePresetId];
+            }
+
+            OptionItem.SyncAllOptions();
+            OptionSaver.Save();
+        }
+    }
+    
     private static void ChooseCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
@@ -408,6 +433,8 @@ internal static class ChatCommands
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
         ((Pawn)state.Role).ChosenRole = role;
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void ForgeCommand(PlayerControl player, string text, string[] args)
@@ -429,6 +456,8 @@ internal static class ChatCommands
 
         Forger.Forges[targetId] = forgeRole;
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ForgeSuccess"), (int)Math.Round(player.GetAbilityUseLimit(), 1), targetId.ColoredPlayerName(), forgeRole.ToColoredString()));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void ChemistInfoCommand(PlayerControl player, string text, string[] args)
@@ -561,7 +590,7 @@ internal static class ChatCommands
             return;
         }
 
-        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>().SkipLast(1).Select(x => GetString(x).Replace(' ', '_')));
+        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>()[..^1].Select(x => GetString(x).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
@@ -574,7 +603,7 @@ internal static class ChatCommands
             return;
         }
 
-        string info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..].SkipLast(1)
+        string info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..^1]
             .Select(x => (GameMode: x, Color: Main.RoleColors.GetValueOrDefault(CustomRoleSelector.GameModeRoles.TryGetValue(x, out CustomRoles role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
             .Select(x => $"<{x.Color}><u><b>{GetString($"{x.GameMode}")}</b></u></color><size=75%>\n{GetString($"ModeDescribe.{x.GameMode}").Split("\n\n")[0]}</size>"));
 
@@ -606,6 +635,8 @@ internal static class ChatCommands
 
         if (amJailor) Utils.SendMessage(message, jailor.JailorTarget, title);
         else Jailor.PlayerIdList.ForEach(x => Utils.SendMessage(message, x, title, sendOption: SendOption.None));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void RoleListCommand(PlayerControl player, string text, string[] args)
@@ -795,6 +826,19 @@ internal static class ChatCommands
 
         Utils.SendMessage(msg, targetId, title);
         ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+
+    private static void HWhisperCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
+
+        string msg = args[2..].Join(delimiter: " ");
+        string title = string.Format(GetString("HWhisperTitle"), player.PlayerId.ColoredPlayerName());
+
+        Utils.SendMessage(msg, targetId, title);
+        ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
     }
 
     private static void DeathNoteCommand(PlayerControl player, string text, string[] args)
@@ -851,6 +895,8 @@ internal static class ChatCommands
         Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), coloredName));
 
         NoteKiller.Kills++;
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void AchievementsCommand(PlayerControl player, string text, string[] args)
@@ -981,7 +1027,7 @@ internal static class ChatCommands
 
         IEnumerator RepeatedlySendMessage()
         {
-            for (var index = 0; index < 5; index++)
+            for (var index = 0; index < 4; index++)
             {
                 List<Message> messages = [];
 
@@ -1090,6 +1136,8 @@ internal static class ChatCommands
         if (!Negotiator.On || !player.IsAlive() || args.Length < 2 || !int.TryParse(args[1], out int index)) return;
 
         Negotiator.ReceiveCommand(player, index);
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void OSCommand(PlayerControl player, string text, string[] args)
@@ -1117,12 +1165,13 @@ internal static class ChatCommands
             return;
         }
 
-        if (player.Is(CustomRoles.Journalist) && player.IsAlive())
-        {
-            if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
+        if (!player.Is(CustomRoles.Journalist) || !player.IsAlive()) return;
 
-            Journalist.OnReceiveCommand(player, args);
-        }
+        if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
+
+        Journalist.OnReceiveCommand(player, args);
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void AssumeCommand(PlayerControl player, string text, string[] args)
@@ -1140,6 +1189,8 @@ internal static class ChatCommands
         if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
         Assumer.Assume(player.PlayerId, id, num);
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void DeleteVIPCommand(PlayerControl player, string text, string[] args)
@@ -1255,17 +1306,18 @@ internal static class ChatCommands
         }
 
         int splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
-        string[] answers = args.Skip(splitIndex).ToArray();
+        string[] answers = args[splitIndex..];
 
-        string msg = string.Join(" ", args.Take(splitIndex).Skip(1)) + "\n";
+        string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
 
         PollTimer = gmPoll ? 60f : 45f;
+        Color[] gmPollColors = gmPoll ? Main.GameModeColors.Values.ToArray() : [];
 
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
             var choiceLetter = (char)(i + 65);
-            msg += Utils.ColorString(RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
+            msg += Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
             PollVotes[choiceLetter] = 0;
             PollAnswers[choiceLetter] = $"<size=70%>〖 {answers[i]} 〗</size>";
         }
@@ -1324,7 +1376,7 @@ internal static class ChatCommands
             if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
             {
                 int winnerIndex = winners[0].Key - 65;
-                if (winnerIndex != 0) Options.GameMode.SetValue(winnerIndex);
+                Options.GameMode.SetValue(winnerIndex);
             }
         }
 
@@ -1741,6 +1793,8 @@ internal static class ChatCommands
 
         LateTask.New(() => Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId), 0.2f, log: false);
         player.RpcRemoveAbilityUse();
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void ChatCommand(PlayerControl player, string text, string[] args)
@@ -1766,6 +1820,8 @@ internal static class ChatCommands
         ChatManager.AddChatHistory(tg, msg);
 
         player.RpcRemoveAbilityUse();
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void TargetCommand(PlayerControl player, string text, string[] args)
@@ -1783,6 +1839,8 @@ internal static class ChatCommands
         var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
         vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void QSCommand(PlayerControl player, string text, string[] args)
@@ -1799,6 +1857,8 @@ internal static class ChatCommands
         if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out string msg)) return;
 
         Utils.SendMessage(msg, player.PlayerId, GetString("QuizMaster.QuestionSample.Title"));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void QACommand(PlayerControl player, string text, string[] args)
@@ -1815,6 +1875,8 @@ internal static class ChatCommands
         if (qm.Target != player.PlayerId) return;
 
         qm.Answer(args[1].ToUpper());
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
     private static void AnswerCommand(PlayerControl player, string text, string[] args)
@@ -2417,7 +2479,7 @@ internal static class ChatCommands
             return;
         }
 
-        Main.HideName.Value = args.Length > 1 ? args.Skip(1).Join(delimiter: " ") : Main.HideName.DefaultValue.ToString();
+        Main.HideName.Value = args.Length > 1 ? string.Join(' ', args[1..]) : Main.HideName.DefaultValue.ToString();
 
         GameStartManagerPatch.GameStartManagerStartPatch.HideName.text =
             ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
@@ -2435,7 +2497,7 @@ internal static class ChatCommands
 
         if (args.Length < 2) return;
 
-        if (args[1].Length is > 50 or < 1)
+        if (args[1].Length is > 15 or < 1)
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
         else
         {
@@ -2455,7 +2517,7 @@ internal static class ChatCommands
                     return;
                 }
 
-                string name = args.Skip(1).Join(delimiter: " ");
+                string name = string.Join(' ', args[1..]);
 
                 if (name.Length is > 50 or < 1)
                 {
@@ -2894,7 +2956,9 @@ internal static class ChatCommands
 
         return text switch
         {
-            "管理員" or "管理" or "gm" => GetString("GM"),
+            // There is no need to use these now
+            
+            /*"管理員" or "管理" or "gm" => GetString("GM"),
             "賞金獵人" or "赏金" or "bh" or "bounty" => GetString("BountyHunter"),
             "自爆兵" or "自爆" => GetString("Bomber"),
             "邪惡的追踪者" or "邪恶追踪者" or "追踪" or "et" => GetString("EvilTracker"),
@@ -2927,7 +2991,6 @@ internal static class ChatCommands
             "偵探" or "det" => GetString("Detective"),
             "幸運兒" or "幸运" => GetString("Luckey"),
             "大明星" or "明星" or "ss" => GetString("SuperStar"),
-            "網紅" or "cel" or "celeb" => GetString("CyberStar"),
             "demo" => GetString("Demolitionist"),
             "俠客" => GetString("SwordsMan"),
             "正義賭怪" or "正义的赌怪" or "好赌" or "正义赌" or "ng" => GetString("NiceGuesser"),
@@ -3012,8 +3075,8 @@ internal static class ChatCommands
             "sch" => GetString("SchrodingersCat"),
             "glitch" => GetString("Glitch"),
             "безумный" or "mad" => GetString("Madmate"),
-            "анти админер" or "anti adminer" => GetString("AntiAdminer"),
-            _ => text
+            "анти админер" or "anti adminer" => GetString("AntiAdminer"),*/
+            _ => text,
         };
     }
 

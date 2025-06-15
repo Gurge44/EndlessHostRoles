@@ -110,7 +110,13 @@ static class CoShowIntroPatch
             introCutscene.ImpostorTitle.gameObject.SetActive(false);
 
             List<PlayerControl> show = IntroCutscene.SelectTeamToShow((Func<NetworkedPlayerInfo, bool>)(pcd => !PlayerControl.LocalPlayer.Data.Role.IsImpostor || pcd.Role.TeamType == PlayerControl.LocalPlayer.Data.Role.TeamType));
-            if (show == null || show.Count < 1) Logger.Error("IntroCutscene :: CoBegin() :: teamToShow is EMPTY or NULL", "BASE GAME LOGGER");
+
+            if (show == null || show.Count < 1)
+            {
+                Logger.Error("IntroCutscene :: CoBegin() :: teamToShow is EMPTY or NULL", "BASE GAME LOGGER");
+                show = new();
+                show.Add(PlayerControl.LocalPlayer);
+            }
 
             if (PlayerControl.LocalPlayer.Data.Role.IsImpostor)
                 introCutscene.ImpostorText.gameObject.SetActive(false);
@@ -684,7 +690,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
-                    or CustomRoles.CyberStar
+                    or CustomRoles.SuperStar
                     or CustomRoles.DarkHide
                     or CustomRoles.Specter
                     => GetIntroSound(RoleTypes.Noisemaker),
@@ -976,6 +982,8 @@ internal static class IntroCutsceneDestroyPatch
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
+        Utils.NumSnapToCallsThisRound = aapc.Length;
+
         if (AmongUsClient.Instance.AmHost)
         {
             if (Main.NormalOptions.MapId != 4)
@@ -1030,8 +1038,14 @@ internal static class IntroCutsceneDestroyPatch
             LateTask.New(() =>
             {
                 lp.RpcChangeRoleBasis(lp.GetCustomRole());
-                lp.RpcResetAbilityCooldown();
-                LateTask.New(() => lp.SetKillCooldown(), 0.2f, log: false);
+
+                LateTask.New(() =>
+                {
+                    lp.RpcResetAbilityCooldown();
+                    lp.SetKillCooldown();
+                }, 0.2f, log: false);
+
+                StartGameHostPatch.RpcSetRoleReplacer.SetActualSelfRolesAfterOverride();
             }, 0.1f, log: false);
 
             if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag)
@@ -1143,6 +1157,9 @@ internal static class IntroCutsceneDestroyPatch
                     break;
                 case CustomGameMode.CaptureTheFlag:
                     Main.Instance.StartCoroutine(CaptureTheFlag.OnGameStart());
+                    break;
+                case CustomGameMode.RoomRush:
+                    Main.Instance.StartCoroutine(RoomRush.GameStartTasks());
                     break;
             }
 

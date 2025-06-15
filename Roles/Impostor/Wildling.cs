@@ -81,7 +81,7 @@ public class Wildling : RoleBase
                 ShapeshiftCD = ShapeshiftCDOpt.GetFloat();
                 ShapeshiftDur = ShapeshiftDurOpt.GetFloat();
                 HasImpostorVision = true;
-                KillCooldown = DefaultKillCooldown;
+                KillCooldown = AdjustedDefaultKillCooldown;
                 break;
             case CustomRoles.BloodKnight:
                 ProtectionDuration = BloodKnight.ProtectDuration.GetFloat();

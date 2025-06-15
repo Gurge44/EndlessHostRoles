@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
-using HarmonyLib;
 using UnityEngine;
 
 namespace EHR;
@@ -103,7 +101,7 @@ public static class Speedrun
         int apc = Main.AllPlayerControls.Length;
         int killers = CanKill.Count;
 
-        string arrows = TargetArrow.GetAllArrows(pc);
+        string arrows = TargetArrow.GetAllArrows(pc.PlayerId);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
@@ -159,13 +157,12 @@ public static class Speedrun
         return allow;
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastUpdate;
         private static bool Arrow;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(PlayerControl __instance)
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId >= 254) return;

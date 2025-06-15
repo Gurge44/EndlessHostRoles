@@ -93,7 +93,7 @@ internal static class CustomRoleSelector
         foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
 
             switch (role)
             {
@@ -105,7 +105,6 @@ internal static class CustomRoleSelector
                 case CustomRoles.Battery when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Beacon when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.DarkHide when Main.CurrentMap == MapNames.Fungle:
-                case CustomRoles.Doormaster when Main.CurrentMap == MapNames.MiraHQ:
                 case CustomRoles.Pelican when Roles[RoleAssignType.Impostor].Any(x => x.Role == CustomRoles.Duellist):
                 case CustomRoles.Duellist when Roles[RoleAssignType.NeutralKilling].Any(x => x.Role == CustomRoles.Pelican):
                 case CustomRoles.VengefulRomantic:
@@ -122,12 +121,6 @@ internal static class CustomRoleSelector
             }
 
             int count = role.GetCount();
-
-            if (role == CustomRoles.Randomizer && Options.AprilFoolsMode.GetBool())
-            {
-                chance = 100;
-                count = 15;
-            }
 
             RoleAssignInfo info = new(role, chance, count);
 

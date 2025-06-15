@@ -95,7 +95,7 @@ public class Vulture : RoleBase
         PlayerIdList.Add(playerId);
 
         TotalEaten = 0;
-        playerId.SetAbilityUseLimit(MaxEaten.GetInt());
+        playerId.SetAbilityUseLimit(MaxEaten.GetFloat());
         CooldownFinishTS = Utils.TimeStamp;
         LastNotifyTS = Utils.TimeStamp;
 

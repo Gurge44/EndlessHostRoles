@@ -95,7 +95,7 @@ public class ParityCop : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetInt());
+        playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetFloat());
         RoundCheckLimit.Add(playerId, ParityCheckLimitPerMeeting.GetInt());
     }
 
@@ -249,13 +249,13 @@ public class ParityCop : RoleBase
 
                     if (ParityCheckTargetKnow.GetBool())
                     {
-                        var textToSend = $"{target1.GetRealName()}";
-                        if (ParityCheckOtherTargetKnow.GetBool()) textToSend += $" and {target2.GetRealName()}";
+                        string textToSend = target1.GetRealName();
+                        if (ParityCheckOtherTargetKnow.GetBool()) textToSend += $" & {target2.GetRealName()}";
 
                         textToSend += GetString("ParityCheckTargetMsg");
 
-                        var textToSend1 = $"{target2.GetRealName()}";
-                        if (ParityCheckOtherTargetKnow.GetBool()) textToSend1 += $" and {target1.GetRealName()}";
+                        string textToSend1 = target2.GetRealName();
+                        if (ParityCheckOtherTargetKnow.GetBool()) textToSend1 += $" & {target1.GetRealName()}";
 
                         textToSend1 += GetString("ParityCheckTargetMsg");
 
@@ -263,8 +263,7 @@ public class ParityCop : RoleBase
                         {
                             Utils.SendMessage(textToSend, target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             Utils.SendMessage(textToSend1, target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
-                            Logger.Msg("Check attempt, target1 notified", "Parity Cop");
-                            Logger.Msg("Check attempt, target2 notified", "Parity Cop");
+                            Logger.Msg("Check attempt, targets notified", "Parity Cop");
                         }, 0.2f, "ParityCop");
 
                         if (ParityCheckRevealTargetTeam.GetBool() && pc.AllTasksCompleted())
@@ -279,6 +278,8 @@ public class ParityCop : RoleBase
 
                     pc.RpcRemoveAbilityUse();
                     RoundCheckLimit[pc.PlayerId]--;
+
+                    MeetingManager.OnCompare(target1, target2);
                 }
 
                 break;

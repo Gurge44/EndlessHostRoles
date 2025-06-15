@@ -101,11 +101,10 @@ public class Pelican : RoleBase
         else
         {
             int eatenNum = reader.ReadInt32();
-            EatenList.Remove(playerId);
             List<byte> list = [];
             for (var i = 0; i < eatenNum; i++) list.Add(reader.ReadByte());
 
-            EatenList.Add(playerId, list);
+            EatenList[playerId] = list;
         }
     }
 
@@ -168,8 +167,7 @@ public class Pelican : RoleBase
 
         SyncEatenList( /*pc.PlayerId*/);
 
-        OriginalSpeed.Remove(target.PlayerId);
-        OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
+        OriginalSpeed[target.PlayerId] = Main.AllPlayerSpeed[target.PlayerId];
 
         target.TP(GetBlackRoomPS());
         Main.AllPlayerSpeed[target.PlayerId] = 0.5f;

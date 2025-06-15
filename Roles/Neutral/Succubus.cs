@@ -71,7 +71,7 @@ public class Succubus : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(CharmMax.GetInt());
+        playerId.SetAbilityUseLimit(CharmMax.GetFloat());
     }
 
     public override void Remove(byte playerId)

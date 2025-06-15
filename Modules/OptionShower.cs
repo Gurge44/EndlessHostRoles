@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -38,7 +37,7 @@ public static class OptionShower
 
         Pages =
         [
-            GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split('\n').SkipLast(8).Join(delimiter: "\n") + "\n\n"
+            string.Join('\n', GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split('\n')[..^8]) + "\n\n"
         ];
 
         sb.Append($"{Options.GameMode.GetName()}: {Options.GameMode.GetString()}\n\n");
@@ -57,7 +56,7 @@ public static class OptionShower
                 {
                     if (kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool())
                     {
-                        sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  ×{kvp.Key.GetCount()}\n");
+                        sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  x{kvp.Key.GetCount()}\n");
                         count++;
 
                         if (count > MaxLinesPerPage)

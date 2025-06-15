@@ -61,7 +61,7 @@ public class Swooper : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Times);
 
-        SwooperAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+        SwooperAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.7f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -86,13 +86,13 @@ public class Swooper : RoleBase
         switch (UsedRole)
         {
             case CustomRoles.Swooper:
-                playerId.SetAbilityUseLimit(SwooperLimitOpt.GetInt());
+                playerId.SetAbilityUseLimit(SwooperLimitOpt.GetFloat());
                 Cooldown = SwooperCooldown.GetFloat();
                 Duration = SwooperDuration.GetFloat();
                 VentNormallyOnCooldown = SwooperVentNormallyOnCooldown.GetBool();
                 break;
             case CustomRoles.Chameleon:
-                playerId.SetAbilityUseLimit(Chameleon.UseLimitOpt.GetInt());
+                playerId.SetAbilityUseLimit(Chameleon.UseLimitOpt.GetFloat());
                 Cooldown = Chameleon.ChameleonCooldown.GetFloat();
                 Duration = Chameleon.ChameleonDuration.GetFloat();
                 VentNormallyOnCooldown = true;
@@ -122,7 +122,7 @@ public class Swooper : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return pc.Data.RoleType != RoleTypes.Engineer;
+        return UsedRole != CustomRoles.Chameleon;
     }
 
     private void SendRPC()
@@ -279,6 +279,7 @@ public class Swooper : RoleBase
         if (!IsInvis) return true;
         if (!killer.RpcCheckAndMurder(target, true)) return false;
 
+        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         target.Suicide(PlayerState.DeathReason.Swooped, killer);
         killer.SetKillCooldown();
         return false;

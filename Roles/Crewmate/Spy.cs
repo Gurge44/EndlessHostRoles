@@ -53,7 +53,7 @@ public class Spy : RoleBase
     {
         LastUpdate = TimeStamp;
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

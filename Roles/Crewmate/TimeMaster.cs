@@ -27,7 +27,7 @@ internal class TimeMaster : RoleBase
     {
         SetupRoleOptions(652100, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
 
-        TimeMasterRewindTimeLength = new IntegerOptionItem(652110, "TimeMasterRewindTimeLength", new(0, 10, 1), 15, TabGroup.CrewmateRoles)
+        TimeMasterRewindTimeLength = new IntegerOptionItem(652110, "TimeMasterRewindTimeLength", new(0, 30, 1), 15, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -52,7 +52,7 @@ internal class TimeMaster : RoleBase
     {
         On = true;
         BackTrack = [];
-        playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetInt());
+        playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetFloat());
     }
 
     public override void Init()

@@ -49,7 +49,7 @@ internal class Grenadier : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(GrenadierSkillMaxOfUseage.GetInt());
+        playerId.SetAbilityUseLimit(GrenadierSkillMaxOfUseage.GetFloat());
     }
 
     public override void Init()
@@ -125,14 +125,12 @@ internal class Grenadier : RoleBase
         {
             if (pc.Is(CustomRoles.Madmate))
             {
-                MadGrenadierBlinding.Remove(pc.PlayerId);
-                MadGrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
+                MadGrenadierBlinding[pc.PlayerId] = Utils.TimeStamp;
                 Main.AllPlayerControls.Where(x => x.IsModdedClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
             }
             else
             {
-                GrenadierBlinding.Remove(pc.PlayerId);
-                GrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
+                GrenadierBlinding[pc.PlayerId] = Utils.TimeStamp;
                 Main.AllPlayerControls.Where(x => x.IsModdedClient()).Where(x => x.IsImpostor() || (x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
             }
 

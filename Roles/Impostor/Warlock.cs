@@ -65,8 +65,8 @@ internal class Warlock : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        CursedPlayers.Add(playerId, null);
-        IsCurseAndKill.Add(playerId, false);
+        CursedPlayers[playerId] = null;
+        IsCurseAndKill[playerId] = false;
         KCD = KillCooldown.GetFloat();
         CurseCD = CurseCooldown.GetFloat();
         LastNotify = 0;
@@ -152,7 +152,7 @@ internal class Warlock : RoleBase
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                 killer.RPCPlayCustomSound("Line");
                 CursedPlayers[killer.PlayerId] = target;
-                WarlockTimer.Add(killer.PlayerId, 0f);
+                WarlockTimer[killer.PlayerId] = 0f;
                 IsCurseAndKill[killer.PlayerId] = true;
 
                 ResetCooldowns(true, true, warlock: killer);
@@ -219,7 +219,7 @@ internal class Warlock : RoleBase
                     if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
 
                     float dis = Vector2.Distance(cppos, p.Pos());
-                    cpdistance.Add(p, dis);
+                    cpdistance[p] = dis;
                     Logger.Info($"{p.Data?.PlayerName}'s distance: {dis}", "Warlock");
                 }
 

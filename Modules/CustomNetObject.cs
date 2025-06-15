@@ -504,7 +504,20 @@ namespace EHR
     {
         public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName, SystemTypes? room)
         {
-            WarningTimer = new(position, time, Translator.GetString($"ND_{disasterName}"));
+            string name = Translator.GetString($"ND_{disasterName}");
+
+            if (room != null)
+            {
+                name = $"<#ff0000>{name}</color>";
+
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    PlainShipRoom plainShipRoom = pc.GetPlainShipRoom();
+                    if (plainShipRoom != null && plainShipRoom.RoomId == room) pc.ReactorFlash();
+                }
+            }
+
+            WarningTimer = new(position, time, name);
             SpawnTimer = time;
             Sprite = sprite;
             DisasterName = disasterName;

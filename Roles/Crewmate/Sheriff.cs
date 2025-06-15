@@ -93,7 +93,7 @@ public class Sheriff : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(ShotLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(ShotLimitOpt.GetFloat());
 
         Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : Shot Limit - {playerId.GetAbilityUseLimit()}", "Sheriff");
     }

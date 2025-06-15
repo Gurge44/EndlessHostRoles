@@ -100,7 +100,7 @@ public abstract class GameOptionsSender
     {
         AllSenders.RemoveAll(s => s == null || !s.AmValid());
 
-        foreach (GameOptionsSender sender in AllSenders.ToArray())
+        foreach (GameOptionsSender sender in AllSenders)
         {
             if (sender.IsDirty)
             {

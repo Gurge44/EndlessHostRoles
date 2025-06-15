@@ -95,7 +95,7 @@ public class Rogue : RoleBase
     {
         if (GotRewards.Contains(Reward.Morph) && MorphCooldown <= 0)
         {
-            MorphCooldown = 15 + (int)Options.DefaultKillCooldown;
+            MorphCooldown = 15 + (int)Options.AdjustedDefaultKillCooldown;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
             PlayerControl target = Main.AllAlivePlayerControls.Except([pc]).RandomElement();
             pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
@@ -167,7 +167,7 @@ public class Rogue : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
-            if (pc.IsShifted() && MorphCooldown <= Options.DefaultKillCooldown)
+            if (pc.IsShifted() && MorphCooldown <= Options.AdjustedDefaultKillCooldown)
                 pc.RpcShapeshift(pc, !Options.DisableAllShapeshiftAnimations.GetBool());
         }
     }
@@ -319,7 +319,7 @@ public class Rogue : RoleBase
 
         if (CurrentTask.IsCompleted) return Translator.GetString("Rogue.TaskCompleted");
 
-        float d = Options.DefaultKillCooldown;
+        float d = Options.AdjustedDefaultKillCooldown;
 
         string c = GotRewards.Contains(Reward.Morph) && MorphCooldown > 0
             ? MorphCooldown <= d

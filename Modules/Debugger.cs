@@ -172,18 +172,21 @@ public class CustomLogger
         """;
 
     private static CustomLogger PrivateInstance;
-    private float timer = 3f;
+    private float timer = 1f;
+
+    private readonly StringBuilder Builder;
 
     private CustomLogger()
     {
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
-        else if (new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
+        else if (Options.IsLoaded && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
         {
             ClearLog(false);
             PrivateInstance ??= new();
             Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped.");
         }
 
+        Builder = new();
         Main.Instance.StartCoroutine(InactivityCheck());
     }
 
@@ -192,7 +195,10 @@ public class CustomLogger
     public static void ClearLog(bool check = true)
     {
         if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
-            Utils.DumpLog(false);
+        {
+            PrivateInstance?.Finish();
+            Utils.DumpLog(false, false);
+        }
 
         File.WriteAllText(LOGFilePath, HtmlHeader);
     }
@@ -212,9 +218,7 @@ public class CustomLogger
                         </div>
                         """;
 
-        File.AppendAllText(LOGFilePath, logEntry);
-
-        timer = 3f;
+        Builder.Append(logEntry);
     }
 
     private IEnumerator InactivityCheck()
@@ -225,7 +229,15 @@ public class CustomLogger
             yield return null;
         }
 
-        File.AppendAllText(LOGFilePath, HtmlFooter);
+        Finish(false);
+    }
+
+    public void Finish(bool dump = true)
+    {
+        var append = Builder.ToString();
+        if (string.IsNullOrEmpty(append.Trim())) return;
+        if (dump) append += HtmlFooter;
+        File.AppendAllText(LOGFilePath, append);
         PrivateInstance = null;
     }
 }

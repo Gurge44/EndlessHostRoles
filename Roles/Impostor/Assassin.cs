@@ -95,7 +95,7 @@ internal class Assassin : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = id.IsPlayerShifted() ? DefaultKillCooldown : MarkCooldown;
+        Main.AllPlayerKillCooldown[id] = id.IsPlayerShifted() ? AdjustedDefaultKillCooldown : MarkCooldown;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -173,7 +173,7 @@ internal class Assassin : RoleBase
                 SendRPC(pc.PlayerId);
                 pc.ResetKillCooldown();
                 pc.SyncSettings();
-                pc.SetKillCooldown(DefaultKillCooldown);
+                pc.SetKillCooldown(AdjustedDefaultKillCooldown);
             }
             else if (!tpSuccess) pc.Notify(GetString("TargetCannotBeTeleported"));
         }

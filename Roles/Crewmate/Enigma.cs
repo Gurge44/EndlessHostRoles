@@ -92,7 +92,7 @@ public class Enigma : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        ShownClues.Add(playerId, []);
+        ShownClues[playerId] = [];
     }
 
     public override void Remove(byte playerId)

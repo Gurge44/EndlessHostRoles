@@ -50,6 +50,7 @@ public static class LobbySharingAPI
         };
 
         request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
         yield return request.SendWebRequest();
 
         LastRequestTimeStamp = Utils.TimeStamp;
@@ -111,6 +112,7 @@ public static class LobbySharingAPI
         };
 
         request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
         yield return request.SendWebRequest();
 
         LastRequestTimeStamp = Utils.TimeStamp;

@@ -207,7 +207,7 @@ public class BountyHunter : RoleBase
 
                 if (Utils.GetPlayerById(id).GetCustomRole() == CustomRoles.BountyHunter)
                 {
-                    Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+                    Main.AllPlayerKillCooldown[id] = Options.AdjustedDefaultKillCooldown;
                     Utils.GetPlayerById(id).SyncSettings();
                 }
             }

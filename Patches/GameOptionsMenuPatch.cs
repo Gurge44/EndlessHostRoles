@@ -680,6 +680,7 @@ public static class StringOptionPatch
 
                 if (role.IsExperimental()) name += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
+                if (role.IsDevFavoriteRole()) name += "<size=2><#00ffff>★</color></size>";
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
@@ -821,6 +822,7 @@ public static class StringOptionPatch
 
                 if (role.IsExperimental()) name += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
+                if (role.IsDevFavoriteRole()) name += "<size=2><#00ffff>★</color></size>";
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
@@ -1115,7 +1117,7 @@ public static class GameSettingMenuPatch
 
         Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
 
-        CustomGameMode[] gms = Enum.GetValues<CustomGameMode>().SkipLast(1).ToArray();
+        CustomGameMode[] gms = Enum.GetValues<CustomGameMode>()[..^1];
         int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Length / 5f));
 
         GMButtons = [];

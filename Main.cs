@@ -35,8 +35,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "5.6.7";
-    public const string PluginDisplayVersion = "5.6.7";
+    public const string PluginVersion = "5.6.8";
+    public const string PluginDisplayVersion = "5.6.8";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -128,7 +128,7 @@ public class Main : BasePlugin
     public static HashSet<byte> DiedThisRound = [];
     public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
-    public static List<byte> CyberStarDead = [];
+    public static List<byte> SuperStarDead = [];
     public static List<byte> BaitAlive = [];
     public static Dictionary<byte, int> KilledDiseased = [];
     public static Dictionary<byte, int> KilledAntidote = [];
@@ -353,7 +353,6 @@ public class Main : BasePlugin
                 { CustomRoles.Sheriff, "#ffb347" },
                 { CustomRoles.CopyCat, "#ffb2ab" },
                 { CustomRoles.SuperStar, "#f6f657" },
-                { CustomRoles.CyberStar, "#ee4a55" },
                 { CustomRoles.Ventguard, "#ffa5ff" },
                 { CustomRoles.Demolitionist, "#5e2801" },
                 { CustomRoles.Express, "#00ffff" },
@@ -415,7 +414,7 @@ public class Main : BasePlugin
                 { CustomRoles.Altruist, "#300000" },
                 { CustomRoles.Bane, "#745da3" },
                 { CustomRoles.Benefactor, "#4aeaff" },
-                { CustomRoles.GuessManagerRole, "#d4ff00" },
+                { CustomRoles.MeetingManager, "#d4ff00" },
                 { CustomRoles.Drainer, "#149627" },
                 { CustomRoles.NiceHacker, "#75fa4c" },
                 { CustomRoles.Aid, "#D7BDE2" },
@@ -424,7 +423,6 @@ public class Main : BasePlugin
                 { CustomRoles.Dealer, "#f57242" },
                 { CustomRoles.Escort, "#ff94e6" },
                 { CustomRoles.Spy, "#34495E" },
-                { CustomRoles.Doormaster, "#7FB3D5" },
                 { CustomRoles.Tether, "#138D75" },
                 { CustomRoles.Ricochet, "#EDBB99" },
                 { CustomRoles.SpeedBooster, "#00ffff" },
@@ -737,7 +735,6 @@ public class Main : BasePlugin
         BanManager.Init();
         TemplateManager.Init();
         SpamManager.Init();
-        Cloud.Init();
 
         IRandom.SetInstance(new NetRandomWrapper());
 
@@ -790,6 +787,8 @@ public class Main : BasePlugin
             [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
             [CustomGameMode.TheMindGame] = Color.yellow
         };
+
+        StartCoroutine(ModNewsFetcher.FetchNews());
 
         Logger.Msg("========= EHR loaded! =========", "Plugin Load");
         Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");

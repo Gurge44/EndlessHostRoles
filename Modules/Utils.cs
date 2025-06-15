@@ -121,9 +121,12 @@ public static class Utils
         foreach (PlayerControl pc in Main.AllAlivePlayerControls) TP(pc.NetTransform, location, log);
     }
 
+    public static int NumSnapToCallsThisRound;
+
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool noCheckState = false, bool log = true)
     {
         PlayerControl pc = nt.myPlayer;
+        var sendOption = SendOption.Reliable;
 
         if (!noCheckState)
         {
@@ -135,10 +138,19 @@ public static class Utils
                 return false;
             }
 
-            if (Vector2.Distance(pc.Pos(), location) < 0.1f)
+            switch (Vector2.Distance(pc.Pos(), location))
             {
-                if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
-                return false;
+                case < 0.3f:
+                {
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
+                    return false;
+                }
+                case < 1.5f when !GameStates.IsLobby:
+                {
+                    if (log) Logger.Msg($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Changed to SendOption.None", "TP");
+                    sendOption = SendOption.None;
+                    break;
+                }
             }
         }
 
@@ -152,8 +164,17 @@ public static class Utils
                 return false;
         }
 
+        if (NumSnapToCallsThisRound > 80)
+        {
+            if (log) Logger.Warn($"Too many SnapTo calls this round ({NumSnapToCallsThisRound}) - Changed to SendOption.None", "TP");
+            sendOption = SendOption.None;
+        }
+
+        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+            sendOption = SendOption.Reliable;
+
         var newSid = (ushort)(nt.lastSequenceId + 8);
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, sendOption);
         NetHelpers.WriteVector2(location, messageWriter);
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -163,6 +184,7 @@ public static class Utils
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
 
+        if (sendOption == SendOption.Reliable) NumSnapToCallsThisRound++;
         return true;
     }
 
@@ -301,20 +323,21 @@ public static class Utils
                 continue;
             }
 
-            if (targetRole == CustomRoles.CyberStar && seer.IsAlive())
+            if (targetRole == CustomRoles.SuperStar && seer.IsAlive())
             {
-                if (!Options.ImpKnowCyberStarDead.GetBool() && seer.IsImpostor()) continue;
-                if (!Options.NeutralKnowCyberStarDead.GetBool() && (seer.GetCustomRole().IsNeutral() || seer.Is(CustomRoles.Bloodlust))) continue;
+                if (!Options.ImpKnowSuperStarDead.GetBool() && seer.IsImpostor()) continue;
+                if (!Options.NeutralKnowSuperStarDead.GetBool() && (seer.GetCustomRole().IsNeutral() || seer.Is(CustomRoles.Bloodlust))) continue;
+                if (!Options.CovenKnowSuperStarDead.GetBool() && seer.Is(CustomRoleTypes.Coven)) continue;
 
                 seer.KillFlash();
-                seer.Notify(ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("OnCyberStarDead")));
+                seer.Notify(ColorString(GetRoleColor(CustomRoles.SuperStar), GetString("OnSuperStarDead")));
             }
         }
 
         switch (targetRole)
         {
-            case CustomRoles.CyberStar when !Main.CyberStarDead.Contains(target.PlayerId):
-                Main.CyberStarDead.Add(target.PlayerId);
+            case CustomRoles.SuperStar when !Main.SuperStarDead.Contains(target.PlayerId):
+                Main.SuperStarDead.Add(target.PlayerId);
                 break;
             case CustomRoles.Demolitionist:
                 Demolitionist.OnDeath(killer, target);
@@ -970,7 +993,6 @@ public static class Utils
                    pc.Is(CustomRoles.Needy) ||
                    pc.Is(CustomRoles.Loyal) ||
                    pc.Is(CustomRoles.SuperStar) ||
-                   pc.Is(CustomRoles.CyberStar) ||
                    pc.Is(CustomRoles.Egoist) ||
                    pc.Is(CustomRoles.DualPersonality)
                );
@@ -1506,7 +1528,6 @@ public static class Utils
         {
             if (state.RoleHistory.Count > 0)
             {
-                state.RoleHistory.Add(state.MainRole);
                 string join = string.Join(" > ", state.RoleHistory.ConvertAll(x => x.ToColoredString()));
                 sb.AppendLine($"{id.ColoredPlayerName()}: {join}");
             }
@@ -2820,7 +2841,8 @@ public static class Utils
                                 if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.Speedrun)
                                     additionalSuffixes.Add(GetString("DiedR1Warning"));
 
-                                additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
+                                if (!forMeeting)
+                                    additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));
 
@@ -3082,7 +3104,7 @@ public static class Utils
     {
         if (role.UsesPetInsteadOfKill())
         {
-            var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Options.DefaultKillCooldown);
+            var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Options.AdjustedDefaultKillCooldown);
             Main.AbilityCD[playerId] = (TimeStamp, kcd);
             SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, kcd);
             return;
@@ -3091,10 +3113,10 @@ public static class Utils
         int cd = role switch
         {
             CustomRoles.Mole => Mole.CD.GetInt(),
-            CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),
+            CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
-            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.DefaultKillCooldown),
-            CustomRoles.Paranoia => (int)Math.Round(Options.DefaultKillCooldown),
+            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
+            CustomRoles.Paranoia => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),
@@ -3145,7 +3167,8 @@ public static class Utils
 
         if (cd == -1) return;
 
-        if (Main.PlayerStates[playerId].SubRoles.Contains(CustomRoles.Energetic)) cd = (int)Math.Round(cd * 0.75f);
+        if (Main.PlayerStates[playerId].SubRoles.Contains(CustomRoles.Energetic))
+            cd = (int)Math.Round(cd * 0.75f);
 
         Main.AbilityCD[playerId] = (TimeStamp, cd);
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, cd);
@@ -3305,18 +3328,19 @@ public static class Utils
                 case CustomRoles.PlagueDoctor when !disconnect && !onMeeting:
                     PlagueDoctor.OnPDdeath(targetRealKiller, target);
                     break;
-                case CustomRoles.CyberStar when !disconnect:
+                case CustomRoles.SuperStar when !disconnect:
                     if (onMeeting)
                     {
                         (
                             from pc in Main.AllPlayerControls
-                            where (Options.ImpKnowCyberStarDead.GetBool() || !pc.GetCustomRole().IsImpostor()) && (Options.NeutralKnowCyberStarDead.GetBool() || !pc.GetCustomRole().IsNeutral())
-                            select new Message(string.Format(GetString("CyberStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.CyberStar), GetString("CyberStarNewsTitle")))
+                            where (Options.ImpKnowSuperStarDead.GetBool() || !pc.GetCustomRole().IsImpostor()) && (Options.NeutralKnowSuperStarDead.GetBool() || !pc.GetCustomRole().IsNeutral()) && (Options.CovenKnowSuperStarDead.GetBool() || !pc.Is(CustomRoleTypes.Coven))
+                            select new Message(string.Format(GetString("SuperStarDead"), target.GetRealName()), pc.PlayerId, ColorString(GetRoleColor(CustomRoles.SuperStar), GetString("SuperStarNewsTitle")))
                         ).SendMultipleMessages();
                     }
                     else
                     {
-                        if (!Main.CyberStarDead.Contains(target.PlayerId)) Main.CyberStarDead.Add(target.PlayerId);
+                        if (!Main.SuperStarDead.Contains(target.PlayerId))
+                            Main.SuperStarDead.Add(target.PlayerId);
                     }
 
                     break;
@@ -3450,8 +3474,10 @@ public static class Utils
         return t.PadRight(Mathf.Max(num - (bc - t.Length), 0));
     }
 
-    public static void DumpLog(bool open = true)
+    public static void DumpLog(bool open = true, bool finish = true)
     {
+        if (finish) CustomLogger.Instance.Finish();
+        
         var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
         var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
         if (!Directory.Exists(f)) Directory.CreateDirectory(f);
@@ -3681,6 +3707,7 @@ public static class Utils
 
     public static string RemoveHtmlTags(this string str)
     {
+        if (string.IsNullOrEmpty(str)) return string.Empty;
         return Regex.Replace(str, "<[^>]*?>", string.Empty);
     }
 

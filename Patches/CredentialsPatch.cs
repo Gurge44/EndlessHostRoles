@@ -17,21 +17,31 @@ internal static class PingTrackerUpdatePatch
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
-    private static readonly List<float> LastFPS = [];
-    private static int Delay => GameStates.IsInTask ? 8 : 1;
+    public static readonly List<float> LastFPS = [];
 
-    private static void Postfix(PingTracker __instance)
+    public static bool Prefix(PingTracker __instance)
     {
-        Instance = __instance;
+        PingTracker instance = Instance == null ? __instance : Instance;
 
-        Instance.text.alignment = TextAlignmentOptions.Center;
-        Instance.text.text = Sb.ToString();
+        if (AmongUsClient.Instance == null) return false;
 
-        LastFPS.Add(1.0f / Time.deltaTime);
-        if (LastFPS.Count > 10) LastFPS.RemoveAt(0);
+        if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
+        {
+            instance.gameObject.SetActive(false);
+            return false;
+        }
+
+        if (instance.name != "EHR_SettingsText")
+        {
+            instance.aspectPosition.DistanceFromEdge = !AmongUsClient.Instance.IsGameStarted ? instance.lobbyPos : instance.gamePos;
+            instance.text.alignment = TextAlignmentOptions.Center;
+            instance.text.text = Sb.ToString();
+        }
+
+        if (Instance == null) Instance = __instance;
 
         long now = Utils.TimeStamp;
-        if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
+        if (now == LastUpdate) return false;
         LastUpdate = now;
 
         Sb.Clear();
@@ -63,8 +73,9 @@ internal static class PingTrackerUpdatePatch
             Color fpscolor = fps switch
             {
                 < 10f => Color.red,
-                < 30f => Color.yellow,
-                _ => Color.green
+                < 25f => Color.yellow,
+                < 50f => Color.green,
+                _ => new Color32(0, 165, 255, 255)
             };
 
             AppendSeparator();
@@ -72,7 +83,7 @@ internal static class PingTrackerUpdatePatch
         }
 
         if (GameStates.InGame) Sb.Append("\r\n.");
-        return;
+        return false;
 
         void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "  -  ");
     }

@@ -26,7 +26,7 @@ internal class Perceiver : RoleBase
 
         CD = Options.CreateCDSetting(Id + 3, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
 
-        Limit = new IntegerOptionItem(Id + 4, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
+        Limit = new FloatOptionItem(Id + 4, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
             .SetValueFormat(OptionFormat.Times);
 

@@ -191,7 +191,7 @@ public class Agitater : RoleBase
                     if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer && target.IsAlive())
                     {
                         float dis = Vector2.Distance(agitaterPos, target.transform.position);
-                        targetDistance.Add(target.PlayerId, dis);
+                        targetDistance[target.PlayerId] = dis;
                     }
                 }
 

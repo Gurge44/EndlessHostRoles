@@ -34,7 +34,7 @@ internal class Kamikaze : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
             .SetValueFormat(OptionFormat.Times);
 
-        KamikazeAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+        KamikazeAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -51,7 +51,7 @@ internal class Kamikaze : RoleBase
     {
         PlayerIdList.Add(playerId);
         MarkedPlayers = [];
-        playerId.SetAbilityUseLimit(KamikazeLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(KamikazeLimitOpt.GetFloat());
         On = true;
         KamikazeId = playerId;
     }

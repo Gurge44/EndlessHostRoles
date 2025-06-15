@@ -207,6 +207,16 @@ public static class Options
 
     public static float DefaultKillCooldown = Main.NormalOptions == null ? 25f : Main.NormalOptions.KillCooldown;
 
+    public static float AdjustedDefaultKillCooldown => !GameStates.InGame
+        ? DefaultKillCooldown
+        : DefaultKillCooldown + Main.CurrentMap switch
+        {
+            MapNames.Polus => ExtraKillCooldownOnPolus?.GetFloat() ?? 0f,
+            MapNames.Airship => ExtraKillCooldownOnAirship?.GetFloat() ?? 0f,
+            MapNames.Fungle => ExtraKillCooldownOnFungle?.GetFloat() ?? 0f,
+            _ => 0f
+        };
+
     public static OptionItem ModLanguage;
 
     public static readonly Dictionary<GameStateInfo, OptionItem> GameStateSettings = [];
@@ -241,7 +251,6 @@ public static class Options
     public static OptionItem DisableShapeshiftAnimations;
     public static OptionItem DisableAllShapeshiftAnimations;
     public static OptionItem DisableKillAnimationOnGuess;
-    public static OptionItem DisableVanillaRoles;
     public static OptionItem SabotageCooldownControl;
     public static OptionItem SabotageCooldown;
     public static OptionItem CEMode;
@@ -327,9 +336,9 @@ public static class Options
     public static OptionItem DQNumOfKillsNeeded;
     public static OptionItem ParanoiaNumOfUseButton;
     public static OptionItem ParanoiaVentCooldown;
-    public static OptionItem ImpKnowCyberStarDead;
-    public static OptionItem NeutralKnowCyberStarDead;
-    public static OptionItem CovenKnowCyberStarDead;
+    public static OptionItem ImpKnowSuperStarDead;
+    public static OptionItem NeutralKnowSuperStarDead;
+    public static OptionItem CovenKnowSuperStarDead;
     public static OptionItem DemolitionistVentTime;
     public static OptionItem DemolitionistKillerDiesOnMeetingCall;
     public static OptionItem ExpressSpeed;
@@ -434,6 +443,9 @@ public static class Options
     public static OptionItem ChangeDecontaminationTime;
     public static OptionItem DecontaminationTimeOnMiraHQ;
     public static OptionItem DecontaminationTimeOnPolus;
+    public static OptionItem ExtraKillCooldownOnPolus;
+    public static OptionItem ExtraKillCooldownOnAirship;
+    public static OptionItem ExtraKillCooldownOnFungle;
 
     public static OptionItem MafiaShapeshiftCD;
     public static OptionItem MafiaShapeshiftDur;
@@ -569,6 +581,7 @@ public static class Options
     // Sabotage
     public static OptionItem CommsCamouflage;
     public static OptionItem CommsCamouflageDisableOnFungle;
+    public static OptionItem CommsCamouflageDisableOnMira;
     public static OptionItem CommsCamouflageLimit;
     public static OptionItem CommsCamouflageLimitSetChance;
     public static OptionItem CommsCamouflageLimitChance;
@@ -698,10 +711,12 @@ public static class Options
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
     public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem MessageRpcSizeLimit;
+    public static OptionItem KickSlowJoiningPlayers;
     public static OptionItem DraftMaxRolesPerPlayer;
     public static OptionItem LargerRoleTextSize;
     public static OptionItem ShowTaskCountWhenAlive;
     public static OptionItem ShowTaskCountWhenDead;
+    public static OptionItem IntegrateNaturalDisasters;
     public static OptionItem ShowDifferentEjectionMessageForSomeRoles;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
@@ -1006,7 +1021,65 @@ public static class Options
         catch (Exception e) { Utils.ThrowException(e); }
 
 
-        //File.WriteAllText("./SystemSettings.txt", string.Join('\n', GroupedOptions[TabGroup.SystemSettings].Select(x => x.GetName().RemoveHtmlTags())));
+        try
+        {
+            var sb = new StringBuilder();
+
+            foreach ((TabGroup tab, OptionItem[] options) in GroupedOptions)
+            {
+                sb.AppendLine($"## {Translator.GetString($"TabGroup.{tab}")}");
+                
+                sb.AppendLine("| Setting Name | Possible Values | Default Value |");
+                sb.AppendLine("|--------------|-----------------|---------------|");
+
+                foreach (OptionItem option in options)
+                {
+                    if (IsRoleOption() || option.GameMode is not CustomGameMode.Standard and not CustomGameMode.All) continue;
+
+                    bool IsRoleOption()
+                    {
+                        OptionItem o = option;
+                        while (true)
+                        {
+                            if (o == null) return false;
+                            if (Enum.TryParse<CustomRoles>(o.Name, out _)) return true;
+                            o = o.Parent;
+                        }
+                    }
+                    
+                    string name = option.GetName().RemoveHtmlTags();
+
+                    IList<string> values = option switch
+                    {
+                        BooleanOptionItem => ["✔️", "❌"],
+                        IntegerOptionItem ioi => [$"{ioi.Rule.MinValue} - {ioi.Rule.MaxValue}", $"± {ioi.Rule.Step}"],
+                        FloatOptionItem foi => [$"{foi.Rule.MinValue} - {foi.Rule.MaxValue}", $"± {foi.Rule.Step}"],
+                        StringOptionItem soi => soi.noTranslation ? soi.Selections : soi.Selections.Select(x => Translator.GetString(x)).ToArray(),
+                        _ => []
+                    };
+                    
+                    if (values.Count == 0) continue;
+                    
+                    string possibleValues = string.Join("<br>", values.Select(x => $"`{x}`"));
+                    
+                    string defaultValue = option switch
+                    {
+                        BooleanOptionItem b => b.GetBool() ? "✔️" : "❌",
+                        IntegerOptionItem i => i.GetInt().ToString(),
+                        FloatOptionItem f => f.GetFloat().ToString("F2"),
+                        StringOptionItem s => s.noTranslation ? s.Selections[s.DefaultValue] : Translator.GetString(s.Selections[s.DefaultValue]),
+                        _ => string.Empty
+                    };
+
+                    sb.AppendLine($"| {name} | {possibleValues} | `{defaultValue}` |");
+                }
+            }
+            
+            const string path = "./settings.txt";
+            if (!File.Exists(path)) File.Create(path).Close();
+            File.WriteAllText(path, sb.ToString());
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
 #endif
     }
 
@@ -1569,6 +1642,9 @@ public static class Options
         MessageRpcSizeLimit = new IntegerOptionItem(19425, "MessageRpcSizeLimit", new(500, 100000, 100), 1400, TabGroup.SystemSettings)
             .SetHeader(true);
 
+        KickSlowJoiningPlayers = new BooleanOptionItem(19428, "KickSlowJoiningPlayers", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .SetHeader(true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
@@ -1786,6 +1862,18 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
+        ExtraKillCooldownOnPolus = new FloatOptionItem(60506, "ExtraKillCooldownOnPolus", new(0f, 60f, 0.5f), 0f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        ExtraKillCooldownOnAirship = new FloatOptionItem(60507, "ExtraKillCooldownOnAirship", new(0f, 60f, 0.5f), 0f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        ExtraKillCooldownOnFungle = new FloatOptionItem(60508, "ExtraKillCooldownOnFungle", new(0f, 60f, 0.5f), 0f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
 
         LoadingPercentage = 70;
 
@@ -1804,6 +1892,11 @@ public static class Options
             .SetColor(new Color32(243, 96, 96, byte.MaxValue));
 
         CommsCamouflageDisableOnFungle = new BooleanOptionItem(22202, "CommsCamouflageDisableOnFungle", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(CommsCamouflage)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
+        CommsCamouflageDisableOnMira = new BooleanOptionItem(22201, "CommsCamouflageDisableOnMira", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(CommsCamouflage)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue));
@@ -1974,25 +2067,20 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
-        DisableVanillaRoles = new BooleanOptionItem(22600, "DisableVanillaRoles", true, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-
         DisableTaskWin = new BooleanOptionItem(22650, "DisableTaskWin", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
-        DisableTaskWinIfAllCrewsAreDead = new BooleanOptionItem(22651, "DisableTaskWinIfAllCrewsAreDead", false, TabGroup.GameSettings)
+        DisableTaskWinIfAllCrewsAreDead = new BooleanOptionItem(22651, "DisableTaskWinIfAllCrewsAreDead", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
-        DisableTaskWinIfAllCrewsAreConverted = new BooleanOptionItem(22652, "DisableTaskWinIfAllCrewsAreConverted", false, TabGroup.GameSettings)
+        DisableTaskWinIfAllCrewsAreConverted = new BooleanOptionItem(22652, "DisableTaskWinIfAllCrewsAreConverted", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 74;
-
-
+        
         DisableMeeting = new BooleanOptionItem(22700, "DisableMeeting", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
@@ -2187,6 +2275,7 @@ public static class Options
 
         AprilFoolsMode = new BooleanOptionItem(23860, "AprilFoolsMode", Main.IsAprilFools, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
+            .SetHidden(true)
             .SetHeader(true)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
@@ -2701,6 +2790,11 @@ public static class Options
         ShowTaskCountWhenDead = new BooleanOptionItem(24453, "ShowTaskCountWhenDead", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
+        IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .RegisterUpdateValueEvent((_, _) => GameOptionsMenuPatch.ReloadUI());
 
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)

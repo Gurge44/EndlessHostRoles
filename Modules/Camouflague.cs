@@ -85,7 +85,12 @@ public static class Camouflage
     {
         if (Camouflager.On && Camouflager.IsActive) return true;
 
-        if (Main.CurrentMap == MapNames.Fungle && Options.CommsCamouflageDisableOnFungle.GetBool()) return false;
+        switch (Main.CurrentMap)
+        {
+            case MapNames.Fungle when Options.CommsCamouflageDisableOnFungle.GetBool():
+            case MapNames.MiraHQ when Options.CommsCamouflageDisableOnMira.GetBool():
+                return false;
+        }
 
         if (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())
         {

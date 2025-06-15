@@ -71,7 +71,7 @@ internal static class EndGameNavigationNextGamePatch
 {
     public static void Postfix()
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || !Options.KickSlowJoiningPlayers.GetBool()) return;
 
         LateTask.New(() =>
         {

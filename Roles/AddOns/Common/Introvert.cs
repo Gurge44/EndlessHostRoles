@@ -51,6 +51,7 @@ public class Introvert : IAddon
 
             if (time == 0)
             {
+                pc.RPCPlayCustomSound("Teleport");
                 pc.TPToRandomVent();
                 return;
             }

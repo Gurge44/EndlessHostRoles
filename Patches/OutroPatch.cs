@@ -120,6 +120,8 @@ internal static class EndGamePatch
 
             ChatCommands.Spectators.Clear();
 
+            Utils.NumSnapToCallsThisRound = 0;
+
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.MoveAndStop:

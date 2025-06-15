@@ -33,7 +33,7 @@ public class Camouflager : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityUseGainWithEachKill = new FloatOptionItem(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
+        AbilityUseGainWithEachKill = new FloatOptionItem(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
             .SetValueFormat(OptionFormat.Times);
 
@@ -60,7 +60,7 @@ public class Camouflager : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerId.SetAbilityUseLimit(CamoLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(CamoLimitOpt.GetFloat());
         On = true;
     }
 

@@ -36,7 +36,7 @@ internal class DovesOfNeace : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(DovesOfNeaceMaxOfUseage.GetInt());
+        playerId.SetAbilityUseLimit(DovesOfNeaceMaxOfUseage.GetFloat());
     }
 
     public override void Init()

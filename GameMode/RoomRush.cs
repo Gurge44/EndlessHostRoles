@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 
@@ -45,9 +43,10 @@ public static class RoomRush
     {
         [MapNames.Skeld] = new()
         {
+            [(SystemTypes.Admin, SystemTypes.Weapons)] = 2,
             [(SystemTypes.Admin, SystemTypes.Nav)] = 2,
             [(SystemTypes.Admin, SystemTypes.Comms)] = 2,
-            [(SystemTypes.Admin, SystemTypes.Shields)] = 3,
+            [(SystemTypes.Admin, SystemTypes.Shields)] = 2,
             [(SystemTypes.Admin, SystemTypes.LifeSupp)] = 4,
             [(SystemTypes.Electrical, SystemTypes.MedBay)] = 3,
             [(SystemTypes.Electrical, SystemTypes.Security)] = 3,
@@ -210,7 +209,7 @@ public static class RoomRush
         Main.Instance.StartCoroutine(GameStartTasks());
     }
 
-    private static IEnumerator GameStartTasks()
+    public static IEnumerator GameStartTasks()
     {
         GameGoing = false;
 
@@ -231,7 +230,7 @@ public static class RoomRush
 
         Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
-        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 18f : 14f);
+        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 4f : 0.2f);
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
@@ -491,15 +490,14 @@ public static class RoomRush
         }
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    private static class FixedUpdatePatch
+    //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+    public static class FixedUpdatePatch
     {
         private static long LastUpdate = Utils.TimeStamp;
 
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
-        public static void Postfix(PlayerControl __instance)
+        public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || !__instance.IsHost()) return;
+            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
 
             long now = Utils.TimeStamp;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;

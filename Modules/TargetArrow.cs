@@ -107,9 +107,9 @@ internal static class TargetArrow
     /// </summary>
     /// <param name="seer"></param>
     /// <returns></returns>
-    public static string GetAllArrows(PlayerControl seer)
+    public static string GetAllArrows(byte seer)
     {
-        return TargetArrows.Keys.Where(ai => ai.From == seer.PlayerId).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
+        return TargetArrows.Keys.Where(ai => ai.From == seer).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
     }
 
     /// <summary>

@@ -95,7 +95,7 @@ public class Devourer : RoleBase
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);
 
-            OriginalPlayerSkins.Add(target.PlayerId, Camouflage.PlayerSkins[target.PlayerId]);
+            OriginalPlayerSkins[target.PlayerId] = Camouflage.PlayerSkins[target.PlayerId];
             Camouflage.PlayerSkins[target.PlayerId] = ConsumedOutfit;
 
             float cdReduction = ReduceKillCooldown.GetFloat() * PlayerSkinsCosumed.Count;

@@ -45,7 +45,7 @@ public class Dazzler : RoleBase
         ResetDazzledVisionOnDeath = new BooleanOptionItem(Id + 15, "DazzlerResetDazzledVisionOnDeath", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler]);
 
-        DazzlerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+        DazzlerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -60,7 +60,7 @@ public class Dazzler : RoleBase
     {
         PlayerIdList.Add(playerId);
         PlayersDazzled = [];
-        playerId.SetAbilityUseLimit(DazzleLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(DazzleLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

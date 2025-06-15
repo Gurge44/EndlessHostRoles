@@ -39,7 +39,7 @@ internal class SecurityGuard : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(SecurityGuardSkillMaxOfUseage.GetInt());
+        playerId.SetAbilityUseLimit(SecurityGuardSkillMaxOfUseage.GetFloat());
     }
 
     public override void Init()
@@ -89,8 +89,7 @@ internal class SecurityGuard : RoleBase
 
         if (pc.GetAbilityUseLimit() >= 1)
         {
-            BlockSabo.Remove(pc.PlayerId);
-            BlockSabo.Add(pc.PlayerId, Utils.TimeStamp);
+            BlockSabo[pc.PlayerId] = Utils.TimeStamp;
             pc.Notify(Translator.GetString("SecurityGuardSkillInUse"), SecurityGuardSkillDuration.GetFloat());
             pc.RpcRemoveAbilityUse();
         }

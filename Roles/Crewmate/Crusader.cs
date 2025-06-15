@@ -42,7 +42,7 @@ public class Crusader : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(SkillLimitOpt.GetInt());
+        playerId.SetAbilityUseLimit(SkillLimitOpt.GetFloat());
         CurrentKillCooldown = SkillCooldown.GetFloat();
     }
 

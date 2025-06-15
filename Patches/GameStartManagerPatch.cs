@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
@@ -8,6 +7,7 @@ using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
+using Il2CppSystem.Collections.Generic;
 using InnerNet;
 using TMPro;
 using UnityEngine;
@@ -315,17 +315,24 @@ public static class GameStartManagerPatch
 
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    foreach (ClientData client in AmongUsClient.Instance.allClients)
+                    List<ClientData> allClients = AmongUsClient.Instance.allClients;
+
+                    lock (allClients)
                     {
-                        if (client.Character == null) continue;
-
-                        var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
-                        if (dummyComponent != null && dummyComponent.enabled) continue;
-
-                        if (!MatchVersions(client.Character.PlayerId, true))
+                        // ReSharper disable once ForCanBeConvertedToForeach
+                        for (var index = 0; index < allClients.Count; index++)
                         {
-                            canStartGame = false;
-                            mismatchedClientName = client.Character.PlayerId.ColoredPlayerName();
+                            ClientData client = allClients[index];
+                            if (client.Character == null) continue;
+
+                            var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
+                            if (dummyComponent != null && dummyComponent.enabled) continue;
+
+                            if (!MatchVersions(client.Character.PlayerId, true))
+                            {
+                                canStartGame = false;
+                                mismatchedClientName = client.Character.PlayerId.ColoredPlayerName();
+                            }
                         }
                     }
 
@@ -478,7 +485,7 @@ public static class GameStartRandomMap
     public static byte SelectRandomMap()
     {
         var rand = IRandom.Instance;
-        List<byte> randomMaps = [];
+        System.Collections.Generic.List<byte> randomMaps = [];
 
         int tempRand = rand.Next(1, 100);
 

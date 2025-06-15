@@ -23,8 +23,8 @@ internal class Blackmailer : RoleBase
     {
         StartSetup(12190)
             .AutoSetupOption(ref AbilityExpires, 0, new[] { "BMAE.AfterMeeting", "BMAE.Never" })
-            .AutoSetupOption(ref AbilityUseLimit, 1, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
-            .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.4f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.8f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times)
             .AutoSetupOption(ref MaxBlackmailedPlayersPerMeeting, 1, new IntegerValueRule(1, 14, 1), OptionFormat.Players)
             .AutoSetupOption(ref MaxBlackmailedPlayersAtOnce, 1, new IntegerValueRule(1, 14, 1), OptionFormat.Players)
             .AutoSetupOption(ref WhoSeesBlackmailedPlayers, 1, new[] { "BMWSBP.Blackmailer", "BMWSBP.BlackmailerAndBlackmailed", "BMWSBP.Impostors", "BMWSBP.Everyone" });
@@ -35,7 +35,7 @@ internal class Blackmailer : RoleBase
         On = true;
         BlackmailedPlayerIds = [];
         NumBlackmailedThisRound = 0;
-        playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Init()
@@ -92,8 +92,10 @@ internal class Blackmailer : RoleBase
                 {
                     x.UnsetVote();
                     meetingHud.SetDirtyBit(1U);
+                    AmongUsClient.Instance.SendAllStreamedObjects();
                     meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
                     meetingHud.SetDirtyBit(1U);
+                    AmongUsClient.Instance.SendAllStreamedObjects();
                 }
 
                 meetingHud.CastVote(x.TargetPlayerId, bmVotedFor);

@@ -14,7 +14,7 @@ using static EHR.Translator;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
+//[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 internal static class HudManagerPatch
 {
     private static TextMeshPro LowerInfoText;
@@ -30,18 +30,6 @@ internal static class HudManagerPatch
     public static void ClearLowerInfoText()
     {
         LowerInfoText.text = string.Empty;
-    }
-
-    public static bool Prefix(HudManager __instance)
-    {
-        if (PlayerControl.LocalPlayer != null) return true;
-
-        __instance.taskDirtyTimer += Time.deltaTime;
-        if (__instance.taskDirtyTimer <= 0.25) return false;
-
-        __instance.taskDirtyTimer = 0.0f;
-        __instance.TaskPanel?.SetTaskText(string.Empty);
-        return false;
     }
 
     public static void Postfix(HudManager __instance)
@@ -69,15 +57,21 @@ internal static class HudManagerPatch
 
             if (GameStates.IsLobby)
             {
-                if (PingTrackerUpdatePatch.Instance != null)
+                if (PingTrackerUpdatePatch.Instance != null && SettingsText == null)
                 {
-                    if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
-
-                    SettingsText = Object.Instantiate(PingTrackerUpdatePatch.Instance.text, __instance.transform, true);
+                    SettingsText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
+                    SettingsText.name = "EHR_SettingsText";
                     SettingsText.alignment = TextAlignmentOptions.TopLeft;
                     SettingsText.verticalAlignment = VerticalAlignmentOptions.Top;
-                    SettingsText.transform.position = AspectPosition.ComputeWorldPosition(Camera.main, AspectPosition.EdgeAlignments.LeftTop, new(0.38f, 0f, 0f));
-                    SettingsText.fontSize = SettingsText.fontSizeMin = SettingsText.fontSizeMax = 1.5f;
+                    SettingsText.transform.position = AspectPosition.ComputeWorldPosition(Camera.main, AspectPosition.EdgeAlignments.LeftTop, new(0.38f, 0.3f, 0f));
+                    SettingsText.fontSize = SettingsText.fontSizeMin = SettingsText.fontSizeMax = 1.2f;
+                    SettingsText.overflowMode = TextOverflowModes.Overflow;
+                    SettingsText.enableWordWrapping = false;
+                }
+                else if (PingTrackerUpdatePatch.Instance == null && SettingsText != null)
+                {
+                    Object.Destroy(SettingsText.gameObject);
+                    SettingsText = null;
                 }
 
                 if (SettingsText != null)
@@ -86,7 +80,11 @@ internal static class HudManagerPatch
                     SettingsText.enabled = SettingsText.text != string.Empty;
                 }
             }
-            else if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
+            else if (SettingsText != null)
+            {
+                Object.Destroy(SettingsText.gameObject);
+                SettingsText = null;
+            }
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -161,32 +159,7 @@ internal static class HudManagerPatch
                         AutoGMRotationStatusText.fontSize = AutoGMRotationStatusText.fontSizeMax = AutoGMRotationStatusText.fontSizeMin = 2.5f;
                     }
 
-                    bool includesRandomChoice = Options.AutoGMRotationSlots.Exists(x => x.Slot.GetValue() == 2);
-                    int index = Options.AutoGMRotationIndex;
-                    List<CustomGameMode> list = Options.AutoGMRotationCompiled;
-
-                    CustomGameMode previousGM = index == 0 ? list[^1] : list[index - 1];
-                    CustomGameMode currentGM = list[index];
-                    CustomGameMode nextGM = index == list.Count - 1 ? list[0] : list[index + 1];
-                    CustomGameMode nextNextGM = index >= list.Count - 2 ? list[1] : list[index + 2];
-
-                    var sb = new StringBuilder(GetString("AutoGMRotationStatusText"));
-                    sb.AppendLine();
-                    sb.AppendLine("....");
-                    if (!includesRandomChoice || index > 0) sb.AppendLine($"> {ToString(previousGM)}");
-                    sb.AppendLine($"<b>{GetString("AutoGMRotationStatusText.NextGM")}: {ToString(currentGM)}</b>");
-                    if (!includesRandomChoice || index < list.Count - 1) sb.AppendLine(ToString(nextGM));
-                    if (!includesRandomChoice || index < list.Count - 2) sb.AppendLine(ToString(nextNextGM));
-                    sb.AppendLine("....");
-
-                    string ToString(CustomGameMode gm) => gm == CustomGameMode.All
-                        ? GetString("AutoGMRotationStatusText.GMPoll")
-                        : Utils.ColorString(Main.GameModeColors[gm], GetString(gm.ToString()));
-
-                    long timerSecondsLeft = AutoGMRotationCooldownTimerEndTS - Utils.TimeStamp;
-                    if (timerSecondsLeft > 0) sb.AppendLine(string.Format(GetString("AutoGMRotationStatusText.CooldownTimer"), timerSecondsLeft));
-
-                    AutoGMRotationStatusText.text = sb.ToString().Trim();
+                    AutoGMRotationStatusText.text = BuildAutoGMRotationStatusText(false);
                     AutoGMRotationStatusText.enabled = AutoGMRotationStatusText.text != string.Empty && GameStates.IsLobby;
                 }
                 else if (AutoGMRotationStatusText != null)
@@ -432,6 +405,39 @@ internal static class HudManagerPatch
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
+
+    public static string BuildAutoGMRotationStatusText(bool chatMessage)
+    {
+        bool includesRandomChoice = Options.AutoGMRotationSlots.Exists(x => x.Slot.GetValue() == 2);
+        int index = Options.AutoGMRotationIndex;
+        List<CustomGameMode> list = Options.AutoGMRotationCompiled;
+
+        CustomGameMode previousGM = index == 0 ? list[^1] : list[index - 1];
+        CustomGameMode currentGM = list[index];
+        CustomGameMode nextGM = index == list.Count - 1 ? list[0] : list[index + 1];
+        CustomGameMode nextNextGM = index >= list.Count - 2 ? list[1] : list[index + 2];
+
+        var sb = new StringBuilder();
+        if (!chatMessage) sb.AppendLine(GetString("AutoGMRotationStatusText"));
+        sb.AppendLine("....");
+        if (!includesRandomChoice || index > 0) sb.AppendLine($"> {ToString(previousGM)}");
+        sb.AppendLine($"<b>{GetString("AutoGMRotationStatusText.NextGM")}: {ToString(currentGM)}</b>");
+        if (!includesRandomChoice || index < list.Count - 1) sb.AppendLine(ToString(nextGM));
+        if (!includesRandomChoice || index < list.Count - 2) sb.AppendLine(ToString(nextNextGM));
+        sb.AppendLine("....");
+
+        if (!chatMessage)
+        {
+            long timerSecondsLeft = AutoGMRotationCooldownTimerEndTS - Utils.TimeStamp;
+            if (timerSecondsLeft > 0) sb.AppendLine(string.Format(GetString("AutoGMRotationStatusText.CooldownTimer"), timerSecondsLeft));
+        }
+
+        return sb.ToString().Trim();
+
+        string ToString(CustomGameMode gm) => gm == CustomGameMode.All
+            ? GetString("AutoGMRotationStatusText.GMPoll")
+            : Utils.ColorString(Main.GameModeColors[gm], GetString(gm.ToString()));
+    }
 }
 
 [HarmonyPatch(typeof(ActionButton), nameof(ActionButton.SetFillUp))]
@@ -472,6 +478,15 @@ internal static class ToggleHighlightPatch
     }
 }
 
+[HarmonyPatch(typeof(KillButton), nameof(KillButton.SetTarget))]
+internal static class KillButtonSetTargetPatch
+{
+    public static bool Prefix()
+    {
+        return false;
+    }
+}
+
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
 internal static class SetVentOutlinePatch
 {
@@ -481,8 +496,9 @@ internal static class SetVentOutlinePatch
     public static void Postfix(Vent __instance, [HarmonyArgument(1)] ref bool mainTarget)
     {
         Color color = PlayerControl.LocalPlayer.GetRoleColor();
-        __instance.myRend.material.SetColor(OutlineColor, color);
-        __instance.myRend.material.SetColor(AddColor, mainTarget ? color : Color.clear);
+        Material material = __instance.myRend.material;
+        material.SetColor(OutlineColor, color);
+        material.SetColor(AddColor, mainTarget ? color : Color.clear);
     }
 }
 

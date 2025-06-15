@@ -47,7 +47,7 @@ public class Jumper : RoleBase, IHideAndSeekRole
             .SetColor(new(221, 245, 66, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jumper]);
 
-        UseLimit = new IntegerOptionItem(69_213_507, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.CrewmateRoles)
+        UseLimit = new FloatOptionItem(69_213_507, "AbilityUseLimit", new(0, 20, 0.05f), 3, TabGroup.CrewmateRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(new(221, 245, 66, byte.MaxValue))
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jumper]);
