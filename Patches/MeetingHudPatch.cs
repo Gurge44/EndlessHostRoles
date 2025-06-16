@@ -1075,7 +1075,7 @@ internal static class MeetingHudStartPatch
         // -------------------------------------------------------------------------------------------
 
         Coven.Coven.CovenMeetingStartPatch.Postfix();
-        GuessManager.StartMeetingPatch.Postfix(__instance);
+        MeetingManager.StartMeetingPatch.Postfix(__instance);
         ParityCop.StartMeetingPatch.Postfix(__instance);
         Judge.StartMeetingPatch.Postfix(__instance);
         NiceSwapper.StartMeetingPatch.Postfix(__instance);
