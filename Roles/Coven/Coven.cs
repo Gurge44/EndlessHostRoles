@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using HarmonyLib;
 using Hazel;
 
 namespace EHR.Coven;
@@ -42,7 +40,7 @@ public abstract class Coven : RoleBase
         }, 12f, log: false);
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     public static class CovenMeetingStartPatch
     {
         public static int MeetingNum;

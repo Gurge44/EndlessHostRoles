@@ -1041,10 +1041,10 @@ public static class GuessManager
         GuesserMsg(pc, $"/bt {playerId} {roleStr}", true);
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    private static class StartMeetingPatch
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
     {
-        [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        //[SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix(MeetingHud __instance)
         {
             bool restrictions = Options.GuesserNumRestrictions.GetBool();
@@ -1066,7 +1066,7 @@ public static class GuessManager
             if (AmongUsClient.Instance.AmHost)
             {
                 HashSet<byte> guessers = Main.AllPlayerControls.Where(x => CanGuess(x, false)).Select(x => x.PlayerId).ToHashSet();
-                LateTask.New(() => guessers.Do(x => Utils.SendMessage("\n", x, GetString("YouCanGuess"))), 12f, log: false);
+                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString("YouCanGuess"), x, GetString("YouCanGuessTitle"))), 12f, log: false);
             }
         }
 

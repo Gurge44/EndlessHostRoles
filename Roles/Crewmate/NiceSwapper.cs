@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using EHR.Patches;
-using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
@@ -322,8 +321,8 @@ public class NiceSwapper : RoleBase
         }
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    private class StartMeetingPatch
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
     {
         // ReSharper disable once UnusedMember.Local
         public static void Postfix(MeetingHud __instance)

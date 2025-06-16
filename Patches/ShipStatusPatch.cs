@@ -45,7 +45,12 @@ public static class MessageReaderUpdateSystemPatch
         {
             if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3 or SystemTypes.MedBay) return true;
 
-            byte amount = MessageReader.Get(reader).ReadByte();
+            byte amount;
+            {
+                MessageReader newReader = MessageReader.Get(reader);
+                amount = newReader.ReadByte();
+                newReader.Recycle();
+            }
 
             if (EAC.CheckInvalidSabotage(systemType, player, amount))
             {

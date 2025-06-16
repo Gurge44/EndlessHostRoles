@@ -55,8 +55,8 @@ public static class ShowHostMeetingPatch
         __instance.ProceedButton.gameObject.GetComponentInChildren<TextMeshPro>().text = string.Format(Translator.GetString("HostIconInMeeting"), HostName);
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    [HarmonyPostfix]
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    //[HarmonyPostfix]
     public static void Setup_Postfix(MeetingHud __instance)
     {
         if (!GameStates.IsOnlineGame) return;

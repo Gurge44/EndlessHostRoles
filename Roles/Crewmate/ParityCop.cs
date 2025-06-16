@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using EHR.Neutral;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
@@ -207,6 +206,21 @@ public class ParityCop : RoleBase
                         return true;
                     }
 
+                    if (target1.PlayerId == target2.PlayerId)
+                    {
+                        LateTask.New(() =>
+                        {
+                            if (!isUI)
+                                Utils.SendMessage(GetString("ParityCheckSame"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
+                            else
+                                pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckSame")) + "\n" + GetString("ParityCheckTitle"));
+
+                            Logger.Msg("Check attempted on same player", "Parity Cop");
+                        }, 0.2f, "ParityCop 8");
+
+                        return true;
+                    }
+
                     if (target1.GetCustomRole().IsRevealingRole(target1) || target1.GetCustomSubRoles().Any(role => role.IsRevealingRole(target1)) || target2.GetCustomRole().IsRevealingRole(target2) || target2.GetCustomSubRoles().Any(role => role.IsRevealingRole(target2)))
                     {
                         LateTask.New(() =>
@@ -264,7 +278,7 @@ public class ParityCop : RoleBase
                             Utils.SendMessage(textToSend, target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             Utils.SendMessage(textToSend1, target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             Logger.Msg("Check attempt, targets notified", "Parity Cop");
-                        }, 0.2f, "ParityCop");
+                        }, 0.2f, "ParityCop 7");
 
                         if (ParityCheckRevealTargetTeam.GetBool() && pc.AllTasksCompleted())
                         {
@@ -388,11 +402,33 @@ public class ParityCop : RoleBase
         return false;
     }
 
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        byte playerId = reader.ReadByte();
+        byte lpcId = reader.ReadByte();
+        Logger.Msg($"RPC: Comparing ID {playerId}, Inspector ID {lpcId}", "Inspector UI");
+        PickForCompare(playerId, lpcId);
+    }
+
     private static void ParityCopOnClick(byte playerId /*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Inspector UI");
-        PlayerControl pc = Utils.GetPlayerById(playerId);
         byte lpcId = PlayerControl.LocalPlayer.PlayerId;
+
+        if (AmongUsClient.Instance.AmHost)
+            PickForCompare(playerId, lpcId);
+        else
+        {
+            MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ParityCopCommand, SendOption.Reliable, AmongUsClient.Instance.HostId);
+            w.Write(playerId);
+            w.Write(lpcId);
+            AmongUsClient.Instance.FinishRpcImmediately(w);
+        }
+    }
+
+    private static void PickForCompare(byte playerId, byte lpcId)
+    {
+        PlayerControl pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || !AmongUsClient.Instance.AmHost) return;
 
         if (FirstPick.TryGetValue(lpcId, out byte firstPick))
@@ -423,12 +459,12 @@ public class ParityCop : RoleBase
         }
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    private class StartMeetingPatch
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
     {
         public static void Postfix(MeetingHud __instance)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive() && AmongUsClient.Instance.AmHost)
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive())
                 CreateParityCopButton(__instance);
         }
     }

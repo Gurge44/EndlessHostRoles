@@ -1852,6 +1852,9 @@ internal static class FixedUpdatePatch
                 if (Suffix.ToString().Contains(GetString("MoveAndStop_Tutorial")))
                     offset += 0.8f;
 
+                if (Options.LargerRoleTextSize.GetBool())
+                    offset += 0.4f;
+
                 roleText.transform.SetLocalY(offset);
                 target.cosmetics.colorBlindText.transform.SetLocalY(-(offset + 0.2f));
             }

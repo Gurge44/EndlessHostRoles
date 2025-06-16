@@ -253,12 +253,12 @@ internal static class ExtendedPlayerControl
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void RpcResetTasks(this PlayerControl player)
+    public static void RpcResetTasks(this PlayerControl player, bool init = true)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null) return;
 
         player.Data.RpcSetTasks(new Il2CppStructArray<byte>(0));
-        Main.PlayerStates[player.PlayerId].InitTask(player);
+        if (init) Main.PlayerStates[player.PlayerId].InitTask(player);
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)
@@ -1701,21 +1701,8 @@ internal static class ExtendedPlayerControl
         CustomRoles role = player.GetCustomRole();
         if (role is CustomRoles.Crewmate or CustomRoles.Impostor) infoLong = false;
 
-        var text = role.ToString();
-
-        var prefix = string.Empty;
-
-        if (!infoLong)
-        {
-            prefix = role switch
-            {
-                CustomRoles.Mafia => CanMafiaKill() ? "After" : "Before",
-                _ => prefix
-            };
-        }
-
         string info = (role.IsVanilla() ? "Blurb" : "Info") + (infoLong ? "Long" : string.Empty);
-        return GetString($"{prefix}{text}{info}");
+        return GetString($"{role.ToString()}{info}");
     }
 
     public static void SetRealKiller(this PlayerControl target, PlayerControl killer, bool notOverRide = false)

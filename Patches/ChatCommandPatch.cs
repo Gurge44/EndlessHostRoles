@@ -1057,16 +1057,27 @@ internal static class ChatCommands
         if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex) || roles.Count < chosenIndex) return;
 
         CustomRoles role = roles[chosenIndex - 1];
-        string roleStr = role.ToColoredString();
-
+        string coloredString = role.ToColoredString();
+        string roleName = GetString(role.ToString());
         StringBuilder sb = new();
-        var title = $"{roleStr} {Utils.GetRoleMode(role)}";
+        StringBuilder settings = new();
+        var title = $"<{coloredString} {Utils.GetRoleMode(role)}";
         sb.Append(GetString($"{role}InfoLong").TrimStart());
-        string txt = $"<size=90%>{sb}</size>".Replace(role.ToString(), roleStr).Replace(role.ToString().ToLower(), roleStr);
+        if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem chance)) AddSettings(chance);
+        if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
+        string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
         sb.Clear().Append(txt);
         if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
-
+        if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
         Utils.SendMessage(sb.ToString(), player.PlayerId, title);
+        return;
+
+        void AddSettings(StringOptionItem stringOptionItem)
+        {
+            settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.RoleColors[role]}>{roleName}</color>:</u>");
+            Utils.ShowChildrenSettings(stringOptionItem, ref settings, disableColor: false);
+            settings.Append("</size>");
+        }
     }
 
     private static void DraftCommand(PlayerControl player, string text, string[] args)
@@ -3163,15 +3174,15 @@ internal static class ChatCommands
                     if (isUp) return;
                 }
 
+                string coloredString = rl.ToColoredString();
                 StringBuilder sb = new();
-                var title = $"<{Main.RoleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
                 StringBuilder settings = new();
+                var title = $"{coloredString} {Utils.GetRoleMode(rl)}";
                 sb.Append(GetString($"{rl}InfoLong").TrimStart());
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
-
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
 
-                string txt = $"<size=90%>{sb}</size>".Replace(roleName, rl.ToColoredString()).Replace(roleName.ToLower(), rl.ToColoredString());
+                string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
                 sb.Clear().Append(txt);
 
                 if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");

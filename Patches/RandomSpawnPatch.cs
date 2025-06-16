@@ -39,7 +39,6 @@ internal abstract class RandomSpawn
                 if (!HasSpawned.Contains(player.PlayerId))
                 {
                     Vector2 position;
-
                     {
                         MessageReader newReader = MessageReader.Get(reader);
                         position = NetHelpers.ReadVector2(newReader);

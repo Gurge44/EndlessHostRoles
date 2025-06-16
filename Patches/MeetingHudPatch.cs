@@ -1071,6 +1071,18 @@ internal static class MeetingHudStartPatch
                 pva.NameText.text = name;
             }
         }
+
+        // -------------------------------------------------------------------------------------------
+
+        Coven.Coven.CovenMeetingStartPatch.Postfix();
+        GuessManager.StartMeetingPatch.Postfix(__instance);
+        ParityCop.StartMeetingPatch.Postfix(__instance);
+        Judge.StartMeetingPatch.Postfix(__instance);
+        NiceSwapper.StartMeetingPatch.Postfix(__instance);
+        Councillor.StartMeetingPatch.Postfix(__instance);
+        Mafia.StartMeetingPatch.Postfix(__instance);
+        Crowded.MeetingHudStartPatch.Postfix(__instance);
+        ShowHostMeetingPatch.Setup_Postfix(__instance);
     }
 }
 

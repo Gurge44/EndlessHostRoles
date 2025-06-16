@@ -2312,7 +2312,7 @@ public static class Utils
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
         PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
 
-        var sender = CustomRpcSender.Create("NotifyRoles", SendOption);
+        var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
         var hasValue = false;
 
         foreach (PlayerControl seer in seerList)
@@ -2323,7 +2323,7 @@ public static class Utils
             if (sender.stream.Length > 100)
             {
                 sender.SendMessage();
-                sender = CustomRpcSender.Create("NotifyRoles", SendOption);
+                sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
                 hasValue = false;
             }
         }
@@ -3711,13 +3711,6 @@ public static class Utils
         return Regex.Replace(str, "<[^>]*?>", string.Empty);
     }
 
-    public static bool CanMafiaKill()
-    {
-        if (Main.PlayerStates == null) return false;
-
-        return !Main.AllAlivePlayerControls.Select(pc => pc.GetCustomRole()).Any(role => role != CustomRoles.Mafia && role.IsImpostor());
-    }
-
     public static void FlashColor(Color color, float duration = 1f)
     {
         HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
@@ -3945,7 +3938,7 @@ public static class Utils
             CustomGameMode.SoloKombat => 3000f,
             CustomGameMode.CaptureTheFlag => 1500f,
             CustomGameMode.KingOfTheZones => 1500f,
-            _ => 500f
+            _ => 1000f
         };
 
         float minTime = Mathf.Max(0.5f, AmongUsClient.Instance.Ping / divice * 6f);

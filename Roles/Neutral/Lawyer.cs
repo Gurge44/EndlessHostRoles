@@ -132,19 +132,13 @@ public class Lawyer : RoleBase
 
     public static void ChangeRoleByTarget(PlayerControl target)
     {
-        byte Lawyer = 0x73;
-
-        Target.Do(x =>
-        {
-            if (x.Value == target.PlayerId) Lawyer = x.Key;
-        });
-
-        PlayerControl lawyer = Utils.GetPlayerById(Lawyer);
+        byte lawyerId = Target.GetKeyByValue(target.PlayerId);
+        PlayerControl lawyer = Utils.GetPlayerById(lawyerId);
         CustomRoles newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
         lawyer.RpcChangeRoleBasis(newRole);
         lawyer.RpcSetCustomRole(newRole);
-        Target.Remove(Lawyer);
-        SendRPC(Lawyer);
+        Target.Remove(lawyerId);
+        SendRPC(lawyerId);
         lawyer.Notify(Translator.GetString("LawyerChangeRole"));
         Utils.NotifyRoles(SpecifySeer: lawyer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: lawyer);

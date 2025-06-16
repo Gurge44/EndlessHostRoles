@@ -319,7 +319,7 @@ internal static class Crowded
         }
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     public static class MeetingHudStartPatch
     {
         public static void Postfix(MeetingHud __instance)

@@ -18,6 +18,7 @@ public class Glitch : RoleBase
     public static OptionItem MimicDuration;
     public static OptionItem CanVent;
     public static OptionItem CanVote;
+    public static OptionItem CanSabotage;
     private static OptionItem HasImpostorVision;
 
     private byte GlitchId;
@@ -58,6 +59,9 @@ public class Glitch : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]);
 
         CanVote = new BooleanOptionItem(Id + 17, "CanVote", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]);
+
+        CanSabotage = new BooleanOptionItem(Id + 18, "CanSabotage", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]);
 
         HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles)
@@ -104,7 +108,7 @@ public class Glitch : RoleBase
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return pc.IsAlive() && CanSabotage.GetBool();
     }
 
     private void SendRPCSyncTimers()

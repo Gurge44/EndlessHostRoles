@@ -290,10 +290,11 @@ public static class ChatManager
 
         void SendEmptyMessage(PlayerControl receiver)
         {
-            bool toLocalPlayer = receiver.IsLocalPlayer();
-            if (toLocalPlayer || receiver == null) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
+            bool toEveryone = receiver == null;
+            bool toLocalPlayer = !toEveryone && receiver.IsLocalPlayer();
+            if (toLocalPlayer || toEveryone) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
             if (toLocalPlayer) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, receiver.OwnerId);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);
             writer.Write("<size=32767>.");
             writer.Write(true);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

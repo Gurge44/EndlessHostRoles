@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
@@ -51,7 +50,7 @@ internal class Mafia : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return Utils.CanMafiaKill();
+        return pc.IsAlive();
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -148,7 +147,7 @@ internal class Mafia : RoleBase
 
         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} revenged {target.GetNameWithRole().RemoveHtmlTags()}", "Mafia");
 
-        string Name = target.GetRealName();
+        string name = target.GetRealName();
 
         MafiaRevenged[pc.PlayerId]++;
 
@@ -170,7 +169,7 @@ internal class Mafia : RoleBase
                 Main.PlayerStates[target.PlayerId].SetDead();
             }
 
-            LateTask.New(() => { Utils.SendMessage(string.Format(GetString("MafiaKillSucceed"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mafia), GetString("MafiaRevengeTitle"))); }, 0.6f, "Mafia Kill");
+            LateTask.New(() => { Utils.SendMessage(string.Format(GetString("MafiaKillSucceed"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mafia), GetString("MafiaRevengeTitle"))); }, 0.6f, "Mafia Kill");
         }, 0.2f, "Mafia Kill");
 
         return true;
@@ -185,8 +184,8 @@ internal class Mafia : RoleBase
 
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
-        int PlayerId = reader.ReadByte();
-        MafiaMsgCheck(pc, $"/rv {PlayerId}", true);
+        int playerId = reader.ReadByte();
+        MafiaMsgCheck(pc, $"/rv {playerId}", true);
     }
 
     private static void MafiaOnClick(byte playerId /*, MeetingHud __instance*/)
@@ -220,8 +219,8 @@ internal class Mafia : RoleBase
         }
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    private class StartMeetingPatch
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
     {
         public static void Postfix(MeetingHud __instance)
         {

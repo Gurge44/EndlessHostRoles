@@ -688,12 +688,15 @@ internal static class GameEndChecker
                 {
                     if (aliveCounts[0] != roleCounts.Values.Max()) Logger.Warn("There is something wrong here.", "CheckGameEndPatch");
 
-                    foreach (KeyValuePair<(CustomRoles? Role, CustomWinner Winner), int> keyValuePair in roleCounts.Where(keyValuePair => keyValuePair.Value == aliveCounts[0]))
+                    foreach (KeyValuePair<(CustomRoles? Role, CustomWinner Winner), int> keyValuePair in roleCounts)
                     {
-                        reason = GameOverReason.ImpostorsByKill;
-                        winner = keyValuePair.Key.Winner;
-                        rl = keyValuePair.Key.Role;
-                        break;
+                        if (keyValuePair.Value == aliveCounts[0])
+                        {
+                            reason = GameOverReason.ImpostorsByKill;
+                            winner = keyValuePair.Key.Winner;
+                            rl = keyValuePair.Key.Role;
+                            break;
+                        }
                     }
 
                     break;
@@ -706,7 +709,13 @@ internal static class GameEndChecker
             }
 
             if (winner != null) ResetAndSetWinner((CustomWinner)winner);
-            if (rl != null) WinnerRoles.Add((CustomRoles)rl);
+
+            if (rl != null)
+            {
+                WinnerRoles.Add((CustomRoles)rl);
+                WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.GetCustomRole() == rl).Select(x => x.PlayerId));
+            }
+
             return true;
         }
     }

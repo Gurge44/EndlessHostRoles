@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -312,8 +311,8 @@ public class Judge : RoleBase
         }
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    private class StartMeetingPatch
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
     {
         public static void Postfix(MeetingHud __instance)
         {

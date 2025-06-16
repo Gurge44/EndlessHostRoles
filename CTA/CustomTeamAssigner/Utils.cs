@@ -15,7 +15,7 @@ using System.Windows.Media;
 
 namespace CustomTeamAssigner
 {
-    internal static class Utils
+    internal static partial class Utils
     {
         public static readonly HashSet<Team> Teams = [];
 
@@ -36,7 +36,6 @@ namespace CustomTeamAssigner
             { CustomRoles.Assassin, "Ninja" },
             { CustomRoles.ImperiusCurse, "Soul Catcher" },
             { CustomRoles.BoobyTrap, "Trapster" },
-            { CustomRoles.CyberStar, "Celebrity" },
             { CustomRoles.Bloodhound, "Coroner" },
             { CustomRoles.Divinator, "Fortune Teller" },
             { CustomRoles.ParityCop, "Inspector" },
@@ -72,7 +71,7 @@ namespace CustomTeamAssigner
             }
         }
         
-        public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", string.Empty);
+        public static string RemoveHtmlTags(this string str) => MyRegex().Replace(str, string.Empty);
 
         public static void Do<T>(this IEnumerable<T> enumerable, Action<T> action)
         {
@@ -126,9 +125,11 @@ namespace CustomTeamAssigner
 
         public static CustomRoles GetCustomRole(this string roleName)
         {
-            if (roleName == "Guess Manager") return CustomRoles.GuessManagerRole;
             var role = RoleNames.FirstOrDefault(x => x.Value == roleName).Key;
             return role != default ? role : Enum.Parse<CustomRoles>(roleName.Replace(" ", string.Empty), true);
         }
+
+        [GeneratedRegex("<[^>]*?>")]
+        private static partial Regex MyRegex();
     }
 }

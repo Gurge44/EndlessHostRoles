@@ -24,7 +24,8 @@ public static class ReactorSystemTypePatch
         // When the sabotage ends
         if (!__instance.IsActive || !SetDurationForReactorSabotage)
         {
-            if (!SetDurationForReactorSabotage && !__instance.IsActive) SetDurationForReactorSabotage = true;
+            if (!SetDurationForReactorSabotage && !__instance.IsActive)
+                SetDurationForReactorSabotage = true;
 
             return;
         }
@@ -67,7 +68,8 @@ public static class HeliSabotageSystemPatch
         // When the sabotage ends
         if (!__instance.IsActive || ShipStatus.Instance == null || !SetDurationForReactorSabotage)
         {
-            if (!SetDurationForReactorSabotage && !__instance.IsActive) SetDurationForReactorSabotage = true;
+            if (!SetDurationForReactorSabotage && !__instance.IsActive)
+                SetDurationForReactorSabotage = true;
 
             return;
         }
@@ -94,7 +96,8 @@ public static class LifeSuppSystemTypePatch
         // When the sabotage ends
         if (!__instance.IsActive || !SetDurationForO2Sabotage)
         {
-            if (!SetDurationForO2Sabotage && !__instance.IsActive) SetDurationForO2Sabotage = true;
+            if (!SetDurationForO2Sabotage && !__instance.IsActive)
+                SetDurationForO2Sabotage = true;
 
             return;
         }
@@ -148,7 +151,7 @@ public static class MushroomMixupSabotageSystemPatch
 
         ReportDeadBodyPatch.CanReport.SetAllValues(false);
         Logger.Info("Disable Reporting", "MushroomMixupSabotageSystem");
-        LateTask.New(() => ReportDeadBodyPatch.CanReport.SetAllValues(true), Options.SabotageTimeControl.GetBool() ? Options.FungleMushroomMixupDuration.GetFloat() : 10f, "Enable Reporting After Mushroom Mixup");
+        LateTask.New(() => ReportDeadBodyPatch.CanReport.SetAllValues(true), (Options.SabotageTimeControl.GetBool() ? Options.FungleMushroomMixupDuration.GetFloat() : 10f) + 1.5f, "Enable Reporting After Mushroom Mixup");
 
         if (!Options.SabotageTimeControl.GetBool()) return;
 
@@ -197,7 +200,6 @@ internal static class SwitchSystemUpdatePatch
     private static bool Prefix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
         byte amount;
-
         {
             MessageReader newReader = MessageReader.Get(msgReader);
             amount = newReader.ReadByte();
@@ -432,7 +434,6 @@ public static class SecurityCameraPatch
     public static bool Prefix([HarmonyArgument(1)] MessageReader msgReader)
     {
         byte amount;
-
         {
             MessageReader newReader = MessageReader.Get(msgReader);
             amount = newReader.ReadByte();

@@ -12,14 +12,15 @@ public class Postman : RoleBase
     public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
-    public static OptionItem CanVent;
+    private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     private static OptionItem DieWhenTargetDies;
-    public bool IsFinished;
+    private static OptionItem HasArrowsToTargets;
 
+    public bool IsFinished;
     private byte PostmanId;
     public byte Target;
-    private List<byte> wereTargets = [];
+    private List<byte> WereTargets = [];
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -27,12 +28,21 @@ public class Postman : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Postman);
 
-        KillCooldown = new FloatOptionItem(Id + 10, "DeliverCooldown", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Postman])
+        KillCooldown = new FloatOptionItem(Id + 10, "DeliverCooldown", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Postman])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CanVent = new BooleanOptionItem(Id + 11, "CanVent", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
-        HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
-        DieWhenTargetDies = new BooleanOptionItem(Id + 12, "PostmanDiesWhenTargetDies", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
+        CanVent = new BooleanOptionItem(Id + 11, "CanVent", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
+
+        HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
+
+        DieWhenTargetDies = new BooleanOptionItem(Id + 12, "PostmanDiesWhenTargetDies", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
+
+        HasArrowsToTargets = new BooleanOptionItem(Id + 14, "PostmanHasArrowsToTargets", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
     }
 
     public override void Init()
@@ -40,7 +50,7 @@ public class Postman : RoleBase
         PlayerIdList = [];
         Target = byte.MaxValue;
         IsFinished = false;
-        wereTargets = [];
+        WereTargets = [];
     }
 
     public override void Add(byte playerId)
@@ -51,7 +61,7 @@ public class Postman : RoleBase
 
         Target = byte.MaxValue;
         IsFinished = false;
-        wereTargets = [];
+        WereTargets = [];
     }
 
     public override void Remove(byte playerId)
@@ -105,11 +115,13 @@ public class Postman : RoleBase
     {
         if (!IsEnable) return;
 
+        TargetArrow.RemoveAllTarget(PostmanId);
+
         var tempTarget = byte.MaxValue;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (wereTargets.Contains(pc.PlayerId) || pc.Is(CustomRoles.Postman)) continue;
+            if (WereTargets.Contains(pc.PlayerId) || pc.Is(CustomRoles.Postman)) continue;
 
             tempTarget = pc.PlayerId;
             break;
@@ -124,8 +136,11 @@ public class Postman : RoleBase
         }
 
         Target = tempTarget;
-        wereTargets.Add(Target);
+        WereTargets.Add(Target);
         SendRPC();
+
+        if (HasArrowsToTargets.GetBool())
+            TargetArrow.Add(PostmanId, Target);
     }
 
     private void SendRPC()
@@ -136,11 +151,8 @@ public class Postman : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsEnable) return false;
-
         if (killer == null) return false;
-
         if (target == null) return false;
-
         if (IsFinished) return false;
 
         if (Target == byte.MaxValue)
@@ -167,7 +179,6 @@ public class Postman : RoleBase
 
         var sb = new StringBuilder();
 
-        sb.Append("\r\n\r\n");
         sb.AppendLine(baseText);
         sb.Append(!IsFinished ? string.Format(GetString("PostmanGetNewTarget"), Utils.GetPlayerById(Target).GetRealName()) : GetString("PostmanDone"));
 
@@ -177,16 +188,13 @@ public class Postman : RoleBase
     private static string GetHudText(PlayerControl pc)
     {
         if (Main.PlayerStates[pc.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
-
         return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : GetString("PostmanDone");
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (hud) return GetHudText(seer);
-
         if (seer.IsModdedClient() || seer.PlayerId != target.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
-
         return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : "<color=#00ff00>✓</color>";
     }
 

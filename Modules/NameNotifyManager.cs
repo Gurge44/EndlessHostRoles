@@ -30,7 +30,7 @@ public static class NameNotifyManager
         else
             notifies[text] = expireTS;
 
-        SendRPC(pc.PlayerId, text, expireTS, overrideAll);
+        if (pc.IsNonHostModdedClient()) SendRPC(pc.PlayerId, text, expireTS, overrideAll);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
     }
