@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Modules;
 
 namespace EHR.AddOns.GhostRoles;
 
@@ -16,11 +17,13 @@ internal class Minion : IGhostRole
     {
         if (!BlindPlayers.Add(target.PlayerId)) return;
 
+        target.RPCPlayCustomSound("FlashBang");
         target.MarkDirtySettings();
 
         LateTask.New(() =>
         {
             if (BlindPlayers.Remove(target.PlayerId)) target.MarkDirtySettings();
+            RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
         }, BlindDuration.GetFloat(), "Remove Minion Blindness");
     }
 
