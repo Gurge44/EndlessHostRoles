@@ -3220,7 +3220,7 @@
   "PVP.ATK": "Атака",
   "PVP.DF": "Защита",
   "PVP.RCO": "Восстановление",
-  "Loading": "<b><color=#ffff00>Загрузка....</color></b>\\n<size=2>Это может занять минуту.</size>",
+  "Loading": "<b><color=#ffff00>Загрузка....</color></b>\\n<size=2>Это может занять пару секунд...</size>",
   "LoadingWithPercentage": "<b><color=#ffff00>{0}%</color></b>\\n<size=2>{1}</size>\\n<size=1>{2}</size>",
   "LoadingBarText.1": "Настраиваем игру...",
   "LoadingBarText.2": "{0}/{1} Пользователей готовы ({2})",
