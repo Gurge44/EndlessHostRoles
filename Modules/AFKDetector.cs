@@ -31,7 +31,7 @@ public static class AFKDetector
             .SetParent(EnableDetector)
             .SetColor(new Color32(0, 255, 165, 255));
 
-        MinPlayersToActivate = new IntegerOptionItem(92, "AFKMinPlayersToActivate", new(3, 15, 1), 7, TabGroup.GameSettings)
+        MinPlayersToActivate = new IntegerOptionItem(92, "AFKMinPlayersToActivate", new(1, 15, 1), 1, TabGroup.GameSettings)
             .SetParent(EnableDetector)
             .SetColor(new Color32(0, 255, 165, 255));
 
@@ -45,7 +45,6 @@ public static class AFKDetector
         if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId)) return;
 
         var waitingTime = 10f;
-        if (MeetingStates.FirstMeeting) waitingTime += 5f;
         if (!pc.IsAlive()) waitingTime += 5f;
         if (pc.Is(CustomRoles.Truant) && !MeetingStates.FirstMeeting) waitingTime += Options.TruantWaitingTime.GetFloat();
 
@@ -96,7 +95,7 @@ public static class AFKDetector
                 case Data.Phase.Detection:
                     data.CurrentPhase = Data.Phase.Warning;
                     data.Timer = 15f;
-                    if (pc.IsAlive()) pc.FixBlackScreen();
+                    if (pc.IsAlive() && !MeetingStates.FirstMeeting) pc.FixBlackScreen();
                     break;
                 case Data.Phase.Warning:
                     data.CurrentPhase = Data.Phase.Consequence;
