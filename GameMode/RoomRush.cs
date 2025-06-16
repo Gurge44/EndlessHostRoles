@@ -30,7 +30,7 @@ public static class RoomRush
 
     private static HashSet<SystemTypes> AllRooms = [];
     private static SystemTypes RoomGoal;
-    private static int TimeLeft;
+    private static long TimeLimitEndTS;
     private static HashSet<byte> DonePlayers = [];
 
     private static long RoundStartTS;
@@ -378,13 +378,14 @@ public static class RoomRush
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
                 break;
-            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
+            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens and not SystemTypes.Office) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
                 time -= (int)(5 * speed);
                 break;
         }
 
-        TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6);
-        Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "RoomRush");
+        time = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6);
+        TimeLimitEndTS = Utils.TimeStamp + time;
+        Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {time}  ({map})", "RoomRush");
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
@@ -420,7 +421,8 @@ public static class RoomRush
     {
         if (!GameGoing || Main.HasJustStarted || seer == null) return string.Empty;
 
-        if (seer.IsHost() && RoundStartTS == Utils.TimeStamp) return "....";
+        long now = Utils.TimeStamp;
+        if (seer.IsHost() && RoundStartTS == now) return "....";
 
         StringBuilder sb = new();
         bool dead = !seer.IsAlive();
@@ -431,7 +433,7 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) sb.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer)) + "\n");
 
         color = done ? Color.white : Color.yellow;
-        sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
+        sb.Append(Utils.ColorString(color, (TimeLimitEndTS - now).ToString()) + "\n");
 
         if (WinByPointsInsteadOfDeaths.GetBool() && Points.TryGetValue(seer.PlayerId, out int points))
         {
@@ -523,12 +525,13 @@ public static class RoomRush
                     if (WinByPointsInsteadOfDeaths.GetBool())
                         Points[pc.PlayerId] += aapc.Length == 1 ? 1 : aapc.Length - DonePlayers.Count;
 
-                    int timeLeft = TimeWhenFirstTwoPlayersEnterRoom.GetInt();
+                    int setTo = TimeWhenFirstTwoPlayersEnterRoom.GetInt();
+                    long remaining = TimeLimitEndTS - now;
 
-                    if (DonePlayers.Count == 2 && timeLeft < TimeLeft && !DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool())
+                    if (DonePlayers.Count == 2 && setTo < remaining && !DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom.GetBool())
                     {
-                        Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
-                        TimeLeft = timeLeft;
+                        Logger.Info($"Two players entered the correct room, setting the timer to {setTo}", "RoomRush");
+                        TimeLimitEndTS = now + setTo;
                         LastUpdate = now;
 
                         if (aapc.Length == 2 && pc.IsLocalPlayer())
@@ -552,38 +555,37 @@ public static class RoomRush
                     Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count;
             }
 
-            if (LastUpdate == now) return;
-            LastUpdate = now;
-
-            TimeLeft--;
-            Utils.NotifyRoles();
-
-            if (TimeLeft <= 0)
+            if (LastUpdate != now)
             {
-                Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
-                PlayerControl[] lateAapc = Main.AllAlivePlayerControls;
-                PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
-
-                if (WinByPointsInsteadOfDeaths.GetBool())
-                {
-                    if (playersOutsideRoom.Length == lateAapc.Length)
-                    {
-                        Vector2 roomPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
-                        playersOutsideRoom.Do(x => x.TP(roomPos));
-                    }
-                    else playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
-                }
-                else
-                {
-                    if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                    playersOutsideRoom.Do(x => x.Suicide());
-                }
-
-                StartNewRound();
-
-                if (playersOutsideRoom.Any(x => x.IsLocalPlayer()))
-                    Achievements.Type.OutOfTime.Complete();
+                Utils.NotifyRoles();
+                LastUpdate = now;
             }
+
+            if (TimeLimitEndTS > now) return;
+
+            Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
+            PlayerControl[] lateAapc = Main.AllAlivePlayerControls;
+            PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
+
+            if (WinByPointsInsteadOfDeaths.GetBool())
+            {
+                if (playersOutsideRoom.Length == lateAapc.Length)
+                {
+                    Vector2 roomPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
+                    playersOutsideRoom.Do(x => x.TP(roomPos));
+                }
+                else playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
+            }
+            else
+            {
+                if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                playersOutsideRoom.Do(x => x.Suicide());
+            }
+
+            StartNewRound();
+
+            if (playersOutsideRoom.Any(x => x.IsLocalPlayer()))
+                Achievements.Type.OutOfTime.Complete();
         }
     }
 }

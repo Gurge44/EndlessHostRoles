@@ -47,7 +47,7 @@ internal class Convener : RoleBase
         if (Options.UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = CD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override void OnPet(PlayerControl pc)

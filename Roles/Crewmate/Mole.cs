@@ -35,7 +35,7 @@ internal class Mole : RoleBase
     {
         if (UsePets.GetBool()) return;
 
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
         AURoleOptions.EngineerCooldown = CD.GetFloat();
     }
 

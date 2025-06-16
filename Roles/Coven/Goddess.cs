@@ -64,7 +64,7 @@ public class Goddess : Coven
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.PhantomCooldown = AbilityCooldown.GetFloat();
-        AURoleOptions.PhantomDuration = 1f;
+        AURoleOptions.PhantomDuration = 0.1f;
     }
 
     public override void OnReportDeadBody()

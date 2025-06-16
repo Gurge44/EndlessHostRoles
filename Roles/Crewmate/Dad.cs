@@ -182,8 +182,8 @@ public class Dad : RoleBase
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.5f);
         }
 
-        AURoleOptions.EngineerCooldown = 1f;
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerCooldown = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override void OnReportDeadBody()

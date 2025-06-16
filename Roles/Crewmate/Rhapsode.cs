@@ -80,7 +80,7 @@ public class Rhapsode : RoleBase
         if (Options.UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetInt();
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

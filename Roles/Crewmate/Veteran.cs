@@ -54,7 +54,7 @@ internal class Veteran : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = VeteranSkillCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 1;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override string GetProgressText(byte playerId, bool comms)

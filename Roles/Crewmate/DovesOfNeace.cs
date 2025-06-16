@@ -49,7 +49,7 @@ internal class DovesOfNeace : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = DovesOfNeaceCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

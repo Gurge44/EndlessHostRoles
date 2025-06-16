@@ -44,8 +44,8 @@ public class Magistrate : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (AbilityTrigger != AbilityTriggers.Vent) return;
-        AURoleOptions.EngineerCooldown = 1f;
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerCooldown = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

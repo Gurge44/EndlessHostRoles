@@ -66,7 +66,7 @@ internal class TimeMaster : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = TimeMasterSkillCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

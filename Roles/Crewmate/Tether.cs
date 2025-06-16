@@ -110,7 +110,7 @@ public class Tether : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override bool OnVote(PlayerControl pc, PlayerControl target)

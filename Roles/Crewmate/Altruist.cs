@@ -56,8 +56,8 @@ public class Altruist : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        AURoleOptions.EngineerCooldown = 1f;
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerCooldown = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)

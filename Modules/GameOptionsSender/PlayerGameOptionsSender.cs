@@ -471,7 +471,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             }
 
             if ((Options.UsePhantomBasis.GetBool() || role.AlwaysUsesPhantomBase()) && role.SimpleAbilityTrigger())
-                AURoleOptions.PhantomDuration = 1f;
+                AURoleOptions.PhantomDuration = 0.1f;
 
             // ===================================================================================================================
 

@@ -85,7 +85,7 @@ public class Catcher : RoleBase
         if (Options.UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     private void PlaceTrap(PlayerControl pc)

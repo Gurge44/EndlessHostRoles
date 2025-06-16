@@ -81,7 +81,7 @@ public static class FixedUpdateCaller
                 NonLowLoadPlayerIndex++;
 
                 if (NonLowLoadPlayerIndex >= PlayerControl.AllPlayerControls.Count)
-                    NonLowLoadPlayerIndex = 0;
+                    NonLowLoadPlayerIndex = Math.Min(0, -(30 - PlayerControl.AllPlayerControls.Count));
 
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
 
@@ -91,7 +91,7 @@ public static class FixedUpdateCaller
                     {
                         PlayerControl pc = PlayerControl.AllPlayerControls[index];
 
-                        if (pc.PlayerId >= 254) continue;
+                        if (!pc || pc.PlayerId >= 254) continue;
 
                         FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerIndex != index);
 

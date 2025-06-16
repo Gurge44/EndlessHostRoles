@@ -40,8 +40,8 @@ public class Clairvoyant : RoleBase
     {
         if (Options.UsePets.GetBool()) return;
 
-        AURoleOptions.EngineerCooldown = 1f;
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerCooldown = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     private static void UseAbility(PlayerControl pc)

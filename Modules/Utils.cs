@@ -2306,39 +2306,43 @@ public static class Utils
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static void NotifyRoles(bool ForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false, SendOption SendOption = SendOption.Reliable)
     {
-        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
-
-        PlayerControl[] apc = Main.AllPlayerControls;
-        PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
-        PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
-
-        var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
-        var hasValue = false;
-
-        foreach (PlayerControl seer in seerList)
+        try
         {
-            hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared, SendOption);
-            if (senderWasCleared) hasValue = false;
+            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
-            if (sender.stream.Length > 100)
+            PlayerControl[] apc = Main.AllPlayerControls;
+            PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
+            PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
+
+            var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
+            var hasValue = false;
+
+            foreach (PlayerControl seer in seerList)
             {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
-                hasValue = false;
+                hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared, SendOption);
+                if (senderWasCleared) hasValue = false;
+
+                if (sender.stream.Length > 200)
+                {
+                    sender.SendMessage();
+                    sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
+                    hasValue = false;
+                }
             }
+
+            sender.SendMessage(!hasValue || sender.stream.Length <= 3);
+
+            if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+
+            string seers = seerList.Length == apc.Length ? "Everyone" : string.Join(", ", seerList.Select(x => x.GetRealName()));
+            string targets = targetList.Length == apc.Length ? "Everyone" : string.Join(", ", targetList.Select(x => x.GetRealName()));
+
+            if (seers.Length == 0) seers = "\u2205";
+            if (targets.Length == 0) targets = "\u2205";
+
+            Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
         }
-
-        sender.SendMessage(dispose: !hasValue || sender.stream.Length <= 3);
-
-        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
-
-        string seers = seerList.Length == apc.Length ? "Everyone" : string.Join(", ", seerList.Select(x => x.GetRealName()));
-        string targets = targetList.Length == apc.Length ? "Everyone" : string.Join(", ", targetList.Select(x => x.GetRealName()));
-
-        if (seers.Length == 0) seers = "\u2205";
-        if (targets.Length == 0) targets = "\u2205";
-
-        Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static bool WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, PlayerControl[] seerList, PlayerControl[] targetList, out bool senderWasCleared, SendOption sendOption = SendOption.Reliable)

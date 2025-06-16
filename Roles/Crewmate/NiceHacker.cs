@@ -86,7 +86,7 @@ public class NiceHacker : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = AbilityCD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public static void SendRPC(byte playerId, float secondsLeft)

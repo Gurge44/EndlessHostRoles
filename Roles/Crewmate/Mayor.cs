@@ -43,7 +43,7 @@ internal class Mayor : RoleBase
                 ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
                 : 300f;
 
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.1f;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

@@ -42,6 +42,12 @@ public class Weatherman : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetVision(ImpostorVision.GetBool());
+
+        if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+        {
+            AURoleOptions.PhantomCooldown = AbilityCooldown.GetFloat();
+            AURoleOptions.PhantomDuration = 0.1f;
+        }
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -57,6 +63,12 @@ public class Weatherman : RoleBase
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting) SpawnRandomDisaster(shapeshifter);
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        SpawnRandomDisaster(pc);
         return false;
     }
 
@@ -81,5 +93,10 @@ public class Weatherman : RoleBase
     public override void OnReportDeadBody()
     {
         NaturalDisasters.BuildingCollapse.CollapsedRooms.Clear();
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        NaturalDisasters.Sinkhole.RemoveRandomSinkhole();
     }
 }
