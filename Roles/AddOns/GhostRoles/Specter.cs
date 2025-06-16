@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.AddOns.GhostRoles;
 
@@ -51,6 +52,7 @@ internal class Specter : IGhostRole
             return;
         }
 
+        pc.RPCPlayCustomSound("Congrats");
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Specter);
         CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
     }
