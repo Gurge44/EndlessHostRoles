@@ -3145,8 +3145,6 @@
   "FarseerKillButtonText": "Раскрыть",
   "PoisonerKillButtonText": "Отравить",
   "SentryPetButtonText": "Сенсор",
-  "SabotageActiveIndicator": "▶",
-  "SabotageDisabledIndicator": "⊘",
   "DisabledBySettings": "Выключено настройками",
   "Disabled": "Выключено",
   "FailToTrack": "Не удалось отследить",
