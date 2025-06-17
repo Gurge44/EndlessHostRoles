@@ -3145,8 +3145,6 @@
   "FarseerKillButtonText": "公開",
   "PoisonerKillButtonText": "毒",
   "SentryPetButtonText": "監視",
-  "SabotageActiveIndicator": "▶",
-  "SabotageDisabledIndicator": "⊘",
   "DisabledBySettings": "設定によって無効化されている",
   "Disabled": "無効化",
   "FailToTrack": "追跡に失敗した",
