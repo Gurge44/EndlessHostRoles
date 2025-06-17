@@ -646,7 +646,7 @@ internal static class MapBehaviourShowPatch
     }
 }
 
-[HarmonyPatch(typeof(InfectedOverlay), nameof(InfectedOverlay.Update))]
+[HarmonyPatch(typeof(InfectedOverlay), nameof(InfectedOverlay.FixedUpdate))]
 internal static class SabotageMapPatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> TimerTexts = [];
@@ -665,41 +665,136 @@ internal static class SabotageMapPatch
 
             SystemTypes room = mr.room;
 
-            if (!TimerTexts.ContainsKey(room))
+            if (!TimerTexts.TryGetValue(room, out TextMeshPro timerText))
             {
-                TimerTexts[room] = Object.Instantiate(HudManager.Instance.KillButton.cooldownTimerText, mr.special.transform, true);
-                TimerTexts[room].alignment = TextAlignmentOptions.Center;
-                TimerTexts[room].transform.localPosition = mr.special.transform.localPosition;
-                TimerTexts[room].transform.localPosition = new(0, -0.4f, 0f);
-                TimerTexts[room].overflowMode = TextOverflowModes.Overflow;
-                TimerTexts[room].enableWordWrapping = false;
-                TimerTexts[room].color = Color.white;
-                TimerTexts[room].fontSize = TimerTexts[room].fontSizeMax = TimerTexts[room].fontSizeMin = 2.5f;
-                TimerTexts[room].sortingOrder = 100;
+                TimerTexts[room] = timerText = Object.Instantiate(HudManager.Instance.KillButton.cooldownTimerText, mr.special.transform, true);
+                timerText.alignment = TextAlignmentOptions.Center;
+                timerText.transform.localPosition = mr.special.transform.localPosition;
+                timerText.transform.localPosition = new(0, -0.4f, 0f);
+                timerText.overflowMode = TextOverflowModes.Overflow;
+                timerText.enableWordWrapping = false;
+                timerText.color = Color.white;
+                timerText.fontSize = timerText.fontSizeMax = timerText.fontSizeMin = 2.5f;
+                timerText.sortingOrder = 100;
             }
 
             bool isActive = Utils.IsActive(room);
             bool isOtherActive = TimerTexts.Keys.Any(Utils.IsActive);
             bool doorBlock = __instance.DoorsPreventingSabotage;
-            TimerTexts[room].text = $"<b><#ff{(isActive || isOtherActive || doorBlock ? "00" : "ff")}00>{(!isActive && !isOtherActive && !doorBlock ? remaining : GetString(isActive && !doorBlock ? "SabotageActiveIndicator" : "SabotageDisabledIndicator"))}</color></b>";
-            TimerTexts[room].enabled = remaining > 0 || isActive || isOtherActive || doorBlock;
+            timerText.text = $"<b><#ff{(isActive || isOtherActive || doorBlock ? "00" : "ff")}00>{(!isActive && !isOtherActive && !doorBlock ? remaining : isActive && !doorBlock ? "▶" : "⊘")}</color></b>";
+            timerText.enabled = remaining > 0 || isActive || isOtherActive || doorBlock;
         }
+    }
+}
+
+[HarmonyPatch(typeof(MapRoom), nameof(MapRoom.DoorsUpdate))]
+internal static class MapRoomDoorsUpdatePatch
+{
+    public static Dictionary<SystemTypes, TextMeshPro> DoorTimerTexts = [];
+    private static readonly int Percent = Shader.PropertyToID("_Percent");
+
+    public static bool Prefix(MapRoom __instance)
+    {
+        if (!__instance.door || !ShipStatus.Instance) return false;
+
+        SystemTypes room = __instance.room;
+
+        float total;
+        float timer;
+
+        ISystemType system = ShipStatus.Instance.Systems[SystemTypes.Doors];
+        var doorsSystemType = system.TryCast<DoorsSystemType>();
+        var autoDoorsSystemType = system.TryCast<AutoDoorsSystemType>();
+
+        if (doorsSystemType != null)
+        {
+            if (doorsSystemType.initialCooldown > 0f)
+            {
+                total = 10f;
+                timer = doorsSystemType.initialCooldown;
+                goto Skip;
+            }
+
+            total = 30f;
+            timer = doorsSystemType.timers.TryGetValue(room, out float num) ? num : 0f;
+            goto Skip;
+        }
+
+        if (autoDoorsSystemType != null)
+        {
+            if (autoDoorsSystemType.initialCooldown > 0.0)
+            {
+                total = 10f;
+                timer = autoDoorsSystemType.initialCooldown;
+                goto Skip;
+            }
+
+            foreach (OpenableDoor door in ShipStatus.Instance.AllDoors)
+            {
+                if (door.Room == room)
+                {
+                    var autoOpenDoor = door.TryCast<AutoOpenDoor>();
+
+                    if (autoOpenDoor != null)
+                    {
+                        total = 30f;
+                        timer = autoOpenDoor.CooldownTimer;
+                        goto Skip;
+                    }
+                }
+            }
+        }
+
+        total = 0f;
+        timer = 0f;
+
+        Skip:
+
+        __instance.door.material.SetFloat(Percent, __instance.Parent.CanUseDoors ? timer / total : 1f);
+
+        if (!DoorTimerTexts.TryGetValue(room, out TextMeshPro doorTimerText))
+        {
+            DoorTimerTexts[room] = doorTimerText = Object.Instantiate(HudManager.Instance.KillButton.cooldownTimerText, __instance.door.transform, true);
+            doorTimerText.alignment = TextAlignmentOptions.Center;
+            doorTimerText.transform.localPosition = __instance.door.transform.localPosition;
+            doorTimerText.transform.localPosition = new(0, -0.4f, 0f);
+            doorTimerText.overflowMode = TextOverflowModes.Overflow;
+            doorTimerText.enableWordWrapping = false;
+            doorTimerText.color = Color.white;
+            doorTimerText.fontSize = doorTimerText.fontSizeMax = doorTimerText.fontSizeMin = 2.5f;
+            doorTimerText.sortingOrder = 100;
+        }
+
+        var remaining = (int)Math.Ceiling(timer);
+        bool canUseDoors = __instance.Parent.CanUseDoors;
+        doorTimerText.text = $"<b><#ff{(!canUseDoors ? "00" : "a5")}00a5>{(canUseDoors ? remaining : "⊘")}</color></b>";
+        doorTimerText.enabled = remaining > 0 || !canUseDoors;
+
+        return false;
+    }
+}
+
+[HarmonyPatch(typeof(ImpostorRole), nameof(ImpostorRole.SpawnTaskHeader))]
+internal static class SpawnTaskHeaderPatch
+{
+    public static bool Prefix()
+    {
+        return !GameStates.InGame;
     }
 }
 
 [HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]
 internal static class TaskPanelBehaviourPatch
 {
-    public static void Postfix(TaskPanelBehaviour __instance)
+    public static void Postfix(TaskPanelBehaviour __instance, [HarmonyArgument(0)] string taskList)
     {
         PlayerControl player = PlayerControl.LocalPlayer;
 
-        string taskText = __instance.taskText.text;
-        if (taskText == "None" || GameStates.IsLobby || player == null) return;
+        if (taskList == "None" || GameStates.IsLobby || player == null) return;
 
         CustomRoles role = player.GetCustomRole();
 
-        if (!role.IsVanilla())
+        if (!role.IsVanilla() && role != CustomRoles.NotAssigned)
         {
             string roleInfo = player.GetRoleInfo();
             var roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
@@ -736,29 +831,10 @@ internal static class TaskPanelBehaviourPatch
                         if (subRoles.Count > max) finalText += $"\r\n<size=65%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
                     }
 
-                    string[] lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
-                    StringBuilder sb = new();
+                    if (!Utils.HasTasks(player.Data, false) && taskList.Count(s => s == '\n') >= 2)
+                        taskList = taskList.Insert(0, $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}</size>\r\n");
 
-                    foreach (string eachLine in lines)
-                    {
-                        string line = eachLine.Trim();
-                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(') && !line.Contains(FastDestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
-
-                        sb.Append(line + "\r\n");
-                    }
-
-                    if (sb.Length > 1)
-                    {
-                        string text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
-
-                        if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => s == '\n') >= 2)
-                            text = $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}</size>";
-                        else if (player.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) goto Skip;
-
-                        finalText += $"\r\n\r\n<size=65%>{text}</size>";
-                    }
-
-                    Skip:
+                    finalText += $"\r\n\r\n<size=65%>{taskList}</size>";
                     if (MeetingStates.FirstMeeting) finalText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
 
                     break;
@@ -798,28 +874,7 @@ internal static class TaskPanelBehaviourPatch
                         SummaryText3[id] = summary;
                     }
 
-                    string[] lines1 = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
-                    StringBuilder sb1 = new();
-
-                    foreach (string eachLine in lines1)
-                    {
-                        string line = eachLine.Trim();
-                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('(') && !line.Contains(FastDestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
-
-                        sb1.Append(line + "\r\n");
-                    }
-
-                    if (sb1.Length > 1)
-                    {
-                        string text = sb1.ToString().TrimEnd('\n').TrimEnd('\r');
-
-                        if (!Utils.HasTasks(player.Data, false) && sb1.ToString().Count(s => s == '\n') >= 2) text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-                        else if (player.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) goto Skip1;
-
-                        finalText += $"<size=70%>\r\n{text}\r\n</size>";
-                    }
-
-                    Skip1:
+                    finalText += $"<size=70%>\r\n{taskList}\r\n</size>";
 
                     List<(int, byte)> list3 = [];
                     foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStop.GetRankFromScore(id), id));
@@ -852,25 +907,7 @@ internal static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.Speedrun:
 
-                    string[] lines2 = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
-                    StringBuilder sb2 = new();
-
-                    foreach (string eachLine in lines2)
-                    {
-                        string line = eachLine.Trim();
-                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb2.Length < 1 && !line.Contains('(')) continue;
-
-                        sb2.Append(line + "\r\n");
-                    }
-
-                    if (sb2.Length > 1)
-                    {
-                        string text = sb2.ToString().TrimEnd('\n').TrimEnd('\r');
-                        if (!Utils.HasTasks(player.Data, false) && sb2.ToString().Count(s => s == '\n') >= 2) text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-
-                        finalText += $"<size=70%>\r\n{text}\r\n</size>";
-                    }
-
+                    finalText += $"<size=70%>\r\n{taskList}\r\n</size>";
                     finalText += $"\r\n<size=90%>{Speedrun.GetTaskBarText()}</size>";
 
                     break;

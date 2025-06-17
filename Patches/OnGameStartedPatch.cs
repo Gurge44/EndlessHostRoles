@@ -242,6 +242,7 @@ internal static class ChangeRoleSettings
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];
+            MapRoomDoorsUpdatePatch.DoorTimerTexts = [];
             GuessManager.Guessers = [];
 
             Options.UsedButtonCount = 0;

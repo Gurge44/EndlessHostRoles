@@ -1013,7 +1013,7 @@ internal static class CustomRolesHelper
             CustomRoles.Underdog when pc.Is(CustomRoles.Mare) => false,
             CustomRoles.Shy when Options.DisableWhisperCommand.GetBool() => false,
             CustomRoles.Blocked when !pc.CanUseVent() => false,
-            CustomRoles.Aide when pc.IsMadmate() => false,
+            CustomRoles.Aide when pc.IsMadmate() || pc.Is(CustomRoles.Saboteur) => false,
             CustomRoles.Sleuth when pc.Is(CustomRoles.NecroGuesser) => false,
             CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
             CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,

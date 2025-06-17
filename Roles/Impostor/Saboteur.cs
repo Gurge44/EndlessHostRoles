@@ -75,6 +75,10 @@ internal class Saboteur : RoleBase
         if (map is MapNames.Skeld or MapNames.Dleks or MapNames.MiraHQ)
             availableSystems.Add(SystemTypes.LifeSupp);
 
+        availableSystems.RemoveAll(Utils.IsActive);
+
+        if (availableSystems.Count == 0) return;
+
         SystemTypes sabo = availableSystems.RandomElement();
 
         switch (sabo)
