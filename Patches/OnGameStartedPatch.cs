@@ -501,6 +501,9 @@ internal static class StartGameHostPatch
 
     private static IEnumerator StartGameHost()
     {
+        try { PlayerControl.LocalPlayer.RpcSetName(Main.AllPlayerNames[0]); }
+        catch (Exception e) { Utils.ThrowException(e); }
+        
         string loadingTextText1 = GetString("LoadingBarText.1");
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
 
@@ -569,6 +572,7 @@ internal static class StartGameHostPatch
 
             lock (AUClient.allClients)
             {
+                // ReSharper disable once ForCanBeConvertedToForeach    <- foreach would throw an exception in case of a disconnect
                 for (var index = 0; index < AUClient.allClients.Count; ++index)
                 {
                     ClientData allClient = AUClient.allClients[index];

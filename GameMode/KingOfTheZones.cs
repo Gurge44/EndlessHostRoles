@@ -164,7 +164,8 @@ public static class KingOfTheZones
             {
                 if (!GameEndsByTimeLimit.GetBool() && !GameEndsByPoints.GetBool())
                     GameEndsByTimeLimit.SetValue(1);
-            });
+            })
+            .SetRunEventOnLoad(true);
 
         PointsToWin = new IntegerOptionItem(id++, "KingOfTheZones.PointsToWin", new(30, 300, 10), 120, TabGroup.GameSettings)
             .SetParent(GameEndsByPoints)
@@ -179,7 +180,8 @@ public static class KingOfTheZones
             {
                 if (!GameEndsByTimeLimit.GetBool() && !GameEndsByPoints.GetBool())
                     GameEndsByPoints.SetValue(1);
-            });
+            })
+            .SetRunEventOnLoad(true);
 
         MaxGameLength = new IntegerOptionItem(id++, "KingOfTheZones.MaxGameLength", new(10, 900, 10), 300, TabGroup.GameSettings)
             .SetParent(GameEndsByTimeLimit)

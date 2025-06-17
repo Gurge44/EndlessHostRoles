@@ -1,4 +1,5 @@
 ﻿using System;
+using AmongUs.GameOptions;
 using static EHR.Options;
 
 namespace EHR.Impostor;
@@ -9,17 +10,25 @@ internal class Inhibitor : RoleBase
     private byte InhibitorId;
     public override bool IsEnable => On;
 
+    public static OptionItem InhibitorCD;
+    public static OptionItem InhibitorCDAfterMeetings;
+    public static OptionItem InhibitorSpeed;
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(1500, TabGroup.ImpostorRoles, CustomRoles.Inhibitor);
 
-        InhibitorCD = new FloatOptionItem(1510, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
+        InhibitorCD = new FloatOptionItem(1510, "KillCooldown", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
             .SetValueFormat(OptionFormat.Seconds);
 
         InhibitorCDAfterMeetings = new FloatOptionItem(1511, "AfterMeetingKillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
             .SetValueFormat(OptionFormat.Seconds);
+
+        InhibitorSpeed = new FloatOptionItem(1512, "Speed", new(0.05f, 3f, 0.05f), 1.75f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
+            .SetValueFormat(OptionFormat.Multiplier);
     }
 
     public override void Add(byte playerId)
@@ -32,6 +41,11 @@ internal class Inhibitor : RoleBase
     {
         On = false;
         InhibitorId = byte.MaxValue;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        Main.AllPlayerSpeed[playerId] = InhibitorSpeed.GetFloat();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

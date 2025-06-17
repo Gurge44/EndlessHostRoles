@@ -137,7 +137,8 @@ public static class CaptureTheFlag
                 RoundsToPlay.SetHidden(args.CurrentValue != 0);
                 PointsToWin.SetHidden(args.CurrentValue != 1);
                 TimeLimit.SetHidden(args.CurrentValue != 2);
-            });
+            })
+            .SetRunEventOnLoad(true);
 
         RoundsToPlay = new IntegerOptionItem(id + 9, "CTF_RoundsToPlay", new(1, 10, 1), 3, TabGroup.GameSettings)
             .SetParent(GameEndCriteria)

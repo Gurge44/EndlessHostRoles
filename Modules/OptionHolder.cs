@@ -415,8 +415,6 @@ public static class Options
     public static OptionItem AutoPlayAgainCountdown;
     public static OptionItem AutoStartTimer;
 
-    public static OptionItem InhibitorCD;
-    public static OptionItem InhibitorCDAfterMeetings;
     public static OptionItem SaboteurCD;
     public static OptionItem SaboteurCDAfterMeetings;
     public static OptionItem PhantomCanVent;
@@ -442,7 +440,9 @@ public static class Options
     public static OptionItem DoorsResetMode;
     public static OptionItem ChangeDecontaminationTime;
     public static OptionItem DecontaminationTimeOnMiraHQ;
+    public static OptionItem DecontaminationDoorOpenTimeOnMiraHQ;
     public static OptionItem DecontaminationTimeOnPolus;
+    public static OptionItem DecontaminationDoorOpenTimeOnPolus;
     public static OptionItem ExtraKillCooldownOnPolus;
     public static OptionItem ExtraKillCooldownOnAirship;
     public static OptionItem ExtraKillCooldownOnFungle;
@@ -905,6 +905,15 @@ public static class Options
         }
 
         CompileAutoGMRotationSettings();
+
+        foreach (OptionItem optionItem in OptionItem.AllOptions)
+        {
+            if (optionItem.UpdateValueEventRunsOnLoad)
+            {
+                int value = optionItem.CurrentValue;
+                optionItem.CallUpdateValueEvent(value, value);
+            }
+        }
 
 #if DEBUG
         // Used for generating the table of roles for the README
@@ -1856,8 +1865,20 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
+        // Decontamination door open time on MiraHQ
+        DecontaminationDoorOpenTimeOnMiraHQ = new FloatOptionItem(60509, "DecontaminationDoorOpenTimeOnMiraHQ", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
+            .SetParent(ChangeDecontaminationTime)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
         // Decontamination time on Polus
         DecontaminationTimeOnPolus = new FloatOptionItem(60505, "DecontaminationTimeOnPolus", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
+            .SetParent(ChangeDecontaminationTime)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
+        // Decontamination door open time on Polus
+        DecontaminationDoorOpenTimeOnPolus = new FloatOptionItem(60510, "DecontaminationDoorOpenTimeOnPolus", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
             .SetParent(ChangeDecontaminationTime)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));

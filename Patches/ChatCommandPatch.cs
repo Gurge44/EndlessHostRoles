@@ -2508,12 +2508,14 @@ internal static class ChatCommands
 
         if (args.Length < 2) return;
 
-        if (args[1].Length is > 15 or < 1)
+        string name = string.Join(' ', args[1..]);
+
+        if (name.Length is > 15 or < 1)
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
         else
         {
             if (player.IsLocalPlayer())
-                Main.NickName = args[1];
+                Main.NickName = name;
             else
             {
                 if (!Options.PlayerCanSetName.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
@@ -2527,8 +2529,6 @@ internal static class ChatCommands
                     Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId, sendOption: SendOption.None);
                     return;
                 }
-
-                string name = string.Join(' ', args[1..]);
 
                 if (name.Length is > 50 or < 1)
                 {

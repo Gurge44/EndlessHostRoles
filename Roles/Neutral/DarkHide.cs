@@ -117,7 +117,7 @@ public class DarkHide : RoleBase
     {
         CustomRoles targetRole = Ktarget.GetCustomRole();
         bool succeeded = targetRole.IsImpostor();
-        if (CanCountNeutralKiller.GetBool() && !Ktarget.Is(CustomRoles.Arsonist) && !Ktarget.Is(CustomRoles.Revolutionist)) succeeded = succeeded || Ktarget.IsNeutralKiller();
+        if (CanCountNeutralKiller.GetBool()) succeeded |= Ktarget.IsNeutralKiller();
 
         if (succeeded && SnatchesWin.GetBool()) IsWinKill = true;
 

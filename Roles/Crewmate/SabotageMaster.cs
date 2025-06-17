@@ -189,7 +189,7 @@ public class SabotageMaster : RoleBase
 
                 if (amount.HasAnyBit(ReactorSystemType.AddUserOp))
                 {
-                    ShipStatus.Instance.UpdateSystem((MapNames)Main.NormalOptions.MapId == MapNames.Polus ? SystemTypes.Laboratory : SystemTypes.Reactor, playerId.GetPlayer(), ReactorSystemType.ClearCountdown);
+                    ShipStatus.Instance.UpdateSystem(Main.CurrentMap == MapNames.Polus ? SystemTypes.Laboratory : SystemTypes.Reactor, playerId.GetPlayer(), ReactorSystemType.ClearCountdown);
                     sm.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                     sm.SendRPC();
                 }

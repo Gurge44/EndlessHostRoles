@@ -89,6 +89,7 @@ public abstract class OptionItem
     public OptionItem Parent { get; private set; }
 
     public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
+    public bool UpdateValueEventRunsOnLoad { get; private set; }
 
     // Setter
     private OptionItem Do(Action<OptionItem> action)
@@ -164,6 +165,11 @@ public abstract class OptionItem
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
     {
         return Do(_ => UpdateValueEvent += handler);
+    }
+
+    public OptionItem SetRunEventOnLoad(bool value)
+    {
+        return Do(_ => UpdateValueEventRunsOnLoad = value);
     }
 
     public OptionItem AddReplacement((string key, string value) kvp)
@@ -321,7 +327,7 @@ public abstract class OptionItem
 
 
     // EventArgs
-    private void CallUpdateValueEvent(int beforeValue, int currentValue)
+    public void CallUpdateValueEvent(int beforeValue, int currentValue)
     {
         if (UpdateValueEvent == null) return;
 

@@ -11,15 +11,19 @@ public static class DeconSystemUpdateSystemPatch
 
         if (Options.ChangeDecontaminationTime.GetBool())
         {
-            float deconTime = Main.CurrentMap switch
+            __instance.DoorOpenTime = Main.CurrentMap switch
+            {
+                MapNames.MiraHQ => Options.DecontaminationDoorOpenTimeOnMiraHQ.GetFloat(),
+                MapNames.Polus => Options.DecontaminationDoorOpenTimeOnPolus.GetFloat(),
+                _ => 3f
+            };
+
+            __instance.DeconTime = Main.CurrentMap switch
             {
                 MapNames.MiraHQ => Options.DecontaminationTimeOnMiraHQ.GetFloat(),
                 MapNames.Polus => Options.DecontaminationTimeOnPolus.GetFloat(),
                 _ => 3f
             };
-
-            __instance.DoorOpenTime = deconTime;
-            __instance.DeconTime = deconTime;
         }
         else
         {
