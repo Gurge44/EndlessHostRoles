@@ -99,7 +99,7 @@ internal class Lovers : IAddon
         LegacyLovers = new BooleanOptionItem(id + 10, "LegacyLovers", false, TabGroup.Addons)
             .SetParent(spawnOption)
             .SetGameMode(customGameMode)
-            .RegisterUpdateValueEvent((_, _) => new[] { ImpCanBeInLove, CrewCanBeInLove, NeutralCanBeInLove }.Do(x => x.SetHidden(LegacyLovers.GetBool())));
+            .RegisterUpdateValueEvent((_, _) => new[] { ImpCanBeInLove, CrewCanBeInLove, NeutralCanBeInLove, CovenCanBeInLove }.Do(x => x.SetHidden(LegacyLovers.GetBool())));
 
         LovingImpostorSpawnChance = new FloatOptionItem(id + 11, "LovingImpostorSpawnChance", new(0, 100, 5), 25, TabGroup.Addons)
             .SetParent(LegacyLovers)
