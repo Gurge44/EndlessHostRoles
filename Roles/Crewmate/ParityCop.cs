@@ -429,7 +429,7 @@ public class ParityCop : RoleBase
     private static void PickForCompare(byte playerId, byte lpcId)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || !AmongUsClient.Instance.AmHost) return;
+        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
 
         if (FirstPick.TryGetValue(lpcId, out byte firstPick))
         {

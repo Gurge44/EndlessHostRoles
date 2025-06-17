@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Neutral;
 
@@ -67,6 +68,7 @@ public class Vortex : RoleBase
             return IfTargetCannotBeTeleported.GetValue() == 1;
         }
 
+        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         LateTask.New(() => target.Suicide(PlayerState.DeathReason.Kill, killer), 0.2f, log: false);
         killer.SetKillCooldown();
         return false;
