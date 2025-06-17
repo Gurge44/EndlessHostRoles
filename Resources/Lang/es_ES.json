@@ -3145,8 +3145,6 @@
   "FarseerKillButtonText": "Revelar",
   "PoisonerKillButtonText": "Envenenar",
   "SentryPetButtonText": "Monitorear",
-  "SabotageActiveIndicator": "▶",
-  "SabotageDisabledIndicator": "⊘",
   "DisabledBySettings": "Desactivado por las Configuraciones",
   "Disabled": "Desactivado",
   "FailToTrack": "Falló Al Rastrear",
