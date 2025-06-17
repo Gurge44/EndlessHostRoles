@@ -3145,8 +3145,6 @@
   "FarseerKillButtonText": "Reveal",
   "PoisonerKillButtonText": "Poison",
   "SentryPetButtonText": "Monitor",
-  "SabotageActiveIndicator": "▶",
-  "SabotageDisabledIndicator": "⊘",
   "DisabledBySettings": "Disabled by Settings",
   "Disabled": "Disabled",
   "FailToTrack": "Failed To Track",
