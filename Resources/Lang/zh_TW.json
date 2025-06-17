@@ -3145,8 +3145,6 @@
   "FarseerKillButtonText": "預言",
   "PoisonerKillButtonText": "下毒",
   "SentryPetButtonText": "巡視",
-  "SabotageActiveIndicator": "▶",
-  "SabotageDisabledIndicator": "⊘",
   "DisabledBySettings": "已在設定中被禁用",
   "Disabled": "已禁用",
   "FailToTrack": "無法追蹤",
