@@ -2112,7 +2112,6 @@
   "GuessSuperStar": "La Superestrella no puede ser adivinada... ¿Creíste que sería así de fácil, verdad?",
   "GuessNotifiedBait": "El Cebo no puede ser adivinado porque fue anunciado, creíste que sería así de fácil, ¿verdad?",
   "GuessGM": "Guessing the GM is impossible because they're already dead.... And why would you do that to the poor Host?",
-  "GuessGuardianTask": "No puedes adivinar a un Guardián que ha terminado sus tareas.",
   "GuessMarshallTask": "No puedes adivinar a un Mariscal que ha terminado sus tareas.",
   "GuessObviousAddon": "Lo siento, complementos y roles obvios no pueden ser adivinados.",
   "GuessAdtRole": "Desafortunadamente, las configuraciones del Host no te permiten adivinar complementos",
