@@ -2112,7 +2112,6 @@
   "GuessSuperStar": "<size=80%><#f6f657>スーパースター</color>を推測することはできません.... \\nあなたは簡単だと思いました、よね？</size>",
   "GuessNotifiedBait": "<size=80%><#00f7ff>ベイト</color>は 発表されたので推測することができません、\\nあなたは簡単だと思いました、よね？</size>",
   "GuessGM": "<size=80%><#ff5b70>GM</color>の推測することは 彼がすでに死んでいるので不可能です.... そして なぜあなたは 哀れなホストにそんなことをするのでしょうか？</size>",
-  "GuessGuardianTask": "<size=80%><#2E8B57>ガーディアン</color>の彼は タスクを終えているため 推測できません。</size>",
   "GuessMarshallTask": "<size=80%><#5573aa>マーシャル</color>の彼は タスクを終えているため 推測できません。</size>",
   "GuessObviousAddon": "<size=80%>申し訳ありませんが、<#424242>忘却</color>の属性 そして 役割を推測することはできません</size>",
   "GuessAdtRole": "<size=80%>残念ながら、ホストの設定で あなたは属性を 推測することが許可されていません</size>",
