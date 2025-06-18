@@ -124,6 +124,11 @@ internal static class EndGamePatch
 
             switch (Options.CurrentGameMode)
             {
+                case CustomGameMode.Standard:
+                    Main.GamesPlayed.AddRange(Main.AllPlayerControls.ToDictionary(x => x.FriendCode, _ => 0), false);
+                    Main.GamesPlayed.AdjustAllValues(x => ++x);
+                    Main.GotShieldAnimationInfoThisGame.Clear();
+                    break;
                 case CustomGameMode.MoveAndStop:
                     Main.AllPlayerControls.Do(x => MoveAndStop.HasPlayed.Add(x.FriendCode));
                     break;

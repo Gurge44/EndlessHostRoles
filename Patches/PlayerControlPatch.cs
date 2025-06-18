@@ -132,8 +132,10 @@ internal static class CheckMurderPatch
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
-
+        
         PlayerControl killer = __instance;
+
+        AFKDetector.SetNotAFK(killer.PlayerId);
 
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
@@ -1059,7 +1061,7 @@ internal static class ReportDeadBodyPatch
         void Notify(string str) => __instance.Notify(ColorString(Color.yellow, GetString("CheckReportFail") + GetString(str)), 15f);
     }
 
-    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target, bool force = false)
+    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target)
     {
         //=============================================================================================
         //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
@@ -1204,7 +1206,7 @@ internal static class ReportDeadBodyPatch
             if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
                 pc.FixMixedUpOutfit();
 
-            PhantomRolePatch.OnReportDeadBody(pc, force);
+            PhantomRolePatch.OnReportDeadBody(pc);
         }
 
         MeetingTimeManager.OnReportDeadBody();
@@ -1243,7 +1245,6 @@ internal static class FixedUpdatePatch
     private static readonly StringBuilder Mark = new(20);
     private static readonly StringBuilder Suffix = new();
     private static int LevelKickBufferTime = 10;
-    private static readonly Dictionary<byte, int> BufferTime = [];
     private static readonly Dictionary<byte, int> DeadBufferTime = [];
     private static readonly Dictionary<byte, long> LastUpdate = [];
     private static readonly Dictionary<byte, long> LastAddAbilityTime = [];
@@ -1340,7 +1341,7 @@ internal static class FixedUpdatePatch
         if (localPlayer)
         {
             Zoom.OnFixedUpdate();
-            TextBoxTMPSetTextPatch.Update();
+            TextBoxPatch.CheckChatOpen();
 
             if (!lowLoad) NameNotifyManager.OnFixedUpdate();
         }
@@ -1354,7 +1355,7 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
 
-                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 50 == TimeStamp)
+                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 44 == TimeStamp)
                     NotifyRoles();
             }
         }
@@ -1798,7 +1799,7 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            if (self && GameStartTimeStamp + 50 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
+            if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                 Suffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
 
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)

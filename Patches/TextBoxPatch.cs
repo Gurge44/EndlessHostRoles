@@ -9,19 +9,8 @@ using UnityEngine;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
-internal static class TextBoxTMPIsCharAllowed
-{
-    public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
-    {
-        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
-        __result = i != '\b';
-        return false;
-    }
-}
-
-[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
-internal static class TextBoxTMPSetTextPatch
+[HarmonyPatch(typeof(TextBoxTMP))]
+public static class TextBoxPatch
 {
     private static TextMeshPro PlaceHolderText;
     private static TextMeshPro CommandInfoText;
@@ -29,7 +18,9 @@ internal static class TextBoxTMPSetTextPatch
 
     public static bool IsInvalidCommand;
 
-    public static void Postfix(TextBoxTMP __instance)
+    [HarmonyPatch(nameof(TextBoxTMP.SetText))]
+    [HarmonyPostfix]
+    public static void ShowCommandHelp(TextBoxTMP __instance)
     {
         try
         {
@@ -284,7 +275,7 @@ internal static class TextBoxTMPSetTextPatch
             OptionShower.CurrentPage = 0;
     }
 
-    public static void Update()
+    public static void CheckChatOpen()
     {
         try
         {
@@ -295,12 +286,41 @@ internal static class TextBoxTMPSetTextPatch
         }
         catch { }
     }
-}
 
-// Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
-[HarmonyPatch(typeof(TextBoxTMP))]
-public static class TextBoxPatch
-{
+    [HarmonyPatch(nameof(TextBoxTMP.Update))]
+    [HarmonyPrefix]
+    public static bool UpdatePatch(TextBoxTMP __instance)
+    {
+        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
+
+        if (!__instance.enabled || !__instance.hasFocus) return false;
+        __instance.MoveCaret();
+        string inputString = Input.inputString;
+
+        if (inputString.Length > 0 || __instance.compoText != Input.compositionString)
+        {
+            if (__instance.text is null or "Enter Name") __instance.text = "";
+            int startIndex = Math.Clamp(__instance.caretPos, 0, __instance.text.Length);
+            __instance.SetText(__instance.text.Insert(startIndex, inputString), Input.compositionString);
+        }
+
+        if (!__instance.Pipe || !__instance.hasFocus) return false;
+        __instance.pipeBlinkTimer += Time.deltaTime * 2f;
+        __instance.Pipe.enabled = (int)__instance.pipeBlinkTimer % 2 == 0;
+
+        return false;
+    }
+
+    [HarmonyPatch(nameof(TextBoxTMP.IsCharAllowed))]
+    [HarmonyPrefix]
+    public static bool IsCharAllowedPatch(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
+    {
+        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
+        __result = i != '\b';
+        return false;
+    }
+
+    // Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
     [HarmonyPatch(nameof(TextBoxTMP.SetText))]
     [HarmonyPrefix]
     public static void ModifyCharacterLimit(TextBoxTMP __instance)

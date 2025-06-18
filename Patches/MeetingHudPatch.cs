@@ -705,7 +705,25 @@ internal static class MeetingHudStartPatch
                 roleDescMsgs.Add(new(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString()));
             }
 
-            LateTask.New(() => roleDescMsgs.SendMultipleMessages(SendOption.None), 7f, "Send Role Descriptions Round 1");
+            LateTask.New(() =>
+            {
+                roleDescMsgs.SendMultipleMessages(SendOption.None);
+
+                LateTask.New(() =>
+                {
+                    PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId);
+                    var sender = CustomRpcSender.Create("RpcSetNameEx on meeting start", SendOption.Reliable);
+                    {
+                        sender.AutoStartRpc(player.NetId, 6);
+                        {
+                            sender.Write(player.Data.NetId);
+                            sender.Write(player.GetRealName(true));
+                        }
+                        sender.EndRpc();
+                    }
+                    sender.SendMessage();
+                }, 1f, "Fix Sender Name");
+            }, 7f, "Send Role Descriptions Round 1");
         }
 
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting)

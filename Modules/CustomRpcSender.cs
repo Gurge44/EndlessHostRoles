@@ -510,6 +510,9 @@ public static class CustomRpcSenderExtensions
             sender.Write((int)MurderResultFlags.FailedProtected);
             sender.EndRpc();
 
+            if (!MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
+                sender.Notify(killer, Translator.GetString("PleaseStopBeingDumb"), 10f);
+
             returnValue = true;
         }
 

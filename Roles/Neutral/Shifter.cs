@@ -89,8 +89,7 @@ public class Shifter : RoleBase
         killer.RpcSetCustomRole(targetRole);
         killer.RpcChangeRoleBasis(targetRole);
 
-        RoleBase targetRoleBase = Main.PlayerStates[target.PlayerId].Role;
-        LateTask.New(() => Main.PlayerStates[killer.PlayerId].Role = targetRoleBase, 0.2f, "Change RoleBase");
+        Main.PlayerStates[killer.PlayerId].Role = Main.PlayerStates[target.PlayerId].Role;
 
         killer.SetAbilityUseLimit(target.GetAbilityUseLimit());
 

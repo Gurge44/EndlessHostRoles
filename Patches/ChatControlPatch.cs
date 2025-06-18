@@ -33,7 +33,7 @@ internal static class ChatControllerUpdatePatch
         {
             __instance.freeChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
 
-            if (!TextBoxTMPSetTextPatch.IsInvalidCommand)
+            if (!TextBoxPatch.IsInvalidCommand)
             {
                 __instance.freeChatField.textArea.compoText.Color(Color.white);
                 __instance.freeChatField.textArea.outputText.color = Color.white;
@@ -63,7 +63,7 @@ internal static class ChatControllerUpdatePatch
 
         __instance.freeChatField.textArea.characterLimit = 1200;
 
-        if (Input.GetKeyDown(KeyCode.Tab)) TextBoxTMPSetTextPatch.OnTabPress(__instance);
+        if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(__instance);
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);

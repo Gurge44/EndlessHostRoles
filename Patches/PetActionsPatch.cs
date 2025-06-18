@@ -27,9 +27,11 @@ internal static class LocalPetPatch
         if (!Options.UsePets.GetBool()) return true;
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return true;
         if (GameStates.IsLobby || !__instance.IsAlive()) return true;
+        
         if (__instance.petting) return true;
-
         __instance.petting = true;
+
+        AFKDetector.SetNotAFK(__instance.PlayerId);
 
         if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
         if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp) return true;
@@ -62,6 +64,8 @@ internal static class ExternalRpcPetPatch
         PlayerPhysics physics = __instance;
 
         if (pc == null || !pc.IsAlive()) return;
+
+        AFKDetector.SetNotAFK(pc.PlayerId);
 
         if (!pc.inVent
             && !pc.inMovingPlat

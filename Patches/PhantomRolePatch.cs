@@ -244,7 +244,7 @@ public static class PhantomRolePatch
         }, 1.8f, "Set Scientist when vanish is over");
     }
 
-    public static void OnReportDeadBody(PlayerControl seer, bool force)
+    public static void OnReportDeadBody(PlayerControl seer)
     {
         try
         {
@@ -258,17 +258,14 @@ public static class PhantomRolePatch
                     continue;
                 }
 
-                Main.Instance.StartCoroutine(CoRevertInvisible(phantom, seer, force));
+                Main.Instance.StartCoroutine(CoRevertInvisible(phantom, seer));
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static IEnumerator CoRevertInvisible(PlayerControl phantom, PlayerControl seer, bool force)
+    private static IEnumerator CoRevertInvisible(PlayerControl phantom, PlayerControl seer)
     {
-        // Set Scientist for meeting
-        if (!force) yield return new WaitForSeconds(0.0001f);
-
         if (seer.OwnerId == -1 || phantom == null) yield break;
         phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.OwnerId);
 

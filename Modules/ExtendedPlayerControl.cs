@@ -654,6 +654,9 @@ internal static class ExtendedPlayerControl
             writer.WriteNetObject(target);
             writer.Write((int)MurderResultFlags.FailedProtected);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+
+            if (!MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
+                killer.Notify(GetString("PleaseStopBeingDumb"), 10f);
         }
 
         if (!fromSetKCD) killer.AddKillTimerToDict(true);
@@ -1599,7 +1602,7 @@ internal static class ExtendedPlayerControl
     {
         if (Options.DisableMeeting.GetBool() && !force) return;
 
-        ReportDeadBodyPatch.AfterReportTasks(reporter, target, true);
+        ReportDeadBodyPatch.AfterReportTasks(reporter, target);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
 
         LateTask.New(() =>
@@ -1833,5 +1836,23 @@ internal static class ExtendedPlayerControl
     public static bool IsProtected(this PlayerControl self)
     {
         return self.protectedByGuardianId > -1;
+    }
+
+    public static bool IsBeginner(this PlayerControl pc)
+    {
+        if (pc.IsModdedClient()) return false;
+
+        DevManager.TagInfo devUser = pc.FriendCode.GetDevUser();
+        if (devUser.HasTag() || devUser.up) return false;
+
+        if (ChatCommands.IsPlayerModerator(pc.FriendCode)) return false;
+        if (ChatCommands.IsPlayerVIP(pc.FriendCode)) return false;
+
+        if (Main.GamesPlayed.TryGetValue(pc.FriendCode, out int gamesPlayed) && gamesPlayed >= 4) return false;
+
+        ClientData client = pc.GetClient();
+        if (client == null) return true;
+
+        return !FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);
     }
 }

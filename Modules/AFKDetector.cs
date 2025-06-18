@@ -64,11 +64,7 @@ public static class AFKDetector
 
         if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f && !TempIgnoredPlayers.Contains(pc.PlayerId))
         {
-            if (ExtendedPlayerControl.BlackScreenWaitingPlayers.Contains(pc.PlayerId))
-                ExtendedPlayerControl.CancelBlackScreenFix.Add(pc.PlayerId);
-
-            PlayerData.Remove(pc.PlayerId);
-            ShieldedPlayers.Remove(pc.PlayerId);
+            SetNotAFK(pc.PlayerId);
             return;
         }
 
@@ -106,6 +102,19 @@ public static class AFKDetector
 
         if (data.CurrentPhase == Data.Phase.Warning && lastTimer != currentTimer)
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+    }
+
+    public static void SetNotAFK(byte id)
+    {
+        try
+        {
+            if (ExtendedPlayerControl.BlackScreenWaitingPlayers.Contains(id))
+                ExtendedPlayerControl.CancelBlackScreenFix.Add(id);
+
+            PlayerData.Remove(id);
+            ShieldedPlayers.Remove(id);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target)

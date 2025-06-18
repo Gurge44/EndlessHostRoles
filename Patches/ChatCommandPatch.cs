@@ -1972,7 +1972,7 @@ internal static class ChatCommands
 
         if (killer == null)
         {
-            Utils.SendMessage("\n", player.PlayerId, GetString("DeathCommandFail"), sendOption: SendOption.None);
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommandFail"), GetString($"DeathReason.{Main.PlayerStates[player.PlayerId].deathReason}")), sendOption: SendOption.None);
             return;
         }
 

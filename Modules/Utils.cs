@@ -2031,8 +2031,6 @@ public static class Utils
         bool hasTag = devUser.HasTag();
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out string privateTag);
 
-        if (!player.AmOwner && !hasTag && !mod && !vip && !hasPrivateTag) return false;
-
         if (!Main.AllPlayerNames.TryGetValue(player.PlayerId, out name)) return false;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
 
@@ -2558,7 +2556,7 @@ public static class Utils
                     }
                 }
 
-                if (GameStartTimeStamp + 50 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
+                if (GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                     SelfSuffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
             }
 

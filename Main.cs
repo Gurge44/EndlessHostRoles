@@ -111,6 +111,8 @@ public class Main : BasePlugin
     public static bool ResetOptions = true;
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;
+    public static readonly Dictionary<string, int> GamesPlayed = [];
+    public static readonly HashSet<byte> GotShieldAnimationInfoThisGame = [];
 
     public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
     {
