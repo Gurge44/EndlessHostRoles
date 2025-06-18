@@ -1197,8 +1197,8 @@ public static class Options
         {
             (int Min, int Max) defaultNum = team switch
             {
-                Team.Impostor => (1, 3),
-                Team.Neutral => (0, 5),
+                Team.Impostor => (1, 1),
+                Team.Neutral => (0, 0),
                 Team.Coven => (0, 0),
                 _ => (0, 15)
             };
@@ -1227,7 +1227,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
 
-        MaxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(0, 15, 1), 2, TabGroup.NeutralRoles)
+        MaxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(0, 15, 1), 0, TabGroup.NeutralRoles)
             .SetGameMode(CustomGameMode.Standard);
 
         HashSet<TabGroup> doneTabs = [];
@@ -1246,12 +1246,12 @@ public static class Options
                 .SetColor(roleOptionTypeColor)
                 .SetHidden(tab == TabGroup.NeutralRoles);
 
-            options[1] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Min", new(0, 15, 1), 1, tab)
+            options[1] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Min", new(0, 15, 1), 0, tab)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetValueFormat(OptionFormat.Players)
                 .SetColor(roleOptionTypeColor);
 
-            options[2] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Max", new(0, 15, 1), 1, tab)
+            options[2] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Max", new(0, 15, 1), 0, tab)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetValueFormat(OptionFormat.Players)
                 .SetColor(roleOptionTypeColor);
