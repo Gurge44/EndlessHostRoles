@@ -103,12 +103,12 @@ public class PlayerState(byte playerId)
     public bool IsSuicide => deathReason == DeathReason.Suicide;
     public TaskState TaskState { get; set; } = new();
 
-    public void SetMainRole(CustomRoles role)
+    public void SetMainRole(CustomRoles role, bool failsafe = false)
     {
         try { Utils.RemovePlayerFromPreviousRoleData(Player); }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        if (Main.IntroDestroyed && MainRole != CustomRoles.NotAssigned && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
+        if (!failsafe && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
             RoleHistory.Add(MainRole);
 
         Divinator.OnRoleChange(PlayerId, MainRole, role);
