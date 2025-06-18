@@ -2112,7 +2112,6 @@
   "GuessSuperStar": "The Super Star can't be guessed.... you thought it would be that easy, right?",
   "GuessNotifiedBait": "Bait can't be guessed because it was announced, you thought it would be that easy, right?",
   "GuessGM": "Guessing the GM is impossible because they're already dead.... And why would you do that to the poor Host?",
-  "GuessGuardianTask": "You can't guess a Guardian who has finished their tasks.",
   "GuessMarshallTask": "You can't guess a Marshall who has finished their tasks.",
   "GuessObviousAddon": "Sorry, obvious add-ons and roles cannot be guessed.",
   "GuessAdtRole": "Unfortunately, the Host's settings do not allow you to guess add-ons",
