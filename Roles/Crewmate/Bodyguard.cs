@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EHR.Modules;
 using static EHR.Options;
 
@@ -49,29 +50,33 @@ internal class Bodyguard : RoleBase
         {
             foreach (Bodyguard bodyguard in Instances)
             {
-                if (bodyguard.BodyguardPC.PlayerId == target.PlayerId) continue;
-
-                float dis = Vector2.Distance(bodyguard.BodyguardPC.Pos(), target.Pos());
-                if (dis > BodyguardProtectRadius.GetFloat()) return true;
-
-                if (bodyguard.BodyguardPC.IsMadmate() && killer.Is(Team.Impostor))
+                try
                 {
-                    Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
-                    continue;
+                    if (bodyguard.BodyguardPC == null || bodyguard.BodyguardPC.PlayerId == target.PlayerId) continue;
+
+                    float dis = Vector2.Distance(bodyguard.BodyguardPC.Pos(), target.Pos());
+                    if (dis > BodyguardProtectRadius.GetFloat()) return true;
+
+                    if (bodyguard.BodyguardPC.IsMadmate() && killer.Is(Team.Impostor))
+                    {
+                        Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
+                        continue;
+                    }
+
+                    if (BodyguardKillsKiller.GetBool() && bodyguard.BodyguardPC.RpcCheckAndMurder(killer, true))
+                        bodyguard.BodyguardPC.Kill(killer);
+                    else
+                        killer.SetKillCooldown();
+
+                    bodyguard.BodyguardPC.Suicide(PlayerState.DeathReason.Sacrifice, killer);
+                    Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} stood up and died for {target.GetRealName()}", "Bodyguard");
+
+                    if (bodyguard.BodyguardPC.IsLocalPlayer() && target.Is(CustomRoles.President))
+                        Achievements.Type.GetDownMrPresident.Complete();
+
+                    return false;
                 }
-
-                if (BodyguardKillsKiller.GetBool() && bodyguard.BodyguardPC.RpcCheckAndMurder(killer, true))
-                    bodyguard.BodyguardPC.Kill(killer);
-                else
-                    killer.SetKillCooldown();
-
-                bodyguard.BodyguardPC.Suicide(PlayerState.DeathReason.Sacrifice, killer);
-                Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} stood up and died for {target.GetRealName()}", "Bodyguard");
-
-                if (bodyguard.BodyguardPC.IsLocalPlayer() && target.Is(CustomRoles.President))
-                    Achievements.Type.GetDownMrPresident.Complete();
-
-                return false;
+                catch (Exception e) { Utils.ThrowException(e); }
             }
         }
 

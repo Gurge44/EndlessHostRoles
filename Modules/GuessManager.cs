@@ -856,13 +856,16 @@ public static class GuessManager
                 PageButtons[0].color = new(1, 1, 1, 1f);
                 PageButtons[1].color = new(1, 1, 1, 1f);
 
-                if ((RoleButtons[CurrentTeamType].Count / MaxOneScreenRole) + (RoleButtons[CurrentTeamType].Count % MaxOneScreenRole != 0 ? 1 : 0) < Page)
+                if (RoleButtons.TryGetValue(CurrentTeamType, out List<Transform> roleButtons))
                 {
-                    Page -= 1;
-                    PageButtons[1].color = new(1, 1, 1, 0.1f);
+                    if ((roleButtons.Count / MaxOneScreenRole) + (roleButtons.Count % MaxOneScreenRole != 0 ? 1 : 0) < Page)
+                    {
+                        Page -= 1;
+                        PageButtons[1].color = new(1, 1, 1, 0.1f);
+                    }
+                    else if ((roleButtons.Count / MaxOneScreenRole) + (roleButtons.Count % MaxOneScreenRole != 0 ? 1 : 0) < Page + 1)
+                        PageButtons[1].color = new(1, 1, 1, 0.1f);
                 }
-                else if ((RoleButtons[CurrentTeamType].Count / MaxOneScreenRole) + (RoleButtons[CurrentTeamType].Count % MaxOneScreenRole != 0 ? 1 : 0) < Page + 1)
-                    PageButtons[1].color = new(1, 1, 1, 0.1f);
 
                 if (Page <= 1)
                 {

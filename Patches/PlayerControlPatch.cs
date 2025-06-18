@@ -131,226 +131,230 @@ internal static class CheckMurderPatch
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (!AmongUsClient.Instance.AmHost) return false;
-        
-        PlayerControl killer = __instance;
-
-        AFKDetector.SetNotAFK(killer.PlayerId);
-
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
-
-        if (killer.Data.IsDead)
+        try
         {
-            Logger.Info($"Killer {killer.GetNameWithRole().RemoveHtmlTags()} is dead, kill canceled", "CheckMurder");
-            return false;
-        }
+            if (!AmongUsClient.Instance.AmHost) return false;
 
-        if (AntiBlackout.SkipTasks)
-        {
-            Logger.Info("CheckMurder while AntiBlackOut protection is in progress, kill canceled", "CheckMurder");
-            return false;
-        }
+            PlayerControl killer = __instance;
 
-        if (!Main.IntroDestroyed)
-        {
-            Logger.Info("CheckMurder while intro is not destroyed, kill canceled", "CheckMurder");
-            return false;
-        }
+            AFKDetector.SetNotAFK(killer.PlayerId);
 
-        if (target.Is(CustomRoles.Detour))
-        {
-            PlayerControl tempTarget = target;
-            target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
-            Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
-            if (tempTarget.IsLocalPlayer())
+            if (killer.Data.IsDead)
             {
-                Detour.TotalRedirections++;
-                if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+                Logger.Info($"Killer {killer.GetNameWithRole().RemoveHtmlTags()} is dead, kill canceled", "CheckMurder");
+                return false;
             }
-        }
 
-        if (Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
-        {
-            Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
-            target = newTarget;
-        }
-
-        if (target.Data == null
-            || target.inVent
-            || target.inMovingPlat
-            || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()
-            || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation()
-            || target.onLadder)
-        {
-            Logger.Info("The target is in a state where they cannot be killed, kill canceled.", "CheckMurder");
-            return false;
-        }
-
-        if (target.Data.IsDead)
-        {
-            Logger.Info("Target is already dead, kill canceled", "CheckMurder");
-            return false;
-        }
-
-        if (MeetingHud.Instance != null)
-        {
-            Logger.Info("Kill during meeting, canceled", "CheckMurder");
-            return false;
-        }
-
-        float minTime = CalculatePingDelay();
-
-        // No value is stored in TimeSinceLastKill || Stored time is greater than or equal to minTime => Allow kill
-        // ↓ If not allowed
-        if (TimeSinceLastKill.TryGetValue(killer.PlayerId, out float time) && time < minTime)
-        {
-            Logger.Info($"Last kill was too shortly before, canceled - time: {time}, minTime: {minTime}", "CheckMurder");
-            return false;
-        }
-
-        TimeSinceLastKill[killer.PlayerId] = 0f;
-
-        if (target.Is(CustomRoles.Diseased))
-        {
-            if (!Main.KilledDiseased.TryAdd(killer.PlayerId, 1))
-                Main.KilledDiseased[killer.PlayerId] += 1;
-        }
-
-        if (target.Is(CustomRoles.Antidote))
-        {
-            if (!Main.KilledAntidote.TryAdd(killer.PlayerId, 1))
-                Main.KilledAntidote[killer.PlayerId] += 1;
-        }
-
-        killer.ResetKillCooldown(false);
-
-        if (killer.PlayerId != target.PlayerId && !killer.CanUseKillButton())
-        {
-            Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + " cannot use their kill button, the kill was blocked", "CheckMurder");
-            return false;
-        }
-
-        switch (Options.CurrentGameMode)
-        {
-            case CustomGameMode.SoloKombat:
-                SoloPVP.OnPlayerAttack(killer, target);
-                return false;
-            case CustomGameMode.FFA:
-                FreeForAll.OnPlayerAttack(killer, target);
-                return false;
-            case CustomGameMode.HotPotato:
-                (byte holderID, byte lastHolderID) = HotPotato.GetState();
-                if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControls.Length <= 2))
-                    HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
-                return false;
-            case CustomGameMode.TheMindGame:
-            case CustomGameMode.MoveAndStop:
-            case CustomGameMode.RoomRush:
-            case CustomGameMode.NaturalDisasters:
-            case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
-                return false;
-            case CustomGameMode.Quiz:
-                if (Quiz.AllowKills) killer.Kill(target);
-                return false;
-            case CustomGameMode.Speedrun:
-                killer.Kill(target);
-                return false;
-            case CustomGameMode.HideAndSeek:
-                CustomHnS.OnCheckMurder(killer, target);
-                return false;
-            case CustomGameMode.CaptureTheFlag:
-                CaptureTheFlag.OnCheckMurder(killer, target);
-                return false;
-            case CustomGameMode.KingOfTheZones:
-                KingOfTheZones.OnCheckMurder(killer, target);
-                return false;
-        }
-
-        Deadlined.SetDone(killer);
-
-        if (ToiletMaster.OnAnyoneCheckMurderStart(killer, target)) return false;
-        if (Dad.OnAnyoneCheckMurderStart(target)) return false;
-
-        Simon.RemoveTarget(killer, Simon.Instruction.Kill);
-
-        if (Mastermind.ManipulatedPlayers.ContainsKey(killer.PlayerId))
-            return Mastermind.ForceKillForManipulatedPlayer(killer, target);
-
-        if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(killer, target)) return false;
-        if (!Starspawn.CheckInteraction(killer, target)) return false;
-
-        if (Penguin.IsVictim(killer)) return false;
-
-        Sniper.TryGetSniper(target.PlayerId, ref killer);
-        if (killer != __instance) Logger.Info($"Real Killer: {killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
-
-        if (Pelican.IsEaten(target.PlayerId)) return false;
-
-        if (killer.IsRoleBlocked())
-        {
-            killer.Notify(BlockedAction.Kill.GetBlockNotify());
-            return false;
-        }
-
-        if (Pursuer.OnClientMurder(killer)) return false;
-
-        Seamstress.OnAnyoneCheckMurder(killer, target);
-
-        if (killer.PlayerId != target.PlayerId)
-        {
-            switch (killer.Is(CustomRoles.Bloodlust))
+            if (AntiBlackout.SkipTasks)
             {
-                case false when !CheckMurder():
-                    return false;
-                case true when killer.GetCustomRole().GetDYRole() == RoleTypes.Impostor:
-                    if (killer.CheckDoubleTrigger(target, () =>
-                    {
-                        if (CheckMurder()) killer.RpcCheckAndMurder(target);
-                    }))
-                        killer.RpcCheckAndMurder(target);
+                Logger.Info("CheckMurder while AntiBlackOut protection is in progress, kill canceled", "CheckMurder");
+                return false;
+            }
 
+            if (!Main.IntroDestroyed)
+            {
+                Logger.Info("CheckMurder while intro is not destroyed, kill canceled", "CheckMurder");
+                return false;
+            }
+
+            if (target.Is(CustomRoles.Detour))
+            {
+                PlayerControl tempTarget = target;
+                target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
+                Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+
+                if (tempTarget.IsLocalPlayer())
+                {
+                    Detour.TotalRedirections++;
+                    if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+                }
+            }
+
+            if (Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
+            {
+                Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
+                target = newTarget;
+            }
+
+            if (target.Data == null
+                || target.inVent
+                || target.inMovingPlat
+                || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()
+                || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation()
+                || target.onLadder)
+            {
+                Logger.Info("The target is in a state where they cannot be killed, kill canceled.", "CheckMurder");
+                return false;
+            }
+
+            if (target.Data.IsDead)
+            {
+                Logger.Info("Target is already dead, kill canceled", "CheckMurder");
+                return false;
+            }
+
+            if (MeetingHud.Instance != null)
+            {
+                Logger.Info("Kill during meeting, canceled", "CheckMurder");
+                return false;
+            }
+
+            float minTime = CalculatePingDelay();
+
+            // No value is stored in TimeSinceLastKill || Stored time is greater than or equal to minTime => Allow kill
+            // ↓ If not allowed
+            if (TimeSinceLastKill.TryGetValue(killer.PlayerId, out float time) && time < minTime)
+            {
+                Logger.Info($"Last kill was too shortly before, canceled - time: {time}, minTime: {minTime}", "CheckMurder");
+                return false;
+            }
+
+            TimeSinceLastKill[killer.PlayerId] = 0f;
+
+            if (target.Is(CustomRoles.Diseased))
+            {
+                if (!Main.KilledDiseased.TryAdd(killer.PlayerId, 1))
+                    Main.KilledDiseased[killer.PlayerId] += 1;
+            }
+
+            if (target.Is(CustomRoles.Antidote))
+            {
+                if (!Main.KilledAntidote.TryAdd(killer.PlayerId, 1))
+                    Main.KilledAntidote[killer.PlayerId] += 1;
+            }
+
+            killer.ResetKillCooldown(false);
+
+            if (killer.PlayerId != target.PlayerId && !killer.CanUseKillButton())
+            {
+                Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + " cannot use their kill button, the kill was blocked", "CheckMurder");
+                return false;
+            }
+
+            switch (Options.CurrentGameMode)
+            {
+                case CustomGameMode.SoloKombat:
+                    SoloPVP.OnPlayerAttack(killer, target);
+                    return false;
+                case CustomGameMode.FFA:
+                    FreeForAll.OnPlayerAttack(killer, target);
+                    return false;
+                case CustomGameMode.HotPotato:
+                    (byte holderID, byte lastHolderID) = HotPotato.GetState();
+                    if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControls.Length <= 2))
+                        HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
+                    return false;
+                case CustomGameMode.TheMindGame:
+                case CustomGameMode.MoveAndStop:
+                case CustomGameMode.RoomRush:
+                case CustomGameMode.NaturalDisasters:
+                case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
+                    return false;
+                case CustomGameMode.Quiz:
+                    if (Quiz.AllowKills) killer.Kill(target);
+                    return false;
+                case CustomGameMode.Speedrun:
+                    killer.Kill(target);
+                    return false;
+                case CustomGameMode.HideAndSeek:
+                    CustomHnS.OnCheckMurder(killer, target);
+                    return false;
+                case CustomGameMode.CaptureTheFlag:
+                    CaptureTheFlag.OnCheckMurder(killer, target);
+                    return false;
+                case CustomGameMode.KingOfTheZones:
+                    KingOfTheZones.OnCheckMurder(killer, target);
                     return false;
             }
 
-            bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile);
-        }
+            Deadlined.SetDone(killer);
 
-        if (!killer.RpcCheckAndMurder(target, true)) return false;
+            if (ToiletMaster.OnAnyoneCheckMurderStart(killer, target)) return false;
+            if (Dad.OnAnyoneCheckMurderStart(target)) return false;
 
-        if (killer.Is(CustomRoles.Unlucky))
-        {
-            if (IRandom.Instance.Next(0, 100) < Options.UnluckyKillSuicideChance.GetInt())
+            Simon.RemoveTarget(killer, Simon.Instruction.Kill);
+
+            if (Mastermind.ManipulatedPlayers.ContainsKey(killer.PlayerId))
+                return Mastermind.ForceKillForManipulatedPlayer(killer, target);
+
+            if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(killer, target)) return false;
+            if (!Starspawn.CheckInteraction(killer, target)) return false;
+
+            if (Penguin.IsVictim(killer)) return false;
+
+            Sniper.TryGetSniper(target.PlayerId, ref killer);
+            if (killer != __instance) Logger.Info($"Real Killer: {killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
+
+            if (Pelican.IsEaten(target.PlayerId)) return false;
+
+            if (killer.IsRoleBlocked())
             {
-                killer.Suicide();
+                killer.Notify(BlockedAction.Kill.GetBlockNotify());
                 return false;
             }
-        }
 
-        if (killer.Is(CustomRoles.Mare)) killer.ResetKillCooldown();
+            if (Pursuer.OnClientMurder(killer)) return false;
 
-        if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
-        {
-            if (killer.RpcCheckAndMurder(target, true))
+            Seamstress.OnAnyoneCheckMurder(killer, target);
+
+            if (killer.PlayerId != target.PlayerId)
             {
-                target.Suicide(PlayerState.DeathReason.Kill, killer);
-                killer.SetKillCooldown();
+                switch (killer.Is(CustomRoles.Bloodlust))
+                {
+                    case false when !CheckMurder():
+                        return false;
+                    case true when killer.GetCustomRole().GetDYRole() == RoleTypes.Impostor:
+                        if (killer.CheckDoubleTrigger(target, () =>
+                        {
+                            if (CheckMurder()) killer.RpcCheckAndMurder(target);
+                        }))
+                            killer.RpcCheckAndMurder(target);
+
+                        return false;
+                }
+
+                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile);
             }
 
-            RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-            return false;
-        }
+            if (!killer.RpcCheckAndMurder(target, true)) return false;
 
-        if (killer.Is(CustomRoles.Magnet) && !target.Is(CustomRoles.Pestilence))
-        {
-            target.TP(killer);
-            LateTask.New(() => killer.RpcCheckAndMurder(target), 0.1f, log: false);
-            return false;
-        }
+            if (killer.Is(CustomRoles.Unlucky))
+            {
+                if (IRandom.Instance.Next(0, 100) < Options.UnluckyKillSuicideChance.GetInt())
+                {
+                    killer.Suicide();
+                    return false;
+                }
+            }
 
-        //==Kill processing==
-        __instance.Kill(target);
-        //===================
+            if (killer.Is(CustomRoles.Mare)) killer.ResetKillCooldown();
+
+            if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
+            {
+                if (killer.RpcCheckAndMurder(target, true))
+                {
+                    target.Suicide(PlayerState.DeathReason.Kill, killer);
+                    killer.SetKillCooldown();
+                }
+
+                RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+                return false;
+            }
+
+            if (killer.Is(CustomRoles.Magnet) && !target.Is(CustomRoles.Pestilence))
+            {
+                target.TP(killer);
+                LateTask.New(() => killer.RpcCheckAndMurder(target), 0.1f, log: false);
+                return false;
+            }
+
+            //==Kill processing==
+            __instance.Kill(target);
+            //===================
+        }
+        catch (Exception e) { ThrowException(e); }
 
         return false;
     }
@@ -1364,8 +1368,8 @@ internal static class FixedUpdatePatch
         {
             AFKDetector.OnFixedUpdate(player);
 
-
-            if (GameStates.IsLobby && ((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic) AmongUsClient.Instance.ChangeGamePublic(false);
+            if (GameStates.IsLobby && ((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
+                AmongUsClient.Instance.ChangeGamePublic(false);
 
             // Kick low-level people
             if (!lowLoad && GameSettingMenuPatch.LastPresetChange + 5 < TimeStamp && GameStates.IsLobby && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
