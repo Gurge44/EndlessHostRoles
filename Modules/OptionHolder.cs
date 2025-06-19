@@ -1227,7 +1227,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
 
-        MaxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(2, 15, 1), 0, TabGroup.NeutralRoles)
+        MaxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(0, 15, 1), 2, TabGroup.NeutralRoles)
             .SetGameMode(CustomGameMode.Standard);
 
         HashSet<TabGroup> doneTabs = [];
