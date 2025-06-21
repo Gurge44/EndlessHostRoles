@@ -62,7 +62,7 @@ internal static class PingTrackerUpdatePatch
         };
 
         Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
-        Sb.Append($"<color={color}>{ping} {GetString("PingText")}</color>");
+        Sb.Append($"<color={color}>{GetString("PingText")}: {ping}</color>");
         AppendSeparator();
         Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
 
