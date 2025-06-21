@@ -1197,8 +1197,8 @@ public static class Options
         {
             (int Min, int Max) defaultNum = team switch
             {
-                Team.Impostor => (1, 3),
-                Team.Neutral => (0, 5),
+                Team.Impostor => (1, 1),
+                Team.Neutral => (0, 4),
                 Team.Coven => (0, 0),
                 _ => (0, 15)
             };
@@ -1246,7 +1246,7 @@ public static class Options
                 .SetColor(roleOptionTypeColor)
                 .SetHidden(tab == TabGroup.NeutralRoles);
 
-            options[1] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Min", new(0, 15, 1), 1, tab)
+            options[1] = new IntegerOptionItem(id++, $"RoleSubCategoryLimitOptions.{roleOptionType}.Min", new(0, 15, 1), 0, tab)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetValueFormat(OptionFormat.Players)
                 .SetColor(roleOptionTypeColor);
