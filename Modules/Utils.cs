@@ -2268,17 +2268,19 @@ public static class Utils
 
     public static string BuildSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        string suffix = string.Empty;
+        StringBuilder suffix = new();
 
         foreach (PlayerState state in Main.PlayerStates.Values)
         {
             string tempSuffix = state.Role.GetSuffix(seer, target, hud, meeting).Trim();
 
             if (!string.IsNullOrEmpty(tempSuffix))
-                suffix += $"{tempSuffix}\n";
+                suffix.Append($"{tempSuffix}\n");
         }
 
-        return suffix.Trim();
+        suffix.Append(CustomSabotage.GetAllSuffix(seer, target, hud, meeting));
+
+        return suffix.ToString().Trim();
     }
 
     public static IEnumerator NotifyEveryoneAsync(int speed = 2, bool noCache = true)

@@ -6,10 +6,10 @@ using Hazel;
 
 namespace EHR.Crewmate;
 
-public class Lyncher : RoleBase
+public class Decryptor : RoleBase
 {
     public static bool On;
-    public static List<Lyncher> Instances = [];
+    public static List<Decryptor> Instances = [];
 
     private static OptionItem TaskNum;
     public static OptionItem GuessMode;
@@ -25,7 +25,7 @@ public class Lyncher : RoleBase
     private static Dictionary<byte, List<char>> AllRoleNames = [];
 
     private Dictionary<byte, List<char>> KnownCharacters = [];
-    private byte LyncherId;
+    private byte DecryptorId;
     private int TasksCompleted;
 
     public override bool IsEnable => On;
@@ -33,19 +33,19 @@ public class Lyncher : RoleBase
     public override void SetupCustomOption()
     {
         var id = 648550;
-        Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Lyncher);
+        Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Decryptor);
 
-        TaskNum = new IntegerOptionItem(++id, "Lyncher.TaskNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
+        TaskNum = new IntegerOptionItem(++id, "Decryptor.TaskNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Decryptor]);
 
-        GuessMode = new StringOptionItem(++id, "Lyncher.GuessMode", GuessModes, 1, TabGroup.CrewmateRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
+        GuessMode = new StringOptionItem(++id, "Decryptor.GuessMode", GuessModes, 1, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Decryptor]);
 
         Vision = new FloatOptionItem(++id, "Vision", new(0f, 1.5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
             .SetValueFormat(OptionFormat.Multiplier)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Decryptor]);
 
-        Options.OverrideTasksData.Create(++id, TabGroup.CrewmateRoles, CustomRoles.Lyncher);
+        Options.OverrideTasksData.Create(++id, TabGroup.CrewmateRoles, CustomRoles.Decryptor);
     }
 
     public override void Init()
@@ -61,9 +61,9 @@ public class Lyncher : RoleBase
     {
         On = true;
         Instances.Add(this);
-        LyncherId = playerId;
+        DecryptorId = playerId;
         TasksCompleted = 0;
-        Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
+        Utils.SendRPC(CustomRPC.SyncRoleData, DecryptorId, 1, TasksCompleted);
 
         if (Main.HasJustStarted)
             LateTask.New(Action, 12f, log: false);
@@ -102,7 +102,7 @@ public class Lyncher : RoleBase
         else
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
-        Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
+        Utils.SendRPC(CustomRPC.SyncRoleData, DecryptorId, 1, TasksCompleted);
     }
 
     private void RevealLetter()
@@ -112,18 +112,18 @@ public class Lyncher : RoleBase
         KnownCharacters.Do(x =>
         {
             x.Value.Add(nextLetters[x.Key]);
-            Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, x.Key, nextLetters[x.Key]);
+            Utils.SendRPC(CustomRPC.SyncRoleData, DecryptorId, 2, x.Key, nextLetters[x.Key]);
         });
     }
 
     public void OnRoleChange(byte id)
     {
-        Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 3, id);
+        Utils.SendRPC(CustomRPC.SyncRoleData, DecryptorId, 3, id);
         CustomRoles newRole = Main.PlayerStates[id].MainRole;
         AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle();
         int count = KnownCharacters[id].Count;
         KnownCharacters[id] = AllRoleNames[id].Take(count).ToList();
-        KnownCharacters[id].ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, id, x));
+        KnownCharacters[id].ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, DecryptorId, 2, id, x));
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -144,12 +144,12 @@ public class Lyncher : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != LyncherId) return string.Empty;
+        if (seer.PlayerId != DecryptorId) return string.Empty;
 
         return (seer.PlayerId == target.PlayerId) switch
         {
             false when KnownCharacters.TryGetValue(target.PlayerId, out List<char> chars) && chars.Count > 0 => string.Join(' ', chars),
-            true when !seer.IsModdedClient() || hud => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
+            true when !seer.IsModdedClient() || hud => string.Format(Translator.GetString("Decryptor.Suffix"), TaskNum.GetInt() - TasksCompleted),
             _ => string.Empty
         };
     }

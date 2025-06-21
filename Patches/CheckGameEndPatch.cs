@@ -76,6 +76,8 @@ internal static class GameEndChecker
             NameNotifyManager.Reset();
             NotifyRoles(ForceLoop: true);
 
+            CustomSabotage.Reset();
+
             int saboWinner = Options.WhoWinsBySabotageIfNoImpAlive.GetValue();
 
             if (reason == GameOverReason.ImpostorsBySabotage && saboWinner != 0 && !Main.AllAlivePlayerControls.Any(x => x.Is(Team.Impostor)))

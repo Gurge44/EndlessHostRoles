@@ -402,7 +402,7 @@ public class Main : BasePlugin
                 { CustomRoles.Oxyman, "#ffa58c" },
                 { CustomRoles.Rhapsode, "#f5ad42" },
                 { CustomRoles.Chef, "#d6d6ff" },
-                { CustomRoles.Lyncher, "#14ba7d" },
+                { CustomRoles.Decryptor, "#14ba7d" },
                 { CustomRoles.Socialite, "#32a8a8" },
                 { CustomRoles.Adrenaline, "#ffff00" },
                 { CustomRoles.Safeguard, "#4949e3" },

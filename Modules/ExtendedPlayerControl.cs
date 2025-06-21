@@ -1081,6 +1081,20 @@ internal static class ExtendedPlayerControl
             _ => SystemTypes.Reactor
         };
 
+        if (IsActive(systemtypes))
+        {
+            Main.PlayerStates[pc.PlayerId].IsBlackOut = true;
+            pc.MarkDirtySettings();
+
+            LateTask.New(() =>
+            {
+                Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
+                pc.MarkDirtySettings();
+            }, (float.IsNaN(flashDuration) ? Options.KillFlashDuration.GetFloat() : flashDuration) + delay, "Fix BlackOut Reactor Flash");
+
+            return;
+        }
+
         pc.RpcDesyncRepairSystem(systemtypes, 128);
 
         LateTask.New(() =>

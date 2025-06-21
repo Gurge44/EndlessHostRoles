@@ -102,6 +102,18 @@ internal static class LocateArrow
     }
 
     /// <summary>
+    ///     Get a specific visible target arrow
+    /// </summary>
+    /// <param name="seer"></param>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public static string GetArrow(PlayerControl seer, Vector3 position)
+    {
+        ArrowInfo arrowInfo = new(seer.PlayerId, position);
+        return LocateArrows.FirstOrDefault(a => a.Key.Equals(arrowInfo)).Value ?? string.Empty;
+    }
+
+    /// <summary>
     ///     Check target arrow every FixedUpdate
     ///     Issue NotifyRoles when there are updates
     /// </summary>

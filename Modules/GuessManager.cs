@@ -93,14 +93,14 @@ public static class GuessManager
                     return true;
                 }
 
-                if (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 2) goto SkipCheck;
+                if (pc.Is(CustomRoles.Decryptor) && Decryptor.GuessMode.GetValue() == 2) goto SkipCheck;
 
                 if ((pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool()) ||
                     (pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool()) ||
                     (pc.Is(CustomRoleTypes.Coven) && !Options.CovenCanGuess.GetBool()) ||
                     (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool()) ||
                     (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool()) ||
-                    (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0) ||
+                    (pc.Is(CustomRoles.Decryptor) && Decryptor.GuessMode.GetValue() == 0) ||
                     (Options.GuesserNumRestrictions.GetBool() && !Guessers.Contains(pc.PlayerId)))
                 {
                     if (pc.Is(CustomRoles.Guesser)) goto SkipCheck;
@@ -113,7 +113,7 @@ public static class GuessManager
 
                 SkipCheck:
 
-                if (pc.GetCustomRole() is CustomRoles.Lyncher or CustomRoles.NecroGuesser ||
+                if (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
                     (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
                     (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
                     (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
@@ -1082,7 +1082,7 @@ public static class GuessManager
                 CustomRoles.NecroGuesser => true,
                 CustomRoles.Augur => true,
                 CustomRoles.Doomsayer when !Doomsayer.CantGuess => true,
-                CustomRoles.Lyncher when Lyncher.GuessMode.GetValue() == 2 => true,
+                CustomRoles.Decryptor when Decryptor.GuessMode.GetValue() == 2 => true,
                 _ when Options.GuesserMode.GetBool() => lp.GetTeam() switch
                 {
                     Team.Impostor => Options.ImpostorsCanGuess.GetBool(),

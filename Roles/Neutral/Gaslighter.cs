@@ -175,7 +175,7 @@ public class Gaslighter : RoleBase
                 string role = IRandom.Instance.Next(2) == 0 ? CustomRoles.HexMaster.ToColoredString() : CustomRoles.Witch.ToColoredString();
                 string text = string.Format(Translator.GetString("WitchCursedPlayersMessage"), cursed, role);
                 Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"));
-            }, 10f, "Witch Cursed Players Notify");
+            }, 10f, "Gaslighter Cursed Players Notify");
         }
     }
 
@@ -187,8 +187,10 @@ public class Gaslighter : RoleBase
                 return true;
             case Round.Knight when killer.GetAbilityUseLimit() > 0 && !target.Is(CustomRoles.Knighted):
                 target.RpcSetCustomRole(CustomRoles.Knighted);
+                target.RpcGuardAndKill(killer);
+                target.RpcGuardAndKill(target);
+                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), Translator.GetString("KnightedByMonarch")));
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                 killer.RpcRemoveAbilityUse();
                 killer.SetKillCooldown();
                 break;

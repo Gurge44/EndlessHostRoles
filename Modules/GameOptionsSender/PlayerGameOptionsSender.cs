@@ -170,7 +170,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     SetMaxVision();
                     NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
                     break;
-                case CustomGameMode.RoomRush when RoomRush.VentLimit[player.PlayerId] > 0:
+                case CustomGameMode.RoomRush when RoomRush.VentLimit.TryGetValue(player.PlayerId, out int vl) && vl > 0:
                     AURoleOptions.EngineerCooldown = 0.01f;
                     AURoleOptions.EngineerInVentMaxTime = 0f;
                     goto case CustomGameMode.RoomRush;

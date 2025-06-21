@@ -80,12 +80,14 @@ public static class FixedUpdateCaller
             {
                 NonLowLoadPlayerIndex++;
 
-                if (NonLowLoadPlayerIndex >= PlayerControl.AllPlayerControls.Count)
-                    NonLowLoadPlayerIndex = Math.Min(0, -(30 - PlayerControl.AllPlayerControls.Count));
+                int count = PlayerControl.AllPlayerControls.Count;
+
+                if (NonLowLoadPlayerIndex >= count)
+                    NonLowLoadPlayerIndex = Math.Min(0, -(30 - count));
 
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
 
-                for (var index = 0; index < PlayerControl.AllPlayerControls.Count; index++)
+                for (var index = 0; index < count; index++)
                 {
                     try
                     {

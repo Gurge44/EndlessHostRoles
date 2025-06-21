@@ -316,7 +316,7 @@ public static class TextBoxPatch
     public static bool IsCharAllowedPatch(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
     {
         if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
-        __result = i != '\b';
+        __result = i is not '\b' and not '\n' and not '\r';
         return false;
     }
 

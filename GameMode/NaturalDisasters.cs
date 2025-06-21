@@ -263,7 +263,7 @@ public static class NaturalDisasters
                 {
                     "BuildingCollapse" => roomKvp.Value,
                     "Thunderstorm" => Pelican.GetBlackRoomPS(),
-                    _ => IRandom.Instance.Next(2) == 0
+                    _ => IRandom.Instance.Next(2) == 0 && Options.CurrentGameMode == CustomGameMode.NaturalDisasters
                         ? Main.AllAlivePlayerControls.RandomElement().Pos()
                         : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom))
                 };

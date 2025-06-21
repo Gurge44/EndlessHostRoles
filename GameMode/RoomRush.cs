@@ -223,7 +223,7 @@ public static class RoomRush
 
         Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
-        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 4f : 0.2f);
+        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 8f : 4f);
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
@@ -234,7 +234,7 @@ public static class RoomRush
 
         if (showTutorial)
         {
-            var readingTime = 2;
+            var readingTime = 0;
 
             StringBuilder sb = new(Translator.GetString("RR_Tutorial_Basics"));
             sb.AppendLine();
@@ -464,6 +464,7 @@ public static class RoomRush
         switch (reader.ReadPackedInt32())
         {
             case 1:
+                PointsToWinValue = PointsToWin.GetInt() * Main.AllAlivePlayerControls.Length;
                 int ventLimit = VentTimes.GetInt();
                 VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
                 if (WinByPointsInsteadOfDeaths.GetBool()) Points = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => 0);
@@ -603,7 +604,8 @@ public class RRPlayer : RoleBase
     public override void OnExitVent(PlayerControl pc, Vent vent)
     {
         RoomRush.VentLimit[pc.PlayerId]--;
-        Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, RoomRush.VentLimit[pc.PlayerId], pc.PlayerId);
-        if (RoomRush.VentLimit[pc.PlayerId] <= 0) pc.RpcChangeRoleBasis(CustomRoles.RRPlayer);
+        int newLimit = RoomRush.VentLimit[pc.PlayerId];
+        Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, newLimit, pc.PlayerId);
+        if (newLimit <= 0) pc.RpcChangeRoleBasis(CustomRoles.RRPlayer);
     }
 }

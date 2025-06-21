@@ -1050,9 +1050,7 @@ internal static class IntroCutsceneDestroyPatch
 
             if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag)
             {
-                Main.ProcessShapeshifts = false;
-
-                LateTask.New(() =>
+                void GrantPetForEveryone()
                 {
                     foreach (PlayerControl pc in aapc)
                     {
@@ -1063,7 +1061,13 @@ internal static class IntroCutsceneDestroyPatch
                         PetsHelper.SetPet(pc, petId);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
-                }, 0.3f, "Grant Pet For Everyone");
+                }
+
+                Main.ProcessShapeshifts = false;
+
+                LateTask.New(GrantPetForEveryone, 0.3f, "Grant Pet For Everyone");
+                LateTask.New(GrantPetForEveryone, 0.7f, "Grant Pet For Everyone");
+                LateTask.New(GrantPetForEveryone, 1.1f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
                 {
@@ -1091,9 +1095,9 @@ internal static class IntroCutsceneDestroyPatch
                         }
                         catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
                     }
-                }, 0.4f, "Show Pet For Everyone");
+                }, 1.4f, "Show Pet For Everyone");
 
-                LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
+                LateTask.New(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
             }
 
             try

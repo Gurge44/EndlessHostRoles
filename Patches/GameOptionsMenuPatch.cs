@@ -680,7 +680,7 @@ public static class StringOptionPatch
 
                 if (role.IsExperimental()) name += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
-                if (role.IsDevFavoriteRole()) name += "<size=2><#00ffff>★</color></size>";
+                if (role.IsDevFavoriteRole()) name += "  <size=2><#00ffff>★</color></size>";
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
@@ -822,7 +822,7 @@ public static class StringOptionPatch
 
                 if (role.IsExperimental()) name += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
                 if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
-                if (role.IsDevFavoriteRole()) name += "<size=2><#00ffff>★</color></size>";
+                if (role.IsDevFavoriteRole()) name += "  <size=2><#00ffff>★</color></size>";
 
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);

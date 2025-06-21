@@ -360,6 +360,7 @@ internal static class ChangeRoleSettings
             }
 
             FallFromLadder.Reset();
+            CustomSabotage.Reset();
 
             try
             {
@@ -920,18 +921,21 @@ internal static class StartGameHostPatch
             {
                 case CustomGameMode.HideAndSeek:
                     CustomHnS.StartSeekerBlindTime();
-                    break;
+                    goto default;
                 case CustomGameMode.CaptureTheFlag:
                     CaptureTheFlag.Init();
-                    break;
+                    goto default;
                 case CustomGameMode.NaturalDisasters:
                     NaturalDisasters.OnGameStart();
                     break;
                 case CustomGameMode.KingOfTheZones:
                     KingOfTheZones.Init();
-                    break;
+                    goto default;
                 case CustomGameMode.Quiz:
                     Quiz.Init();
+                    goto default;
+                default:
+                    if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                     break;
             }
 

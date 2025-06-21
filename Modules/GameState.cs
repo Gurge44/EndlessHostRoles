@@ -66,6 +66,7 @@ public class PlayerState(byte playerId)
         Dragged,
         Mauled,
         WipedOut,
+        OutOfOxygen,
 
         // Natural Disasters
         Meteor,
@@ -100,7 +101,7 @@ public class PlayerState(byte playerId)
     public DeathReason deathReason { get; set; } = DeathReason.etc;
     public bool IsBlackOut { get; set; }
 
-    public bool IsSuicide => deathReason == DeathReason.Suicide;
+    public bool IsSuicide => deathReason is DeathReason.Suicide or DeathReason.Fall;
     public TaskState TaskState { get; set; } = new();
 
     public void SetMainRole(CustomRoles role, bool failsafe = false)
@@ -166,7 +167,7 @@ public class PlayerState(byte playerId)
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
             }
 
-            if (Lyncher.On) Lyncher.Instances.ForEach(x => x.OnRoleChange(PlayerId));
+            if (Decryptor.On) Decryptor.Instances.ForEach(x => x.OnRoleChange(PlayerId));
 
             if (!role.Is(Team.Impostor) && !(role == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
                 SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);

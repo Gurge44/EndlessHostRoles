@@ -957,6 +957,12 @@ internal static class ReportDeadBodyPatch
 
             if (target == null)
             {
+                if (CustomSabotage.Instances.Count > 0)
+                {
+                    Notify("CannotCallEmergencyMeetingWhileSabotage");
+                    return false;
+                }
+                
                 if (__instance.Is(CustomRoles.Jester) && !Jester.JesterCanUseButton.GetBool())
                 {
                     Notify("JesterCannotCallEmergencyMeeting");
@@ -1213,6 +1219,8 @@ internal static class ReportDeadBodyPatch
             PhantomRolePatch.OnReportDeadBody(pc);
         }
 
+        CustomSabotage.Reset();
+
         MeetingTimeManager.OnReportDeadBody();
 
         NameNotifyManager.Reset();
@@ -1344,6 +1352,7 @@ internal static class FixedUpdatePatch
 
         if (localPlayer)
         {
+            CustomSabotage.UpdateAll();
             Zoom.OnFixedUpdate();
             TextBoxPatch.CheckChatOpen();
 

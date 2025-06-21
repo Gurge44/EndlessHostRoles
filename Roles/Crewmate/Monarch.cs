@@ -94,7 +94,7 @@ public class Monarch : RoleBase
 
             sender.SendMessage(!hasValue);
 
-            Logger.Info("SetRole:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Knighted, "Assign " + CustomRoles.Knighted);
+            Logger.Info($"Set Role: {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Knighted}", $"Assign {CustomRoles.Knighted}");
             return false;
         }
 

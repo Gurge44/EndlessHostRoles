@@ -237,7 +237,7 @@ internal static class CustomRolesHelper
             CustomRoles.President => CustomRoles.Crewmate,
             CustomRoles.Oxyman => CustomRoles.Engineer,
             CustomRoles.Chef => CustomRoles.Crewmate,
-            CustomRoles.Lyncher => CustomRoles.Crewmate,
+            CustomRoles.Decryptor => CustomRoles.Crewmate,
             CustomRoles.Adrenaline => CustomRoles.Crewmate,
             CustomRoles.Safeguard => CustomRoles.Crewmate,
             CustomRoles.Clairvoyant => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -907,7 +907,7 @@ internal static class CustomRolesHelper
             CustomRoles.Merchant or
             CustomRoles.Mayor or
             CustomRoles.Insight or
-            CustomRoles.Lyncher or
+            CustomRoles.Decryptor or
             CustomRoles.Transporter;
     }
 
@@ -1730,7 +1730,7 @@ internal static class CustomRolesHelper
             CustomRoles.Detour => RoleOptionType.Crewmate_Power,
             CustomRoles.Dictator => RoleOptionType.Crewmate_Power,
             CustomRoles.Guardian => RoleOptionType.Crewmate_Power,
-            CustomRoles.Lyncher => RoleOptionType.Crewmate_Power,
+            CustomRoles.Decryptor => RoleOptionType.Crewmate_Power,
             CustomRoles.Marshall => RoleOptionType.Crewmate_Power,
             CustomRoles.Mayor => RoleOptionType.Crewmate_Power,
             CustomRoles.NiceEraser => RoleOptionType.Crewmate_Power,

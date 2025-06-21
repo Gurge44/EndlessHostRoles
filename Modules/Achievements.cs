@@ -76,7 +76,7 @@ public static class Achievements
         Speedrun, // Have a game end in under 1 minute
         Carried, // Win as a madmate while the other impostors are dead
         SorryToBurstYourBubble, // Explode 5 people with 1 encased player as the Bubble
-        GetLynched, // Successfully guess 3 roles as lyncher
+        GetDecrypted, // Successfully guess 3 roles as Decryptor
         FlagMaster, // Carry the flag the longest in CTF
         Tag, // Tag the most players in CTF
         Vectory, // Vent 50 times in one game
@@ -230,6 +230,7 @@ public static class Achievements
             IEnumerator FetchAchievementsFromApiAsync()
             {
                 while (PlayerControl.LocalPlayer == null) yield return null;
+                yield return new WaitForSeconds(3f);
 
                 string userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
                 var url = $"{ApiLoadEndpoint}?userId={userId}";

@@ -243,8 +243,8 @@ public static class Statistics
             if (exiled && exiledPlayer.PlayerId == lp.PlayerId && Main.PlayerStates.Values.Any(x => x.SubRoles.Contains(CustomRoles.Bait) && x.GetRealKiller() == lp.PlayerId))
                 Achievements.Type.Gotcha.Complete();
 
-            if (lp.Is(CustomRoles.Lyncher) && Main.PlayerStates.Values.Count(x => x.deathReason == PlayerState.DeathReason.Gambled && x.GetRealKiller() == lp.PlayerId) >= 3)
-                Achievements.Type.GetLynched.Complete();
+            if (lp.Is(CustomRoles.Decryptor) && Main.PlayerStates.Values.Count(x => x.deathReason == PlayerState.DeathReason.Gambled && x.GetRealKiller() == lp.PlayerId) >= 3)
+                Achievements.Type.GetDecrypted.Complete();
 
             LateTask.New(() =>
             {
