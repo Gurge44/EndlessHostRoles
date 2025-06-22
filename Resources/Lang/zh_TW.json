@@ -3653,7 +3653,7 @@
   "Samurai.KillDelay": "擊殺延遲",
   "Overheat": "過熱者",
   "OverheatInfo": "將熱能轉化為動能",
-  "OverheatInfoLong": "(偽裝者陣營):\\n過熱者的的擊殺冷卻時間取決於你的溫度。殺死越多玩家，你的溫度就越高(就算不殺死玩家溫度也會自動上升)，你的擊殺冷卻時間就越短，但你過熱的機會也會增加，過熱者過熱會直接自殺。你可以使用變形或撫摸寵物來重置溫度。但這將讓你定在原地幾秒。",
+  "OverheatInfoLong": "(Impostors):\\nAs the Overheat, your kill cooldown is based on your temperature. The more you wait, the hotter you get, and the lower your kill cooldown becomes, but your chance of overheating is also increasing. You can shapeshift or pet to cool down to reset your temperature. This freezes you in place for a few seconds.",
   "Overheat.Suffix": "<size=80%>溫度: {0}</size>",
   "Overheat.ChanceIncrease": "升溫速率",
   "Overheat.ChanceIncreaseFrequency": "升溫頻率",
