@@ -3653,7 +3653,7 @@
   "Samurai.KillDelay": "Atraso no abate",
   "Overheat": "Superaquecido",
   "OverheatInfo": "Aquecido = Recarga de abate baixa",
-  "OverheatInfoLong": "(Impostores):\\nComo Superaquecido, sua recarga de abate é baseada na sua temperatura. Quando mais você soar, mais aquecido você fica, e mais baixa sua recarga de abate fica, mas sua chance de superaquecimento também aumenta. Você pode se metamorfar ou acariciar seu pet para resfriar e redefinir sua temperatura. isso te congela no lugar por alguns segundos.",
+  "OverheatInfoLong": "(Impostors):\\nAs the Overheat, your kill cooldown is based on your temperature. The more you wait, the hotter you get, and the lower your kill cooldown becomes, but your chance of overheating is also increasing. You can shapeshift or pet to cool down to reset your temperature. This freezes you in place for a few seconds.",
   "Overheat.Suffix": "<size=80%>Temperatura: {0}</size>",
   "Overheat.ChanceIncrease": "Taxa de aumento da temperatura",
   "Overheat.ChanceIncreaseFrequency": "Frequência de aumento da temperatura",
