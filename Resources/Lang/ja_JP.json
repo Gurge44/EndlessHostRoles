@@ -3653,7 +3653,7 @@
   "Samurai.KillDelay": "殺害の遅れ",
   "Overheat": "オーバーヒート",
   "OverheatInfo": "ホット = キルのクールダウンが低下",
-  "OverheatInfoLong": "(<color=#ff1919>インポスター</color>):\\n<size=80%>オーバーヒートとして、あなたのキルのクールダウンは あなたの温度に基づいています。\\nあなたのワットが高いほど、あなたは熱くなり、そして あなたのキルのクールダウンが低くなりますが、しかし あなたの過熱の確率も 上昇していきます。\\nあなたは シェイプシフト または ペットで あなたの温度をリセットするために 冷却ができます。\\nこれには あなたを数秒間 その場で凍結します。</size>",
+  "OverheatInfoLong": "(Impostors):\\nAs the Overheat, your kill cooldown is based on your temperature. The more you wait, the hotter you get, and the lower your kill cooldown becomes, but your chance of overheating is also increasing. You can shapeshift or pet to cool down to reset your temperature. This freezes you in place for a few seconds.",
   "Overheat.Suffix": "<size=80%>温度: {0}</size>",
   "Overheat.ChanceIncrease": "温度の上昇率",
   "Overheat.ChanceIncreaseFrequency": "温度の上昇頻度",
