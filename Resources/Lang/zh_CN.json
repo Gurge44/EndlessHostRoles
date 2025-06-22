@@ -3653,7 +3653,7 @@
   "Samurai.KillDelay": "击杀延迟",
   "Overheat": "过热",
   "OverheatInfo": "快快快!我要红温热死了!",
-  "OverheatInfoLong": "(内鬼职业):\\n过热击杀数越多,温度越高,击杀冷却时间就越低,但你过热的概率也会随之增加.你可以使用变形或宠物按钮以重置温度.但这会将你冻结在原地几秒钟.",
+  "OverheatInfoLong": "(Impostors):\\nAs the Overheat, your kill cooldown is based on your temperature. The more you wait, the hotter you get, and the lower your kill cooldown becomes, but your chance of overheating is also increasing. You can shapeshift or pet to cool down to reset your temperature. This freezes you in place for a few seconds.",
   "Overheat.Suffix": "<size=80%>温度:{0}</size>",
   "Overheat.ChanceIncrease": "温度上升",
   "Overheat.ChanceIncreaseFrequency": "升温频率",
