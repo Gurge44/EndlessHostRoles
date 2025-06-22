@@ -3653,7 +3653,7 @@
   "Samurai.KillDelay": "Retraso de Asesinato",
   "Overheat": "Sobrecalentamiento",
   "OverheatInfo": "Caliente = Menor Tiempo de Reutilización de Asesinato",
-  "OverheatInfoLong": "(Impostores):\\nComo el Sobrecalentamiento, tu tiempo de reutilización de asesinato está basado en tu temperatura. Mientras más esperas, más caliente te vuelves, y más bajo se vuelve tu tiempo de reutilización de asesinato, pero tu probabilidad de sobrecalentarte también está aumentando. Puedes cambiar de forma o acariciar para enfriarte y reiniciar tu temperatura. Esto te congela en tu lugar por unos cuantos segundos.",
+  "OverheatInfoLong": "(Impostors):\\nAs the Overheat, your kill cooldown is based on your temperature. The more you wait, the hotter you get, and the lower your kill cooldown becomes, but your chance of overheating is also increasing. You can shapeshift or pet to cool down to reset your temperature. This freezes you in place for a few seconds.",
   "Overheat.Suffix": "<size=80%>Temperatura: {0}</size>",
   "Overheat.ChanceIncrease": "Radio de Aumento de Temperatura",
   "Overheat.ChanceIncreaseFrequency": "Frecuencia de Aumento de Temperatura",
