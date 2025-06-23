@@ -87,6 +87,7 @@ internal class TimeMaster : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         if (pc.GetAbilityUseLimit() < 1) return;
         pc.RpcRemoveAbilityUse();
 

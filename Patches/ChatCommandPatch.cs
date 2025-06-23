@@ -530,12 +530,6 @@ internal static class ChatCommands
 
     private static void AddTagCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(AddTagCommand), text);
-            return;
-        }
-
         if (args.Length < 4 || !byte.TryParse(args[1], out byte id)) return;
 
         PlayerControl pc = id.GetPlayer();
@@ -543,6 +537,7 @@ internal static class ChatCommands
 
         Color color = ColorUtility.TryParseHtmlString($"#{args[2].ToLower()}", out Color c) ? c : Color.red;
         string tag = Utils.ColorString(color, string.Join(' ', args[3..]));
+        if (!tag.EndsWith(' ') && !tag.EndsWith('-') && !tag.EndsWith('>')) tag += " ";
         PrivateTagManager.AddTag(pc.FriendCode, tag);
 
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("AddTagSuccess"), tag, id.ColoredPlayerName(), id));
@@ -550,12 +545,6 @@ internal static class ChatCommands
 
     private static void DeleteTagCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(DeleteTagCommand), text);
-            return;
-        }
-
         if (args.Length < 2 || !byte.TryParse(args[1], out byte id)) return;
 
         PlayerControl pc = id.GetPlayer();
@@ -563,6 +552,7 @@ internal static class ChatCommands
 
         PrivateTagManager.DeleteTag(pc.FriendCode);
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeleteTagSuccess"), id.ColoredPlayerName()));
+        Utils.DirtyName.Add(pc.PlayerId);
     }
 
     private static void EightBallCommand(PlayerControl player, string text, string[] args)
@@ -1463,13 +1453,7 @@ internal static class ChatCommands
 
         string subArgs = args.Length != 2 ? "" : args[1];
 
-        if (subArgs == "" || !int.TryParse(subArgs, out int guessedNo))
-        {
-            Utils.SendMessage(GetString("GNoCommandInfo"), player.PlayerId, sendOption: SendOption.None);
-            return;
-        }
-
-        if (guessedNo is < 0 or > 99)
+        if (subArgs == "" || !int.TryParse(subArgs, out int guessedNo) || guessedNo is < 0 or > 99)
         {
             Utils.SendMessage(GetString("GNoCommandInfo"), player.PlayerId, sendOption: SendOption.None);
             return;
@@ -3271,7 +3255,7 @@ internal static class ChatCommands
 
         var commandEntered = false;
 
-        if (text.StartsWith('/') && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
+        if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
         {
             foreach (Command command in AllCommands)
             {

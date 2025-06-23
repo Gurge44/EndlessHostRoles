@@ -308,6 +308,7 @@ internal class AntiAdminer : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (Options.UsePets.GetBool()) return;
         if (!IsMonitor) return;
         OpenDoors(pc);
     }

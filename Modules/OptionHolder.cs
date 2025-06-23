@@ -205,18 +205,6 @@ public static class Options
         "pet_RANDOM_FOR_EVERYONE"
     ];
 
-    public static float DefaultKillCooldown = Main.NormalOptions == null ? 25f : Main.NormalOptions.KillCooldown;
-
-    public static float AdjustedDefaultKillCooldown => !GameStates.InGame
-        ? DefaultKillCooldown
-        : DefaultKillCooldown + Main.CurrentMap switch
-        {
-            MapNames.Polus => ExtraKillCooldownOnPolus?.GetFloat() ?? 0f,
-            MapNames.Airship => ExtraKillCooldownOnAirship?.GetFloat() ?? 0f,
-            MapNames.Fungle => ExtraKillCooldownOnFungle?.GetFloat() ?? 0f,
-            _ => 0f
-        };
-
     public static OptionItem ModLanguage;
 
     public static readonly Dictionary<GameStateInfo, OptionItem> GameStateSettings = [];
@@ -607,6 +595,8 @@ public static class Options
     public static OptionItem DisableAirshipCargoLightsPanel;
     public static OptionItem WhoWinsBySabotageIfNoImpAlive;
     public static OptionItem IfSelectedTeamIsDead;
+    public static OptionItem EnableCustomSabotages;
+    public static OptionItem EnableGrabOxygenMaskCustomSabotage;
 
     // Guesser Mode
     public static OptionItem GuesserMode;
@@ -695,6 +685,7 @@ public static class Options
 
     public static OptionItem FixFirstKillCooldown;
     public static OptionItem StartingKillCooldown;
+    public static OptionItem FallBackKillCooldownValue;
     public static OptionItem ShieldPersonDiedFirst;
     public static OptionItem GhostCanSeeOtherRoles;
     public static OptionItem GhostCanSeeOtherVotes;
@@ -876,6 +867,18 @@ public static class Options
         12 => CustomGameMode.TheMindGame,
         _ => CustomGameMode.Standard
     };
+
+    public static float DefaultKillCooldown = Main.NormalOptions == null ? FallBackKillCooldownValue?.GetFloat() ?? 25f : Main.NormalOptions.KillCooldown;
+
+    public static float AdjustedDefaultKillCooldown => !GameStates.InGame
+        ? DefaultKillCooldown
+        : DefaultKillCooldown + Main.CurrentMap switch
+        {
+            MapNames.Polus => ExtraKillCooldownOnPolus?.GetFloat() ?? 0f,
+            MapNames.Airship => ExtraKillCooldownOnAirship?.GetFloat() ?? 0f,
+            MapNames.Fungle => ExtraKillCooldownOnFungle?.GetFloat() ?? 0f,
+            _ => 0f
+        };
 
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize))]
     [HarmonyPostfix]
@@ -2063,6 +2066,15 @@ public static class Options
             .SetColor(new Color32(243, 96, 96, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
 
+        EnableCustomSabotages = new BooleanOptionItem(22530, "EnableCustomSabotages", false, TabGroup.GameSettings)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue))
+            .SetGameMode(CustomGameMode.Standard);
+
+        EnableGrabOxygenMaskCustomSabotage = new BooleanOptionItem(22531, "EnableGrabOxygenMaskCustomSabotage", false, TabGroup.GameSettings)
+            .SetParent(EnableCustomSabotages)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue))
+            .SetGameMode(CustomGameMode.Standard);
+
         LoadingPercentage = 73;
 
 
@@ -2778,6 +2790,10 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         StartingKillCooldown = new FloatOptionItem(23950, "StartingKillCooldown", new(1, 60, 1), 10, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .SetValueFormat(OptionFormat.Seconds);
+
+        FallBackKillCooldownValue = new FloatOptionItem(23951, "FallBackKillCooldownValue", new(0.5f, 60f, 0.5f), 25f, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 

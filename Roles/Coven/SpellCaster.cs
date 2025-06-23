@@ -84,6 +84,8 @@ public class SpellCaster : Coven
     {
         try
         {
+            if (!On) return;
+            
             if (exileIds.Any(PlayerIdList.Contains))
                 HexedPlayers.Clear();
 

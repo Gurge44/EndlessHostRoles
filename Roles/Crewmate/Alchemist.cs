@@ -165,6 +165,7 @@ public class Alchemist : RoleBase
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (OnCoEnterVent(pc.MyPhysics, vent.Id)) return;
+        if (UsePets.GetBool()) return;
         DrinkPotion(pc, vent.Id);
     }
 

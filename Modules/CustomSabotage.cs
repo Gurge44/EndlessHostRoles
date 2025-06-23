@@ -20,6 +20,7 @@ public abstract class CustomSabotage
     protected virtual void Fix()
     {
         Instances.Remove(this);
+        SabotageSystemTypeRepairDamagePatch.Instance.IsDirty = true;
     }
 
     protected virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool hud, bool meeting)
@@ -69,6 +70,13 @@ public abstract class CustomSabotage
         {
             try { sabotage.Update(); }
             catch (Exception e) { Utils.ThrowException(e); }
+        }
+
+        if (Instances.Count > 0)
+        {
+            SabotageSystemTypeRepairDamagePatch.Instance.Timer = SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled
+                ? SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec
+                : 30f;
         }
     }
 
@@ -121,6 +129,13 @@ public class GrabOxygenMaskSabotage : CustomSabotage
         playersInRoom.Except(HasMask).ToValidPlayers().NotifyPlayers(Translator.GetString("CustomSabotage.GrabOxygenMask.Done"));
         playersInRoom.Except(HasMask).Do(x => LocateArrow.Remove(x, RoomPosition));
         HasMask.UnionWith(playersInRoom);
+
+        if (HasMask.IsSupersetOf(aapc.Select(x => x.PlayerId)))
+        {
+            Main.AllPlayerControls.Do(x => LocateArrow.Remove(x.PlayerId, RoomPosition));
+            Fix();
+            return;
+        }
 
         long now = Utils.TimeStamp;
 

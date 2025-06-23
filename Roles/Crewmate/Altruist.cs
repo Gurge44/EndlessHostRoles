@@ -96,13 +96,13 @@ public class Altruist : RoleBase
         }
 
         PlayerControl rtg = ReviveTarget.GetPlayer();
+        PlayerControl killer = rtg == null ? null : rtg.GetRealKiller();
+        
         rtg?.RpcRevive();
         rtg?.TP(ReviveTargetPos);
         rtg?.Notify(Translator.GetString("RevivedByAltruist"), 15f);
 
         RevivedPlayers.Add(ReviveTarget);
-
-        PlayerControl killer = rtg == null ? null : rtg.GetRealKiller();
 
         if (killer != null && ReviveTargetsKillerGetsAlert.GetBool())
         {
@@ -144,6 +144,7 @@ public class Altruist : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (Options.UsePets.GetBool()) return;
         OnPet(pc);
     }
 

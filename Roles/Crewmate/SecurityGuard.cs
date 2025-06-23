@@ -80,6 +80,7 @@ internal class SecurityGuard : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         Guard(pc);
     }
 

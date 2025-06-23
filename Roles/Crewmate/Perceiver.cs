@@ -65,6 +65,7 @@ internal class Perceiver : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (Options.UsePets.GetBool()) return;
         UseAbility(pc);
     }
 

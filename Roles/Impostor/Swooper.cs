@@ -116,6 +116,11 @@ public class Swooper : RoleBase
         {
             if (UsedRole == CustomRoles.Chameleon)
                 AURoleOptions.EngineerCooldown = Cooldown + 1f;
+            else if (UsePhantomBasis.GetBool() && (UsedRole == CustomRoles.Swooper || UsePhantomBasisForNKs.GetBool()))
+            {
+                AURoleOptions.PhantomCooldown = Cooldown;
+                AURoleOptions.PhantomDuration = 0.1f;
+            }
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -182,7 +187,6 @@ public class Swooper : RoleBase
         if (lastFixedTime != now && IsInvis)
         {
             lastFixedTime = now;
-            var refresh = false;
             long remainTime = InvisTime + (long)Duration - now;
 
             switch (remainTime)
@@ -192,16 +196,14 @@ public class Swooper : RoleBase
                     int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
                     Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
                     player.Notify(GetString("SwooperInvisStateOut"));
+                    player.RpcResetAbilityCooldown();
                     InvisTime = -10;
                     SendRPC();
-                    refresh = true;
                     break;
                 case <= 10 when !player.IsModdedClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
-
-            if (refresh) SendRPC();
         }
     }
 
@@ -248,6 +250,30 @@ public class Swooper : RoleBase
         SendRPC();
 
         pc.Notify(GetString("SwooperInvisStateOut"), 10f);
+        pc.RpcResetAbilityCooldown();
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (IsInvis) return false;
+
+        float limit = pc.GetAbilityUseLimit();
+        bool wraith = UsedRole == CustomRoles.Wraith;
+
+        if (CanGoInvis && (wraith || limit >= 1))
+        {
+            int? ventId = pc.GetClosestVent()?.Id;
+            Main.AllPlayerControls.Without(pc).Do(x => pc.MyPhysics.RpcEnterVentDesync(ventId ?? 2, x));
+
+            ventedId = ventId ?? -10;
+            InvisTime = Utils.TimeStamp;
+            if (!wraith) pc.RpcRemoveAbilityUse();
+
+            SendRPC();
+            pc.Notify(GetString("SwooperInvisState"), Duration);
+        }
+
+        return false;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

@@ -217,7 +217,7 @@ public static class TextBoxPatch
                             "{role}" or "[role]" => ChatCommands.GetRoleByName(arg, out _),
                             "{addon}" => ChatCommands.GetRoleByName(arg, out CustomRoles role) && role.IsAdditionRole(),
                             "{chance}" => int.TryParse(arg, out int chance) && chance is >= 0 and <= 100 && chance % 5 == 0,
-                            "{color}" => arg.Length == 6 && arg.All(x => char.IsDigit(x) || x is >= 'a' and <= 'f') && ColorUtility.TryParseHtmlString($"#{arg}", out _),
+                            "{color}" => arg.Length == 6 && arg.All(x => char.IsDigit(x) || x is >= 'a' and <= 'f') && ColorUtility.TryParseHtmlString($"#{arg.ToLower()}", out _),
                             _ => false
                         };
 

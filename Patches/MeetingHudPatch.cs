@@ -542,7 +542,7 @@ internal static class CheckForEndVotingPatch
             if (Virus.PlayerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
             if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
             if (Wasp.On && deathReason == PlayerState.DeathReason.Vote) Wasp.OnExile(playerIds);
-            if (CustomRoles.SpellCaster.RoleExist()) SpellCaster.OnExile(playerIds);
+            if (CustomRoles.SpellCaster.RoleExist() && deathReason == PlayerState.DeathReason.Vote) SpellCaster.OnExile(playerIds);
 
             foreach (byte playerId in playerIds)
             {

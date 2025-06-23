@@ -89,6 +89,7 @@ public class Tether : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         Teleport(pc, vent.Id);
     }
 

@@ -1,6 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using UnityEngine;
 
 namespace EHR.Crewmate;
 
@@ -56,6 +58,7 @@ public class Astral : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (Options.UsePets.GetBool()) return;
         LateTask.New(() => BecomeGhostTemporarily(pc), 2f, log: false);
     }
 
@@ -85,7 +88,7 @@ public class Astral : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, AstralId, BackTS);
 
         GhostRolesManager.RemoveGhostRole(pc.PlayerId);
-        pc.RpcChangeRoleBasis(pc.GetRoleMap().CustomRole);
+        pc.RpcChangeRoleBasis(CustomRoles.Astral);
         Camouflage.RpcSetSkin(pc);
 
         if (onMeeting) return;
@@ -97,6 +100,14 @@ public class Astral : RoleBase
 
         Utils.NotifyRoles(SpecifySeer: pc);
         Utils.NotifyRoles(SpecifyTarget: pc);
+
+        if (!pc.IsInsideMap())
+        {
+            Vector2 playerPosition = pc.Pos();
+            Vector2 closestSpawnPosition = RandomSpawn.SpawnMap.GetSpawnMap().Positions.Values.MinBy(x => Vector2.Distance(playerPosition, x));
+            Vector3 closestVentPosition = pc.GetClosestVent()?.transform.position ?? closestSpawnPosition;
+            pc.TP(Vector2.Distance(playerPosition, closestVentPosition) < Vector2.Distance(playerPosition, closestSpawnPosition) ? closestVentPosition : closestSpawnPosition);
+        }
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
@@ -132,6 +143,6 @@ public class Astral : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != AstralId || seer.PlayerId != target.PlayerId || hud || meeting || BackTS == 0) return string.Empty;
-        return string.Format(Translator.GetString("AstralSuffix"), BackTS - Utils.TimeStamp);
+        return string.Format(Translator.GetString("AstralSuffix"), BackTS - Utils.TimeStamp - 1);
     }
 }

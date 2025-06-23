@@ -40,6 +40,8 @@ internal static class OnGameJoinedPatch
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
 
+        Utils.DirtyName = [];
+
         LateTask.New(Achievements.ShowWaitingAchievements, 8f, log: false);
 
         if (AmongUsClient.Instance.AmHost)
@@ -58,6 +60,8 @@ internal static class OnGameJoinedPatch
 
             LateTask.New(() =>
             {
+                JoiningGame = false;
+
                 if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()) && GameStates.IsOnlineGame)
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Banned);
@@ -77,8 +81,6 @@ internal static class OnGameJoinedPatch
 
             LateTask.New(() =>
             {
-                JoiningGame = false;
-
                 if (GameStates.IsOnlineGame && GameStates.CurrentServerType != GameStates.ServerType.Custom)
                 {
                     try
@@ -210,6 +212,8 @@ internal static class OnPlayerJoinedPatch
             try
             {
                 if (!AmongUsClient.Instance.AmHost) return;
+
+                Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
 
                 if (Options.KickSlowJoiningPlayers.GetBool() && ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || ((client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length <= 15)))
                 {
@@ -415,7 +419,7 @@ internal static class InnerNetClientSpawnPatch
                         else
                         {
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, SendOption.Reliable, client.Id);
-                            writer.WritePacked((int)GameStartManagerPatch.TimerStartTS);
+                            writer.Write(GameStartManagerPatch.TimerStartTS.ToString());
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
                     }

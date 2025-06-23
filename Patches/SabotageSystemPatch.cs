@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Impostor;
@@ -135,6 +137,8 @@ public static class MushroomMixupSabotageSystemUpdateSystemPatch
                 Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
             }
         }
+
+        ReportDeadBodyPatch.CanReport.SetAllValues(false);
     }
 }
 
@@ -148,10 +152,6 @@ public static class MushroomMixupSabotageSystemPatch
         __state = __instance.IsActive;
 
         if (Options.UsePets.GetBool()) __instance.petEmptyChance = 0;
-
-        ReportDeadBodyPatch.CanReport.SetAllValues(false);
-        Logger.Info("Disable Reporting", "MushroomMixupSabotageSystem");
-        LateTask.New(() => ReportDeadBodyPatch.CanReport.SetAllValues(true), (Options.SabotageTimeControl.GetBool() ? Options.FungleMushroomMixupDuration.GetFloat() : 10f) + 1.5f, "Enable Reporting After Mushroom Mixup");
 
         if (!Options.SabotageTimeControl.GetBool()) return;
 
@@ -182,6 +182,8 @@ public static class MushroomMixupSabotageSystemPatch
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
                 Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => x.RpcResetAbilityCooldown());
+
+                ReportDeadBodyPatch.CanReport.SetAllValues(true);
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -301,6 +303,16 @@ public static class ElectricTaskCompletePatch
     }
 }
 
+[HarmonyPatch(typeof(SabotageSystemType), nameof(SabotageSystemType.AnyActive), MethodType.Getter)]
+internal static class SabotageSystemTypeAnyActivePatch
+{
+    public static bool Prefix(SabotageSystemType __instance, ref bool __result)
+    {
+        __result = __instance.specials.ToArray().Any(s => s.IsActive) || CustomSabotage.Instances.Count > 0;
+        return false;
+    }
+}
+
 // https://github.com/tukasa0001/TownOfHost/blob/357f7b5523e4bdd0bb58cda1e0ff6cceaa84813d/Patches/SabotageSystemPatch.cs
 // Method called when sabotage occurs
 [HarmonyPatch(typeof(SabotageSystemType), nameof(SabotageSystemType.UpdateSystem))]
@@ -309,21 +321,80 @@ public static class SabotageSystemTypeRepairDamagePatch
     public static bool IsCooldownModificationEnabled;
     public static float ModifiedCooldownSec;
 
+    public static SabotageSystemType Instance;
+
     public static void Initialize()
     {
         IsCooldownModificationEnabled = Options.SabotageCooldownControl.GetBool();
         ModifiedCooldownSec = Options.SabotageCooldown.GetFloat();
     }
 
+    public static class SabotageDoubleTrigger
+    {
+        public static bool WaitingForDoubleTrigger;
+        public static PlayerControl TriggeringPlayer;
+        public static float TimeSinceFirstTrigger;
+        public static Action SingleTriggerAction;
+
+        public static void SetUp(PlayerControl player, Action singleTriggerAction)
+        {
+            WaitingForDoubleTrigger = true;
+            TriggeringPlayer = player;
+            TimeSinceFirstTrigger = 0f;
+            SingleTriggerAction = singleTriggerAction;
+        }
+
+        public static void Update(float deltaTime)
+        {
+            if (!WaitingForDoubleTrigger || TriggeringPlayer == null) return;
+
+            TimeSinceFirstTrigger += deltaTime;
+
+            if (TimeSinceFirstTrigger > 1f)
+            {
+                SingleTriggerAction();
+                Reset();
+            }
+        }
+
+        public static void Reset()
+        {
+            WaitingForDoubleTrigger = false;
+            TriggeringPlayer = null;
+            TimeSinceFirstTrigger = 0f;
+            SingleTriggerAction = null;
+        }
+    }
+
     public static bool Prefix(SabotageSystemType __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
-        if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
+        Instance = __instance;
+        if (Options.CurrentGameMode != CustomGameMode.Standard || __instance.Timer > 0f) return false;
 
         SystemTypes systemTypes;
         {
             MessageReader newReader = MessageReader.Get(msgReader);
             systemTypes = (SystemTypes)newReader.ReadByte();
             newReader.Recycle();
+        }
+
+        if (Options.EnableCustomSabotages.GetBool())
+        {
+            if (Options.EnableGrabOxygenMaskCustomSabotage.GetBool() && systemTypes == SystemTypes.Comms)
+            {
+                if (!SabotageDoubleTrigger.WaitingForDoubleTrigger)
+                {
+                    SabotageDoubleTrigger.SetUp(player, () =>
+                    {
+                        new GrabOxygenMaskSabotage().Deteriorate();
+                        __instance.Timer = IsCooldownModificationEnabled ? ModifiedCooldownSec : 30f;
+                        __instance.IsDirty = true;
+                    });
+                    return false;
+                }
+
+                SabotageDoubleTrigger.Reset();
+            }
         }
 
         return CheckSabotage(__instance, player, systemTypes);
@@ -452,5 +523,14 @@ public static class SecurityCameraPatch
         }
 
         return true;
+    }
+}
+
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RepairCriticalSabotages))]
+internal static class ShipStatusRepairCriticalSabotagesPatch
+{
+    public static void Postfix(ShipStatus __instance)
+    {
+        CustomSabotage.Reset();
     }
 }

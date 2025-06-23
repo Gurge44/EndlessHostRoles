@@ -102,6 +102,7 @@ internal class Lighter : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         Light(pc);
     }
 

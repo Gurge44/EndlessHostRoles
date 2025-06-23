@@ -57,6 +57,7 @@ internal class Convener : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (Options.UsePets.GetBool()) return;
         PullEveryone(pc);
     }
 

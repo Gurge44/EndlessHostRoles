@@ -1219,8 +1219,6 @@ internal static class ReportDeadBodyPatch
             PhantomRolePatch.OnReportDeadBody(pc);
         }
 
-        CustomSabotage.Reset();
-
         MeetingTimeManager.OnReportDeadBody();
 
         NameNotifyManager.Reset();
@@ -1324,6 +1322,8 @@ internal static class FixedUpdatePatch
         try { DoPostfix(__instance, lowLoad); }
         catch (Exception ex)
         {
+            if (OnGameJoinedPatch.JoiningGame && ex is NullReferenceException) return;
+            
             long now = TimeStamp;
             string nameWithRole = __instance.GetNameWithRole();
             if (string.IsNullOrEmpty(nameWithRole.Trim())) return;
@@ -1424,11 +1424,16 @@ internal static class FixedUpdatePatch
                         QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
                 }
 
-                if (!lowLoad && player.IsModdedClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
+                if (!lowLoad && player.IsModdedClient() && player.Is(CustomRoles.Haste))
+                    player.ForceKillTimerContinue = true;
 
-                if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
+                if (DoubleTrigger.FirstTriggerTimer.Count > 0)
+                    DoubleTrigger.OnFixedUpdate(player);
 
-                if (Main.PlayerStates.TryGetValue(playerId, out PlayerState s) && s.Role.IsEnable) s.Role.OnFixedUpdate(player);
+                SabotageSystemTypeRepairDamagePatch.SabotageDoubleTrigger.Update(Time.deltaTime);
+
+                if (Main.PlayerStates.TryGetValue(playerId, out PlayerState s) && s.Role.IsEnable)
+                    s.Role.OnFixedUpdate(player);
 
                 if (inTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
                 {

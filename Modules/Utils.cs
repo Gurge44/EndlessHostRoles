@@ -2020,6 +2020,8 @@ public static class Utils
         }
     }
 
+    public static HashSet<byte> DirtyName = [];
+
     public static bool ApplySuffix(PlayerControl player, out string name)
     {
         name = string.Empty;
@@ -2030,6 +2032,8 @@ public static class Utils
         bool vip = ChatCommands.IsPlayerVIP(player.FriendCode);
         bool hasTag = devUser.HasTag();
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out string privateTag);
+
+        if (!player.AmOwner && !hasTag && !mod && !vip && !hasPrivateTag && !DirtyName.Contains(player.PlayerId)) return false;
 
         if (!Main.AllPlayerNames.TryGetValue(player.PlayerId, out name)) return false;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
@@ -2100,7 +2104,7 @@ public static class Utils
             }
         }
 
-        return name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default;
+        return DirtyName.Remove(player.PlayerId) || (name != player.name && player.CurrentOutfitType == PlayerOutfitType.Default);
     }
 
     public static Dictionary<string, int> GetAllPlayerLocationsCount()
@@ -3226,7 +3230,6 @@ public static class Utils
 
                     LateTask.New(() =>
                     {
-                        if (pc.CurrentOutfit.PetId != "") return;
                         string petId = PetsHelper.GetPetId();
                         PetsHelper.SetPet(pc, petId);
                     }, 3f, "No Pet Reassign");

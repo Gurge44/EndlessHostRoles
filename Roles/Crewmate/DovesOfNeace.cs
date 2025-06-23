@@ -67,6 +67,7 @@ internal class DovesOfNeace : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         ResetCooldowns(pc);
     }
 

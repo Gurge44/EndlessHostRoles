@@ -107,6 +107,7 @@ public class Catcher : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (Options.UsePets.GetBool()) return;
         DelayStartTS = Utils.TimeStamp + 1;
         SendRPC();
     }

@@ -533,7 +533,7 @@ internal static class ExtendedPlayerControl
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/Utils.cs
     public static void SyncGeneralOptions(this CustomRpcSender sender, PlayerControl player)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !DoRPC) return;
 
         sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGeneralOptions);
         sender.Write(player.PlayerId);
@@ -545,7 +545,7 @@ internal static class ExtendedPlayerControl
         sender.EndRpc();
     }
 
-    // Next 2: https://github.com/0xDrMoe/TownofHost-Enhanced/blob/12487ce1aa7e4f5087f2300be452b5af7c04d1ff/Modules/ExtendedPlayerControl.cs#L239
+    // Next 3: https://github.com/0xDrMoe/TownofHost-Enhanced/blob/12487ce1aa7e4f5087f2300be452b5af7c04d1ff/Modules/ExtendedPlayerControl.cs#L239
 
     public static void RpcExitVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)
     {
@@ -561,6 +561,24 @@ internal static class ExtendedPlayerControl
         }
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.ExitVent, SendOption.Reliable, clientId);
+        writer.WritePacked(ventId);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public static void RpcEnterVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)
+    {
+        if (physics == null) return;
+
+        int clientId = seer.GetClientId();
+
+        if (AmongUsClient.Instance.ClientId == clientId)
+        {
+            physics.StopAllCoroutines();
+            physics.StartCoroutine(physics.CoEnterVent(ventId));
+            return;
+        }
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.EnterVent, SendOption.Reliable, clientId);
         writer.WritePacked(ventId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -583,6 +601,28 @@ internal static class ExtendedPlayerControl
     public static bool HasDesyncRole(this PlayerControl player)
     {
         return player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsDesyncRole();
+    }
+
+    public static bool IsInsideMap(this PlayerControl player)
+    {
+        if (player == null) return false;
+
+        var results = new Collider2D[10];
+        int overlapPointNonAlloc = Physics2D.OverlapPointNonAlloc(player.transform.position, results, Constants.ShipOnlyMask);
+        PlainShipRoom room = player.GetPlainShipRoom();
+        Vector2 pos = player.Pos();
+
+        return Main.CurrentMap switch
+        {
+            MapNames.Fungle when overlapPointNonAlloc >= 2 => true,
+            MapNames.MiraHQ when overlapPointNonAlloc >= 1 => true,
+            MapNames.MiraHQ when room != null && room.RoomId is SystemTypes.MedBay or SystemTypes.Comms => true,
+            MapNames.Airship when overlapPointNonAlloc >= 1 => true,
+            MapNames.Skeld or MapNames.Dleks when room != null => true,
+            MapNames.Polus when overlapPointNonAlloc >= 1 => true,
+            MapNames.Polus when pos.y is >= -26.11f and <= -6.41f && pos.x is >= 3.56f and <= 32.68f => true,
+            _ => false
+        };
     }
 
     public static void KillFlash(this PlayerControl player)

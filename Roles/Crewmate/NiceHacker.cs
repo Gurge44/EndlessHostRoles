@@ -111,6 +111,7 @@ public class NiceHacker : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         UseAbility(pc);
     }
 

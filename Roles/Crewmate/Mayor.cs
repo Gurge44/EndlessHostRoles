@@ -63,6 +63,7 @@ internal class Mayor : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         pc.MyPhysics?.RpcBootFromVent(vent.Id);
         Button(pc);
     }

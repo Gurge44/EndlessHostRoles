@@ -1055,7 +1055,6 @@ internal static class IntroCutsceneDestroyPatch
                     foreach (PlayerControl pc in aapc)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
-                        if (pc.CurrentOutfit.PetId != "") continue;
 
                         string petId = PetsHelper.GetPetId();
                         PetsHelper.SetPet(pc, petId);
@@ -1065,9 +1064,7 @@ internal static class IntroCutsceneDestroyPatch
 
                 Main.ProcessShapeshifts = false;
 
-                LateTask.New(GrantPetForEveryone, 0.3f, "Grant Pet For Everyone");
                 LateTask.New(GrantPetForEveryone, 0.7f, "Grant Pet For Everyone");
-                LateTask.New(GrantPetForEveryone, 1.1f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
                 {

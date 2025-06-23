@@ -254,6 +254,7 @@ internal static class CloseDoorsPatch
 
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
+        if (Main.CurrentMap != MapNames.Polus && SabotageSystemTypeRepairDamagePatch.Instance != null && SabotageSystemTypeRepairDamagePatch.Instance.AnyActive) allow = false;
 
         Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");
         return allow;

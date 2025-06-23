@@ -198,7 +198,7 @@ public enum CustomRoles
     Lighter,
     Lookout,
     Luckey,
-    Lyncher,
+    Decryptor,
     Markseeker,
     Marshall,
     Mathematician,

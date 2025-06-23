@@ -11,13 +11,15 @@ public static class PrivateTagManager
 
     public static void AddTag(string friendcode, string tag)
     {
+        LoadTagsFromFile();
         Tags[friendcode] = tag;
         SaveTagsToFile();
     }
 
     public static void DeleteTag(string friendcode)
     {
-        Tags.Remove(friendcode);
+        LoadTagsFromFile();
+        if (!Tags.Remove(friendcode)) return;
         SaveTagsToFile();
     }
 
@@ -36,6 +38,7 @@ public static class PrivateTagManager
 
             Tags = File.ReadAllLines(TagFile)
                 .Select(x => x.Split('='))
+                .Where(x => x.Length == 2)
                 .ToDictionary(x => x[0], x => x[1]);
         }
         catch (Exception e) { Utils.ThrowException(e); }

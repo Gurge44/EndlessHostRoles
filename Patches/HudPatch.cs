@@ -43,13 +43,13 @@ internal static class HudManagerPatch
 
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {
-                if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
+                //if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
                     player.Collider.offset = new(0f, 127f);
             }
 
             if (Math.Abs(player.Collider.offset.y - 127f) < 0.1f)
             {
-                if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
+                if (!Input.GetKey(KeyCode.LeftControl) /*|| (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame)*/)
                     player.Collider.offset = new(0f, -0.3636f);
             }
 
@@ -774,6 +774,8 @@ internal static class MapRoomDoorsUpdatePatch
     }
 }
 
+[HarmonyPatch(typeof(CrewmateGhostRole), nameof(CrewmateGhostRole.SpawnTaskHeader))]
+[HarmonyPatch(typeof(ImpostorGhostRole), nameof(ImpostorGhostRole.SpawnTaskHeader))]
 [HarmonyPatch(typeof(ImpostorRole), nameof(ImpostorRole.SpawnTaskHeader))]
 internal static class SpawnTaskHeaderPatch
 {
@@ -791,6 +793,12 @@ internal static class TaskPanelBehaviourPatch
         PlayerControl player = PlayerControl.LocalPlayer;
 
         if (taskList == "None" || GameStates.IsLobby || player == null) return;
+
+        if (MeetingStates.FirstMeeting)
+        {
+            NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
+            if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
+        }
 
         CustomRoles role = player.GetCustomRole();
 

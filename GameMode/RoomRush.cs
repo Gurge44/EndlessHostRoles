@@ -447,6 +447,14 @@ public static class RoomRush
                 byte tieWith = Points.First(x => x.Key != seer.PlayerId && x.Value == highestPoints).Key;
                 sb.Append("\n" + string.Format(Translator.GetString("RR_Tie"), tieWith.ColoredPlayerName()));
             }
+            else
+            {
+                sb.Append("<size=80%>");
+                byte first = Points.GetKeyByValue(highestPoints);
+                if (first != seer.PlayerId) sb.Append("\n" + string.Format(Translator.GetString("RR_FirstPoints"), first.ColoredPlayerName(), highestPoints));
+                else sb.Append("\n" + Translator.GetString("RR_YouAreFirst"));
+                sb.Append("</size>");
+            }
         }
 
         if (VentTimes.GetInt() == 0 || dead || seer.IsModdedClient()) return sb.ToString().Trim();

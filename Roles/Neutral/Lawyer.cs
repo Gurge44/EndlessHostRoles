@@ -83,7 +83,7 @@ public class Lawyer : RoleBase
                 SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
 
-                LateTask.New(() => playerId.GetPlayer()?.Notify(string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 18f, log: false);
+                LateTask.New(() => selectedTarget.Notify(string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 18f, log: false);
             }
         }
         catch (Exception ex) { Utils.ThrowException(ex); }

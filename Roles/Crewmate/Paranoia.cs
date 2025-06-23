@@ -67,6 +67,7 @@ internal class Paranoia : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         pc.MyPhysics?.RpcBootFromVent(vent.Id);
         Panic(pc);
     }

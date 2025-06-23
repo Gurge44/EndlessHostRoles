@@ -83,6 +83,7 @@ public class CameraMan : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         if (pc == null) return;
 
         if (pc.GetAbilityUseLimit() >= 1)

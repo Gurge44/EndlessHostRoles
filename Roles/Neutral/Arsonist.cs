@@ -100,6 +100,7 @@ internal class Arsonist : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (UsePets.GetBool()) return;
         if (AmongUsClient.Instance.IsGameStarted)
             Ignite(pc.MyPhysics);
     }
