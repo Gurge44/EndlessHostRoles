@@ -8763,7 +8763,7 @@
   "RookieInfoLong": "(附加职业):\\n您无法在第一轮中出刀",
   "Prefix.Rookie": "菜鸟",
   "Trainee": "修练者",
-  "TraineeInfo": "You Can't Vent/Sabotage/SS/Pet/Vanish Round 1",
+  "TraineeInfo": "你在第1轮不能跳管/破坏/变形/消失/按宠物按钮",
   "TraineeInfoLong": "(附加职业)：\\n你不能使用通风管道/破坏/变形/宠物按钮 在第一回合",
   "Prefix.Trainee": "修练者",
   "TraineeNotify": "<#ffff00>作为<#4287f5>修练者</color>，你不能使用通风管道/破坏/变形/宠物按钮 在第一回合！</color>",
