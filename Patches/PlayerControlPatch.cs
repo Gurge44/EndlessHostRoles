@@ -1259,6 +1259,7 @@ internal static class FixedUpdatePatch
     private static readonly Dictionary<byte, long> LastUpdate = [];
     private static readonly Dictionary<byte, long> LastAddAbilityTime = [];
     private static long LastErrorTS;
+    private static long LastSelfNameUpdateTS;
     private static readonly Dictionary<byte, TextMeshPro> RoleTextTMPs = [];
 
     public static void Postfix(PlayerControl __instance, bool lowLoad)
@@ -1373,6 +1374,8 @@ internal static class FixedUpdatePatch
             }
         }
 
+        long now = TimeStamp;
+
         if (AmongUsClient.Instance.AmHost)
         {
             AFKDetector.OnFixedUpdate(player);
@@ -1480,8 +1483,6 @@ internal static class FixedUpdatePatch
                     }
                 }
 
-                long now = TimeStamp;
-
                 if (!lowLoad && Options.UsePets.GetBool() && inTask && (!LastUpdate.TryGetValue(playerId, out long lastPetNotify) || lastPetNotify < now))
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out (long StartTimeStamp, int TotalCooldown) timer))
@@ -1504,21 +1505,21 @@ internal static class FixedUpdatePatch
 
         if (!lowLoad)
         {
-            long now = TimeStamp;
-
             // Ability Use Gain every 5 seconds
-
             if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out PlayerState state) && state.TaskState.IsTaskFinished && (!LastAddAbilityTime.TryGetValue(playerId, out long ts) || ts + 5 < now))
             {
                 LastAddAbilityTime[playerId] = now;
                 AddExtraAbilityUsesOnFinishedTasks(player);
             }
 
-            if (inTask && alive && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
+            if (inTask && alive && Options.LadderDeath.GetBool())
+                FallFromLadder.FixedUpdate(player);
 
-            if (localPlayer && GameStates.IsInGame) LoversSuicide();
+            if (localPlayer && GameStates.IsInGame)
+                LoversSuicide();
 
-            if (inTask && localPlayer && Options.DisableDevices.GetBool()) DisableDevice.FixedUpdate();
+            if (inTask && localPlayer && Options.DisableDevices.GetBool())
+                DisableDevice.FixedUpdate();
 
             if (localPlayer && GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
             {
@@ -1545,7 +1546,13 @@ internal static class FixedUpdatePatch
             RoleTextTMPs[__instance.PlayerId] = roleText = roleTextTransform.GetComponent<TextMeshPro>();
         }
 
-        if (roleText == null || __instance == null || lowLoad) return;
+        bool self = lpId == __instance.PlayerId;
+
+        bool shouldUpdateRegardlessOfLowLoad = self && PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && GameStates.InGame && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz;
+
+        if (roleText == null || __instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
+
+        if (self) LastSelfNameUpdateTS = now;
 
         if (GameStates.IsLobby)
         {
@@ -1623,8 +1630,6 @@ internal static class FixedUpdatePatch
                 roleText.enabled = false;
                 return;
             }
-
-            bool self = lpId == target.PlayerId;
 
             Mark.Clear();
             Suffix.Clear();
