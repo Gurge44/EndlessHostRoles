@@ -33,8 +33,6 @@ public static class RoomRush
     private static long TimeLimitEndTS;
     private static HashSet<byte> DonePlayers = [];
 
-    private static long RoundStartTS;
-
     private static bool GameGoing;
     private static DateTime GameStartDateTime;
 
@@ -342,7 +340,6 @@ public static class RoomRush
                 _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
             };
 
-        RoundStartTS = Utils.TimeStamp;
         DonePlayers.Clear();
         RoomGoal = AllRooms.Without(previous).RandomElement();
         Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
@@ -366,11 +363,11 @@ public static class RoomRush
 
             int decontaminationTime = Options.ChangeDecontaminationTime.GetBool()
                 ? polus
-                    ? Options.DecontaminationTimeOnPolus.GetInt()
-                    : Options.DecontaminationTimeOnMiraHQ.GetInt()
-                : 3;
+                    ? Options.DecontaminationTimeOnPolus.GetInt() + Options.DecontaminationDoorOpenTimeOnPolus.GetInt()
+                    : Options.DecontaminationTimeOnMiraHQ.GetInt() + Options.DecontaminationDoorOpenTimeOnMiraHQ.GetInt()
+                : 6;
 
-            time += decontaminationTime * (polus ? 3 : 4);
+            time += decontaminationTime + (polus ? 3 : 6);
         }
 
         switch (map)
@@ -421,9 +418,6 @@ public static class RoomRush
     {
         if (!GameGoing || Main.HasJustStarted || seer == null) return string.Empty;
 
-        long now = Utils.TimeStamp;
-        if (seer.IsHost() && RoundStartTS == now) return "....";
-
         StringBuilder sb = new();
         bool dead = !seer.IsAlive();
         bool done = dead || DonePlayers.Contains(seer.PlayerId);
@@ -433,7 +427,7 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) sb.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer)) + "\n");
 
         color = done ? Color.white : Color.yellow;
-        sb.Append(Utils.ColorString(color, (TimeLimitEndTS - now).ToString()) + "\n");
+        sb.Append(Utils.ColorString(color, (TimeLimitEndTS - Utils.TimeStamp).ToString()) + "\n");
 
         if (WinByPointsInsteadOfDeaths.GetBool() && Points.TryGetValue(seer.PlayerId, out int points))
         {
