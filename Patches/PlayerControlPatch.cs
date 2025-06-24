@@ -1548,7 +1548,7 @@ internal static class FixedUpdatePatch
 
         bool self = lpId == __instance.PlayerId;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && GameStates.InGame && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz;
+        bool shouldUpdateRegardlessOfLowLoad = self && PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz;
 
         if (roleText == null || __instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 
