@@ -925,6 +925,9 @@ public static class GameSettingMenuPatch
     private static int MinImpsOnOpen = 1;
     private static int MaxImpsOnOpen = 1;
 
+    private static float VanillaKillCooldownOnOpen = 1;
+    private static float ModdedKillCooldownOnOpen = 1;
+
     [HarmonyPatch(nameof(GameSettingMenu.Start))]
     [HarmonyPrefix]
     [HarmonyPriority(Priority.First)]
@@ -936,6 +939,9 @@ public static class GameSettingMenuPatch
             MinImpsOnOpen = impLimits.MinSetting.GetInt();
             MaxImpsOnOpen = impLimits.MaxSetting.GetInt();
             NumImpsOnOpen = Main.NormalOptions.NumImpostors;
+
+            VanillaKillCooldownOnOpen = Main.NormalOptions.KillCooldown;
+            ModdedKillCooldownOnOpen = Options.FallBackKillCooldownValue.GetFloat();
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
@@ -1372,6 +1378,16 @@ public static class GameSettingMenuPatch
                 impLimits.MaxSetting.SetValue(numImpostors);
                 Logger.SendInGame(string.Format(Translator.GetString("MinMaxModdedImpCountsSettingsChangedAuto"), numImpostors));
             }
+
+
+            float vanillaKillCooldown = Main.NormalOptions.KillCooldown;
+            float moddedKillCooldown = Options.FallBackKillCooldownValue.GetFloat();
+
+            bool vanillaChanged = !Mathf.Approximately(vanillaKillCooldown, VanillaKillCooldownOnOpen);
+            bool moddedChanged = !Mathf.Approximately(moddedKillCooldown, ModdedKillCooldownOnOpen);
+
+            if (!Mathf.Approximately(vanillaKillCooldown, moddedKillCooldown) && vanillaChanged && !moddedChanged)
+                Options.FallBackKillCooldownValue.SetValue((int)Math.Round((Math.Round(vanillaKillCooldown, 1) / 0.5f) - 1));
         }
         catch (Exception e) { Utils.ThrowException(e); }
 

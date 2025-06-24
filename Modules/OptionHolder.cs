@@ -2793,7 +2793,7 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        FallBackKillCooldownValue = new FloatOptionItem(23951, "FallBackKillCooldownValue", new(0.5f, 60f, 0.5f), 25f, TabGroup.GameSettings)
+        FallBackKillCooldownValue = new FloatOptionItem(23951, "KillCooldown", new(0.5f, 60f, 0.5f), 25f, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
