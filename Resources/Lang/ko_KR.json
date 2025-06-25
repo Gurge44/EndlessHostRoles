@@ -1324,7 +1324,7 @@
   "AbilityUseGainWithEachTaskCompleted": "<color=#00ffff>Ability <color=#7FFFD2>Use Gains</color> With Each Task Completed</color>",
   "AbilityUseGainWithEachKill": "<color=#00ffff>Ability <color=#7FFFD2>Use Gains</color> With Each Kill</color>",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>Out of ability uses! Do tasks to get more!</color>",
-  "AbilityUseLimit": "Initial Ability Use Limit",
+  "AbilityUseLimit": "Initial Ability Uses",
   "SniperCanKill": "<color=#ff1919>Sniper</color> can kill with bullets remaining",
   "EvenAfterWinning": "Even After Satisfying Win Condition",
   "ImpostorVision": "Has <color=#ff1919>Impostor</color> Vision",
