@@ -1324,7 +1324,7 @@
   "AbilityUseGainWithEachTaskCompleted": "<color=#00ffff>Кол-во способностей<color=#7FFFD2>, дающееся </color>за выполнение таска</color>",
   "AbilityUseGainWithEachKill": "<color=#00ffff>Кол-во способностей<color=#7FFFD2>, дающееся </color>за убийство</color>",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>Способности закончилась! Делай таски, чтобы получить ещё!</color>",
-  "AbilityUseLimit": "Initial Ability Uses",
+  "AbilityUseLimit": "Изначальный лимит способностей",
   "SniperCanKill": "<color=#ff1919>Снайпер</color> может убивать оставшимися пулями",
   "EvenAfterWinning": "Даже после выполнения условий победы",
   "ImpostorVision": "Имеет зрение <color=#ff1919>Предателей</color>",
