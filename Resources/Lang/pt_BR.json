@@ -1324,7 +1324,7 @@
   "AbilityUseGainWithEachTaskCompleted": "Ganho de usos de habilidades a cada tarefa concluída",
   "AbilityUseGainWithEachKill": "Ganho de usos de habilidades a cada abate sucedido",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>Usos de habilidade esgotados! Faça tarefas para conseguir mais!</color>",
-  "AbilityUseLimit": "Limite de Uso de Habilidade Inicial",
+  "AbilityUseLimit": "Initial Ability Uses",
   "SniperCanKill": "<color=#ff1919>Atirador</color> pode matar com balas restantes",
   "EvenAfterWinning": "Mesmo depois de satisfazer a condição de vitória",
   "ImpostorVision": "Tem Visão de <color=#ff1919>Impostor</color>",
