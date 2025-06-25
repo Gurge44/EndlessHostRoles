@@ -1324,7 +1324,7 @@
   "AbilityUseGainWithEachTaskCompleted": "<color=#7FFFD2>Tambahan penggunaan</color> <color=#00ffff>kemampuan seiring penyelesaian misi</color>",
   "AbilityUseGainWithEachKill": "<color=#7FFFD2>Tambahan penggunaan</color> <color=#00ffff>kemampuan di setiap membunuh</color>",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>Out of ability uses! Do tasks to get more!</color>",
-  "AbilityUseLimit": "Batas Penggunaan Kemampuan (di awal)",
+  "AbilityUseLimit": "Initial Ability Uses",
   "SniperCanKill": "<color=#ff1919>Sniper</color> can kill with bullets remaining",
   "EvenAfterWinning": "Meski telah memenuhi syarat kemenangan",
   "ImpostorVision": "Jarak pandang sama seperti <color=#ff1919>Impostor</color>",
