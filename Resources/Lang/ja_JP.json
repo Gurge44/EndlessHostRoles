@@ -1324,7 +1324,7 @@
   "AbilityUseGainWithEachTaskCompleted": "<color=#00ffff>タスクの完了ごとの 能力<color=#7FFFD2>使用の獲得量</color></color>",
   "AbilityUseGainWithEachKill": "<color=#00ffff>殺害ごとの 能力<color=#7FFFD2>使用の獲得量</color></color>",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>能力使用の回数が切れた！ もっとタスクを行って 獲得しよう！</color>",
-  "AbilityUseLimit": "初期能力の使用回数",
+  "AbilityUseLimit": "Initial Ability Uses",
   "SniperCanKill": "<color=#ff1919>スナイパー</color>は 弾丸が残っていても 殺害できる",
   "EvenAfterWinning": "勝利条件が満たされた後でも",
   "ImpostorVision": "<color=#ff1919>インポスター</color> ビジョンを持つ",
