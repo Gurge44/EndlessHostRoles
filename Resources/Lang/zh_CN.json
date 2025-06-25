@@ -1324,7 +1324,7 @@
   "AbilityUseGainWithEachTaskCompleted": "<color=#00ffff>完成一项任务<color=#7FFFD2>获得</color>的技能</color>数量",
   "AbilityUseGainWithEachKill": "<color=#00ffff>使用击杀时<color=#7FFFD2>获得</color>的技能</color>数量",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>超出技能次数！做任务获得更多！</color>",
-  "AbilityUseLimit": "Initial Ability Uses",
+  "AbilityUseLimit": "初始技能次数",
   "SniperCanKill": "<color=#ff1919>狙击手</color>可以在剩余子弹的情况下杀人",
   "EvenAfterWinning": "在满足胜利条件之后",
   "ImpostorVision": "拥有<color=#ff1919>内鬼</color>的视野",
