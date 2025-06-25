@@ -1324,7 +1324,7 @@
   "AbilityUseGainWithEachTaskCompleted": "<color=#00ffff>Usos de Habilidad <color=#7FFFD2>Ganados</color> Con Cada Tarea Completada</color>",
   "AbilityUseGainWithEachKill": "<color=#00ffff>Usos de Habilidad <color=#7FFFD2>Ganados</color> Con Cada Asesinato</color>",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>¡Se te acabaron los usos de habilidad! ¡Has tareas para conseguir más!</color>",
-  "AbilityUseLimit": "Límite de Uso de Habilidad Máximo",
+  "AbilityUseLimit": "Initial Ability Uses",
   "SniperCanKill": "<color=#ff1919>Francotirador</color> puede matar con balas restantes",
   "EvenAfterWinning": "Incluso Después de Satisfacer Condición de Victoria",
   "ImpostorVision": "Tiene Visión de <color=#ff1919>Impostor</color>",
