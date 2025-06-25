@@ -221,7 +221,7 @@ public static class RoomRush
 
         Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
-        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 8f : 4f);
+        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));

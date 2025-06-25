@@ -316,7 +316,7 @@ public static class CaptureTheFlag
             yield return null;
         }
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(3f);
 
         // Create flags
         (Vector2 Position, string RoomName) blueFlagBase = BlueFlagBase;

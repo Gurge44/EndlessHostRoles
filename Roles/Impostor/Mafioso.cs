@@ -252,7 +252,7 @@ public class Mafioso : RoleBase
 
     public override string GetProgressText(byte id, bool comms)
     {
-        return id.IsPlayerModClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
+        return id.IsPlayerModdedClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

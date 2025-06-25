@@ -68,7 +68,11 @@ internal static class RpcMurderPlayerPatch
 {
     public static bool Prefix(PlayerControl __instance, PlayerControl target, bool didSucceed)
     {
-        if (!AmongUsClient.Instance.AmHost) Logger.Error("Client is calling RpcMurderPlayer, are you hacking?", "RpcMurderPlayerPatch.Prefix");
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            Logger.Error("Client is calling RpcMurderPlayer, are you hacking?", "RpcMurderPlayerPatch.Prefix");
+            return false;
+        }
 
         if (GameStates.IsLobby)
         {
@@ -620,7 +624,7 @@ internal static class MurderPlayerPatch
         bool failed = resultFlags.HasFlag(MurderResultFlags.FailedError);
         __state = !protectedByClient && !protectedByHost && !failed;
 
-        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()} - {nameof(protectedByClient)}: {protectedByClient}, {nameof(protectedByHost)}: {protectedByHost}, {nameof(failed)}: {failed}", "MurderPlayer");
+        Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()} - {nameof(protectedByClient)}: {protectedByClient}, {nameof(protectedByHost)}: {protectedByHost}, {nameof(failed)}: {failed}", "MurderPlayer");
 
         RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Add(__instance.PlayerId);
 
@@ -689,13 +693,11 @@ internal static class MurderPlayerPatch
 
         switch (target.GetCustomRole())
         {
-            case CustomRoles.BallLightning:
-                if (killer != target) BallLightning.MurderPlayer(killer, target);
-
+            case CustomRoles.BallLightning when killer != target:
+                BallLightning.MurderPlayer(killer, target);
                 break;
-            case CustomRoles.Bane:
-                if (killer != target) Bane.OnKilled(killer);
-
+            case CustomRoles.Bane when killer != target:
+                Bane.OnKilled(killer);
                 break;
             case CustomRoles.Markseeker:
                 Markseeker.OnDeath(target);
@@ -1512,7 +1514,7 @@ internal static class FixedUpdatePatch
                 AddExtraAbilityUsesOnFinishedTasks(player);
             }
 
-            if (inTask && alive && Options.LadderDeath.GetBool())
+            if (AmongUsClient.Instance.AmHost && inTask && alive && Options.LadderDeath.GetBool())
                 FallFromLadder.FixedUpdate(player);
 
             if (localPlayer && GameStates.IsInGame)
@@ -1877,7 +1879,7 @@ internal static class FixedUpdatePatch
                     offset += 0.8f;
 
                 if (Options.LargerRoleTextSize.GetBool())
-                    offset += 0.4f;
+                    offset += 0.15f;
 
                 roleText.transform.SetLocalY(offset);
                 target.cosmetics.colorBlindText.transform.SetLocalY(-(offset + 0.2f));

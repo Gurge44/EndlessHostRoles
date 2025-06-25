@@ -319,85 +319,59 @@ public class Alchemist : RoleBase
     {
         if (!hud || seer == null || seer.PlayerId != target.PlayerId || !GameStates.IsInTask || seer.PlayerId != AlchemistId) return string.Empty;
 
-        var str = new StringBuilder();
+        var sb = new StringBuilder();
 
         if (IsInvis)
         {
             long remainTime = InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
-            str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
+            sb.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
         }
         else
         {
-            var preText = $"<color=#00ffa5>{GetString("PotionInStore")}:</color>";
+            sb.Append($" <{HeaderColour}>{GetString("PotionInStore")}:</color> ");
 
-            switch (PotionID)
-            {
-                case 1: // Shield
-                    str.Append($"{preText} <b><color=#00ff97>{GetString("ShieldPotion")}</color></b>");
-                    break;
-                case 2: // Suicide
-                    str.Append($"{preText} <b><color=#ff0000>{GetString("AwkwardPotion")}</color></b>");
-                    break;
-                case 3: // TP to random player
-                    str.Append($"{preText} <b><color=#42d1ff>{GetString("TeleportPotion")}</color></b>");
-                    break;
-                case 4: // Increased speed
-                    str.Append($"{preText} <b><color=#ff8400>{GetString("SpeedPotion")}</color></b>");
-                    break;
-                case 5: // Quick fix next sabo
-                    str.Append($"{preText} <b><color=#3333ff>{GetString("QuickFixPotion")}</color></b>");
-                    break;
-                case 6: // Invisibility
-                    str.Append($"{preText} <b><color=#01c834>{GetString("InvisibilityPotion")}</color></b>");
-                    break;
-                case 7: // Increased vision
-                    str.Append($"{preText} <b><color=#eee5be>{GetString("SightPotion")}</color></b>");
-                    break;
-                case 10:
-                    str.Append($"{preText} <color=#888888>{GetString("None")}</color>");
-                    break;
-            }
+            if (PotionStyles.TryGetValue(PotionID, out PotionStyle style))
+                sb.Append($"<b><{style.Colour}>{GetString(style.NameKey)}</color></b>");
+            else
+                sb.Append($"<#888888>{GetString("None")}</color>");
 
-            if (FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
+            if (FixNextSabo) sb.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
         }
 
-        return str.ToString();
+        return sb.ToString();
     }
+
+    private readonly record struct PotionStyle(string Colour, string NameKey);
+
+    private static readonly Dictionary<int, PotionStyle> PotionStyles = new()
+    {
+        { 1, new PotionStyle("#00ff97", "ShieldPotion") },
+        { 2, new PotionStyle("#ff0000", "AwkwardPotion") },
+        { 3, new PotionStyle("#42d1ff", "TeleportPotion") },
+        { 4, new PotionStyle("#ff8400", "SpeedPotion") },
+        { 5, new PotionStyle("#3333ff", "QuickFixPotion") },
+        { 6, new PotionStyle("#01c834", "InvisibilityPotion") },
+        { 7, new PotionStyle("#eee5be", "SightPotion") }
+    };
+
+    private const string HeaderColour = "#00ffa5";
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || Utils.GetPlayerById(playerId).IsModdedClient()) return string.Empty;
+        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || playerId.IsPlayerModdedClient()) return string.Empty;
 
-        var str = new StringBuilder();
+        var sb = new StringBuilder(base.GetProgressText(playerId, comms));
 
-        switch (PotionID)
+        if (PotionStyles.TryGetValue(PotionID, out PotionStyle style))
         {
-            case 1: // Shield
-                str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#00ff97>{GetString("ShieldPotion")}</color>");
-                break;
-            case 2: // Suicide
-                str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff0000>{GetString("AwkwardPotion")}</color>");
-                break;
-            case 3: // TP to random player
-                str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#42d1ff>{GetString("TeleportPotion")}</color>");
-                break;
-            case 4: // Increased speed
-                str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#ff8400>{GetString("SpeedPotion")}</color>");
-                break;
-            case 5: // Quick fix next sabo
-                str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#3333ff>{GetString("QuickFixPotion")}</color>");
-                break;
-            case 6: // Invisibility
-                str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#01c834>{GetString("InvisibilityPotion")}</color>");
-                break;
-            case 7: // Increased vision
-                str.Append($" <color=#00ffa5>{GetString("Stored")}:</color> <color=#eee5be>{GetString("SightPotion")}</color>");
-                break;
+            sb.Append(
+                $" <{HeaderColour}>{GetString("Stored")}:</color>" +
+                $" <{style.Colour}>{GetString(style.NameKey)}</color>");
         }
 
-        if (FixNextSabo) str.Append($" <color=#777777>({GetString("QuickFix")})</color>");
+        if (FixNextSabo) sb.Append($" <#777777>({GetString("QuickFix")})</color>");
 
-        return str.ToString();
+        return sb.ToString();
     }
 
     public static void RepairSystem(PlayerControl pc, SystemTypes systemType, byte amount)

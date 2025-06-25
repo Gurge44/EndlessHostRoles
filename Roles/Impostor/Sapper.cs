@@ -22,6 +22,8 @@ public class Sapper : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
+    private long LastNotify;
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sapper);
@@ -117,12 +119,12 @@ public class Sapper : RoleBase
     {
         if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive()) return;
 
-        foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp))
+        foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp).ToArray())
         {
             var b = false;
             IEnumerable<PlayerControl> players = GetPlayersInRadius(Radius.GetFloat(), bomb.Key);
 
-            foreach (PlayerControl tg in players.ToArray())
+            foreach (PlayerControl tg in players)
             {
                 if (tg.PlayerId == pc.PlayerId)
                 {
@@ -144,6 +146,10 @@ public class Sapper : RoleBase
                 }, 0.5f, "Sapper Bomb Suicide");
             }
         }
+
+        long now = TimeStamp;
+        if (LastNotify == now) return;
+        LastNotify = now;
 
         var sb = new StringBuilder();
         foreach (long x in Bombs.Values) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));

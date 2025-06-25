@@ -207,7 +207,7 @@ public class NiceHacker : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        if (playerId.IsPlayerModClient() || !UseLimit.ContainsKey(playerId)) return string.Empty;
+        if (playerId.IsPlayerModdedClient() || !UseLimit.ContainsKey(playerId)) return string.Empty;
 
         var sb = new StringBuilder();
 

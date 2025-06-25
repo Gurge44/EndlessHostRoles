@@ -164,7 +164,7 @@ internal class Asthmatic : IAddon
             if (Timers.TryGetValue(id, out Counter counter))
                 return $"{counter.ColoredArrow} <font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\">{counter.ColoredTimerString}</font>";
 
-            if (id.IsPlayerModClient() && !id.IsHost() && LastSuffix.TryGetValue(id, out var lastSuffix))
+            if (id.IsPlayerModdedClient() && !id.IsHost() && LastSuffix.TryGetValue(id, out string lastSuffix))
                 return lastSuffix;
         }
 

@@ -767,7 +767,7 @@ internal static class ExtendedPlayerControl
 
         Main.AbilityUseLimit[playerId] = limit;
 
-        if (AmongUsClient.Instance.AmHost && playerId.IsPlayerModClient() && !playerId.IsHost() && rpc)
+        if (AmongUsClient.Instance.AmHost && playerId.IsPlayerModdedClient() && !playerId.IsHost() && rpc)
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable);
             writer.Write(playerId);
@@ -1549,6 +1549,16 @@ internal static class ExtendedPlayerControl
 
     public static void Kill(this PlayerControl killer, PlayerControl target)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            StackFrame caller = new(1, false);
+            MethodBase callerMethod = caller.GetMethod();
+            string callerMethodName = callerMethod?.Name;
+            string callerClassName = callerMethod?.DeclaringType?.FullName;
+            Logger.Warn($"Modded non-host client activated Kill from {callerClassName}.{callerMethodName}", "Kill");
+            return;
+        }
+        
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
 
         if (target == null) target = killer;

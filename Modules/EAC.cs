@@ -219,7 +219,7 @@ internal static class EAC
                 }
                 case RpcCalls.MurderPlayer:
                 {
-                    sr.ReadNetObject<PlayerControl>();
+                    var target = sr.ReadNetObject<PlayerControl>();
 
                     if (GameStates.IsLobby)
                     {
@@ -234,6 +234,15 @@ internal static class EAC
                     HandleCheat(pc, "Directly Murder Player");
                     Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] directly killed, rejected", "EAC");
                     sr.Recycle();
+
+                    LateTask.New(() =>
+                    {
+                        foreach (PlayerControl player in new[] { pc, target })
+                        {
+                            if (player.IsAlive() && player.Data.IsDead)
+                                player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole);
+                        }
+                    }, 1f, "force revive after hack");
                     return true;
                 }
                 case RpcCalls.CheckShapeshift:

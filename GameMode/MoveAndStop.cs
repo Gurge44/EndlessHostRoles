@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -436,13 +437,13 @@ internal static class MoveAndStop
                     {
                         case Events.VentAccess:
                         {
-                            Main.AllAlivePlayerControls.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+                            Main.AllAlivePlayerControls.Do(x => x.RpcSetRoleDesync(RoleTypes.Engineer, x.OwnerId));
 
                             LateTask.New(() =>
                             {
                                 Main.AllAlivePlayerControls.Do(x =>
                                 {
-                                    x.RpcChangeRoleBasis(CustomRoles.Tasker);
+                                    x.RpcSetRoleDesync(RoleTypes.Crewmate, x.OwnerId);
 
                                     if (x.inVent || x.MyPhysics.Animations.IsPlayingEnterVentAnimation())
                                         LateTask.New(() => x.MyPhysics.RpcExitVent(x.GetClosestVent().Id), 1f, log: false);
@@ -453,15 +454,17 @@ internal static class MoveAndStop
                         }
                         case Events.CommsSabotage:
                         {
-                            Main.AllAlivePlayerControls.Do(x => x.RpcDesyncRepairSystem(SystemTypes.Comms, 128));
+                            const SystemTypes comms = SystemTypes.Comms;
+                            ShipStatus.Instance.UpdateSystem(comms, PlayerControl.LocalPlayer, 128);
 
                             LateTask.New(() =>
                             {
-                                Main.AllAlivePlayerControls.Do(x =>
-                                {
-                                    x.RpcDesyncRepairSystem(SystemTypes.Comms, 16);
-                                    if (Main.NormalOptions.MapId is 1 or 5) x.RpcDesyncRepairSystem(SystemTypes.Comms, 17);
-                                });
+                                if (!Utils.IsActive(comms)) return;
+
+                                ShipStatus.Instance.UpdateSystem(comms, PlayerControl.LocalPlayer, 16);
+
+                                if (Main.CurrentMap is MapNames.MiraHQ or MapNames.Fungle)
+                                    ShipStatus.Instance.UpdateSystem(comms, PlayerControl.LocalPlayer, 17);
                             }, duration, log: false);
 
                             break;

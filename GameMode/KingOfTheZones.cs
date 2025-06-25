@@ -290,6 +290,8 @@ public static class KingOfTheZones
     {
         if (Options.CurrentGameMode != CustomGameMode.KingOfTheZones) yield break;
 
+        yield return new WaitForSeconds(3f);
+
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Length / 2;
         NameNotifyManager.Reset();
@@ -425,7 +427,7 @@ public static class KingOfTheZones
         {
             try
             {
-                player.SetKillCooldown(TagCooldown.GetInt());
+                player.SetKillCooldown(GetKillCooldown(player));
 
                 KeyValuePair<SystemTypes, Vector2> spawn = spawns.RandomElement();
                 player.TP(spawn.Value);
@@ -497,25 +499,24 @@ public static class KingOfTheZones
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         target.MarkDirtySettings();
         target.TP(Pelican.GetBlackRoomPS());
-        return;
+    }
 
-        static float GetKillCooldown(PlayerControl player)
-        {
-            float cd = TagCooldown.GetInt();
-            if (!PlayerTeams.TryGetValue(player.PlayerId, out KOTZTeam playerTeam)) return cd;
+    private static float GetKillCooldown(PlayerControl player)
+    {
+        float cd = TagCooldown.GetInt();
+        if (!PlayerTeams.TryGetValue(player.PlayerId, out KOTZTeam playerTeam)) return cd;
 
-            if (ZoneDomination.ContainsValue(playerTeam))
-                cd *= 1.5f;
+        if (ZoneDomination.ContainsValue(playerTeam))
+            cd *= 1.5f;
 
-            Dictionary<KOTZTeam, byte[]> teamPlayers = PlayerTeams.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(g => g.Key).ToArray());
-            int maxTeamSize = teamPlayers.Values.Max(x => x.Length);
-            int teamSize = teamPlayers[playerTeam].Length;
+        Dictionary<KOTZTeam, byte[]> teamPlayers = PlayerTeams.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(g => g.Key).ToArray());
+        int maxTeamSize = teamPlayers.Values.Max(x => x.Length);
+        int teamSize = teamPlayers[playerTeam].Length;
 
-            if (maxTeamSize > teamSize)
-                cd /= 2f;
+        if (maxTeamSize > teamSize)
+            cd /= 2f;
 
-            return cd;
-        }
+        return cd;
     }
 
     public static string GetSuffix(PlayerControl seer)
@@ -760,7 +761,7 @@ public static class KingOfTheZones
 
                             Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                             player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
-                            player.SetKillCooldown(TagCooldown.GetInt());
+                            player.SetKillCooldown(GetKillCooldown(player));
                             player.MarkDirtySettings();
                             RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
 

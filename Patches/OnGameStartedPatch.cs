@@ -270,6 +270,8 @@ internal static class ChangeRoleSettings
             ShipStatusBeginPatch.RolesIsAssigned = false;
             GameEndChecker.Ended = false;
 
+            HudSpritePatch.ResetButtonIcons = true;
+
             ShipStatusFixedUpdatePatch.ClosestVent = [];
             ShipStatusFixedUpdatePatch.CanUseClosestVent = [];
 

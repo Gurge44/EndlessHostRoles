@@ -199,7 +199,7 @@ internal static class ChatCommands
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
             new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
             new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
-            new(["addtag", "createtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
+            new(["addtag", "createtag", "добавитьтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
             new(["daybreak", "db", "дейбрейк", "破晓"], "", GetString("CommandDescription.DayBreak"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DayBreakCommand, true, true),
             new(["fix", "blackscreenfix", "fixblackscreen", "ф", "исправить", "修复"], "{id}", GetString("CommandDescription.Fix"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InGame, FixCommand, true, false, [GetString("CommandArgs.Fix.Id")]),
@@ -219,6 +219,11 @@ internal static class ChatCommands
         ];
     }
 
+    private static string[] ModsFileCache = [];
+    private static string[] VIPsFileCache = [];
+    private static long LastModFileUpdate;
+    private static long LastVIPFileUpdate;
+
     // Function to check if a Player is Moderator
     public static bool IsPlayerModerator(string friendCode)
     {
@@ -226,15 +231,24 @@ internal static class ChatCommands
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
 
-        const string friendCodesFilePath = "./EHR_DATA/Moderators.txt";
+        long now = Utils.TimeStamp;
+        string[] friendCodes;
 
-        if (!File.Exists(friendCodesFilePath))
+        if (LastModFileUpdate + 5 > now) { friendCodes = ModsFileCache; }
+        else
         {
-            File.WriteAllText(friendCodesFilePath, string.Empty);
-            return false;
+            const string friendCodesFilePath = "./EHR_DATA/Moderators.txt";
+
+            if (!File.Exists(friendCodesFilePath))
+            {
+                File.WriteAllText(friendCodesFilePath, string.Empty);
+                return false;
+            }
+
+            friendCodes = ModsFileCache = File.ReadAllLines(friendCodesFilePath);
+            LastModFileUpdate = now;
         }
 
-        string[] friendCodes = File.ReadAllLines(friendCodesFilePath);
         return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
     }
 
@@ -245,15 +259,24 @@ internal static class ChatCommands
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool()) return false;
 
-        const string friendCodesFilePath = "./EHR_DATA/VIPs.txt";
+        long now = Utils.TimeStamp;
+        string[] friendCodes;
 
-        if (!File.Exists(friendCodesFilePath))
+        if (LastVIPFileUpdate + 5 > now) { friendCodes = VIPsFileCache; }
+        else
         {
-            File.WriteAllText(friendCodesFilePath, string.Empty);
-            return false;
+            const string friendCodesFilePath = "./EHR_DATA/VIPs.txt";
+
+            if (!File.Exists(friendCodesFilePath))
+            {
+                File.WriteAllText(friendCodesFilePath, string.Empty);
+                return false;
+            }
+
+            friendCodes = VIPsFileCache = File.ReadAllLines(friendCodesFilePath);
+            LastVIPFileUpdate = now;
         }
 
-        string[] friendCodes = File.ReadAllLines(friendCodesFilePath);
         return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
     }
 
