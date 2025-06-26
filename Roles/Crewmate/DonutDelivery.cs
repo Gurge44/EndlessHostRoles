@@ -36,7 +36,7 @@ public class DonutDelivery : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimit = new FloatOptionItem(Id + 12, "AbilityUseLimit", new(0, 20, 0.05f), 5, TabGroup.CrewmateRoles)
+        UseLimit = new FloatOptionItem(Id + 12, "AbilityUseLimit", new(0, 20, 1f), 5, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
             .SetValueFormat(OptionFormat.Times);
 
