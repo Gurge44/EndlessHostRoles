@@ -78,9 +78,7 @@ public class ClientOptionItem
                 }));
 
                 if (leaveButton != null && leaveButton.transform != null) leaveButton.transform.localPosition = new(-1.35f, -2.411f, -1f);
-
                 if (returnButton != null) returnButton.transform.localPosition = new(1.35f, -2.411f, -1f);
-
                 OptionButtons = [];
             }
 
@@ -122,7 +120,7 @@ public class ClientOptionItem
         return new(name, config, optionsMenuBehaviour, additionalOnClickAction);
     }
 
-    public static void AdjustButtonPositions()
+    private static void AdjustButtonPositions()
     {
         if (OptionButtons == null || OptionButtons.Count == 0) return;
 
@@ -141,7 +139,12 @@ public class ClientOptionItem
             int row = i / 3;
             int col = i % 3;
 
-            float xPos = col == 0 ? -2.6f : (col == 1 ? 0f : 2.6f);
+            float xPos = col switch
+            {
+                0 => -2.6f,
+                1 => 0f,
+                _ => 2.6f
+            };
 
             float yPos = topPosition - (row * rowSpacing);
 

@@ -155,6 +155,12 @@ internal static class ChangeRoleSettings
 
         try
         {
+            if (Options.CurrentGameMode == CustomGameMode.BedWars) Options.UsePets.SetValue(1);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try
+        {
             new[]
             {
                 RoleTypes.GuardianAngel,
@@ -378,8 +384,6 @@ internal static class ChangeRoleSettings
                 Circumvent.Init();
             }
             catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }
-
-            Main.ChangedRole = false;
 
             try
             {
@@ -936,6 +940,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Quiz:
                     Quiz.Init();
                     goto default;
+                case CustomGameMode.BedWars:
+                    BedWars.Initialize();
+                    goto default;
                 default:
                     if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                     break;
@@ -996,6 +1003,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.TheMindGame:
                     GameEndChecker.SetPredicateToTheMindGame();
                     break;
+                case CustomGameMode.BedWars:
+                    GameEndChecker.SetPredicateToBedWars();
+                    break;
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
@@ -1008,6 +1018,8 @@ internal static class StartGameHostPatch
                 Main.SetAddOns = [];
                 ChatCommands.DraftResult = [];
                 ChatCommands.DraftRoles = [];
+
+                if (Main.LoversPlayers.Count == 0) Main.LoversPlayers = Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Lovers) || x.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor).ToList();
             }, 7f, log: false);
 
             if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value) LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
@@ -1463,7 +1475,7 @@ internal static class StartGameHostPatch
                 LateTask.New(() =>
                 {
                     pc.RpcResetAbilityCooldown();
-                    pc.SetKillCooldown();
+                    pc.SetKillCooldown(10f);
                 }, 0.2f, log: false);
             }
 

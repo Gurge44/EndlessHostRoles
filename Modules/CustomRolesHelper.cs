@@ -65,7 +65,8 @@ internal static class CustomRolesHelper
             CustomRoles.RRPlayer or
             CustomRoles.KOTZPlayer or
             CustomRoles.QuizPlayer or
-            CustomRoles.TMGPlayer;
+            CustomRoles.TMGPlayer or
+            CustomRoles.BedWarsPlayer;
     }
 
     public static RoleBase GetRoleClass(this CustomRoles role)
@@ -427,6 +428,8 @@ internal static class CustomRolesHelper
             CustomRoles.CTFPlayer => RoleTypes.Phantom,
             // King of the Zones
             CustomRoles.KOTZPlayer => RoleTypes.Impostor,
+            // Bed Wars
+            CustomRoles.BedWarsPlayer => RoleTypes.Phantom,
             // Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -889,6 +892,7 @@ internal static class CustomRolesHelper
     public static bool NeedsUpdateAfterDeath(this CustomRoles role)
     {
         return role is
+            CustomRoles.BedWarsPlayer or
             CustomRoles.Weatherman or
             CustomRoles.Altruist or
             CustomRoles.Duellist;
@@ -963,7 +967,10 @@ internal static class CustomRolesHelper
     public static bool SimpleAbilityTrigger(this CustomRoles role)
     {
         return role is
+            CustomRoles.Jet or
+            CustomRoles.Dasher or
             CustomRoles.CTFPlayer or
+            CustomRoles.BedWarsPlayer or
             CustomRoles.Wizard or
             CustomRoles.Stasis or
             CustomRoles.Occultist or

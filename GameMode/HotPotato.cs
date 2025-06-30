@@ -124,7 +124,7 @@ internal static class HotPotato
 
         public static void Postfix(PlayerControl __instance)
         {
-            if (Options.CurrentGameMode != CustomGameMode.HotPotato || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || __instance.PlayerId >= 254 || Utils.GameStartTimeStamp + 15 > Utils.TimeStamp) return;
+            if (Options.CurrentGameMode != CustomGameMode.HotPotato || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || __instance.PlayerId >= 254 || Utils.GameStartTimeStamp + 15 > Utils.TimeStamp) return;
 
             PlayerControl holder = Utils.GetPlayerById(HotPotatoState.HolderID);
 
@@ -210,7 +210,7 @@ internal static class HotPotato
                 if (aapc.Length < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapc.Length > 1)
                 {
                     Vector2 pos = target.Pos();
-                    TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);
+                    TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).Where(x => x.PlayerId != HotPotatoState.LastHolderID).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);
                 }
 
                 Main.AllPlayerSpeed[target.PlayerId] = HolderSpeed.GetFloat();

@@ -94,7 +94,7 @@ public class PlayerState(byte playerId)
 
     private int RoleChangeTimes = -1;
 
-    public List<CustomRoles> RoleHistory = [];
+    public readonly List<CustomRoles> RoleHistory = [];
     public bool IsDead { get; set; }
 
     // ReSharper disable once InconsistentNaming
@@ -153,6 +153,9 @@ public class PlayerState(byte playerId)
                 Player.RpcResetTasks();
                 if (!AmongUsClient.Instance.AmHost) LateTask.New(() => TaskState.Init(Player), 1f, log: false);
             }
+
+            if (role.IsVanilla() || role.ToString().Contains("EHR"))
+                Main.AbilityUseLimit.Remove(PlayerId);
         }
 
         if (!AmongUsClient.Instance.AmHost) return;

@@ -37,7 +37,7 @@ internal class Saboteur : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return base.CanUseKillButton(pc) && (Utils.IsActive(SystemTypes.Electrical) || Utils.IsActive(SystemTypes.Comms) || Utils.IsActive(SystemTypes.MushroomMixupSabotage) || Utils.IsActive(SystemTypes.Laboratory) || Utils.IsActive(SystemTypes.LifeSupp) || Utils.IsActive(SystemTypes.Reactor) || Utils.IsActive(SystemTypes.HeliSabotage));
+        return base.CanUseKillButton(pc) && Utils.IsAnySabotageActive();
     }
 
     public override void SetKillCooldown(byte id)

@@ -116,6 +116,9 @@ public static class FixedUpdateCaller
                             case CustomGameMode.Speedrun:
                                 Speedrun.FixedUpdatePatch.Postfix(pc);
                                 break;
+                            case CustomGameMode.BedWars:
+                                BedWars.FixedUpdatePatch.Postfix(pc);
+                                break;
                         }
 
                         CheckInvalidMovementPatch.Postfix(pc);

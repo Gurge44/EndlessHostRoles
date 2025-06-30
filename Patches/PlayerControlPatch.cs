@@ -271,6 +271,9 @@ internal static class CheckMurderPatch
                 case CustomGameMode.KingOfTheZones:
                     KingOfTheZones.OnCheckMurder(killer, target);
                     return false;
+                case CustomGameMode.BedWars:
+                    BedWars.OnCheckMurder(killer, target);
+                    return false;
             }
 
             Deadlined.SetDone(killer);
@@ -1371,7 +1374,7 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
 
-                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 44 == TimeStamp)
+                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.BedWars && GameStartTimeStamp + 44 == TimeStamp)
                     NotifyRoles();
             }
         }
@@ -1822,10 +1825,13 @@ internal static class FixedUpdatePatch
                 case CustomGameMode.TheMindGame:
                     additionalSuffixes.Add(TheMindGame.GetSuffix(seer, target));
                     break;
+                case CustomGameMode.BedWars:
+                    additionalSuffixes.Add(BedWars.GetSuffix(seer, target));
+                    break;
             }
 
             if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
-                Suffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
+                Suffix.Append($"\n\n{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}\n");
 
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                 additionalSuffixes.Add(GetString("DiedR1Warning"));

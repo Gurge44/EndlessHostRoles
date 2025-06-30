@@ -321,7 +321,7 @@ internal static class SoloPVP
         public static void Postfix(PlayerControl __instance)
         {
             byte id = __instance.PlayerId;
-            if (!GameStates.IsInTask || !Main.IntroDestroyed || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost || id >= 254) return;
+            if (!GameStates.IsInTask || ExileController.Instance || !Main.IntroDestroyed || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost || id >= 254) return;
 
             bool soloAlive = __instance.SoloAlive();
             bool inVent = __instance.inVent;

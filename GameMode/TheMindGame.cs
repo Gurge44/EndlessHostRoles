@@ -83,7 +83,7 @@ public static class TheMindGame
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        TimeForEachPickInRound1Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound1", new IntegerValueRule(1, 60, 1), 12, tab)
+        TimeForEachPickInRound1Option = new IntegerOptionItem(id++, "TMG.Setting.TimeForEachPickInRound1", new IntegerValueRule(1, 60, 1), 8, tab)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color)
             .SetGameMode(gameMode);

@@ -42,6 +42,31 @@ List of symbols that work in game
 6- random: ‰ § ¶ © ™ ¥ $ ¢ € ƒ  £ Æ
 
 other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ ╖ ╕ ╣ ║ ╗ ╝ ╜ ╛ ┐ └ ┴ ┬ ─ ┼ ╞ ╟ ╚ ╔ ╩ ╦ ╠ ═ ╬ ╧ ╨ ╤ ╥ ╙ ╘ ╒ ╓ ╫ ╪ ┘ ┌ Θ ∩ ¿
+
+Copyright: © ® ™ ℡ № ℀ ℅ ☎ ☏ ‰ § ¶ ☜
+Currency: ¢ $ € £ ¥ ₩ ₫ ￥ ¤ ƒ
+Bracket: 〈 〉 《 》 「 」 『 』 【 】 〔 〕 ︵ ︶ ︷ ︸ ︹ ︺ ︻ ︼ ︽ ︾ ︿ ﹀ ﹁ ﹂ ﹃ ﹄ ﹙ ﹚ ﹛ ﹜ ﹝ ﹞ ﹤ ﹥ （ ） ＜ ＞ ｛ ｝ 〖 〗 〘 〙 〚 〛 « » ‹ › 〈 〉 〱
+Card symbol: ♤ ♠ ♧ ♣ ♡ ♥ ♢ ♦
+Musical: ♩ ♪ ♫ ♬ ♭ ♮ ♯ ° ø ≠
+Degree: ° ℃ ℉ ☀ ☁ ☂ ☃ ☉ ♁ ♨ ㎎ ㎏ ㎜ ㎝ ㎞ ㎡ ㏄ ㏎ ㏑ ㏒ ㏕
+Arrow: ↕ ↖ ↗ ↘ ↙ ↸ ↹ ⇦ ⇧ ⇨ ⇩ ⌅ ⌆ ⏎ ▶ ➔ ⤴ ⤵ ↓ ↔ ← → ↑ ⇵ ⬅ ⬆ ⬇
+Astrological: ☯ ✚ †  ‡ ♁ ❖ 卍 卐   〷
+Heart: ♥ ♡
+Check: ✓ ∨ √ 〤 〥
+Gender: ♀ ♂ ☹ ☺  〠 ヅ ツ ㋡ 웃 유 ü Ü シ ッ ㋛ ☃ 〲 〴
+Punct: · ‑ ‒ – — ― ‘ ’ ‚ “ ” „  •  ‥ … ‧ ′ ″ ‵ ʻ ˇ ˉ ˊ ˋ ˙ ～ ¿ ﹐ ﹒ ﹔ ﹕ ！ ＃ ＄ ％ ＆ ＊ ， ． ： ； ？ ＠ 、 。 〃 〝 〞 ︰
+Math: π ∞ Σ √  ∫ ∬ ∭ ∀  ∂ ∃  ∅ ∆ ∇ ∈ ∉ ∊ ∋ ∏  ∑ − ∓  ∕ ∝ ∟ ∠  ∣ ∥ ∦ ∧ ∨ ∩ ∪ ∴ ∵ ∶ ∷ ∽ ≃ ≅ ≈ ≌ ≒ ≠ ≡ ≢ ≤ ≥ ≦ ≧ ≪ ≫ ≮ ≯ ≲ ≳ ≶ ≷ ⊂ ⊃ ⊄ ⊅ ⊆ ⊇ ⊊ ⊋ ⊕ ⊖ ⊗ ⊘ ⊙ ⊠ ⊥ ⊿ ⋚ ⋛ ⋯ ﹢ ﹣ ＋ － ／ ＝ ÷ ±
+Number: Ⅰ Ⅱ Ⅲ Ⅳ Ⅴ Ⅵ Ⅶ Ⅷ Ⅸ Ⅹ Ⅺ Ⅻ ⅰ ⅱ ⅲ ⅳ ⅴ ⅵ ⅶ ⅷ ⅸ ⅹ ⅺ ⅻ ➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈ ➉ ➊ ➋ ➌ ➍ ➎ ➏ ➐ ➑ ➒ ➓ ⓵ ⓶ ⓷ ⓸ ⓹ ⓺ ⓻ ⓼ ⓽ ⓾ ⓿ ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾ ❿  ¹ ² ³ ⁴ ⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳ ⑴ ⑵ ⑶ ⑷ ⑸ ⑹ ⑺ ⑻ ⑼ ⑽ ⑾ ⑿ ⒀ ⒁ ⒂ ⒃ ⒄ ⒅ ⒆ ⒇ ⒈ ⒉ ⒊ ⒋ ⒌ ⒍ ⒎ ⒏ ⒐ ⒑ ⒒ ⒓ ⒔ ⒕ ⒖ ⒗ ⒘ ⒙ ⒚ ⒛ ㈠ ㈡ ㈢ ㈣ ㈤ ㈥ ㈦ ㈧ ㈨ ㈩ ㊀ ㊁ ㊂ ㊃ ㊄ ㊅ ㊆ ㊇ ㊈ ㊉ ０ １ ２ ３ ４ ５ ６ ７ ８ ９
+fract: ⅓ ¾ ¼ % ℅ ‰
+technic: ⌅ ⌆ ⌇ ⌒  ⌘ ﹘ ﹝ ﹞ ﹟ ﹡ 〶 ␣
+square: ▀ ▁ ▂ ▃ ▄ ▅ ▆ ▇ ▉ ▊ ▋ █ ▌ ▐ ▍ ▎ ▏ ▕ ░ ▒ ▓ ▔ ▢ ▣ ▤ ▥ ▦ ▧ ▨ ▩ ▪ ▫ ▱ ■  ⊠ 〓 ◊ ◈ ◇ ◆ ☖ ☗
+triangle: ▲ ▼ ◀ ◣ ◥ ◤ ◢ ▶ ◁ △ ▽ ▷ ∆ ∇ ⊿
+Line: │ ┃ ╽ ╿ ╏ ║ ╎ ┇ ︱ ┊ ︳ ┋ ┆ ╵ 〡 〢 ╹ ╻ ╷ 〣 ≡ ︴ ﹏ ﹌ ﹋ ╳ ╲ ╱ ︶ ︵ 〵 〴 〳 〆 ` ‐
+Corner: ﹄ ﹃ ﹂ ﹁ ┕ ┓ └ ┐ ┖ ┒ ┗ ┑ ┍ ┙ ┏ ┛ ┎ ┚ ┌ ┘ 「 」 『 』 ├ ┝ ┞ ┟ ┠ ┡ ┢ ┣ ┤ ┥ ┦ ┧ ┨ ┩ ┪ ┫ ┬ ┭ ┮ ┯ ┰ ┱ ┲ ┳ ┴ ┵ ┶ ┷ ┸ ┹ ┺ ┻ ┼ ┽ ┾ ┿ ╀ ╁ ╂ ╃ ╄ ╅ ╆ ╇ ╈ ╉ ╊ ╋ ╒ ╕ ╓ ╖ ╔ ╗ ╘ ╛ ╙ ╜ ╚ ╝ ╞ ╡ ╟ ╢ ╠ ╣ ╥ ╨ ╧ ╤ ╦ ╩ ╪ ╫ ╬ 〒 ⊥ ╭ ╮ ╯ ╰  〦 〧 〨 ∟
+Circle: ◉ ○ ◌ ◍ ◎ ● ◐ ◑ ◒ ◓ ⊗ ⊙ ◯ 〇 〶 ◦ ∅ ⊕ ⊖ ⊘ ⦿ ⚽ ⚾〄
+phonenetic: θ ð
+Latin: ĩ Ň Ⓐ Ⓑ Ⓒ Ⓓ Ⓔ Ⓕ Ⓖ Ⓗ Ⓘ Ⓙ Ⓚ Ⓛ Ⓜ Ⓝ Ⓞ Ⓟ Ⓠ Ⓡ Ⓢ Ⓣ Ⓤ Ⓥ Ⓦ Ⓧ Ⓨ Ⓩ ⓐ ⓑ ⓒ ⓓ ⓔ ⓕ ⓖ ⓗ ⓘ ⓙ ⓚ ⓛ ⓜ ⓝ ⓞ ⓟ ⓠ ⓡ ⓢ ⓣ ⓤ ⓥ ⓦ ⓧ ⓨ ⓩ
+Symbols Emoji: ™ 〰 🆗 🆕 🆙 🆒 🆓 🆖 🅿 Ⓜ 🆑 🆘 🆚 ⚠ 🅰 🅱 🆎 🅾 ♻ 🆔
 */
 
 public static class Utils
@@ -204,6 +229,11 @@ public static class Utils
         catch { return null; }
     }
 
+    public static bool IsAnySabotageActive()
+    {
+        return CustomSabotage.Instances.Count > 0 || new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(IsActive);
+    }
+
     public static bool IsActive(SystemTypes type)
     {
         try
@@ -216,7 +246,7 @@ public static class Utils
             {
                 case SystemTypes.Electrical:
                 {
-                    if (mapId == 5) return false; // if The Fungle return false
+                    if (mapId == 5) return false;
 
                     var switchSystem = systemType.CastFast<SwitchSystem>();
                     return switchSystem is { IsActive: true };
@@ -226,37 +256,32 @@ public static class Utils
                     switch (mapId)
                     {
                         case 2:
-                            return false; // if Polus return false
-                        // Only Airhip
+                            return false;
                         case 4:
-                        {
                             var heliSabotageSystem = systemType.CastFast<HeliSabotageSystem>();
                             return heliSabotageSystem != null && heliSabotageSystem.IsActive;
-                        }
                         default:
-                        {
                             var reactorSystemType = systemType.CastFast<ReactorSystemType>();
                             return reactorSystemType is { IsActive: true };
-                        }
                     }
                 }
                 case SystemTypes.Laboratory:
                 {
-                    if (mapId != 2) return false; // Only Polus
+                    if (mapId != 2) return false;
 
                     var reactorSystemType = systemType.CastFast<ReactorSystemType>();
                     return reactorSystemType is { IsActive: true };
                 }
                 case SystemTypes.LifeSupp:
                 {
-                    if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
+                    if (mapId is 2 or 4 or 5) return false;
 
                     var lifeSuppSystemType = systemType.CastFast<LifeSuppSystemType>();
                     return lifeSuppSystemType is { IsActive: true };
                 }
                 case SystemTypes.Comms:
                 {
-                    if (mapId is 1 or 5) // Only Mira HQ & The Fungle
+                    if (mapId is 1 or 5)
                     {
                         var hqHudSystemType = systemType.CastFast<HqHudSystemType>();
                         return hqHudSystemType is { IsActive: true };
@@ -267,14 +292,14 @@ public static class Utils
                 }
                 case SystemTypes.HeliSabotage:
                 {
-                    if (mapId != 4) return false; // Only Airhip
+                    if (mapId != 4) return false;
 
                     var heliSabotageSystem = systemType.CastFast<HeliSabotageSystem>();
                     return heliSabotageSystem != null && heliSabotageSystem.IsActive;
                 }
                 case SystemTypes.MushroomMixupSabotage:
                 {
-                    if (mapId != 5) return false; // Only The Fungle
+                    if (mapId != 5) return false;
 
                     var mushroomMixupSabotageSystem = systemType.CastFast<MushroomMixupSabotageSystem>();
                     return mushroomMixupSabotageSystem != null && mushroomMixupSabotageSystem.IsActive;
@@ -788,6 +813,7 @@ public static class Utils
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
+            case CustomGameMode.BedWars:
                 return false;
             case CustomGameMode.HideAndSeek:
                 return CustomHnS.HasTasks(p);
@@ -1002,7 +1028,7 @@ public static class Utils
     {
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame:
+            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars:
             case CustomGameMode.Standard when IsRevivingRoleAlive() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
             case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun:
@@ -1483,6 +1509,7 @@ public static class Utils
                 }
 
                 break;
+            case CustomGameMode.BedWars:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.KingOfTheZones:
@@ -2070,6 +2097,7 @@ public static class Utils
                     CustomGameMode.TheMindGame => $"<color=#ffff00>{modeText}</color>\r\n{name}",
                     CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"{modeText}\r\n") + name,
                     CustomGameMode.Quiz => ColorString(GetRoleColor(CustomRoles.QuizMaster), $"{modeText}\r\n") + name,
+                    CustomGameMode.BedWars => ColorString(GetRoleColor(CustomRoles.BedWarsPlayer), $"{modeText}\r\n") + name,
                     _ => name
                 };
             }
@@ -2516,6 +2544,9 @@ public static class Utils
                     case CustomGameMode.TheMindGame:
                         additionalSuffixes.Add(TheMindGame.GetSuffix(seer, seer));
                         break;
+                    case CustomGameMode.BedWars:
+                        additionalSuffixes.Add(BedWars.GetSuffix(seer, seer));
+                        break;
                 }
 
                 SelfSuffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
@@ -2528,7 +2559,7 @@ public static class Utils
                 if ((Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool()) || Options.CurrentGameMode == CustomGameMode.HotPotato)
                     seerRealName = seerRealName.ApplyNameColorData(seer, seer, forMeeting);
 
-                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame)
+                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars)
                 {
                     CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
 
@@ -2563,10 +2594,10 @@ public static class Utils
                 }
 
                 if (GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
-                    SelfSuffix.Append("\n\n" + GetString($"GameModeTutorial.{Options.CurrentGameMode}"));
+                    SelfSuffix.Append($"\n\n{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}\n");
             }
 
-            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame;
+            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars;
 
             // Combine the seer's job title and SelfTaskText with the seer's player name and SelfMark
             string selfRoleName = noRoleText ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{selfTaskText}</size>";
@@ -2747,7 +2778,7 @@ public static class Utils
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 targetRoleText = string.Empty;
 
-                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame)
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars)
                                 targetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
@@ -2843,6 +2874,9 @@ public static class Utils
                                         break;
                                     case CustomGameMode.TheMindGame:
                                         additionalSuffixes.Add(TheMindGame.GetSuffix(seer, target));
+                                        break;
+                                    case CustomGameMode.BedWars:
+                                        additionalSuffixes.Add(BedWars.GetSuffix(seer, target));
                                         break;
                                 }
 
@@ -3615,6 +3649,9 @@ public static class Utils
                 case CustomGameMode.TheMindGame:
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - {TheMindGame.GetStatistics(id)}";
                     break;
+                case CustomGameMode.BedWars:
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - {BedWars.GetStatistics(id)}";
+                    break;
             }
 
             return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
@@ -3942,6 +3979,7 @@ public static class Utils
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
         float divice = Options.CurrentGameMode switch
         {
+            CustomGameMode.BedWars => 3000f,
             CustomGameMode.SoloKombat => 3000f,
             CustomGameMode.CaptureTheFlag => 1500f,
             CustomGameMode.KingOfTheZones => 1500f,

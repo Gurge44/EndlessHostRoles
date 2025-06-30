@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using Hazel;
 
@@ -73,7 +72,7 @@ public class Grappler : RoleBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl target)
     {
-        if (new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(Utils.IsActive)) return true;
+        if (Utils.IsAnySabotageActive()) return true;
 
         foreach (Grappler instance in Instances)
         {

@@ -82,15 +82,33 @@ public class Jet : RoleBase, IHideAndSeekRole
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         Main.AllPlayerSpeed[playerId] = DashStatus.IsDashing ? DashSpeed.GetFloat() : RoleSpeed;
+
+        if (Options.UsePhantomBasis.GetBool())
+        {
+            AURoleOptions.PhantomCooldown = DashStatus.Cooldown + DashStatus.Duration;
+            AURoleOptions.PhantomDuration = 0.1f;
+        }
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        Dash(pc);
+        return false;
     }
 
     public override void OnPet(PlayerControl pc)
     {
-        if (pc.HasAbilityCD() || DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f) return;
+        if (pc.HasAbilityCD()) return;
+        Dash(pc);
+        pc.AddAbilityCD(DashStatus.Cooldown + DashStatus.Duration);
+    }
+
+    private void Dash(PlayerControl pc)
+    {
+        if (DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f) return;
 
         DashStatus.IsDashing = true;
         DashStatus.DashEndTime = Utils.TimeStamp + DashStatus.Duration;
-        pc.AddAbilityCD(DashStatus.Cooldown + DashStatus.Duration);
         pc.MarkDirtySettings();
         pc.RpcRemoveAbilityUse();
     }

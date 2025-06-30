@@ -192,14 +192,14 @@ internal static class HudManagerPatch
             {
                 if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
-                    if (player.Data.Role is ShapeshifterRole ssrole)
+                    if (player.Data.Role is ShapeshifterRole ssrole && !player.shapeshifting)
                     {
                         float timer = shapeshifting ? ssrole.durationSecondsRemaining : ssrole.cooldownSecondsRemaining;
                         AbilityButton button = __instance.AbilityButton;
 
                         if (timer > 0f)
                         {
-                            Color color = shapeshifting ? Color.green : Color.white;
+                            Color color = shapeshifting ? new Color32(0, 165, 255, 255) : Color.white;
                             button.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
                             button.cooldownTimerText.gameObject.SetActive(true);
                         }
@@ -445,18 +445,18 @@ internal static class ActionButtonSetFillUpPatch
 {
     public static void Postfix(ActionButton __instance, [HarmonyArgument(0)] float timer)
     {
-        if (__instance.isCoolingDown && timer is <= 90f and > 0f)
+        if (__instance.isCoolingDown && timer is <= 90f and > 0f && !PlayerControl.LocalPlayer.shapeshifting && !VentButtonDoClickPatch.Animating)
         {
             RoleTypes roleType = PlayerControl.LocalPlayer.GetRoleTypes();
 
             bool usingAbility = roleType switch
             {
-                RoleTypes.Engineer => PlayerControl.LocalPlayer.inVent || VentButtonDoClickPatch.Animating,
+                RoleTypes.Engineer => PlayerControl.LocalPlayer.inVent,
                 RoleTypes.Shapeshifter => PlayerControl.LocalPlayer.IsShifted(),
                 _ => false
             };
 
-            Color color = usingAbility ? Color.green : Color.white;
+            Color color = usingAbility ? new Color32(0, 165, 255, 255) : Color.white;
             __instance.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
             __instance.cooldownTimerText.gameObject.SetActive(true);
         }
@@ -527,6 +527,9 @@ internal static class SetHudActivePatch
 
         switch (Options.CurrentGameMode)
         {
+            case CustomGameMode.BedWars:
+                __instance.ReportButton?.ToggleVisible(false);
+                break;
             case CustomGameMode.Quiz:
                 __instance.KillButton.ToggleVisible(Quiz.AllowKills);
                 goto case CustomGameMode.MoveAndStop;
@@ -819,7 +822,7 @@ internal static class TaskPanelBehaviourPatch
             {
                 string[] split = roleInfo.Split(' ');
                 int half = split.Length / 2;
-                roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
+                roleWithInfo = $"{GetString($"{Options.CurrentGameMode}")}\r\n<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
             }
 
             string finalText = Utils.ColorString(player.GetRoleColor(), roleWithInfo);
@@ -882,7 +885,7 @@ internal static class TaskPanelBehaviourPatch
                         SummaryText3[id] = summary;
                     }
 
-                    finalText += $"<size=70%>\r\n{taskList}\r\n</size>";
+                    if (player.IsAlive()) finalText += $"<size=70%>\r\n{taskList}\r\n</size>";
 
                     List<(int, byte)> list3 = [];
                     foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStop.GetRankFromScore(id), id));
@@ -915,7 +918,7 @@ internal static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.Speedrun:
 
-                    finalText += $"<size=70%>\r\n{taskList}\r\n</size>";
+                    if (player.IsAlive()) finalText += $"<size=70%>\r\n{taskList}\r\n</size>";
                     finalText += $"\r\n<size=90%>{Speedrun.GetTaskBarText()}</size>";
 
                     break;
@@ -963,6 +966,13 @@ internal static class TaskPanelBehaviourPatch
 
                     finalText += "\r\n\r\n\r\n<size=70%>";
                     finalText += TheMindGame.GetTaskBarText();
+                    finalText += "</size>";
+                    break;
+
+                case CustomGameMode.BedWars when AmongUsClient.Instance.AmHost:
+
+                    finalText += "\r\n\r\n\r\n<size=70%>";
+                    finalText += BedWars.GetHudText();
                     finalText += "</size>";
                     break;
             }

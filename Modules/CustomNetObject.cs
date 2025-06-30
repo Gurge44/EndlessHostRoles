@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR;
 using EHR.Crewmate;
@@ -233,7 +234,14 @@ namespace EHR
 
             LateTask.New(() =>
             {
-                playerControl.NetTransform.RpcSnapTo(position);
+                try { playerControl.NetTransform.RpcSnapTo(position); }
+                catch (Exception e)
+                {
+                    Utils.ThrowException(e);
+
+                    try { TP(position); }
+                    catch (Exception exception) { Utils.ThrowException(exception); }
+                }
                 playerControl.RawSetName(sprite);
                 string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
                 int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
@@ -277,7 +285,7 @@ namespace EHR
 
                 sender.EndMessage();
                 sender.SendMessage();
-            }, 0.2f);
+            }, 0.6f);
 
             Position = position;
             Sprite = sprite;
@@ -320,10 +328,8 @@ namespace EHR
                 }, 0.1f);
             }
 
-            LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.1f); // Fix for Host
-            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.4f); // Fix for Non-Host Modded
-
-            LateTask.New(() => RpcChangeSprite(sprite), 0.6f);
+            LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.7f); // Fix for Host
+            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 1f); // Fix for Non-Host Modded
         }
 
         public static void FixedUpdate()
@@ -349,7 +355,9 @@ namespace EHR
 
         public static void OnMeeting()
         {
-            TempDespawnedObjects = AllObjects.ToList();
+            if (!(Options.IntegrateNaturalDisasters.GetBool() && Options.CurrentGameMode != CustomGameMode.NaturalDisasters))
+                TempDespawnedObjects = AllObjects.ToList();
+            
             Reset();
         }
 
@@ -473,7 +481,7 @@ namespace EHR
     {
         public SoulObject(Vector2 position, PlayerControl whisperer)
         {
-            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#cfcfcf>\u2588<#cfcfcf>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<br></line-height></size>", position);
+            CreateNetObject("<size=80%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#cfcfcf>\u2588<#cfcfcf>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<br></line-height></size>", position);
             Main.AllAlivePlayerControls.Without(whisperer).Do(Hide);
         }
     }
@@ -560,6 +568,87 @@ namespace EHR
             if (Timer <= 0) Despawn();
         }
     }
+
+    internal sealed class BlueBed : BedWars.Bed
+    {
+        public BlueBed(Vector2 position) : base(position)
+        {
+            BaseSprite = "<size=70%><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#c7deff>█<#c7deff>█<#00aeff>█<#00aeff>█<#00aeff>█<#00aeff>█<br><#c7deff>█<#c7deff>█<#00aeff>█<#00aeff>█<#00aeff>█<#00aeff>█<br><#c7deff>█<#c7deff>█<#00aeff>█<#00aeff>█<#00aeff>█<#00aeff>█<br><#82531a>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#82531a>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>";
+        }
+    }
+
+    internal sealed class GreenBed : BedWars.Bed
+    {
+        public GreenBed(Vector2 position) : base(position)
+        {
+            BaseSprite = "<size=70%><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#baffd0>█<#baffd0>█<#00ff7b>█<#00ff7b>█<#00ff7b>█<#00ff7b>█<br><#baffd0>█<#baffd0>█<#00ff7b>█<#00ff7b>█<#00ff7b>█<#00ff7b>█<br><#baffd0>█<#baffd0>█<#00ff7b>█<#00ff7b>█<#00ff7b>█<#00ff7b>█<br><#82531a>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#82531a>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>";
+        }
+    }
+
+    internal sealed class YellowBed : BedWars.Bed
+    {
+        public YellowBed(Vector2 position) : base(position)
+        {
+            BaseSprite = "<size=70%><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#fffebd>█<#fffebd>█<#ffff00>█<#ffff00>█<#ffff00>█<#ffff00>█<br><#fffebd>█<#fffebd>█<#ffff00>█<#ffff00>█<#ffff00>█<#ffff00>█<br><#fffebd>█<#fffebd>█<#ffff00>█<#ffff00>█<#ffff00>█<#ffff00>█<br><#82531a>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#82531a>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>";
+        }
+    }
+
+    internal sealed class RedBed : BedWars.Bed
+    {
+        public RedBed(Vector2 position) : base(position)
+        {
+            BaseSprite = "<size=70%><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#ffbbb5>█<#ffbbb5>█<#ff0008>█<#ff0008>█<#ff0008>█<#ff0008>█<br><#ffbbb5>█<#ffbbb5>█<#ff0008>█<#ff0008>█<#ff0008>█<#ff0008>█<br><#ffbbb5>█<#ffbbb5>█<#ff0008>█<#ff0008>█<#ff0008>█<#ff0008>█<br><#82531a>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#82531a>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>";
+        }
+    }
+
+    internal sealed class BedWarsItemGenerator : CustomNetObject
+    {
+        private readonly string ItemSprite;
+
+        public BedWarsItemGenerator(Vector2 position, string itemSprite)
+        {
+            ItemSprite = itemSprite;
+            CreateNetObject($"{itemSprite} 0", position);
+        }
+
+        public void SetCount(int count)
+        {
+            RpcChangeSprite($"{ItemSprite} {count}");
+        }
+    }
+
+    internal sealed class BedWarsShop : CustomNetObject
+    {
+        public BedWarsShop(Vector2 position, string sprite)
+        {
+            CreateNetObject(sprite, position);
+        }
+    }
+
+    internal sealed class TNT : CustomNetObject
+    {
+        public Vector2 Position;
+        private float timer;
+
+        public TNT(Vector2 position)
+        {
+            Position = position;
+            timer = 4f;
+            CreateNetObject("<size=100%><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#000000>█<#ffea00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<#000000>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#ff0004>█<#ff0004>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#ff0004>█<#ff0004>█<#ff0004>█<#ff0004>█<alpha=#00>█<alpha=#00>█<br><#ff0004>█<#ff0004>█<#ff0004>█<#ff0004>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#ff0004>█<#ff0004>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>", position);
+        }
+
+        protected override void OnFixedUpdate()
+        {
+            base.OnFixedUpdate();
+            timer -= Time.fixedDeltaTime;
+
+            if (timer <= 0f)
+            {
+                BedWars.OnTNTExplode(Position);
+                Despawn();
+            }
+        }
+    }
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RawSetName))]
@@ -567,7 +656,7 @@ internal static class RawSetNamePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
     {
-        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return true;
+        if (!AmongUsClient.Instance.AmHost || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool())) return true;
 
         var exception = false;
 
@@ -596,5 +685,40 @@ internal static class RawSetNamePatch
         }, 0.5f, log: false);
 
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendOrDisconnect))]
+internal static class SendOrDisconnectPatch
+{
+    [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
+    [SuppressMessage("ReSharper", "MergeIntoLogicalPattern")]
+    public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] MessageWriter msg)
+    {
+        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) return true;
+
+        try
+        {
+            SendErrors? sendErrors = __instance.connection.Send(msg);
+            if (sendErrors == null || sendErrors == SendErrors.None) return false;
+            EHR.Logger.Error($"Failed to send message: {sendErrors} - Trying again in 2s", "SendOrDisconnectPatch");
+            LateTask.New(TryAgain, 2f, "SendOrDisconnectPatch Retry");
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+            LateTask.New(TryAgain, 2f, "SendOrDisconnectPatch Retry");
+        }
+
+        return false;
+
+        void TryAgain()
+        {
+            SendErrors? sendErrors = __instance.connection.Send(msg);
+            if (sendErrors == null || sendErrors == SendErrors.None) return;
+            EHR.Logger.Fatal($"Failed to send message: {sendErrors} - Failed again. Disconnecting", "SendOrDisconnectPatch");
+
+            __instance.EnqueueDisconnect(DisconnectReasons.Error, "Failed to send message: " + sendErrors);
+        }
     }
 }

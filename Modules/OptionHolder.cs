@@ -30,6 +30,7 @@ public enum CustomGameMode
     KingOfTheZones = 0x0B,
     Quiz = 0x0C,
     TheMindGame = 0x0D,
+    BedWars = 0x0E,
     All = int.MaxValue
 }
 
@@ -78,7 +79,8 @@ public static class Options
         "RoomRush",
         "KingOfTheZones",
         "Quiz",
-        "TheMindGame"
+        "TheMindGame",
+        "BedWars"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -865,6 +867,7 @@ public static class Options
         10 => CustomGameMode.KingOfTheZones,
         11 => CustomGameMode.Quiz,
         12 => CustomGameMode.TheMindGame,
+        13 => CustomGameMode.BedWars,
         _ => CustomGameMode.Standard
     };
 
@@ -1659,7 +1662,7 @@ public static class Options
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .SetHeader(true)
-            .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
+            .RegisterUpdateValueEvent((_, _, currentValue) => IRandom.SetInstanceById(currentValue));
 
         KPDCamouflageMode = new StringOptionItem(19500, "KPDCamouflageMode", CamouflageMode, 0, TabGroup.SystemSettings)
             .SetHeader(true)
@@ -1699,6 +1702,8 @@ public static class Options
         Quiz.SetupCustomOption();
         // The Mind Game
         TheMindGame.SetupCustomOption();
+        // Bed Wars
+        BedWars.SetupCustomOption();
 
         yield return null;
 
@@ -2829,9 +2834,8 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
-            .RegisterUpdateValueEvent((_, _) => GameOptionsMenuPatch.ReloadUI());
+            .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReloadUI());
 
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
@@ -2881,10 +2885,10 @@ public static class Options
         id = 69000;
 
         EnableAutoGMRotation = new BooleanOptionItem(id++, "EnableAutoGMRotation", false, TabGroup.SystemSettings)
+            .SetColor(Color.magenta)
             .SetHeader(true);
 
-        EventHandler<OptionItem.UpdateValueEventArgs> setRecompileNeeded = (_, _) => AutoGMRotationRecompileOnClose = true;
-        EventHandler<OptionItem.UpdateValueEventArgs> allSlotHandlers = (_, _) => { };
+        Action<OptionItem, int, int> setRecompileNeeded = (_, _, _) => AutoGMRotationRecompileOnClose = true;
 
         for (var index = 0; index < 20; index++)
         {
@@ -2892,28 +2896,30 @@ public static class Options
                 .SetParent(EnableAutoGMRotation)
                 .SetHeader(index == 0)
                 .AddReplacement(("{index}", (index + 1).ToString()))
-                .RegisterUpdateValueEvent(setRecompileNeeded);
+                .RegisterUpdateValueEvent(setRecompileNeeded)
+                .SetRunEventOnLoad(true);
 
             OptionItem explicitGM = new StringOptionItem(id++, "GameMode", GameModes, 0, TabGroup.SystemSettings)
                 .SetParent(slot)
-                .RegisterUpdateValueEvent(setRecompileNeeded);
+                .RegisterUpdateValueEvent(setRecompileNeeded)
+                .SetRunEventOnLoad(true);
 
             OptionItem randomGroup = new IntegerOptionItem(id++, "AGMR.Slot.RandomGroupId", new(1, MaxAutoGMRotationRandomGroups, 1), 1, TabGroup.SystemSettings)
                 .SetParent(slot)
-                .RegisterUpdateValueEvent(setRecompileNeeded);
+                .RegisterUpdateValueEvent(setRecompileNeeded)
+                .SetRunEventOnLoad(true);
 
             OptionItem count = new IntegerOptionItem(id++, "AGMR.Slot.Count", new(1, 15, 1), 1, TabGroup.SystemSettings)
                 .SetParent(slot)
                 .SetValueFormat(OptionFormat.Multiplier)
-                .RegisterUpdateValueEvent(setRecompileNeeded);
+                .RegisterUpdateValueEvent(setRecompileNeeded)
+                .SetRunEventOnLoad(true);
 
-            EventHandler<OptionItem.UpdateValueEventArgs> slotHandler = (_, _) =>
+            slot.RegisterUpdateValueEvent((_, _, _) =>
             {
                 explicitGM.SetHidden(slot.GetValue() != 1);
                 randomGroup.SetHidden(slot.GetValue() != 2);
-            };
-            slot.RegisterUpdateValueEvent(slotHandler);
-            allSlotHandlers += slotHandler;
+            });
 
             AutoGMRotationSlots.Add((slot, count, explicitGM, randomGroup));
         }
@@ -2948,8 +2954,6 @@ public static class Options
         IsLoaded = true;
 
         PostLoadTasks();
-
-        allSlotHandlers(null, new(0, 0));
     }
 
     public static void CompileAutoGMRotationSettings()
@@ -2985,6 +2989,7 @@ public static class Options
                         10 => CustomGameMode.KingOfTheZones,
                         11 => CustomGameMode.Quiz,
                         12 => CustomGameMode.TheMindGame,
+                        13 => CustomGameMode.BedWars,
                         _ => CustomGameMode.Standard
                     };
                     AutoGMRotationCompiled.AddRange(Enumerable.Repeat(gm, times));

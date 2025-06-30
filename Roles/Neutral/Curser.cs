@@ -91,7 +91,7 @@ public class Curser : RoleBase
                     target.RpcRemoveAbilityUse();
                     break;
                 case 1:
-                    IEnumerable<CustomRoles> addons = Options.GroupedAddons[AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target));
+                    IEnumerable<CustomRoles> addons = Options.GroupedAddons[AddonTypes.Harmful].Where(x => x.IsAdditionRole() && !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target));
                     target.RpcSetCustomRole(addons.RandomElement());
                     break;
                 case 2:

@@ -63,7 +63,7 @@ internal static class CustomTeamManager
             group.AllOptions.ForEach(x => x.SetGameMode(CustomGameMode.Standard));
             if (ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color color)) enabled.SetColor(color);
 
-            enabled.RegisterUpdateValueEvent((_, _) => UpdateEnabledTeams());
+            enabled.RegisterUpdateValueEvent((_, _, _) => UpdateEnabledTeams());
             return group;
         }
     }

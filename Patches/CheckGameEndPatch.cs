@@ -541,6 +541,11 @@ internal static class GameEndChecker
         Predicate = new TheMindGameGameEndPredicate();
     }
 
+    public static void SetPredicateToBedWars()
+    {
+        Predicate = new BedWarsGameEndPredicate();
+    }
+
     private class NormalGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
@@ -1064,6 +1069,20 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return TheMindGame.CheckForGameEnd(out reason);
+        }
+    }
+
+    private class BedWarsGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return BedWars.CheckForGameEnd(out reason);
         }
     }
 

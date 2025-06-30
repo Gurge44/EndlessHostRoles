@@ -88,7 +88,7 @@ public abstract class OptionItem
 
     public OptionItem Parent { get; private set; }
 
-    public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
+    public List<Action<OptionItem, int, int>> UpdateValueEvent;
     public bool UpdateValueEventRunsOnLoad { get; private set; }
 
     // Setter
@@ -157,14 +157,16 @@ public abstract class OptionItem
     ///     Register an event that will be called when the value of this option is updated.
     /// </summary>
     /// <param name="handler">
-    ///     The event handler that has two arguments:
+    ///     The action that has three parameters:
     ///     the first argument is the OptionItem instance that was updated,
-    ///     the second one contains the old and the new value of the setting.
+    ///     the second one is the value before the update,
+    ///     the third one is the value after the update.
     /// </param>
     /// <returns></returns>
-    public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
+    public OptionItem RegisterUpdateValueEvent(Action<OptionItem, int, int> handler)
     {
-        return Do(_ => UpdateValueEvent += handler);
+        UpdateValueEvent ??= [];
+        return Do(_ => UpdateValueEvent.Add(handler));
     }
 
     public OptionItem SetRunEventOnLoad(bool value)
@@ -324,25 +326,18 @@ public abstract class OptionItem
 
         RPC.SyncCustomSettingsRPC(targetId);
     }
-
-
-    // EventArgs
+    
     public void CallUpdateValueEvent(int beforeValue, int currentValue)
     {
-        if (UpdateValueEvent == null) return;
-
-        try { UpdateValueEvent(this, new(beforeValue, currentValue)); }
-        catch (Exception ex)
+        UpdateValueEvent?.ForEach(action =>
         {
-            Logger.Error($"[{Name}] - Exception occurred when calling UpdateValueEvent", "OptionItem.UpdateValueEvent");
-            Logger.Exception(ex, "OptionItem.UpdateValueEvent");
-        }
-    }
-
-    public class UpdateValueEventArgs(int beforeValue, int currentValue) : EventArgs
-    {
-        public int CurrentValue { get; set; } = currentValue;
-        public int BeforeValue { get; set; } = beforeValue;
+            try { action(this, beforeValue, currentValue); }
+            catch (Exception ex)
+            {
+                Logger.Error($"[{Name}] - Exception occurred when calling UpdateValueEvent", "OptionItem.UpdateValueEvent");
+                Logger.Exception(ex, "OptionItem.UpdateValueEvent");
+            }
+        });
     }
 
     #region static

@@ -1615,7 +1615,6 @@ internal static class ChatCommands
                 if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(player.PlayerId, rl, true);
 
                 Main.PlayerStates[player.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
-                Main.ChangedRole = true;
                 break;
             }
         }

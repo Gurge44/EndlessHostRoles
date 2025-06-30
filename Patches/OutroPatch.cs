@@ -35,8 +35,6 @@ internal static class EndGamePatch
         SummaryText = [];
         Main.LastAddOns = [];
 
-        Main.ChangedRole = false;
-
         foreach ((byte id, PlayerState state) in Main.PlayerStates)
         {
             if (Doppelganger.PlayerIdList.Count > 0 && Doppelganger.DoppelVictim.ContainsKey(id))
@@ -69,7 +67,7 @@ internal static class EndGamePatch
 
             byte killerId = value.GetRealKiller();
             bool gmIsFm = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame;
+            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -280,6 +278,14 @@ internal static class SetEverythingUpPatch
                 winnerText.color = Color.yellow;
                 goto EndOfText;
             }
+            case CustomGameMode.BedWars:
+            {
+                (Color Color, string Team) winnerData = BedWars.WinnerData;
+                __instance.BackgroundBar.material.color = winnerData.Color;
+                winnerText.text = winnerData.Team;
+                winnerText.color = winnerData.Color;
+                goto EndOfText;
+            }
         }
 
         if (CustomWinnerHolder.WinnerTeam == CustomWinner.CustomTeam)
@@ -479,6 +485,7 @@ internal static class SetEverythingUpPatch
 
                 break;
             }
+            case CustomGameMode.BedWars:
             case CustomGameMode.Quiz:
             {
                 foreach (byte id in cloneRoles.Where(EndGamePatch.SummaryText.ContainsKey))

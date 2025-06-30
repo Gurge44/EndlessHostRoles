@@ -562,7 +562,7 @@ public static class Quiz
 
         public static void Postfix()
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Quiz || !Main.IntroDestroyed) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.Quiz || !Main.IntroDestroyed) return;
 
             long now = Utils.TimeStamp;
             if (LastUpdate == now) return;

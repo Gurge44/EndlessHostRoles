@@ -264,6 +264,16 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("TMGPlayerInfo");
                     break;
                 }
+                case CustomGameMode.BedWars:
+                {
+                    Color color = Utils.GetRoleColor(CustomRoles.BedWarsPlayer);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("BedWarsPlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("BedWarsPlayerInfo");
+                    break;
+                }
                 default:
                 {
                     CustomRoles role = lp.GetCustomRole();
@@ -871,6 +881,15 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("TMGPlayerInfo");
                 break;
             }
+            case CustomGameMode.BedWars:
+            {
+                __instance.TeamTitle.text = GetString("BedWarsPlayer");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.BedWarsPlayer);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Engineer);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("BedWarsPlayerInfo");
+                break;
+            }
         }
 
         return;
@@ -1042,13 +1061,13 @@ internal static class IntroCutsceneDestroyPatch
                 LateTask.New(() =>
                 {
                     lp.RpcResetAbilityCooldown();
-                    lp.SetKillCooldown();
+                    lp.SetKillCooldown(10f);
                 }, 0.2f, log: false);
 
                 StartGameHostPatch.RpcSetRoleReplacer.SetActualSelfRolesAfterOverride();
             }, 0.1f, log: false);
 
-            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag)
+            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.BedWars)
             {
                 void GrantPetForEveryone()
                 {
@@ -1110,7 +1129,7 @@ internal static class IntroCutsceneDestroyPatch
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.CaptureTheFlag && Options.CurrentGameMode != CustomGameMode.KingOfTheZones)
+            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars)
             {
                 var map = RandomSpawn.SpawnMap.GetSpawnMap();
                 aapc.Do(map.RandomTeleport);
@@ -1161,6 +1180,9 @@ internal static class IntroCutsceneDestroyPatch
                     break;
                 case CustomGameMode.RoomRush:
                     Main.Instance.StartCoroutine(RoomRush.GameStartTasks());
+                    break;
+                case CustomGameMode.BedWars:
+                    Main.Instance.StartCoroutine(BedWars.OnGameStart());
                     break;
             }
 

@@ -164,8 +164,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     break;
                 case CustomGameMode.CaptureTheFlag:
                     CaptureTheFlag.ApplyGameOptions();
-                    SetMaxVision();
-                    break;
+                    goto case CustomGameMode.RoomRush;
                 case CustomGameMode.NaturalDisasters:
                     SetMaxVision();
                     NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
@@ -178,6 +177,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.KingOfTheZones:
+                case CustomGameMode.BedWars:
                     SetMaxVision();
                     break;
                 case CustomGameMode.Quiz:
@@ -518,8 +518,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             void SetMaxVision()
             {
                 opt.SetVision(true);
-                opt.SetFloat(FloatOptionNames.CrewLightMod, 1.5f);
-                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.5f);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 1.3f);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.3f);
             }
 
             void SetBlind()

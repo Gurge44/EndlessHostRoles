@@ -60,6 +60,12 @@ public static class CaptureTheFlag
     public static bool IsDeathPossible => TaggedPlayersGet.GetValue() == 1;
     public static float KCD => TagCooldown.GetFloat();
 
+    public static bool IsCarrier(byte id)
+    {
+        if (!ValidTag || !PlayerTeams.TryGetValue(id, out CTFTeam team)) return false;
+        return TeamData[team.GetOppositeTeam()].FlagCarrier == id;
+    }
+
     private static (Vector2 Position, string RoomName) BlueFlagBase => Main.CurrentMap switch
     {
         MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(nameof(SystemTypes.Nav))),
@@ -132,11 +138,11 @@ public static class CaptureTheFlag
         GameEndCriteria = new StringOptionItem(id + 8, "CTF_GameEndCriteria", GameEndCriteriaOptions, 0, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetColor(color)
-            .RegisterUpdateValueEvent((_, args) =>
+            .RegisterUpdateValueEvent((_, _, currentValue) =>
             {
-                RoundsToPlay.SetHidden(args.CurrentValue != 0);
-                PointsToWin.SetHidden(args.CurrentValue != 1);
-                TimeLimit.SetHidden(args.CurrentValue != 2);
+                RoundsToPlay.SetHidden(currentValue != 0);
+                PointsToWin.SetHidden(currentValue != 1);
+                TimeLimit.SetHidden(currentValue != 2);
             })
             .SetRunEventOnLoad(true);
 
@@ -683,7 +689,7 @@ public static class CaptureTheFlag
     {
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.CaptureTheFlag || !Main.IntroDestroyed || __instance.PlayerId >= 254 || WinnerData.Team != "No one wins" || Utils.GameStartTimeStamp + 15 > Utils.TimeStamp) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.CaptureTheFlag || !Main.IntroDestroyed || __instance.PlayerId >= 254 || WinnerData.Team != "No one wins" || Utils.GameStartTimeStamp + 15 > Utils.TimeStamp) return;
 
             if (__instance.IsHost())
             {

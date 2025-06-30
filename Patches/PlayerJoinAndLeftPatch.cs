@@ -48,7 +48,6 @@ internal static class OnGameJoinedPatch
         {
             GameStartManagerPatch.GameStartManagerUpdatePatch.ExitTimer = -1;
             Main.DoBlockNameChange = false;
-            Main.NewLobby = true;
             EAC.DeNum = 0;
             Main.AllPlayerNames = [];
             Main.AllClientRealNames = [];
@@ -108,7 +107,8 @@ internal static class OnGameJoinedPatch
                         yield return null;
                     }
 
-                    ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
+                    if (Options.AutoGMPollCommandAfterJoin.GetBool() && !Options.AutoGMRotationEnabled)
+                        ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
                 }
             }
 
@@ -127,7 +127,8 @@ internal static class OnGameJoinedPatch
                         yield return null;
                     }
 
-                    ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "/draftstart", ["/draftstart"]);
+                    if (Options.AutoDraftStartCommandAfterJoin.GetBool())
+                        ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "/draftstart", ["/draftstart"]);
                 }
             }
 

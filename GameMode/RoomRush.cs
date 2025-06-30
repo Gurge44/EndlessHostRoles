@@ -497,7 +497,7 @@ public static class RoomRush
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
 
             long now = Utils.TimeStamp;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;

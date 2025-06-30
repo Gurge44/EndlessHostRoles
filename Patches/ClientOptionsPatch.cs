@@ -1,3 +1,7 @@
+using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 
@@ -23,6 +27,8 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem LobbyMusic;
     private static ClientOptionItem EnableCommandHelper;
     private static ClientOptionItem ShowModdedClientText;
+    private static ClientOptionItem AutoHaunt;
+    private static ClientOptionItem TryFixStuttering;
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -158,14 +164,59 @@ public static class OptionsMenuBehaviourStartPatch
         }
 
         if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null)
-            ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
+        {
+            ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance, ShowPlayerInfoInLobbyButtonToggle);
+
+            static void ShowPlayerInfoInLobbyButtonToggle() => Utils.DirtyName.UnionWith(Main.AllPlayerControls.Select(x => x.PlayerId));
+        }
 
         if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
             LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance);
 
-        if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null) EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
+        if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null)
+            EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
 
-        if (ShowModdedClientText == null || ShowModdedClientText.ToggleButton == null) ShowModdedClientText = ClientOptionItem.Create("ShowModdedClientText", Main.ShowModdedClientText, __instance);
+        if (ShowModdedClientText == null || ShowModdedClientText.ToggleButton == null)
+            ShowModdedClientText = ClientOptionItem.Create("ShowModdedClientText", Main.ShowModdedClientText, __instance);
+
+        if (AutoHaunt == null || AutoHaunt.ToggleButton == null)
+        {
+            AutoHaunt = ClientOptionItem.Create("AutoHaunt", Main.AutoHaunt, __instance, AutoHauntButtonToggle);
+
+            static void AutoHauntButtonToggle()
+            {
+                if (Main.AutoHaunt.Value)
+                    Modules.AutoHaunt.Start();
+            }
+        }
+
+        if (TryFixStuttering == null || TryFixStuttering.ToggleButton == null)
+        {
+            TryFixStuttering = ClientOptionItem.Create("TryFixStuttering", Main.TryFixStuttering, __instance, TryFixStutteringButtonToggle);
+
+            [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
+            static void TryFixStutteringButtonToggle()
+            {
+                if (Main.TryFixStuttering.Value)
+                {
+                    if (Application.platform == RuntimePlatform.WindowsPlayer && Environment.ProcessorCount >= 4)
+                    {
+                        var process = Process.GetCurrentProcess();
+                        Main.OriginalAffinity = process.ProcessorAffinity;
+                        process.ProcessorAffinity = (IntPtr)((1 << 2) | (1 << 3));
+                    }
+                }
+                else
+                {
+                    if (Main.OriginalAffinity.HasValue)
+                    {
+                        var proc = Process.GetCurrentProcess();
+                        proc.ProcessorAffinity = Main.OriginalAffinity.Value;
+                        Main.OriginalAffinity = null;
+                    }
+                }
+            }
+        }
 
 #if DEBUG
         if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)

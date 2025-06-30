@@ -183,7 +183,7 @@ public class CustomLogger
         {
             ClearLog(false);
             PrivateInstance ??= new();
-            Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped.");
+            LateTask.New(() => Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped."), 0.1f, log: false);
         }
 
         Builder = new();

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Impostor;
@@ -70,19 +69,49 @@ public class Wiper : RoleBase
         return false;
     }
 
-    private bool IsInvalidRoom(PlainShipRoom room)
+    private static bool IsInvalidRoom(PlainShipRoom room)
     {
-        return room == null || room.RoomId is SystemTypes.Outside or SystemTypes.Hallway or SystemTypes.Ventilation || room.RoomId.ToString().Contains("Decontamination");
+        if (room == null) return true;
+
+        switch (Main.CurrentMap)
+        {
+            case MapNames.Skeld or MapNames.Dleks when room.RoomId == SystemTypes.Cafeteria: { return true; }
+            case MapNames.MiraHQ:
+            {
+                switch (MeetingStates.FirstMeeting, room.RoomId)
+                {
+                    case (true, SystemTypes.Launchpad):
+                    case (false, SystemTypes.Cafeteria):
+                        return true;
+                }
+
+                break;
+            }
+            case MapNames.Polus:
+            {
+                switch (MeetingStates.FirstMeeting, room.RoomId)
+                {
+                    case (true, SystemTypes.Dropship):
+                    case (false, SystemTypes.Office):
+                        return true;
+                }
+
+                break;
+            }
+            case MapNames.Fungle when !MeetingStates.FirstMeeting && room.RoomId == SystemTypes.MeetingRoom: { return true; }
+        }
+
+        return room.RoomId is SystemTypes.Outside or SystemTypes.Hallway or SystemTypes.Ventilation || room.RoomId.ToString().Contains("Decontamination");
     }
 
-    private void WipeOutEveryoneInRoom(PlayerControl pc)
+    private static void WipeOutEveryoneInRoom(PlayerControl pc)
     {
-        if (new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(Utils.IsActive)) return;
+        if (Utils.IsAnySabotageActive()) return;
 
         PlainShipRoom room = pc.GetPlainShipRoom();
         if (IsInvalidRoom(room)) return;
 
-        Main.AllAlivePlayerControls.Without(pc).DoIf(x => x.GetPlainShipRoom() == room, x => x.Suicide(PlayerState.DeathReason.WipedOut, pc));
+        Main.AllAlivePlayerControls.Without(pc).DoIf(x => x.GetPlainShipRoom() == room && pc.RpcCheckAndMurder(x, true), x => x.Suicide(PlayerState.DeathReason.WipedOut, pc));
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
@@ -102,7 +131,7 @@ public class Wiper : RoleBase
     {
         if (seer.PlayerId != WiperID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        if (new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(Utils.IsActive))
+        if (Utils.IsAnySabotageActive())
             return Utils.ColorString(Color.red, Translator.GetString("Wiper.CannotUseAbilityDuringSabotage"));
 
         PlainShipRoom room = seer.GetPlainShipRoom();

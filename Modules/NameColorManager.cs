@@ -74,6 +74,9 @@ public static class NameColorManager
                 return KingOfTheZones.GetNameColor(target, ref color);
             case CustomGameMode.Quiz:
                 return Quiz.KnowTargetRoleColor(target, ref color);
+            case CustomGameMode.BedWars:
+                color = BedWars.GetNameColor(target);
+                return true;
         }
 
         RoleBase seerRoleClass = Main.PlayerStates[seer.PlayerId].Role;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -30,6 +31,7 @@ namespace EHR;
 [BepInIncompatibility("com.ten.thebetterroles")]
 [BepInIncompatibility("xyz.crowdedmods.crowdedmod")]
 [BepInProcess("Among Us.exe")]
+[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
 public class Main : BasePlugin
 {
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
@@ -59,8 +61,8 @@ public class Main : BasePlugin
     public static bool HasArgumentException;
     public static string CredentialsText;
 
+    public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
-    public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
     public static Dictionary<byte, float> KillTimers = [];
     public static Dictionary<byte, PlayerState> PlayerStates = [];
@@ -92,7 +94,6 @@ public class Main : BasePlugin
     public static bool IsChatCommand;
     public static bool DoBlockNameChange;
     public static int UpdateTime;
-    public static bool NewLobby;
     public static readonly Dictionary<int, int> SayStartTimes = [];
     public static readonly Dictionary<int, int> SayBanwordsTimes = [];
     public static Dictionary<byte, float> AllPlayerSpeed = [];
@@ -122,7 +123,8 @@ public class Main : BasePlugin
         [CustomGameMode.HideAndSeek] = [],
         [CustomGameMode.Speedrun] = [],
         [CustomGameMode.CaptureTheFlag] = [],
-        [CustomGameMode.NaturalDisasters] = []
+        [CustomGameMode.NaturalDisasters] = [],
+        [CustomGameMode.BedWars] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
@@ -181,6 +183,8 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> LobbyMusic { get; private set; }
     public static ConfigEntry<bool> EnableCommandHelper { get; private set; }
     public static ConfigEntry<bool> ShowModdedClientText { get; private set; }
+    public static ConfigEntry<bool> AutoHaunt { get; private set; }
+    public static ConfigEntry<bool> TryFixStuttering { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -278,6 +282,8 @@ public class Main : BasePlugin
         LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
         EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
         ShowModdedClientText = Config.Bind("Client Options", "ShowModdedClientText", true);
+        AutoHaunt = Config.Bind("Client Options", "AutoHaunt", false);
+        TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
 
         //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();
@@ -323,6 +329,8 @@ public class Main : BasePlugin
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 
         HasArgumentException = false;
+
+        CustomLogger.ClearLog();
 
         try
         {
@@ -705,6 +713,8 @@ public class Main : BasePlugin
                 { CustomRoles.QuizPlayer, "#CF2472" },
                 // The Mind Game
                 { CustomRoles.TMGPlayer, "#ffff00" },
+                // Bed Wars
+                { CustomRoles.BedWarsPlayer, "#fc03f8" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -759,8 +769,6 @@ public class Main : BasePlugin
         NormalGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
         HideNSeekGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
 
-        CustomLogger.ClearLog();
-
         try { DevManager.StartFetchingTags(); }
         catch (Exception e) { Utils.ThrowException(e); }
 
@@ -787,13 +795,25 @@ public class Main : BasePlugin
             [CustomGameMode.RoomRush] = Team.Neutral.GetColor(),
             [CustomGameMode.KingOfTheZones] = Color.red,
             [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
-            [CustomGameMode.TheMindGame] = Color.yellow
+            [CustomGameMode.TheMindGame] = Color.yellow,
+            [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer)
         };
 
         StartCoroutine(ModNewsFetcher.FetchNews());
 
         Logger.Msg("========= EHR loaded! =========", "Plugin Load");
         Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
+
+        try
+        {
+            if (TryFixStuttering.Value && Application.platform == RuntimePlatform.WindowsPlayer && Environment.ProcessorCount >= 4)
+            {
+                var process = Process.GetCurrentProcess();
+                OriginalAffinity = process.ProcessorAffinity;
+                process.ProcessorAffinity = (IntPtr)((1 << 2) | (1 << 3));
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void LoadRoleClasses()

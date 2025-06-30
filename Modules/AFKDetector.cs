@@ -72,7 +72,7 @@ public static class AFKDetector
         data.Timer -= Time.fixedDeltaTime;
         var currentTimer = (int)Math.Round(data.Timer);
 
-        if (!data.Counted && data.CurrentPhase == Data.Phase.Warning && data.Timer <= 5f && !pc.IsModdedClient())
+        if (!data.Counted && data.CurrentPhase == Data.Phase.Warning && data.Timer <= 3f && !pc.IsModdedClient())
         {
             NumAFK++;
             data.Counted = true;
@@ -113,6 +113,8 @@ public static class AFKDetector
 
             PlayerData.Remove(id);
             ShieldedPlayers.Remove(id);
+
+            Utils.NotifyRoles(SpecifyTarget: id.GetPlayer());
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

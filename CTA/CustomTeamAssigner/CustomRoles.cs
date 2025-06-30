@@ -437,6 +437,9 @@ public enum CustomRoles
 
     // The Mind Game
     TMGPlayer,
+    
+    // Bed Wars
+    BedWarsPlayer,
 
     // GM
     GM,

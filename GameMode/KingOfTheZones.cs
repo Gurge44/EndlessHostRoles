@@ -160,7 +160,7 @@ public static class KingOfTheZones
             .SetHeader(true)
             .SetGameMode(gameMode)
             .SetColor(color)
-            .RegisterUpdateValueEvent((_, _) =>
+            .RegisterUpdateValueEvent((_, _, _) =>
             {
                 if (!GameEndsByTimeLimit.GetBool() && !GameEndsByPoints.GetBool())
                     GameEndsByTimeLimit.SetValue(1);
@@ -176,7 +176,7 @@ public static class KingOfTheZones
             .SetHeader(true)
             .SetGameMode(gameMode)
             .SetColor(color)
-            .RegisterUpdateValueEvent((_, _) =>
+            .RegisterUpdateValueEvent((_, _, _) =>
             {
                 if (!GameEndsByTimeLimit.GetBool() && !GameEndsByPoints.GetBool())
                     GameEndsByPoints.SetValue(1);
@@ -651,7 +651,7 @@ public static class KingOfTheZones
 
         public static void Postfix()
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.KingOfTheZones || !Main.IntroDestroyed || !GameGoing) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.KingOfTheZones || !Main.IntroDestroyed || !GameGoing) return;
 
             long now = Utils.TimeStamp;
             if (LastUpdate == now) return;
