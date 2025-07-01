@@ -4823,7 +4823,7 @@
   "CTF_WhenFlagCarrierGetsTagged.FlagIsReturned": "Devolvida",
   "CTF_SpeedReductionForFlagCarrier": "Redução de velocidade para quem carrega a bandeira",
   "CTF_TagCooldown": "Recarga de Marcação",
-  "CTF_GameEndCriteria": "Game End Criteria",
+  "CTF_GameEndCriteria": "Critério de Fim de Jogo",
   "CTF_GameEndCriteria.PlayXRounds": "Jogue X rodadas",
   "CTF_GameEndCriteria.FirstToXPoints": "Primeiro a X Pontos",
   "CTF_GameEndCriteria.TimeLimit": "Limite de Tempo",
