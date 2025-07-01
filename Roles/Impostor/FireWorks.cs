@@ -165,7 +165,7 @@ public class FireWorks : RoleBase
                 {
                     foreach (Vector3 pos in fireWorksPosition)
                     {
-                        float dis = Vector2.Distance(pos, target.transform.position);
+                        float dis = Vector2.Distance(pos, target.Pos());
                         if (dis > FireWorksRadius) continue;
 
                         if (target == pc)

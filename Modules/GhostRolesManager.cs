@@ -97,6 +97,7 @@ internal static class GhostRolesManager
 
             switch (pc.GetCustomRole())
             {
+                case CustomRoles.GM:
                 case CustomRoles.Curser:
                 case CustomRoles.Backstabber:
                 case CustomRoles.Workaholic when !Workaholic.WorkaholicCannotWinAtDeath.GetBool():

@@ -12,7 +12,7 @@ namespace EHR;
 
 public static class SpamManager
 {
-    private const string BannedWordsFilePath = "./EHR_DATA/BanWords.txt";
+    private const string BannedWordsFilePath = $"{Main.DataPath}/EHR_DATA/BanWords.txt";
     private static List<string> BanWords = [];
 
     public static void Init()

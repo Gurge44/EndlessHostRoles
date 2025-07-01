@@ -129,7 +129,7 @@ public class Farseer : RoleBase
                 else
                 {
                     float range = NormalGameOptionsV09.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
-                    float dis = Vector2.Distance(player.transform.position, arTarget.transform.position);
+                    float dis = Vector2.Distance(player.Pos(), arTarget.Pos());
 
                     if (dis <= range)
                         FarseerTimer[player.PlayerId] = (arTarget, arTime + Time.fixedDeltaTime);

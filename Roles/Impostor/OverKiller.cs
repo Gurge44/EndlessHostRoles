@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using EHR.Modules;
 using Hazel;
-using InnerNet;
 
 namespace EHR.Impostor;
 
@@ -47,7 +46,7 @@ internal class OverKiller : RoleBase
     {
         if (!killer.RpcCheckAndMurder(target, true)) return false;
 
-        if (killer.PlayerId != target.PlayerId && !target.Is(CustomRoles.Unreportable) && GameStates.IsInTask)
+        if (killer.PlayerId != target.PlayerId && !target.Is(CustomRoles.Unreportable) && Main.IntroDestroyed && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
         {
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
 
@@ -79,25 +78,14 @@ internal class OverKiller : RoleBase
 
                 IEnumerator SpawnFakeDeadBodies()
                 {
-                    for (var i = 0; i < 26; i++)
+                    for (var i = 0; i < 30; i++)
                     {
                         Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
                         location += new Vector2(0, 0.3636f);
 
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetTransform.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-                        NetHelpers.WriteVector2(location, writer);
-                        writer.Write(target.NetTransform.lastSequenceId);
-                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        Utils.RpcCreateDeadBody(location, (byte)target.CurrentOutfit.ColorId, target, SendOption.None);
 
-                        target.NetTransform.SnapTo(location);
-                        killer.MurderPlayer(target, ExtendedPlayerControl.ResultFlags);
-
-                        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None);
-                        messageWriter.WriteNetObject(target);
-                        messageWriter.Write((byte)ExtendedPlayerControl.ResultFlags);
-                        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-
-                        if (i % 6 == 0) yield return null;
+                        if (i % 4 == 0) yield return null;
                     }
 
                     yield return null;

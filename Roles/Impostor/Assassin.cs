@@ -16,6 +16,7 @@ internal class Assassin : RoleBase
     private static OptionItem MarkCooldownOpt;
     public static OptionItem AssassinateCooldownOpt;
     private static OptionItem CanKillAfterAssassinateOpt;
+    private static OptionItem InvisibilityTimeAfterAssassinateOpt;
 
     private float AssassinateCooldown;
     private bool CanKillAfterAssassinate;
@@ -39,6 +40,10 @@ internal class Assassin : RoleBase
 
         CanKillAfterAssassinateOpt = new BooleanOptionItem(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin]);
+
+        InvisibilityTimeAfterAssassinateOpt = new FloatOptionItem(Id + 13, "AssassinInvisibilityTimeAfterAssassinate", new(0f, 30f, 0.5f), 5f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
@@ -155,6 +160,22 @@ internal class Assassin : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+
+        if (!IsUndertaker)
+        {
+            float time = InvisibilityTimeAfterAssassinateOpt.GetFloat();
+
+            if (time >= 1f)
+            {
+                pc.RpcMakeInvisible();
+
+                LateTask.New(() =>
+                {
+                    if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+                    pc.RpcMakeVisible();
+                }, time, log: false);
+            }
+        }
 
         Take(pc);
         return false;

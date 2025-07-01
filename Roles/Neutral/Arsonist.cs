@@ -186,27 +186,26 @@ internal class Arsonist : RoleBase
             }
             else
             {
-                PlayerControl ar_target = ArsonistTimer[playerId].Player;
-                float ar_time = ArsonistTimer[playerId].Timer;
+                float arTime = ArsonistTimer[playerId].Timer;
 
-                if (!ar_target.IsAlive())
+                if (!arTarget.IsAlive())
                     ArsonistTimer.Remove(playerId);
-                else if (ar_time >= ArsonistDouseTime.GetFloat())
+                else if (arTime >= ArsonistDouseTime.GetFloat())
                 {
                     player.SetKillCooldown();
                     ArsonistTimer.Remove(playerId);
-                    IsDoused[(playerId, ar_target.PlayerId)] = true;
-                    player.RpcSetDousedPlayer(ar_target, true);
+                    IsDoused[(playerId, arTarget.PlayerId)] = true;
+                    player.RpcSetDousedPlayer(arTarget, true);
                     Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                     RPC.ResetCurrentDousingTarget(playerId);
                 }
                 else
                 {
                     float range = NormalGameOptionsV09.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
-                    float dis = Vector2.Distance(player.transform.position, ar_target.transform.position);
+                    float dis = Vector2.Distance(player.Pos(), arTarget.Pos());
 
                     if (dis <= range)
-                        ArsonistTimer[playerId] = (ar_target, ar_time + Time.fixedDeltaTime);
+                        ArsonistTimer[playerId] = (arTarget, arTime + Time.fixedDeltaTime);
                     else
                     {
                         player.SetKillCooldown(0.01f);

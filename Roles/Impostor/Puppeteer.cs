@@ -185,7 +185,7 @@ internal class Puppeteer : RoleBase
             }
             else if (PuppeteerDelayList[playerId] + PuppeteerDelay[playerId] < now)
             {
-                Vector2 puppeteerPos = player.transform.position;
+                Vector2 puppeteerPos = player.Pos();
                 Dictionary<byte, float> targetDistance = [];
 
                 foreach (PlayerControl target in Main.AllAlivePlayerControls)
@@ -194,7 +194,7 @@ internal class Puppeteer : RoleBase
                     if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
                     if (target.Is(CustomRoleTypes.Impostor) && !PuppeteerPuppetCanKillImpostors.GetBool()) continue;
 
-                    float dis = Vector2.Distance(puppeteerPos, target.transform.position);
+                    float dis = Vector2.Distance(puppeteerPos, player.Pos());
                     targetDistance[target.PlayerId] = dis;
                 }
 

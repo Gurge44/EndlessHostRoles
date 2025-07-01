@@ -37,8 +37,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "5.8.0";
-    public const string PluginDisplayVersion = "5.8.0";
+    public const string PluginVersion = "6.0.0";
+    public const string PluginDisplayVersion = "6.0.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -54,6 +54,13 @@ public class Main : BasePlugin
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
     public const string SupportedAUVersion = "2025.4.15";
+
+    public const string DataPath =
+#if ANDROID
+        Application.persistentDataPath;
+#else
+        ".";
+#endif
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
@@ -114,6 +121,7 @@ public class Main : BasePlugin
     public static string ShieldPlayer = string.Empty;
     public static readonly Dictionary<string, int> GamesPlayed = [];
     public static readonly HashSet<byte> GotShieldAnimationInfoThisGame = [];
+    public static readonly HashSet<byte> Invisible = [];
 
     public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
     {

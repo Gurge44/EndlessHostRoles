@@ -369,14 +369,14 @@ public class Penguin : RoleBase
                         if (IsGoose) return;
 
                         int sId = abductVictim.NetTransform.lastSequenceId + 5;
-                        abductVictim.NetTransform.SnapTo(Penguin_.transform.position, (ushort)sId);
+                        abductVictim.NetTransform.SnapTo(Penguin_.Pos(), (ushort)sId);
                         Penguin_.Kill(abductVictim);
 
                         var sender = CustomRpcSender.Create("PenguinMurder", SendOption.Reliable);
                         {
                             sender.AutoStartRpc(abductVictim.NetTransform.NetId, RpcCalls.SnapTo);
                             {
-                                NetHelpers.WriteVector2(Penguin_.transform.position, sender.stream);
+                                NetHelpers.WriteVector2(Penguin_.Pos(), sender.stream);
                                 sender.Write(abductVictim.NetTransform.lastSequenceId);
                             }
                             sender.EndRpc();
@@ -396,7 +396,7 @@ public class Penguin : RoleBase
             // SnapToRPC does not work for players on top of the ladder, and only the host behaves differently, so teleporting is not done uniformly.
             else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
             {
-                Vector3 position = Penguin_.transform.position;
+                Vector3 position = Penguin_.Pos();
 
                 if (!Penguin_.IsHost())
                     Utils.TP(AbductVictim.NetTransform, position, log: false);

@@ -17,6 +17,11 @@ public class FallFromLadder
 
     public static void OnClimbLadder(PlayerPhysics player, Ladder source)
     {
+        PlayerControl pc = player.myPlayer;
+
+        if (pc.shouldAppearInvisible || pc.invisibilityAlpha < 1f)
+            pc.RpcResetInvisibility();
+        
         if (!Options.LadderDeath.GetBool()) return;
 
         Vector3 sourcePos = source.transform.position;
@@ -25,7 +30,7 @@ public class FallFromLadder
         if (sourcePos.y > targetPos.y)
         {
             int chance = IRandom.Instance.Next(1, 101);
-            if (chance <= Chance) TargetLadderData[player.myPlayer.PlayerId] = targetPos;
+            if (chance <= Chance) TargetLadderData[pc.PlayerId] = targetPos;
         }
     }
 
@@ -33,7 +38,7 @@ public class FallFromLadder
     {
         if (player.Data.Disconnected) return;
 
-        if (TargetLadderData.ContainsKey(player.PlayerId) && Vector2.Distance(TargetLadderData[player.PlayerId], player.transform.position) < 0.5f)
+        if (TargetLadderData.TryGetValue(player.PlayerId, out Vector3 targetLadderData) && Vector2.Distance(targetLadderData, player.Pos()) < 0.5f)
         {
             if (player.Data.IsDead) return;
 
@@ -42,7 +47,7 @@ public class FallFromLadder
 
             LateTask.New(() =>
             {
-                Vector2 targetPos = (Vector2)TargetLadderData[player.PlayerId] + new Vector2(0.1f, 0f);
+                Vector2 targetPos = (Vector2)targetLadderData + new Vector2(0.1f, 0f);
                 var num = (ushort)(NetHelpers.XRange.ReverseLerp(targetPos.x) * 65535f);
                 var num2 = (ushort)(NetHelpers.YRange.ReverseLerp(targetPos.y) * 65535f);
                 var sender = CustomRpcSender.Create("LadderFallRpc", SendOption.Reliable);

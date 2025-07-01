@@ -17,9 +17,9 @@ internal static class CustomTeamManager
     {
         try
         {
-            if (!File.Exists("./EHR_DATA/CTA_Data.txt")) return;
+            if (!File.Exists($"{Main.DataPath}/EHR_DATA/CTA_Data.txt")) return;
 
-            CustomTeams = File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
+            CustomTeams = File.ReadAllLines($"{Main.DataPath}/EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
             RefreshCustomOptions();
             UpdateEnabledTeams();
         }

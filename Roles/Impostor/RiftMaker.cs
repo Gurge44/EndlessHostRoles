@@ -87,7 +87,7 @@ public class RiftMaker : RoleBase
 
         if (LastTP + 5 > TimeStamp) return;
 
-        Vector2 position = player.transform.position;
+        Vector2 position = player.Pos();
 
         var isTP = false;
         Vector2 from = Marks[0];
@@ -161,7 +161,7 @@ public class RiftMaker : RoleBase
 
     private void Mark(PlayerControl player)
     {
-        Marks.Add(player.transform.position);
+        Marks.Add(player.Pos());
         if (Marks.Count == 2) LastTP = TimeStamp;
 
         player.Notify(GetString("MarkDone"));

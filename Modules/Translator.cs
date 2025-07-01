@@ -148,18 +148,15 @@ public static class Translator
 
         try
         {
-            if (TranslateMaps.TryGetValue(str, out Dictionary<int, string> dic) && (!dic.TryGetValue((int)langId, out res) || res == "" || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese))))
+            if (TranslateMaps.TryGetValue(str, out Dictionary<int, string> dic) && (!dic.TryGetValue((int)langId, out res) || string.IsNullOrEmpty(res) || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese))))
                 res = langId == SupportedLangs.English ? $"*{str}" : GetString(str, SupportedLangs.English);
 
-            if (!TranslateMaps.ContainsKey(str))
-            {
-                StringNames[] stringNames = Enum.GetValues<StringNames>().Where(x => x.ToString() == str).ToArray();
-                if (stringNames.Length > 0) res = GetString(stringNames.FirstOrDefault());
-            }
+            if (!TranslateMaps.ContainsKey(str) && Enum.GetValues<StringNames>().FindFirst(x => x.ToString() == str, out StringNames stringNames))
+                res = GetString(stringNames);
         }
         catch (Exception ex)
         {
-            Logger.Fatal($"Error oucured at [{str}] in String.csv", "Translator");
+            Logger.Fatal($"Error oucured at [{str}] in the translation file", "Translator");
             Logger.Error("Here was the error:\n" + ex, "Translator");
         }
 
@@ -168,6 +165,9 @@ public static class Translator
 
     public static string GetString(StringNames stringName)
     {
+#if ANDROID
+        return TranslationController.Instance.GetString(stringName);
+#endif
         return FastDestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
     }
 

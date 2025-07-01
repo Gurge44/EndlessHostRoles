@@ -16,7 +16,7 @@ namespace EHR;
 
 public static class TemplateManager
 {
-    private const string TemplateFilePath = "./EHR_DATA/template.txt";
+    private const string TemplateFilePath = $"{Main.DataPath}/EHR_DATA/template.txt";
 
     private static readonly Dictionary<string, Func<string>> ReplaceDictionary = new()
     {

@@ -6,7 +6,7 @@ namespace EHR.Modules;
 
 public static class PrivateTagManager
 {
-    private const string TagFile = "./EHR_DATA/tags.txt";
+    private const string TagFile = $"{Main.DataPath}/EHR_DATA/tags.txt";
     public static Dictionary<string, string> Tags = [];
 
     public static void AddTag(string friendcode, string tag)

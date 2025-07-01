@@ -483,7 +483,7 @@ internal static class MoveAndStop
                 Vector2 previousPosition = new(data.PositionX, data.PositionY);
 
                 // Update the player's position
-                Vector2 currentPosition = pc.transform.position;
+                Vector2 currentPosition = pc.Pos();
                 currentPosition.x += data.PositionX * Time.deltaTime;
                 currentPosition.y += data.PositionY * Time.deltaTime;
 

@@ -99,11 +99,11 @@ internal class QuizMaster : RoleBase
         }, 10f, log: false);
 
         CustomQuestions = [];
-        EnableCustomQuestions = EnableCustomQuestionsOpt.GetBool() && File.Exists("./EHR_DATA/QuizMasterQuestions.txt");
+        EnableCustomQuestions = EnableCustomQuestionsOpt.GetBool() && File.Exists($"{Main.DataPath}/EHR_DATA/QuizMasterQuestions.txt");
 
         if (EnableCustomQuestions)
         {
-            string[] lines = File.ReadAllLines("./EHR_DATA/QuizMasterQuestions.txt");
+            string[] lines = File.ReadAllLines($"{Main.DataPath}/EHR_DATA/QuizMasterQuestions.txt");
 
             IEnumerable<Question> questions = lines.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x =>
             {

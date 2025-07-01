@@ -216,7 +216,7 @@ public class PlagueDoctor : RoleBase
                 if (oldRate >= 100) continue;
 
                 // Exclude players outside the range
-                float distance = Vector3.Distance(player.transform.position, target.transform.position);
+                float distance = Vector2.Distance(player.Pos(), target.Pos());
                 if (distance > InfectDistance) continue;
 
                 float newRate = oldRate + (Time.fixedDeltaTime / InfectTime * 100);

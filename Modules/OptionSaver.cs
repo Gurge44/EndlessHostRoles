@@ -7,7 +7,7 @@ namespace EHR.Modules;
 // https://github.com/tukasa0001/TownOfHost/blob/main/Modules/OptionSaver.cs
 public static class OptionSaver
 {
-    private static readonly DirectoryInfo SaveDataDirectoryInfo = new("./EHR_DATA/SaveData/");
+    private static readonly DirectoryInfo SaveDataDirectoryInfo = new($"{Main.DataPath}/EHR_DATA/SaveData/");
     private static readonly FileInfo OptionSaverFileInfo = new($"{SaveDataDirectoryInfo.FullName}/Options.json");
     private static readonly LogHandler Logger = EHR.Logger.Handler(nameof(OptionSaver));
     private static readonly FileInfo DefaultPresetFileInfo = new($"{SaveDataDirectoryInfo.FullName}/DefaultPreset.txt");

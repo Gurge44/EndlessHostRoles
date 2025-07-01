@@ -237,7 +237,7 @@ internal static class ChatCommands
         if (LastModFileUpdate + 5 > now) { friendCodes = ModsFileCache; }
         else
         {
-            const string friendCodesFilePath = "./EHR_DATA/Moderators.txt";
+            const string friendCodesFilePath = $"{Main.DataPath}/EHR_DATA/Moderators.txt";
 
             if (!File.Exists(friendCodesFilePath))
             {
@@ -265,7 +265,7 @@ internal static class ChatCommands
         if (LastVIPFileUpdate + 5 > now) { friendCodes = VIPsFileCache; }
         else
         {
-            const string friendCodesFilePath = "./EHR_DATA/VIPs.txt";
+            const string friendCodesFilePath = $"{Main.DataPath}/EHR_DATA/VIPs.txt";
 
             if (!File.Exists(friendCodesFilePath))
             {
@@ -559,8 +559,7 @@ internal static class ChatCommands
         if (pc == null) return;
 
         Color color = ColorUtility.TryParseHtmlString($"#{args[2].ToLower()}", out Color c) ? c : Color.red;
-        string tag = Utils.ColorString(color, string.Join(' ', args[3..]));
-        if (!tag.EndsWith(' ') && !tag.EndsWith('-') && !tag.EndsWith('>')) tag += " ";
+        string tag = Utils.ColorString(color, string.Join(' ', args[3..]) + " ");
         PrivateTagManager.AddTag(pc.FriendCode, tag);
 
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("AddTagSuccess"), tag, id.ColoredPlayerName(), id));
@@ -1074,7 +1073,7 @@ internal static class ChatCommands
         string roleName = GetString(role.ToString());
         StringBuilder sb = new();
         StringBuilder settings = new();
-        var title = $"<{coloredString} {Utils.GetRoleMode(role)}";
+        var title = $"{coloredString} {Utils.GetRoleMode(role)}";
         sb.Append(GetString($"{role}InfoLong").TrimStart());
         if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem chance)) AddSettings(chance);
         if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
@@ -1227,8 +1226,8 @@ internal static class ChatCommands
         string fc = VIPPc.FriendCode.Replace(':', '#');
         if (!IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerNotVIP"), player.PlayerId);
 
-        string[] lines = File.ReadAllLines("./EHR_DATA/VIPs.txt").Where(line => !line.Contains(fc)).ToArray();
-        File.WriteAllLines("./EHR_DATA/VIPs.txt", lines);
+        string[] lines = File.ReadAllLines($"{Main.DataPath}/EHR_DATA/VIPs.txt").Where(line => !line.Contains(fc)).ToArray();
+        File.WriteAllLines($"{Main.DataPath}/EHR_DATA/VIPs.txt", lines);
         Utils.SendMessage(GetString("PlayerRemovedFromVIPList"), player.PlayerId);
     }
 
@@ -1242,7 +1241,7 @@ internal static class ChatCommands
         string fc = newVIPPc.FriendCode.Replace(':', '#');
         if (IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerAlreadyVIP"), player.PlayerId);
 
-        File.AppendAllText("./EHR_DATA/VIPs.txt", $"\n{fc}");
+        File.AppendAllText($"{Main.DataPath}/EHR_DATA/VIPs.txt", $"\n{fc}");
         Utils.SendMessage(GetString("PlayerAddedToVIPList"), player.PlayerId);
     }
 
@@ -2301,7 +2300,7 @@ internal static class ChatCommands
         string remFc = remModPc.FriendCode.Replace(':', '#');
         if (!IsPlayerModerator(remFc)) Utils.SendMessage(GetString("PlayerNotMod"), player.PlayerId);
 
-        File.WriteAllLines("./EHR_DATA/Moderators.txt", File.ReadAllLines("./EHR_DATA/Moderators.txt").Where(x => !x.Contains(remFc)));
+        File.WriteAllLines($"{Main.DataPath}/EHR_DATA/Moderators.txt", File.ReadAllLines($"{Main.DataPath}/EHR_DATA/Moderators.txt").Where(x => !x.Contains(remFc)));
         Utils.SendMessage(GetString("PlayerRemovedFromModList"), player.PlayerId);
     }
 
@@ -2321,7 +2320,7 @@ internal static class ChatCommands
         string fc = newModPc.FriendCode.Replace(':', '#');
         if (IsPlayerModerator(fc)) Utils.SendMessage(GetString("PlayerAlreadyMod"), player.PlayerId);
 
-        File.AppendAllText("./EHR_DATA/Moderators.txt", $"\n{fc}");
+        File.AppendAllText($"{Main.DataPath}/EHR_DATA/Moderators.txt", $"\n{fc}");
         Utils.SendMessage(GetString("PlayerAddedToModList"), player.PlayerId);
     }
 

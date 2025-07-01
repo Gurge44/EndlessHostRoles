@@ -101,7 +101,7 @@ internal static class ExtendedPlayerControl
 
     public static List<Vent> GetVentsFromClosest(this PlayerControl player)
     {
-        Vector2 playerpos = player.transform.position;
+        Vector2 playerpos = player.Pos();
         List<Vent> vents = ShipStatus.Instance.AllVents.ToList();
         vents.Sort((v1, v2) => Vector2.Distance(playerpos, v1.transform.position).CompareTo(Vector2.Distance(playerpos, v2.transform.position)));
 
@@ -606,7 +606,7 @@ internal static class ExtendedPlayerControl
         if (player == null) return false;
 
         var results = new Collider2D[10];
-        int overlapPointNonAlloc = Physics2D.OverlapPointNonAlloc(player.transform.position, results, Constants.ShipOnlyMask);
+        int overlapPointNonAlloc = Physics2D.OverlapPointNonAlloc(player.Pos(), results, Constants.ShipOnlyMask);
         PlainShipRoom room = player.GetPlainShipRoom();
         Vector2 pos = player.Pos();
 
@@ -1321,9 +1321,160 @@ internal static class ExtendedPlayerControl
         return Main.PlayerStates.TryGetValue(pc.PlayerId, out PlayerState state) && state.Role.CanUseSabotage(pc);
     }
 
+    // Next 8: From MoreGamemodes by Rabek009 (https://github.com/Rabek009/MoreGamemodes)
+    
     public static Vector2 Pos(this PlayerControl pc)
     {
-        return new(pc.transform.position.x, pc.transform.position.y);
+        if (pc.AmOwner) return pc.transform.position;
+        if (pc.NetTransform.incomingPosQueue.Count > 0 && pc.NetTransform.isActiveAndEnabled && !pc.NetTransform.isPaused)
+            return pc.NetTransform.incomingPosQueue.ToArray()[^1];
+        return pc.transform.position;
+    }
+
+    public static void MakeInvisible(this PlayerControl player)
+    {
+        player.invisibilityAlpha = player.AmOwner ? 0.5f : PlayerControl.LocalPlayer.Data.Role.IsDead ? 0.5f : 0f;
+        player.cosmetics.SetPhantomRoleAlpha(player.invisibilityAlpha);
+
+        if (!player.AmOwner && !PlayerControl.LocalPlayer.Data.Role.IsDead)
+        {
+            player.shouldAppearInvisible = true;
+            player.Visible = false;
+        }
+    }
+
+    public static void MakeVisible(this PlayerControl player)
+    {
+        if (!player.AmOwner)
+        {
+            player.shouldAppearInvisible = false;
+            player.Visible = true;
+        }
+
+        player.invisibilityAlpha = 1f;
+        player.cosmetics.SetPhantomRoleAlpha(player.invisibilityAlpha);
+
+        if (!player.AmOwner)
+        {
+            player.shouldAppearInvisible = false;
+            player.Visible = !player.inVent;
+        }
+    }
+
+    public static void RpcMakeInvisibleModded(this PlayerControl player)
+    {
+        player.MakeInvisible();
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
+        writer.Write(true);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public static void RpcMakeVisibleModded(this PlayerControl player)
+    {
+        player.MakeVisible();
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
+        writer.Write(false);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public static void RpcMakeInvisible(this PlayerControl player, bool phantom = false)
+    {
+        if (!Main.Invisible.Add(player.PlayerId)) return;
+        if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+        player.RpcSetPet("");
+        if (!phantom) player.RpcMakeInvisibleModded();
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+            var sender = CustomRpcSender.Create("RpcMakeInvisible", SendOption.Reliable);
+            sender.StartMessage(pc.GetClientId());
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write(player.NetTransform.lastSequenceId)
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(player.NetTransform.lastSequenceId + 16383))
+                .EndRpc();
+            sender.EndMessage();
+            sender.SendMessage();
+        }
+
+        Logger.Info($"Made {player.GetNameWithRole()} invisible", "RpcMakeInvisible");
+    }
+
+    public static void RpcMakeVisible(this PlayerControl player, bool phantom = false)
+    {
+        if (!Main.Invisible.Remove(player.PlayerId)) return;
+        if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+        if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
+        if (!phantom) player.RpcMakeVisibleModded();
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+            var sender = CustomRpcSender.Create("RpcMakeVisible", SendOption.Reliable);
+            sender.StartMessage(pc.GetClientId());
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(player.NetTransform.lastSequenceId + 32767))
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(player.NetTransform.lastSequenceId + 32767 + 16383))
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(player.transform.position)
+                .Write(player.NetTransform.lastSequenceId)
+                .EndRpc();
+            sender.EndMessage();
+            sender.SendMessage();
+        }
+
+        Logger.Info($"Made {player.GetNameWithRole()} visible", "RpcMakeVisible");
+    }
+
+    public static void RpcResetInvisibility(this PlayerControl player, bool phantom = false)
+    {
+        if (!Main.Invisible.Contains(player.PlayerId)) return;
+        if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+
+        foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+        {
+            if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+            var sender = CustomRpcSender.Create("RpcResetInvisibility", SendOption.Reliable);
+            sender.StartMessage(pc.GetClientId());
+            sender.StartRpc(player.NetId, (byte)RpcCalls.Exiled)
+                .EndRpc();
+            RoleTypes role = Utils.GetRoleMap(pc.PlayerId, player.PlayerId).RoleType;
+            sender.StartRpc(player.NetId, (byte)RpcCalls.SetRole)
+                .Write((ushort)role)
+                .Write(true)
+                .EndRpc();
+            sender.StartRpc(player.NetId, (byte)RpcCalls.CancelPet)
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(player.NetTransform.lastSequenceId + 32767))
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(player.NetTransform.lastSequenceId + 32767 + 16383))
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write(player.NetTransform.lastSequenceId)
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(player.NetTransform.lastSequenceId + 16383))
+                .EndRpc();
+            sender.EndMessage();
+            sender.SendMessage();
+        }
+
+        Logger.Info($"Reset invisibility for {player.GetNameWithRole()}", "RpcResetInvisibility");
     }
 
     public static void AddKillTimerToDict(this PlayerControl pc, bool half = false, float cd = -1f)

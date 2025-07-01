@@ -1654,6 +1654,7 @@ internal static class FixedUpdatePatch
                     case CustomGameMode.SoloKombat:
                         SoloPVP.GetNameNotify(target, ref realName);
                         break;
+                    case CustomGameMode.BedWars when self:
                     case CustomGameMode.Quiz when self:
                         realName = string.Empty;
                         break;
@@ -1661,7 +1662,8 @@ internal static class FixedUpdatePatch
 
                 if (Deathpact.IsInActiveDeathpact(seer)) realName = Deathpact.GetDeathpactString(seer);
 
-                if (NameNotifyManager.GetNameNotify(target, out string name) && name.Length > 0) realName = name;
+                if (Options.CurrentGameMode != CustomGameMode.BedWars && NameNotifyManager.GetNameNotify(target, out string name) && name.Length > 0)
+                    realName = name;
             }
 
             // Name Color Manager
@@ -1830,13 +1832,13 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
-                Suffix.Append($"\n\n{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}\n");
-
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
             Suffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
+
+            if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
+                Suffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
 
             // Devourer
             if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)))

@@ -101,7 +101,7 @@ internal class Asthmatic : IAddon
     {
         if (!Main.IntroDestroyed || !pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
 
-        Vector2 currentPosition = pc.transform.position;
+        Vector2 currentPosition = pc.Pos();
 
         if (CheckInvalidMovementPatch.ExemptedPlayers.Remove(pc.PlayerId) && CheckInvalidMovementPatch.LastPosition.TryGetValue(pc.PlayerId, out Vector2 position))
             LastPosition[pc.PlayerId] = position;

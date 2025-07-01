@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using AmongUs.InnerNet.GameDataMessages;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -393,8 +394,8 @@ public static class Utils
 
     public static void SaveComboInfo()
     {
-        SaveFile("./EHR_DATA/AlwaysCombos.json");
-        SaveFile("./EHR_DATA/NeverCombos.json");
+        SaveFile($"{Main.DataPath}/EHR_DATA/AlwaysCombos.json");
+        SaveFile($"{Main.DataPath}/EHR_DATA/NeverCombos.json");
         return;
 
         void SaveFile(string path)
@@ -428,8 +429,8 @@ public static class Utils
 
     public static void LoadComboInfo()
     {
-        LoadFile("./EHR_DATA/AlwaysCombos.json");
-        LoadFile("./EHR_DATA/NeverCombos.json");
+        LoadFile($"{Main.DataPath}/EHR_DATA/AlwaysCombos.json");
+        LoadFile($"{Main.DataPath}/EHR_DATA/NeverCombos.json");
         return;
 
         void LoadFile(string path)
@@ -2594,7 +2595,7 @@ public static class Utils
                 }
 
                 if (GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
-                    SelfSuffix.Append($"\n\n{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}\n");
+                    SelfSuffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
             }
 
             bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars;
@@ -2631,9 +2632,11 @@ public static class Utils
 
             if (!GameStates.IsLobby)
             {
-                if (Options.CurrentGameMode == CustomGameMode.Quiz) selfName = string.Empty;
+                if (Options.CurrentGameMode is CustomGameMode.Quiz or CustomGameMode.BedWars)
+                    selfName = string.Empty;
 
-                if (NameNotifyManager.GetNameNotify(seer, out string name) && name.Length > 0) selfName = name;
+                if (Options.CurrentGameMode != CustomGameMode.BedWars && NameNotifyManager.GetNameNotify(seer, out string name) && name.Length > 0)
+                    selfName = name;
 
                 switch (Options.CurrentGameMode)
                 {
@@ -3988,6 +3991,85 @@ public static class Utils
 
         float minTime = Mathf.Max(0.5f, AmongUsClient.Instance.Ping / divice * 6f);
         return minTime;
+    }
+
+    // Next 2: From MoreGamemodes by Rabek009
+
+    public static void CreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent)
+    {
+        int baseColorId = deadBodyParent.Data.DefaultOutfit.ColorId;
+        deadBodyParent.Data.DefaultOutfit.ColorId = colorId;
+        DeadBody deadBody = Object.Instantiate(GameManager.Instance.DeadBodyPrefab);
+        deadBody.enabled = false;
+        deadBody.ParentId = deadBodyParent.PlayerId;
+        foreach (SpriteRenderer b in deadBody.bodyRenderers)
+            deadBodyParent.SetPlayerMaterialColors(b);
+        deadBodyParent.SetPlayerMaterialColors(deadBody.bloodSplatter);
+        Vector3 vector = position + deadBodyParent.KillAnimations[0].BodyOffset;
+        vector.z = vector.y / 1000f;
+        deadBody.transform.position = vector;
+        deadBodyParent.Data.DefaultOutfit.ColorId = baseColorId;
+    }
+
+    public static void RpcCreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent, SendOption sendOption = SendOption.Reliable)
+    {
+        if (deadBodyParent == null || !Main.IntroDestroyed) return;
+        CreateDeadBody(position, colorId, deadBodyParent);
+        PlayerControl playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
+        playerControl.PlayerId = deadBodyParent.PlayerId;
+        playerControl.isNew = false;
+        playerControl.notRealPlayer = true;
+        playerControl.NetTransform.SnapTo(position);
+        AmongUsClient.Instance.NetIdCnt += 1U;
+        var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", sendOption);
+        MessageWriter writer = sender.stream;
+        writer.StartMessage(5);
+        writer.Write(AmongUsClient.Instance.GameId);
+        SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
+        item.SerializeValues(writer);
+
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        {
+            for (uint i = 1; i <= 3; ++i)
+            {
+                writer.StartMessage(4);
+                writer.WritePacked(2U);
+                writer.WritePacked(-2);
+                writer.Write((byte)SpawnFlags.None);
+                writer.WritePacked(1);
+                writer.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
+                writer.StartMessage(1);
+                writer.EndMessage();
+                writer.EndMessage();
+            }
+        }
+
+        if (PlayerControl.AllPlayerControls.Contains(playerControl))
+            PlayerControl.AllPlayerControls.Remove(playerControl);
+        int baseColorId = playerControl.Data.DefaultOutfit.ColorId;
+        sender.StartRpc(playerControl.NetId, (byte)RpcCalls.SetColor)
+            .Write(playerControl.Data.NetId)
+            .Write(colorId)
+            .EndRpc();
+        sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
+            .WriteNetObject(playerControl)
+            .Write((int)MurderResultFlags.Succeeded)
+            .EndRpc();
+        sender.StartRpc(playerControl.NetId, (byte)RpcCalls.SetColor)
+            .Write(playerControl.Data.NetId)
+            .Write(baseColorId)
+            .EndRpc();
+        writer.StartMessage(1);
+        writer.WritePacked(playerControl.Data.NetId);
+        playerControl.Data.Serialize(writer, false);
+        writer.EndMessage();
+        writer.StartMessage(5);
+        writer.WritePacked(playerControl.NetId);
+        writer.EndMessage();
+        AmongUsClient.Instance.RemoveNetObject(playerControl);
+        Object.Destroy(playerControl.gameObject);
+        sender.EndMessage();
+        sender.SendMessage();
     }
 }
 

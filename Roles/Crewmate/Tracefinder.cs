@@ -92,7 +92,7 @@ public class Tracefinder : RoleBase
                     PlayerControl pc = Utils.GetPlayerById(id);
                     if (pc == null || !pc.IsAlive()) continue;
 
-                    LocateArrow.Add(id, target.transform.position);
+                    LocateArrow.Add(id, target.Pos());
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
             }

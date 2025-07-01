@@ -152,7 +152,7 @@ public static class ModUpdater
     {
         try
         {
-            if (Directory.Exists("TOH_DATA") && File.Exists("./EHR_DATA/BanWords.txt"))
+            if (Directory.Exists("TOH_DATA") && File.Exists($"{Main.DataPath}/EHR_DATA/BanWords.txt"))
             {
                 DirectoryInfo di = new("TOH_DATA");
                 di.Delete(true);

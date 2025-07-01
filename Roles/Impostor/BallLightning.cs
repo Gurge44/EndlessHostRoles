@@ -169,7 +169,7 @@ public class BallLightning : RoleBase
 
             if (pc.PlayerId != gs.PlayerId && pc.IsAlive() && !pc.Is(CustomRoles.BallLightning) && !IsGhost(pc) && !Pelican.IsEaten(pc.PlayerId))
             {
-                Vector3 pos = gs.transform.position;
+                Vector3 pos = gs.Pos();
                 float dis = Vector2.Distance(pos, pc.Pos());
                 if (dis > 0.3f) continue;
 

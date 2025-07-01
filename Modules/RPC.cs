@@ -150,6 +150,7 @@ public enum CustomRPC
     SyncAllergic,
     SyncAsthmatic,
     ParityCopCommand,
+    Invisibility,
 
     // Game Modes
     RoomRushDataSync,
@@ -1290,6 +1291,12 @@ internal static class RPCHandlerPatch
                 case CustomRPC.ParityCopCommand:
                 {
                     ParityCop.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.Invisibility:
+                {
+                    if (reader.ReadBoolean()) __instance.MakeInvisible();
+                    else __instance.MakeVisible();
                     break;
                 }
             }

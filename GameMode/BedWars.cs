@@ -13,11 +13,11 @@ public static class BedWars
     private static int SpeedPotionDuration = 30;
     private static int InvisPotionDuration = 20;
     private static int ReviveTime = 15;
-    private static int IronGenerationInterval = 1;
+    private static int IronGenerationInterval = 2;
     private static int GoldGenerationInterval = 5;
     private static int EmeraldGenerationInterval = 10;
     private static int DiamondGenerationInterval = 10;
-    private static int GracePeriod = 60;
+    private static int GracePeriod = 90;
     private static int HealWaitAfterDamage = 5;
     private static int MaxHealth = 20;
     private static int TrapEffectDuration = 10;
@@ -89,7 +89,7 @@ public static class BedWars
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        IronGenerationIntervalOption = new IntegerOptionItem(id++, "BedWars.IronGenerationIntervalOption", new(1, 60, 1), 1, tab)
+        IronGenerationIntervalOption = new IntegerOptionItem(id++, "BedWars.IronGenerationIntervalOption", new(1, 60, 1), 2, tab)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color)
             .SetGameMode(gameMode);
@@ -109,7 +109,7 @@ public static class BedWars
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        GracePeriodOption = new IntegerOptionItem(id++, "BedWars.GracePeriodOption", new(5, 300, 5), 60, tab)
+        GracePeriodOption = new IntegerOptionItem(id++, "BedWars.GracePeriodOption", new(5, 300, 5), 90, tab)
             .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color)
             .SetGameMode(gameMode);
@@ -229,7 +229,7 @@ public static class BedWars
 
     public static string GetStatistics(byte id)
     {
-        return !Data.TryGetValue(id, out PlayerData data) ? string.Empty : data.Team.GetName();
+        return !Data.TryGetValue(id, out PlayerData data) ? string.Empty : Utils.ColorString(data.Team.GetColor(), data.Team.GetName());
     }
 
     public static string GetHudText()
@@ -248,7 +248,7 @@ public static class BedWars
             else
             {
                 int playersLeftInTeam = Main.AllAlivePlayerControls.Count(x => Data.TryGetValue(x.PlayerId, out PlayerData data) && data.Team == team);
-                sb.AppendLine(Utils.ColorString(team.GetColor(), $"{team.GetName()} {playersLeftInTeam}"));
+                sb.AppendLine($"{Utils.ColorString(team.GetColor(), team.GetName())} ({playersLeftInTeam})");
             }
         }
 
@@ -275,6 +275,12 @@ public static class BedWars
     {
         if (GracePeriodEnd > Utils.TimeStamp || !Data.TryGetValue(killer.PlayerId, out PlayerData killerData) || !Data.TryGetValue(target.PlayerId, out PlayerData targetData) || killerData.Team == targetData.Team) return;
 
+        if (AllNetObjects.Values.Any(x => x.Bed.Breaking.Contains(killer.PlayerId)))
+        {
+            killer.Notify(Translator.GetString("Bedwars.CannotKillWhileBreakingBed"));
+            return;
+        }
+        
         float damage = 1;
 
         Item? selectedItem = killerData.Inventory.GetSelectedItem();
@@ -290,7 +296,8 @@ public static class BedWars
         if (Upgrades.TryGetValue(killerData.Team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.Sharpness))
             damage *= 1.25f;
 
-        targetData.Damage(target, damage);
+        targetData.Damage(target, damage, killer);
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
         killer.SetKillCooldown();
     }
@@ -345,6 +352,12 @@ public static class BedWars
 
         yield return new WaitForSeconds(3f);
 
+        if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby)
+        {
+            Logger.Error("Cannot start BedWars game due to invalid game state.", "BedWars");
+            yield break;
+        }
+
         // Assign players to teams
         List<PlayerControl> players = Main.AllAlivePlayerControls.Shuffle().ToList();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
@@ -385,10 +398,16 @@ public static class BedWars
             yield return new WaitForSeconds(0.2f);
         }
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.5f);
 
-        string itemShopText = Translator.GetString("Bedwars.Shop.ItemShop");
-        string upgradeShopText = Translator.GetString("Bedwars.Shop.UpgradeShop");
+        if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby)
+        {
+            Logger.Error("Cannot start BedWars game due to invalid game state.", "BedWars");
+            yield break;
+        }
+
+        string itemShopText = Utils.ColorString(Palette.Orange, Translator.GetString("Bedwars.Shop.ItemShop"));
+        string upgradeShopText = Utils.ColorString(Color.magenta, Translator.GetString("Bedwars.Shop.UpgradeShop"));
         List<string> rooms = [Translator.GetString("Bedwars.Rooms")];
 
         foreach ((BedWarsTeam team, (Vector2 bedPos, SystemTypes room, Vector2 itemShopPos, Vector2 upgradeShopPos, _)) in bases)
@@ -411,7 +430,7 @@ public static class BedWars
 
         yield return new WaitForSeconds(0.2f);
 
-        players.NotifyPlayers($"{rooms[0]}\n{string.Join(" | ", rooms.Skip(1))}");
+        players.NotifyPlayers($"{rooms[0]}\n{string.Join(" | ", rooms.Skip(1))}", 20f);
 
         yield return new WaitForSeconds(0.2f);
 
@@ -474,7 +493,23 @@ public static class BedWars
                 {
                     PlainShipRoom room = __instance.GetPlainShipRoom();
 
-                    if (room == null || room.RoomId != data.Base.Room)
+                    bool allowed = (room != null && data.Base.Room == room.RoomId) || (Main.CurrentMap, data.Base.Room) switch
+                    {
+                        (MapNames.Skeld, SystemTypes.Nav) => pos.x > 13f,
+                        (MapNames.Dleks, SystemTypes.Nav) => pos.x < -13f,
+                        (MapNames.MiraHQ, SystemTypes.Launchpad) => pos.x < 5f,
+                        (MapNames.MiraHQ, SystemTypes.Reactor) => pos.y > 10f,
+                        (MapNames.MiraHQ, SystemTypes.Balcony) => pos.y < 2f,
+                        (MapNames.Polus, SystemTypes.LifeSupp) => room != null && room.RoomId == SystemTypes.BoilerRoom,
+                        (MapNames.Airship, SystemTypes.CargoBay) => room != null && room.RoomId == SystemTypes.Ventilation,
+                        (MapNames.Airship, SystemTypes.MeetingRoom) => room != null && room.RoomId == SystemTypes.GapRoom,
+                        (MapNames.Fungle, SystemTypes.Kitchen) => room != null && room.RoomId == SystemTypes.FishingDock,
+                        (MapNames.Fungle, SystemTypes.Comms) => pos is { y: > 8f, x: > 19f },
+                        (MapNames.Fungle, SystemTypes.Jungle) => pos is { x: > 10f, y: < -11f },
+                        _ => false
+                    };
+
+                    if (!allowed)
                     {
                         __instance.Notify(Translator.GetString("Bedwars.YouCannotLeaveRoomInGracePeriod"));
                         __instance.TP(data.Base.SpawnPosition);
@@ -512,6 +547,7 @@ public static class BedWars
                         if (healPool && shouldRegen) data.Health++;
                         data.Health++;
                         data.LastHeal = now;
+                        Utils.NotifyRoles(SpecifyTarget: __instance);
                         Logger.Info($"{__instance.GetRealName()}'s health: {data.Health}", "BedWars");
                     }
                 }
@@ -577,7 +613,7 @@ public static class BedWars
         public Base Base;
         public Item? Armor;
 
-        public void Damage(PlayerControl pc, float damage)
+        public void Damage(PlayerControl pc, float damage, PlayerControl killer = null)
         {
             if (Health <= 0 || GracePeriodEnd > Utils.TimeStamp) return;
 
@@ -599,12 +635,16 @@ public static class BedWars
             {
                 if (!AllNetObjects.TryGetValue(Team, out NetObjectCollection netObjectCollection) || !netObjectCollection.Bed.IsBroken)
                 {
-                    if (Reviving.Add(pc.PlayerId)) Main.Instance.StartCoroutine(ReviveCountdown(pc));
+                    if (killer != null && Data.TryGetValue(killer.PlayerId, out PlayerData killerData))
+                        Inventory.Items.DoIf(x => ItemCategories[x.Key] != ItemCategory.Tool, x => killerData.Inventory.Adjust(x.Key, x.Value));
+
                     Inventory.Clear();
+                    if (Reviving.Add(pc.PlayerId)) Main.Instance.StartCoroutine(ReviveCountdown(pc));
                     pc.Exiled();
                     CustomRpcSender.Create("BedWars Death", SendOption.Reliable).AutoStartRpc(pc.NetId, 4).EndRpc().SendMessage();
                     Main.PlayerStates[pc.PlayerId].SetDead();
                     pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.OwnerId);
+                    pc.RpcResetAbilityCooldown();
                     pc.MarkDirtySettings();
                 }
                 else
@@ -628,6 +668,7 @@ public static class BedWars
                 time--;
             }
 
+            Health = MaxHealth;
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             pc.RpcRevive();
@@ -643,6 +684,9 @@ public static class BedWars
 
             var sb = new StringBuilder();
 
+            if (NameNotifyManager.GetNameNotify(pc, out string notify) && notify.Length > 0)
+                sb.AppendLine(notify);
+
             sb.AppendLine(GracePeriodEnd > Utils.TimeStamp ? Translator.GetString("Bedwars.GracePeriod") : GetHealthInfo());
 
             if (InShop.TryGetValue(pc.PlayerId, out Shop shop))
@@ -651,15 +695,16 @@ public static class BedWars
                 sb.AppendLine(shop.GetSuffix(pc));
             }
 
-            int lines = 10 - sb.ToString().Count(x => x == '\n');
-            Loop.Times(lines, _ => sb.AppendLine());
+            int lines = sb.ToString().Count(x => x == '\n');
+            sb.Insert(0, Utils.ColorString(Color.clear, ".") + new string('\n', Math.Max(0, 15 - lines)));
+            sb.Append(new string('\n', Math.Max(0, 5 - lines)));
 
             sb.AppendLine(GetArmorInfo());
             sb.AppendLine();
 
             sb.Append(Inventory);
 
-            return sb.ToString().Trim();
+            return $"<#ffffff>{sb.ToString().Trim()}</color>";
         }
 
         public string GetInfoAsTarget(PlayerControl pc)
@@ -677,7 +722,7 @@ public static class BedWars
                     sb.Append(Utils.ColorString(display.Color, $"{display.Icon} {display.Name.Invoke()} {display.Icon}"));
             }
 
-            return sb.ToString().Trim();
+            return $"<#ffffff>{sb.ToString().Trim()}</color>";
         }
 
         private string GetArmorInfo()
@@ -722,8 +767,8 @@ public static class BedWars
         },
         [MapNames.MiraHQ] = new()
         {
-            [BedWarsTeam.Blue] = new(new(-4.46f, 4.12f), SystemTypes.Launchpad, new(-4.46f, 0.48f), new(2.81f, -1.43f), new(-4.45f, 2.4f)),
-            [BedWarsTeam.Yellow] = new(new(22.16f, 1.5f), SystemTypes.Cafeteria, new(20.02f, -1.81f), new(27.62f, -1.81f), new(23.77f, -1.58f)),
+            [BedWarsTeam.Blue] = new(new(2.81f, -1.43f), SystemTypes.Launchpad, new(-4.46f, 0.48f), new(-4.46f, 4.12f), new(-4.45f, 2.4f)),
+            [BedWarsTeam.Yellow] = new(new(22.16f, 1.5f), SystemTypes.Balcony, new(20.02f, -1.81f), new(27.62f, -1.81f), new(23.77f, -1.58f)),
             [BedWarsTeam.Red] = new(new(17.8f, 23.17f), SystemTypes.Greenhouse, new(13.58f, 22.4f), new(22.08f, 22.37f), new(17.85f, 25.55f)),
             [BedWarsTeam.Green] = new(new(6.12f, 12.12f), SystemTypes.Reactor, new(1.69f, 10.63f), new(8.88f, 12.38f), new(2.47f, 11.9f))
         },
@@ -757,14 +802,14 @@ public static class BedWars
             [Item.Iron] = [new(3.69f, -15.7f), new(17.91f, -5.06f), new(-20f, -3.5f), new(-10.61f, -3.81f)],
             [Item.Gold] = [new(3.69f, -16f), new(17.91f, -5.48f), new(-20f, -4f), new(-10.61f, -4.33f)],
             [Item.Emerald] = [new(4.53f, -9.67f)],
-            [Item.Diamond] = [new(9.55f, -9.41f), new(-15.29f, 2.88f)]
+            [Item.Diamond] = [new(9.55f, -9.41f), new(-15.29f, 2.88f), new(1.61f, 5.38f), new(-9.78f, -7.68f)]
         },
         [MapNames.MiraHQ] = new()
         {
             [Item.Iron] = [new(18.15f, 24.21f), new(28f, 0.62f), new(-5.51f, -2f), new(6.23f, 14.35f)],
             [Item.Gold] = [new(17.52f, 24.21f), new(28f, 0f), new(-5.51f, -1.48f), new(6.23f, 13.82f)],
             [Item.Emerald] = [new(12.53f, 6.91f)],
-            [Item.Diamond] = [new(15.37f, 0.37f), new(17.8f, 11.46f)]
+            [Item.Diamond] = [new(15.41f, -1.46f), new(17.8f, 11.46f)]
         },
         [MapNames.Polus] = new()
         {
@@ -791,8 +836,8 @@ public static class BedWars
 
     static BedWars()
     {
-        Bases[MapNames.Dleks] = Bases[MapNames.Skeld].Select(x => (key: x.Key, value: new Base(-x.Value.BedPosition, x.Value.Room, -x.Value.ItemShopPosition, -x.Value.UpgradeShopPosition, -x.Value.SpawnPosition))).ToDictionary(x => x.key, x => x.value);
-        ItemGeneratorPositions[MapNames.Dleks] = ItemGeneratorPositions[MapNames.Skeld].ToDictionary(x => x.Key, x => x.Value.ConvertAll(p => -p));
+        Bases[MapNames.Dleks] = Bases[MapNames.Skeld].Select(x => (key: x.Key, value: new Base(new(-x.Value.BedPosition.x, x.Value.BedPosition.y), x.Value.Room, new(-x.Value.ItemShopPosition.x, x.Value.ItemShopPosition.y), new(-x.Value.UpgradeShopPosition.x, x.Value.UpgradeShopPosition.y), new(-x.Value.SpawnPosition.x, x.Value.SpawnPosition.y)))).ToDictionary(x => x.key, x => x.value);
+        ItemGeneratorPositions[MapNames.Dleks] = ItemGeneratorPositions[MapNames.Skeld].ToDictionary(x => x.Key, x => x.Value.ConvertAll(p => new Vector2(-p.x, p.y)));
     }
 
     private enum BedWarsTeam
@@ -905,8 +950,9 @@ public static class BedWars
 
                 switch (itemCategory)
                 {
-                    case ItemCategory.Armor when !data.Armor.HasValue || data.Armor < selectedItem:
+                    case ItemCategory.Armor when !data.Armor.HasValue || data.Armor.Value < selectedItem:
                         data.Armor = selectedItem;
+                        LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: pc), 0.2f, log: false);
                         break;
                     case ItemCategory.Weapon:
                         List<Item> toRemove = [];
@@ -918,6 +964,9 @@ public static class BedWars
                         }
 
                         toRemove.ForEach(x => data.Inventory.Items.Remove(x));
+                        break;
+                    case ItemCategory.Utility when selectedItem == Item.TNT:
+                        LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: pc), 0.2f, log: false);
                         break;
                 }
 
@@ -975,7 +1024,8 @@ public static class BedWars
                         itemsInCategory.Add($"{display.Name.Invoke()} {Utils.ColorString(display.Color, display.Icon.ToString())}");
                 }
 
-                return string.Format(Translator.GetString("Bedwars.Shop.ItemShopSuffix.CategorySelection"), Translator.GetString($"BedWars.ItemCategory.{itemCategory}"), string.Join(", ", itemsInCategory));
+                Logger.Warn("we got here 0", "debug");
+                return string.Format(Translator.GetString("Bedwars.Shop.ItemShopSuffix.CategorySelection"), Translator.GetString($"BedWars.ItemCategory.{itemCategory}"), string.Join(' ', itemsInCategory));
             }
             else
             {
@@ -990,6 +1040,7 @@ public static class BedWars
                 if (!ItemCost.TryGetValue(selectedItem, out (Item Resource, int Count) cost) || !ItemDisplayData.TryGetValue(cost.Resource, out ItemDisplay costDisplay)) return string.Empty;
                 var costString = $"{cost.Count} {Utils.ColorString(costDisplay.Color, costDisplay.Icon.ToString())}";
 
+                Logger.Warn("we got here 1", "debug");
                 return string.Format(Translator.GetString("Bedwars.Shop.ItemShopSuffix.ItemSelection"), itemName, itemIcon, itemDescription, costString);
             }
         }
@@ -1040,6 +1091,7 @@ public static class BedWars
                 ? "\n" + Translator.GetString("BedWars.Upgrade.AlreadyBought")
                 : string.Empty;
 
+            Logger.Warn("we got here 2", "debug");
             return string.Format(Translator.GetString("Bedwars.Shop.UpgradeShopSuffix"), Translator.GetString($"BedWars.Upgrade.{selectedUpgrade}"), Translator.GetString($"BedWars.UpgradeDescription.{selectedUpgrade}"), alreadyBought, costString);
         }
     }
@@ -1303,7 +1355,7 @@ public static class BedWars
     {
         public Dictionary<Item, int> Items = [];
         private int SelectedSlot;
-        private const int MaxSlots = 7;
+        private const int MaxSlots = 9;
 
         public void Clear()
         {
@@ -1369,11 +1421,11 @@ public static class BedWars
                             _ = new TNT(pos);
                             break;
                         case Item.InvisibilityPotion:
-                            Main.AllPlayerControls.Without(pc).Do(x => CustomRpcSender.Create("BedWars.InvisibilityPotion", (SendOption)1).AutoStartRpc(pc.NetId, 4, x.OwnerId).EndRpc().SendMessage());
+                            pc.RpcMakeInvisible();
                             LateTask.New(() =>
                             {
                                 if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby) return;
-                                Main.AllPlayerControls.Without(pc).Do(x => pc.RpcSetRoleDesync(RoleTypes.Phantom, x.OwnerId));
+                                pc.RpcMakeVisible();
                             }, InvisPotionDuration);
                             break;
                         case Item.SpeedPotion:
@@ -1417,18 +1469,20 @@ public static class BedWars
             }
 
             while (itemsDisplays.Count < MaxSlots)
-                itemsDisplays.Add(Utils.ColorString(Color.clear, "--"));
+                itemsDisplays.Add(Utils.ColorString(Color.clear, "---"));
 
+            const string baseColor = "<#000000>";
+            
             var finalSb = new StringBuilder();
-            finalSb.Append("<#555555>");
-            finalSb.AppendLine("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁");
+            finalSb.Append(baseColor);
+            finalSb.AppendLine("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁");
             finalSb.Append("</color>");
             i = 0;
 
             foreach (string itemsDisplay in itemsDisplays)
             {
                 bool selected = i == SelectedSlot || i - 1 == SelectedSlot;
-                if (!selected) finalSb.Append("<#555555>");
+                if (!selected) finalSb.Append(baseColor);
                 finalSb.Append(selected ? '┃' : '│');
                 if (!selected) finalSb.Append("</color>");
                 finalSb.Append(' ');
@@ -1437,9 +1491,12 @@ public static class BedWars
                 i++;
             }
 
-            finalSb.Append(i - 1 == SelectedSlot ? '┃' : '│');
-            finalSb.AppendLine("<#555555>");
-            finalSb.Append("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
+            bool lastSelected = i - 1 == SelectedSlot;
+            if (!lastSelected) finalSb.Append(baseColor);
+            finalSb.Append(lastSelected ? '┃' : '│');
+            if (!lastSelected) finalSb.Append("</color>");
+            finalSb.AppendLine(baseColor);
+            finalSb.Append("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
             finalSb.AppendLine("</color>");
 
             finalSb.AppendLine();
@@ -1455,17 +1512,11 @@ public static class BedWars
         private string StatusText;
         public readonly List<Item> Layers = [];
         public bool IsBroken;
-        private readonly HashSet<byte> Breaking = [];
+        public readonly HashSet<byte> Breaking = [];
 
-        protected Bed(Vector2 position)
+        protected string GetSprite()
         {
-            UpdateStatus(false);
-            CreateNetObject(GetSprite(), position);
-        }
-
-        private string GetSprite()
-        {
-            return StatusText + new string('\n', 2 - StatusText.Count(x => x == '\n')) + BaseSprite;
+            return StatusText + new string('\n', Math.Max(0, 2 - StatusText.Count(x => x == '\n'))) + BaseSprite;
         }
 
         public void UpdateStatus(bool changeSprite = true)
@@ -1481,23 +1532,18 @@ public static class BedWars
             string layers = Layers.Count > 0 ? string.Join(' ', layerStrings) : Translator.GetString("Bedwars.BedStatus.Exposed");
             var nextProtectReq = $"<size=70%>{GetNextProtectReq()} {Translator.GetString("Bedwars.BedStatus.ProtectReq")}</size>";
 
-            Dictionary<Item?, int> breakTimes = new Item?[] { null, Item.Pickaxe, Item.Axe, Item.Shears }.ToDictionary(x => x, GetBreakTime);
-            List<string> bt = [];
+            Dictionary<Item, int> breakTimes = new[] { Item.Pickaxe, Item.Axe, Item.Shears }.ToDictionary(x => x, x => GetBreakTime(x));
+            List<string> bt = [$"{GetBreakTime(null)}"];
 
-            foreach ((Item? tool, int time) in breakTimes)
+            foreach ((Item tool, int time) in breakTimes)
             {
-                if (!tool.HasValue)
-                    bt.Add($"{time}");
-                else
-                {
-                    if (!ItemDisplayData.TryGetValue(tool.Value, out ItemDisplay display)) continue;
-                    bt.Add($"{Utils.ColorString(display.Color, display.Icon.ToString())} {time}");
-                }
+                if (!ItemDisplayData.TryGetValue(tool, out ItemDisplay display)) continue;
+                bt.Add($"{Utils.ColorString(display.Color, display.Icon.ToString())} {time}");
             }
 
-            var breakTime = $"{Translator.GetString("Bedwars.BedStatus.BreakTime")}: {string.Join(" | ", bt)}";
+            var breakTime = $"<size=70%>{Translator.GetString("Bedwars.BedStatus.BreakTime")}:</size> {string.Join(" | ", bt)}";
 
-            StatusText = $"{layers}\n{nextProtectReq}\n{breakTime}";
+            StatusText = $"{layers}\n{nextProtectReq}\n{breakTime}\n{Utils.EmptyMessage}";
             if (changeSprite) RpcChangeSprite(GetSprite());
 
             Logger.Info($"{GetType().Name} status updated: {StatusText.Replace("\n", " - ")}", "BedWars");
@@ -1543,7 +1589,7 @@ public static class BedWars
                 ItemDisplay layerDisplay = ItemDisplayData[topLayer];
                 string layerName = Utils.ColorString(layerDisplay.Color, layerDisplay.Icon.ToString());
                 var str = string.Empty;
-                const int progressDisplayParts = 5;
+                const int progressDisplayParts = 10;
 
                 while (timer > 0f)
                 {
@@ -1659,6 +1705,8 @@ public static class BedWars
             opt.SetFloat(FloatOptionNames.CrewLightMod, TrappedVision);
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, TrappedVision);
         }
+
+        AURoleOptions.PhantomCooldown = 0.1f;
     }
 
     public static bool CanUseImpostorVentButton(PlayerControl pc)

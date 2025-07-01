@@ -986,7 +986,7 @@ internal static class BeginImpostorPatch
     }
 }
 
-[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
+[HarmonyPatch(typeof(HudManager), nameof(HudManager.OnGameStart))]
 internal static class IntroCutsceneDestroyPatch
 {
     public static void Postfix( /*IntroCutscene __instance*/)

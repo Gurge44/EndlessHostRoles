@@ -181,7 +181,7 @@ public class Agitater : RoleBase
                 ResetBomb();
             else
             {
-                Vector2 agitaterPos = player.transform.position;
+                Vector2 agitaterPos = player.Pos();
                 Dictionary<byte, float> targetDistance = [];
 
                 foreach (PlayerControl target in PlayerControl.AllPlayerControls)
@@ -190,7 +190,7 @@ public class Agitater : RoleBase
 
                     if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer && target.IsAlive())
                     {
-                        float dis = Vector2.Distance(agitaterPos, target.transform.position);
+                        float dis = Vector2.Distance(agitaterPos, player.Pos());
                         targetDistance[target.PlayerId] = dis;
                     }
                 }
