@@ -5070,7 +5070,7 @@
   "Bedwars.TrapTriggered": "<u><#ff0000>陷阱触发！</color></u>\\n<size=80%>{0} 进入了你的基地！</size>",
   "Bedwars.ReviveCountdown": "<u><#ff0000>你死了！</color></u>\\n<size=80%>你将在<#ffff44>{0}</color>秒后复活。</size>",
   "Bedwars.GracePeriod": "<size=80%><#ffff44>特殊时期</color>\\n<size=70%>这段时期内你不能离开你的基地</size></size>",
-  "Bedwars.CannotKillWhileBreakingBed": "<#ff0000>你不能在破床期间使用击杀按钮！</color>",
+  "Bedwars.CannotKillWhileBreakingBed": "<#ff0000>你不能在破坏床期间使用击杀按钮！</color>",
   "BedWars.Suffix.Armor": "盔甲：",
   "Bedwars.BlueTeam": "蓝队",
   "Bedwars.RedTeam": "红队",
