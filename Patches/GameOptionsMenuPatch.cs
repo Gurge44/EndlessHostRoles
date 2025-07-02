@@ -1135,13 +1135,13 @@ public static class GameSettingMenuPatch
             var gmButton = Object.Instantiate(gMinus, gameSettingsLabel.transform, true);
             gmButton.transform.localPosition = new Vector3((((index / 7) - ((totalCols - 1) / 2f)) * 1.4f) + 0.86f, gameSettingsLabelPos.y - 1.9f - (0.22f * (index % 7)), -1f);
 
-            gmButton.transform.localScale = new(russian ? 0.5f : 0.4f, russian ? 0.37f : 0.3f, 1f);
+            gmButton.transform.localScale = new(0.4f, 0.3f, 1f);
             var gmButtonTmp = gmButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             gmButtonTmp.alignment = TextAlignmentOptions.Center;
             gmButtonTmp.DestroyTranslator();
             gmButtonTmp.text = Translator.GetString(gm.ToString()).ToUpper();
             gmButtonTmp.color = Main.GameModeColors[gm];
-            gmButtonTmp.transform.localPosition = new(gameSettingsLabelPos.x + (!russian ? 3.35f : 3.65f), gameSettingsLabelPos.y - 1.62f, gameSettingsLabelPos.z);
+            gmButtonTmp.transform.localPosition = new(gameSettingsLabelPos.x + 3.35f, gameSettingsLabelPos.y - 1.62f, gameSettingsLabelPos.z);
             gmButtonTmp.transform.localScale = new(1f, 1f, 1f);
 
             var gmPassiveButton = gmButton.GetComponent<PassiveButton>();

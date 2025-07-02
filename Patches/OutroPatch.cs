@@ -126,6 +126,7 @@ internal static class EndGamePatch
                     Main.GamesPlayed.AddRange(Main.AllPlayerControls.ToDictionary(x => x.FriendCode, _ => 0), false);
                     Main.GamesPlayed.AdjustAllValues(x => ++x);
                     Main.GotShieldAnimationInfoThisGame.Clear();
+                    if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].IsDead = false;
                     break;
                 case CustomGameMode.MoveAndStop:
                     Main.AllPlayerControls.Do(x => MoveAndStop.HasPlayed.Add(x.FriendCode));

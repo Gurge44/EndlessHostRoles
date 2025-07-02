@@ -130,12 +130,10 @@ public static class BedWars
             .SetGameMode(gameMode);
 
         TNTDamageOption = new IntegerOptionItem(id++, "BedWars.TNTDamageOption", new(1, 100, 1), 20, tab)
-            .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color)
             .SetGameMode(gameMode);
 
         TNTBedDamageOption = new IntegerOptionItem(id++, "BedWars.TNTBedDamageOption", new(1, 100, 1), 10, tab)
-            .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color)
             .SetGameMode(gameMode);
 
@@ -392,6 +390,7 @@ public static class BedWars
 
             pc.RpcSetColor(team.GetColorId());
             pc.TP(data.Base.SpawnPosition);
+            pc.RpcResetAbilityCooldown();
 
             Data[pc.PlayerId] = data;
 
@@ -502,7 +501,7 @@ public static class BedWars
                         (MapNames.MiraHQ, SystemTypes.Balcony) => pos.y < 2f,
                         (MapNames.Polus, SystemTypes.LifeSupp) => room != null && room.RoomId == SystemTypes.BoilerRoom,
                         (MapNames.Airship, SystemTypes.CargoBay) => room != null && room.RoomId == SystemTypes.Ventilation,
-                        (MapNames.Airship, SystemTypes.MeetingRoom) => room != null && room.RoomId == SystemTypes.GapRoom,
+                        (MapNames.Airship, SystemTypes.MeetingRoom) => (room != null && room.RoomId == SystemTypes.GapRoom) || __instance.inMovingPlat || __instance.onLadder || __instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation(),
                         (MapNames.Fungle, SystemTypes.Kitchen) => room != null && room.RoomId == SystemTypes.FishingDock,
                         (MapNames.Fungle, SystemTypes.Comms) => pos is { y: > 8f, x: > 19f },
                         (MapNames.Fungle, SystemTypes.Jungle) => pos is { x: > 10f, y: < -11f },
@@ -1394,6 +1393,13 @@ public static class BedWars
 
             Vector2 pos = pc.Pos();
             bool nextToBed = AllNetObjects.FindFirst(x => !x.Value.Bed.IsBroken && Vector2.Distance(x.Value.Bed.Position, pos) <= BedBreakAndProtectRange, out KeyValuePair<BedWarsTeam, NetObjectCollection> bed);
+
+            if (SelectedSlot < 0 || SelectedSlot >= Items.Count)
+            {
+                if (nextToBed) bed.Value.Bed.TryBreak(pc);
+                return;
+            }
+            
             KeyValuePair<Item, int> selected = Items.ElementAt(SelectedSlot);
 
             Logger.Info($"Use selected item {selected.Key} with count {selected.Value} at position {pos} by player {pc.GetRealName()} (next to bed: {nextToBed})", "BedWars");
@@ -1696,6 +1702,8 @@ public static class BedWars
 
     public static void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
+        AURoleOptions.PhantomCooldown = 0.1f;
+
         try { AURoleOptions.GuardianAngelCooldown = 900f; }
         catch (Exception e) { Utils.ThrowException(e); }
 
@@ -1705,8 +1713,6 @@ public static class BedWars
             opt.SetFloat(FloatOptionNames.CrewLightMod, TrappedVision);
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, TrappedVision);
         }
-
-        AURoleOptions.PhantomCooldown = 0.1f;
     }
 
     public static bool CanUseImpostorVentButton(PlayerControl pc)

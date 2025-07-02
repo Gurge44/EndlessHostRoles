@@ -177,7 +177,9 @@ public class Swooper : RoleBase
             if (lastTime + (long)Cooldown < now)
             {
                 lastTime = -10;
-                if (!player.IsModdedClient()) player.Notify(GetString("SwooperCanVent"), 10f);
+
+                if (!player.IsModdedClient() && !(UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())))
+                    player.Notify(GetString("SwooperCanVent"), 10f);
 
                 SendRPC();
                 CD = 0;
@@ -193,8 +195,15 @@ public class Swooper : RoleBase
             {
                 case < 0:
                     lastTime = now;
-                    int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
+
+                    if (UsedRole == CustomRoles.Chameleon)
+                    {
+                        int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
+                        Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
+                    }
+                    else
+                        player.RpcMakeVisible();
+
                     player.Notify(GetString("SwooperInvisStateOut"));
                     player.RpcResetAbilityCooldown();
                     InvisTime = -10;
@@ -209,7 +218,7 @@ public class Swooper : RoleBase
 
     bool OnCoEnterVent(PlayerPhysics __instance, int ventId)
     {
-        if (!AmongUsClient.Instance.AmHost || IsInvis) return false;
+        if (!AmongUsClient.Instance.AmHost || IsInvis || (UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool()))) return false;
 
         PlayerControl pc = __instance.myPlayer;
 
@@ -262,10 +271,8 @@ public class Swooper : RoleBase
 
         if (CanGoInvis && (wraith || limit >= 1))
         {
-            int? ventId = pc.GetClosestVent()?.Id;
-            Main.AllPlayerControls.Without(pc).Do(x => pc.MyPhysics.RpcEnterVentDesync(ventId ?? 2, x));
-
-            ventedId = ventId ?? -10;
+            pc.RpcMakeInvisible();
+            
             InvisTime = Utils.TimeStamp;
             if (!wraith) pc.RpcRemoveAbilityUse();
 
@@ -292,7 +299,7 @@ public class Swooper : RoleBase
             long cooldown = lastTime + (long)Cooldown - Utils.TimeStamp;
             str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
         }
-        else
+        else if (!(UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())))
             str.Append(GetString("SwooperCanVent"));
 
         return str.ToString();
@@ -300,7 +307,6 @@ public class Swooper : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (Medic.ProtectList.Contains(target.PlayerId)) return false;
         if (target.Is(CustomRoles.Bait)) return true;
         if (!IsInvis) return true;
         if (!killer.RpcCheckAndMurder(target, true)) return false;

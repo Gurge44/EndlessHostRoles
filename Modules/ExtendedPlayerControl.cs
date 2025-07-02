@@ -87,7 +87,7 @@ internal static class ExtendedPlayerControl
 
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
-        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return false;
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || Main.Invisible.Contains(player.PlayerId)) return false;
         if (player.inVent && player.GetClosestVent()?.Id == ventId) return true;
         return (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
     }
@@ -1321,7 +1321,7 @@ internal static class ExtendedPlayerControl
         return Main.PlayerStates.TryGetValue(pc.PlayerId, out PlayerState state) && state.Role.CanUseSabotage(pc);
     }
 
-    // Next 8: From MoreGamemodes by Rabek009 (https://github.com/Rabek009/MoreGamemodes)
+    // Next 6: From MoreGamemodes by Rabek009 (https://github.com/Rabek009/MoreGamemodes)
     
     public static Vector2 Pos(this PlayerControl pc)
     {
@@ -1361,44 +1361,38 @@ internal static class ExtendedPlayerControl
         }
     }
 
-    public static void RpcMakeInvisibleModded(this PlayerControl player)
-    {
-        player.MakeInvisible();
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
-        writer.Write(true);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void RpcMakeVisibleModded(this PlayerControl player)
-    {
-        player.MakeVisible();
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
-        writer.Write(false);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
     public static void RpcMakeInvisible(this PlayerControl player, bool phantom = false)
     {
         if (!Main.Invisible.Add(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
         player.RpcSetPet("");
-        if (!phantom) player.RpcMakeInvisibleModded();
+
+        if (!phantom)
+        {
+            player.MakeInvisible();
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
+            writer.Write(true);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
             if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+            
             var sender = CustomRpcSender.Create("RpcMakeInvisible", SendOption.Reliable);
             sender.StartMessage(pc.GetClientId());
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write(player.NetTransform.lastSequenceId)
                 .EndRpc();
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(player.NetTransform.lastSequenceId + 16383))
                 .EndRpc();
             sender.EndMessage();
             sender.SendMessage();
+
+            NumSnapToCallsThisRound += 2;
         }
 
         Logger.Info($"Made {player.GetNameWithRole()} invisible", "RpcMakeInvisible");
@@ -1409,27 +1403,37 @@ internal static class ExtendedPlayerControl
         if (!Main.Invisible.Remove(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
         if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
-        if (!phantom) player.RpcMakeVisibleModded();
+
+        if (!phantom)
+        {
+            player.MakeVisible();
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
+            writer.Write(false);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
             if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+            
             var sender = CustomRpcSender.Create("RpcMakeVisible", SendOption.Reliable);
             sender.StartMessage(pc.GetClientId());
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(player.NetTransform.lastSequenceId + 32767))
                 .EndRpc();
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(player.NetTransform.lastSequenceId + 32767 + 16383))
                 .EndRpc();
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(player.transform.position)
                 .Write(player.NetTransform.lastSequenceId)
                 .EndRpc();
             sender.EndMessage();
             sender.SendMessage();
+
+            NumSnapToCallsThisRound += 3;
         }
 
         Logger.Info($"Made {player.GetNameWithRole()} visible", "RpcMakeVisible");
@@ -1443,35 +1447,38 @@ internal static class ExtendedPlayerControl
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
             if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+            
             var sender = CustomRpcSender.Create("RpcResetInvisibility", SendOption.Reliable);
             sender.StartMessage(pc.GetClientId());
-            sender.StartRpc(player.NetId, (byte)RpcCalls.Exiled)
+            sender.StartRpc(player.NetId, RpcCalls.Exiled)
                 .EndRpc();
             RoleTypes role = Utils.GetRoleMap(pc.PlayerId, player.PlayerId).RoleType;
-            sender.StartRpc(player.NetId, (byte)RpcCalls.SetRole)
+            sender.StartRpc(player.NetId, RpcCalls.SetRole)
                 .Write((ushort)role)
                 .Write(true)
                 .EndRpc();
-            sender.StartRpc(player.NetId, (byte)RpcCalls.CancelPet)
+            sender.StartRpc(player.NetId, RpcCalls.CancelPet)
                 .EndRpc();
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(player.NetTransform.lastSequenceId + 32767))
                 .EndRpc();
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(player.NetTransform.lastSequenceId + 32767 + 16383))
                 .EndRpc();
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write(player.NetTransform.lastSequenceId)
                 .EndRpc();
-            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(player.NetTransform.lastSequenceId + 16383))
                 .EndRpc();
             sender.EndMessage();
             sender.SendMessage();
+
+            NumSnapToCallsThisRound += 4;
         }
 
         Logger.Info($"Reset invisibility for {player.GetNameWithRole()}", "RpcResetInvisibility");
@@ -2053,21 +2060,21 @@ internal static class ExtendedPlayerControl
         return self.protectedByGuardianId > -1;
     }
 
+    public static bool IsTrusted(this PlayerControl pc)
+    {
+        if (pc.FriendCode.GetDevUser().up) return true;
+
+        if (ChatCommands.IsPlayerModerator(pc.FriendCode)) return true;
+        if (ChatCommands.IsPlayerVIP(pc.FriendCode)) return true;
+        if (PrivateTagManager.Tags.ContainsKey(pc.FriendCode)) return true;
+        
+        ClientData client = pc.GetClient();
+        return client != null && FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);
+    }
+
     public static bool IsBeginner(this PlayerControl pc)
     {
-        if (pc.IsModdedClient()) return false;
-
-        DevManager.TagInfo devUser = pc.FriendCode.GetDevUser();
-        if (devUser.HasTag() || devUser.up) return false;
-
-        if (ChatCommands.IsPlayerModerator(pc.FriendCode)) return false;
-        if (ChatCommands.IsPlayerVIP(pc.FriendCode)) return false;
-
-        if (Main.GamesPlayed.TryGetValue(pc.FriendCode, out int gamesPlayed) && gamesPlayed >= 4) return false;
-
-        ClientData client = pc.GetClient();
-        if (client == null) return true;
-
-        return !FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);
+        if (pc.IsModdedClient() || pc.IsTrusted() || pc.FriendCode.GetDevUser().HasTag()) return false;
+        return !Main.GamesPlayed.TryGetValue(pc.FriendCode, out int gamesPlayed) || gamesPlayed < 4;
     }
 }

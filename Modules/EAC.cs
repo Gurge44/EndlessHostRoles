@@ -14,6 +14,7 @@ internal static class EAC
 {
     public static int DeNum;
     public static readonly HashSet<string> InvalidReports = [];
+    public static readonly Dictionary<byte, float> TimeSinceLastTaskCompletion = [];
 
     public static void WarnHost(int denum = 1)
     {
@@ -37,6 +38,7 @@ internal static class EAC
         if (pc == null || reader == null) return false;
 
         MessageReader sr = MessageReader.Get(reader);
+        bool gameStarted = AmongUsClient.Instance.GameState is InnerNetClient.GameStates.Started or InnerNetClient.GameStates.Ended;
         
         try
         {
@@ -67,7 +69,8 @@ internal static class EAC
                         text.Contains('█') ||
                         text.Contains('▌') ||
                         text.Contains('▒') ||
-                        text.Contains("习近平"))
+                        text.Contains("习近平") ||
+                        (!pc.IsModdedClient() && text.Length > 100))
                     {
                         Report(pc, "Illegal messages");
                         Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent an illegal message, which has been rejected", "EAC");
@@ -95,8 +98,6 @@ internal static class EAC
                     {
                         WarnHost();
                         Report(pc, "Try to Report body out of game B");
-                        HandleCheat(pc, "Try to Report body out of game B");
-                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] attempted to report a body that may have been illegally killed, but was rejected", "EAC");
                         sr.Recycle();
                         return true;
                     }
@@ -193,10 +194,23 @@ internal static class EAC
                         return true;
                     }
 
+                    byte colorId = sr.ReadByte();
+
+                    if (colorId > 17)
+                    {
+                        WarnHost();
+                        Report(pc, "Invalid color");
+                        HandleCheat(pc, "Invalid color");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent invalid color {colorId}, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
                     break;
                 }
                 case RpcCalls.SetColor when !pc.IsModdedClient() && (!Options.PlayerCanSetColor.GetBool() || !GameStates.IsLobby):
                 {
+                    WarnHost();
                     Report(pc, "Directly SetColor");
                     HandleCheat(pc, "Directly SetColor");
                     Logger.Fatal($"Directly SetColor【{pc.OwnerId}:{pc.GetRealName()}】has been rejected", "EAC");
@@ -220,6 +234,7 @@ internal static class EAC
                 case RpcCalls.MurderPlayer:
                 {
                     var target = sr.ReadNetObject<PlayerControl>();
+                    var resultFlags = (MurderResultFlags)sr.ReadInt32();
 
                     if (GameStates.IsLobby)
                     {
@@ -230,32 +245,57 @@ internal static class EAC
                         return true;
                     }
 
+                    if (!resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null)
+                        LateTask.New(() => target.RpcRevive(), 0.1f, log: false);
+
                     Report(pc, "Directly Murder Player");
                     HandleCheat(pc, "Directly Murder Player");
                     Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] directly killed, rejected", "EAC");
                     sr.Recycle();
-
-                    LateTask.New(() =>
-                    {
-                        foreach (PlayerControl player in new[] { pc, target })
-                        {
-                            if (player.IsAlive() && player.Data.IsDead)
-                                player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole);
-                        }
-                    }, 1f, "force revive after hack");
                     return true;
                 }
                 case RpcCalls.CheckShapeshift:
                 {
-                    if (GameStates.IsLobby)
+                    var target = sr.ReadNetObject<PlayerControl>();
+                    bool animate = sr.ReadBoolean();
+
+                    if (!gameStarted)
                     {
-                        Report(pc, "Lobby Check Shapeshift");
-                        HandleCheat(pc, "Lobby Check Shapeshift");
-                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] directly transformed in lobby, rejected", "EAC");
+                        WarnHost();
+                        Report(pc, "Using shift button in lobby");
+                        HandleCheat(pc, "Using shift button in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent CheckShapeshift in lobby, rejected", "EAC");
                         sr.Recycle();
                         return true;
                     }
 
+                    if (target != null && target != pc && !animate)
+                    {
+                        WarnHost();
+                        Report(pc, "No shapeshift animation");
+                        HandleCheat(pc, "No shapeshift animation");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent CheckShapeshift with no animation, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (pc.shapeshiftTargetPlayerId != -1 && target != null && target != pc)
+                    {
+                        WarnHost();
+                        Report(pc, "Shapeshifting while shapeshifted");
+                        HandleCheat(pc, "Shapeshifting while shapeshifted");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent CheckShapeshift while shapeshifted, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance) && target != pc)
+                    {
+                        WarnHost();
+                        Report(pc, "Trying to shift during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
                     break;
                 }
                 case RpcCalls.Shapeshift when !pc.IsHost():
@@ -283,13 +323,38 @@ internal static class EAC
                     sr.Recycle();
                     return true;
                 }
-                case RpcCalls.CompleteTask when GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost() && !(Main.CurrentMap == MapNames.Airship && ExileController.Instance):
+                case RpcCalls.CompleteTask:
                 {
-                    Report(pc, "Complete Task in Meeting");
-                    HandleCheat(pc, "Complete Task in Meeting");
-                    Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] completed a task in a meeting, which has been rejected", "EAC");
-                    sr.Recycle();
-                    return true;
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "CompleteTask Rpc in lobby");
+                        HandleCheat(pc, "CompleteTask Rpc in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent CompleteTask RPC in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (TimeSinceLastTaskCompletion.TryGetValue(pc.PlayerId, out float time) && time < 0.1f)
+                    {
+                        WarnHost();
+                        Report(pc, "Auto complete tasks");
+                        HandleCheat(pc, "Auto complete tasks");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent CompleteTask RPC too fast, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "Doing task during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    TimeSinceLastTaskCompletion[pc.PlayerId] = 0f;
+                    break;
                 }
                 case RpcCalls.SetStartCounter:
                 {
@@ -316,6 +381,292 @@ internal static class EAC
                         return true;
                     }
 
+                    break;
+                }
+                case RpcCalls.CheckVanish:
+                {
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "Using vanish button in lobby");
+                        HandleCheat(pc, "Using vanish button in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent CheckVanish in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "Trying to vanish during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    break;
+                }
+                case RpcCalls.CheckAppear:
+                {
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "Using appear button in lobby");
+                        HandleCheat(pc, "Using appear button in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to appear in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "Trying to appear during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    break;
+                }
+                case RpcCalls.PlayAnimation:
+                {
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "PlayAnimation Rpc in lobby");
+                        HandleCheat(pc, "PlayAnimation Rpc in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent PlayAnimation RPC in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (!GameManager.Instance.LogicOptions.GetVisualTasks())
+                    {
+                        WarnHost();
+                        Report(pc, "PlayAnimation Rpc with visuals off");
+                        HandleCheat(pc, "PlayAnimation Rpc with visuals off");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent PlayAnimation RPC with visuals off, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "PlayAnimation Rpc during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    break;
+                }
+                case RpcCalls.Exiled:
+                case RpcCalls.SetName:
+                case RpcCalls.StartMeeting:
+                case RpcCalls.SendChatNote:
+                case RpcCalls.SetRole:
+                case RpcCalls.ProtectPlayer:
+                case RpcCalls.UseZipline:
+                case RpcCalls.TriggerSpores:
+                case RpcCalls.RejectShapeshift:
+                {
+                    if (!pc.IsModdedClient())
+                    {
+                        WarnHost();
+                        Report(pc, "Invalid Rpc");
+                        HandleCheat(pc, "Invalid Rpc");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent invalid RPC {rpc}, rejected", "EAC");
+                    }
+
+                    sr.Recycle();
+                    return true;
+                }
+                case RpcCalls.SetScanner:
+                {
+                    if (!GameManager.Instance.LogicOptions.GetVisualTasks())
+                    {
+                        WarnHost();
+                        Report(pc, "SetScanner Rpc with visuals off");
+                        HandleCheat(pc, "SetScanner Rpc with visuals off");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent SetScanner RPC with visuals off, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (!sr.ReadBoolean()) break;
+
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "SetScanner Rpc in lobby");
+                        HandleCheat(pc, "SetScanner Rpc in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] sent SetScanner RPC in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "SetScanner Rpc during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (pc.IsImpostor())
+                    {
+                        WarnHost();
+                        Report(pc, "SetScanner Rpc as impostor");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (pc.myTasks.ToArray().All(x => x.TaskType != TaskTypes.SubmitScan))
+                    {
+                        WarnHost();
+                        Report(pc, "SetScanner Rpc without Submit Scan task");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    break;
+                }
+                case RpcCalls.UsePlatform:
+                {
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "Using platform in lobby");
+                        HandleCheat(pc, "Using platform in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to use platform in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (GameManager.Instance.LogicOptions.MapId != 4)
+                    {
+                        WarnHost();
+                        Report(pc, "Using platform on wrong map");
+                        HandleCheat(pc, "Using platform on wrong map");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to use platform on a map that does not have platforms, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (GameManager.Instance.TryCast<HideAndSeekManager>())
+                    {
+                        WarnHost();
+                        Report(pc, "Using platform in hide n seek");
+                        HandleCheat(pc, "Using platform in hide n seek");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to use platform in hide n seek, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "Using platform during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    break;
+                }
+                case RpcCalls.CheckProtect:
+                {
+                    var target = sr.ReadNetObject<PlayerControl>();
+
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "Using protect button in lobby");
+                        HandleCheat(pc, "Using protect button in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to protect in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (target != null && target == pc)
+                    {
+                        WarnHost();
+                        Report(pc, "Using protect button on self");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (target == null) break;
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "Trying to protect during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    break;
+                }
+                case RpcCalls.CheckZipline:
+                {
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "Using zipline in lobby");
+                        HandleCheat(pc, "Using zipline in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to use zipline in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (GameManager.Instance.LogicOptions.MapId < 5)
+                    {
+                        WarnHost();
+                        Report(pc, "Using zipline on wrong map");
+                        HandleCheat(pc, "Using zipline on wrong map");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to use zipline on a map that does not have ziplines, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "Using zipline during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    break;
+                }
+                case RpcCalls.CheckSpore:
+                {
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(pc, "Triggering spore in lobby");
+                        HandleCheat(pc, "Triggering spore in lobby");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to trigger spore in lobby, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if (GameManager.Instance.LogicOptions.MapId < 5)
+                    {
+                        WarnHost();
+                        Report(pc, "Triggering spore on wrong map");
+                        HandleCheat(pc, "Triggering spore on wrong map");
+                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] tried to trigger spore on a map that does not have spores, rejected", "EAC");
+                        sr.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(pc, "Triggering spore during meeting");
+                        sr.Recycle();
+                        return true;
+                    }
                     break;
                 }
             }
@@ -494,6 +845,7 @@ internal static class EAC
 
         var rpcType = (RpcCalls)callId;
         MessageReader subReader = MessageReader.Get(reader);
+        bool gameStarted = AmongUsClient.Instance.GameState is InnerNetClient.GameStates.Started or InnerNetClient.GameStates.Ended;
 
         try
         {
@@ -521,6 +873,26 @@ internal static class EAC
                 case RpcCalls.EnterVent:
                 case RpcCalls.ExitVent:
                 {
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(player, "Venting in lobby");
+                        HandleCheat(player, "Venting in lobby");
+                        Logger.Fatal($"【{player.OwnerId}:{player.GetRealName()}】 attempted to vent in lobby.", "EAC_physics");
+                        subReader.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(player, "Venting during meeting");
+                        HandleCheat(player, "Venting during meeting");
+                        Logger.Fatal($"【{player.OwnerId}:{player.GetRealName()}】 attempted to vent during a meeting.", "EAC_physics");
+                        subReader.Recycle();
+                        return true;
+                    }
+                    
                     int ventid = subReader.ReadPackedInt32();
 
                     if (!HasVent(ventid))
@@ -565,6 +937,34 @@ internal static class EAC
 
                 case RpcCalls.ClimbLadder:
                 {
+                    if (!gameStarted)
+                    {
+                        WarnHost();
+                        Report(player, "Climbing ladder in lobby");
+                        HandleCheat(player, "Climbing ladder in lobby");
+                        Logger.Fatal($"【{player.OwnerId}:{player.GetRealName()}】 attempted to climb a ladder in lobby.", "EAC_physics");
+                        subReader.Recycle();
+                        return true;
+                    }
+
+                    if (GameManager.Instance.LogicOptions.MapId < 4)
+                    {
+                        WarnHost();
+                        Report(player, "Climbing ladder on wrong map");
+                        HandleCheat(player, "Climbing ladder on wrong map");
+                        Logger.Fatal($"【{player.OwnerId}:{player.GetRealName()}】 attempted to climb a ladder on a map that does not have ladders.", "EAC_physics");
+                        subReader.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(player, "Climbing ladder during meeting");
+                        subReader.Recycle();
+                        return true;
+                    }
+                    
                     int ladderId = subReader.ReadPackedInt32();
 
                     if (!HasLadder(ladderId))
@@ -596,6 +996,27 @@ internal static class EAC
                     if (player.AmOwner)
                     {
                         Logger.Fatal("Got pet pet for myself, this is impossible", "EAC_physics");
+                        subReader.Recycle();
+                        return true;
+                    }
+
+                    goto case RpcCalls.CancelPet;
+                }
+
+                case RpcCalls.CancelPet:
+                {
+                    if (player.inVent)
+                    {
+                        WarnHost();
+                        Report(player, "Petting in vent");
+                        subReader.Recycle();
+                        return true;
+                    }
+
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    {
+                        WarnHost();
+                        Report(player, "Petting during meeting");
                         subReader.Recycle();
                         return true;
                     }
@@ -645,6 +1066,7 @@ internal static class EAC
         {
             case 0:
             {
+                if (pc.IsTrusted()) break;
                 AmongUsClient.Instance.KickPlayer(pc.OwnerId, true);
                 string msg0 = string.Format(GetString("Message.BannedByEAC"), pc.Data?.PlayerName, text);
                 Logger.Warn(msg0, "EAC");
@@ -653,6 +1075,7 @@ internal static class EAC
             }
             case 1:
             {
+                if (pc.IsTrusted()) break;
                 AmongUsClient.Instance.KickPlayer(pc.OwnerId, false);
                 string msg1 = string.Format(GetString("Message.KickedByEAC"), pc.Data?.PlayerName, text);
                 Logger.Warn(msg1, "EAC");
@@ -677,6 +1100,8 @@ internal static class EAC
             }
             case 5:
             {
+                if (pc.IsTrusted()) break;
+                
                 string hashedPuid = pc.GetClient().GetHashedPuid();
                 if (!BanManager.TempBanWhiteList.Contains(hashedPuid)) BanManager.TempBanWhiteList.Add(hashedPuid);
 
@@ -949,7 +1374,7 @@ internal static class CheckInvalidMovementPatch
 
     public static void Postfix(PlayerControl __instance)
     {
-        if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId >= 254 || !__instance.IsAlive() || __instance.inVent) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || !Main.IntroDestroyed || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId >= 254 || !__instance.IsAlive() || __instance.inVent) return;
 
         Vector2 pos = __instance.Pos();
         long now = Utils.TimeStamp;

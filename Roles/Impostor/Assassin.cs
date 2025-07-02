@@ -125,9 +125,25 @@ internal class Assassin : RoleBase
     {
         if (killer.IsShifted())
         {
-            killer.ResetKillCooldown();
-            killer.SyncSettings();
-            return CanUseKillButton(killer);
+            bool canUseKillButton = CanUseKillButton(killer);
+
+            if (canUseKillButton)
+            {
+                killer.ResetKillCooldown();
+                killer.SyncSettings();
+
+                if (Main.Invisible.Contains(killer.PlayerId) && !target.Is(CustomRoles.Bait))
+                {
+                    if (!killer.RpcCheckAndMurder(target, true)) return false;
+
+                    RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+                    target.Suicide(PlayerState.DeathReason.Swooped, killer);
+                    killer.SetKillCooldown();
+                    return false;
+                }
+            }
+
+            return canUseKillButton;
         }
 
         MarkedPlayer = target.PlayerId;

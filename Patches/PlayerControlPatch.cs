@@ -85,11 +85,34 @@ internal static class RpcMurderPlayerPatch
         if (AmongUsClient.Instance.AmClient)
             __instance.MurderPlayer(target, murderResultFlags);
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
-        messageWriter.WriteNetObject(target);
-        messageWriter.Write((int)murderResultFlags);
-        AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        var sender = CustomRpcSender.Create("RpcMurderPlayer", SendOption.Reliable);
 
+        if (Main.Invisible.Contains(target.PlayerId) && murderResultFlags == MurderResultFlags.Succeeded)
+        {
+            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(target.NetTransform.lastSequenceId + 16383))
+                .EndRpc();
+            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(target.NetTransform.lastSequenceId + 32767))
+                .EndRpc();
+            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+                .WriteVector2(new Vector2(50f, 50f))
+                .Write((ushort)(target.NetTransform.lastSequenceId + 32767 + 16383))
+                .EndRpc();
+            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+                .WriteVector2(target.transform.position)
+                .Write(target.NetTransform.lastSequenceId)
+                .EndRpc();
+        }
+
+        sender.AutoStartRpc(__instance.NetId, RpcCalls.MurderPlayer)
+            .WriteNetObject(target)
+            .Write((int)murderResultFlags)
+            .EndRpc();
+
+        sender.SendMessage();
         return false;
     }
 }
@@ -1176,6 +1199,8 @@ internal static class ReportDeadBodyPatch
             }
         }
 
+        EAC.TimeSinceLastTaskCompletion.Clear();
+
         Enigma.OnReportDeadBody(player, target);
         Mediumshiper.OnReportDeadBody(target);
         Mortician.OnReportDeadBody(player, target);
@@ -1274,7 +1299,10 @@ internal static class FixedUpdatePatch
         CheckMurderPatch.Update(__instance.PlayerId);
 
         if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
+        {
             CustomNetObject.FixedUpdate();
+            EAC.TimeSinceLastTaskCompletion.AdjustAllValues(f => f + Time.fixedDeltaTime);
+        }
 
         byte id = __instance.PlayerId;
 
@@ -1316,7 +1344,7 @@ internal static class FixedUpdatePatch
                 GhostRolesManager.AssignGhostRole(__instance);
         }
 
-        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
+        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !(__instance.IsHost() && __instance.IsLocalPlayer()) && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
         {
             int buffer = Options.DeepLowLoad.GetBool() ? 150 : 60;
             DeadBufferTime.TryAdd(id, buffer);

@@ -177,9 +177,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.KingOfTheZones:
-                case CustomGameMode.BedWars:
                     SetMaxVision();
                     break;
+                case CustomGameMode.BedWars:
+                    AURoleOptions.PhantomCooldown = 0.1f;
+                    goto case CustomGameMode.RoomRush;
                 case CustomGameMode.Quiz:
                     try
                     {

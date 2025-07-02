@@ -1037,9 +1037,7 @@ internal static class IntroCutsceneDestroyPatch
                             });
                         }, 2f, "FixKillCooldownTask");
                     }
-                    else Utils.SyncAllSettings();
                 }
-                else Utils.SyncAllSettings();
             }
 
             switch (Options.CurrentGameMode)
@@ -1191,6 +1189,7 @@ internal static class IntroCutsceneDestroyPatch
             if (AFKDetector.ActivateOnStart.GetBool()) LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
 
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, "NotifyEveryoneAsync On Game Start");
+            LateTask.New(Utils.SyncAllSettings, 0.5f, "SyncAllSettings On Game Start");
         }
         else
         {
