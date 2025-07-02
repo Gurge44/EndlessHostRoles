@@ -155,7 +155,7 @@ internal static class HotPotato
                 return;
             }
 
-            if (Utils.GameStartTimeStamp + 30 > now && LastPassTS == now) return;
+            if (LastPassTS == now) return;
 
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
             Vector2 pos = holder.Pos();
