@@ -536,7 +536,7 @@ public static class BedWars
 
                 bool hasUpgrades = Upgrades.TryGetValue(data.Team, out HashSet<Upgrade> upgrades);
 
-                if (!Mathf.Approximately(data.Health, MaxHealth) && data.LastHeal != now)
+                if (data.Health < MaxHealth && data.LastHeal != now)
                 {
                     bool healPool = hasUpgrades && upgrades.Contains(Upgrade.HealPool) && Vector2.Distance(pos, data.Base.BedPosition) <= HealPoolRange;
                     bool shouldRegen = data.LastDamage + HealWaitAfterDamage <= now;
@@ -546,6 +546,7 @@ public static class BedWars
                         if (healPool && shouldRegen) data.Health++;
                         data.Health++;
                         data.LastHeal = now;
+                        data.Health = Math.Min(data.Health, MaxHealth);
                         Utils.NotifyRoles(SpecifyTarget: __instance);
                         Logger.Info($"{__instance.GetRealName()}'s health: {data.Health}", "BedWars");
                     }
@@ -1396,7 +1397,9 @@ public static class BedWars
 
             if (SelectedSlot < 0 || SelectedSlot >= Items.Count)
             {
-                if (nextToBed) bed.Value.Bed.TryBreak(pc);
+                if (nextToBed && (bed.Key != data.Team || bed.Value.Bed.Layers.Count > 0))
+                    bed.Value.Bed.TryBreak(pc);
+                
                 return;
             }
             
@@ -1449,7 +1452,9 @@ public static class BedWars
                     data.Inventory.Adjust(selected.Key, -1);
                     break;
                 default:
-                    if (nextToBed) bed.Value.Bed.TryBreak(pc);
+                    if (nextToBed && (bed.Key != data.Team || bed.Value.Bed.Layers.Count > 0))
+                        bed.Value.Bed.TryBreak(pc);
+                    
                     break;
             }
         }
@@ -1621,6 +1626,7 @@ public static class BedWars
                 NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 Layers.RemoveAt(Layers.Count - 1);
+                data.Inventory.Adjust(topLayer, GetNextProtectReq());
                 UpdateStatus();
                 Breaking.Remove(pc.PlayerId);
                 if (Layers.Count == 0) Broken();
