@@ -270,11 +270,7 @@ public static class BedWars
     }
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
-    {
-        killer.KillFlash();
-        if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
-        ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
-        
+    {   
         if (GracePeriodEnd > Utils.TimeStamp || !Data.TryGetValue(killer.PlayerId, out PlayerData killerData) || !Data.TryGetValue(target.PlayerId, out PlayerData targetData) || killerData.Team == targetData.Team) return;
 
         if (AllNetObjects.Values.Any(x => x.Bed.Breaking.Contains(killer.PlayerId)))
@@ -640,6 +636,10 @@ public static class BedWars
 
             if (Health <= 0 && pc != null && pc.IsAlive())
             {
+                killer.KillFlash();
+                if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+                ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
+                
                 if (!AllNetObjects.TryGetValue(Team, out NetObjectCollection netObjectCollection) || !netObjectCollection.Bed.IsBroken)
                 {
                     if (killer != null && Data.TryGetValue(killer.PlayerId, out PlayerData killerData))
