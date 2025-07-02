@@ -1471,7 +1471,7 @@ public static class BedWars
 
                 var sb = new StringBuilder();
                 sb.Append(Utils.ColorString(display.Color, display.Icon.ToString()));
-                sb.Append("<sub> ");
+                sb.Append("<sub>");
                 sb.Append(count);
                 sb.Append("</sub>");
                 itemsDisplays.Add(sb.ToString());
