@@ -270,7 +270,7 @@ public static class BedWars
     }
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
-    {
+    {   
         if (GracePeriodEnd > Utils.TimeStamp || !Data.TryGetValue(killer.PlayerId, out PlayerData killerData) || !Data.TryGetValue(target.PlayerId, out PlayerData targetData) || killerData.Team == targetData.Team) return;
 
         if (AllNetObjects.Values.Any(x => x.Bed.Breaking.Contains(killer.PlayerId)))
@@ -294,6 +294,9 @@ public static class BedWars
         if (Upgrades.TryGetValue(killerData.Team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.Sharpness))
             damage *= 1.25f;
 
+        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+        RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
+        
         targetData.Damage(target, damage, killer);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
@@ -633,6 +636,10 @@ public static class BedWars
 
             if (Health <= 0 && pc != null && pc.IsAlive())
             {
+                killer.KillFlash();
+                if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+                ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
+                
                 if (!AllNetObjects.TryGetValue(Team, out NetObjectCollection netObjectCollection) || !netObjectCollection.Bed.IsBroken)
                 {
                     if (killer != null && Data.TryGetValue(killer.PlayerId, out PlayerData killerData))
@@ -671,6 +678,7 @@ public static class BedWars
             Health = MaxHealth;
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
             pc.RpcRevive();
             pc.RpcSetColor(Team.GetColorId());
             pc.TP(Base.SpawnPosition);
