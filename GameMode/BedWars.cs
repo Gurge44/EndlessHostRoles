@@ -271,6 +271,10 @@ public static class BedWars
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        killer.KillFlash();
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
+        ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
+        
         if (GracePeriodEnd > Utils.TimeStamp || !Data.TryGetValue(killer.PlayerId, out PlayerData killerData) || !Data.TryGetValue(target.PlayerId, out PlayerData targetData) || killerData.Team == targetData.Team) return;
 
         if (AllNetObjects.Values.Any(x => x.Bed.Breaking.Contains(killer.PlayerId)))
@@ -671,6 +675,7 @@ public static class BedWars
             Health = MaxHealth;
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
             pc.RpcRevive();
             pc.RpcSetColor(Team.GetColorId());
             pc.TP(Base.SpawnPosition);
