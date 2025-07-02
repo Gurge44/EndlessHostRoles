@@ -9676,6 +9676,7 @@
   "AGMR.RandomGroup.GMChance.KingOfTheZones": "Chance de selecionar Rei das Zonas",
   "AGMR.RandomGroup.GMChance.Quiz": "Chance de selecionar Quiz",
   "AGMR.RandomGroup.GMChance.TheMindGame": "Chance de selecionar o Jogo da Mente",
+  "AGMR.RandomGroup.GMChance.BedWars": "Chance of selecting Bed Wars",
   "AutoGMRotationStatusText": "<u>A ROTAÇÃO AUTOMÁTICA DE MODO DE JOGO ESTÁ ATIVADA!</u>",
   "AutoGMRotationStatusText.NextGM": "Próximo",
   "AutoGMRotationStatusText.GMPoll": "Voto do Jogador (/gmpoll)",
