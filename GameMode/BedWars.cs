@@ -298,6 +298,9 @@ public static class BedWars
         if (Upgrades.TryGetValue(killerData.Team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.Sharpness))
             damage *= 1.25f;
 
+        RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
+        RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
+        
         targetData.Damage(target, damage, killer);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
