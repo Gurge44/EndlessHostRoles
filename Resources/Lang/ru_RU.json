@@ -9676,6 +9676,7 @@
   "AGMR.RandomGroup.GMChance.KingOfTheZones": "Шанс выбора Горячей Зоны",
   "AGMR.RandomGroup.GMChance.Quiz": "Шанс выбора Викторины",
   "AGMR.RandomGroup.GMChance.TheMindGame": "Шанс выбора Игр Разума",
+  "AGMR.RandomGroup.GMChance.BedWars": "Chance of selecting Bed Wars",
   "AutoGMRotationStatusText": "<u>ВКЛЮЧЕНА АВТОМАТИЧЕСКАЯ СМЕНА РЕЖИМОВ ИГРЫ!</u>",
   "AutoGMRotationStatusText.NextGM": "Следующий",
   "AutoGMRotationStatusText.GMPoll": "Игроки голосуют (/gmpoll)",
