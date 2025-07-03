@@ -3572,7 +3572,7 @@
   "WhispererInfoLong": "(Crewmates):\\nAs the Whisperer, you can ask the souls of dead players for information. You'll see the souls of the players who have died (after the next meeting) and can question them by petting on them. You have to stay near the soul for a few seconds. You then get random details on the soul or the killer shown below your name.",
   "WhispererCooldown": "Questioning Cooldown",
   "WhispererDuration": "Questioning Duration",
-  "WhispererInfo.Color": "A {0} color killed me (<size=50%>{1}</color>)",
+  "WhispererInfo.Color": "A {0} color killed me\\n(<size=50%>{1}</color>)",
   "WhispererInfo.ColorDark": "<#555555>darker</color>",
   "WhispererInfo.ColorLight": "<#fdffbf>lighter</color>",
   "WhispererInfo.Time": "I died {0} seconds before the meeting started",
