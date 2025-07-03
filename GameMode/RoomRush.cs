@@ -66,42 +66,31 @@ public static class RoomRush
             [(SystemTypes.Balcony, SystemTypes.Comms)] = 2,
             [(SystemTypes.Storage, SystemTypes.MedBay)] = 3,
             [(SystemTypes.Cafeteria, SystemTypes.MedBay)] = 2,
-            [(SystemTypes.Balcony, SystemTypes.MedBay)] = 3,
-            [(SystemTypes.Storage, SystemTypes.LockerRoom)] = 2,
-            [(SystemTypes.Balcony, SystemTypes.LockerRoom)] = 2
+            [(SystemTypes.Balcony, SystemTypes.MedBay)] = 2,
+            [(SystemTypes.Storage, SystemTypes.LockerRoom)] = 2
         },
         [MapNames.Polus] = new()
         {
-            [(SystemTypes.Laboratory, SystemTypes.Comms)] = 2,
-            [(SystemTypes.Laboratory, SystemTypes.Admin)] = 2,
             [(SystemTypes.Storage, SystemTypes.Comms)] = 2,
             [(SystemTypes.Storage, SystemTypes.Office)] = 2,
             [(SystemTypes.Storage, SystemTypes.Admin)] = 2,
             [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.Security, SystemTypes.Comms)] = 2,
-            [(SystemTypes.Security, SystemTypes.Electrical)] = 2,
             [(SystemTypes.Office, SystemTypes.Specimens)] = 2,
             [(SystemTypes.Comms, SystemTypes.Electrical)] = 2
         },
         [MapNames.Airship] = new()
         {
-            [(SystemTypes.MainHall, SystemTypes.GapRoom)] = 2,
-            [(SystemTypes.MainHall, SystemTypes.Kitchen)] = 2,
             [(SystemTypes.Showers, SystemTypes.CargoBay)] = 2,
-            [(SystemTypes.Showers, SystemTypes.Electrical)] = 2,
             [(SystemTypes.Showers, SystemTypes.Medical)] = 2,
             [(SystemTypes.Comms, SystemTypes.VaultRoom)] = 2,
-            [(SystemTypes.GapRoom, SystemTypes.Records)] = 3,
-            [(SystemTypes.GapRoom, SystemTypes.Lounge)] = 3,
-            [(SystemTypes.GapRoom, SystemTypes.Brig)] = 3,
-            [(SystemTypes.GapRoom, SystemTypes.VaultRoom)] = 3,
-            [(SystemTypes.GapRoom, SystemTypes.Engine)] = 2,
             [(SystemTypes.MeetingRoom, SystemTypes.Records)] = 5,
             [(SystemTypes.MeetingRoom, SystemTypes.Lounge)] = 3,
             [(SystemTypes.MeetingRoom, SystemTypes.MainHall)] = 2,
             [(SystemTypes.MeetingRoom, SystemTypes.CargoBay)] = 2,
             [(SystemTypes.MeetingRoom, SystemTypes.Showers)] = 2,
             [(SystemTypes.Engine, SystemTypes.Security)] = 2,
+            [(SystemTypes.Engine, SystemTypes.HallOfPortraits)] = 2,
             [(SystemTypes.MainHall, SystemTypes.Security)] = 2
         },
         [MapNames.Fungle] = new()
@@ -109,24 +98,11 @@ public static class RoomRush
             [(SystemTypes.Lookout, SystemTypes.SleepingQuarters)] = 3,
             [(SystemTypes.Lookout, SystemTypes.MeetingRoom)] = 2,
             [(SystemTypes.Lookout, SystemTypes.Storage)] = 3,
-            [(SystemTypes.Lookout, SystemTypes.Dropship)] = 2,
-            [(SystemTypes.Lookout, SystemTypes.FishingDock)] = 2,
-            [(SystemTypes.Lookout, SystemTypes.RecRoom)] = 2,
-            [(SystemTypes.Lookout, SystemTypes.Kitchen)] = 2,
-            [(SystemTypes.Lookout, SystemTypes.Cafeteria)] = 2,
-            [(SystemTypes.MiningPit, SystemTypes.SleepingQuarters)] = 3,
+            [(SystemTypes.MiningPit, SystemTypes.SleepingQuarters)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.MeetingRoom)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.Storage)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.Dropship)] = 2,
-            [(SystemTypes.MiningPit, SystemTypes.FishingDock)] = 2,
-            [(SystemTypes.MiningPit, SystemTypes.RecRoom)] = 2,
-            [(SystemTypes.MiningPit, SystemTypes.Kitchen)] = 2,
-            [(SystemTypes.MiningPit, SystemTypes.Cafeteria)] = 2,
-            [(SystemTypes.MiningPit, SystemTypes.Comms)] = 2,
-            [(SystemTypes.SleepingQuarters, SystemTypes.Greenhouse)] = 2,
-            [(SystemTypes.SleepingQuarters, SystemTypes.Storage)] = 2,
-            [(SystemTypes.RecRoom, SystemTypes.Kitchen)] = 2,
-            [(SystemTypes.RecRoom, SystemTypes.Cafeteria)] = 2
+            [(SystemTypes.MiningPit, SystemTypes.Comms)] = 2
         }
     };
 
@@ -359,15 +335,13 @@ public static class RoomRush
 
         if (involvesDecontamination)
         {
-            bool polus = map == MapNames.Polus;
-
             int decontaminationTime = Options.ChangeDecontaminationTime.GetBool()
-                ? polus
+                ? map == MapNames.Polus
                     ? Options.DecontaminationTimeOnPolus.GetInt() + Options.DecontaminationDoorOpenTimeOnPolus.GetInt()
                     : Options.DecontaminationTimeOnMiraHQ.GetInt() + Options.DecontaminationDoorOpenTimeOnMiraHQ.GetInt()
                 : 6;
 
-            time += decontaminationTime + (polus ? 3 : 6);
+            time += decontaminationTime + 3;
         }
 
         switch (map)
@@ -378,16 +352,26 @@ public static class RoomRush
             case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens and not SystemTypes.Office) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
                 time -= (int)(5 * speed);
                 break;
+            case MapNames.Airship when previous == SystemTypes.GapRoom:
+                time *= RoomGoal switch
+                {
+                    SystemTypes.MeetingRoom => 6,
+                    SystemTypes.Brig or SystemTypes.VaultRoom or SystemTypes.Records or SystemTypes.Showers or SystemTypes.Lounge => 3,
+                    SystemTypes.Engine or SystemTypes.CargoBay or SystemTypes.Medical => 2,
+                    _ => 1
+                };
+                break;
         }
 
-        time = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6);
+        var maxTime = (int)Math.Ceiling(32 / speed);
+        time = Math.Clamp((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6, maxTime);
         TimeLimitEndTS = Utils.TimeStamp + time;
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {time}  ({map})", "RoomRush");
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
         Utils.NotifyRoles();
-        Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
+        LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 0.1f, log: false);
 
         if (WinByPointsInsteadOfDeaths.GetBool())
         {
@@ -524,7 +508,8 @@ public static class RoomRush
                 if (pc.IsAlive() && !pc.inMovingPlat && !pc.inVent && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
                 {
                     Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
-                    pc.Notify($"{DonePlayers.Count}.", 2f);
+                    pc.Notify($"<size=100%>{DonePlayers.Count}.</size>", 2f);
+                    if (pc.IsLocalPlayer()) Utils.DirtyName.Add(pc.PlayerId);
 
                     if (WinByPointsInsteadOfDeaths.GetBool())
                         Points[pc.PlayerId] += aapc.Length == 1 ? 1 : aapc.Length - DonePlayers.Count;
