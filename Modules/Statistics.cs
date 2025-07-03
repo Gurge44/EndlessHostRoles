@@ -24,6 +24,8 @@ public static class Statistics
             PlayerControl[] apc = Main.AllPlayerControls;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
+            WinCountsForOutro = string.Empty;
+
             if (CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw or CustomWinner.Error || apc.Length <= MinPlayers) return;
 
             PlayerControl lp = PlayerControl.LocalPlayer;
@@ -33,8 +35,6 @@ public static class Statistics
             bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || (CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust));
 
             CustomGameMode gm = Options.CurrentGameMode;
-
-            WinCountsForOutro = string.Empty;
 
             if (gm != CustomGameMode.Standard)
             {

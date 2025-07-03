@@ -782,7 +782,7 @@ public class Main : BasePlugin
 
         PrivateTagManager.LoadTagsFromFile();
 
-        Harmony.PatchAll();
+        Harmony.PatchAll(Assembly.GetExecutingAssembly());
 
         if (!DebugModeManager.AmDebugger)
             ConsoleManager.DetachConsole();

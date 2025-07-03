@@ -1586,7 +1586,11 @@ public static class Utils
             return;
         }
 
-        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+        if (Options.CurrentGameMode != CustomGameMode.Standard)
+        {
+            if (Statistics.WinCountsForOutro.Length > 0) SendMessage("\n", playerId, $"<size=80%>{Statistics.WinCountsForOutro}</size>");
+            return;
+        }
 
         StringBuilder sb = new();
         if (SetEverythingUpPatch.LastWinsText != string.Empty) sb.Append($"<size=90%>{GetString("LastResult")} {SetEverythingUpPatch.LastWinsText}</size>");
@@ -2895,7 +2899,8 @@ public static class Utils
                             }
 
                             var targetDeathReason = string.Empty;
-                            if (seer.KnowDeathReason(target) && !GameStates.IsLobby) targetDeathReason = $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>";
+                            string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && GameStates.InGame) ? "\r\n" : " - ";
+                            if (seer.KnowDeathReason(target) && !GameStates.IsLobby) targetDeathReason = $"{newLineBeforeSuffix}<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>";
 
                             // Devourer
                             if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)) && !camouflageIsForMeeting)
@@ -2908,7 +2913,7 @@ public static class Utils
                                 targetPlayerName = EmptyMessage;
 
                             var targetName = $"{targetRoleText}{targetPlayerName}{targetDeathReason}{TargetMark}";
-                            targetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{TargetSuffix}";
+                            targetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"{newLineBeforeSuffix}{TargetSuffix}";
 
                             targetName = targetName.Trim().Replace("color=", "").Replace("<#ffffff><#ffffff>", "<#ffffff>");
                             if (targetName.EndsWith("</size>")) targetName = targetName.Remove(targetName.Length - 7);

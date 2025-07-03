@@ -26,10 +26,10 @@ public static class AntiBlackout
         if (CheckForEndVotingPatch.TempExiledPlayer != null) players = players.Where(x => x.PlayerId != CheckForEndVotingPatch.TempExiledPlayer.PlayerId).ToArray();
         PlayerControl dummyImp = players.MinBy(x => x.PlayerId);
 
-        // There are only 2 players alive. We need to revive 1 dead player to have 2 living crewmates.
         if (players.Length == 2)
         {
-            PlayerControl revived = Main.AllPlayerControls.Where(x => !x.IsAlive() && !x.Data.Disconnected && x.PlayerId != CheckForEndVotingPatch.TempExiledPlayer?.PlayerId).MinBy(x => x.PlayerId);
+            // There are only 2 players alive. We need to revive 1 dead player to have 2 living crewmates.
+            PlayerControl revived = Main.AllPlayerControls.Where(x => !x.IsAlive() && !x.Data.Disconnected && x != CheckForEndVotingPatch.TempExiledPlayer?.Object).MaxBy(x => x.PlayerId);
 
             // The black screen cannot be prevented if there are no players to revive in this case.
             if (revived == null)

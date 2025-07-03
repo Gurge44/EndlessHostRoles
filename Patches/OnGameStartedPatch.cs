@@ -155,7 +155,8 @@ internal static class ChangeRoleSettings
 
         try
         {
-            if (Options.CurrentGameMode == CustomGameMode.BedWars) Options.UsePets.SetValue(1);
+            if (Options.CurrentGameMode == CustomGameMode.BedWars)
+                Options.UsePets.SetValue(1);
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
@@ -172,7 +173,11 @@ internal static class ChangeRoleSettings
                 RoleTypes.Tracker
             }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
-            if (Main.NormalOptions.MapId > 5) Logger.SendInGame(GetString("UnsupportedMap"));
+            if (Main.NormalOptions.MapId > 5)
+            {
+                Logger.SendInGame(GetString("UnsupportedMap"));
+                ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
+            }
 
             Utils.GameStartTimeStamp = Utils.TimeStamp;
 

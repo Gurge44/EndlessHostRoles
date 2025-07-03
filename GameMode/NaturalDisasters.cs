@@ -203,6 +203,20 @@ public static class NaturalDisasters
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
 
+            if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
+            {
+                (int minimumWaitTime, bool shouldWait) = Options.CurrentGameMode switch
+                {
+                    CustomGameMode.BedWars => (30, BedWars.IsGracePeriod),
+                    CustomGameMode.HideAndSeek => (0, CustomHnS.IsBlindTime),
+                    CustomGameMode.KingOfTheZones => (0, !KingOfTheZones.GameGoing),
+                    CustomGameMode.RoomRush => (40, false),
+                    _ => (0, false)
+                };
+
+                if (shouldWait || GameStartTimeStamp + minimumWaitTime > Utils.TimeStamp) return;
+            }
+            
             UpdatePreparingDisasters();
 
             ActiveDisasters.ToArray().Do(x => x.Update());

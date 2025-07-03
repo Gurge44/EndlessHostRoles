@@ -53,7 +53,17 @@ public static class FixedUpdateCaller
             {
                 if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
                 {
-                    List<PlayerControl> players = PlayerControl.LocalPlayer.GetPlayersInAbilityRangeSorted();
+                    Predicate<PlayerControl> predicate = AmongUsClient.Instance.AmHost
+                        ? Options.CurrentGameMode switch
+                        {
+                            CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
+                            CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
+                            CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
+                            _ => _ => true
+                        }
+                        : _ => true;
+
+                    List<PlayerControl> players = PlayerControl.LocalPlayer.GetPlayersInAbilityRangeSorted(predicate);
                     PlayerControl closest = players.Count == 0 ? null : players[0];
 
                     KillButton killButton = hudManager.KillButton;

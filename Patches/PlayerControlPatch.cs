@@ -1581,7 +1581,7 @@ internal static class FixedUpdatePatch
 
         bool self = lpId == __instance.PlayerId;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz;
+        bool shouldUpdateRegardlessOfLowLoad = self && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now) || DirtyName.Remove(lpId)) && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz;
 
         if (roleText == null || __instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 
@@ -1878,10 +1878,11 @@ internal static class FixedUpdatePatch
             if (!self && Options.CurrentGameMode == CustomGameMode.KingOfTheZones && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                 realName = EmptyMessage;
 
-            string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
-
+            string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\r\n" : " - ";
+            string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
+            
             string currentText = target.cosmetics.nameText.text;
-            var changeTo = $"{realName}{deathReason}{Mark}\r\n{Suffix}";
+            var changeTo = $"{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
             bool needUpdate = currentText != changeTo;
 
             if (needUpdate)

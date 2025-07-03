@@ -295,6 +295,8 @@ public static class CaptureTheFlag
         
         Main.AllPlayerKillCooldown.SetAllValues(TagCooldown.GetFloat());
 
+        yield return new WaitForSecondsRealtime(3f);
+
         // Assign players to teams
         List<PlayerControl> players = Main.AllAlivePlayerControls.Shuffle().ToList();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
@@ -322,7 +324,7 @@ public static class CaptureTheFlag
             yield return null;
         }
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(0.5f);
 
         // Create flags
         (Vector2 Position, string RoomName) blueFlagBase = BlueFlagBase;
@@ -472,6 +474,11 @@ public static class CaptureTheFlag
     public static void ApplyGameOptions()
     {
         AURoleOptions.PhantomCooldown = 5f;
+    }
+
+    public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
+    {
+        return !PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CTFTeam lpTeam) || team != lpTeam;
     }
 
     private static void SendRPC()

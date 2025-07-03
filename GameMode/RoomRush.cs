@@ -387,6 +387,7 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
         Utils.NotifyRoles();
+        Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
 
         if (WinByPointsInsteadOfDeaths.GetBool())
         {

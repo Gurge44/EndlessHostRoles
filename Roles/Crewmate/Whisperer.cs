@@ -223,7 +223,6 @@ public class Whisperer : RoleBase
             case 4:
                 Info.Add(reader.ReadString());
                 if (Info.Count > 5) Info.RemoveAt(0);
-
                 break;
             case 5:
                 Souls.Add(new(reader.ReadByte().GetPlayer()));
@@ -235,7 +234,7 @@ public class Whisperer : RoleBase
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != WhispererId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
-        return "<size=70%>" + string.Join('\n', Info) + (CurrentlyQuestioning.Percent > 0 ? string.Format(Translator.GetString("WhispererQuestioning"), CurrentlyQuestioning.Name, CurrentlyQuestioning.Percent) : string.Empty) + "</size>";
+        return "<size=70%>" + string.Join('\n', Info) + (CurrentlyQuestioning.Percent > 0 ? "\n" + string.Format(Translator.GetString("WhispererQuestioning"), CurrentlyQuestioning.Name, CurrentlyQuestioning.Percent) : string.Empty) + "</size>";
     }
 
     private class Soul(PlayerControl player)

@@ -290,7 +290,7 @@ public static class KingOfTheZones
     {
         if (Options.CurrentGameMode != CustomGameMode.KingOfTheZones) yield break;
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSecondsRealtime(3f);
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Length / 2;
@@ -586,12 +586,15 @@ public static class KingOfTheZones
         switch (aapc.Length)
         {
             case 0:
+            {
                 ResetSkins();
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 CustomWinnerHolder.WinnerIds = Main.PlayerStates.Keys.ToHashSet();
                 reason = GameOverReason.CrewmateDisconnect;
                 return true;
+            }
             case 1:
+            {
                 ResetSkins();
                 KOTZTeam winner = PlayerTeams[aapc[0].PlayerId];
                 Color color = winner.GetColor();
@@ -599,11 +602,29 @@ public static class KingOfTheZones
                 WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{winner}")));
                 SendRPC();
                 return true;
+            }
             default:
+            {
+                if (Options.IntegrateNaturalDisasters.GetBool() && Enum.GetValues<KOTZTeam>().FindFirst(x => Main.AllAlivePlayerControls.All(p => PlayerTeams[p.PlayerId] == x), out KOTZTeam team))
+                {
+                    ResetSkins();
+                    Color color = team.GetColor();
+                    CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == team).Select(x => x.Key).ToHashSet();
+                    WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{team}")));
+                    SendRPC();
+                    return true;
+                }
+                
                 return WinnerData.Team != "No one wins";
+            }
         }
 
         void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+    }
+
+    public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
+    {
+        return !PlayerTeams.TryGetValue(pc.PlayerId, out KOTZTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out KOTZTeam lpTeam) || team != lpTeam;
     }
 
     private static void SendRPC()
