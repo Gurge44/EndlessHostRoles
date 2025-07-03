@@ -3572,7 +3572,7 @@
   "WhispererInfoLong": "(<color=#8cffff>クルーメイト</color>):\\n<size=75%>ウィスパーとして、あなたは 情報のために 死んだプレイヤーの魂に尋ねることができます。\\nあなたは 死んだ誰かのプレイヤーの魂を見ることができ (次の会議後) そして 彼の上で ペットを撫でることによって 彼に質問ができます。\\nあなたは 数秒間 魂の近くで留まりましょう。\\nあなたはそれから 魂の上で ランダムな詳細 または あなたの名前の下に表示される殺人犯を取得できます。</size>",
   "WhispererCooldown": "質問のクールダウン",
   "WhispererDuration": "質問の待機時間",
-  "WhispererInfo.Color": "{0}色が 私を殺害した (<size=50%>{1}</color>)",
+  "WhispererInfo.Color": "A {0} color killed me\\n(<size=50%>{1}</color>)",
   "WhispererInfo.ColorDark": "<#555555>暗い</color>",
   "WhispererInfo.ColorLight": "<#fdffbf>明るい</color>",
   "WhispererInfo.Time": "私は 会議が開始した {0}秒前に死亡しました",
