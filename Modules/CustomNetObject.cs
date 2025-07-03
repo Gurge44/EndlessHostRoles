@@ -138,7 +138,7 @@ namespace EHR
             {
                 var sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
 
-                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.GetClientId())
+                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.OwnerId)
                     .WriteNetObject(playerControl)
                     .Write(false)
                     .EndRpc();
@@ -149,7 +149,7 @@ namespace EHR
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(6);
             writer.Write(AmongUsClient.Instance.GameId);
-            writer.WritePacked(player.GetClientId());
+            writer.WritePacked(player.OwnerId);
             writer.StartMessage(5);
             writer.WritePacked(playerControl.NetId);
             writer.EndMessage();
@@ -303,7 +303,7 @@ namespace EHR
                 {
                     var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable, log: false);
                     MessageWriter writer = sender.stream;
-                    sender.StartMessage(pc.GetClientId());
+                    sender.StartMessage(pc.OwnerId);
                     writer.StartMessage(1);
                     {
                         writer.WritePacked(playerControl.NetId);
