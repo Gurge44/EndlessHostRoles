@@ -3572,7 +3572,7 @@
   "WhispererInfoLong": "(Tripulantes):\\nComo o Sussurrador, você pode pedir informações às almas dos jogadores mortos. Você verá as almas dos jogadores que morreram (após a próxima reunião) e poderá questioná-las acariciando seu pet sobre elas. Você precisa ficar perto da alma por alguns segundos. Em seguida, você receberá detalhes aleatórios sobre a alma ou o assassino, exibidos abaixo do seu nome.",
   "WhispererCooldown": "Recarga para Perguntar",
   "WhispererDuration": "Duração da Pergunta",
-  "WhispererInfo.Color": "A cor {0} me matou (<size=50%>{1}</color>)",
+  "WhispererInfo.Color": "A {0} color killed me\\n(<size=50%>{1}</color>)",
   "WhispererInfo.ColorDark": "<#555555>Escuro</color>",
   "WhispererInfo.ColorLight": "<#fdffbf>Claro</color>",
   "WhispererInfo.Time": "Eu morri {0} segundos antes do início da reunião",
