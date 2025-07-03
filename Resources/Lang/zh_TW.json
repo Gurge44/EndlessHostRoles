@@ -3572,7 +3572,7 @@
   "WhispererInfoLong": "(船員陣營):\\n招魂師可以看到上一輪會議死去玩家的靈魂，靠近並撫摸寵物進行招魂，之後你會看到你的名字下方顯示關於靈魂或兇手的信息。",
   "WhispererCooldown": "招魂冷卻時間",
   "WhispererDuration": "招魂持續時間",
-  "WhispererInfo.Color": "是 {0} 的玩家殺死了我 (<size=50%>{1}</color>)",
+  "WhispererInfo.Color": "A {0} color killed me\\n(<size=50%>{1}</color>)",
   "WhispererInfo.ColorDark": "<#555555>深色</color>",
   "WhispererInfo.ColorLight": "<#fdffbf>淺色</color>",
   "WhispererInfo.Time": "我死在會議前 {0} 秒",
