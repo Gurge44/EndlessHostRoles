@@ -9676,7 +9676,7 @@
   "AGMR.RandomGroup.GMChance.KingOfTheZones": "选择山丘之王的概率",
   "AGMR.RandomGroup.GMChance.Quiz": "选择测验的概率",
   "AGMR.RandomGroup.GMChance.TheMindGame": "选择心理游戏的概率",
-  "AGMR.RandomGroup.GMChance.BedWars": "Chance of selecting Bed Wars",
+  "AGMR.RandomGroup.GMChance.BedWars": "选择起床战争的概率",
   "AutoGMRotationStatusText": "<u>自动轮换游戏模式已启用！</u>",
   "AutoGMRotationStatusText.NextGM": "下一个",
   "AutoGMRotationStatusText.GMPoll": "玩家投票 (/gmpoll)",
