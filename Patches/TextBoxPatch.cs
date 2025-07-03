@@ -311,14 +311,14 @@ public static class TextBoxPatch
         return false;
     }
 
-    [HarmonyPatch(nameof(TextBoxTMP.IsCharAllowed))]
+    /*[HarmonyPatch(nameof(TextBoxTMP.IsCharAllowed))]
     [HarmonyPrefix]
     public static bool IsCharAllowedPatch(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
     {
         if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
         __result = i is not '\b' and not '\n' and not '\r';
         return false;
-    }
+    }*/
 
     // Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
     [HarmonyPatch(nameof(TextBoxTMP.SetText))]
