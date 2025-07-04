@@ -1528,7 +1528,7 @@
   "EveryOneKnowSuperStar": "所有人知道誰是<color=#f6f657>大明星</color>",
   "ImpKnowSuperStarDead": "<color=#ff1919>Impostors</color> know when the <color=#f6f657>Super Star</color> dies",
   "NeutralKnowSuperStarDead": "<color=#ffab1b>Neutrals</color> know when the <color=#f6f657>Super Star</color> dies",
-  "CovenKnowSuperStarDead": "<color=#7b3fbb>Coven</color> know when the <color=#f6f657>Super Star</color> dies",
+  "CovenKnowSuperStarDead": "<color=#7b3fbb>巫師陣營</color>知道<color=#f6f657>大明星</color>死亡",
   "HackLimit": "能力使用次數上限",
   "ZombieSpeedReduce": "<color=#ff1919>殭屍</color>每次減少的移動速度",
   "MafiaCanKillNum": "復仇次數上限",
