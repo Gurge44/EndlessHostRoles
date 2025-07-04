@@ -762,7 +762,7 @@
   "UndercoverInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%><#ff1919>インポスター</color>は 内密者が誰であるかを知っており 彼を仲間とみなしますが、内密者自身は <#ff1919>インポスター</color>が誰であるかを知りません。</size>",
   "NiceGuesserInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>ナイスゲッサーは 会議中にプレイヤーの役割を推測できます。\\n正しい推測結果だと ターゲットを殺害でき、1つ間違えると 自殺に繋がります。\\n使用コマンドは <b>/bt [プレイヤー ID] [役割名]</b> で推測します。\\nあなたは 彼らの名前の前で プレイヤーIDを見ることでき もしくは <b>/id</b> コマンドを使用してください。</size>",
   "SwordsManInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>自警団員は 1度のみですが、誰でも殺害できます。\\n殺害後、自警団員は タスクを行うことができます。\\n設定に依存して、自警団員は 通気口ができます。</size>",
-  "TransporterInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>トランスポーターは 2人のランダムプレイヤーを交換します; もし 十分なプレイヤーがいない場合 無視されます。\\nベントのプレイヤーは選択されません。</size>",
+  "TransporterInfoLong": "(Crewmates):\\nAs the Transporter, after you finish tasks, you can use the shapeshift menu to select 2 targets to swap their locations.",
   "TimeManagerInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>タイムマネージャーは 会議時間を増加させます。\\n死亡したとき、会議時間は 通常に戻されます。\\nもし <#ff1919>マッドメイト</color>になると、スキルが変化し 会議時間を減少させます。</size>",
   "VeteranInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>ベテランは 通気口に入る/ペットを撫でる ことにより 警戒状態に入ることができます。\\nもし 警戒したときに 攻撃された場合、ベテランは代わりに 殺害犯を殺します。</size>",
   "CopyCatInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=75%>コピーキャットとして、あなたのキルボタンを使用して ターゲットの役割をコピーできます。\\n\\nあなたは 一部の<#8cffff>クルーメイト</color>役割の コピーのみをできます。\\nホストの設定によって 非<#8cffff>クルー</color> または <#990000>ラスカル</color>の コピーを試した場合 代わりに彼らを殺す場合があります。\\n\\nさらに、あなたは推測へのアクセスを持てず、ホストがセットした 一定回数のミスコピーをした後に あなたは自殺します。</size>",
