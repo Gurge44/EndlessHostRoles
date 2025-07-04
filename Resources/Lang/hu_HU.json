@@ -762,7 +762,7 @@
   "UndercoverInfoLong": "(Legénység):\\nAz imposztorok tudják, ki vagy, és csapattársként látnak, de te nem tudod, kik az imposztorok.",
   "NiceGuesserInfoLong": "(Legénység):\\nA tárgyalás alatt megtippelheted egy játékos szerepét. Ha helyes a tipp, a célpont meghal, ha helytelen, te halsz meg. Használd a /bt [játékos id] [szerep] parancsot. A játékosok ID-jét a nevük előtt láthatod, vagy használd a /id parancsot.",
   "SwordsManInfoLong": "(Crewmates):\\nVigilante can kill anyone, but only once. After killing, Vigilante can do tasks. Depending on settings, Vigilante can vent.",
-  "TransporterInfoLong": "(Legénység):\\nKét véletlenszerű játékost cserél meg. Ha nincs elég játékos, nem történik semmi. A szellőzőben lévő játékosokat nem választja ki.",
+  "TransporterInfoLong": "(Crewmates):\\nAs the Transporter, after you finish tasks, you can use the shapeshift menu to select 2 targets to swap their locations.",
   "TimeManagerInfoLong": "(Legénység):\\nMegnöveli a tárgyalási időt. Ha meghal, az idő visszaáll normálisra. Ha Madmate lesz, a képessége az idő csökkentésére változik.",
   "VeteranInfoLong": "(Legénység):\\nA szellőzőbe lépve vagy a kisállatát megsimogatva aktiválhatja az éberségi állapotot. Ha ebben az állapotban megtámadják, a gyilkost öli meg helyette.",
   "CopyCatInfoLong": "(Legénység):\\nA gyilkos gombbal lemásolhatod a célpont szerepét.\\n\\nCsak bizonyos Crewmate szerepeket másolhatsz.\\nA játékvezető beállításaitól függ, hogy ha nem-Crewmate-et vagy Rascal szerepet próbálsz másolni, megölöd-e a célpontot.\\n\\nNem tudsz tippelni a tárgyalások alatt, és ha egy bizonyos számút helytelenül másolsz, öngyilkosságot követsz el.",
