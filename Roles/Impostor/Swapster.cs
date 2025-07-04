@@ -22,6 +22,11 @@ internal class Swapster : RoleBase
         On = true;
     }
 
+    public override void Remove(byte playerId)
+    {
+        FirstSwapTarget.Remove(playerId);
+    }
+
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swapster);
@@ -53,5 +58,10 @@ internal class Swapster : RoleBase
             FirstSwapTarget[swapster.PlayerId] = target.PlayerId;
 
         return false;
+    }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("BountyHunterChangeButtonText"));
     }
 }

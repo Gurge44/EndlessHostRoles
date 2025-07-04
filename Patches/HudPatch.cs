@@ -324,7 +324,8 @@ internal static class HudManagerPatch
 
                     LowerInfoText.enabled = hasCD || LowerInfoText.text != string.Empty;
 
-                    if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting) LowerInfoText.enabled = false;
+                    if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
+                        LowerInfoText.enabled = false;
 
                     bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
 
@@ -338,6 +339,9 @@ internal static class HudManagerPatch
                         __instance.KillButton?.SetDisabled();
                         __instance.KillButton?.ToggleVisible(false);
                     }
+
+                    if (Options.CurrentGameMode != CustomGameMode.Standard)
+                        __instance.ReportButton.Hide();
 
                     __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask);
                     player.Data.Role.CanVent = player.CanUseVent();
@@ -529,8 +533,12 @@ internal static class SetHudActivePatch
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.BedWars:
+                __instance.AbilityButton?.ToggleVisible(true);
                 __instance.ReportButton?.ToggleVisible(false);
-                break;
+                __instance.KillButton?.ToggleVisible(true);
+                __instance.ImpostorVentButton?.ToggleVisible(true);
+                __instance.SabotageButton?.ToggleVisible(false);
+                return;
             case CustomGameMode.Quiz:
                 __instance.KillButton.ToggleVisible(Quiz.AllowKills);
                 goto case CustomGameMode.MoveAndStop;
@@ -553,7 +561,9 @@ internal static class SetHudActivePatch
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
-                break;
+                __instance.KillButton?.ToggleVisible(true);
+                __instance.ImpostorVentButton?.ToggleVisible(false);
+                return;
             case CustomGameMode.CaptureTheFlag:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -565,7 +575,9 @@ internal static class SetHudActivePatch
                 return;
             case CustomGameMode.SoloKombat:
                 __instance.ImpostorVentButton?.ToggleVisible(SoloPVP.CanVent);
-                break;
+                __instance.KillButton?.ToggleVisible(true);
+                __instance.SabotageButton?.ToggleVisible(false);
+                return;
         }
 
         PlayerControl player = PlayerControl.LocalPlayer;

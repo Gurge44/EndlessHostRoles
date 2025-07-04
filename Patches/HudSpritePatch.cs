@@ -200,6 +200,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("Happy");
                     break;
                 }
+                case CustomRoles.Transporter:
                 case CustomRoles.Swapster:
                 {
                     newAbilityButton = CustomButton.Get("Transport");

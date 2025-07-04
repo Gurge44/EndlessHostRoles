@@ -885,7 +885,7 @@ internal static class ShapeshiftPatch
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
             LateTask.New(() => Main.Instance.StartCoroutine(NotifyEveryoneAsync(3)), 1.2f, "ShapeShiftNotify");
 
-        if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
+        if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId) && !Transporter.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
             LateTask.New(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
 
         if (!isSSneeded)
@@ -1581,7 +1581,7 @@ internal static class FixedUpdatePatch
 
         bool self = lpId == __instance.PlayerId;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now) || DirtyName.Remove(lpId)) && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz;
+        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz) || DirtyName.Remove(lpId));
 
         if (roleText == null || __instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 

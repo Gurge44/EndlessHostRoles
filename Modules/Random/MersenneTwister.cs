@@ -26,13 +26,15 @@ namespace EHR;
 
 public class MersenneTwister : IRandom
 {
-    // 参考元
-    public const string REFERENCE_HOMEPAGE = "http://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/mt.html";
-    public const string REFERENCE_SOURCE_CODE = "https://github.com/vpmedia/template-unity/blob/master/Framework/Assets/Frameworks/URandom/MersenneTwister.cs";
+    // Reference:
+    /*
+        public const string REFERENCE_HOMEPAGE = "http://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/mt.html";
+        public const string REFERENCE_SOURCE_CODE = "https://github.com/vpmedia/template-unity/blob/master/Framework/Assets/Frameworks/URandom/MersenneTwister.cs";
+    */
 
     /// <summary>
-    ///     数値の上限を設定
-    ///     これより下の値の一部は参考元のソースより拝借
+    ///     Sets the upper limit of the number.
+    ///     Some values below are taken from the original source.
     /// </summary>
     private const int N = 624;
 

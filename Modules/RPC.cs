@@ -1487,7 +1487,7 @@ internal static class RPC
     public static void EndGame(MessageReader reader)
     {
         try { CustomWinnerHolder.ReadFrom(reader); }
-        catch (Exception ex) { Logger.Error($"正常にEndGameを行えませんでした。\n{ex}", "EndGame", false); }
+        catch (Exception ex) { Utils.ThrowException(ex); }
     }
 
     public static void PlaySound(byte playerID, Sounds sound)

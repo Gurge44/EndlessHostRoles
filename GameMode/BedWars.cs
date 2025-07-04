@@ -538,6 +538,7 @@ public static class BedWars
                     shop.ExitShop(__instance);
                     InShop.Remove(__instance.PlayerId);
                     Logger.Info($"{__instance.GetRealName()} exited {shop.GetType().Name}", "BedWars");
+                    if (__instance.IsLocalPlayer()) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                 }
 
                 if (!InShop.ContainsKey(__instance.PlayerId))
@@ -549,6 +550,7 @@ public static class BedWars
                         InShop[__instance.PlayerId] = nearestShop.shop;
                         nearestShop.shop.EnterShop(__instance);
                         Logger.Info($"{__instance.GetRealName()} entered {nearestShop.shop.GetType().Name}", "BedWars");
+                        if (__instance.IsLocalPlayer()) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                     }
                 }
 

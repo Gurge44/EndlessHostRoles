@@ -1531,7 +1531,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetDousedPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDousedPlayer, SendOption.Reliable); //RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDousedPlayer, SendOption.Reliable);
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);
@@ -1540,7 +1540,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetDrawPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrawPlayer, SendOption.Reliable); //RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDrawPlayer, SendOption.Reliable);
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);
@@ -1549,7 +1549,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetRevealtPlayer(this PlayerControl player, PlayerControl target, bool isDoused)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRevealedPlayer, SendOption.Reliable); //RPCによる同期
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRevealedPlayer, SendOption.Reliable);
         writer.Write(player.PlayerId);
         writer.Write(target.PlayerId);
         writer.Write(isDoused);

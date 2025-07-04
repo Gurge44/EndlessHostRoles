@@ -329,7 +329,7 @@ namespace EHR
             }
 
             LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.7f); // Fix for Host
-            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 1f); // Fix for Non-Host Modded
+            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.8f); // Fix for Non-Host Modded
         }
 
         public static void FixedUpdate()
