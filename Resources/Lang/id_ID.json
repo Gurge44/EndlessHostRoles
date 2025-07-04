@@ -762,7 +762,7 @@
   "UndercoverInfoLong": "(Crewmates):\\nThe Impostors knows who Undercover is and sees him as a teammate, but Undercover himself does not know who the Impostors are.",
   "NiceGuesserInfoLong": "(Crewmates):\\nNice Guesser can guess a player's role during the meeting. Correct guess results in killing the target, while a wrong one leads to suicide. Use the command /bt [player id] [role] to guess. You can see player IDs before their names or use the /id command.",
   "SwordsManInfoLong": "(Crewmates):\\nVigilante can kill anyone, but only once. After killing, Vigilante can do tasks. Depending on settings, Vigilante can vent.",
-  "TransporterInfoLong": "(Crewmates):\\nTransporter swaps two random players; ignored if not enough players. Vent players aren't selected.",
+  "TransporterInfoLong": "(Crewmates):\\nAs the Transporter, after you finish tasks, you can use the shapeshift menu to select 2 targets to swap their locations.",
   "TimeManagerInfoLong": "(Crewmates):\\nTime Manager increases meeting time. If it dies, the meeting time returns to normal. If it becomes Madmate, skill changes to reducing meeting time.",
   "VeteranInfoLong": "(Crewmate):\\nSelaku Veteran, kamu dapat mengaktifkan mode siaga dengan memasuki ventilasi atau menekan tombol Pet. Apabila ada pemain yang menyerangmu saat mode siaga tersebut aktif, si penyerang akan langsung tewas.",
   "CopyCatInfoLong": "(Crewmate):\\nAs the Copycat, you can use your kill button to copy the target's role.\\n\\nYou can only copy some crewmate roles.\\nAccording to host settings if you try to copy non-crew or a Rascal's role you may kill them instead.\\n\\nAdditionally, You do not have access to guessing, and you commit suicide after miscopying a certain number of times that the host sets.",
