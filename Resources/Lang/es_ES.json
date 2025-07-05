@@ -4692,7 +4692,6 @@
   "GameModeTutorial.Speedrun": "<size=90%>The current game mode is <#800080>Speedrun</color>.</size>\\n<size=80%>Complete all tasks to gain the kill button, then kill everyone to win.\\nYou must do a task or kill within your time limit, else you suicide.</size>",
   "GameModeTutorial.CaptureTheFlag": "<size=90%>The current game mode is <#1313c2>Capture The Flag</color>.</size>\\n<size=80%>Get to the base of the enemy team and press Vanish to pick up their flag.\\nBring it back to your own base for your team to win.\\nPress Kill on someone to tag them, this will get rid of that player temporarily or permanently.</size>",
   "GameModeTutorial.NaturalDisasters": "<size=90%>The current game mode is <#03fc4a>Natural Disasters</color>.</size>\\n<size=80%>Various disasters will constantly spawn on the map.\\nSome kill you instantly, some just debuff you temporarily.\\nBe the last player alive to win!</size>",
-  "GameModeTutorial.BedWars": "<size=90%>The current game mode is <#fc03f8>Bed Wars</color>.</size>\\n<size=80%>In the Bed Wars gamemode, players are split into teams. Each team has a bed.\\nIf a team's bed is destroyed, all players in that team can no longer respawn.\\nThe goal is to destroy all other teams' beds and be the last team alive.</size>",
   "GameModeListTitle": "Game Modes",
   "ModeStandard": "Modo de Juego: Estándar",
   "FFA": "FREE FOR ALL",
