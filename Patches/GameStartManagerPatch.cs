@@ -50,7 +50,7 @@ public static class GameStartManagerPatch
                 if (GameData.Instance && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                 {
                     HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
-                    hudManager.ShowLobbyTimer(245);
+                    hudManager.ShowLobbyTimer(597);
                     hudManager.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(false);
                 }
 
@@ -361,7 +361,7 @@ public static class GameStartManagerPatch
                         }
 
                         if (ExitTimer != 0)
-                            warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(5 - ExitTimer).ToString()));
+                            warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", ((int)Math.Round(5 - ExitTimer)).ToString()));
                     }
                 }
 
@@ -424,8 +424,6 @@ public static class GameStartManagerPatch
 
         private static Color GetTimerColor(float timer)
         {
-            float t = Mathf.Clamp01(timer / 597f);
-
             switch (timer)
             {
                 case >= 240f:
