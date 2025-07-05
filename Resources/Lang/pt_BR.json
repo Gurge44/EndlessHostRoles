@@ -4692,7 +4692,6 @@
   "GameModeTutorial.Speedrun": "<size=90%>O modo de jogo atual é <#800080>Speedrun</color>.</size>\\n<size=80%>Complete todas as tarefas para ganhar a habilidade de matar, e então elimine todos para vencer.\\nVocê deve fazer uma tarefa ou matar dentro do seu limite de tempo, caso contrário, você se suicida.</size>",
   "GameModeTutorial.CaptureTheFlag": "<size=90%>O modo de jogo atual é <#1313c2>Capture a Bandeira</color>.</size>\\n<size=80%>Vá até a base do time inimigo e pressione o botão de Desaparecer para pegar a bandeira deles.\\nLeve-a de volta para sua própria base para que seu time vença.\\nPressione Matar em alguém para marcá-lo, isso eliminará o jogador temporáriamente ou permanentemente.</size>",
   "GameModeTutorial.NaturalDisasters": "<size=90%>O modo de jogo atual é <#03fc4a>Desastres Naturais</color>.</size>\\n<size=80%>Vários desastres aparecerão constantemente no mapa.\\nAlguns te matam instantaneamente, outros apenas causam efeitos negativos temporários.\\nSeja o último jogador vivo para vencer!</size>",
-  "GameModeTutorial.BedWars": "<size=90%>O modo de jogo atual é <#fc03f8>Bed Wars</color>.</size>\\n<size=80%>No modo de jogo Bed Wars, os jogadores são divididos em equipes. Cada equipe tem uma cama.\\nSe a cama de uma equipe for destruída, os jogadores dessa equipe não poderão mais renascer.\\nO objetivo é destruir as camas de todas as outras equipes e ser a última equipe viva.</size>",
   "GameModeListTitle": "Modos de Jogo",
   "ModeStandard": "Modo de Jogo: Padrão",
   "FFA": "MATAR OU MORRER",
