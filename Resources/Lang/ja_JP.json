@@ -2875,7 +2875,7 @@
   "ComboRemove": "<size=85%>{0} と {1} は もはや一緒に生成されません。</size>",
   "ComboBan": "<size=85%>{0} と {1} は 決して一緒に生成されません。</size>",
   "ComboAllow": "<size=85%>{0} と {1} は 今 一緒に生成できます。</size>",
-  "ComboUsage": "\n<size=80%><b><u>使用形式:</u></b>\n/combo {add (追加) /ban (禁止)/ remobe (削除)/allow (許可)} {{main role}(メインの役割名) {addon}(属性名) [all]</size>\n\n<size=60%>通常により、コンボが 現在のプリセットに追加されます。\\nもし あなたが すべてのプリセットに追加したいとき、最後に 'all' を入力してください。\n例: /combo add(追加) <#f0e68c>ナイスゲッサー</color> <#19fa8d>ダブルショット</colro> all</size>",
+  "ComboUsage": "\n<size=80%><b><u>使用形式:</u></b>\n/combo {add (追加) /ban (禁止)/ remobe (削除)/allow (許可)} {{main role}(メインの役割名) {addon}(属性名) [all]</size>\n\n<size=60%>通常により、コンボが 現在のプリセットに追加されます。\\nもし あなたが すべてのプリセットに追加したいとき、最後に 'all' を入力してください。\n例: /combo add(追加) <#f0e68c>ナイスゲッサー</color> <#19fa8d>ダブルショット</color> all</size>",
   "ERR-000-000-0": "エラーなし",
   "ERR-000-900-0": "テストエラー Lv.0",
   "ERR-000-910-1": "テストエラー Lv.1",
