@@ -604,11 +604,18 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        if (PlayerControl.LocalPlayer == target)
+        if (target.AmOwner)
         {
             // If target is host
-            PlayerControl.LocalPlayer.Data.Role.SetCooldown();
+            target.Data.Role.SetCooldown();
             return false;
+        }
+
+        if (target.IsModdedClient())
+        {
+            sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ResetAbilityCooldown, target.OwnerId);
+            sender.EndRpc();
+            return true;
         }
 
         sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.OwnerId);

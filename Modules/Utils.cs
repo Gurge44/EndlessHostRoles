@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
-using AmongUs.InnerNet.GameDataMessages;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -1557,7 +1556,7 @@ public static class Utils
             if (state.RoleHistory.Count > 1)
             {
                 string join = string.Join(" > ", state.RoleHistory.ConvertAll(x => x.ToColoredString()));
-                sb.AppendLine($"{id.ColoredPlayerName()}: {join}");
+                sb.AppendLine($"{id.ColoredPlayerName()}: {join} > {state.MainRole.ToColoredString()}");
             }
         }
 
@@ -3187,6 +3186,7 @@ public static class Utils
             CustomRoles.Catcher => Catcher.AbilityCooldown.GetInt(),
             CustomRoles.Sentry => Crewmate.Sentry.ShowInfoCooldown.GetInt(),
             CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
+            CustomRoles.AntiAdminer => AntiAdminer.AbilityCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
             CustomRoles.Undertaker => Undertaker.UndertakerAssassinateCooldown.GetInt(),
@@ -4026,12 +4026,38 @@ public static class Utils
         playerControl.notRealPlayer = true;
         playerControl.NetTransform.SnapTo(position);
         AmongUsClient.Instance.NetIdCnt += 1U;
-        var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", sendOption);
+        var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", sendOption, true, false);
         MessageWriter writer = sender.stream;
         writer.StartMessage(5);
         writer.Write(AmongUsClient.Instance.GameId);
-        SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
-        item.SerializeValues(writer);
+        writer.StartMessage(4);
+        writer.WritePacked(playerControl.SpawnId);
+        writer.WritePacked(-2);
+        writer.Write((byte)SpawnFlags.None);
+        InnerNetObject[] componentsInChildren = playerControl.GetComponentsInChildren<InnerNetObject>();
+        writer.WritePacked(componentsInChildren.Length);
+
+        for (var index = 0; index < componentsInChildren.Length; ++index)
+        {
+            InnerNetObject innerNetObject = componentsInChildren[index];
+            innerNetObject.OwnerId = -2;
+            innerNetObject.SpawnFlags = SpawnFlags.None;
+
+            if (innerNetObject.NetId == 0U)
+            {
+                innerNetObject.NetId = AmongUsClient.Instance.NetIdCnt++;
+                InnerNetObjectCollection allObjects = AmongUsClient.Instance.allObjects;
+                allObjects.allObjects.Add(innerNetObject);
+                allObjects.allObjectsFast.Add(innerNetObject.NetId, innerNetObject);
+            }
+
+            writer.WritePacked(innerNetObject.NetId);
+            writer.StartMessage(1);
+            innerNetObject.Serialize(writer, true);
+            writer.EndMessage();
+        }
+
+        writer.EndMessage();
 
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
         {
@@ -4052,15 +4078,15 @@ public static class Utils
         if (PlayerControl.AllPlayerControls.Contains(playerControl))
             PlayerControl.AllPlayerControls.Remove(playerControl);
         int baseColorId = playerControl.Data.DefaultOutfit.ColorId;
-        sender.StartRpc(playerControl.NetId, (byte)RpcCalls.SetColor)
+        sender.StartRpc(playerControl.NetId, RpcCalls.SetColor)
             .Write(playerControl.Data.NetId)
             .Write(colorId)
             .EndRpc();
-        sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
+        sender.StartRpc(playerControl.NetId, RpcCalls.MurderPlayer)
             .WriteNetObject(playerControl)
             .Write((int)MurderResultFlags.Succeeded)
             .EndRpc();
-        sender.StartRpc(playerControl.NetId, (byte)RpcCalls.SetColor)
+        sender.StartRpc(playerControl.NetId, RpcCalls.SetColor)
             .Write(playerControl.Data.NetId)
             .Write(baseColorId)
             .EndRpc();

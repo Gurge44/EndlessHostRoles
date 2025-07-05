@@ -23,7 +23,7 @@ internal class AntiAdminer : RoleBase
     private static List<byte> PlayerIdList = [];
 
     private static OptionItem CanCheckCamera;
-    public static OptionItem EnableExtraAbility;
+    public static OptionItem AbilityCooldown;
     private static OptionItem CanOnlyUseWhileAnyWatch;
     private static OptionItem Delay;
 
@@ -48,14 +48,15 @@ internal class AntiAdminer : RoleBase
         CanCheckCamera = new BooleanOptionItem(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
 
-        EnableExtraAbility = new BooleanOptionItem(Id + 11, "EnableExtraAbility", true, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
+        AbilityCooldown = new FloatOptionItem(Id + 11, "AbilityCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer])
+            .SetValueFormat(OptionFormat.Seconds);
 
         CanOnlyUseWhileAnyWatch = new BooleanOptionItem(Id + 12, "CanOnlyUseWhileAnyWatch", true, TabGroup.ImpostorRoles)
-            .SetParent(EnableExtraAbility);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
 
         Delay = new FloatOptionItem(Id + 13, "AADelay", new(0f, 20f, 0.5f), 5f, TabGroup.ImpostorRoles)
-            .SetParent(EnableExtraAbility)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -82,18 +83,23 @@ internal class AntiAdminer : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    public override bool OnVanish(PlayerControl pc)
     {
-        if (!shapeshifting) return true;
-
-        if (IsMonitor || !EnableExtraAbility.GetBool() || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
+        if (IsMonitor || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
 
         ExtraAbilityStartTimeStamp = Utils.TimeStamp;
 
-        shapeshifter.RpcResetAbilityCooldown();
-        Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
+        pc.RpcResetAbilityCooldown();
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
         PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive()).NotifyPlayers(Translator.GetString("AAWarning"), Delay.GetFloat());
+        return false;
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (!shapeshifting) return true;
+        OnVanish(shapeshifter);
         return false;
     }
 
@@ -101,12 +107,17 @@ internal class AntiAdminer : RoleBase
     {
         if (!IsMonitor)
         {
-            if (EnableExtraAbility.GetBool())
+            if (Options.UsePhantomBasis.GetBool())
             {
-                AURoleOptions.ShapeshifterCooldown = Math.Clamp(Options.DefaultKillCooldown - Delay.GetFloat() - 2f, Delay.GetFloat() + 1f, Options.DefaultKillCooldown);
-                AURoleOptions.ShapeshifterDuration = 1f;
+                AURoleOptions.PhantomCooldown = AbilityCooldown.GetFloat();
+                AURoleOptions.PhantomDuration = 0.1f;
             }
-
+            else
+            {
+                AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 0.1f;
+            }
+            
             return;
         }
 
@@ -122,7 +133,7 @@ internal class AntiAdminer : RoleBase
 
         var notify = false;
 
-        if (!IsMonitor && ExtraAbilityStartTimeStamp > 0 && EnableExtraAbility.GetBool())
+        if (!IsMonitor && ExtraAbilityStartTimeStamp > 0)
         {
             if (ExtraAbilityStartTimeStamp + Delay.GetInt() < Utils.TimeStamp)
             {
@@ -302,8 +313,8 @@ internal class AntiAdminer : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        if (!IsMonitor) return;
-        OpenDoors(pc);
+        if (IsMonitor) OpenDoors(pc);
+        else OnVanish(pc);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

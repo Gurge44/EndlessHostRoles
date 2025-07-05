@@ -338,8 +338,6 @@ public class Main : BasePlugin
 
         HasArgumentException = false;
 
-        CustomLogger.ClearLog();
-
         try
         {
             RoleColors = new()
@@ -777,9 +775,6 @@ public class Main : BasePlugin
         NormalGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
         HideNSeekGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
 
-        try { DevManager.StartFetchingTags(); }
-        catch (Exception e) { Utils.ThrowException(e); }
-
         PrivateTagManager.LoadTagsFromFile();
 
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -807,10 +802,18 @@ public class Main : BasePlugin
             [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer)
         };
 
-        StartCoroutine(ModNewsFetcher.FetchNews());
+        IL2CPPChainloader.Instance.Finished += () =>
+        {
+            CustomLogger.ClearLog();
 
-        Logger.Msg("========= EHR loaded! =========", "Plugin Load");
-        Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
+            StartCoroutine(ModNewsFetcher.FetchNews());
+
+            try { DevManager.StartFetchingTags(); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            Logger.Msg("========= EHR loaded! =========", "Plugin Load");
+            Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
+        };
 
         try
         {

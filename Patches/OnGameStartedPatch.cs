@@ -784,7 +784,7 @@ internal static class StartGameHostPatch
                 CustomRoles role = Enum.TryParse($"{pc.Data.Role.Role}EHR", out CustomRoles parsedRole) ? parsedRole : CustomRoles.NotAssigned;
                 if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
 
-                Main.PlayerStates[pc.PlayerId].SetMainRole(role, true);
+                Main.PlayerStates[pc.PlayerId].SetMainRole(role);
             }
 
             foreach (KeyValuePair<byte, CustomRoles> kv in RoleResult)

@@ -276,7 +276,7 @@ internal static class CustomRolesHelper
             CustomRoles.GuardianAngelEHR => CustomRoles.GuardianAngel,
             CustomRoles.Zombie => CustomRoles.Impostor,
             CustomRoles.Mario => CustomRoles.Engineer,
-            CustomRoles.AntiAdminer => AntiAdminer.EnableExtraAbility.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
+            CustomRoles.AntiAdminer => CustomRoles.Shapeshifter,
             CustomRoles.Sans => CustomRoles.Impostor,
             CustomRoles.Bomber => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Nuker => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -972,6 +972,7 @@ internal static class CustomRolesHelper
             CustomRoles.CTFPlayer or
             CustomRoles.BedWarsPlayer or
             CustomRoles.Wizard or
+            CustomRoles.AntiAdminer or
             CustomRoles.Stasis or
             CustomRoles.Occultist or
             CustomRoles.Warlock or

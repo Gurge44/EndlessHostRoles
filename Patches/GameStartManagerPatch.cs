@@ -44,9 +44,12 @@ public static class GameStartManagerPatch
             {
                 if (__instance == null) return;
 
-                TextMeshPro temp = __instance.PlayerCounter;
-                GameCountdown = Object.Instantiate(temp, AmongUsClient.Instance.AmHost ? __instance.StartButton.transform : __instance.HostInfoPanel.transform);
+                GameCountdown = Object.Instantiate(__instance.PlayerCounter, AmongUsClient.Instance.AmHost ? __instance.StartButton.transform : __instance.HostInfoPanel.transform);
                 GameCountdown.text = string.Empty;
+
+                HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+                hudManager.ShowLobbyTimer(597);
+                hudManager.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(false);
 
                 if (AmongUsClient.Instance.AmHost)
                 {
@@ -116,6 +119,7 @@ public static class GameStartManagerPatch
         public static float ExitTimer = -1f;
         private static float MinWait, MaxWait;
         private static int MinPlayer;
+        public static SpriteRenderer LobbyTimerBg;
 
         public static bool Prefix(GameStartManager __instance)
         {
@@ -373,10 +377,17 @@ public static class GameStartManagerPatch
 
                 float timer = Timer;
 
-                int minutes = (int)timer / 60;
-                int seconds = (int)timer % 60;
-                var suffix = $"{minutes:00}:{seconds:00}";
-                if (timer <= 60) suffix = Utils.ColorString((int)timer % 2 == 0 ? Color.yellow : Color.red, suffix);
+                if (LobbyTimerBg == null) LobbyTimerBg = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
+                LobbyTimerBg.color = GetTimerColor(timer);
+                if (timer <= 60) FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
+
+                int estimatedGameLength = Options.CurrentGameMode switch
+                {
+                    CustomGameMode.FFA => Math.Clamp((FreeForAll.FFAKcd.GetInt() * (PlayerControl.AllPlayerControls.Count / 2)) + FreeForAll.FFAKcd.GetInt() + 5, FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAGameTime.GetInt()),
+                    _ => 0
+                };
+
+                string suffix = estimatedGameLength != 0 ? $"{GetString("EstimatedGameLength")}: {estimatedGameLength}" : string.Empty;
 
                 if (Options.NoGameEnd.GetBool())
                     suffix = suffix.Insert(0, Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}") + Utils.ColorString(Color.gray, " | "));
@@ -407,6 +418,43 @@ public static class GameStartManagerPatch
             }
             catch (NullReferenceException) { }
             catch (Exception e) { Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)"); }
+        }
+
+        private static Color GetTimerColor(float timer)
+        {
+            float t = Mathf.Clamp01(timer / 597f);
+
+            switch (timer)
+            {
+                case >= 240f:
+                {
+                    // From 240 → 597: #00a5ff → #00a5ff (static color)
+                    return new Color32(0x00, 0xA5, 0xFF, 0xFF); // #00a5ff
+                }
+                case >= 180f:
+                {
+                    // 180 → 240: #00ffa5 → #00a5ff
+                    float lerpT = (timer - 180f) / 60f;
+                    return Color.Lerp(new Color32(0x00, 0xFF, 0xA5, 0xFF), new Color32(0x00, 0xA5, 0xFF, 0xFF), lerpT);
+                }
+                case >= 120f:
+                {
+                    // 120 → 180: #ffff00 → #00ffa5
+                    float lerpT = (timer - 120f) / 60f;
+                    return Color.Lerp(new Color32(0xFF, 0xFF, 0x00, 0xFF), new Color32(0x00, 0xFF, 0xA5, 0xFF), lerpT);
+                }
+                case >= 60f:
+                {
+                    // 60 → 120: #ff0000 → #ffff00
+                    float lerpT = (timer - 60f) / 60f;
+                    return Color.Lerp(new Color32(0xFF, 0x00, 0x00, 0xFF), new Color32(0xFF, 0xFF, 0x00, 0xFF), lerpT);
+                }
+                default:
+                {
+                    // timer < 60: stay red
+                    return new Color32(0xFF, 0x00, 0x00, 0xFF); // #ff0000
+                }
+            }
         }
 
         private static bool MatchVersions(byte playerId, bool acceptVanilla = false)

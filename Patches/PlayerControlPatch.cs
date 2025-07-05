@@ -105,6 +105,8 @@ internal static class RpcMurderPlayerPatch
                 .WriteVector2(target.transform.position)
                 .Write(target.NetTransform.lastSequenceId)
                 .EndRpc();
+
+            NumSnapToCallsThisRound += 4;
         }
 
         sender.AutoStartRpc(__instance.NetId, RpcCalls.MurderPlayer)

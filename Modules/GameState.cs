@@ -104,12 +104,12 @@ public class PlayerState(byte playerId)
     public bool IsSuicide => deathReason is DeathReason.Suicide or DeathReason.Fall;
     public TaskState TaskState { get; set; } = new();
 
-    public void SetMainRole(CustomRoles role, bool failsafe = false)
+    public void SetMainRole(CustomRoles role)
     {
         try { Utils.RemovePlayerFromPreviousRoleData(Player); }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        if (!failsafe && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
+        if (Main.IntroDestroyed && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
             RoleHistory.Add(MainRole);
 
         Divinator.OnRoleChange(PlayerId, MainRole, role);
@@ -560,6 +560,7 @@ public static class GameStates
         Vanilla,
         Modded,
         Niko,
+        Local,
         Custom
     }
 
@@ -583,7 +584,7 @@ public static class GameStates
     {
         get
         {
-            if (IsLocalGame && !IsNotJoined) return ServerType.Vanilla;
+            if (IsFreePlay || IsLocalGame || IsNotJoined) return ServerType.Local;
 
             string regionName = Utils.GetRegionName();
 

@@ -147,7 +147,7 @@ public static class BanManager
 
         if (TempBanWhiteList.Contains(player.GetHashedPuid()))
         {
-            AmongUsClient.Instance.KickPlayer(player.Id, true);
+            AmongUsClient.Instance.KickPlayer(player.Id, false);
             Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
         }
 
@@ -157,7 +157,7 @@ public static class BanManager
 
         if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
         {
-            AmongUsClient.Instance.KickPlayer(player.Id, true);
+            AmongUsClient.Instance.KickPlayer(player.Id, false);
             Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
             Logger.Info($"{player.PlayerName} banned by EAC because their friend code is too short.", "EAC");
             return;
@@ -165,8 +165,7 @@ public static class BanManager
 
         if (friendcode.Count(c => c == '#') != 1)
         {
-            // This is part of eac, so that's why it will say banned by EAC list.
-            AmongUsClient.Instance.KickPlayer(player.Id, true);
+            AmongUsClient.Instance.KickPlayer(player.Id, false);
             Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
             Logger.Info($"{player.PlayerName} EAC Banned because friendcode contains more than 1 #", "EAC");
             return;
@@ -203,12 +202,12 @@ public static class BanManager
     {
         code = code.Replace(':', '#');
 
-        var OnlyCheckPuid = false;
+        var onlyCheckPuid = false;
 
         switch (code)
         {
             case "" when hashedpuid != "":
-                OnlyCheckPuid = true;
+                onlyCheckPuid = true;
                 break;
             case "":
                 return false;
@@ -225,7 +224,7 @@ public static class BanManager
             {
                 if (line == "") continue;
 
-                if (!OnlyCheckPuid)
+                if (!onlyCheckPuid)
                 {
                     if (line.Contains(code))
                         return true;
@@ -243,18 +242,18 @@ public static class BanManager
     {
         code = code.Replace(':', '#');
 
-        var OnlyCheckPuid = false;
+        var onlyCheckPuid = false;
 
         switch (code)
         {
             case "" when hashedPuid == "":
-                OnlyCheckPuid = true;
+                onlyCheckPuid = true;
                 break;
             case "":
                 return false;
         }
 
-        return EACList.Any(x => x.Contains(code) && !OnlyCheckPuid) || EACList.Any(x => x.Contains(hashedPuid) && hashedPuid != "");
+        return EACList.Any(x => x.Contains(code) && !onlyCheckPuid) || EACList.Any(x => x.Contains(hashedPuid) && hashedPuid != "");
     }
 }
 

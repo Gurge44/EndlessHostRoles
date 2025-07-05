@@ -362,32 +362,35 @@ public static class CaptureTheFlag
         }
 
         yield return new WaitForSeconds(0.2f);
-
-        try
-        {
-            foreach (CTFTeamData data in TeamData.Values)
-            {
+        /*
                 try
                 {
-                    foreach (byte id1 in data.Players)
+                    foreach (CTFTeamData data in TeamData.Values)
                     {
                         try
                         {
-                            var pc1 = id1.GetPlayer();
-                            if (pc1 == null) continue;
-
-                            int targetClientId = pc1.OwnerId;
-
-                            foreach (byte id2 in data.Players)
+                            foreach (byte id1 in data.Players)
                             {
                                 try
                                 {
-                                    if (id1 == id2) continue;
+                                    var pc1 = id1.GetPlayer();
+                                    if (pc1 == null) continue;
 
-                                    var pc2 = id2.GetPlayer();
-                                    if (pc2 == null) continue;
+                                    int targetClientId = pc1.OwnerId;
 
-                                    pc2.RpcSetRoleDesync(RoleTypes.Phantom, targetClientId, true);
+                                    foreach (byte id2 in data.Players)
+                                    {
+                                        try
+                                        {
+                                            if (id1 == id2) continue;
+
+                                            var pc2 = id2.GetPlayer();
+                                            if (pc2 == null) continue;
+
+                                            pc2.RpcSetRoleDesync(RoleTypes.Phantom, targetClientId, true);
+                                        }
+                                        catch (Exception e) { Utils.ThrowException(e); }
+                                    }
                                 }
                                 catch (Exception e) { Utils.ThrowException(e); }
                             }
@@ -396,10 +399,7 @@ public static class CaptureTheFlag
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
-            }
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-
+        */
         yield return new WaitForSeconds(0.2f);
 
         ValidTag = true;

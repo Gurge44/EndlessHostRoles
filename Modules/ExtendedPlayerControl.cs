@@ -878,10 +878,15 @@ internal static class ExtendedPlayerControl
             gc.LastHack = TimeStamp;
             gc.HackCDTimer = 10;
         }
-        else if (PlayerControl.LocalPlayer == target)
+        else if (target.AmOwner)
         {
             // If target is host
-            PlayerControl.LocalPlayer.Data.Role.SetCooldown();
+            target.Data.Role.SetCooldown();
+        }
+        else if (target.IsModdedClient())
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ResetAbilityCooldown, SendOption.Reliable, target.OwnerId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         else
         {

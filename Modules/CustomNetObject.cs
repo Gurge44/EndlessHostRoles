@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR;
 using EHR.Crewmate;
@@ -10,6 +9,7 @@ using Hazel;
 using InnerNet;
 using TMPro;
 using UnityEngine;
+using GameStates = EHR.GameStates;
 
 // Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/AllObjects
 // Huge thanks to Rabek009 for this code!
@@ -664,7 +664,7 @@ internal static class RawSetNamePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
     {
-        if (!AmongUsClient.Instance.AmHost || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool())) return true;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.InGame || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool())) return true;
 
         var exception = false;
 
@@ -693,40 +693,5 @@ internal static class RawSetNamePatch
         }, 0.5f, log: false);
 
         return false;
-    }
-}
-
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendOrDisconnect))]
-internal static class SendOrDisconnectPatch
-{
-    [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
-    [SuppressMessage("ReSharper", "MergeIntoLogicalPattern")]
-    public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] MessageWriter msg)
-    {
-        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) return true;
-
-        try
-        {
-            SendErrors? sendErrors = __instance.connection.Send(msg);
-            if (sendErrors == null || sendErrors == SendErrors.None) return false;
-            EHR.Logger.Error($"Failed to send message: {sendErrors} - Trying again in 2s", "SendOrDisconnectPatch");
-            LateTask.New(TryAgain, 2f, "SendOrDisconnectPatch Retry");
-        }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-            LateTask.New(TryAgain, 2f, "SendOrDisconnectPatch Retry");
-        }
-
-        return false;
-
-        void TryAgain()
-        {
-            SendErrors? sendErrors = __instance.connection.Send(msg);
-            if (sendErrors == null || sendErrors == SendErrors.None) return;
-            EHR.Logger.Fatal($"Failed to send message: {sendErrors} - Failed again. Disconnecting", "SendOrDisconnectPatch");
-
-            __instance.EnqueueDisconnect(DisconnectReasons.Error, "Failed to send message: " + sendErrors);
-        }
     }
 }

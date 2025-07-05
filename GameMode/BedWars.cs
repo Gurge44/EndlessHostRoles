@@ -394,12 +394,35 @@ public static class BedWars
                 Team = team,
                 Base = bases[team]
             };
-
+            
             pc.RpcSetColor(team.GetColorId());
-            pc.TP(data.Base.SpawnPosition);
-            pc.RpcResetAbilityCooldown();
 
-            playerTeams.DoIf(x => x.Key != PlayerControl.LocalPlayer.PlayerId && x.Value == team, x => x.Key.GetPlayer()?.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId));
+            if (!pc.AmOwner)
+            {
+                var sender = CustomRpcSender.Create($"BedWars OnGameStart ({pc.GetRealName()})", SendOption.Reliable);
+                sender.StartMessage(pc.OwnerId);
+
+                sender.TP(pc, data.Base.SpawnPosition);
+                sender.RpcResetAbilityCooldown(pc);
+
+                playerTeams.DoIf(x => x.Key != PlayerControl.LocalPlayer.PlayerId && x.Value == team, x =>
+                {
+                    PlayerControl target = x.Key.GetPlayer();
+                    if (target == null) return;
+
+                    sender.StartRpc(target.NetId, RpcCalls.SetRole)
+                        .Write((ushort)RoleTypes.Impostor)
+                        .Write(true)
+                        .EndRpc();
+                });
+
+                sender.SendMessage();
+            }
+            else
+            {
+                pc.TP(data.Base.SpawnPosition);
+                pc.Data.Role.SetCooldown();
+            }
 
             Data[pc.PlayerId] = data;
 

@@ -151,6 +151,7 @@ public enum CustomRPC
     SyncAsthmatic,
     ParityCopCommand,
     Invisibility,
+    ResetAbilityCooldown,
 
     // Game Modes
     RoomRushDataSync,
@@ -1307,6 +1308,11 @@ internal static class RPCHandlerPatch
                 {
                     if (reader.ReadBoolean()) __instance.MakeInvisible();
                     else __instance.MakeVisible();
+                    break;
+                }
+                case CustomRPC.ResetAbilityCooldown:
+                {
+                    PlayerControl.LocalPlayer.Data.Role.SetCooldown();
                     break;
                 }
             }
