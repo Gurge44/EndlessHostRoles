@@ -47,9 +47,12 @@ public static class GameStartManagerPatch
                 GameCountdown = Object.Instantiate(__instance.PlayerCounter, AmongUsClient.Instance.AmHost ? __instance.StartButton.transform : __instance.HostInfoPanel.transform);
                 GameCountdown.text = string.Empty;
 
-                HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
-                hudManager.ShowLobbyTimer(597);
-                hudManager.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(false);
+                if (GameData.Instance && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                {
+                    HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+                    hudManager.ShowLobbyTimer(245);
+                    hudManager.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(false);
+                }
 
                 if (AmongUsClient.Instance.AmHost)
                 {
@@ -372,37 +375,26 @@ public static class GameStartManagerPatch
 
                 __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
-                // Lobby timer
-                if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame || GameStates.CurrentServerType != GameStates.ServerType.Vanilla) return;
-
-                float timer = Timer;
-
-                if (LobbyTimerBg == null) LobbyTimerBg = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
-                LobbyTimerBg.color = GetTimerColor(timer);
-                if (timer <= 60) FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
-
+                
                 int estimatedGameLength = Options.CurrentGameMode switch
                 {
                     CustomGameMode.FFA => Math.Clamp((FreeForAll.FFAKcd.GetInt() * (PlayerControl.AllPlayerControls.Count / 2)) + FreeForAll.FFAKcd.GetInt() + 5, FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAGameTime.GetInt()),
                     _ => 0
                 };
 
-                string suffix = estimatedGameLength != 0 ? $"{GetString("EstimatedGameLength")}: {estimatedGameLength}" : string.Empty;
+                string suffix = estimatedGameLength != 0 ? $"{GetString("EstimatedGameLength")}: {estimatedGameLength}" : " ";
 
                 if (Options.NoGameEnd.GetBool())
-                    suffix = suffix.Insert(0, Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}") + Utils.ColorString(Color.gray, " | "));
+                    suffix = Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}");
 
                 if (!canStartGame)
-                {
-                    suffix = suffix.Insert(0, Utils.ColorString(Color.red, string.Format(GetString("VersionMismatch"), mismatchedClientName)) + "\n");
-                    suffix += "\n";
-                }
+                    suffix = Utils.ColorString(Color.red, string.Format(GetString("VersionMismatch"), mismatchedClientName));
 
                 TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 
                 if (tmp.text == string.Empty)
                 {
-                    tmp.name = "LobbyTimer";
+                    tmp.name = "LobbyInfoText";
                     tmp.fontSize = tmp.fontSizeMin = tmp.fontSizeMax = 3f;
                     tmp.autoSizeTextContainer = true;
                     tmp.alignment = TextAlignmentOptions.Center;
@@ -411,10 +403,20 @@ public static class GameStartManagerPatch
                     tmp.outlineWidth = 0.4f;
                     tmp.transform.localPosition += new Vector3(-0.8f, -0.42f, 0f);
                     tmp.transform.localScale = new(0.6f, 0.6f, 1f);
-                    tmp.gameObject.SetActive(AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla);
                 }
 
                 tmp.text = suffix;
+                tmp.gameObject.SetActive(true);
+
+                // Lobby timer
+                if (GameData.Instance && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                {
+                    float timer = Timer;
+
+                    if (LobbyTimerBg == null) LobbyTimerBg = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
+                    LobbyTimerBg.color = GetTimerColor(timer);
+                    if (timer <= 60) FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
+                }
             }
             catch (NullReferenceException) { }
             catch (Exception e) { Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)"); }
