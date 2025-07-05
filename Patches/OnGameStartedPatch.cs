@@ -847,12 +847,8 @@ internal static class StartGameHostPatch
                 .OrderBy(x => Options.CustomAdtRoleSpawnRate.TryGetValue(x, out IntegerOptionItem sc) && sc.GetInt() == 100 ? IRandom.Instance.Next(100) : IRandom.Instance.Next(100, 1000))
                 .Select(x =>
                 {
-                    PlayerControl suitablePlayer = aapc
-                        .OrderBy(p => addonNum[p])
-                        .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
-
+                    PlayerControl suitablePlayer = aapc.OrderBy(p => addonNum[p]).FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
                     if (suitablePlayer != null) addonNum[suitablePlayer]++;
-
                     return (Role: x, SuitablePlayer: suitablePlayer);
                 })
                 .DoIf(x => x.SuitablePlayer != null, x => Main.PlayerStates[x.SuitablePlayer.PlayerId].SetSubRole(x.Role));

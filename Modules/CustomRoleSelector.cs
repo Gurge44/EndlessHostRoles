@@ -845,7 +845,7 @@ internal static class CustomRoleSelector
 
         void AssignRoleToEveryone(CustomRoles role)
         {
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 if ((Main.GM.Value && pc.IsHost()) || ChatCommands.Spectators.Contains(pc.PlayerId))
                 {
