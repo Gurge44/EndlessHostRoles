@@ -477,7 +477,7 @@ public static class BedWars
 
         yield return new WaitForSeconds(0.2f);
 
-        players.NotifyPlayers($"{rooms[0]}\n{string.Join(" | ", rooms.Skip(1))}", 20f);
+        players.NotifyPlayers($"{rooms[0]}\n{string.Join(" | ", rooms.Skip(1))}", 20f, setName: false);
 
         yield return new WaitForSeconds(0.2f);
 
