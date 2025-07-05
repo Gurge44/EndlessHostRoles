@@ -531,7 +531,7 @@ public static class BedWars
 
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.BedWars || !Main.IntroDestroyed || GameStates.IsEnded || __instance == null || __instance.PlayerId >= 254 || Utils.GameStartTimeStamp + 20 > Utils.TimeStamp) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.BedWars || !Main.IntroDestroyed || GameStates.IsEnded || __instance == null || __instance.PlayerId >= 254 || Utils.GameStartTimeStamp + 25 > Utils.TimeStamp) return;
 
             if (__instance.IsHost()) ItemGenerators.ForEach(x => x.Update());
 

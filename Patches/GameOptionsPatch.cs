@@ -26,8 +26,12 @@ internal static class SwitchGameModePatch
             return;
         }
 
-        ErrorText.Instance.HnSFlag = true;
-        ErrorText.Instance.AddError(ErrorCode.HnsUnload);
+        if (ErrorText.Instance != null)
+        {
+            ErrorText.Instance.HnSFlag = true;
+            ErrorText.Instance.AddError(ErrorCode.HnsUnload);
+        }
+
         Zoom.SetZoomSize(reset: true);
         Harmony.UnpatchAll();
         Main.Instance.Unload();

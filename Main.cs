@@ -131,8 +131,7 @@ public class Main : BasePlugin
         [CustomGameMode.HideAndSeek] = [],
         [CustomGameMode.Speedrun] = [],
         [CustomGameMode.CaptureTheFlag] = [],
-        [CustomGameMode.NaturalDisasters] = [],
-        [CustomGameMode.BedWars] = []
+        [CustomGameMode.NaturalDisasters] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
