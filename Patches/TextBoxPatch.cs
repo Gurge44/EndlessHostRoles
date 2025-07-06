@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
@@ -20,6 +20,88 @@ public static class TextBoxPatch
 
     [HarmonyPatch(nameof(TextBoxTMP.SetText))]
     [HarmonyPostfix]
+    // The only characters to treat specially are \r, \n and \b, allow all other characters to be written, From TOHE
+    public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
+    {
+        if (__instance.name == "EnterCodeField")
+        {
+            __instance.Hidden = DataManager.Settings.Gameplay.StreamerMode;
+        }
+
+        bool flag = false;
+        char ch = ' ';
+        __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
+        __instance.tempTxt.Clear();
+
+        foreach (char c in input)
+        {
+            char upperInvariant = c;
+            if (ch == ' ' && upperInvariant == ' ')
+            {
+                __instance.AdjustCaretPosition(-1);
+            }
+            else
+            {
+                switch (upperInvariant)
+                {
+                    case '\r':
+                    case '\n':
+                        flag = true;
+                        break;
+                    case '\b':
+                        __instance.tempTxt.Length = Math.Max(__instance.tempTxt.Length - 1, 0);
+                        __instance.AdjustCaretPosition(-2);
+                        break;
+                }
+
+                if (__instance.ForceUppercase) upperInvariant = char.ToUpperInvariant(upperInvariant);
+                if (upperInvariant is not '\r' and not '\n' and not '\b')
+                {
+                    __instance.tempTxt.Append(upperInvariant);
+                    ch = upperInvariant;
+                }
+            }
+        }
+
+        if (!__instance.tempTxt.ToString().Equals(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
+        {
+            int length = __instance.tempTxt.Length;
+            __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
+            __instance.AdjustCaretPosition(-(length - __instance.tempTxt.Length));
+        }
+
+        input = __instance.tempTxt.ToString();
+        if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
+        {
+            __instance.text = input;
+            __instance.compoText = inputCompo;
+            string str = __instance.text;
+            string compoText = __instance.compoText;
+
+            if (__instance.Hidden)
+            {
+                str = "";
+                for (int index = 0; index < __instance.text.Length; ++index)
+                    str += "*";
+            }
+
+            __instance.outputText.text = str + compoText;
+            __instance.outputText.ForceMeshUpdate(true, true);
+            if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
+            __instance.OnChange.Invoke();
+
+            if (__instance.tempTxt.Length == __instance.characterLimit && __instance.SendOnFullChars)
+            {
+                __instance.OnEnter.Invoke();
+                __instance.LoseFocus();
+            }
+        }
+
+        if (flag) __instance.OnEnter.Invoke();
+        __instance.SetPipePosition();
+
+        return false;
+    }
     public static void ShowCommandHelp(TextBoxTMP __instance)
     {
         try
@@ -311,14 +393,14 @@ public static class TextBoxPatch
         return false;
     }
 
-    [HarmonyPatch(nameof(TextBoxTMP.IsCharAllowed))]
+    /*[HarmonyPatch(nameof(TextBoxTMP.IsCharAllowed))]
     [HarmonyPrefix]
     public static bool IsCharAllowedPatch(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
     {
         if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
         __result = i is not '\b' and not '\n' and not '\r';
         return false;
-    }
+    }*/
 
     // Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
     [HarmonyPatch(nameof(TextBoxTMP.SetText))]
