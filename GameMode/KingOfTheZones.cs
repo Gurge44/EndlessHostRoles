@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -496,9 +495,7 @@ public static class KingOfTheZones
         target.SetKillCooldown(GetKillCooldown(target));
 
         RespawnTimes[target.PlayerId] = Utils.TimeStamp + RespawnTime.GetInt() + 1;
-        Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
-        target.MarkDirtySettings();
-        target.TP(Pelican.GetBlackRoomPS());
+        target.ExileTemporarily();
     }
 
     private static float GetKillCooldown(PlayerControl player)
@@ -780,10 +777,9 @@ public static class KingOfTheZones
                             PlayerControl player = id.GetPlayer();
                             if (player == null) continue;
 
-                            Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                            player.RpcRevive();
                             player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
                             player.SetKillCooldown(GetKillCooldown(player));
-                            player.MarkDirtySettings();
                             RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
 
                             int spawnProtectionTime = SpawnProtectionTime.GetInt();

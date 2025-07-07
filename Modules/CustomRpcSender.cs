@@ -453,26 +453,6 @@ public static class CustomRpcSenderExtensions
             .EndRpc();
     }
 
-    public static bool RpcExitVentDesync(this CustomRpcSender sender, PlayerPhysics physics, int ventId, PlayerControl seer)
-    {
-        if (sender == null || physics == null) return false;
-
-        int clientId = seer.OwnerId;
-
-        if (AmongUsClient.Instance.ClientId == clientId)
-        {
-            physics.StopAllCoroutines();
-            physics.StartCoroutine(physics.CoExitVent(ventId));
-            return false;
-        }
-
-        sender.AutoStartRpc(physics.NetId, RpcCalls.ExitVent, clientId);
-        sender.WritePacked(ventId);
-        sender.EndRpc();
-
-        return true;
-    }
-
     public static bool RpcGuardAndKill(this CustomRpcSender sender, PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
     {
         if (!AmongUsClient.Instance.AmHost)
@@ -635,14 +615,6 @@ public static class CustomRpcSenderExtensions
         sender.EndRpc();
     }
 
-    public static void RpcExileV2(this CustomRpcSender sender, PlayerControl player)
-    {
-        player.Exiled();
-        sender.AutoStartRpc(player.NetId, RpcCalls.Exiled);
-        sender.EndRpc();
-        LateTask.New(() => FixedUpdatePatch.LoversSuicide(player.PlayerId), Utils.CalculatePingDelay() * 2f, log: false);
-    }
-
     public static bool Notify(this CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
     {
         if (!AmongUsClient.Instance.AmHost || pc == null) return false;
@@ -708,14 +680,9 @@ public static class CustomRpcSenderExtensions
 
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
-        return true;
-    }
 
-    public static bool TPToRandomVent(this CustomRpcSender sender, PlayerControl pc, bool log = true)
-    {
-        Vent vent = ShipStatus.Instance.AllVents.RandomElement();
-        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
-        return sender.TP(pc, new(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
+        if (sender.sendOption == SendOption.Reliable) Utils.NumSnapToCallsThisRound++;
+        return true;
     }
 
     public static bool NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target, out CustomRpcSender newSender, out bool senderWasCleared)

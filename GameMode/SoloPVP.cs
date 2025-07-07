@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Neutral;
 using UnityEngine;
 using static EHR.RandomSpawn;
 
@@ -20,7 +18,7 @@ internal static class SoloPVP
     public static Dictionary<byte, int> KBScore = [];
     public static int RoundTime;
 
-    private static readonly Dictionary<byte, (string Text, long TimeStamp)> NameNotify = [];
+    private static readonly Dictionary<byte, (string Text, long RemoveTimeStamp)> NameNotify = [];
 
     private static Dictionary<byte, int> BackCountdown = [];
     private static Dictionary<byte, long> LastHurt = [];
@@ -179,7 +177,8 @@ internal static class SoloPVP
             return;
         }
 
-        if (NameNotify.TryGetValue(player.PlayerId, out (string Text, long TimeStamp) value1)) name = value1.Text;
+        if (NameNotify.TryGetValue(player.PlayerId, out (string Text, long RemoveTimeStamp) value1))
+            name = value1.Text;
     }
 
     public static int GetRankFromScore(byte playerId)
@@ -232,37 +231,15 @@ internal static class SoloPVP
     {
         BackCountdown.Remove(pc.PlayerId);
         PlayerHP[pc.PlayerId] = PlayerHPMax[pc.PlayerId];
-
         LastHurt[pc.PlayerId] = Utils.TimeStamp;
-        Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-        pc.MarkDirtySettings();
-
+        pc.RpcRevive();
         RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
-        pc.RpcGuardAndKill();
-
-        if (pc.inVent) pc.MyPhysics.RpcBootFromVent(ShipStatus.Instance.AllVents.RandomElement().Id);
-        else SpawnMap.GetSpawnMap().RandomTeleport(pc);
+        SpawnMap.GetSpawnMap().RandomTeleport(pc);
     }
 
     private static void OnPlayerDead(PlayerControl target)
     {
-        target.MyPhysics.RpcCancelPet();
-        PetsHelper.RpcRemovePet(target);
-
-        Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
-        target.MarkDirtySettings();
-
-        if (target.walkingToVent || target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingEnterVentAnimation())
-        {
-            LateTask.New(() =>
-            {
-                target.MyPhysics.RpcExitVent(Main.LastEnteredVent.TryGetValue(target.PlayerId, out var vent) ? vent.Id : 2);
-                LateTask.New(() => target.TP(Pelican.GetBlackRoomPS()), 0.6f, log: false);
-            }, 1f, log: false);
-        }
-        else
-            target.TP(Pelican.GetBlackRoomPS());
-
+        target.ExileTemporarily();
         BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
     }
 
@@ -279,6 +256,7 @@ internal static class SoloPVP
         addRate *= KB_KillBonusMultiplier.GetFloat();
         if (killer.IsHost()) addRate /= 2f;
 
+        var text = string.Empty;
         float addin;
 
         switch (IRandom.Instance.Next(0, 4))
@@ -286,31 +264,26 @@ internal static class SoloPVP
             case 0:
                 addin = PlayerHPMax[killer.PlayerId] * addRate;
                 PlayerHPMax[killer.PlayerId] += addin;
-                AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_HPMax"), addin.ToString("0.0#####")));
+                text = string.Format(Translator.GetString("KB_Buff_HPMax"), addin.ToString("0.0#####"));
                 break;
             case 1:
                 addin = PlayerHPReco[killer.PlayerId] * addRate * 2;
                 PlayerHPReco[killer.PlayerId] += addin;
-                AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_HPReco"), addin.ToString("0.0#####")));
+                text = string.Format(Translator.GetString("KB_Buff_HPReco"), addin.ToString("0.0#####"));
                 break;
             case 2:
                 addin = PlayerATK[killer.PlayerId] * addRate;
                 PlayerATK[killer.PlayerId] += addin;
-                AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_ATK"), addin.ToString("0.0#####")));
+                text = string.Format(Translator.GetString("KB_Buff_ATK"), addin.ToString("0.0#####"));
                 break;
             case 3:
                 addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate * 8;
                 PlayerDF[killer.PlayerId] += addin;
-                AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_DF"), addin.ToString("0.0#####")));
+                text = string.Format(Translator.GetString("KB_Buff_DF"), addin.ToString("0.0#####"));
                 break;
         }
-    }
 
-    private static void AddNameNotify(PlayerControl pc, string text, int time = 5)
-    {
-        NameNotify.Remove(pc.PlayerId);
-        NameNotify.Add(pc.PlayerId, (text, Utils.TimeStamp + time));
-        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        NameNotify[killer.PlayerId] = (text, Utils.TimeStamp + 5);
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -323,35 +296,11 @@ internal static class SoloPVP
             byte id = __instance.PlayerId;
             if (!GameStates.IsInTask || ExileController.Instance || !Main.IntroDestroyed || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost || id >= 254) return;
 
-            bool soloAlive = __instance.SoloAlive();
-            bool inVent = __instance.inVent;
-
-            try
-            {
-                Vector2 pos = Pelican.GetBlackRoomPS();
-                float dis = Vector2.Distance(pos, __instance.Pos());
-
-                switch (soloAlive)
-                {
-                    case false when !inVent && !__instance.walkingToVent && !__instance.MyPhysics.Animations.IsPlayingEnterVentAnimation() && dis > 1f:
-                    {
-                        __instance.TP(pos);
-                        break;
-                    }
-                    case true when !inVent && dis < 1.1f:
-                    {
-                        SpawnMap.GetSpawnMap().RandomTeleport(__instance);
-                        break;
-                    }
-                }
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
-
             long now = Utils.TimeStamp;
             if (LastCountdownTime[id] == now) return;
             LastCountdownTime[id] = now;
 
-            if (LastHurt[id] + KB_RecoverAfterSecond.GetInt() < now && PlayerHP[id] < PlayerHPMax[id] && soloAlive && !inVent)
+            if (LastHurt[id] + KB_RecoverAfterSecond.GetInt() < now && PlayerHP[id] < PlayerHPMax[id] && __instance.SoloAlive() && !__instance.inVent)
             {
                 PlayerHP[id] += PlayerHPReco[id];
                 PlayerHP[id] = Math.Min(PlayerHPMax[id], PlayerHP[id]);
@@ -363,7 +312,7 @@ internal static class SoloPVP
                 if (BackCountdown[id] <= 0) OnPlayerBack(__instance);
             }
 
-            if (NameNotify.TryGetValue(id, out (string Text, long TimeStamp) nameNotify) && nameNotify.TimeStamp < now)
+            if (NameNotify.TryGetValue(id, out (string Text, long RemoveTimeStamp) nameNotify) && nameNotify.RemoveTimeStamp < now)
                 NameNotify.Remove(id);
 
 

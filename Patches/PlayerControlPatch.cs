@@ -86,22 +86,23 @@ internal static class RpcMurderPlayerPatch
             __instance.MurderPlayer(target, murderResultFlags);
 
         var sender = CustomRpcSender.Create("RpcMurderPlayer", SendOption.Reliable);
+        sender.StartMessage();
 
         if (Main.Invisible.Contains(target.PlayerId) && murderResultFlags == MurderResultFlags.Succeeded)
         {
-            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(target.NetTransform.lastSequenceId + 16383))
                 .EndRpc();
-            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(target.NetTransform.lastSequenceId + 32767))
                 .EndRpc();
-            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(target.NetTransform.lastSequenceId + 32767 + 16383))
                 .EndRpc();
-            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(target.transform.position)
                 .Write(target.NetTransform.lastSequenceId)
                 .EndRpc();
@@ -109,7 +110,7 @@ internal static class RpcMurderPlayerPatch
             NumSnapToCallsThisRound += 4;
         }
 
-        sender.AutoStartRpc(__instance.NetId, RpcCalls.MurderPlayer)
+        sender.StartRpc(__instance.NetId, RpcCalls.MurderPlayer)
             .WriteNetObject(target)
             .Write((int)murderResultFlags)
             .EndRpc();

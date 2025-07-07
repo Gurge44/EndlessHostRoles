@@ -892,6 +892,7 @@ internal static class CustomRolesHelper
     public static bool NeedsUpdateAfterDeath(this CustomRoles role)
     {
         return role is
+            CustomRoles.KB_Normal or
             CustomRoles.BedWarsPlayer or
             CustomRoles.Weatherman or
             CustomRoles.Altruist or

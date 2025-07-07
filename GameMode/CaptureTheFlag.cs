@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 
@@ -399,8 +398,9 @@ public static class CaptureTheFlag
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
-        */
+
         yield return new WaitForSeconds(0.2f);
+        */
 
         ValidTag = true;
         GameStartTS = Utils.TimeStamp;
@@ -415,7 +415,7 @@ public static class CaptureTheFlag
             Vector2 flagBase = team.GetFlagBase().Position;
             data.DropFlag();
             data.Flag.TP(flagBase);
-            data.Players.ToValidPlayers().Do(x => x.TP(flagBase));
+            data.Players.ToValidPlayers().MassTP(flagBase);
         }
     }
 
@@ -439,7 +439,7 @@ public static class CaptureTheFlag
                 target.MarkDirtySettings();
                 break;
             case 1:
-                target.Suicide();
+                target.Suicide(PlayerState.DeathReason.Kill);
                 string notify = string.Format(Translator.GetString("CTF_TeamMemberFallen"), target.PlayerId.ColoredPlayerName());
                 TeamData[targetTeam].Players.ToValidPlayers().NotifyPlayers(notify);
                 if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
@@ -447,9 +447,7 @@ public static class CaptureTheFlag
                 break;
             case 2:
                 TemporarilyOutPlayers[target.PlayerId] = Utils.TimeStamp + BackTime.GetInt();
-                Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
-                target.TP(Pelican.GetBlackRoomPS());
-                target.MarkDirtySettings();
+                target.ExileTemporarily();
                 break;
         }
 
@@ -474,6 +472,9 @@ public static class CaptureTheFlag
     public static void ApplyGameOptions()
     {
         AURoleOptions.PhantomCooldown = 5f;
+
+        try { AURoleOptions.GuardianAngelCooldown = 900f; }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
@@ -739,28 +740,19 @@ public static class CaptureTheFlag
                     .SendMessage();
             }
 
-            Vector2 pos = __instance.Pos();
-            Vector2 blackRoomPS = Pelican.GetBlackRoomPS();
-
             if (TemporarilyOutPlayers.TryGetValue(__instance.PlayerId, out long endTS))
             {
                 if (Utils.TimeStamp >= endTS)
                 {
                     TemporarilyOutPlayers.Remove(__instance.PlayerId);
-                    Main.AllPlayerSpeed[__instance.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                    __instance.MarkDirtySettings();
+                    __instance.RpcRevive();
                     __instance.TP(team.GetFlagBase().Position);
                     __instance.SetKillCooldown();
                     RPC.PlaySoundRPC(__instance.PlayerId, Sounds.TaskComplete);
                 }
                 else if (GameEndCriteria.GetValue() != 2)
-                {
                     Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
-                    if (Vector2.Distance(pos, blackRoomPS) > 2f) __instance.TP(blackRoomPS);
-                }
             }
-            else if (Vector2.Distance(pos, blackRoomPS) <= 2f)
-                __instance.TP(team.GetFlagBase().Position);
         }
     }
 }

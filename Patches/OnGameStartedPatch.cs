@@ -1174,10 +1174,19 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
-            bool forceDisplayCrewmate = Options.CurrentGameMode == CustomGameMode.Standard && target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel);
-            if (forceDisplayCrewmate) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;
+            RoleTypes displayRole = roleType;
 
-            target.RpcSetRoleDesync(forceDisplayCrewmate ? RoleTypes.Crewmate : roleType, targetClientId);
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
+            {
+                if (target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel))
+                    displayRole = RoleTypes.Crewmate;
+
+                if (target.Is(Team.Impostor) && roleType is not (RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.ImpostorGhost))
+                    displayRole = RoleTypes.Impostor;
+            }
+
+            if (displayRole != roleType) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;
+            target.RpcSetRoleDesync(displayRole, targetClientId);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

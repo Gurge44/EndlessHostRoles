@@ -208,6 +208,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     catch (Exception e) { Utils.ThrowException(e); }
 
                     goto case CustomGameMode.RoomRush;
+                case CustomGameMode.SoloKombat:
+                    try { AURoleOptions.GuardianAngelCooldown = 900f; }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
+                    break;
             }
 
             switch (player.GetCustomRoleTypes())

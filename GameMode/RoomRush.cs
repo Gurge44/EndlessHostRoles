@@ -555,20 +555,17 @@ public static class RoomRush
             Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
             PlayerControl[] lateAapc = Main.AllAlivePlayerControls;
             PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
+            bool everyoneDies = playersOutsideRoom.Length == lateAapc.Length;
 
             if (WinByPointsInsteadOfDeaths.GetBool())
             {
-                if (playersOutsideRoom.Length == lateAapc.Length)
-                {
-                    Vector2 roomPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
-                    playersOutsideRoom.Do(x => x.TP(roomPos));
-                }
-                else playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
+                Vector2 location = everyoneDies ? Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position) : DonePlayers.RandomElement().GetPlayer().Pos();
+                playersOutsideRoom.MassTP(location);
             }
             else
             {
-                if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                 playersOutsideRoom.Do(x => x.Suicide());
+                if (everyoneDies) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
             }
 
             StartNewRound();

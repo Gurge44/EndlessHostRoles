@@ -703,17 +703,13 @@ public static class BedWars
 
                     Inventory.Clear();
                     if (Reviving.Add(pc.PlayerId)) Main.Instance.StartCoroutine(ReviveCountdown(pc));
-                    pc.Exiled();
-                    CustomRpcSender.Create("BedWars Death", SendOption.Reliable).AutoStartRpc(pc.NetId, 4).EndRpc().SendMessage();
-                    Main.PlayerStates[pc.PlayerId].SetDead();
-                    pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.OwnerId);
-                    pc.RpcResetAbilityCooldown();
-                    pc.MarkDirtySettings();
+
+                    pc.ExileTemporarily();
                 }
                 else
                 {
                     Inventory.Items = [];
-                    pc.Suicide();
+                    pc.Suicide(PlayerState.DeathReason.Kill);
                 }
             }
         }
@@ -733,7 +729,6 @@ public static class BedWars
 
             Health = MaxHealth;
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
             pc.RpcRevive();
             pc.RpcSetColor(Team.GetColorId());

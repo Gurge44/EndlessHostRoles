@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using AmongUs.InnerNet.GameDataMessages;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -3510,7 +3511,7 @@ public static class Utils
 
         return num switch
         {
-            < 15 when player != null => player.GetNameWithRole().RemoveHtmlTags(),
+            < 128 when player != null => player.GetNameWithRole().RemoveHtmlTags(),
             253 => "Skip",
             254 => "None",
             255 => "Dead",
@@ -4033,35 +4034,10 @@ public static class Utils
         AmongUsClient.Instance.NetIdCnt += 1U;
         var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", sendOption, true, false);
         MessageWriter writer = sender.stream;
-        writer.StartMessage(5);
-        writer.Write(AmongUsClient.Instance.GameId);
+        sender.StartMessage();
         writer.StartMessage(4);
-        writer.WritePacked(playerControl.SpawnId);
-        writer.WritePacked(-2);
-        writer.Write((byte)SpawnFlags.None);
-        InnerNetObject[] componentsInChildren = playerControl.GetComponentsInChildren<InnerNetObject>();
-        writer.WritePacked(componentsInChildren.Length);
-
-        for (var index = 0; index < componentsInChildren.Length; ++index)
-        {
-            InnerNetObject innerNetObject = componentsInChildren[index];
-            innerNetObject.OwnerId = -2;
-            innerNetObject.SpawnFlags = SpawnFlags.None;
-
-            if (innerNetObject.NetId == 0U)
-            {
-                innerNetObject.NetId = AmongUsClient.Instance.NetIdCnt++;
-                InnerNetObjectCollection allObjects = AmongUsClient.Instance.allObjects;
-                allObjects.allObjects.Add(innerNetObject);
-                allObjects.allObjectsFast.Add(innerNetObject.NetId, innerNetObject);
-            }
-
-            writer.WritePacked(innerNetObject.NetId);
-            writer.StartMessage(1);
-            innerNetObject.Serialize(writer, true);
-            writer.EndMessage();
-        }
-
+        SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
+        item.SerializeValues(writer);
         writer.EndMessage();
 
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
@@ -4082,6 +4058,7 @@ public static class Utils
 
         if (PlayerControl.AllPlayerControls.Contains(playerControl))
             PlayerControl.AllPlayerControls.Remove(playerControl);
+
         int baseColorId = playerControl.Data.DefaultOutfit.ColorId;
         sender.StartRpc(playerControl.NetId, RpcCalls.SetColor)
             .Write(playerControl.Data.NetId)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.InnerNet.GameDataMessages;
 using EHR;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -173,61 +174,29 @@ namespace EHR
             msg.StartMessage(5);
             msg.Write(AmongUsClient.Instance.GameId);
             msg.StartMessage(4);
-            msg.WritePacked(playerControl.SpawnId);
-            msg.WritePacked(-2);
-            msg.Write((byte)SpawnFlags.None);
-            InnerNetObject[] componentsInChildren = playerControl.GetComponentsInChildren<InnerNetObject>();
-            msg.WritePacked(componentsInChildren.Length);
-
-            for (int index = 0; index < componentsInChildren.Length; ++index)
-            {
-                InnerNetObject innerNetObject = componentsInChildren[index];
-                innerNetObject.OwnerId = -2;
-                innerNetObject.SpawnFlags = SpawnFlags.None;
-
-                if (innerNetObject.NetId == 0U)
-                {
-                    innerNetObject.NetId = AmongUsClient.Instance.NetIdCnt++;
-                    InnerNetObjectCollection allObjects = AmongUsClient.Instance.allObjects;
-                    allObjects.allObjects.Add(innerNetObject);
-                    allObjects.allObjectsFast.Add(innerNetObject.NetId, innerNetObject);
-                }
-
-                msg.WritePacked(innerNetObject.NetId);
-                msg.StartMessage(1);
-                innerNetObject.Serialize(msg, true);
-                msg.EndMessage();
-            }
-
+            SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
+            item.SerializeValues(msg);
             msg.EndMessage();
-            msg.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(msg);
-            msg.Recycle();
 
             if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             {
-                MessageWriter msg2 = MessageWriter.Get(SendOption.Reliable);
-                msg2.StartMessage(6);
-                msg2.Write(AmongUsClient.Instance.GameId);
-                msg2.WritePacked(int.MaxValue);
-
                 for (uint i = 1; i <= 3; ++i)
                 {
-                    msg2.StartMessage(4);
-                    msg2.WritePacked(2U);
-                    msg2.WritePacked(-2);
-                    msg2.Write((byte)SpawnFlags.None);
-                    msg2.WritePacked(1);
-                    msg2.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
-                    msg2.StartMessage(1);
-                    msg2.EndMessage();
-                    msg2.EndMessage();
+                    msg.StartMessage(4);
+                    msg.WritePacked(2U);
+                    msg.WritePacked(-2);
+                    msg.Write((byte)SpawnFlags.None);
+                    msg.WritePacked(1);
+                    msg.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
+                    msg.StartMessage(1);
+                    msg.EndMessage();
+                    msg.EndMessage();
                 }
-
-                msg2.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(msg2);
-                msg2.Recycle();
             }
+
+            msg.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(msg);
+            msg.Recycle();
 
             if (PlayerControl.AllPlayerControls.Contains(playerControl))
                 PlayerControl.AllPlayerControls.Remove(playerControl);

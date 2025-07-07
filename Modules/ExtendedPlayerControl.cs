@@ -261,6 +261,39 @@ internal static class ExtendedPlayerControl
         if (init) Main.PlayerStates[player.PlayerId].InitTask(player);
     }
 
+    public static void ExileTemporarily(this PlayerControl pc)
+    {
+        pc.Exiled();
+        Main.PlayerStates[pc.PlayerId].SetDead();
+
+        CustomRpcSender.Create("Temporary Death", SendOption.Reliable)
+            .AutoStartRpc(pc.NetId, 4)
+            .EndRpc()
+            .SendMessage();
+
+        pc.SyncSettings();
+
+        if (!pc.AmOwner)
+        {
+            var sender = CustomRpcSender.Create("Temporary Death (2)", SendOption.Reliable);
+            sender.StartMessage(pc.OwnerId);
+            sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                .Write((ushort)RoleTypes.GuardianAngel)
+                .Write(true)
+                .EndRpc();
+            sender.StartRpc(pc.NetId, RpcCalls.ProtectPlayer)
+                .WriteNetObject(pc)
+                .Write(0)
+                .EndRpc();
+            sender.SendMessage();
+        }
+        else
+        {
+            pc.SetRole(RoleTypes.GuardianAngel);
+            pc.Data.Role.SetCooldown();
+        }
+    }
+
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)
     {
         if (player == null) return;
@@ -1679,6 +1712,13 @@ internal static class ExtendedPlayerControl
         Vector2 pos = pc.Pos();
 
         return (pos, roomName);
+    }
+
+    public static void MassTP(this IEnumerable<PlayerControl> players, Vector2 location, bool noCheckState = false, bool log = true)
+    {
+        var sender = CustomRpcSender.Create("Mass TP", SendOption.Reliable);
+        bool hasValue = players.Aggregate(false, (current, pc) => current | sender.TP(pc, location, noCheckState, log));
+        sender.SendMessage(!hasValue);
     }
 
     public static bool TP(this PlayerControl pc, PlayerControl target, bool noCheckState = false, bool log = true)
