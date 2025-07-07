@@ -168,7 +168,7 @@ internal static class AuthTimeoutPatch
     // https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Miscellaneous/CustomServersPatch.cs
     public static bool CoWaitforNoncePrefix(ref bool __result)
     {
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return true;
+        if (GameStates.CurrentServerType is GameStates.ServerType.Vanilla or GameStates.ServerType.Local) return true;
 
         __result = false;
         return false;

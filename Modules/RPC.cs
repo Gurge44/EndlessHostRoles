@@ -206,9 +206,9 @@ internal static class RPCHandlerPatch
         [RpcCalls.CancelPet] = 40,
         [RpcCalls.CheckZipline] = 1,
         [RpcCalls.CheckSpore] = 5,
-        [RpcCalls.CheckShapeshift] = 10,
-        [RpcCalls.CheckVanish] = 10,
-        [RpcCalls.CheckAppear] = 10
+        [RpcCalls.CheckShapeshift] = 25,
+        [RpcCalls.CheckVanish] = 25,
+        [RpcCalls.CheckAppear] = 25
     };
 
     public static void WhiteListFromRateLimitUntil(byte id, long timestamp)
@@ -1306,8 +1306,17 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.Invisibility:
                 {
-                    if (reader.ReadBoolean()) __instance.MakeInvisible();
-                    else __instance.MakeVisible();
+                    if (reader.ReadBoolean())
+                    {
+                        __instance.MakeInvisible();
+                        Main.Invisible.Add(__instance.PlayerId);
+                    }
+                    else
+                    {
+                        __instance.MakeVisible();
+                        Main.Invisible.Remove(__instance.PlayerId);
+                    }
+
                     break;
                 }
                 case CustomRPC.ResetAbilityCooldown:

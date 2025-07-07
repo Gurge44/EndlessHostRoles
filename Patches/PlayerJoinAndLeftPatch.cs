@@ -80,7 +80,7 @@ internal static class OnGameJoinedPatch
 
             LateTask.New(() =>
             {
-                if (GameStates.IsOnlineGame && GameStates.CurrentServerType != GameStates.ServerType.Custom)
+                if (GameStates.CurrentServerType is not GameStates.ServerType.Custom and not GameStates.ServerType.Local)
                 {
                     try
                     {
@@ -89,7 +89,7 @@ internal static class OnGameJoinedPatch
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }
-                else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType} (IsOnlineGame: {GameStates.IsOnlineGame})", "OnGameJoinedPatch");
+                else Logger.Info($"Not sending lobby status to the server because the server type is {GameStates.CurrentServerType}", "OnGameJoinedPatch");
             }, 5f, "NotifyLobbyCreated");
 
             if (Options.AutoGMPollCommandAfterJoin.GetBool() && !Options.AutoGMRotationEnabled)
@@ -236,7 +236,7 @@ internal static class OnPlayerJoinedPatch
             catch { }
         }, 4.5f, "green bean kick late task", false);
 
-        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame && GameStates.CurrentServerType != GameStates.ServerType.Modded)
+        if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && GameStates.CurrentServerType is not GameStates.ServerType.Modded and not GameStates.ServerType.Local)
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid())) BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
 
@@ -253,7 +253,7 @@ internal static class OnPlayerJoinedPatch
             Logger.Info(msg, "Android Kick");
         }
 
-        if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType != GameStates.ServerType.Modded)
+        if (FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType is not GameStates.ServerType.Modded and not GameStates.ServerType.Local)
         {
             AmongUsClient.Instance.KickPlayer(client.Id, true);
             Logger.Info($"Blocked Player {client.PlayerName}({client.FriendCode}) has been banned.", "BAN");

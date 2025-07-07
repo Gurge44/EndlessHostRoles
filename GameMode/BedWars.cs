@@ -422,16 +422,16 @@ public static class BedWars
                     .Write(0)
                     .EndRpc();
 
-                playerTeams.DoIf(x => x.Key != PlayerControl.LocalPlayer.PlayerId && x.Value == team, x =>
+                foreach ((byte otherId, BedWarsTeam otherTeam) in playerTeams)
                 {
-                    PlayerControl target = x.Key.GetPlayer();
-                    if (target == null) return;
+                    PlayerControl target = otherId.GetPlayer();
+                    if (target == null || target.PlayerId == pc.PlayerId || otherTeam != team) continue;
 
                     sender.StartRpc(target.NetId, RpcCalls.SetRole)
                         .Write((ushort)RoleTypes.Impostor)
                         .Write(true)
                         .EndRpc();
-                });
+                }
 
                 sender.SendMessage();
             }
