@@ -176,7 +176,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
-                case CustomGameMode.KingOfTheZones:
                     SetMaxVision();
                     break;
                 case CustomGameMode.BedWars:
@@ -208,11 +207,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     catch (Exception e) { Utils.ThrowException(e); }
 
                     goto case CustomGameMode.RoomRush;
+                case CustomGameMode.KingOfTheZones:
                 case CustomGameMode.SoloKombat:
                     try { AURoleOptions.GuardianAngelCooldown = 900f; }
                     catch (Exception e) { Utils.ThrowException(e); }
 
-                    break;
+                    goto case CustomGameMode.RoomRush;
             }
 
             switch (player.GetCustomRoleTypes())

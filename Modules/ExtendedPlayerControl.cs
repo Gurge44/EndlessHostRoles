@@ -267,7 +267,7 @@ internal static class ExtendedPlayerControl
         Main.PlayerStates[pc.PlayerId].SetDead();
 
         CustomRpcSender.Create("Temporary Death", SendOption.Reliable)
-            .AutoStartRpc(pc.NetId, 4)
+            .AutoStartRpc(pc.NetId, RpcCalls.Exiled)
             .EndRpc()
             .SendMessage();
 
