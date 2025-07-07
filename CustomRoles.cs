@@ -459,6 +459,7 @@ public enum CustomRoles
     Autopsy,
     Avanger,
     Bait,
+    BananaMan,
     Trapper, // Beartrap
     Bewilder,
     Blind,

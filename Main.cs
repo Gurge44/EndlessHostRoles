@@ -619,6 +619,7 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.BananaMan, "#ffe135" },
                 { CustomRoles.Blind, "#666666" },
                 { CustomRoles.Shy, "#9582f5" },
                 { CustomRoles.Blocked, "#B7A627" },

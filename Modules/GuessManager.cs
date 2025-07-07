@@ -318,6 +318,7 @@ public static class GuessManager
                         case CustomRoles.Disco:
                         case CustomRoles.Glow:
                         case CustomRoles.LastImpostor:
+                        case CustomRoles.BananaMan:
                             ShowMessage("GuessObviousAddon");
                             return true;
                         case CustomRoles.GM:

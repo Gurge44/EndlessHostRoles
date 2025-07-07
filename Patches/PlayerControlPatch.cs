@@ -1672,6 +1672,9 @@ internal static class FixedUpdatePatch
 
             string realName = target.GetRealName();
 
+            if (target.Is(CustomRoles.BananaMan))
+                realName = realName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
+
             if (target.AmOwner && inTask)
             {
                 if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())

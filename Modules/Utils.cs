@@ -2559,6 +2559,9 @@ public static class Utils
 
             string seerRealName = seer.GetRealName(forMeeting);
 
+            if (seer.Is(CustomRoles.BananaMan))
+                seerRealName = seerRealName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
+
             if (!GameStates.IsLobby)
             {
                 if ((Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool()) || Options.CurrentGameMode == CustomGameMode.HotPotato)
@@ -2803,6 +2806,9 @@ public static class Utils
 
                             string targetPlayerName = target.GetRealName(forMeeting);
 
+                            if (target.Is(CustomRoles.BananaMan))
+                                targetPlayerName = targetPlayerName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
+
                             if (GameStates.IsLobby) goto End;
 
                             if (Options.CurrentGameMode != CustomGameMode.Standard) goto BeforeEnd;
@@ -2989,6 +2995,9 @@ public static class Utils
 
     public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null, SendOption sendOption = SendOption.Reliable)
     {
+        if (pc.Is(CustomRoles.BananaMan))
+            newOutfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Banana"));
+        
         if (newOutfit.Compare(pc.Data.DefaultOutfit)) return false;
 
         Camouflage.SetPetForOutfitIfNecessary(newOutfit);

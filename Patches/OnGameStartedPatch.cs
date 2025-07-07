@@ -864,6 +864,9 @@ internal static class StartGameHostPatch
 
                 if (!state.MainRole.IsImpostor() && !(state.MainRole == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
                     state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
+
+                if (state.SubRoles.Contains(CustomRoles.BananaMan))
+                    Utils.RpcChangeSkin(state.Player, new());
             }
 
             foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)
@@ -1046,7 +1049,7 @@ internal static class StartGameHostPatch
         }
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 1f, GetString("LoadingBarText.1"));
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.AllPlayerControls.Do(SetRoleSelf);

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using AmongUs.Data;
+using EHR.AddOns.Common;
 using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
@@ -182,6 +183,9 @@ public static class Camouflage
                 newOutfit = PlayerSkins[id];
             }
         }
+
+        if (target.Is(CustomRoles.BananaMan))
+            newOutfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(target.PlayerId, "Banana"));
 
         SetPetForOutfitIfNecessary(newOutfit);
 
