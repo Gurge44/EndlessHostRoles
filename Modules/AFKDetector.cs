@@ -140,7 +140,7 @@ public static class AFKDetector
                 break;
             case Consequence.Kick:
                 AmongUsClient.Instance.KickPlayer(pc.OwnerId, false);
-                Logger.SendInGame(string.Format(Translator.GetString("AFKKick"), pc.PlayerId.ColoredPlayerName()));
+                Logger.SendInGame(string.Format(Translator.GetString("AFKKick"), pc.PlayerId.ColoredPlayerName()), Color.yellow);
                 break;
             case Consequence.Suicide:
                 pc.Suicide(PlayerState.DeathReason.AFK);

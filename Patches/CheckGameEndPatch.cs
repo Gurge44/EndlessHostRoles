@@ -59,6 +59,7 @@ internal static class GameEndChecker
         {
             if (WinnerIds.Count > 0 || WinnerTeam != CustomWinner.Default)
             {
+                Statistics.OnGameEnd();
                 Ended = true;
                 LoadingEndScreen = true;
                 ShipStatus.Instance.enabled = false;
@@ -71,6 +72,8 @@ internal static class GameEndChecker
 
         if (WinnerTeam != CustomWinner.Default)
         {
+            Statistics.OnGameEnd();
+            
             Ended = true;
             LoadingEndScreen = true;
 
@@ -354,8 +357,6 @@ internal static class GameEndChecker
             .Where(x => x.GetClient() != null && !x.Data.Disconnected)
             .Select(x => new Message("\n", x.PlayerId, msg))
             .SendMultipleMessages();
-
-        Statistics.OnGameEnd();
 
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         var self = AmongUsClient.Instance;
@@ -711,7 +712,7 @@ internal static class GameEndChecker
                 }
                 default:
                     Logger.Fatal("Error while selecting NK winner", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
-                    Logger.SendInGame("There was an error while selecting the winner. Please report this bug to the developer! (Do /dump to get logs)");
+                    Logger.SendInGame("There was an error while selecting the winner. Please report this bug to the developer! (Do /dump to get logs)", Color.red);
                     ResetAndSetWinner(CustomWinner.Error);
                     return true;
             }

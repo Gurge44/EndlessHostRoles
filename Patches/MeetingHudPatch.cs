@@ -1198,7 +1198,7 @@ internal static class MeetingHudUpdatePatch
             foreach (PlayerControl pc in Main.AllPlayerControls) Logger.Info($" {(pc.IsAlive() ? "Alive" : $"Dead ({Main.PlayerStates[pc.PlayerId].deathReason})")}, {Utils.GetProgressText(pc)}, {Utils.GetVitalText(pc.PlayerId)}", $"{pc.GetNameWithRole()} / {pc.PlayerId}");
 
             Logger.Warn("-----------------", "Debug for Fatal Error");
-            Logger.SendInGame("An error occured with this meeting. Please use /dump and send the log to the developer.\nSorry for the inconvenience.");
+            Logger.SendInGame("An error occured with this meeting. Please use /dump and send the log to the developer.\nSorry for the inconvenience.", Color.red);
         }
     }
 }

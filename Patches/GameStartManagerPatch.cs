@@ -179,7 +179,7 @@ public static class GameStartManagerPatch
                                     .Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId)
                                     .Do(p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
 
-                                Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
+                                Logger.SendInGame(GetString("Error.InvalidColorPreventStart"), Color.yellow);
                                 string msg = GetString("Error.InvalidColor");
                                 msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
                                 Utils.SendMessage(msg, sendOption: SendOption.None);
@@ -486,7 +486,7 @@ public static class GameStartRandomMap
 
         if (invalidColor.Length > 0)
         {
-            Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
+            Logger.SendInGame(GetString("Error.InvalidColorPreventStart"), Color.yellow);
             string msg = GetString("Error.InvalidColor");
             msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
             Utils.SendMessage(msg, sendOption: SendOption.None);

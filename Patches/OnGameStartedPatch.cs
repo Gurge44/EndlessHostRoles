@@ -175,7 +175,7 @@ internal static class ChangeRoleSettings
 
             if (Main.NormalOptions.MapId > 5)
             {
-                Logger.SendInGame(GetString("UnsupportedMap"));
+                Logger.SendInGame(GetString("UnsupportedMap"), Color.red);
                 ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
             }
 
@@ -290,7 +290,7 @@ internal static class ChangeRoleSettings
             Coven.Coven.CovenMeetingStartPatch.MeetingNum = 0;
 
             AFKDetector.ShieldedPlayers.Clear();
-
+            Main.Invisible.Clear();
             ChatCommands.MutedPlayers.Clear();
 
             MeetingTimeManager.Init();
@@ -319,7 +319,7 @@ internal static class ChangeRoleSettings
                 if (invalidColor.Length > 0)
                 {
                     string msg = GetString("Error.InvalidColor");
-                    Logger.SendInGame(msg);
+                    Logger.SendInGame(msg, Color.yellow);
                     msg += "\n" + string.Join(",", invalidColor);
                     Utils.SendMessage(msg, sendOption: SendOption.None);
                     Logger.Error(msg, "CoStartGame");
@@ -782,7 +782,7 @@ internal static class StartGameHostPatch
                 if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
 
                 CustomRoles role = Enum.TryParse($"{pc.Data.Role.Role}EHR", out CustomRoles parsedRole) ? parsedRole : CustomRoles.NotAssigned;
-                if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
+                if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName), Color.red);
 
                 Main.PlayerStates[pc.PlayerId].SetMainRole(role);
             }

@@ -128,7 +128,7 @@ internal static class ChatCommands
             new(["cs", "changesetting", "измнастр", "修改设置", "mudarconfig", "mudarconfiguração"], "{name} {?} [?]", GetString("CommandDescription.ChangeSetting"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ChangeSettingCommand, true, false, [GetString("CommandArgs.ChangeSetting.Name"), GetString("CommandArgs.ChangeSetting.UnknownValue"), GetString("CommandArgs.ChangeSetting.UnknownValue")]),
             new(["win", "winner", "победители", "获胜者", "vencedor"], "", GetString("CommandDescription.Winner"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, WinnerCommand, true, false),
             new(["l", "lastresult", "л", "对局职业信息", "resultados", "ultimoresultado"], "", GetString("CommandDescription.LastResult"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LastResultCommand, true, false),
-            new(["rn", "rename", "рн", "ренейм", "переименовать", "修改名称", "renomear"], "{name}", GetString("CommandDescription.Rename"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, RenameCommand, true, false, [GetString("CommandArgs.Rename.Name")]),
+            new(["rn", "rename", "name", "рн", "ренейм", "переименовать", "修改名称", "renomear"], "{name}", GetString("CommandDescription.Rename"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, RenameCommand, true, false, [GetString("CommandArgs.Rename.Name")]),
             new(["hn", "hidename", "хн", "спрник", "隐藏姓名", "semnome", "escondernome"], "", GetString("CommandDescription.HideName"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, HideNameCommand, true, false),
             new(["level", "лвл", "уровень", "修改等级", "nível"], "{level}", GetString("CommandDescription.Level"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, LevelCommand, true, false, [GetString("CommandArgs.Level.Level")]),
             new(["n", "now", "н", "当前设置", "atual"], "", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true, false),
@@ -291,17 +291,20 @@ internal static class ChatCommands
         string text = __instance.freeChatField.textArea.text.Trim();
         var cancelVal = string.Empty;
 
-        if (Options.CurrentGameMode == CustomGameMode.TheMindGame)
+        switch (Options.CurrentGameMode)
         {
-            if (AmongUsClient.Instance.AmHost)
+            case CustomGameMode.TheMindGame when AmongUsClient.Instance.AmHost:
                 TheMindGame.OnChat(PlayerControl.LocalPlayer, text.ToLower());
-            else
-            {
+                break;
+            case CustomGameMode.TheMindGame:
                 MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.TMGSync, SendOption.Reliable, AmongUsClient.Instance.HostId);
                 w.WriteNetObject(PlayerControl.LocalPlayer);
                 w.Write(text);
                 AmongUsClient.Instance.FinishRpcImmediately(w);
-            }
+                break;
+            case CustomGameMode.BedWars when AmongUsClient.Instance.AmHost:
+                BedWars.OnChat(PlayerControl.LocalPlayer, text);
+                break;
         }
 
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
@@ -386,6 +389,8 @@ internal static class ChatCommands
                 canceled = true;
                 __instance.freeChatField.textArea.Clear();
                 __instance.freeChatField.textArea.SetText(string.Empty);
+
+                LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 0.2f, log: false);
             }
 
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
@@ -530,7 +535,7 @@ internal static class ChatCommands
         pc.FixBlackScreen();
 
         if (Main.AllPlayerControls.All(x => x.IsAlive()))
-            Logger.SendInGame(GetString("FixBlackScreenWaitForDead"));
+            Logger.SendInGame(GetString("FixBlackScreenWaitForDead"), Color.yellow);
     }
 
     private static void DayBreakCommand(PlayerControl player, string text, string[] args)
@@ -3247,8 +3252,15 @@ internal static class ChatCommands
 
         if (text.StartsWith("\n")) text = text[1..];
 
-        if (Options.CurrentGameMode == CustomGameMode.TheMindGame && !player.IsModdedClient())
-            TheMindGame.OnChat(player, text.ToLower());
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.TheMindGame when !player.IsModdedClient():
+                TheMindGame.OnChat(player, text.ToLower());
+                break;
+            case CustomGameMode.BedWars:
+                BedWars.OnChat(player, text);
+                break;
+        }
 
         CheckAnagramGuess(player.PlayerId, text.ToLower());
 

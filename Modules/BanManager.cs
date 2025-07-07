@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HarmonyLib;
 using InnerNet;
+using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR;
@@ -101,7 +102,7 @@ public static class BanManager
             if (!string.IsNullOrEmpty(hashedPuid))
             {
                 File.AppendAllText(BanListPath, $"{friendCode},{hashedPuid},{player.PlayerName.RemoveHtmlTags()}\n");
-                Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
+                Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName), Color.yellow);
             }
             else
                 Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{friendCode}/{hashedPuid} to ban list!", "AddBanPlayer");
@@ -126,7 +127,7 @@ public static class BanManager
                 if (line.Contains("Amogus") || line.Contains("Amogus V") || Regex.IsMatch(name, line))
                 {
                     AmongUsClient.Instance.KickPlayer(player.OwnerId, false);
-                    Logger.SendInGame(string.Format(GetString("Message.KickedByDenyName"), name, line));
+                    Logger.SendInGame(string.Format(GetString("Message.KickedByDenyName"), name, line), Color.yellow);
                     Logger.Info($"{name} was kicked because their name matched \"{line}\".", "Kick");
                     return true;
                 }
@@ -158,7 +159,7 @@ public static class BanManager
         if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
         {
             AmongUsClient.Instance.KickPlayer(player.Id, false);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} banned by EAC because their friend code is too short.", "EAC");
             return;
         }
@@ -166,7 +167,7 @@ public static class BanManager
         if (friendcode.Count(c => c == '#') != 1)
         {
             AmongUsClient.Instance.KickPlayer(player.Id, false);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} EAC Banned because friendcode contains more than 1 #", "EAC");
             return;
         }
@@ -177,7 +178,7 @@ public static class BanManager
         if (Regex.IsMatch(friendcode[..friendcode.IndexOf("#", StringComparison.Ordinal)], pattern))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} was banned because of a spoofed friend code", "EAC");
             return;
         }
@@ -185,7 +186,7 @@ public static class BanManager
         if (CheckBanList(friendcode, player.GetHashedPuid()))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} is banned because he has been banned in the past.", "BAN");
             return;
         }
@@ -193,7 +194,7 @@ public static class BanManager
         if (CheckEACList(friendcode, player.GetHashedPuid()))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} is on the EAC ban list", "BAN");
         }
     }

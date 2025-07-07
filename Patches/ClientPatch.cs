@@ -17,13 +17,10 @@ internal static class MakePublicPatch
         {
             var message = string.Empty;
             if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
-
             if (ModUpdater.IsBroken) message = GetString("ModBrokenMessage");
-
             if (ModUpdater.HasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
-
             Logger.Info(message, "MakePublicPatch");
-            Logger.SendInGame(message);
+            Logger.SendInGame(message, Color.red);
             return false;
         }
 
@@ -112,7 +109,7 @@ internal static class KickPlayerPatch
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
-            Logger.SendInGame($"Game Attempting to {(ban ? "Ban" : "Kick")} Host, Blocked the attempt.");
+            Logger.SendInGame($"Game Attempting to {(ban ? "Ban" : "Kick")} Host, Blocked the attempt.", Color.red);
             return false;
         }
 

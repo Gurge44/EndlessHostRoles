@@ -279,7 +279,7 @@ internal static class StartPatch
             if (ConsoleManager.ConsoleActive && !DebugModeManager.AmDebugger)
             {
                 ConsoleManager.DetachConsole();
-                Logger.SendInGame("Sorry, console use is prohibited in this room, so your console has been turned off");
+                Logger.SendInGame("Sorry, console use is prohibited in this room, so your console has been turned off", Color.red);
             }
         }
     }

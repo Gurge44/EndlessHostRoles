@@ -154,7 +154,6 @@ internal static class CustomHnS
             }
             catch (Exception e)
             {
-                Logger.SendInGame($"Error Assigning Pre-Set Role: {item.Key.ColoredPlayerName()} => {item.Value}");
                 Utils.ThrowException(e);
             }
         }

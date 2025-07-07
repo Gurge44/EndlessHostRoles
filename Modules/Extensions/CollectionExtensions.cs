@@ -42,7 +42,8 @@ public static class CollectionExtensions
     /// <typeparam name="TValue"></typeparam>
     public static void SetAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
     {
-        foreach (TKey key in dictionary.Keys.ToArray()) dictionary[key] = value;
+        foreach (TKey key in dictionary.Keys.ToArray())
+            dictionary[key] = value;
     }
 
     /// <summary>
@@ -50,11 +51,21 @@ public static class CollectionExtensions
     /// </summary>
     /// <param name="dictionary">The dictionary to adjust the values of</param>
     /// <param name="adjust">The function to adjust the values with</param>
+    /// <param name="predicate">The predicate to filter the keys by. If <c>null</c>, all keys will be adjusted</param>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public static void AdjustAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TValue, TValue> adjust)
+    public static void AdjustAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TValue, TValue> adjust, [Annotations.CanBeNull] Func<TKey, bool> predicate = null)
     {
-        foreach (TKey key in dictionary.Keys.ToArray()) dictionary[key] = adjust(dictionary[key]);
+        if (predicate == null)
+        {
+            foreach (TKey key in dictionary.Keys.ToArray())
+                dictionary[key] = adjust(dictionary[key]);
+
+            return;
+        }
+
+        foreach (TKey key in dictionary.Keys.Where(predicate).ToArray())
+            dictionary[key] = adjust(dictionary[key]);
     }
 
     /// <summary>

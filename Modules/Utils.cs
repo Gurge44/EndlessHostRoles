@@ -106,7 +106,7 @@ public static class Utils
         {
             Logger.Fatal($"{text} error, triggering anti-black screen measures", "Anti-Blackout");
             Main.OverrideWelcomeMsg = GetString("AntiBlackOutNotifyInLobby");
-            LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+            LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame") /*, true*/, Color.red); }, 3f, "Anti-Black Msg SendInGame");
 
             LateTask.New(() =>
             {
@@ -122,10 +122,10 @@ public static class Utils
             AmongUsClient.Instance.FinishRpcImmediately(writer);
 
             if (Options.EndWhenPlayerBug.GetBool())
-                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/), 3f, "Anti-Black Msg SendInGame");
+                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/, Color.red), 3f, "Anti-Black Msg SendInGame");
             else
             {
-                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd") /*, true*/), 3f, "Anti-Black Msg SendInGame");
+                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd") /*, true*/, Color.red), 3f, "Anti-Black Msg SendInGame");
 
                 LateTask.New(() =>
                 {
@@ -380,16 +380,10 @@ public static class Utils
         return seer.Is(CustomRoles.EvilTracker) && EvilTracker.KillFlashCheck(killer, target);
     }
 
-    public static void BlackOut(this IGameOptions opt, bool isBlackOut)
+    public static void BlackOut(this IGameOptions opt, bool blackOut)
     {
-        opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);
-        opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
-
-        if (isBlackOut)
-        {
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
-            opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
-        }
+        opt.SetFloat(FloatOptionNames.ImpostorLightMod, blackOut ? 0 : Main.DefaultImpostorVision);
+        opt.SetFloat(FloatOptionNames.CrewLightMod, blackOut ? 0 : Main.DefaultCrewmateVision);
     }
 
     public static void SaveComboInfo()
@@ -1854,7 +1848,7 @@ public static class Utils
 
                     if (titleRpcSizeLimit - 4 < 1)
                     {
-                        Logger.SendInGame(GetString("MessageTooLong"));
+                        Logger.SendInGame(GetString("MessageTooLong"), Color.red);
                         if (!multiple) writer.SendMessage(dispose: true);
                         return writer;
                     }
@@ -1942,7 +1936,7 @@ public static class Utils
 
             if (textRpcSizeLimit < 1 && textRpcSize >= textRpcSizeLimit && !noSplit)
             {
-                Logger.SendInGame(GetString("MessageTooLong"));
+                Logger.SendInGame(GetString("MessageTooLong"), Color.red);
                 if (!multiple) writer.SendMessage(dispose: true);
                 return writer;
             }

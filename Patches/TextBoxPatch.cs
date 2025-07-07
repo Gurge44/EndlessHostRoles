@@ -316,6 +316,7 @@ public static class TextBoxPatch
     public static bool IsCharAllowedPatch(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
     {
         if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
+        if (Translator.GetUserTrueLang() is SupportedLangs.Japanese or SupportedLangs.Korean or SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese) return true;
         __result = i is not '\b' and not '\n' and not '\r';
         return false;
     }

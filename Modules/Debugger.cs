@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using EHR.Modules;
+using EHR.Patches;
 using UnityEngine;
 using LogLevel = BepInEx.Logging.LogLevel;
 
@@ -25,36 +26,45 @@ internal static class Logger
         IsEnable = true;
     }
 
-    public static void Disable()
-    {
-        IsEnable = false;
-    }
+    /*
+        public static void Disable()
+        {
+            IsEnable = false;
+        }
 
-    public static void Enable(string tag, bool toGame = false)
-    {
-        DisableList.Remove(tag);
+        public static void Enable(string tag, bool toGame = false)
+        {
+            DisableList.Remove(tag);
 
-        if (toGame && !SendToGameList.Contains(tag))
-            SendToGameList.Add(tag);
-        else
-            SendToGameList.Remove(tag);
-    }
+            if (toGame && !SendToGameList.Contains(tag))
+                SendToGameList.Add(tag);
+            else
+                SendToGameList.Remove(tag);
+        }
+    */
 
     public static void Disable(string tag)
     {
         if (!DisableList.Contains(tag)) DisableList.Add(tag);
     }
 
-    public static void SendInGame(string text /*, bool isAlways = false*/)
+    public static void SendInGame(string text, Color? textColor = null)
     {
         if (!IsEnable) return;
 
-        HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+        NotificationPopper np = NotificationPopperPatch.Instance;
 
-        if (hudManager != null)
+        if (np != null)
         {
-            hudManager.Notifier.AddDisconnectMessage(text);
             Warn(text, "SendInGame");
+
+            LobbyNotificationMessage newMessage = Object.Instantiate(np.notificationMessageOrigin, Vector3.zero, Quaternion.identity, np.transform);
+            newMessage.transform.localPosition = new(0f, 0f, -2f);
+            newMessage.SetUp($"<b>{text}</b>", np.settingsChangeSprite, textColor ?? np.settingsChangeColor, (Action)(() => np.OnMessageDestroy(newMessage)));
+            np.ShiftMessages();
+            np.AddMessageToQueue(newMessage);
+
+            SoundManager.Instance.PlaySoundImmediate(np.settingsChangeSound, false);
         }
     }
 

@@ -1221,7 +1221,7 @@ public static class GameSettingMenuPatch
             if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue(modTab, out GameOptionsMenu gameSettings) || gameSettings == null)
             {
                 HiddenBySearch.Clear();
-                Logger.SendInGame(Translator.GetString("SearchNoResult"));
+                Logger.SendInGame(Translator.GetString("SearchNoResult"), Palette.Orange);
                 return;
             }
 

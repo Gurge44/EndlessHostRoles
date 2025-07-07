@@ -1440,7 +1440,7 @@ internal static class FixedUpdatePatch
                     if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1) && !LobbyPatch.IsGlitchedRoomCode())
                     {
                         string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
-                        Logger.SendInGame(msg);
+                        Logger.SendInGame(msg, Color.yellow);
                         AmongUsClient.Instance.KickPlayer(player.OwnerId, true);
                         Logger.Info(msg, "Low Level Temp Ban");
                     }

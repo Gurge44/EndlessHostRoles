@@ -40,9 +40,11 @@ public static class Statistics
             {
                 try
                 {
+                    Dictionary<string, int> winners = CustomWinnerHolder.WinnerIds.ToValidPlayers().Select(x => x.GetClient()).Where(x => x != null).ToDictionary(x => x.GetHashedPuid(), _ => 0);
+                    
                     Main.NumWinsPerGM.TryAdd(gm, []);
-                    Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), false);
-                    Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
+                    Main.NumWinsPerGM[gm].AddRange(winners, false);
+                    Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x, winners.ContainsKey);
 
                     if (Main.NumWinsPerGM[gm].Count != 0)
                     {
@@ -52,7 +54,7 @@ public static class Statistics
 
                         foreach ((string hashedpuid, int wins) in Main.NumWinsPerGM[gm])
                         {
-                            if (!apc.FindFirst(x => x.GetClient().GetHashedPuid() == hashedpuid, out PlayerControl player)) continue;
+                            if (!apc.FindFirst(x => x.GetClient()?.GetHashedPuid() == hashedpuid, out PlayerControl player)) continue;
                             sb.AppendLine($"{player.PlayerId.ColoredPlayerName()}: {wins}");
                             any = true;
                         }
