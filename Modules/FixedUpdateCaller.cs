@@ -49,6 +49,9 @@ public static class FixedUpdateCaller
 
             if (!PlayerControl.LocalPlayer) return;
 
+            if (AmongUsClient.Instance.IsGameStarted)
+                Utils.CountAlivePlayers();
+
             try
             {
                 if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())

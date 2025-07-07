@@ -3239,7 +3239,7 @@ public static class Utils
         if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
         {
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
-            GameEndChecker.Prefix();
+            GameEndChecker.CheckCustomEndCriteria();
         }
 
         AFKDetector.NumAFK = 0;
@@ -3468,35 +3468,40 @@ public static class Utils
 
     public static void CountAlivePlayers(bool sendLog = false)
     {
-        int aliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
-
-        if (Main.AliveImpostorCount != aliveImpostorCount)
+        try
         {
-            Logger.Info("Number of living Impostors: " + aliveImpostorCount, "CountAliveImpostors");
-            Main.AliveImpostorCount = aliveImpostorCount;
-            LastImpostor.SetSubRole();
-        }
+            int aliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
 
-        if (sendLog)
-        {
-            StringBuilder sb = new(100);
-
-            if (Options.CurrentGameMode == CustomGameMode.Standard)
+            if (Main.AliveImpostorCount != aliveImpostorCount)
             {
-                foreach (CountTypes countTypes in Enum.GetValues<CountTypes>())
-                {
-                    int playersCount = PlayersCount(countTypes);
-                    if (playersCount == 0) continue;
-
-                    sb.Append($"{countTypes}: {AlivePlayersCount(countTypes)}/{playersCount}, ");
-                }
+                Logger.Info("Number of living Impostors: " + aliveImpostorCount, "CountAliveImpostors");
+                Main.AliveImpostorCount = aliveImpostorCount;
+                LastImpostor.SetSubRole();
             }
 
-            sb.Append($"All: {AllAlivePlayersCount}/{AllPlayersCount}");
-            Logger.Info(sb.ToString(), "CountAlivePlayers");
-        }
+            if (sendLog)
+            {
+                StringBuilder sb = new(100);
 
-        if (AmongUsClient.Instance.AmHost && Main.IntroDestroyed) GameEndChecker.Prefix();
+                if (Options.CurrentGameMode == CustomGameMode.Standard)
+                {
+                    foreach (CountTypes countTypes in Enum.GetValues<CountTypes>())
+                    {
+                        int playersCount = PlayersCount(countTypes);
+                        if (playersCount == 0) continue;
+
+                        sb.Append($"{countTypes}: {AlivePlayersCount(countTypes)}/{playersCount}, ");
+                    }
+                }
+
+                sb.Append($"All: {AllAlivePlayersCount}/{AllPlayersCount}");
+                Logger.Info(sb.ToString(), "CountAlivePlayers");
+            }
+
+            if (AmongUsClient.Instance.AmHost && Main.IntroDestroyed)
+                GameEndChecker.CheckCustomEndCriteria();
+        }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static string GetVoteName(byte num)

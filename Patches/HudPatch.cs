@@ -184,8 +184,6 @@ internal static class HudManagerPatch
             // The following will not be executed unless the game is in progress
             if (!AmongUsClient.Instance.IsGameStarted) return;
 
-            Utils.CountAlivePlayers();
-
             bool shapeshifting = player.IsShifted();
 
             if (SetHudActivePatch.IsActive)

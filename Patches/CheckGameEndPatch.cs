@@ -43,10 +43,13 @@ internal static class GameEndChecker
 
     public static bool Prefix()
     {
-        if (!AmongUsClient.Instance.AmHost) return true;
+        return !AmongUsClient.Instance.AmHost;
+    }
 
-        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return false;
-        if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
+    public static void CheckCustomEndCriteria()
+    {
+        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return;
+        if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return;
 
         Ended = false;
 
@@ -63,7 +66,7 @@ internal static class GameEndChecker
                 Predicate = null;
             }
 
-            return false;
+            return;
         }
 
         if (WinnerTeam != CustomWinner.Default)
@@ -338,8 +341,6 @@ internal static class GameEndChecker
             StartEndGame(reason);
             Predicate = null;
         }
-
-        return false;
     }
 
     private static void StartEndGame(GameOverReason reason)

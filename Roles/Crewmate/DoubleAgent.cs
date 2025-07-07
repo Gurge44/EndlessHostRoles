@@ -29,6 +29,11 @@ public class DoubleAgent : RoleBase
         ShownRoles[playerId] = Enum.GetValues<CustomRoles>().Where(x => x is not CustomRoles.DoubleAgent and not CustomRoles.LovingImpostor && x.IsImpostor() && !x.IsVanilla() && !x.IsForOtherGameMode() && x.GetMode() != 0).RandomElement();
     }
 
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        return string.Empty;
+    }
+
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
         if (base.KnowRole(seer, target)) return true;
