@@ -123,7 +123,7 @@ public static class GameStartManagerPatch
         public static float ExitTimer = -1f;
         private static float MinWait, MaxWait;
         private static int MinPlayer;
-        public static SpriteRenderer LobbyTimerBg;
+        private static SpriteRenderer LobbyTimerBg;
         public static bool Warned;
 
         public static bool Prefix(GameStartManager __instance)
