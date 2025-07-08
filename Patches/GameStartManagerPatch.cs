@@ -52,6 +52,7 @@ public static class GameStartManagerPatch
                     HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
                     hudManager.ShowLobbyTimer(597);
                     hudManager.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(false);
+                    GameStartManagerUpdatePatch.Warned = false;
                 }
 
                 if (AmongUsClient.Instance.AmHost)
@@ -123,6 +124,7 @@ public static class GameStartManagerPatch
         private static float MinWait, MaxWait;
         private static int MinPlayer;
         public static SpriteRenderer LobbyTimerBg;
+        public static bool Warned;
 
         public static bool Prefix(GameStartManager __instance)
         {
@@ -414,8 +416,17 @@ public static class GameStartManagerPatch
                     float timer = Timer;
 
                     if (LobbyTimerBg == null) LobbyTimerBg = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
+                    LobbyTimerBg.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyTimerBG.png", 100f);
                     LobbyTimerBg.color = GetTimerColor(timer);
-                    if (timer <= 60) FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
+
+                    if (timer <= 60 && !Warned)
+                    {
+                        Warned = true;
+                        LobbyTimerExtensionUI lobbyTimerExtensionUI = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI;
+                        lobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
+                        SoundManager.Instance.PlaySound(lobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
+                        Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 2f);
+                    }
                 }
             }
             catch (NullReferenceException) { }
@@ -426,22 +437,15 @@ public static class GameStartManagerPatch
         {
             switch (timer)
             {
-                case >= 240f:
-                {
-                    // From 240 → 597: #00a5ff → #00a5ff (static color)
-                    return new Color32(0x00, 0xA5, 0xFF, 0xFF); // #00a5ff
-                }
                 case >= 180f:
                 {
-                    // 180 → 240: #00ffa5 → #00a5ff
-                    float lerpT = (timer - 180f) / 60f;
-                    return Color.Lerp(new Color32(0x00, 0xFF, 0xA5, 0xFF), new Color32(0x00, 0xA5, 0xFF, 0xFF), lerpT);
+                    return new Color32(0x00, 0x04, 0x44, 0xFF);
                 }
                 case >= 120f:
                 {
                     // 120 → 180: #ffff00 → #00ffa5
                     float lerpT = (timer - 120f) / 60f;
-                    return Color.Lerp(new Color32(0xFF, 0xFF, 0x00, 0xFF), new Color32(0x00, 0xFF, 0xA5, 0xFF), lerpT);
+                    return Color.Lerp(new Color32(0xFF, 0xFF, 0x00, 0xFF), new Color32(0x00, 0x04, 0x44, 0xFF), lerpT);
                 }
                 case >= 60f:
                 {
@@ -451,8 +455,7 @@ public static class GameStartManagerPatch
                 }
                 default:
                 {
-                    // timer < 60: stay red
-                    return new Color32(0xFF, 0x00, 0x00, 0xFF); // #ff0000
+                    return new Color32(0xFF, 0x00, 0x00, 0xFF);
                 }
             }
         }
