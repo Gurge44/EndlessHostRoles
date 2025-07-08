@@ -94,6 +94,8 @@ public static class KingOfTheZones
     }
 
     public static int KCD => TagCooldown.GetInt();
+    public static int MaxGameTime => GameEndsByTimeLimit.GetBool() ? MaxGameLength.GetInt() : int.MaxValue;
+    public static int MaxGameTimeByPoints => GameEndsByPoints.GetBool() ? PointsToWin.GetInt() * 2 : MaxGameTime;
 
     public static void SetupCustomOption()
     {

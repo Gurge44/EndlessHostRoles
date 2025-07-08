@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.GameMode.HideAndSeekRoles;
 using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
@@ -380,11 +381,20 @@ public static class GameStartManagerPatch
                 
                 int estimatedGameLength = Options.CurrentGameMode switch
                 {
+                    CustomGameMode.SoloKombat => SoloPVP.KB_GameTime.GetInt(),
                     CustomGameMode.FFA => Math.Clamp((FreeForAll.FFAKcd.GetInt() * (PlayerControl.AllPlayerControls.Count / 2)) + FreeForAll.FFAKcd.GetInt() + 5, FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAGameTime.GetInt()),
+                    CustomGameMode.MoveAndStop => ((Main.NormalOptions.NumShortTasks * 20) + (Main.NormalOptions.NumLongTasks * 40) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 30)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)),
+                    CustomGameMode.HotPotato => HotPotato.TimeBetweenPasses * (PlayerControl.AllPlayerControls.Count - 1),
+                    CustomGameMode.HideAndSeek => Math.Min((Seeker.KillCooldown.GetInt() * (PlayerControl.AllPlayerControls.Count - Main.NormalOptions.NumImpostors) / Main.NormalOptions.NumImpostors) + Seeker.BlindTime.GetInt() + 15, Math.Min(CustomHnS.MaximumGameLength, ((Main.NormalOptions.NumShortTasks * 15) + (Main.NormalOptions.NumLongTasks * 25) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 15)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)))),
+                    CustomGameMode.Speedrun => (Speedrun.TimeLimitValue * (Main.NormalOptions.NumShortTasks + Main.NormalOptions.NumLongTasks + Main.NormalOptions.NumCommonTasks)) + (Speedrun.KCD * (PlayerControl.AllPlayerControls.Count / 2)),
+                    CustomGameMode.CaptureTheFlag => CaptureTheFlag.GameEndCriteriaType == 2 ? CaptureTheFlag.MaxGameLength : CaptureTheFlag.IsDeathPossible ? 40 : Math.Max(30, 1500 / (int)Math.Pow(CaptureTheFlag.KCD + 0.5f, 2) * CaptureTheFlag.TotalRoundsToPlay),
+                    CustomGameMode.NaturalDisasters => 80 + (50 * NaturalDisasters.FrequencyOfDisasters * Math.Max(1, PlayerControl.AllPlayerControls.Count / 3)),
+                    CustomGameMode.RoomRush => (PlayerControl.AllPlayerControls.Count - 1) * (RoomRush.PointsSystem ? 20 : 15),
+                    CustomGameMode.KingOfTheZones => Math.Min(KingOfTheZones.MaxGameTime, KingOfTheZones.MaxGameTimeByPoints),
                     _ => 0
                 };
 
-                string suffix = estimatedGameLength != 0 ? $"{GetString("EstimatedGameLength")}: {estimatedGameLength}" : " ";
+                string suffix = estimatedGameLength != 0 ? $"<size=70%>{GetString("EstimatedGameLength")} - {estimatedGameLength / 60:00}:{estimatedGameLength % 60:00}</size>" : " ";
 
                 if (Options.NoGameEnd.GetBool())
                     suffix = Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}");

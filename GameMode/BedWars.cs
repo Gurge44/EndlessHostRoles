@@ -754,14 +754,17 @@ public static class BedWars
 
             sb.AppendLine(IsGracePeriod ? Translator.GetString("Bedwars.GracePeriod") : GetHealthInfo());
 
+            var topLines = 12;
+            
             if (InShop.TryGetValue(pc.PlayerId, out Shop shop))
             {
                 sb.AppendLine();
                 sb.AppendLine(shop.GetSuffix(pc));
+                topLines += 4;
             }
 
             int lines = sb.ToString().Count(x => x == '\n');
-            sb.Insert(0, Utils.ColorString(Color.clear, ".") + new string('\n', Math.Max(0, 14 - lines)));
+            sb.Insert(0, Utils.ColorString(Color.clear, ".") + new string('\n', Math.Max(0, topLines - lines)));
             sb.Append(new string('\n', Math.Max(0, 5 - lines)));
 
             sb.Append(GetArmorInfo());
@@ -868,7 +871,7 @@ public static class BedWars
         {
             [BedWarsTeam.Blue] = new(new(15.18f, -11.91f), SystemTypes.Jungle, new(11.07f, -14f), new(11.07f, -16.18f), new(15.15f, -16.06f)),
             [BedWarsTeam.Yellow] = new(new(19.83f, 11.07f), SystemTypes.Comms, new(20.19f, 13.63f), new(22.89f, 13.32f), new(24.24f, 14.41f)),
-            [BedWarsTeam.Red] = new(new(-7.39f, 8.81f), SystemTypes.Dropship, new(-9.86f, 13.43f), new(-7.42f, 12.96f), new(-11.21f, 12.5f)),
+            [BedWarsTeam.Red] = new(new(-7.39f, 8.81f), SystemTypes.Dropship, new(-9.86f, 13.43f), new(-7.47f, 10.92f), new(-11.21f, 12.5f)),
             [BedWarsTeam.Green] = new(new(-15.55f, -7.04f), SystemTypes.Kitchen, new(-17.22f, -9.32f), new(-13.78f, -9.32f), new(-22.83f, -7.19f))
         }
     };

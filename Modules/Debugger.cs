@@ -60,7 +60,8 @@ internal static class Logger
 
             LobbyNotificationMessage newMessage = Object.Instantiate(np.notificationMessageOrigin, Vector3.zero, Quaternion.identity, np.transform);
             newMessage.transform.localPosition = new(0f, 0f, -2f);
-            newMessage.SetUp($"<b>{text}</b>", np.settingsChangeSprite, textColor ?? np.settingsChangeColor, (Action)(() => np.OnMessageDestroy(newMessage)));
+            text = "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + text + "</font>";
+            newMessage.SetUp(text, np.settingsChangeSprite, textColor ?? np.settingsChangeColor, (Action)(() => np.OnMessageDestroy(newMessage)));
             np.ShiftMessages();
             np.AddMessageToQueue(newMessage);
 

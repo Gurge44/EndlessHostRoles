@@ -29,6 +29,7 @@ internal static class CustomHnS
     public static List<CustomRoles> AllHnSRoles = [];
 
     public static int SeekerNum => Math.Max(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
+    public static int MaximumGameLength => MaxGameLength.GetInt();
 
     public static void SetupCustomOption()
     {

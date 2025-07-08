@@ -327,7 +327,7 @@ internal static class SoloPVP
 
     // Options
     // ReSharper disable InconsistentNaming
-    private static OptionItem KB_GameTime;
+    public static OptionItem KB_GameTime;
     public static OptionItem KB_ATKCooldown;
     private static OptionItem KB_HPMax;
     private static OptionItem KB_ATK;

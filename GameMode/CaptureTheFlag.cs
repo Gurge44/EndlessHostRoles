@@ -58,6 +58,9 @@ public static class CaptureTheFlag
     private static int RoundsPlayed => TeamData.Values.Sum(x => x.RoundsWon);
     public static bool IsDeathPossible => TaggedPlayersGet.GetValue() == 1;
     public static float KCD => TagCooldown.GetFloat();
+    public static int GameEndCriteriaType => GameEndCriteria.GetValue();
+    public static int MaxGameLength => TimeLimit.GetInt();
+    public static int TotalRoundsToPlay => GameEndCriteriaType == 0 ? RoundsToPlay.GetInt() : (int)Math.Round(PointsToWin.GetInt() * 1.5f);
 
     public static bool IsCarrier(byte id)
     {

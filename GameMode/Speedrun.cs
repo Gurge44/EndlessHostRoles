@@ -17,6 +17,7 @@ public static class Speedrun
     public static Dictionary<byte, int> Timers = [];
 
     public static int KCD => KillCooldown.GetInt();
+    public static int TimeLimitValue => TimeLimit.GetInt();
 
     public static void SetupCustomOption()
     {
