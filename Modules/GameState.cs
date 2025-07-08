@@ -203,7 +203,15 @@ public class PlayerState(byte playerId)
 
     public void SetSubRole(CustomRoles role, bool replaceAll = false)
     {
-        if (role == CustomRoles.Cleansed) replaceAll = true;
+        switch (role)
+        {
+            case CustomRoles.Cleansed:
+                replaceAll = true;
+                break;
+            case CustomRoles.BananaMan when !SubRoles.Contains(CustomRoles.BananaMan):
+                LateTask.New(() => Utils.RpcChangeSkin(Player, new()), 0.2f, log: false);
+                break;
+        }
 
         if (replaceAll)
         {
