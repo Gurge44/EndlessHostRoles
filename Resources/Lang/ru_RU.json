@@ -1025,7 +1025,7 @@
   "FormatNameMode": "Режим имён",
   "FormatNameModes.None": "Выкл",
   "FormatNameModes.Color": "Цвет",
-  "FormatNameModes.Snacks": "Рандомно",
+  "FormatNameModes.Snacks": "Не включать, ничего не произойдёт (только если на английском)",
   "DisableEmojiName": "Выключить эмодзи в никнеймах",
   "FixFirstKillCooldown": "Откат убийства в начале равен откату в ванильных настройках",
   "StartingKillCooldown": "Начальный откат убийства",
