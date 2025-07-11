@@ -2069,7 +2069,10 @@ public static class Utils
         if (AmongUsClient.Instance.IsGameStarted)
         {
             if (Options.FormatNameMode.GetInt() == 1 && Main.NickName == string.Empty)
-                name = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
+            {
+                string notFormattedName = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
+                name = char.ToUpper(notFormattedName[0]) + notFormattedName.Substring(1).ToLower();
+            }
         }
         else
         {
