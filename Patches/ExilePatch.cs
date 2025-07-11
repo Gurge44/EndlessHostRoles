@@ -15,7 +15,7 @@ internal static class ExileControllerWrapUpPatch
 {
     public static NetworkedPlayerInfo LastExiled;
 
-    private static void WrapUpPostfix(NetworkedPlayerInfo exiled)
+    public static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
         var decidedWinner = false;
         if (!AmongUsClient.Instance.AmHost) return;
@@ -112,7 +112,7 @@ internal static class ExileControllerWrapUpPatch
         }, 2.5f, "AfterPlayerDeathTasks For Exiled Player");
     }
 
-    private static void WrapUpFinalizer()
+    public static void WrapUpFinalizer()
     {
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
 

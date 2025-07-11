@@ -103,6 +103,13 @@ public static class RoomRush
             [(SystemTypes.MiningPit, SystemTypes.Storage)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.Dropship)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.Comms)] = 2
+        },
+        [(MapNames)6] = new()
+        {
+            [(SystemTypes.Admin, SystemTypes.Lounge)] = 2,
+            [(SystemTypes.Comms, SystemTypes.Medical)] = 2,
+            [((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Research, SystemTypes.Medical)] = 3,
+            [((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast, SystemTypes.Security)] = 2
         }
     };
 
@@ -188,6 +195,7 @@ public static class RoomRush
         AllRooms.Remove(SystemTypes.Outside);
         AllRooms.Remove(SystemTypes.Ventilation);
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
+        if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
         DonePlayers = [];
         Points = [];
@@ -313,6 +321,7 @@ public static class RoomRush
                 MapNames.Polus => SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
                 MapNames.Fungle => SystemTypes.Dropship,
+                (MapNames)6 => (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral,
                 _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
             };
 
@@ -330,6 +339,7 @@ public static class RoomRush
         {
             MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
+            (MapNames)6 => (previous == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast) ^ (RoomGoal == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast),
             _ => false
         };
 
@@ -341,6 +351,7 @@ public static class RoomRush
                     : Options.DecontaminationTimeOnMiraHQ.GetInt() + Options.DecontaminationDoorOpenTimeOnMiraHQ.GetInt()
                 : 6;
 
+            if (SubmergedCompatibility.IsSubmerged()) decontaminationTime = 3;
             time += decontaminationTime + 3;
         }
 

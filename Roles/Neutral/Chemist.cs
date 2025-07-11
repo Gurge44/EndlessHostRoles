@@ -37,7 +37,8 @@ internal class Chemist : RoleBase
         [MapNames.Polus] = SystemTypes.Dropship,
         [MapNames.Dleks] = SystemTypes.Reactor,
         [MapNames.Airship] = SystemTypes.GapRoom,
-        [MapNames.Fungle] = SystemTypes.Reactor
+        [MapNames.Fungle] = SystemTypes.Reactor,
+        [(MapNames)6] = (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast
     };
 
     private static readonly Dictionary<Factory, Dictionary<string, (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results)>> Processes = new()

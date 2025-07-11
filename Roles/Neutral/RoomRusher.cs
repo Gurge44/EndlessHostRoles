@@ -66,6 +66,7 @@ public class RoomRusher : RoleBase
             AllRooms.Remove(SystemTypes.Outside);
             AllRooms.Remove(SystemTypes.Ventilation);
             AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
+            if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
             Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
@@ -94,6 +95,7 @@ public class RoomRusher : RoleBase
                 MapNames.Polus => afterMeeting ? SystemTypes.Office : SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
                 MapNames.Fungle => SystemTypes.Dropship,
+                (MapNames)6 => (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral,
                 _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
             };
 
@@ -112,20 +114,20 @@ public class RoomRusher : RoleBase
         {
             MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
+            (MapNames)6 => (previous == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast) ^ (RoomGoal == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast),
             _ => false
         };
 
         if (involvesDecontamination)
         {
-            bool polus = map == MapNames.Polus;
-
             int decontaminationTime = Options.ChangeDecontaminationTime.GetBool()
-                ? polus
-                    ? Options.DecontaminationTimeOnPolus.GetInt()
-                    : Options.DecontaminationTimeOnMiraHQ.GetInt()
-                : 3;
+                ? map == MapNames.Polus
+                    ? Options.DecontaminationTimeOnPolus.GetInt() + Options.DecontaminationDoorOpenTimeOnPolus.GetInt()
+                    : Options.DecontaminationTimeOnMiraHQ.GetInt() + Options.DecontaminationDoorOpenTimeOnMiraHQ.GetInt()
+                : 6;
 
-            time += decontaminationTime * (polus ? 2 : 4);
+            if (SubmergedCompatibility.IsSubmerged()) decontaminationTime = 3;
+            time += decontaminationTime + 3;
         }
 
         switch (map)
@@ -133,12 +135,22 @@ public class RoomRusher : RoleBase
             case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                 time += (int)(8 / speed);
                 break;
-            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical):
+            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens and not SystemTypes.Office) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
                 time -= (int)(5 * speed);
+                break;
+            case MapNames.Airship when previous == SystemTypes.GapRoom:
+                time *= RoomGoal switch
+                {
+                    SystemTypes.MeetingRoom => 6,
+                    SystemTypes.Brig or SystemTypes.VaultRoom or SystemTypes.Records or SystemTypes.Showers or SystemTypes.Lounge => 3,
+                    SystemTypes.Engine or SystemTypes.CargoBay or SystemTypes.Medical => 2,
+                    _ => 1
+                };
                 break;
         }
 
-        TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 5);
+        var maxTime = (int)Math.Ceiling(32 / speed);
+        TimeLeft = Math.Clamp((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6, maxTime);
         Logger.Info($"Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "Room Rusher");
         LocateArrow.RemoveAllTarget(RoomRusherId);
         LocateArrow.Add(RoomRusherId, goalPos);

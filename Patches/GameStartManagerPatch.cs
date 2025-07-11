@@ -194,8 +194,9 @@ public static class GameStartManagerPatch
                                 CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
                             }
                             else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+                            else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
 
-                            if (Main.CurrentMap == MapNames.Dleks)
+                            if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
                             {
                                 var opt = Main.NormalOptions.CastFast<IGameOptions>();
 
@@ -233,7 +234,7 @@ public static class GameStartManagerPatch
             try { instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId); }
             catch (Exception e)
             {
-                if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length)
+                if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length && !(GameManager.Instance.LogicOptions.MapId == 6 && SubmergedCompatibility.Loaded && SubmergedCompatibility.IsSupported(Options.CurrentGameMode)))
                     ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
 
                 Utils.ThrowException(e);
@@ -541,6 +542,7 @@ public static class GameStartRandomMap
             CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
         }
         else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+        else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
     }
 
     public static byte SelectRandomMap()

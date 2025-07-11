@@ -261,8 +261,12 @@ internal static class ExtendedPlayerControl
         if (init) Main.PlayerStates[player.PlayerId].InitTask(player);
     }
 
+    public static HashSet<byte> TempExiled = [];
+
     public static void ExileTemporarily(this PlayerControl pc)
     {
+        if (!TempExiled.Add(pc.PlayerId)) return;
+        
         pc.Exiled();
         Main.PlayerStates[pc.PlayerId].SetDead();
 
@@ -341,6 +345,7 @@ internal static class ExtendedPlayerControl
             return;
         }
 
+        TempExiled.Remove(player.PlayerId);
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
@@ -652,6 +657,7 @@ internal static class ExtendedPlayerControl
             MapNames.Skeld or MapNames.Dleks when room != null => true,
             MapNames.Polus when overlapPointNonAlloc >= 1 => true,
             MapNames.Polus when pos.y is >= -26.11f and <= -6.41f && pos.x is >= 3.56f and <= 32.68f => true,
+            (MapNames)6 => true,
             _ => false
         };
     }

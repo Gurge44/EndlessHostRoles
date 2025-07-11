@@ -378,6 +378,8 @@ public static class SabotageSystemTypeRepairDamagePatch
             newReader.Recycle();
         }
 
+        if (SubmergedCompatibility.IsSubmerged()) return CheckSabotage(__instance, player, systemTypes);
+
         if (Options.EnableCustomSabotages.GetBool())
         {
             if (Options.EnableGrabOxygenMaskCustomSabotage.GetBool() && systemTypes == SystemTypes.Comms)
@@ -529,7 +531,7 @@ public static class SecurityCameraPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RepairCriticalSabotages))]
 internal static class ShipStatusRepairCriticalSabotagesPatch
 {
-    public static void Postfix(ShipStatus __instance)
+    public static void Postfix()
     {
         CustomSabotage.Reset();
     }

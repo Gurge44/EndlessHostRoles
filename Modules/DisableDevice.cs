@@ -45,7 +45,7 @@ internal static class DisableDevice
         MapNames.Dleks => 1.5f,
         MapNames.Airship => 1.8f,
         MapNames.Fungle => 1.8f,
-        _ => 0.0f
+        _ => 2f
     };
 
     public static void FixedUpdate()

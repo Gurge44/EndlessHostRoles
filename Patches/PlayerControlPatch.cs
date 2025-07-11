@@ -1074,6 +1074,12 @@ internal static class ReportDeadBodyPatch
                     Notify("TargetDisregarded");
                     return false;
                 }
+
+                if (__instance.Is(CustomRoles.Oblivious))
+                {
+                    Notify("AmOblivious");
+                    return false;
+                }
             }
 
             if (Options.SyncButtonMode.GetBool() && target == null)

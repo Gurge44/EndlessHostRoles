@@ -30,6 +30,7 @@ namespace EHR;
 [BepInIncompatibility("MalumMenu")]
 [BepInIncompatibility("com.ten.thebetterroles")]
 [BepInIncompatibility("xyz.crowdedmods.crowdedmod")]
+[BepInDependency(SubmergedCompatibility.SubmergedGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
 public class Main : BasePlugin
@@ -55,7 +56,7 @@ public class Main : BasePlugin
     public const string ForkId = "EHR";
     public const string SupportedAUVersion = "2025.4.15";
 
-    public const string DataPath =
+    public static readonly string DataPath =
 #if ANDROID
         Application.persistentDataPath;
 #else
@@ -809,6 +810,9 @@ public class Main : BasePlugin
             StartCoroutine(ModNewsFetcher.FetchNews());
 
             try { DevManager.StartFetchingTags(); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            try { SubmergedCompatibility.Initialize(); }
             catch (Exception e) { Utils.ThrowException(e); }
 
             Logger.Msg("========= EHR loaded! =========", "Plugin Load");

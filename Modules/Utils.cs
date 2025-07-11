@@ -153,12 +153,13 @@ public static class Utils
     {
         PlayerControl pc = nt.myPlayer;
         var sendOption = SendOption.Reliable;
+        bool submerged = SubmergedCompatibility.IsSubmerged();
 
         if (!noCheckState)
         {
             if (pc.Is(CustomRoles.AntiTP)) return false;
 
-            if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+            if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || (submerged && pc.IsLocalPlayer() && SubmergedCompatibility.GetInTransition()))
             {
                 if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
                 return false;
@@ -209,6 +210,14 @@ public static class Utils
 
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
+        AFKDetector.TempIgnoredPlayers.Add(pc.PlayerId);
+        LateTask.New(() => AFKDetector.TempIgnoredPlayers.Remove(pc.PlayerId), 0.2f + CalculatePingDelay(), log: false);
+
+        if (submerged)
+        {
+            SubmergedCompatibility.ChangeFloor(pc.PlayerId, pc.transform.position.y > -7);
+            SubmergedCompatibility.CheckOutOfBoundsElevator(pc);
+        }
 
         if (sendOption == SendOption.Reliable) NumSnapToCallsThisRound++;
         return true;

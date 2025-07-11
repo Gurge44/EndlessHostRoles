@@ -58,6 +58,7 @@ public static class Speedrun
     {
         int timer = TimeLimit.GetInt();
         if (Main.CurrentMap is MapNames.Airship or MapNames.Fungle) timer += 5;
+        if (SubmergedCompatibility.IsSubmerged()) timer *= 2;
 
         if (TimeStacksUp.GetBool())
             Timers[pc.PlayerId] += timer;

@@ -9,6 +9,9 @@ namespace EHR.Patches;
 // Thanks: https://github.com/SubmergedAmongUs/Submerged/blob/4a5a6b47cbed526670ae4b7eae76acd7c42e35de/Submerged/UI/Patches/MapSelectButtonPatches.cs#L49
 internal static class CreateOptionsPickerPatch
 {
+    public static bool SetSubmerged;
+    private static MapSelectButton SubmergedButton;
+    
     public static bool SetDleks;
     private static MapSelectButton DleksButton;
 
@@ -22,58 +25,108 @@ internal static class CreateOptionsPickerPatch
             if (SceneManager.GetActiveScene().name == "FindAGame") return;
 
             const int dleksPos = 3;
+            const int submergedPos = 6;
 
             MapSelectButton[] AllMapButton = __instance.transform.GetComponentsInChildren<MapSelectButton>();
 
             if (AllMapButton != null)
             {
-                GameObject dlekS_ehT = Object.Instantiate(AllMapButton[0].gameObject, __instance.transform);
-                dlekS_ehT.transform.position = AllMapButton[dleksPos].transform.position;
-                dlekS_ehT.transform.SetSiblingIndex(dleksPos + 2);
-                var dlekS_ehT_MapButton = dlekS_ehT.GetComponent<MapSelectButton>();
-                DleksButton = dlekS_ehT_MapButton;
-
-                foreach (SpriteRenderer icon in dlekS_ehT_MapButton.MapIcon)
+                // Dleks Button
                 {
-                    if (icon == null || icon.transform == null) continue;
-                    icon.flipX = true;
-                }
+                    GameObject dlekS_ehT = Object.Instantiate(AllMapButton[0].gameObject, __instance.transform);
+                    dlekS_ehT.transform.position = AllMapButton[dleksPos].transform.position;
+                    dlekS_ehT.transform.SetSiblingIndex(dleksPos + 2);
+                    var dlekS_ehT_MapButton = dlekS_ehT.GetComponent<MapSelectButton>();
+                    DleksButton = dlekS_ehT_MapButton;
 
-                dlekS_ehT_MapButton.Button.OnClick.RemoveAllListeners();
-
-                dlekS_ehT_MapButton.Button.OnClick.AddListener((Action)(() =>
-                {
-                    __instance.SelectMap(__instance.AllMapIcons[0]);
-
-                    if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
-
-                    __instance.selectedButton = dlekS_ehT_MapButton;
-                    __instance.selectedButton.Button.SelectButton(true);
-                    __instance.selectedMapId = 3;
-
-                    Main.NormalOptions.MapId = 0;
-
-                    __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
-                    __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
-                }));
-
-                for (int i = dleksPos; i < AllMapButton.Length; i++) AllMapButton[i].transform.localPosition += new Vector3(0.625f, 0f, 0f);
-
-                if (DleksButton != null)
-                {
-                    if (SetDleks)
+                    foreach (SpriteRenderer icon in dlekS_ehT_MapButton.MapIcon)
                     {
+                        if (icon == null || icon.transform == null) continue;
+                        icon.flipX = true;
+                    }
+
+                    dlekS_ehT_MapButton.Button.OnClick.RemoveAllListeners();
+
+                    dlekS_ehT_MapButton.Button.OnClick.AddListener((Action)(() =>
+                    {
+                        __instance.SelectMap(__instance.AllMapIcons[0]);
+
                         if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
 
-                        DleksButton.Button.SelectButton(true);
-                        __instance.selectedButton = DleksButton;
+                        __instance.selectedButton = dlekS_ehT_MapButton;
+                        __instance.selectedButton.Button.SelectButton(true);
                         __instance.selectedMapId = 3;
+
+                        Main.NormalOptions.MapId = 0;
 
                         __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
                         __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
+                    }));
+
+                    for (int i = dleksPos; i < AllMapButton.Length; i++) AllMapButton[i].transform.localPosition += new Vector3(0.625f, 0f, 0f);
+
+                    if (DleksButton != null)
+                    {
+                        if (SetDleks)
+                        {
+                            if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
+
+                            DleksButton.Button.SelectButton(true);
+                            __instance.selectedButton = DleksButton;
+                            __instance.selectedMapId = 3;
+
+                            __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
+                            __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
+                        }
+                        else
+                            DleksButton.Button.SelectButton(false);
                     }
-                    else
-                        DleksButton.Button.SelectButton(false);
+                }
+
+                // Submerged Button
+                if (SubmergedCompatibility.Loaded)
+                {
+                    GameObject submergedButton = Object.Instantiate(AllMapButton[0].gameObject, __instance.transform);
+                    submergedButton.transform.position = AllMapButton[submergedPos].transform.position;
+                    submergedButton.transform.SetSiblingIndex(submergedPos + 2);
+                    var submergedButton_MapButton = submergedButton.GetComponent<MapSelectButton>();
+                    SubmergedButton = submergedButton_MapButton;
+
+                    submergedButton_MapButton.Button.OnClick.RemoveAllListeners();
+
+                    submergedButton_MapButton.Button.OnClick.AddListener((Action)(() =>
+                    {
+                        __instance.SelectMap(__instance.AllMapIcons[6]);
+
+                        if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
+
+                        __instance.selectedButton = submergedButton_MapButton;
+                        __instance.selectedMapId = 6;
+
+                        Main.NormalOptions.MapId = 6;
+
+                        __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
+                        __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner-Wordart.png", 100f);
+                    }));
+
+                    for (var i = 0; i < submergedPos; i++) AllMapButton[i].transform.localPosition += new Vector3(-0.625f, 0f, 0f);
+
+                    if (SubmergedButton != null)
+                    {
+                        if (SetSubmerged)
+                        {
+                            if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
+
+                            SubmergedButton.Button.SelectButton(true);
+                            __instance.selectedButton = SubmergedButton;
+                            __instance.selectedMapId = 6;
+
+                            __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
+                            __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner-Wordart.png", 100f);
+                        }
+                        else
+                            SubmergedButton.Button.SelectButton(false);
+                    }
                 }
             }
         }
@@ -86,6 +139,7 @@ internal static class CreateOptionsPickerPatch
             if (__instance.MapName == null) return false;
 
             if (DleksButton != null) SetDleks = __instance.selectedMapId == 3;
+            if (SubmergedButton != null) SetSubmerged = __instance.selectedMapId == 6;
 
             if (__instance.selectedMapId == 3)
             {
@@ -103,10 +157,12 @@ internal static class CreateOptionsPickerPatch
     }
 
     [HarmonyPatch(typeof(CreateOptionsPicker), nameof(CreateOptionsPicker.Awake))]
-    private class MenuMapPickerPatch
+    private static class MenuMapPickerPatch
     {
         public static void Postfix(CreateOptionsPicker __instance)
         {
+            if (SubmergedCompatibility.Loaded) return;
+
             Transform mapPickerTransform = __instance.transform.Find("MapPicker");
             var mapPickerMenu = mapPickerTransform.Find("Map Picker Menu").GetComponent<MapPickerMenu>();
 

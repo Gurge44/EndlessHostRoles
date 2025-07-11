@@ -337,6 +337,7 @@ public static class Options
     public static OptionItem ReportBaitAtAllCost;
 
     public static OptionItem GuesserDoesntDieOnMisguess;
+    public static OptionItem CanGuessDuringDiscussionTime;
 
     public static OptionItem GuesserMaxKillsPerMeeting;
     public static OptionItem GuesserMaxKillsPerGame;
@@ -2656,6 +2657,9 @@ public static class Options
             .SetColor(Color.green);
 
         GuesserDoesntDieOnMisguess = new BooleanOptionItem(19718, "GuesserDoesntDieOnMisguess", false, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard);
+
+        CanGuessDuringDiscussionTime = new BooleanOptionItem(19799, "CanGuessDuringDiscussionTime", true, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 92;

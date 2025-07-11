@@ -7,7 +7,7 @@ public static class DeconSystemUpdateSystemPatch
 {
     public static void Prefix(DeconSystem __instance)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || SubmergedCompatibility.IsSubmerged()) return;
 
         if (Options.ChangeDecontaminationTime.GetBool())
         {

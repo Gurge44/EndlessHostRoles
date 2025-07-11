@@ -25,6 +25,7 @@ public class Abyssbringer : RoleBase
     private int Count;
 
     public override bool IsEnable => On;
+    public static bool ShouldDespawnCNOOnMeeting => (DespawnMode)BlackHoleDespawnMode.GetValue() == DespawnMode.AfterMeeting;
 
     public override void SetupCustomOption()
     {
@@ -117,7 +118,7 @@ public class Abyssbringer : RoleBase
 
     public override void OnReportDeadBody()
     {
-        if ((DespawnMode)BlackHoleDespawnMode.GetValue() == DespawnMode.AfterMeeting)
+        if (ShouldDespawnCNOOnMeeting)
         {
             Loop.Times(BlackHoles.Count, i => Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 3, i));
 

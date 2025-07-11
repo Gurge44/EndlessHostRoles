@@ -94,6 +94,8 @@ internal static class RepairSystemPatch
         if ((Options.CurrentGameMode != CustomGameMode.Standard || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
         if (player.Is(CustomRoles.Fool) && systemType is SystemTypes.Comms or SystemTypes.Electrical) return false;
 
+        if (SubmergedCompatibility.IsSubmerged() && systemType is not (SystemTypes.Electrical or SystemTypes.Comms)) return true;
+
         switch (player.GetCustomRole())
         {
             case CustomRoles.SabotageMaster:
@@ -171,7 +173,8 @@ internal static class RepairSystemPatch
 
                 break;
             }
-            case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay: { return SabotageSystemTypeRepairDamagePatch.CheckSabotage(null, player, systemType); }
+            case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
+                return SabotageSystemTypeRepairDamagePatch.CheckSabotage(null, player, systemType);
             case SystemTypes.Security when amount == 1:
             {
                 bool camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
@@ -468,6 +471,7 @@ internal static class ShipStatusSerializePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (initialState) return;
+        if (SubmergedCompatibility.IsSubmerged()) return;
 
         var cancel = false;
 

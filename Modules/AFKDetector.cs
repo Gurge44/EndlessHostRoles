@@ -91,6 +91,7 @@ public static class AFKDetector
                 case Data.Phase.Detection:
                     data.CurrentPhase = Data.Phase.Warning;
                     data.Timer = 15f;
+                    Utils.NotifyRoles(SpecifyTarget: pc);
                     if (pc.IsAlive() && !MeetingStates.FirstMeeting) pc.FixBlackScreen();
                     break;
                 case Data.Phase.Warning:

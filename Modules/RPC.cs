@@ -136,8 +136,18 @@ public enum CustomRPC
     SyncRomanticTarget,
     SyncVengefulRomanticTarget,
     SetRevealedPlayer,
-    SetCurrentRevealTarget,
-    SetDoomsayerProgress,
+    SetCurrentRevealTarget = 209,
+
+    /*
+     * SUBMERGED RPCs
+     * 210 - SetCustomData
+     * 211 - RequestChangeFloor
+     * 212 - AcknowledgeChangeFloor
+     * 213 - EngineVent
+     * 214 - OxygenDeath
+     */
+
+    SetDoomsayerProgress = 215,
     SetTrackerTarget,
     RpcPassBomb,
     SetAlchemistTimer,
@@ -229,6 +239,7 @@ internal static class RPCHandlerPatch
 
     private static bool TrustedRpc(byte id)
     {
+        if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
         return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand;
     }
 

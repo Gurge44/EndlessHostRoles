@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.InnerNet.GameDataMessages;
 using EHR;
 using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -44,7 +45,7 @@ namespace EHR
                 string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
                 string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
                 string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-                var sender = CustomRpcSender.Create("SetFakeData", this is BedWarsItemGenerator ? SendOption.None : SendOption.Reliable, log: false);
+                var sender = CustomRpcSender.Create("CustomNetObject.RpcChangeSprite", this is BedWarsItemGenerator ? SendOption.None : SendOption.Reliable, log: false);
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
@@ -218,7 +219,7 @@ namespace EHR
                 string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
                 string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
                 string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-                var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable, log: false);
+                var sender = CustomRpcSender.Create("CustomNetObject.CreateNetObject", SendOption.Reliable, log: false);
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
@@ -270,7 +271,7 @@ namespace EHR
 
                 LateTask.New(() =>
                 {
-                    var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable, log: false);
+                    var sender = CustomRpcSender.Create("CustomNetObject.CreateNetObject (2)", SendOption.Reliable, log: false);
                     MessageWriter writer = sender.stream;
                     sender.StartMessage(pc.OwnerId);
                     writer.StartMessage(1);
@@ -326,7 +327,8 @@ namespace EHR
         {
             if (!(Options.IntegrateNaturalDisasters.GetBool() && Options.CurrentGameMode != CustomGameMode.NaturalDisasters))
                 TempDespawnedObjects = AllObjects.ToList();
-            
+
+            if (Abyssbringer.ShouldDespawnCNOOnMeeting) TempDespawnedObjects.RemoveAll(x => x is BlackHole);
             Reset();
         }
 

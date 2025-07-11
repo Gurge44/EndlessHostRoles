@@ -173,7 +173,7 @@ internal static class ChangeRoleSettings
                 RoleTypes.Tracker
             }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
-            if (Main.NormalOptions.MapId > 5)
+            if (Main.NormalOptions.MapId > 5 && !(Main.NormalOptions.MapId == 6 && SubmergedCompatibility.Loaded))
             {
                 Logger.SendInGame(GetString("UnsupportedMap"), Color.red);
                 ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
@@ -545,7 +545,7 @@ internal static class StartGameHostPatch
 
         if (!ShipStatus.Instance)
         {
-            int index = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
+            int index = GameOptionsManager.Instance.CurrentGameOptions.MapId == 6 && SubmergedCompatibility.Loaded && SubmergedCompatibility.IsSupported(Options.CurrentGameMode) ? 6 : Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
             AUClient.ShipLoadingAsyncHandle = AUClient.ShipPrefabs[index].InstantiateAsync();
 
             while (!AUClient.ShipLoadingAsyncHandle.IsDone)
@@ -560,6 +560,7 @@ internal static class StartGameHostPatch
             GameObject result = AUClient.ShipLoadingAsyncHandle.Result;
             ShipStatus.Instance = result.GetComponent<ShipStatus>();
             AUClient.Spawn(ShipStatus.Instance);
+            Logger.Info($"Successfully spawned ShipStatus for map {GameOptionsManager.Instance.CurrentGameOptions.MapId} ({Constants.MapNames[GameOptionsManager.Instance.CurrentGameOptions.MapId]})", "StartGameHost");
         }
 
         try
@@ -1047,6 +1048,8 @@ internal static class StartGameHostPatch
             pc.Data.Disconnected = true;
             pc.Data.SendGameData();
         }
+
+        Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
         yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 1f, GetString("LoadingBarText.1"));

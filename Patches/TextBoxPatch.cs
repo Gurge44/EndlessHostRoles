@@ -287,6 +287,7 @@ public static class TextBoxPatch
         catch { }
     }
 
+#if !ANDROID
     [HarmonyPatch(nameof(TextBoxTMP.Update))]
     [HarmonyPrefix]
     public static bool UpdatePatch(TextBoxTMP __instance)
@@ -310,6 +311,7 @@ public static class TextBoxPatch
 
         return false;
     }
+#endif
 
     [HarmonyPatch(nameof(TextBoxTMP.IsCharAllowed))]
     [HarmonyPrefix]

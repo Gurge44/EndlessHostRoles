@@ -93,6 +93,12 @@ public static class GuessManager
                     return true;
                 }
 
+                if (!Options.CanGuessDuringDiscussionTime.GetBool() && MeetingHud.Instance && MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.Animating)
+                {
+                    ShowMessage("GuessDuringDiscussion");
+                    return true;
+                }
+
                 if (pc.Is(CustomRoles.Decryptor) && Decryptor.GuessMode.GetValue() == 2) goto SkipCheck;
 
                 if ((pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool()) ||
@@ -1069,7 +1075,7 @@ public static class GuessManager
 
             if (AmongUsClient.Instance.AmHost)
             {
-                HashSet<byte> guessers = Main.AllPlayerControls.Where(x => CanGuess(x, false)).Select(x => x.PlayerId).ToHashSet();
+                HashSet<byte> guessers = Main.AllAlivePlayerControls.Where(x => CanGuess(x, false)).Select(x => x.PlayerId).ToHashSet();
                 LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString("YouCanGuess"), x, GetString("YouCanGuessTitle"))), 12f, log: false);
             }
         }

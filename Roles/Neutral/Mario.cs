@@ -38,7 +38,7 @@ internal class Mario : RoleBase
     {
         On = true;
         MarioVentCount[playerId] = 0;
-        MarioVentNumWin = MapWinCounts[Main.CurrentMap].GetInt();
+        MarioVentNumWin = MapWinCounts[SubmergedCompatibility.IsSubmerged() ? MapNames.Airship : Main.CurrentMap].GetInt();
     }
 
     public override void Init()

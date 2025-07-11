@@ -15,10 +15,10 @@ namespace EHR;
 
 public static class BanManager
 {
-    private const string DenyNameListPath = $"{Main.DataPath}/EHR_DATA/DenyName.txt";
-    private const string BanListPath = $"{Main.DataPath}/EHR_DATA/BanList.txt";
-    private const string ModeratorListPath = $"{Main.DataPath}/EHR_DATA/Moderators.txt";
-    private const string WhiteListListPath = $"{Main.DataPath}/EHR_DATA/WhiteList.txt";
+    private static readonly string DenyNameListPath = $"{Main.DataPath}/EHR_DATA/DenyName.txt";
+    private static readonly string BanListPath = $"{Main.DataPath}/EHR_DATA/BanList.txt";
+    private static readonly string ModeratorListPath = $"{Main.DataPath}/EHR_DATA/Moderators.txt";
+    private static readonly string WhiteListListPath = $"{Main.DataPath}/EHR_DATA/WhiteList.txt";
     private static readonly List<string> EACList = [];
     public static readonly List<string> TempBanWhiteList = []; // To prevent writing to the banlist
 

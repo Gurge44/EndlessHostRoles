@@ -236,6 +236,7 @@ public static class KingOfTheZones
         AllRooms.Remove(SystemTypes.Outside);
         AllRooms.Remove(SystemTypes.Ventilation);
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
+        if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
         Zones = DefaultZones[Main.CurrentMap][NumZones.GetInt() - 1];
 
@@ -582,7 +583,7 @@ public static class KingOfTheZones
 
         if (!Main.IntroDestroyed) return false;
 
-        switch (aapc.Length)
+        switch (aapc.Length + ExtendedPlayerControl.TempExiled.Count)
         {
             case 0:
             {

@@ -237,7 +237,7 @@ internal static class ChatCommands
         if (LastModFileUpdate + 5 > now) { friendCodes = ModsFileCache; }
         else
         {
-            const string friendCodesFilePath = $"{Main.DataPath}/EHR_DATA/Moderators.txt";
+            var friendCodesFilePath = $"{Main.DataPath}/EHR_DATA/Moderators.txt";
 
             if (!File.Exists(friendCodesFilePath))
             {
@@ -265,7 +265,7 @@ internal static class ChatCommands
         if (LastVIPFileUpdate + 5 > now) { friendCodes = VIPsFileCache; }
         else
         {
-            const string friendCodesFilePath = $"{Main.DataPath}/EHR_DATA/VIPs.txt";
+            var friendCodesFilePath = $"{Main.DataPath}/EHR_DATA/VIPs.txt";
 
             if (!File.Exists(friendCodesFilePath))
             {

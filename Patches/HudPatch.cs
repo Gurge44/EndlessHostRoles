@@ -667,6 +667,8 @@ internal static class SabotageMapPatch
 
     public static void Postfix(InfectedOverlay __instance)
     {
+        if (SubmergedCompatibility.IsSubmerged()) return;
+        
         float perc = __instance.sabSystem.PercentCool;
         int total = __instance.sabSystem.initialCooldown ? 10 : 30;
         if (SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled) total = (int)SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec;
@@ -709,7 +711,7 @@ internal static class MapRoomDoorsUpdatePatch
 
     public static bool Prefix(MapRoom __instance)
     {
-        if (!__instance.door || !ShipStatus.Instance) return false;
+        if (!__instance.door || !ShipStatus.Instance || SubmergedCompatibility.IsSubmerged()) return false;
 
         SystemTypes room = __instance.room;
 
@@ -958,7 +960,7 @@ internal static class TaskPanelBehaviourPatch
                     else
                     {
                         finalText += Main.AllPlayerControls
-                            .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.Parse(RoomRush.GetPoints(x.PlayerId).Split('/')[0])))
+                            .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.TryParse(RoomRush.GetPoints(x.PlayerId).Split('/')[0], out int points) ? points : 0))
                             .OrderByDescending(x => x.points_int)
                             .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {x.points_string}");
                     }

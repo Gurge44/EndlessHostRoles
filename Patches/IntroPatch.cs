@@ -14,6 +14,19 @@ namespace EHR;
 
 // Patch for non-host modded clients to ensure that the intro cutscene is shown correctly
 // and GameStates.InGame is set to true
+#if ANDROID
+[HarmonyPatch(typeof(IntroCutscene._ShowRole_d__40), nameof(IntroCutscene._ShowRole_d__40.MoveNext))]
+static class ShowRoleMoveNextPatchAndroid
+{
+    public static void Postfix(IntroCutscene._ShowRole_d__40 __instance, ref bool __result)
+    {
+        if (AmongUsClient.Instance.AmHost || __instance.__1__state != 1 || !__result) return;
+
+        GameStates.InGame = true;
+        SetUpRoleTextPatch.Postfix(__instance.__4__this);
+    }
+}
+#else
 [HarmonyPatch(typeof(IntroCutscene._ShowRole_d__41), nameof(IntroCutscene._ShowRole_d__41.MoveNext))]
 static class ShowRoleMoveNextPatch
 {
@@ -25,6 +38,7 @@ static class ShowRoleMoveNextPatch
         SetUpRoleTextPatch.Postfix(__instance.__4__this);
     }
 }
+#endif
 
 // For some reason, IntroCutScene.ShowRole is not called in the base game with this exact same code,
 // so we need to patch HudManager.CoShowIntro for the host entirely to ensure that the intro is shown correctly

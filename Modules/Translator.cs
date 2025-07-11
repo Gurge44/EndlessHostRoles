@@ -120,6 +120,9 @@ public static class Translator
 
     public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
     {
+        if (SubmergedCompatibility.IsSubmerged() && int.TryParse(s, out int roomNumber) && roomNumber is >= 128 and <= 135)
+            s = $"SubmergedRoomName.{roomNumber}";
+        
         SupportedLangs langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
         if (console) langId = SupportedLangs.English;
 
@@ -167,8 +170,9 @@ public static class Translator
     {
 #if ANDROID
         return TranslationController.Instance.GetString(stringName);
-#endif
+#else
         return FastDestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
+#endif
     }
 
     public static string GetRoleString(string str, bool forUser = true)

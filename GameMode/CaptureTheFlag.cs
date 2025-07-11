@@ -235,7 +235,7 @@ public static class CaptureTheFlag
 
         if (!ValidTag) return false;
 
-        switch (aapc.Length)
+        switch (aapc.Length + ExtendedPlayerControl.TempExiled.Count)
         {
             case 0:
                 ResetSkins();

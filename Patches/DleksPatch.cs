@@ -32,6 +32,15 @@ internal static class AllMapIconsPatch
             dleksIcon.MapImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
             dleksIcon.NameImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
             __instance.AllMapIcons.Add(dleksIcon);
+
+            if (SubmergedCompatibility.Loaded)
+            {
+                MapIconByName submergedIcon = Object.Instantiate(__instance, __instance.gameObject.transform).AllMapIcons[0];
+                submergedIcon.Name = (MapNames)6;
+                submergedIcon.MapImage = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
+                submergedIcon.NameImage = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 100f);
+                __instance.AllMapIcons.Add(submergedIcon);
+            }
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -56,7 +65,7 @@ public static class DleksPatch
         }
 
         // removed dleks check as it's always false
-        int num2 = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
+        int num2 = GameOptionsManager.Instance.CurrentGameOptions.MapId == 6 && SubmergedCompatibility.Loaded && SubmergedCompatibility.IsSupported(Options.CurrentGameMode) ? 6 : Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
         __instance.__2__current = __instance.__4__this.ShipLoadingAsyncHandle = __instance.__4__this.ShipPrefabs[num2].InstantiateAsync();
         __instance.__1__state = 1;
 
@@ -118,7 +127,7 @@ public static class VentSetButtonsPatch
 }
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.TryMoveToVent))]
-internal class VentTryMoveToVentPatch
+internal static class VentTryMoveToVentPatch
 {
     // Update arrows buttons when player move to vents
     private static void Postfix(Vent __instance, [HarmonyArgument(0)] Vent otherVent)
@@ -132,7 +141,7 @@ internal class VentTryMoveToVentPatch
 }
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.UpdateArrows))]
-internal class VentUpdateArrowsPatch
+internal static class VentUpdateArrowsPatch
 {
     // Fixes "Index was outside the bounds of the array" errors when arrows updates in vent on Dleks map
     private static bool Prefix()

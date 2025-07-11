@@ -78,6 +78,7 @@ internal class Bargainer : RoleBase
         get
         {
             var mapName = Main.CurrentMap.ToString();
+            if (SubmergedCompatibility.IsSubmerged()) mapName = "Submerged";
             IEnumerable<KeyValuePair<string, Vector2>> devices = DisableDevice.DevicePos.SkipWhile(x => !x.Key.StartsWith(mapName)).TakeWhile(x => x.Key.StartsWith(mapName));
             return devices.Select(x => x.Value);
         }
