@@ -340,7 +340,12 @@ internal static class ChangeRoleSettings
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 int colorId = pc.Data.DefaultOutfit.ColorId;
-                if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1) pc.RpcSetName(Palette.GetColorName(colorId));
+                if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1)
+                {
+                    string colorName = Palette.GetColorName(colorId);
+                    string formattedColorName = char.ToUpper(colorName[0]) + colorName.Substring(1).ToLower();
+                    pc.RpcSetName(formattedColorName);
+                }
 
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
