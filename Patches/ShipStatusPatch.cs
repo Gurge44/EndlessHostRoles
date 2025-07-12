@@ -177,7 +177,7 @@ internal static class RepairSystemPatch
                 return SabotageSystemTypeRepairDamagePatch.CheckSabotage(null, player, systemType);
             case SystemTypes.Security when amount == 1:
             {
-                bool camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
+                bool camerasDisabled = Main.CurrentMap switch
                 {
                     MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
                     MapNames.Polus => Options.DisablePolusCamera.GetBool(),

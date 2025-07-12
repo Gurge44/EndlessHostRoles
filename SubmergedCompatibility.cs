@@ -7,11 +7,10 @@ using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using EHR.Patches;
 using HarmonyLib;
-using Il2CppInterop.Runtime.InteropTypes;
 
 namespace EHR;
 
-// https://github.com/eDonnes124/Town-Of-Us-R/tree/master/source/Patches/SubmergedCompatibility.cs
+// Partially from https://github.com/eDonnes124/Town-Of-Us-R/tree/master/source/Patches/SubmergedCompatibility.cs
 
 public static class SubmergedCompatibility
 {
@@ -252,10 +251,12 @@ public static class SubmergedCompatibility
         return Loaded && ShipStatus.Instance && ShipStatus.Instance.Type == SubmergedMapType;
     }
 
-    private static object TryCast(this Il2CppObjectBase self, Type type)
-    {
-        return AccessTools.Method(self.GetType(), nameof(Il2CppObjectBase.TryCast)).MakeGenericMethod(type).Invoke(self, []);
-    }
+    /*
+        private static object TryCast(this Il2CppObjectBase self, Type type)
+        {
+            return AccessTools.Method(self.GetType(), nameof(Il2CppObjectBase.TryCast)).MakeGenericMethod(type).Invoke(self, []);
+        }
+    */
 
     private static IList CreateList(Type myType)
     {

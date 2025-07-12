@@ -3339,7 +3339,8 @@ public static class Utils
         Circumvent.AfterMeetingTasks();
         Deadlined.AfterMeetingTasks();
 
-        if (Options.AirshipVariableElectrical.GetBool()) AirshipElectricalDoors.Initialize();
+        if (Options.AirshipVariableElectrical.GetBool())
+            AirshipElectricalDoors.Initialize();
 
         Main.DontCancelVoteList.Clear();
 
@@ -3347,7 +3348,7 @@ public static class Utils
         RoleBlockManager.Reset();
         PhantomRolePatch.AfterMeeting();
 
-        if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
+        if (Main.CurrentMap == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
 
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);

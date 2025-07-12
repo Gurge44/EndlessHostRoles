@@ -2615,6 +2615,9 @@ internal static class ChatCommands
                     case "thefungle":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 5);
                         break;
+                    case "submerged" when SubmergedCompatibility.Loaded:
+                        GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 6);
+                        break;
                     case "custom":
                         subArgs = args.Length < 4 ? "" : args[3];
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, byte.Parse(subArgs));

@@ -1032,7 +1032,7 @@ internal static class StartGameHostPatch
                 if (Main.LoversPlayers.Count == 0) Main.LoversPlayers = Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Lovers) || x.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor).ToList();
             }, 7f, log: false);
 
-            if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value) LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
+            if (Main.CurrentMap == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value) LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
 
             LateTask.New(() => Main.HasJustStarted = false, 12f, "HasJustStarted to false");
         }

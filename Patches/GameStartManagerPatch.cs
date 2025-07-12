@@ -234,10 +234,13 @@ public static class GameStartManagerPatch
             try { instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId); }
             catch (Exception e)
             {
-                if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length && !(GameManager.Instance.LogicOptions.MapId == 6 && SubmergedCompatibility.Loaded && SubmergedCompatibility.IsSupported(Options.CurrentGameMode)))
-                    ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
+                if (!(GameManager.Instance.LogicOptions.MapId == 6 && SubmergedCompatibility.Loaded && SubmergedCompatibility.IsSupported(Options.CurrentGameMode)))
+                {
+                    if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length)
+                        ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
 
-                Utils.ThrowException(e);
+                    Utils.ThrowException(e);
+                }
             }
 
             instance.CheckSettingsDiffs();
@@ -547,39 +550,18 @@ public static class GameStartRandomMap
 
     public static byte SelectRandomMap()
     {
-        var rand = IRandom.Instance;
-        System.Collections.Generic.List<byte> randomMaps = [];
-
-        int tempRand = rand.Next(1, 100);
-
-        if (tempRand <= Options.SkeldChance.GetInt()) randomMaps.Add(0);
-        if (tempRand <= Options.MiraChance.GetInt()) randomMaps.Add(1);
-        if (tempRand <= Options.PolusChance.GetInt()) randomMaps.Add(2);
-        if (tempRand <= Options.DleksChance.GetInt()) randomMaps.Add(3);
-        if (tempRand <= Options.AirshipChance.GetInt()) randomMaps.Add(4);
-        if (tempRand <= Options.FungleChance.GetInt()) randomMaps.Add(5);
-
-        if (randomMaps.Count > 0)
+        System.Collections.Generic.Dictionary<byte, int> chance = Enumerable.Range(0, 6).ToDictionary(x => (byte)x, x => x switch
         {
-            byte mapsId = randomMaps[0];
-
-            Logger.Info($"{mapsId}", "Chance Select MapId");
-            return mapsId;
-        }
-        else
-        {
-            if (Options.SkeldChance.GetInt() > 0) randomMaps.Add(0);
-            if (Options.MiraChance.GetInt() > 0) randomMaps.Add(1);
-            if (Options.PolusChance.GetInt() > 0) randomMaps.Add(2);
-            if (Options.DleksChance.GetInt() > 0) randomMaps.Add(3);
-            if (Options.AirshipChance.GetInt() > 0) randomMaps.Add(4);
-            if (Options.FungleChance.GetInt() > 0) randomMaps.Add(5);
-
-            byte mapsId = randomMaps.RandomElement();
-
-            Logger.Info($"{mapsId}", "Random Select MapId");
-            return mapsId;
-        }
+            0 => Options.SkeldChance.GetInt(),
+            1 => Options.MiraChance.GetInt(),
+            2 => Options.PolusChance.GetInt(),
+            3 => Options.DleksChance.GetInt(),
+            4 => Options.AirshipChance.GetInt(),
+            5 => Options.FungleChance.GetInt(),
+            _ => 0
+        });
+        byte[] pool = chance.SelectMany(x => Enumerable.Repeat(x.Key, x.Value / 5)).ToArray();
+        return pool.Length == 0 ? chance.Keys.RandomElement() : pool.RandomElement();
     }
 }
 

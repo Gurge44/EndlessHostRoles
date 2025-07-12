@@ -543,7 +543,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (GameManager.Instance.LogicOptions.MapId != 4)
+                    if (GameManager.Instance.LogicOptions.MapId != 4 && !SubmergedCompatibility.IsSubmerged())
                     {
                         WarnHost();
                         Report(pc, "Using platform on wrong map");
@@ -1134,8 +1134,8 @@ internal static class EAC
         {
             case SystemTypes.LifeSupp:
             {
-                if (mapid != 0 && mapid != 1 && mapid != 3) goto Cheat;
-                if (amount != 64 && amount != 65) goto Cheat;
+                if (mapid != 0 && mapid != 1 && mapid != 3 && !SubmergedCompatibility.IsSubmerged()) goto Cheat;
+                if (amount != 64 && amount != 65 && !SubmergedCompatibility.IsSubmerged()) goto Cheat;
                 break;
             }
             case SystemTypes.Comms:

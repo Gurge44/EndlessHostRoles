@@ -32,7 +32,7 @@ internal abstract class RandomSpawn
 
             if (!__instance.isActiveAndEnabled) return false;
 
-            if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+            if ((RpcCalls)callId == RpcCalls.SnapTo && Main.CurrentMap == MapNames.Airship)
             {
                 PlayerControl player = __instance.myPlayer;
 

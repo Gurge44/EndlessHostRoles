@@ -668,7 +668,7 @@ internal static class ExtendedPlayerControl
 
         // Kill flash (blackout + reactor flash) processing
 
-        SystemTypes systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        SystemTypes systemtypes = Main.CurrentMap switch
         {
             MapNames.Polus => SystemTypes.Laboratory,
             MapNames.Airship => SystemTypes.HeliSabotage,
@@ -1156,7 +1156,7 @@ internal static class ExtendedPlayerControl
 
         Logger.Info($"Reactor Flash for {pc.GetNameWithRole()}", "ReactorFlash");
 
-        SystemTypes systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        SystemTypes systemtypes = Main.CurrentMap switch
         {
             MapNames.Polus => SystemTypes.Laboratory,
             MapNames.Airship => SystemTypes.HeliSabotage,

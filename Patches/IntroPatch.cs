@@ -1215,7 +1215,7 @@ internal static class IntroCutsceneDestroyPatch
 
         LateTask.New(() =>
         {
-            if (Main.CurrentMap == MapNames.Airship && Vector2.Distance(PlayerControl.LocalPlayer.Pos(), new Vector2(-25f, 40f)) < 8f)
+            if (Main.CurrentMap == MapNames.Airship && Vector2.Distance(PlayerControl.LocalPlayer.Pos(), new Vector2(-25f, 40f)) < 8f && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
         }, 4f, "Airship Spawn FailSafe");
     }

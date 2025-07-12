@@ -161,8 +161,6 @@ internal static class CreateOptionsPickerPatch
     {
         public static void Postfix(CreateOptionsPicker __instance)
         {
-            if (SubmergedCompatibility.Loaded) return;
-
             Transform mapPickerTransform = __instance.transform.Find("MapPicker");
             var mapPickerMenu = mapPickerTransform.Find("Map Picker Menu").GetComponent<MapPickerMenu>();
 
