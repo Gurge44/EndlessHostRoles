@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using AmongUs.GameOptions;
 using BepInEx;
 using BepInEx.Configuration;
@@ -819,6 +821,9 @@ public class Main : BasePlugin
             try { SubmergedCompatibility.Initialize(); }
             catch (Exception e) { Utils.ThrowException(e); }
 
+            try { HandleRoleColorFiles(); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
             Logger.Msg("========= EHR loaded! =========", "Plugin Load");
             Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
         };
@@ -833,6 +838,30 @@ public class Main : BasePlugin
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
+    }
+
+    private static void HandleRoleColorFiles()
+    {
+        string serialized = JsonSerializer.Serialize(RoleColors, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText($"{DataPath}/OriginalRoleColors.json", serialized);
+
+        if (!Directory.Exists("EHR_DATA"))
+            Directory.CreateDirectory("EHR_DATA");
+
+        var path = $"{DataPath}/EHR_DATA/RoleColors.json";
+
+        if (!File.Exists(path)) File.WriteAllText(path, serialized);
+        else
+        {
+            try
+            {
+                string json = File.ReadAllText(path);
+                if (string.IsNullOrEmpty(json) || json == serialized || json.Length < serialized.Length) return;
+                var deserialized = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                RoleColors = deserialized.ToDictionary(x => Enum.Parse<CustomRoles>(x.Key), x => x.Value);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+        }
     }
 
     public static void LoadRoleClasses()
