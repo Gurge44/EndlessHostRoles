@@ -1099,8 +1099,10 @@ internal static class MeetingHudStartPatch
         NiceSwapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
         Mafia.StartMeetingPatch.Postfix(__instance);
-        Crowded.MeetingHudStartPatch.Postfix(__instance);
         ShowHostMeetingPatch.Setup_Postfix(__instance);
+#if !ANDROID
+        Crowded.MeetingHudStartPatch.Postfix(__instance);
+#endif
     }
 }
 

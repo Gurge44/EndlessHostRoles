@@ -54,8 +54,8 @@ public static class TemplateManager
             {
                 if (!Directory.Exists("EHR_DATA")) Directory.CreateDirectory("EHR_DATA");
 
-                if (File.Exists("./template.txt"))
-                    File.Move("./template.txt", TemplateFilePath);
+                if (File.Exists($"{Main.DataPath}/template.txt"))
+                    File.Move($"{Main.DataPath}/template.txt", TemplateFilePath);
                 else
                 {
                     string fileName;

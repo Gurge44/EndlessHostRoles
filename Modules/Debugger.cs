@@ -148,7 +148,7 @@ internal static class Logger
 
 public class CustomLogger
 {
-    private const string LOGFilePath = "./BepInEx/log.html";
+    private static readonly string LOGFilePath = $"{Main.DataPath}/BepInEx/log.html";
 
     private const string HtmlHeader =
         """

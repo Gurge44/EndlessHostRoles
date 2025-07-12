@@ -29,8 +29,8 @@ public static class SpamManager
             {
                 if (!Directory.Exists("EHR_DATA")) Directory.CreateDirectory("EHR_DATA");
 
-                if (File.Exists("./BanWords.txt"))
-                    File.Move("./BanWords.txt", BannedWordsFilePath);
+                if (File.Exists($"{Main.DataPath}/BanWords.txt"))
+                    File.Move($"{Main.DataPath}/BanWords.txt", BannedWordsFilePath);
                 else
                 {
                     string fileName;

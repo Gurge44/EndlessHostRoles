@@ -1,7 +1,4 @@
-﻿using System;
-using static EHR.Translator;
-
-namespace EHR;
+﻿namespace EHR;
 
 public static class AddSteamID
 {
@@ -9,6 +6,7 @@ public static class AddSteamID
 
     public static void AddSteamAppIdFile()
     {
+#if !ANDROID
         try
         {
             if (!File.Exists(FilePath))
@@ -21,5 +19,6 @@ public static class AddSteamID
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
+#endif
     }
 }
