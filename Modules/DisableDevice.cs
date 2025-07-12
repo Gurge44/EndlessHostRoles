@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace EHR;
 
-//参考元 : https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
+// Reference: https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
 internal static class DisableDevice
 {
     private static readonly List<byte> DesyncComms = [];
@@ -32,7 +32,11 @@ internal static class DisableDevice
         ["AirshipCamera"] = new(8.10f, -9.63f),
         ["AirshipVital"] = new(25.24f, -7.94f),
         ["FungleCamera"] = new(6.20f, 0.10f),
-        ["FungleVital"] = new(-2.50f, -9.80f)
+        ["FungleVital"] = new(-2.50f, -9.80f),
+        ["SubmergedVital"] = new(5f, 32.54f),
+        ["SubmergedLeftAdmin"] = new(-9.45f, 10.16f),
+        ["SubmergedRightAdmin"] = new(-7.07f, 10.16f),
+        ["SubmergedCamera"] = new(-3.41f, -34.56f)
     };
 
     public static bool DoDisable => Options.DisableDevices.GetBool();

@@ -18,6 +18,13 @@ internal static class CreateOptionsPickerPatch
     [HarmonyPatch]
     public static class GameOptionsMapPickerPatch
     {
+        [HarmonyPatch(typeof(GameOptionsMapPicker), nameof(GameOptionsMapPicker.SelectMap), typeof(int))]
+        [HarmonyPrefix]
+        public static void Prefix_SelectMap([HarmonyArgument(0)] ref int mapId)
+        {
+            if (mapId > 5) mapId = 0;
+        }
+        
         [HarmonyPatch(typeof(GameOptionsMapPicker), nameof(GameOptionsMapPicker.SetupMapButtons))]
         [HarmonyPostfix]
         public static void Postfix_Initialize(CreateGameMapPicker __instance)

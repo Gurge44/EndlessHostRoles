@@ -550,7 +550,7 @@ internal static class StartGameHostPatch
 
         if (!ShipStatus.Instance)
         {
-            int index = GameOptionsManager.Instance.CurrentGameOptions.MapId == 6 && SubmergedCompatibility.Loaded && SubmergedCompatibility.IsSupported(Options.CurrentGameMode) ? 6 : Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
+            int index = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
             AUClient.ShipLoadingAsyncHandle = AUClient.ShipPrefabs[index].InstantiateAsync();
 
             while (!AUClient.ShipLoadingAsyncHandle.IsDone)

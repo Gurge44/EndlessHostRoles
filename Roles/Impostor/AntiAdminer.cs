@@ -174,6 +174,7 @@ internal class AntiAdminer : RoleBase
                 switch (Main.NormalOptions.MapId)
                 {
                     case 0:
+                    {
                         if (!Options.DisableSkeldAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["SkeldAdmin"]) <= usableDistance)
                         {
                             admin = true;
@@ -187,7 +188,9 @@ internal class AntiAdminer : RoleBase
                         }
 
                         break;
+                    }
                     case 1:
+                    {
                         if (!Options.DisableMiraHQAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["MiraHQAdmin"]) <= usableDistance)
                         {
                             admin = true;
@@ -201,7 +204,9 @@ internal class AntiAdminer : RoleBase
                         }
 
                         break;
+                    }
                     case 2:
+                    {
                         if (!Options.DisablePolusAdmin.GetBool() && (Vector2.Distance(playerPos, DisableDevice.DevicePos["PolusLeftAdmin"]) <= usableDistance || Vector2.Distance(playerPos, DisableDevice.DevicePos["PolusRightAdmin"]) <= usableDistance))
                         {
                             admin = true;
@@ -221,7 +226,9 @@ internal class AntiAdminer : RoleBase
                         }
 
                         break;
+                    }
                     case 3:
+                    {
                         if (!Options.DisableSkeldAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["DleksAdmin"]) <= usableDistance)
                         {
                             admin = true;
@@ -235,7 +242,9 @@ internal class AntiAdminer : RoleBase
                         }
 
                         break;
+                    }
                     case 4:
+                    {
                         if (!Options.DisableAirshipCockpitAdmin.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["AirshipCockpitAdmin"]) <= usableDistance)
                         {
                             admin = true;
@@ -261,7 +270,9 @@ internal class AntiAdminer : RoleBase
                         }
 
                         break;
+                    }
                     case 5:
+                    {
                         if (!Options.DisableFungleCamera.GetBool() && Vector2.Distance(playerPos, DisableDevice.DevicePos["FungleCamera"]) <= usableDistance)
                         {
                             camera = true;
@@ -275,6 +286,29 @@ internal class AntiAdminer : RoleBase
                         }
 
                         break;
+                    }
+                    case 6 when SubmergedCompatibility.IsSubmerged():
+                    {
+                        if (Vector2.Distance(playerPos, DisableDevice.DevicePos["SubmergedLeftAdmin"]) <= usableDistance || Vector2.Distance(playerPos, DisableDevice.DevicePos["SubmergedRightAdmin"]) <= usableDistance)
+                        {
+                            admin = true;
+                            AddDeviceUse(pc.PlayerId, Device.Admin);
+                        }
+
+                        if (Vector2.Distance(playerPos, DisableDevice.DevicePos["SubmergedCamera"]) <= usableDistance)
+                        {
+                            camera = true;
+                            AddDeviceUse(pc.PlayerId, Device.Camera);
+                        }
+
+                        if (Vector2.Distance(playerPos, DisableDevice.DevicePos["SubmergedVital"]) <= usableDistance)
+                        {
+                            vital = true;
+                            AddDeviceUse(pc.PlayerId, Device.Vitals);
+                        }
+
+                        break;
+                    }
                 }
             }
             catch (Exception ex) { Logger.Error(ex.ToString(), "AntiAdminer"); }

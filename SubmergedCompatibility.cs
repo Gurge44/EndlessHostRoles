@@ -223,11 +223,6 @@ public static class SubmergedCompatibility
         return (bool)InTransitionField.GetValue(null)!;
     }
 
-    public static bool IsSupported(CustomGameMode gameMode)
-    {
-        return gameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush;
-    }
-
 
     /*
     public static void RepairOxygen()

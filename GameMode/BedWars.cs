@@ -873,6 +873,13 @@ public static class BedWars
             [BedWarsTeam.Yellow] = new(new(19.83f, 11.07f), SystemTypes.Comms, new(20.19f, 13.63f), new(22.89f, 13.32f), new(24.24f, 14.41f)),
             [BedWarsTeam.Red] = new(new(-7.39f, 8.81f), SystemTypes.Dropship, new(-9.86f, 13.43f), new(-7.47f, 10.92f), new(-11.21f, 12.5f)),
             [BedWarsTeam.Green] = new(new(-15.55f, -7.04f), SystemTypes.Kitchen, new(-17.22f, -9.32f), new(-13.78f, -9.32f), new(-22.83f, -7.19f))
+        },
+        [(MapNames)6] = new()
+        {
+            [BedWarsTeam.Blue] = new(new(-12.69f, -27.88f), SystemTypes.Engine, new(-14.67f, -34.71f), new(-12f, -34.71f), new(-14.6f, -30.96f)),
+            [BedWarsTeam.Yellow] = new(new(9.84f, -27.66f), SystemTypes.Electrical, new(10.22f, -31.58f), new(12.76f, -32.24f), new(12.29f, -29.15f)),
+            [BedWarsTeam.Red] = new(new(11f, 23.43f), SystemTypes.Comms, new(14.33f, 25f), new(14.33f, 23.44f), new(12.77f, 23.85f)),
+            [BedWarsTeam.Green] = new(new(-12f, 19f), (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Observatory, new(-12f, 20f), new(-12.13f, 17.83f), new(-11.66f, 15.16f))
         }
     };
 
@@ -912,6 +919,13 @@ public static class BedWars
             [Item.Gold] = [new(18.19f, -12.48f), new(24.6f, 11.33f), new(-8.63f, 9.81f), new(-13.67f, -7.6f)],
             [Item.Emerald] = [new(9.37f, 0.99f), new(-3.15f, -10.55f), new(2f, -1.57f)],
             [Item.Diamond] = [new(22.28f, 3.18f), new(2.86f, 1.28f), new(-17.61f, 2.65f), new(-4.56f, -14.77f)]
+        },
+        [(MapNames)6] = new()
+        {
+            [Item.Iron] = [new(-11.39f, -30.8f), new(13f, -25.27f), new(10.45f, 28.13f), new(-15f, 17.1f)],
+            [Item.Gold] = [new(-11.39f, -31.43f), new(13f, -25.9f), new(10.45f, 27.4f), new(-15f, 17.72f)],
+            [Item.Emerald] = [new(1.11f, 9.93f), new(0f, 33.62f), new(8.79f, -38.3f), new(-11f, -39.22f)],
+            [Item.Diamond] = [new(3.71f, 32.11f), new(-6.69f, 9.65f), new(-12.32f, 30.53f), new(4.72f, 7.56f), new(-3.01f, -33.05f), new(-0.77f, -35.73f), new(1.71f, -20f), new(-6.5f, -43.06f)]
         }
     };
 

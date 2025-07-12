@@ -76,6 +76,7 @@ public static class CaptureTheFlag
         MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(nameof(SystemTypes.Electrical))),
         MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(nameof(SystemTypes.Cockpit))),
         MapNames.Fungle => (new(-15.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Kitchen))),
+        (MapNames)6 => (new(-13.31f, -34.56f), Translator.GetString(nameof(SystemTypes.Engine))),
         _ => (Vector2.zero, string.Empty)
     };
 
@@ -87,6 +88,7 @@ public static class CaptureTheFlag
         MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Laboratory))),
         MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(nameof(SystemTypes.CargoBay))),
         MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(nameof(SystemTypes.Comms))),
+        (MapNames)6 => (new(14.07f, 23.93f), Translator.GetString(nameof(SystemTypes.Comms))),
         _ => (Vector2.zero, string.Empty)
     };
 

@@ -68,6 +68,14 @@ public static class Quiz
             ['C'] = SystemTypes.Storage,
             ['D'] = SystemTypes.MeetingRoom,
             ['E'] = SystemTypes.Kitchen
+        },
+        [(MapNames)6] = new()
+        {
+            ['A'] = (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Observatory,
+            ['B'] = SystemTypes.Cafeteria,
+            ['C'] = (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral,
+            ['D'] = SystemTypes.Lounge,
+            ['E'] = SystemTypes.Admin
         }
     };
 

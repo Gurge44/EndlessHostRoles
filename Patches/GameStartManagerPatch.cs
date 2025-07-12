@@ -234,7 +234,7 @@ public static class GameStartManagerPatch
             try { instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId); }
             catch (Exception e)
             {
-                if (!(GameManager.Instance.LogicOptions.MapId == 6 && SubmergedCompatibility.Loaded && SubmergedCompatibility.IsSupported(Options.CurrentGameMode)))
+                if (!(GameManager.Instance.LogicOptions.MapId == 6 && SubmergedCompatibility.Loaded))
                 {
                     if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length)
                         ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);

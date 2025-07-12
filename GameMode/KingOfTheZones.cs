@@ -68,6 +68,13 @@ public static class KingOfTheZones
             [SystemTypes.Cafeteria, SystemTypes.Reactor],
             [SystemTypes.FishingDock, SystemTypes.Comms, SystemTypes.Reactor],
             [SystemTypes.FishingDock, SystemTypes.Dropship, SystemTypes.Comms, SystemTypes.Reactor]
+        ],
+        [(MapNames)6] =
+        [
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral],
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral],
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Research, SystemTypes.Admin, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperLobby],
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast, SystemTypes.Cafeteria]
         ]
     };
 

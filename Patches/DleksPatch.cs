@@ -65,7 +65,7 @@ public static class DleksPatch
         }
 
         // removed dleks check as it's always false
-        int num2 = GameOptionsManager.Instance.CurrentGameOptions.MapId == 6 && SubmergedCompatibility.Loaded && SubmergedCompatibility.IsSupported(Options.CurrentGameMode) ? 6 : Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
+        int num2 = GameOptionsManager.Instance.CurrentGameOptions.MapId == 6 && SubmergedCompatibility.Loaded ? 6 : Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
         __instance.__2__current = __instance.__4__this.ShipLoadingAsyncHandle = __instance.__4__this.ShipPrefabs[num2].InstantiateAsync();
         __instance.__1__state = 1;
 
