@@ -2216,7 +2216,7 @@
   "KilledByScavenger": "Вас убил Падальщик, из-за чего ваш труп был телепортирован за пределы карты",
   "SnitchDoneTasks": "Вызовите собрание и выкиньте убийц!",
   "SwooperCanVent": "Прыгни в люк для невидимости",
-  "SwooperInvisState": "Ты невидим",
+  "SwooperInvisState": "Вы невидимы",
   "SwooperInvisStateOut": "Невидимость пропала",
   "SwooperInvisInCooldown": "Откат не закончился, невидимость не активировалась",
   "SwooperInvisStateCountdown": "<color=#00ffa5>Невидимость закончится через</color> <b>{0}</b>с",
