@@ -26,7 +26,7 @@ public static class BanManager
     {
         try
         {
-            Directory.CreateDirectory("EHR_DATA");
+            if (!Directory.Exists($"{Main.DataPath}/EHR_DATA")) Directory.CreateDirectory($"{Main.DataPath}/EHR_DATA");
 
             if (!File.Exists(BanListPath))
             {
@@ -115,7 +115,7 @@ public static class BanManager
 
         try
         {
-            Directory.CreateDirectory("EHR_DATA");
+            if (!Directory.Exists($"{Main.DataPath}/EHR_DATA")) Directory.CreateDirectory($"{Main.DataPath}/EHR_DATA");
             if (!File.Exists(DenyNameListPath)) File.Create(DenyNameListPath).Close();
 
             using StreamReader sr = new(DenyNameListPath);
@@ -216,7 +216,7 @@ public static class BanManager
 
         try
         {
-            Directory.CreateDirectory("EHR_DATA");
+            if (!Directory.Exists($"{Main.DataPath}/EHR_DATA")) Directory.CreateDirectory($"{Main.DataPath}/EHR_DATA");
             if (!File.Exists(BanListPath)) File.Create(BanListPath).Close();
 
             using StreamReader sr = new(BanListPath);

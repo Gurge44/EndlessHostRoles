@@ -81,7 +81,7 @@ public static class Translator
         catch (Exception ex) { Logger.Error($"Error: {ex}", "Translator"); }
 
         // Loading custom translation files
-        if (!Directory.Exists(LanguageFolderName)) Directory.CreateDirectory(LanguageFolderName);
+        if (!Directory.Exists($"{Main.DataPath}/{LanguageFolderName}")) Directory.CreateDirectory($"{Main.DataPath}/{LanguageFolderName}");
 
         // Creating a translation template
         CreateTemplateFile();

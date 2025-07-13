@@ -3550,11 +3550,20 @@ public static class Utils
         if (finish) CustomLogger.Instance.Finish();
         
         var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+#if ANDROID
+        var f = $"{Main.DataPath}/EHR_Logs/{t}";
+#else
         var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
+#endif
         if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
         var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
-        FileInfo[] files = [new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log"), new($"{Environment.CurrentDirectory}/BepInEx/log.html")];
+#if ANDROID
+        var directory = Main.DataPath;
+#else
+        string directory = Environment.CurrentDirectory;
+#endif
+        FileInfo[] files = [new($"{directory}/BepInEx/LogOutput.log"), new($"{directory}/BepInEx/log.html")];
         files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
 
         if (!open) return;

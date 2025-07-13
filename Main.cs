@@ -845,8 +845,8 @@ public class Main : BasePlugin
         string serialized = JsonSerializer.Serialize(RoleColors, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText($"{DataPath}/OriginalRoleColors.json", serialized);
 
-        if (!Directory.Exists("EHR_DATA"))
-            Directory.CreateDirectory("EHR_DATA");
+        if (!Directory.Exists($"{DataPath}/EHR_DATA"))
+            Directory.CreateDirectory($"{DataPath}/EHR_DATA");
 
         var path = $"{DataPath}/EHR_DATA/RoleColors.json";
 

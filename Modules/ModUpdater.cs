@@ -32,12 +32,15 @@ public static class ModUpdater
     [HarmonyPriority(2)]
     public static void Start_Prefix()
     {
+#if !ANDROID
         NewVersionCheck();
         DeleteOldFiles();
+#endif
         InfoPopup = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
         InfoPopup.name = "InfoPopup";
         InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
 
+#if !ANDROID
         if (!IsChecked)
         {
             bool done = CheckReleaseFromGithub(Main.BetaBuildUrl.Value != "").GetAwaiter().GetResult();
@@ -47,6 +50,7 @@ public static class ModUpdater
             Logger.Info("downloadUrl: " + DownloadUrl, "CheckRelease");
             Logger.Info("latestVersionl: " + LatestVersion, "CheckRelease");
         }
+#endif
     }
 
     public static string Get(string url)
@@ -152,9 +156,9 @@ public static class ModUpdater
     {
         try
         {
-            if (Directory.Exists("TOH_DATA") && File.Exists($"{Main.DataPath}/EHR_DATA/BanWords.txt"))
+            if (Directory.Exists($"{Main.DataPath}/TOH_DATA") && File.Exists($"{Main.DataPath}/EHR_DATA/BanWords.txt"))
             {
-                DirectoryInfo di = new("TOH_DATA");
+                DirectoryInfo di = new($"{Main.DataPath}/TOH_DATA");
                 di.Delete(true);
                 Logger.Warn("Directory deleted: TOH_DATA", "NewVersionCheck");
             }
