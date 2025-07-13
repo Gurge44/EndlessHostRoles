@@ -568,11 +568,7 @@ internal static class GameEndChecker
 
             if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1) return false;
 
-            if (CustomTeamManager.CheckCustomTeamGameEnd())
-            {
-                ResetAndSetWinner(CustomWinner.CustomTeam);
-                return true;
-            }
+            if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
             if (aapc.Length > 0 && aapc.All(x => Main.LoversPlayers.Exists(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.TrueForAll(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
             {

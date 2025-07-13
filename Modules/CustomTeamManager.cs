@@ -188,15 +188,19 @@ internal static class CustomTeamManager
 
     public static CustomTeam GetCustomTeam(byte id)
     {
-        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state)) return null;
-
-        foreach (CustomTeam team in EnabledCustomTeams)
+        foreach ((CustomTeam team, HashSet<byte> ids) in CustomTeamPlayerIds)
         {
-            if (team.TeamMembers.Contains(state.MainRole))
+            if (ids.Contains(id))
                 return team;
         }
 
         return null;
+    }
+
+    public static bool ArentInCustomTeam(params List<byte> ids)
+    {
+        if (EnabledCustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return true;
+        return ids.TrueForAll(x => GetCustomTeam(x) == null);
     }
 
     public static bool AreInSameCustomTeam(byte id1, byte id2)
