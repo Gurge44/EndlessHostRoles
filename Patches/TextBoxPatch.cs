@@ -18,6 +18,91 @@ public static class TextBoxPatch
 
     public static bool IsInvalidCommand;
 
+#if !ANDROID
+    [HarmonyPatch(nameof(TextBoxTMP.SetText))]
+    [HarmonyPrefix]
+    public static bool AllowAllCharacters(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
+    {
+        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
+
+        var flag = false;
+        __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
+        var ch = ' ';
+        __instance.tempTxt.Clear();
+
+        for (var index = 0; index < input.Length; ++index)
+        {
+            char upperInvariant = input[index];
+
+            if (ch == ' ' && upperInvariant == ' ')
+                __instance.AdjustCaretPosition(-1);
+            else
+            {
+                switch (upperInvariant)
+                {
+                    case '\r':
+                    case '\n':
+                        flag = true;
+                        break;
+                    case '\b':
+                        __instance.tempTxt.Length = Math.Max(__instance.tempTxt.Length - 1, 0);
+                        __instance.AdjustCaretPosition(-1);
+                        break;
+                }
+
+                if (__instance.ForceUppercase)
+                    upperInvariant = char.ToUpperInvariant(upperInvariant);
+
+                if (upperInvariant is '\r' or '\n' or '\b')
+                    __instance.AdjustCaretPosition(-1);
+                else
+                {
+                    __instance.tempTxt.Append(upperInvariant);
+                    ch = upperInvariant;
+                }
+            }
+        }
+
+        if (!__instance.tempTxt.ToString().Equals(FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
+        {
+            int length = __instance.tempTxt.Length;
+            __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
+            __instance.AdjustCaretPosition(-(length - __instance.tempTxt.Length));
+        }
+
+        input = __instance.tempTxt.ToString();
+
+        if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
+        {
+            __instance.text = input;
+            __instance.compoText = inputCompo;
+            string str = __instance.text;
+            string compoText = __instance.compoText;
+
+            if (__instance.Hidden)
+            {
+                str = "";
+                for (var index = 0; index < __instance.text.Length; ++index) str += "*";
+            }
+
+            __instance.outputText.text = str + compoText;
+            __instance.outputText.ForceMeshUpdate(true, true);
+            if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
+            __instance.OnChange.Invoke();
+
+            if (__instance.tempTxt.Length == __instance.characterLimit && __instance.SendOnFullChars)
+            {
+                __instance.OnEnter.Invoke();
+                __instance.LoseFocus();
+            }
+        }
+
+        if (flag) __instance.OnEnter.Invoke();
+        __instance.SetPipePosition();
+        return false;
+    }
+#endif
+
     [HarmonyPatch(nameof(TextBoxTMP.SetText))]
     [HarmonyPostfix]
     public static void ShowCommandHelp(TextBoxTMP __instance)
@@ -312,16 +397,6 @@ public static class TextBoxPatch
         return false;
     }
 #endif
-
-    [HarmonyPatch(nameof(TextBoxTMP.IsCharAllowed))]
-    [HarmonyPrefix]
-    public static bool IsCharAllowedPatch(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
-    {
-        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
-        if (Translator.GetUserTrueLang() is SupportedLangs.Japanese or SupportedLangs.Korean or SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese) return true;
-        __result = i is not '\b' and not '\n' and not '\r';
-        return false;
-    }
 
     // Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
     [HarmonyPatch(nameof(TextBoxTMP.SetText))]
