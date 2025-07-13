@@ -106,6 +106,7 @@ public static class RoomRush
         },
         [(MapNames)6] = new()
         {
+            [(SystemTypes.Admin, SystemTypes.MeetingRoom)] = 2,
             [(SystemTypes.Admin, SystemTypes.Lounge)] = 2,
             [(SystemTypes.Comms, SystemTypes.Medical)] = 2,
             [((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Research, SystemTypes.Medical)] = 3,
