@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -506,7 +507,7 @@ public static class Quiz
                 {
                     yield return new WaitForSeconds(1f);
                     if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
-                    Utils.NotifyRoles();
+                    Utils.NotifyRoles(SendOption: SendOption.None);
                     stillLiving.RemoveAll(x => x == null || !x.IsAlive());
                     if (stillLiving.Count <= 1) break;
                 }

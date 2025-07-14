@@ -44,7 +44,12 @@ public static class Statistics
                     
                     Main.NumWinsPerGM.TryAdd(gm, []);
                     Main.NumWinsPerGM[gm].AddRange(winners, false);
-                    Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x, winners.ContainsKey);
+
+                    foreach (string hashedpuid in Main.NumWinsPerGM[gm].Keys.ToArray())
+                    {
+                        if (winners.ContainsKey(hashedpuid))
+                            Main.NumWinsPerGM[gm][hashedpuid]++;
+                    }
 
                     if (Main.NumWinsPerGM[gm].Count != 0)
                     {
@@ -112,7 +117,7 @@ public static class Statistics
             if (Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId) >= 7)
                 Achievements.Type.TheKillingMachine2Point0.CompleteAfterGameEnd();
 
-            if (won && lp.IsCrewmate() && aapc.Length == 1)
+            if (won && lp.IsCrewmate() && aapc.Length == 1 && lp.IsAlive())
                 Achievements.Type.TheLastSurvivor.CompleteAfterGameEnd();
 
             if (addons.Contains(CustomRoles.Spurt) && Spurt.LocalPlayerAvoidsZeroAndOneHundredPrecent)

@@ -80,7 +80,7 @@ public class Snitch : RoleBase
         IsComplete.Remove(playerId);
     }
 
-    public static bool IsSnitch(byte playerId)
+    private static bool IsSnitch(byte playerId)
     {
         return PlayerIdList.Contains(playerId);
     }
@@ -98,7 +98,7 @@ public class Snitch : RoleBase
         return (target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Trickster)) || (target.IsNeutralKiller() && CanFindNeutralKiller) || (target.Is(CustomRoleTypes.Coven) && CanFindCoven) || (target.Is(CustomRoles.Madmate) && CanFindMadmate) || (target.Is(CustomRoles.Rascal) && CanFindMadmate);
     }
 
-    public static void CheckTask(PlayerControl snitch)
+    private static void CheckTask(PlayerControl snitch)
     {
         if (!snitch.IsAlive() || snitch.Is(CustomRoles.Madmate) || snitch.IsConverted()) return;
 
@@ -150,9 +150,7 @@ public class Snitch : RoleBase
 
     public static string GetWarningArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (GameStates.IsMeeting || !IsSnitchTarget(seer)) return string.Empty;
-
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+        if (GameStates.IsMeeting || !IsSnitchTarget(seer) || (target != null && seer.PlayerId != target.PlayerId)) return string.Empty;
 
         IEnumerable<byte> exposedSnitch = PlayerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
         byte[] snitch = exposedSnitch as byte[] ?? exposedSnitch.ToArray();
@@ -170,11 +168,7 @@ public class Snitch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.Is(CustomRoles.Madmate)) return string.Empty;
-
-        if (!EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId) return string.Empty;
-
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+        if (seer.Is(CustomRoles.Madmate) || !EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId || (target != null && seer.PlayerId != target.PlayerId)) return string.Empty;
 
         var arrows = string.Empty;
 

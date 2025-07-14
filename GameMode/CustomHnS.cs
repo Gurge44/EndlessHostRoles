@@ -490,7 +490,8 @@ internal static class CustomHnS
             }
             catch { }
 
-            if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
+            if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60)
+                Utils.NotifyRoles();
         }
     }
 }

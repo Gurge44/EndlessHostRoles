@@ -140,7 +140,7 @@ internal static class HotPotato
             {
                 HotPotatoState.TimeLeft--;
                 LastFixedUpdate = now;
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(SendOption: SendOption.None);
             }
 
             if (HotPotatoState.TimeLeft <= 0)

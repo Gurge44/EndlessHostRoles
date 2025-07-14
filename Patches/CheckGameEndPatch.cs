@@ -72,8 +72,6 @@ internal static class GameEndChecker
 
         if (WinnerTeam != CustomWinner.Default)
         {
-            Statistics.OnGameEnd();
-            
             Ended = true;
             LoadingEndScreen = true;
 
@@ -338,6 +336,8 @@ internal static class GameEndChecker
                     WinnerIds.UnionWith(winningInvestors);
                 }
             }
+
+            Statistics.OnGameEnd();
 
             Camouflage.BlockCamouflage = true;
             ShipStatus.Instance.enabled = false;

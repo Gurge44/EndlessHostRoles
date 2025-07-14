@@ -137,6 +137,13 @@ public static class GuessManager
 
                 if (target != null)
                 {
+                    if ((pc.IsCrewmate() && target.IsCrewmate() && !Options.CrewCanGuessCrew.GetBool()) ||
+                        (pc.IsImpostor() && target.IsImpostor() && !Options.ImpCanGuessImp.GetBool()))
+                    {
+                        ShowMessage("GuessNotAllowed");
+                        return true;
+                    }
+                    
                     Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
                     Main.GuesserGuessedMeeting.TryAdd(pc.PlayerId, 0);
 

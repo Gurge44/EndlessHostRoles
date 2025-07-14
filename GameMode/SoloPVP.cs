@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.RandomSpawn;
 
@@ -321,7 +322,7 @@ internal static class SoloPVP
 
             RoundTime--;
 
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(SendOption: SendOption.None);
         }
     }
 

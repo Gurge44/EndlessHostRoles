@@ -100,8 +100,11 @@ public abstract class GameOptionsSender
     {
         AllSenders.RemoveAll(s => s == null || !s.AmValid());
 
-        foreach (GameOptionsSender sender in AllSenders)
+        for (var index = 0; index < AllSenders.Count; index++)
         {
+            if (index >= AllSenders.Count) yield break; // Safety check
+            GameOptionsSender sender = AllSenders[index];
+
             if (sender.IsDirty)
             {
                 sender.SendGameOptions();
@@ -119,6 +122,7 @@ public abstract class GameOptionsSender
         // ReSharper disable once ForCanBeConvertedToForeach
         for (var index = 0; index < AllSenders.Count; index++)
         {
+            if (index >= AllSenders.Count) return; // Safety check
             GameOptionsSender sender = AllSenders[index];
             if (sender.IsDirty) sender.SendGameOptions();
 
