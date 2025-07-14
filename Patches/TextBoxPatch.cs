@@ -23,7 +23,7 @@ public static class TextBoxPatch
     [HarmonyPrefix]
     public static bool AllowAllCharacters(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
     {
-        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
+        if (Translator.GetUserTrueLang() == SupportedLangs.Russian || !__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
 
         var flag = false;
         __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
