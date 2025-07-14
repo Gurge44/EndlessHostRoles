@@ -1727,7 +1727,7 @@
   "AssassinMarkCooldown": "Откат метки",
   "AssassinAssassinateCooldown": "Откат способности",
   "AssassinCanKillAfterAssassinate": "Может убивать обычным способом после использования способности",
-  "AssassinInvisibilityTimeAfterAssassinate": "Invisibility Time After Assassination",
+  "AssassinInvisibilityTimeAfterAssassinate": "Длительность невидимости после использования способности",
   "UndertakerMarkCooldown": "Откат метки",
   "UndertakerAssassinateCooldown": "Откат способности",
   "UndertakerCanKillAfterAssassinate": "Может убивать обычным способом после использования способности",
