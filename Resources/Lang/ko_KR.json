@@ -1727,6 +1727,7 @@
   "AssassinMarkCooldown": "Mark Cooldown",
   "AssassinAssassinateCooldown": "Assassinate Cooldown",
   "AssassinCanKillAfterAssassinate": "Can kill after Assassinating",
+  "AssassinInvisibilityTimeAfterAssassinate": "Invisibility Time After Assassination",
   "UndertakerMarkCooldown": "Mark Cooldown",
   "UndertakerAssassinateCooldown": "Assassinate Cooldown",
   "UndertakerCanKillAfterAssassinate": "Can kill after Assassinating",
