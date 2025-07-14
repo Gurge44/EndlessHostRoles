@@ -1727,6 +1727,7 @@
   "AssassinMarkCooldown": "Durasi Rehat Penandaan",
   "AssassinAssassinateCooldown": "Assassinate Cooldown",
   "AssassinCanKillAfterAssassinate": "Can kill after Assassinating",
+  "AssassinInvisibilityTimeAfterAssassinate": "Invisibility Time After Assassination",
   "UndertakerMarkCooldown": "Durasi rehat penandaan",
   "UndertakerAssassinateCooldown": "Assassinate Cooldown",
   "UndertakerCanKillAfterAssassinate": "Can kill after Assassinating",
