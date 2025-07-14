@@ -258,6 +258,7 @@ public static class Options
     public static OptionItem MaxNNKs;
 
     public static OptionItem CovenReceiveNecronomiconAfterNumMeetings;
+    public static OptionItem CovenLeaderSpawns;
     public static OptionItem CovenLeaderKillCooldown;
 
     public static OptionItem ConfirmEgoistOnEject;
@@ -1279,7 +1280,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
 
+        CovenLeaderSpawns = new BooleanOptionItem(650002, "CovenLeader", true, TabGroup.CovenRoles)
+            .SetGameMode(CustomGameMode.Standard);
+
         CovenLeaderKillCooldown = new FloatOptionItem(650000, "CovenLeaderKillCooldown", new(0f, 120f, 0.5f), 30f, TabGroup.CovenRoles)
+            .SetParent(CovenLeaderSpawns)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Seconds);
 
