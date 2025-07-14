@@ -1727,6 +1727,7 @@
   "AssassinMarkCooldown": "Tiempo de Reutilización Marcar",
   "AssassinAssassinateCooldown": "Assassinate Cooldown",
   "AssassinCanKillAfterAssassinate": "Can kill after Assassinating",
+  "AssassinInvisibilityTimeAfterAssassinate": "Invisibility Time After Assassination",
   "UndertakerMarkCooldown": "Tiempo de Reutilización Marcar",
   "UndertakerAssassinateCooldown": "Assassinate Cooldown",
   "UndertakerCanKillAfterAssassinate": "Can kill after Assassinating",
