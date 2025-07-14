@@ -375,7 +375,7 @@ public static class RoomRush
                 break;
         }
 
-        var maxTime = (int)Math.Ceiling(32 / speed);
+        var maxTime = (int)Math.Ceiling((map is MapNames.Skeld or MapNames.Dleks ? 25 : 32) / speed);
         time = Math.Clamp((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6, maxTime);
         TimeLimitEndTS = Utils.TimeStamp + time;
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {time}  ({map})", "RoomRush");

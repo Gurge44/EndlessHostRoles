@@ -546,7 +546,19 @@ internal static class StartGameHostPatch
         catch (Exception e) { Utils.ThrowException(e); }
 
         if (LobbyBehaviour.Instance)
-            LobbyBehaviour.Instance.Despawn();
+        {
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            writer.StartMessage(5);
+            writer.Write(AUClient.GameId);
+            writer.StartMessage(5);
+            writer.WritePacked(LobbyBehaviour.Instance.NetId);
+            writer.EndMessage();
+            writer.EndMessage();
+            AUClient.SendOrDisconnect(writer);
+            writer.Recycle();
+            AUClient.RemoveNetObject(LobbyBehaviour.Instance);
+            Object.Destroy(LobbyBehaviour.Instance.gameObject);
+        }
 
         if (!ShipStatus.Instance)
         {
@@ -1057,7 +1069,7 @@ internal static class StartGameHostPatch
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 1f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.AllPlayerControls.Do(SetRoleSelf);
