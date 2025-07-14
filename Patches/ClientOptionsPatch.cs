@@ -28,7 +28,9 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem EnableCommandHelper;
     private static ClientOptionItem ShowModdedClientText;
     private static ClientOptionItem AutoHaunt;
+#if !ANDROID
     private static ClientOptionItem TryFixStuttering;
+#endif
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -190,6 +192,7 @@ public static class OptionsMenuBehaviourStartPatch
             }
         }
 
+#if !ANDROID
         if (TryFixStuttering == null || TryFixStuttering.ToggleButton == null)
         {
             TryFixStuttering = ClientOptionItem.Create("TryFixStuttering", Main.TryFixStuttering, __instance, TryFixStutteringButtonToggle);
@@ -217,6 +220,7 @@ public static class OptionsMenuBehaviourStartPatch
                 }
             }
         }
+#endif
 
 #if DEBUG
         if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)

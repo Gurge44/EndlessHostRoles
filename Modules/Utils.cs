@@ -3571,7 +3571,9 @@ public static class Utils
         if (PlayerControl.LocalPlayer != null)
             FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
+#if !ANDROID
         Process.Start("explorer.exe", f.Replace("/", "\\"));
+#endif
     }
 
     public static (int Doused, int All) GetDousedPlayerCount(byte playerId)

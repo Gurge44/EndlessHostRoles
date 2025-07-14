@@ -828,6 +828,7 @@ public class Main : BasePlugin
             Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
         };
 
+#if !ANDROID
         try
         {
             if (TryFixStuttering.Value && Application.platform == RuntimePlatform.WindowsPlayer && Environment.ProcessorCount >= 4)
@@ -838,6 +839,7 @@ public class Main : BasePlugin
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
+#endif
     }
 
     private static void HandleRoleColorFiles()
