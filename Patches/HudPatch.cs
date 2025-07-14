@@ -827,15 +827,15 @@ internal static class TaskPanelBehaviourPatch
             {
                 string[] splitted = roleInfo.Split(' ');
 
-                roleWithInfo = splitted.Length <= 3
+                roleWithInfo = $"{GetString($"{Options.CurrentGameMode}")}\r\n" + (splitted.Length <= 3
                     ? $"<size=60%>{roleInfo}</size>\r\n"
-                    : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
+                    : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n");
             }
             else if (roleInfo.RemoveHtmlTags().Length > 35)
             {
                 string[] split = roleInfo.Split(' ');
                 int half = split.Length / 2;
-                roleWithInfo = $"{GetString($"{Options.CurrentGameMode}")}\r\n<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
+                roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
             }
 
             string finalText = Utils.ColorString(player.GetRoleColor(), roleWithInfo);

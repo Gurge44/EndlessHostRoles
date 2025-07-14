@@ -2080,7 +2080,7 @@ public static class Utils
             if (Options.FormatNameMode.GetInt() == 1 && Main.NickName == string.Empty)
             {
                 string notFormattedName = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
-                name = char.ToUpper(notFormattedName[0]) + notFormattedName.Substring(1).ToLower();
+                name = char.ToUpper(notFormattedName[0]) + notFormattedName[1..].ToLower();
             }
         }
         else

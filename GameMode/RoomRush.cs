@@ -353,7 +353,7 @@ public static class RoomRush
                 : 6;
 
             if (SubmergedCompatibility.IsSubmerged()) decontaminationTime = 3;
-            time += decontaminationTime + 3;
+            time += decontaminationTime;
         }
 
         switch (map)

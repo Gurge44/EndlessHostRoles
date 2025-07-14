@@ -261,7 +261,7 @@ internal static class ExtendedPlayerControl
         if (init) Main.PlayerStates[player.PlayerId].InitTask(player);
     }
 
-    public static HashSet<byte> TempExiled = [];
+    public static readonly HashSet<byte> TempExiled = [];
 
     public static void ExileTemporarily(this PlayerControl pc)
     {

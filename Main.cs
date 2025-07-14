@@ -824,6 +824,9 @@ public class Main : BasePlugin
             try { HandleRoleColorFiles(); }
             catch (Exception e) { Utils.ThrowException(e); }
 
+            if (AutoHaunt.Value)
+                Modules.AutoHaunt.Start();
+
             Logger.Msg("========= EHR loaded! =========", "Plugin Load");
             Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
         };

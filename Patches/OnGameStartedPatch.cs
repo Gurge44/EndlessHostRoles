@@ -292,6 +292,7 @@ internal static class ChangeRoleSettings
             AFKDetector.ShieldedPlayers.Clear();
             Main.Invisible.Clear();
             ChatCommands.MutedPlayers.Clear();
+            ExtendedPlayerControl.TempExiled.Clear();
 
             MeetingTimeManager.Init();
             Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);

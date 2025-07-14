@@ -253,6 +253,8 @@ public class CustomLogger
         if (dump) append += HtmlFooter;
         File.AppendAllText(LOGFilePath, append);
         PrivateInstance = null;
-        if (dump) Main.Instance.StopCoroutine(InactivityCheck());
+#if DEBUG
+        Main.Instance.StopCoroutine(InactivityCheck());
+#endif
     }
 }

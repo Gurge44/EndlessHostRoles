@@ -9,12 +9,12 @@ public static class DeconSystemUpdateSystemPatch
     {
         if (!AmongUsClient.Instance.AmHost || SubmergedCompatibility.IsSubmerged()) return;
 
-        if (Options.ChangeDecontaminationTime.GetBool())
-        {
-            bool bedwars = Options.CurrentGameMode == CustomGameMode.BedWars;
-            bool roomrush = Options.CurrentGameMode == CustomGameMode.RoomRush;
+        bool bedwars = Options.CurrentGameMode == CustomGameMode.BedWars;
+        bool roomrush = Options.CurrentGameMode == CustomGameMode.RoomRush;
 
-            __instance.DoorOpenTime = bedwars
+        if (bedwars || roomrush || Options.ChangeDecontaminationTime.GetBool())
+        {
+            __instance.DoorOpenTime = bedwars || roomrush
                 ? 2f
                 : Main.CurrentMap switch
             {
