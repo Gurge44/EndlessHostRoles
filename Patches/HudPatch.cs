@@ -347,8 +347,7 @@ internal static class HudManagerPatch
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
                         __instance.AbilityButton.SetEnabled();
 
-                    if ((player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && !state.Role.CanUseSabotage(player))
-                        __instance.SabotageButton.ToggleVisible(false);
+                    __instance.SabotageButton.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
                 }
                 else
                 {
@@ -616,7 +615,7 @@ internal static class SetHudActivePatch
 
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
-        __instance.SabotageButton?.ToggleVisible(player.CanUseSabotage());
+        __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
     }
 }
 

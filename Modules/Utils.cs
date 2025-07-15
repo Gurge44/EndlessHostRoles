@@ -338,12 +338,6 @@ public static class Utils
         if (IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
     }
 
-    public static void SetVisionV2(this IGameOptions opt)
-    {
-        opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.CrewLightMod));
-        if (IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
-    }
-
     private static void TargetDies(PlayerControl killer, PlayerControl target)
     {
         if (target.IsAlive() || GameStates.IsMeeting) return;

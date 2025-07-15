@@ -292,7 +292,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             switch (role)
             {
                 case CustomRoles.Alchemist when ((Alchemist)state.Role).VisionPotionActive:
-                    opt.SetVisionV2();
+                    opt.SetVision(false);
 
                     if (Utils.IsActive(SystemTypes.Electrical))
                         opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
