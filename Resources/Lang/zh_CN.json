@@ -1727,7 +1727,7 @@
   "AssassinMarkCooldown": "标记冷却时间",
   "AssassinAssassinateCooldown": "刺杀冷却时间",
   "AssassinCanKillAfterAssassinate": "可以在刺杀后进行常规击杀",
-  "AssassinInvisibilityTimeAfterAssassinate": "Invisibility Time After Assassination",
+  "AssassinInvisibilityTimeAfterAssassinate": "刺杀后隐身时间",
   "UndertakerMarkCooldown": "标记冷却时间",
   "UndertakerAssassinateCooldown": "刺杀冷却时间",
   "UndertakerCanKillAfterAssassinate": "可以在刺杀后进行常规击杀",
