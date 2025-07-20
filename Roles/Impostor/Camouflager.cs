@@ -37,7 +37,7 @@ public class Camouflager : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
             .SetValueFormat(OptionFormat.Times);
 
-        DoesntSpawnOnFungle = new BooleanOptionItem(Id + 6, "DoesntSpawnOnFungle", false, TabGroup.ImpostorRoles)
+        DoesntSpawnOnFungle = new BooleanOptionItem(Id + 6, "DoesntSpawnOnFungle", true, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager]);
     }
 
