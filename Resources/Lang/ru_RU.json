@@ -1545,6 +1545,7 @@
   "SansDefaultKillCooldown": "Начальный откат убийства",
   "SansReduceKillCooldown": "Уменьшать откат убийства на",
   "SansMinKillCooldown": "Мин. откат убийства",
+  "SansShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "Радиус бомбы (5x это примерно половина Столовой)",
   "NotifyGodAlive": "Сообщать игрокам на собраниях, что Бог ещё жив",
   "God.KnowInfo": "Что Бог знает обо всех игроках",
