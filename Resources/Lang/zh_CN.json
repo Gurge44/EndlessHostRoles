@@ -1545,6 +1545,7 @@
   "SansDefaultKillCooldown": "首刀冷却",
   "SansReduceKillCooldown": "击杀成功减少冷却时间",
   "SansMinKillCooldown": "击杀冷却时间下限",
+  "SansShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "爆炸范围(5x大约能炸半个食堂)",
   "NotifyGodAlive": "在会议上告诉玩家神还活着",
   "God.KnowInfo": "神是知道其他玩家的",
