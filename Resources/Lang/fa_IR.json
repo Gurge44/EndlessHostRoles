@@ -1545,6 +1545,7 @@
   "SansDefaultKillCooldown": "Starting kill cooldown",
   "SansReduceKillCooldown": "Reduce kill cooldown by",
   "SansMinKillCooldown": "Minimum kill cooldown",
+  "SansShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "Bomb radius (5x is about half a Cafeteria)",
   "NotifyGodAlive": "Inform players at meetings that God is still alive",
   "God.KnowInfo": "God knows players'",
