@@ -11,6 +11,7 @@ public class Juggernaut : RoleBase
     public static OptionItem MinKillCooldown;
     public static OptionItem HasImpostorVision;
     public static OptionItem CanVent;
+    public static OptionItem ShowProgressText;
 
     public override bool IsEnable => false;
 
@@ -34,6 +35,9 @@ public class Juggernaut : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut]);
 
         CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut]);
+        
+        ShowProgressText = new BooleanOptionItem(Id + 15, "SansShowProgressText", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut]);
     }
 
