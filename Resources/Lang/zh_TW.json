@@ -1545,6 +1545,7 @@
   "SansDefaultKillCooldown": "初始殺人冷卻時間",
   "SansReduceKillCooldown": "減少的冷卻時間",
   "SansMinKillCooldown": "殺人冷卻時間下限",
+  "SansShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "爆炸範圍 (5x能炸半個餐廳)",
   "NotifyGodAlive": "若神存活則在會議上通知所有人",
   "God.KnowInfo": "神知道玩家職業",
