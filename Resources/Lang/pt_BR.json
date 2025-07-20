@@ -1545,6 +1545,7 @@
   "SansDefaultKillCooldown": "Recarga Inicial de Abate",
   "SansReduceKillCooldown": "Reduzir Tempo de Recarga em",
   "SansMinKillCooldown": "Recarga Mínima de Abate",
+  "SansShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "Raio da Bomba (5x é aproximadamente metade da Cafeteria)",
   "NotifyGodAlive": "Informar jogadores nas reuniões que Deus ainda está vivo",
   "God.KnowInfo": "Deus sabe os jogadores",
