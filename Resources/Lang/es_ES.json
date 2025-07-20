@@ -1545,6 +1545,7 @@
   "SansDefaultKillCooldown": "Tiempo de reutilización de asesinato inicial",
   "SansReduceKillCooldown": "Reducir tiempo de reutilización de asesinato en",
   "SansMinKillCooldown": "Tiempo de reutilización de asesinato mínimo",
+  "SansShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "Radio de bomba (5x es como media Cafetería)",
   "NotifyGodAlive": "Informar jugadores en las reuniones que Dios sigue vivo",
   "God.KnowInfo": "God knows players'",
