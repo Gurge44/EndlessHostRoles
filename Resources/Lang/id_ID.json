@@ -1545,6 +1545,7 @@
   "SansDefaultKillCooldown": "Permulaan Durasi Rehat Serangan",
   "SansReduceKillCooldown": "Kurangi durasi rehat serangan sebanyak?",
   "SansMinKillCooldown": "Batas Minimum Durasi Rehat Serangan",
+  "SansShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "Radius Ledakan (5x sekitar setengah Cafeteria)",
   "NotifyGodAlive": "Informasikan dalam rapat jika God masih hidup",
   "God.KnowInfo": "Yang diketahui God dari pemain",
