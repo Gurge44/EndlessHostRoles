@@ -1545,6 +1545,7 @@
   "SansDefaultKillCooldown": "開始時のキルのクールダウン",
   "SansReduceKillCooldown": "減少するキルのクールダウン",
   "SansMinKillCooldown": "キルのクールダウンの下限",
+  "SansShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "爆発の半径 (5x はカフェテリアの約半分)",
   "NotifyGodAlive": "神様がまだ生きていることを 会議でプレイヤーに知らせる",
   "God.KnowInfo": "神様がプレイヤーを認識するもの",
