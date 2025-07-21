@@ -50,7 +50,7 @@ public class Sans : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShowProgressText = new BooleanOptionItem(Id + 13, "SansShowProgressText", false, TabGroup.ImpostorRoles)
+        ShowProgressText = new BooleanOptionItem(Id + 13, "SansShowProgressText", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sans]);
             
         BardChance = new IntegerOptionItem(Id + 14, "BardChance", new(0, 100, 5), 0, TabGroup.ImpostorRoles)
@@ -142,7 +142,7 @@ public class Sans : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        if (!ShowProgressTxt) return "";
+        if (!ShowProgressTxt) return base.GetProgressText(playerId, comms);
         
         double reduction = Math.Round(DefaultKCD - NowCooldown, 1);
         string nowKCD = string.Format(Translator.GetString("KCD"), Math.Round(NowCooldown, 1));
