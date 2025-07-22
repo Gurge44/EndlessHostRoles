@@ -113,7 +113,7 @@
   "RoleSubCategoryLimitOptions.Crewmate_Power.Max": "Maximum Crewmate Power Roles",
   "RoleSubCategoryLimitOptions.Crewmate_Killing.Min": "Minimum Crewmate Killing Roles",
   "RoleSubCategoryLimitOptions.Crewmate_Killing.Max": "Maximum Crewmate Killing Roles",
-  "RoleSubCategoryLimitOptions.Crewmate_Chaos.Min": "Minimum Crewmate Chaos Roles",
+  "RoleSubCategoryLimitOptions.Crewmate_Chaos.Min": "Minimalna liczba ról Crewmate Chaos",
   "RoleSubCategoryLimitOptions.Crewmate_Chaos.Max": "Maximum Crewmate Chaos Roles",
   "RoleSubCategoryLimitOptions.Crewmate_Miscellaneous.Min": "Minimum Crewmate Miscellaneous Roles",
   "RoleSubCategoryLimitOptions.Crewmate_Miscellaneous.Max": "Maximum Crewmate Miscellaneous Roles",
