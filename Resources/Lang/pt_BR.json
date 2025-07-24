@@ -2592,6 +2592,8 @@
   "Poll.VotingInfo": "Use /pv {resposta} para votar, a resposta pode ser uma letra ou um número.",
   "Poll.YouVoted": "Você votou em {0}, que agora tem {1} votos.",
   "PollUsage": "Formato:\n<size=80%><b>/poll {Questão}? <size=55%>{Resposta A} {Resposta B} \n[Resposta C] [Resposta D] [Resposta E]</size></b></size>\n\n<size=50%>Nota: A questão deve sempre terminar com um ponto de interrogação (?)!</size>",
+  "VotedToStart.Title": "<#00a5ff>➡ VOTE TO START ⬅</color>",
+  "VotedToStart": "{0} has voted to start the game!\\n<size=80%>If you also want the game to start, use <#00a5ff>/votestart</color>\\nIf more than 50% of the lobby uses this command, the starting countdown will begin.\\nCurrently, {1}/{2} ({3}%) players have used it. {4} uses are required.</size>",
   "PlayerMuted": "Você mutou {0} com sucesso por <#00ffa5>{1}</color> segundos.",
   "YouMuted": "<#ff00>Você foi mutado por <u>{0}</u> por <#ff0000>{1}</color> segundos.",
   "ModeratorMuted": "O moderador {0} mutou {1} por <#00ffa5>{2}</color> segundos.",
