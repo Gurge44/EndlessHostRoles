@@ -2592,6 +2592,8 @@
   "Poll.VotingInfo": "Используйте /pv [A/B/C/D], чтобы проголосовать",
   "Poll.YouVoted": "Вы проголосовали за {0}. У этого вариант сейчас {1} голос(-ов).",
   "PollUsage": "Формат:\\n<size=80%><b>/poll [вопрос]? <size=55%>{вариант A} {вариант B} \n[вариант C] [вариант D]</size></b></size>\n\n<size=50%>Примечание: вопрос всегда должен заканчиваться знаком <b>?</b>, ответы должны быть слитными.</size>",
+  "VotedToStart.Title": "<#00a5ff>➡ VOTE TO START ⬅</color>",
+  "VotedToStart": "{0} has voted to start the game!\\n<size=80%>If you also want the game to start, use <#00a5ff>/votestart</color>\\nIf more than 50% of the lobby uses this command, the starting countdown will begin.\\nCurrently, {1}/{2} ({3}%) players have used it. {4} uses are required.</size>",
   "PlayerMuted": "{0} был замучен на <#00ffa5>{1}</color>секунды(-ы).",
   "YouMuted": "<#ffff00><u>{0}</u> замутил вас на <#ff0000>{1}</color> секунд(-ы).",
   "ModeratorMuted": "Модератор {0} замутил {1} на <#00ffa5>{2}</color> секунд(-ы).",
