@@ -115,6 +115,7 @@ internal static class ChatCommands
     public static readonly HashSet<byte> ForcedSpectators = [];
 
     private static HashSet<byte> ReadyPlayers = [];
+    public static HashSet<byte> VotedToStart = [];
 
     private static string CurrentAnagram = string.Empty;
 
@@ -464,6 +465,24 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void VoteStartCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(VoteStartCommand), text);
+            return;
+        }
+
+        if (VotedToStart.Add(player.PlayerId))
+        {
+            int voteCount = VotedToStart.Count;
+            int playerCount = PlayerControl.AllPlayerControls.Count;
+            var percentage = (int)Math.Round(voteCount / (float)playerCount * 100f);
+            var required = (int)Math.Ceiling(playerCount / 2f);
+            Utils.SendMessage(string.Format(GetString("VotedToStart"), player.PlayerId.ColoredPlayerName(), voteCount, playerCount, required, percentage), title: GetString("VotedToStart.Title"));
+        }
+    }
+    
     private static void DeleteAdminCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)

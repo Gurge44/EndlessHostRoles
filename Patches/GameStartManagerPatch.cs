@@ -160,20 +160,20 @@ public static class GameStartManagerPatch
                     if (DataManager.Settings.Gameplay.StreamerMode)
                     {
                         if (__instance != null && __instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 0);
-
                         if (GameStartManagerStartPatch.HideName != null) GameStartManagerStartPatch.HideName.enabled = true;
                     }
                     else
                     {
                         if (__instance != null && __instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 255);
-
                         if (GameStartManagerStartPatch.HideName != null) GameStartManagerStartPatch.HideName.enabled = false;
                     }
                 }
 
                 if (AmongUsClient.Instance == null || GameData.Instance == null || !AmongUsClient.Instance.AmHost || !GameData.Instance) return true;
 
-                if (Main.AutoStart != null && Main.AutoStart.Value)
+                bool votedToStart = (int)Math.Round(ChatCommands.VotedToStart.Count / (float)PlayerControl.AllPlayerControls.Count * 100f) > 50;
+
+                if ((Main.AutoStart != null && Main.AutoStart.Value) || votedToStart)
                 {
                     Main.UpdateTime++;
 
@@ -183,7 +183,7 @@ public static class GameStartManagerPatch
 
                         float timer = Timer;
 
-                        if (((GameData.Instance?.PlayerCount >= MinPlayer && timer <= MinWait) || timer <= MaxWait) && !GameStates.IsCountDown)
+                        if (((GameData.Instance?.PlayerCount >= MinPlayer && timer <= MinWait) || timer <= MaxWait || votedToStart) && !GameStates.IsCountDown)
                         {
                             PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
