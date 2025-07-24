@@ -16,11 +16,13 @@ public class Sans : RoleBase
     private static OptionItem DefaultKillCooldown;
     private static OptionItem ReduceKillCooldown;
     private static OptionItem MinKillCooldown;
+    private static OptionItem ShowProgressText;
     public static OptionItem BardChance;
 
     private bool CanVent;
     private float DefaultKCD;
     private bool HasImpostorVision;
+    private bool ShowProgressTxt;
     private float MinKCD;
 
     private float NowCooldown;
@@ -36,16 +38,22 @@ public class Sans : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sans);
 
-        DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
+        DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 3.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
+        ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 3.5f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
             .SetValueFormat(OptionFormat.Seconds);
 
-        MinKillCooldown = new FloatOptionItem(Id + 12, "SansMinKillCooldown", new(0f, 30f, 0.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
+        MinKillCooldown = new FloatOptionItem(Id + 12, "SansMinKillCooldown", new(0f, 30f, 0.5f), 10f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
             .SetValueFormat(OptionFormat.Seconds);
 
-        BardChance = new IntegerOptionItem(Id + 13, "BardChance", new(0, 100, 5), 0, TabGroup.ImpostorRoles)
+        ShowProgressText = new BooleanOptionItem(Id + 13, "SansShowProgressText", true, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Sans]);
+            
+        BardChance = new IntegerOptionItem(Id + 14, "BardChance", new(0, 100, 5), 0, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
             .SetValueFormat(OptionFormat.Percent);
     }
@@ -68,6 +76,7 @@ public class Sans : RoleBase
                 DefaultKCD = DefaultKillCooldown.GetFloat();
                 ReduceKCD = ReduceKillCooldown.GetFloat();
                 MinKCD = MinKillCooldown.GetFloat();
+                ShowProgressTxt = ShowProgressText.GetBool();
                 ResetKCDOnMeeting = false;
                 HasImpostorVision = true;
                 CanVent = true;
@@ -76,6 +85,7 @@ public class Sans : RoleBase
                 DefaultKCD = Juggernaut.DefaultKillCooldown.GetFloat();
                 ReduceKCD = Juggernaut.ReduceKillCooldown.GetFloat();
                 MinKCD = Juggernaut.MinKillCooldown.GetFloat();
+                ShowProgressTxt = Juggernaut.ShowProgressText.GetBool();
                 ResetKCDOnMeeting = false;
                 HasImpostorVision = Juggernaut.HasImpostorVision.GetBool();
                 CanVent = Juggernaut.CanVent.GetBool();
@@ -84,6 +94,7 @@ public class Sans : RoleBase
                 DefaultKCD = Reckless.DefaultKillCooldown.GetFloat();
                 ReduceKCD = Reckless.ReduceKillCooldown.GetFloat();
                 MinKCD = Reckless.MinKillCooldown.GetFloat();
+                ShowProgressTxt = Reckless.ShowProgressText.GetBool();
                 ResetKCDOnMeeting = true;
                 HasImpostorVision = Reckless.HasImpostorVision.GetBool();
                 CanVent = Reckless.CanVent.GetBool();
@@ -131,6 +142,8 @@ public class Sans : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
+        if (!ShowProgressTxt) return base.GetProgressText(playerId, comms);
+        
         double reduction = Math.Round(DefaultKCD - NowCooldown, 1);
         string nowKCD = string.Format(Translator.GetString("KCD"), Math.Round(NowCooldown, 1));
         return $"{base.GetProgressText(playerId, comms)} <#ffffff>-</color> {nowKCD} <#8B0000>(-{reduction}s)</color>";
