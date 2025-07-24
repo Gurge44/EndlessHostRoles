@@ -3437,7 +3437,7 @@
   "RandomizerNotifyOpt": "Уведомлять о начале ивента (выключите, если ивенты частые)",
   "ImpCanFindMarshall": "Раскрывается <color=#ff1919>Предателям</color>",
   "NKCanFindMarshall": "Раскрывается <#ffab1b>Нейтральным</color> <#ff1919>Убийцам</color>",
-  "NNKCanFindMarshall": "Раскрывается  <#ffff00>Пассивным</color> <#ffab1b>Нейтралам</color>",
+  "NNKCanFindMarshall": "Раскрывается <#ffff00>Пассивным</color> <#ffab1b>Нейтралам</color>",
   "MadmateCanFindMarshall": "Раскрывается <color=#ff1919>Безумцам</color>",
   "CovenCanFindMarshall": "Раскрывается <#7b3fbb>Ковенам</color>",
   "MarshallCanBeGuessedOnTaskCompletion": "Может быть угадан когда выполнил все таски",
