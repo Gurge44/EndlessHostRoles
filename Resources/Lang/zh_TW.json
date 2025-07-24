@@ -2592,6 +2592,8 @@
   "Poll.VotingInfo": "使用/pv [答案] 來投票，答案可以是字母或數字",
   "Poll.YouVoted": "你投給了{0}，他現在有{1} 票",
   "PollUsage": "建立投票樣式:\\n<size=80%><b>/poll [問題]? <size=55%>[答案A] [答案B]\n[答案C(可以沒有)] [答案D(可以沒有) [答案E(可以沒有)]</size></b><size=50%>\n\n<size=50%>請注意: 問題必須要以問號結尾(?)!",
+  "VotedToStart.Title": "<#00a5ff>➡ VOTE TO START ⬅</color>",
+  "VotedToStart": "{0} has voted to start the game!\\n<size=80%>If you also want the game to start, use <#00a5ff>/votestart</color>\\nIf more than 50% of the lobby uses this command, the starting countdown will begin.\\nCurrently, {1}/{2} ({3}%) players have used it. {4} uses are required.</size>",
   "PlayerMuted": "你禁言了{0} 持續<#00ffa5>{1}</color> 秒",
   "YouMuted": "<#ffff00>你被 <u>{0}</u> 禁言了 持續 <#ff0000>{1}</color> 秒",
   "ModeratorMuted": "管理員 {0} 被禁言了 {1} 持續<#00ffa5>{2}</color> 秒",
