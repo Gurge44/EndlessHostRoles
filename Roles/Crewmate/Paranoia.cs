@@ -49,7 +49,7 @@ internal class Paranoia : RoleBase
                 ? ParanoiaVentCooldown.GetFloat()
                 : 300f;
 
-        AURoleOptions.EngineerInVentMaxTime = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.3f;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

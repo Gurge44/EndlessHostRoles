@@ -33,6 +33,17 @@ public static class GameStartManagerPatch
     private static TextMeshPro WarningText;
     public static float Timer => Math.Max(0, 597f - (Utils.TimeStamp - TimerStartTS));
 
+    [HarmonyPatch(typeof(TimerTextTMP), nameof(TimerTextTMP.GetTextString))]
+    private static class TimerTextTMPGetTextStringPatch
+    {
+        public static bool Prefix(TimerTextTMP __instance, ref string __result)
+        {
+            int seconds = __instance.GetSecondsRemaining();
+            __result = string.Format(GetString("LobbyTimer"), seconds / 60, seconds % 60);
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public static class GameStartManagerStartPatch
     {

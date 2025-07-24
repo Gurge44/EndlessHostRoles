@@ -183,7 +183,7 @@ public class Dad : RoleBase
         }
 
         AURoleOptions.EngineerCooldown = 0.1f;
-        AURoleOptions.EngineerInVentMaxTime = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.3f;
     }
 
     public override void OnReportDeadBody()

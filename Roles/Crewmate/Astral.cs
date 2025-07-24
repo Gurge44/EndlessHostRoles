@@ -50,7 +50,7 @@ public class Astral : RoleBase
         if (Options.UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.3f;
 
         try { AURoleOptions.GuardianAngelCooldown = 900f; }
         catch { }

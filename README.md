@@ -206,21 +206,23 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 :x:   Can never use the command<br>
 :question:    Host setting determines<br>
 
-| Feature   | Regular Players | VIP                | Moderator          | Host               |
-|-----------|-----------------|--------------------|--------------------|--------------------|
-| /color    | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
-| /rename   | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
-| /tpin     | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
-| /tpout    | :question:      | :heavy_check_mark: | :question:         | :heavy_check_mark: |
-| /kick     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| /ban      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| /say      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| /poll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| /mute     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| /ds       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| /gmpoll   | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| /fix      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| Lobby tag | :x:             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Feature   | Regular Players | VIP                | Moderator          | Admin              | Host               |
+|-----------|-----------------|--------------------|--------------------|--------------------|--------------------|
+| /color    | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
+| /rename   | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
+| /tpin     | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
+| /tpout    | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
+| /kick     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /ban      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /say      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /poll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /mute     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /ds       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /gmpoll   | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /fix      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /exe      | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /end      | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| Lobby tag | :x:             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 <br>
 
