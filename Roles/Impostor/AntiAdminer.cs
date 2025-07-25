@@ -362,14 +362,17 @@ internal class AntiAdminer : RoleBase
     {
         if (!IsMonitor) return;
         if (pc == null) return;
+        
+        if (Main.CurrentMap == MapNames.Skeld || Main.CurrentMap == MapNames.Dleks || Main.CurrentMap == MapNames.MiraHQ)
+            pc.Notify(Translator.GetString("DoorsCannotBeUnlockedOnSkeldDleksMira"));
+        if (pc.GetAbilityUseLimit() < 1)
+            pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
 
         if (pc.GetAbilityUseLimit() >= 1)
         {
             pc.RpcRemoveAbilityUse();
             DoorsReset.OpenAllDoors();
         }
-        else
-            pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
