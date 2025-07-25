@@ -76,6 +76,7 @@ internal class AntiAdminer : RoleBase
         IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
         ExtraAbilityStartTimeStamp = 0;
         AntiAdminerId = playerId;
+        if (IsMonitor) playerId.SetAbilityUseLimit(Monitor.UseLimitOpt.GetInt());
     }
 
     public override void Remove(byte playerId)

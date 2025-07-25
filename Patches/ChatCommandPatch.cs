@@ -213,6 +213,7 @@ internal static class ChatCommands
             new(["copypreset", "presetcopy", "скопироватьсохранение", "скопироватьсохр", "复制预设", "copiar"], "{sourcepreset} {targetpreset}", GetString("CommandDescription.CopyPreset"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, CopyPresetCommand, true, false, [GetString("CommandArgs.CopyPreset.SourcePreset"), GetString("CommandArgs.CopyPreset.TargetPreset")]),
             new(["addadmin", "добавитьадмин", "добадмин", "指定管理员", "admin-add"], "{id}", GetString("CommandDescription.AddAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
             new(["deleteadmin", "удалитьадмин", "убратьадмин", "удалитьадминку", "убратьадминку", "删除管理员", "admin-remover"], "{id}", GetString("CommandDescription.DeleteAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
+            new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -470,6 +471,12 @@ internal static class ChatCommands
         if (!AmongUsClient.Instance.AmHost)
         {
             RequestCommandProcessingFromHost(nameof(VoteStartCommand), text);
+            return;
+        }
+
+        if (Options.DisableVoteStartCommand.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("VoteStartDisabled"));
             return;
         }
 

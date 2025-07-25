@@ -839,6 +839,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Slenderman:
             case CustomRoles.Amogus:
             case CustomRoles.Weatherman:
             case CustomRoles.NoteKiller:
@@ -3176,6 +3177,7 @@ public static class Utils
 
         int cd = role switch
         {
+            CustomRoles.PortalMaker => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),

@@ -36,6 +36,7 @@ internal static class CustomRolesHelper
         CustomRoles.Weatherman,
         CustomRoles.Amogus,
         CustomRoles.Wiper,
+        CustomRoles.PortalMaker,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -225,6 +226,7 @@ internal static class CustomRolesHelper
             CustomRoles.MeetingManager => CustomRoles.Crewmate,
             CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.PortalMaker => CustomRoles.Crewmate,
             CustomRoles.Astral => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Helper => CustomRoles.Crewmate,
             CustomRoles.Ankylosaurus => CustomRoles.Crewmate,
@@ -470,6 +472,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Slenderman => RoleTypes.Impostor,
             CustomRoles.Amogus => RoleTypes.Impostor,
             CustomRoles.Weatherman => RoleTypes.Impostor,
             CustomRoles.Vortex => RoleTypes.Impostor,
@@ -597,6 +600,7 @@ internal static class CustomRolesHelper
             CustomRoles.Rogue or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Slenderman or
             CustomRoles.Amogus or
             CustomRoles.Weatherman or
             CustomRoles.NoteKiller or
@@ -1680,6 +1684,7 @@ internal static class CustomRolesHelper
             CustomRoles.Observer => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Oracle => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Perceiver => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.PortalMaker => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Psychic => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Rabbit => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Scout => RoleOptionType.Crewmate_Investigate,
@@ -1824,6 +1829,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Slenderman,
     Amogus,
     Weatherman,
     NoteKiller,

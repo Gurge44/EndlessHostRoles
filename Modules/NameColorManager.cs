@@ -157,6 +157,7 @@ public static class NameColorManager
             CustomRoles.BountyHunter when (seerRoleClass as BountyHunter)?.GetTarget(seer) == target.PlayerId => "000000",
             CustomRoles.Pyromaniac when ((Pyromaniac)seerRoleClass).DousedList.Contains(target.PlayerId) => "#BA4A00",
             CustomRoles.Glitch when target.IsRoleBlocked() => Main.RoleColors[seerRole],
+            CustomRoles.Slenderman when Slenderman.IsBlinded(target.PlayerId) => "000000",
             CustomRoles.Aid when Aid.ShieldedPlayers.ContainsKey(target.PlayerId) => Main.RoleColors[CustomRoles.Aid],
             CustomRoles.Spy when Spy.SpyRedNameList.ContainsKey(target.PlayerId) => "#BA4A00",
             CustomRoles.Mastermind when Mastermind.ManipulateDelays.ContainsKey(target.PlayerId) => "#00ffa5",
