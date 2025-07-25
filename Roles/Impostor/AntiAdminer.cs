@@ -118,7 +118,7 @@ internal class AntiAdminer : RoleBase
                 AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 0.1f;
             }
-            
+
             return;
         }
 

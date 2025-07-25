@@ -11,7 +11,7 @@ public class Slenderman : RoleBase
     private static List<Slenderman> Instances = [];
 
     public override bool IsEnable => On;
-    
+
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private static OptionItem ImpostorVision;
@@ -46,7 +46,7 @@ public class Slenderman : RoleBase
         MeetingCooldownEndTS = Utils.TimeStamp + 10 + AfterMeetingBlindCooldown.GetInt();
         Instances.Add(this);
     }
-    
+
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -61,7 +61,7 @@ public class Slenderman : RoleBase
     {
         return CanVent.GetBool();
     }
-    
+
     public static bool IsBlinded(byte id)
     {
         return On && Instances.Exists(x => x.Blinded.Contains(id));
@@ -70,7 +70,7 @@ public class Slenderman : RoleBase
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
         if (MeetingCooldownEndTS > Utils.TimeStamp || pc.Is(CustomRoles.Slenderman) || SlendermanPC == null || !SlendermanPC.IsAlive()) return;
-        
+
         bool inRange = Vector2.Distance(pc.Pos(), SlendermanPC.Pos()) <= BlindRange.GetFloat();
 
         if ((inRange && Blinded.Add(pc.PlayerId)) || (!inRange && Blinded.Remove(pc.PlayerId)))
@@ -80,7 +80,7 @@ public class Slenderman : RoleBase
 
             if (Utils.DoRPC)
             {
-                var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
+                MessageWriter w = Utils.CreateRPC(CustomRPC.SyncRoleData);
                 w.Write(SlendermanPC.PlayerId);
                 w.WritePacked(Blinded.Count);
                 Blinded.Do(x => w.Write(x));
@@ -88,7 +88,7 @@ public class Slenderman : RoleBase
             }
         }
     }
-    
+
     public void ReceiveRPC(MessageReader reader)
     {
         Blinded.Clear();

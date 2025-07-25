@@ -35,12 +35,12 @@ public class PortalMaker : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (Marks.Count == 2) return;
-        
+
         Vector2 pos = pc.Pos();
         if (Marks.Count == 1 && Vector2.Distance(Marks[0], pos) < 4f) return;
         Marks.Add(pos);
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, pos);
-        
+
         if (Marks.Count == 2)
         {
             LastTP[pc.PlayerId] = Utils.TimeStamp;
@@ -51,13 +51,13 @@ public class PortalMaker : RoleBase
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
         if (Marks.Count != 2) return;
-        
-        var now = Utils.TimeStamp;
-        if (!LastTP.TryGetValue(pc.PlayerId, out var lastTP) || lastTP + 5 > now) return;
 
-        var pos = pc.Pos();
-        if (!Marks.FindFirst(x => Vector2.Distance(x, pos) <= 1f, out var nearMark)) return;
-        
+        long now = Utils.TimeStamp;
+        if (!LastTP.TryGetValue(pc.PlayerId, out long lastTP) || lastTP + 5 > now) return;
+
+        Vector2 pos = pc.Pos();
+        if (!Marks.FindFirst(x => Vector2.Distance(x, pos) <= 1f, out Vector2 nearMark)) return;
+
         int index = Marks.IndexOf(nearMark);
         Vector2 target = Marks[1 - index];
         pc.TP(target);

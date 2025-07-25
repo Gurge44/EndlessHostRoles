@@ -2175,7 +2175,7 @@ public static class Options
 
         Disable8ballCommand = new BooleanOptionItem(22813, "Disable8ballCommand", false, TabGroup.GameSettings)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-        
+
         DisableVoteStartCommand = new BooleanOptionItem(22814, "DisableVoteStartCommand", false, TabGroup.GameSettings)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 

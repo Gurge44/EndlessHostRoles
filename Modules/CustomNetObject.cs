@@ -628,7 +628,7 @@ namespace EHR
             }
         }
     }
-    
+
     internal sealed class Portal : CustomNetObject
     {
         public Portal(Vector2 position)
