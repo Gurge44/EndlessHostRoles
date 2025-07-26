@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
@@ -46,6 +47,13 @@ public static class FixedUpdateCaller
                 Zoom.Postfix();
                 HudSpritePatch.Postfix(hudManager);
             }
+
+            try
+            {
+                foreach (byte key in EAC.TimeSinceLastTaskCompletion.Keys.ToArray())
+                    EAC.TimeSinceLastTaskCompletion[key] += Time.fixedDeltaTime;
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             if (!PlayerControl.LocalPlayer) return;
 

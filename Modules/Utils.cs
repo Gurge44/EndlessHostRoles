@@ -2365,7 +2365,7 @@ public static class Utils
                 hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared, SendOption);
                 if (senderWasCleared) hasValue = false;
 
-                if (sender.stream.Length > 200)
+                if (sender.stream.Length > 500)
                 {
                     sender.SendMessage();
                     sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
@@ -2935,7 +2935,7 @@ public static class Utils
                             hasValue = true;
                             senderWasCleared = false;
 
-                            if (sender.stream.Length > 400)
+                            if (sender.stream.Length > 500)
                             {
                                 sender.SendMessage();
                                 sender = CustomRpcSender.Create(sender.name, sender.sendOption);
@@ -4032,7 +4032,7 @@ public static class Utils
             _ => 1000f
         };
 
-        float minTime = Mathf.Max(0.5f, AmongUsClient.Instance.Ping / divice * 6f);
+        float minTime = Mathf.Max(0.2f, AmongUsClient.Instance.Ping / divice * 6f);
         return minTime;
     }
 

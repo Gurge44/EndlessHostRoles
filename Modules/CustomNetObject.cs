@@ -300,6 +300,9 @@ namespace EHR
 
             LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.7f); // Fix for Host
             LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.8f); // Fix for Non-Host Modded
+
+            if (SubmergedCompatibility.IsSubmerged())
+                LateTask.New(() => SubmergedCompatibility.CheckOutOfBoundsElevator(playerControl), 0.9f);
         }
 
         public static void FixedUpdate()

@@ -1082,7 +1082,7 @@ public static class GuessManager
 
             if (AmongUsClient.Instance.AmHost)
             {
-                HashSet<byte> guessers = Main.AllAlivePlayerControls.Where(x => CanGuess(x, false)).Select(x => x.PlayerId).ToHashSet();
+                HashSet<byte> guessers = Main.AllAlivePlayerControls.Where(x => !x.IsModdedClient() && CanGuess(x, false)).Select(x => x.PlayerId).ToHashSet();
                 LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString("YouCanGuess"), x, GetString("YouCanGuessTitle"))), 12f, log: false);
             }
         }
