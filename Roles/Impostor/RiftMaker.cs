@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Neutral;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -70,7 +72,7 @@ public class RiftMaker : RoleBase
 
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!GameStates.IsInTask) return;
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
         if (Pelican.IsEaten(player.PlayerId) || !player.IsAlive()) return;
 
@@ -82,6 +84,7 @@ public class RiftMaker : RoleBase
         {
             player.Notify(GetString("IncorrectMarks"));
             Marks.Clear();
+            SendRPC(CustomRPC.SyncRoleData, player.PlayerId, 2);
             return;
         }
 
@@ -92,7 +95,7 @@ public class RiftMaker : RoleBase
         var isTP = false;
         Vector2 from = Marks[0];
 
-        foreach (Vector2 mark in Marks.ToArray())
+        foreach (Vector2 mark in Marks)
         {
             float dis = Vector2.Distance(mark, position);
             if (dis > 2f) continue;
@@ -122,6 +125,7 @@ public class RiftMaker : RoleBase
     public override void OnEnterVent(PlayerControl player, Vent vent)
     {
         Marks.Clear();
+        SendRPC(CustomRPC.SyncRoleData, player.PlayerId, 2);
         player.Notify(GetString("MarksCleared"));
         player.MyPhysics?.RpcExitVent(vent.Id);
     }
@@ -161,10 +165,24 @@ public class RiftMaker : RoleBase
 
     private void Mark(PlayerControl player)
     {
-        Marks.Add(player.Pos());
+        Vector2 pos = player.Pos();
+        Marks.Add(pos);
+        SendRPC(CustomRPC.SyncRoleData, player.PlayerId, 1, pos);
         if (Marks.Count == 2) LastTP = TimeStamp;
-
         player.Notify(GetString("MarkDone"));
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+                Marks.Add(reader.ReadVector2());
+                break;
+            case 2:
+                Marks.Clear();
+                break;
+        }
     }
 
     public override string GetProgressText(byte playerId, bool comms)

@@ -20,7 +20,7 @@ namespace EHR
 {
     public class CustomNetObject
     {
-        public static List<CustomNetObject> AllObjects = [];
+        public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
 
         private static List<CustomNetObject> TempDespawnedObjects = [];
@@ -626,6 +626,14 @@ namespace EHR
                 BedWars.OnTNTExplode(Location);
                 Despawn();
             }
+        }
+    }
+
+    internal sealed class Portal : CustomNetObject
+    {
+        public Portal(Vector2 position)
+        {
+            CreateNetObject("<size=70%><line-height=67%><alpha=#00>█<#2b006b>█<#2b006b>█<#2b006b>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#fa69ff>█<#fa69ff>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#fa69ff>█<#fa69ff>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#fa69ff>█<#fa69ff>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#fa69ff>█<#fa69ff>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#2b006b>█<#2b006b>█<#2b006b>█<alpha=#00>█<br></line-height></size>", position);
         }
     }
 }

@@ -321,6 +321,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             }
 
             if (Minion.BlindPlayers.Contains(player.PlayerId)) SetBlind();
+            if (Slenderman.IsBlinded(player.PlayerId)) SetBlind();
 
             if (Sentinel.IsPatrolling(player.PlayerId))
             {

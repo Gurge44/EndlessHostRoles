@@ -8,7 +8,7 @@ using Hazel;
 namespace EHR.Impostor;
 
 // Reference: https://github.com/Yumenopai/TownOfHost_Y
-public class Greedier : RoleBase // Also used for Imitator as the NK version of this
+public class Greedier : RoleBase // Also used for Pulse as the NK version of this
 {
     private const int Id = 1300;
     public static List<byte> PlayerIdList = [];
@@ -20,7 +20,7 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
     private float EvenKCD;
     private bool HasImpVision;
 
-    private bool IsImitator;
+    private bool IsPulse;
 
     public bool IsOdd = true;
 
@@ -55,14 +55,14 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
         PlayerIdList.Add(playerId);
         IsOdd = true;
 
-        IsImitator = Main.PlayerStates[playerId].MainRole == CustomRoles.Imitator;
+        IsPulse = Main.PlayerStates[playerId].MainRole == CustomRoles.Pulse;
 
-        if (IsImitator)
+        if (IsPulse)
         {
-            OddKCD = Imitator.OddKillCooldown.GetFloat();
-            EvenKCD = Imitator.EvenKillCooldown.GetFloat();
-            AfterMeetingKCD = Imitator.AfterMeetingKillCooldown.GetFloat();
-            HasImpVision = Imitator.HasImpostorVision.GetBool();
+            OddKCD = Pulse.OddKillCooldown.GetFloat();
+            EvenKCD = Pulse.EvenKillCooldown.GetFloat();
+            AfterMeetingKCD = Pulse.AfterMeetingKillCooldown.GetFloat();
+            HasImpVision = Pulse.HasImpostorVision.GetBool();
         }
         else
         {
@@ -85,7 +85,7 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return !IsImitator || Imitator.CanVent.GetBool();
+        return !IsPulse || Pulse.CanVent.GetBool();
     }
 
     private void SendRPC(byte playerId)

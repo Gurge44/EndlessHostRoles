@@ -36,6 +36,7 @@ internal static class CustomRolesHelper
         CustomRoles.Weatherman,
         CustomRoles.Amogus,
         CustomRoles.Wiper,
+        CustomRoles.PortalMaker,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -79,7 +80,7 @@ internal static class CustomRolesHelper
             CustomRoles.Chameleon => new Swooper(),
             CustomRoles.BloodKnight => new Wildling(),
             CustomRoles.HexMaster => new Witch(),
-            CustomRoles.Imitator => new Greedier(),
+            CustomRoles.Pulse => new Greedier(),
             CustomRoles.Jinx => new CursedWolf(),
             CustomRoles.Juggernaut => new Sans(),
             CustomRoles.Medusa => new Cleaner(),
@@ -225,6 +226,8 @@ internal static class CustomRolesHelper
             CustomRoles.MeetingManager => CustomRoles.Crewmate,
             CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Imitator => CustomRoles.Crewmate,
+            CustomRoles.PortalMaker => CustomRoles.Crewmate,
             CustomRoles.Astral => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Helper => CustomRoles.Crewmate,
             CustomRoles.Ankylosaurus => CustomRoles.Crewmate,
@@ -470,6 +473,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Slenderman => RoleTypes.Impostor,
             CustomRoles.Amogus => RoleTypes.Impostor,
             CustomRoles.Weatherman => RoleTypes.Impostor,
             CustomRoles.Vortex => RoleTypes.Impostor,
@@ -512,7 +516,7 @@ internal static class CustomRolesHelper
             CustomRoles.Eclipse => RoleTypes.Impostor,
             CustomRoles.Vengeance => RoleTypes.Impostor,
             CustomRoles.HeadHunter => RoleTypes.Impostor,
-            CustomRoles.Imitator => RoleTypes.Impostor,
+            CustomRoles.Pulse => RoleTypes.Impostor,
             CustomRoles.Werewolf => RoleTypes.Impostor,
             CustomRoles.Bandit => RoleTypes.Impostor,
             CustomRoles.Maverick => RoleTypes.Impostor,
@@ -597,6 +601,7 @@ internal static class CustomRolesHelper
             CustomRoles.Rogue or
             CustomRoles.Parasite or
             CustomRoles.NSerialKiller or
+            CustomRoles.Slenderman or
             CustomRoles.Amogus or
             CustomRoles.Weatherman or
             CustomRoles.NoteKiller or
@@ -623,7 +628,7 @@ internal static class CustomRolesHelper
             CustomRoles.Pyromaniac or
             CustomRoles.Vengeance or
             CustomRoles.HeadHunter or
-            CustomRoles.Imitator or
+            CustomRoles.Pulse or
             CustomRoles.Werewolf or
             CustomRoles.Ritualist or
             CustomRoles.Pickpocket or
@@ -1027,7 +1032,7 @@ internal static class CustomRolesHelper
             CustomRoles.Shy when Options.DisableWhisperCommand.GetBool() => false,
             CustomRoles.Blocked when !pc.CanUseVent() => false,
             CustomRoles.Aide when pc.IsMadmate() || pc.Is(CustomRoles.Saboteur) => false,
-            CustomRoles.Sleuth when pc.Is(CustomRoles.NecroGuesser) => false,
+            CustomRoles.Sleuth when pc.GetCustomRole() is CustomRoles.NecroGuesser or CustomRoles.Imitator => false,
             CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
             CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
@@ -1666,6 +1671,7 @@ internal static class CustomRolesHelper
             CustomRoles.Divinator => RoleOptionType.Crewmate_Investigate,
             CustomRoles.MeetingManager => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Ignitor => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.Imitator => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Insight => RoleOptionType.Crewmate_Investigate,
             CustomRoles.ParityCop => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Inquirer => RoleOptionType.Crewmate_Investigate,
@@ -1680,6 +1686,7 @@ internal static class CustomRolesHelper
             CustomRoles.Observer => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Oracle => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Perceiver => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.PortalMaker => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Psychic => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Rabbit => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Scout => RoleOptionType.Crewmate_Investigate,
@@ -1824,6 +1831,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Slenderman,
     Amogus,
     Weatherman,
     NoteKiller,
@@ -1855,7 +1863,7 @@ public enum CountTypes
     Vengeance,
     HeadHunter,
     Gaslighter,
-    Imitator,
+    Pulse,
     Werewolf,
     Juggernaut,
     Agitater,

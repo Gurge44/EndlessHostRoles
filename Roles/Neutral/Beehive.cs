@@ -109,7 +109,7 @@ public class Beehive : RoleBase
 
                 if (Vector2.Distance(pc.Pos(), sp.InitialPosition) < Distance.GetFloat())
                 {
-                    pc.Suicide(realKiller: Utils.GetPlayerById(BeehiveId));
+                    pc.Suicide(deathReason: PlayerState.DeathReason.Stung, realKiller: Utils.GetPlayerById(BeehiveId));
 
                     if (pc.IsLocalPlayer())
                         Achievements.Type.OutOfTime.Complete();
@@ -126,7 +126,7 @@ public class Beehive : RoleBase
         {
             StungPlayers.Keys.Select(x => Utils.GetPlayerById(x)).DoIf(
                 x => x != null && x.IsAlive(),
-                x => x.Suicide(realKiller: Utils.GetPlayerById(BeehiveId)));
+                x => x.Suicide(deathReason: PlayerState.DeathReason.Stung, realKiller: Utils.GetPlayerById(BeehiveId)));
         }
 
         StungPlayers.Clear();

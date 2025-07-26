@@ -219,6 +219,7 @@ public static class Options
     public static OptionItem DisableWhisperCommand;
     public static OptionItem DisableSpectateCommand;
     public static OptionItem Disable8ballCommand;
+    public static OptionItem DisableVoteStartCommand;
 
     public static OptionItem DisableReactorOnSkeldAndMira;
     public static OptionItem DisableReactorOnPolus;
@@ -751,6 +752,7 @@ public static class Options
     public static OptionItem ApplyBanList;
     public static OptionItem ApplyModeratorList;
     public static OptionItem ApplyVIPList;
+    public static OptionItem ApplyAdminList;
     public static OptionItem AutoWarnStopWords;
 
     public static OptionItem DIYGameSettings;
@@ -1007,7 +1009,8 @@ public static class Options
                     Command.UsageLevels.Everyone => ":purple_circle: Everyone",
                     Command.UsageLevels.Modded => ":green_circle: Modded Clients",
                     Command.UsageLevels.Host => ":yellow_circle: Host",
-                    Command.UsageLevels.HostOrModerator => ":red_circle: Host And Moderators",
+                    Command.UsageLevels.HostOrModerator => ":red_circle: Host, Moderators, And Admins",
+                    Command.UsageLevels.HostOrAdmin => ":white_circle: Host And Admins",
                     _ => string.Empty
                 };
 
@@ -1534,6 +1537,7 @@ public static class Options
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
         ApplyModeratorList = new BooleanOptionItem(19305, "ApplyModeratorList", true, TabGroup.SystemSettings);
         ApplyVIPList = new BooleanOptionItem(19306, "ApplyVIPList", true, TabGroup.SystemSettings);
+        ApplyAdminList = new BooleanOptionItem(19330, "ApplyAdminList", true, TabGroup.SystemSettings);
 
         LoadingPercentage = 61;
 
@@ -2170,6 +2174,9 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         Disable8ballCommand = new BooleanOptionItem(22813, "Disable8ballCommand", false, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
+        DisableVoteStartCommand = new BooleanOptionItem(22814, "DisableVoteStartCommand", false, TabGroup.GameSettings)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 75;

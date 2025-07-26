@@ -51,11 +51,10 @@ internal class Bloodmoon : IGhostRole
 
     public static void Update(PlayerControl pc, Bloodmoon instance)
     {
-        if (!GameStates.IsInTask || ExileController.Instance) return;
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
         long now = Utils.TimeStamp;
         if (now == instance.LastUpdate) return;
-
         instance.LastUpdate = now;
 
         foreach (KeyValuePair<byte, long> death in ScheduledDeaths)

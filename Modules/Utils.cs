@@ -73,7 +73,13 @@ Symbols Emoji: ™ 〰 🆗 🆕 🆙 🆒 🆓 🆖 🅿 Ⓜ 🆑 🆘 🆚 ⚠
 public static class Utils
 {
     public const string EmptyMessage = "<size=0>.</size>";
-    private static readonly DateTime TimeStampStartTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+    private static readonly DateTime Epoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime StartTime = DateTime.UtcNow;
+    private static readonly long EpochStartSeconds = (long)(StartTime - Epoch).TotalSeconds;
+    private static readonly Stopwatch Stopwatch = Stopwatch.StartNew();
+
+    public static long TimeStamp => EpochStartSeconds + (long)Stopwatch.Elapsed.TotalSeconds;
 
     private static readonly StringBuilder SelfSuffix = new();
     private static readonly StringBuilder SelfMark = new(20);
@@ -88,7 +94,6 @@ public static class Utils
 
     private static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
 
-    public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModdedClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
     private static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
@@ -97,7 +102,7 @@ public static class Utils
 
     public static long GetTimeStamp(DateTime? dateTime = null)
     {
-        return (long)((dateTime ?? DateTime.Now).ToUniversalTime() - TimeStampStartTime).TotalSeconds;
+        return (long)((dateTime ?? DateTime.Now).ToUniversalTime() - Epoch).TotalSeconds;
     }
 
     public static void ErrorEnd(string text)
@@ -834,6 +839,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Slenderman:
             case CustomRoles.Amogus:
             case CustomRoles.Weatherman:
             case CustomRoles.NoteKiller:
@@ -882,7 +888,7 @@ public static class Utils
             case CustomRoles.Magician:
             case CustomRoles.Vengeance:
             case CustomRoles.HeadHunter:
-            case CustomRoles.Imitator:
+            case CustomRoles.Pulse:
             case CustomRoles.Werewolf:
             case CustomRoles.Bandit:
             case CustomRoles.Jailor when !Options.UsePets.GetBool() || !Jailor.UsePet.GetBool():
@@ -3171,6 +3177,7 @@ public static class Utils
 
         int cd = role switch
         {
+            CustomRoles.PortalMaker => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
@@ -3541,33 +3548,37 @@ public static class Utils
 
     public static void DumpLog(bool open = true, bool finish = true)
     {
-        if (finish) CustomLogger.Instance.Finish();
-        
-        var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+        try
+        {
+            if (finish) CustomLogger.Instance.Finish();
+
+            var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
 #if ANDROID
-        var f = $"{Main.DataPath}/EHR_Logs/{t}";
+            var f = $"{Main.DataPath}/EHR_Logs/{t}";
 #else
-        var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
+            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
 #endif
-        if (!Directory.Exists(f)) Directory.CreateDirectory(f);
+            if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-        var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
+            var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
 #if ANDROID
-        var directory = Main.DataPath;
+            var directory = Main.DataPath;
 #else
-        string directory = Environment.CurrentDirectory;
+            string directory = Environment.CurrentDirectory;
 #endif
-        FileInfo[] files = [new($"{directory}/BepInEx/LogOutput.log"), new($"{directory}/BepInEx/log.html")];
-        files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
+            FileInfo[] files = [new($"{directory}/BepInEx/LogOutput.log"), new($"{directory}/BepInEx/log.html")];
+            files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
 
-        if (!open) return;
+            if (!open) return;
 
-        if (PlayerControl.LocalPlayer != null)
-            FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+            if (PlayerControl.LocalPlayer != null)
+                FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
 #if !ANDROID
-        Process.Start("explorer.exe", f.Replace("/", "\\"));
+            Process.Start("explorer.exe", f.Replace("/", "\\"));
 #endif
+        }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static (int Doused, int All) GetDousedPlayerCount(byte playerId)

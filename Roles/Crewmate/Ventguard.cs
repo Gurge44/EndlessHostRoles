@@ -57,7 +57,7 @@ internal class Ventguard : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        AURoleOptions.EngineerInVentMaxTime = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.3f;
         AURoleOptions.EngineerCooldown = 15f;
     }
 

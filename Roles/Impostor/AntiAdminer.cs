@@ -76,6 +76,7 @@ internal class AntiAdminer : RoleBase
         IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
         ExtraAbilityStartTimeStamp = 0;
         AntiAdminerId = playerId;
+        if (IsMonitor && Main.CurrentMap != MapNames.MiraHQ) playerId.SetAbilityUseLimit(Monitor.UseLimitOpt.GetInt());
     }
 
     public override void Remove(byte playerId)
@@ -117,7 +118,7 @@ internal class AntiAdminer : RoleBase
                 AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 0.1f;
             }
-            
+
             return;
         }
 
@@ -362,7 +363,8 @@ internal class AntiAdminer : RoleBase
     {
         if (!IsMonitor) return;
         if (pc == null) return;
-
+        if (Main.CurrentMap == MapNames.MiraHQ) return;
+        
         if (pc.GetAbilityUseLimit() >= 1)
         {
             pc.RpcRemoveAbilityUse();

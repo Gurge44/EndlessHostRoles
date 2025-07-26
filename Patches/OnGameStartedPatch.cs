@@ -255,6 +255,7 @@ internal static class ChangeRoleSettings
             SabotageMapPatch.TimerTexts = [];
             MapRoomDoorsUpdatePatch.DoorTimerTexts = [];
             GuessManager.Guessers = [];
+            ChatCommands.VotedToStart = [];
 
             Options.UsedButtonCount = 0;
 
