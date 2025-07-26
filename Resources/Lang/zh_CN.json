@@ -2593,7 +2593,7 @@
   "Poll.VotingInfo": "使用/pv {answer}投票,答案可以是数字或者文字",
   "Poll.YouVoted": "您已投票给 {0},他现在有 {1} 票.",
   "PollUsage": "注意格式:\\n<size=80%>/poll{Question}？<size=55%>{Answer A}{Answer B}[Answer C] [Answer D] [Answer E]</size></b></size>\n\n<size=50%>注意:问题应始终以问号 (?) 结尾!",
-  "VotedToStart.Title": "<#00a5ff>➡ VOTE TO START ⬅</color>",
+  "VotedToStart.Title": "<#00a5ff>➡ 通过投票表决开游戏 ⬅</color>",
   "VotedToStart": "{0} has voted to start the game!\\n<size=80%>If you also want the game to start, use <#00a5ff>/votestart</color>\\nIf more than 50% of the lobby uses this command, the starting countdown will begin.\\nCurrently, {1}/{2} ({3}%) players have used it. {4} uses are required.</size>",
   "PlayerMuted": "你禁言了{0}<#00ffa5>{1}</color>秒",
   "YouMuted": "<#ffff00>你被<u>{0}</u>禁言了<#ff0000>{1}</color>秒",
