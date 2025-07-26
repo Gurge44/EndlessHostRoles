@@ -104,7 +104,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Detective         | Escapist        | Head Hunter       |               | Double Shot    |
 | Detour            | Evil Eraser     | Hex Master        |               | Egoist         |
 | Dictator          | Evil Guesser    | Hookshot          |               | Energetic      |
-| Doctor            | Evil Tracker    | Imitator          |               | Entranced      |
+| Doctor            | Evil Tracker    | Pulse             |               | Entranced      |
 | Donut Delivery    | Fireworker      | Impartial         |               | Evil Spirit    |
 | Double Agent      | Forger          | Innocent          |               | Finder         |
 | Pacifist          | Framer          | Investor          |               | Flash          |

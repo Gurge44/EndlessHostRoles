@@ -214,7 +214,8 @@ internal static class ChatCommands
             new(["addadmin", "добавитьадмин", "добадмин", "指定管理员", "admin-add"], "{id}", GetString("CommandDescription.AddAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
             new(["deleteadmin", "удалитьадмин", "убратьадмин", "удалитьадминку", "убратьадминку", "删除管理员", "admin-remover"], "{id}", GetString("CommandDescription.DeleteAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
             new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
-
+            new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, false, [GetString("CommandArgs.Imitate.Id")]),
+            
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
@@ -466,6 +467,39 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void ImitateCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(ImitateCommand), text);
+            return;
+        }
+
+        if (!player.IsAlive() || !Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.Role is not Imitator imitator) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
+
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+
+        if (!targetState.IsDead)
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeDead"));
+            return;
+        }
+
+        if (!targetState.MainRole.Is(Team.Crewmate))
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeCrew"));
+            return;
+        }
+
+        imitator.ImitatingRole = targetState.MainRole;
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Imitator.Success"), targetId.ColoredPlayerName()));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+    
     private static void VoteStartCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)

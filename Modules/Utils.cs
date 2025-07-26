@@ -888,7 +888,7 @@ public static class Utils
             case CustomRoles.Magician:
             case CustomRoles.Vengeance:
             case CustomRoles.HeadHunter:
-            case CustomRoles.Imitator:
+            case CustomRoles.Pulse:
             case CustomRoles.Werewolf:
             case CustomRoles.Bandit:
             case CustomRoles.Jailor when !Options.UsePets.GetBool() || !Jailor.UsePet.GetBool():
@@ -3548,33 +3548,37 @@ public static class Utils
 
     public static void DumpLog(bool open = true, bool finish = true)
     {
-        if (finish) CustomLogger.Instance.Finish();
-        
-        var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+        try
+        {
+            if (finish) CustomLogger.Instance.Finish();
+
+            var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
 #if ANDROID
-        var f = $"{Main.DataPath}/EHR_Logs/{t}";
+            var f = $"{Main.DataPath}/EHR_Logs/{t}";
 #else
-        var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
+            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
 #endif
-        if (!Directory.Exists(f)) Directory.CreateDirectory(f);
+            if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-        var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
+            var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
 #if ANDROID
-        var directory = Main.DataPath;
+            var directory = Main.DataPath;
 #else
-        string directory = Environment.CurrentDirectory;
+            string directory = Environment.CurrentDirectory;
 #endif
-        FileInfo[] files = [new($"{directory}/BepInEx/LogOutput.log"), new($"{directory}/BepInEx/log.html")];
-        files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
+            FileInfo[] files = [new($"{directory}/BepInEx/LogOutput.log"), new($"{directory}/BepInEx/log.html")];
+            files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
 
-        if (!open) return;
+            if (!open) return;
 
-        if (PlayerControl.LocalPlayer != null)
-            FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+            if (PlayerControl.LocalPlayer != null)
+                FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
 #if !ANDROID
-        Process.Start("explorer.exe", f.Replace("/", "\\"));
+            Process.Start("explorer.exe", f.Replace("/", "\\"));
 #endif
+        }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static (int Doused, int All) GetDousedPlayerCount(byte playerId)

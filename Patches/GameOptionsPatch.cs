@@ -12,7 +12,7 @@ internal static class SwitchGameModePatch
     {
         if (!Options.IsLoaded || (AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned || !HudManager.Instance) return true;
 
-        HudManager.Instance.ShowPopUp(Translator.GetString("HnSUnloadWarning"));
+        ModUpdater.ShowPopup(Translator.GetString("HnSUnloadWarning"), StringNames.OkayDontShow, true, false);
         return false;
     }
 
