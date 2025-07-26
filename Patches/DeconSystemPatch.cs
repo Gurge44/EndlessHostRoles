@@ -7,14 +7,14 @@ public static class DeconSystemUpdateSystemPatch
 {
     public static void Prefix(DeconSystem __instance)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || SubmergedCompatibility.IsSubmerged()) return;
 
-        if (Options.ChangeDecontaminationTime.GetBool())
+        bool bedwars = Options.CurrentGameMode == CustomGameMode.BedWars;
+        bool roomrush = Options.CurrentGameMode == CustomGameMode.RoomRush;
+
+        if (bedwars || roomrush || Options.ChangeDecontaminationTime.GetBool())
         {
-            bool bedwars = Options.CurrentGameMode == CustomGameMode.BedWars;
-            bool roomrush = Options.CurrentGameMode == CustomGameMode.RoomRush;
-
-            __instance.DoorOpenTime = bedwars
+            __instance.DoorOpenTime = bedwars || roomrush
                 ? 2f
                 : Main.CurrentMap switch
             {

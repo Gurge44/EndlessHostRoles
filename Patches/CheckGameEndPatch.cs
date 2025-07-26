@@ -43,10 +43,13 @@ internal static class GameEndChecker
 
     public static bool Prefix()
     {
-        if (!AmongUsClient.Instance.AmHost) return true;
+        return !AmongUsClient.Instance.AmHost;
+    }
 
-        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return false;
-        if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
+    public static void CheckCustomEndCriteria()
+    {
+        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return;
+        if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return;
 
         Ended = false;
 
@@ -56,6 +59,7 @@ internal static class GameEndChecker
         {
             if (WinnerIds.Count > 0 || WinnerTeam != CustomWinner.Default)
             {
+                Statistics.OnGameEnd();
                 Ended = true;
                 LoadingEndScreen = true;
                 ShipStatus.Instance.enabled = false;
@@ -63,7 +67,7 @@ internal static class GameEndChecker
                 Predicate = null;
             }
 
-            return false;
+            return;
         }
 
         if (WinnerTeam != CustomWinner.Default)
@@ -333,13 +337,13 @@ internal static class GameEndChecker
                 }
             }
 
+            Statistics.OnGameEnd();
+
             Camouflage.BlockCamouflage = true;
             ShipStatus.Instance.enabled = false;
             StartEndGame(reason);
             Predicate = null;
         }
-
-        return false;
     }
 
     private static void StartEndGame(GameOverReason reason)
@@ -353,8 +357,6 @@ internal static class GameEndChecker
             .Where(x => x.GetClient() != null && !x.Data.Disconnected)
             .Select(x => new Message("\n", x.PlayerId, msg))
             .SendMultipleMessages();
-
-        Statistics.OnGameEnd();
 
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         var self = AmongUsClient.Instance;
@@ -566,11 +568,7 @@ internal static class GameEndChecker
 
             if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1) return false;
 
-            if (CustomTeamManager.CheckCustomTeamGameEnd())
-            {
-                ResetAndSetWinner(CustomWinner.CustomTeam);
-                return true;
-            }
+            if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
             if (aapc.Length > 0 && aapc.All(x => Main.LoversPlayers.Exists(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.TrueForAll(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
             {
@@ -710,7 +708,7 @@ internal static class GameEndChecker
                 }
                 default:
                     Logger.Fatal("Error while selecting NK winner", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
-                    Logger.SendInGame("There was an error while selecting the winner. Please report this bug to the developer! (Do /dump to get logs)");
+                    Logger.SendInGame("There was an error while selecting the winner. Please report this bug to the developer! (Do /dump to get logs)", Color.red);
                     ResetAndSetWinner(CustomWinner.Error);
                     return true;
             }

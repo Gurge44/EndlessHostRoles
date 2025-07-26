@@ -49,7 +49,7 @@ public class Allergic : IAddon
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (Main.HasJustStarted || ExileController.Instance) return;
+        if (Main.HasJustStarted || !Main.IntroDestroyed || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
         if (!AllergicPlayers.TryGetValue(pc.PlayerId, out byte targetId)) return;
 

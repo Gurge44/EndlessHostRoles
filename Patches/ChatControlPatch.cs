@@ -264,13 +264,8 @@ public static class ChatManager
 
     private static void SendRPC(CustomRpcSender writer, PlayerControl senderPlayer, string senderMessage, int targetClientId = -1)
     {
-        if (GameStates.IsLobby && senderPlayer.IsHost() && Main.AllPlayerNames.TryGetValue(senderPlayer.PlayerId, out var name))
-        {
-            writer.AutoStartRpc(senderPlayer.NetId, RpcCalls.SetName, targetClientId)
-                .Write(senderPlayer.Data.NetId)
-                .Write(name)
-                .EndRpc();
-        }
+        if (GameStates.IsLobby && senderPlayer.IsHost())
+            senderMessage = senderMessage.Insert(0, new('\n', senderPlayer.GetRealName().Count(x => x == '\n')));
 
         writer.AutoStartRpc(senderPlayer.NetId, RpcCalls.SendChat, targetClientId)
             .Write(senderMessage)

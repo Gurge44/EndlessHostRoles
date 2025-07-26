@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -142,7 +141,7 @@ public class Pelican : RoleBase
             3 => new(27f, 3.3f), // dlekS ehT
             4 => new(-16.8f, -6.2f), // Airship
             5 => new(9.6f, 23.2f), // The Fungle
-            _ => throw new ArgumentOutOfRangeException(Main.NormalOptions.MapId.ToString(), "Unsupported map")
+            _ => new(50f, 50f) // Default position if the map is not recognized
         };
     }
 

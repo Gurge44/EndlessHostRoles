@@ -6,6 +6,7 @@ using AmongUs.QuickChat;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR;
@@ -542,7 +543,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (GameManager.Instance.LogicOptions.MapId != 4)
+                    if (GameManager.Instance.LogicOptions.MapId != 4 && !SubmergedCompatibility.IsSubmerged())
                     {
                         WarnHost();
                         Report(pc, "Using platform on wrong map");
@@ -1042,7 +1043,7 @@ internal static class EAC
         var msg = $"{pc.OwnerId}|{pc.FriendCode}|{pc.Data.PlayerName}|{pc.GetClient().GetHashedPuid()}|{reason}";
         //Cloud.SendData(msg);
         Logger.Fatal($"EAC report: {msg}", "EAC Cloud");
-        if (Options.CheatResponses.GetInt() != 4) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
+        if (Options.CheatResponses.GetInt() != 4) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason), Color.red);
     }
 
     public static bool ReceiveInvalidRpc(PlayerControl pc, byte callId)
@@ -1070,7 +1071,7 @@ internal static class EAC
                 AmongUsClient.Instance.KickPlayer(pc.OwnerId, true);
                 string msg0 = string.Format(GetString("Message.BannedByEAC"), pc.Data?.PlayerName, text);
                 Logger.Warn(msg0, "EAC");
-                Logger.SendInGame(msg0);
+                Logger.SendInGame(msg0, Color.yellow);
                 break;
             }
             case 1:
@@ -1079,7 +1080,7 @@ internal static class EAC
                 AmongUsClient.Instance.KickPlayer(pc.OwnerId, false);
                 string msg1 = string.Format(GetString("Message.KickedByEAC"), pc.Data?.PlayerName, text);
                 Logger.Warn(msg1, "EAC");
-                Logger.SendInGame(msg1);
+                Logger.SendInGame(msg1, Color.yellow);
                 break;
             }
             case 2:
@@ -1108,7 +1109,7 @@ internal static class EAC
                 AmongUsClient.Instance.KickPlayer(pc.OwnerId, true);
                 string msg2 = string.Format(GetString("Message.TempBannedByEAC"), pc.Data?.PlayerName, text);
                 Logger.Warn(msg2, "EAC");
-                Logger.SendInGame(msg2);
+                Logger.SendInGame(msg2, Color.yellow);
                 break;
             }
         }
@@ -1133,8 +1134,8 @@ internal static class EAC
         {
             case SystemTypes.LifeSupp:
             {
-                if (mapid != 0 && mapid != 1 && mapid != 3) goto Cheat;
-                if (amount != 64 && amount != 65) goto Cheat;
+                if (mapid != 0 && mapid != 1 && mapid != 3 && !SubmergedCompatibility.IsSubmerged()) goto Cheat;
+                if (amount != 64 && amount != 65 && !SubmergedCompatibility.IsSubmerged()) goto Cheat;
                 break;
             }
             case SystemTypes.Comms:

@@ -91,6 +91,7 @@ public static class AFKDetector
                 case Data.Phase.Detection:
                     data.CurrentPhase = Data.Phase.Warning;
                     data.Timer = 15f;
+                    Utils.NotifyRoles(SpecifyTarget: pc);
                     if (pc.IsAlive() && !MeetingStates.FirstMeeting) pc.FixBlackScreen();
                     break;
                 case Data.Phase.Warning:
@@ -140,7 +141,7 @@ public static class AFKDetector
                 break;
             case Consequence.Kick:
                 AmongUsClient.Instance.KickPlayer(pc.OwnerId, false);
-                Logger.SendInGame(string.Format(Translator.GetString("AFKKick"), pc.PlayerId.ColoredPlayerName()));
+                Logger.SendInGame(string.Format(Translator.GetString("AFKKick"), pc.PlayerId.ColoredPlayerName()), Color.yellow);
                 break;
             case Consequence.Suicide:
                 pc.Suicide(PlayerState.DeathReason.AFK);

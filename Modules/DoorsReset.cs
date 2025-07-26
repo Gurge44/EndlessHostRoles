@@ -16,7 +16,7 @@ public static class DoorsReset
     public static void Initialize()
     {
         // Not supported except for Airship, Polus and Fungle
-        if ((MapNames)Main.NormalOptions.MapId is not (MapNames.Airship or MapNames.Polus or MapNames.Fungle))
+        if (Main.CurrentMap is not (MapNames.Airship or MapNames.Polus or MapNames.Fungle) && !(SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6))
         {
             IsEnabled = false;
             return;

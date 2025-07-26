@@ -12,7 +12,7 @@ namespace EHR;
 
 public static class SpamManager
 {
-    private const string BannedWordsFilePath = $"{Main.DataPath}/EHR_DATA/BanWords.txt";
+    private static readonly string BannedWordsFilePath = $"{Main.DataPath}/EHR_DATA/BanWords.txt";
     private static List<string> BanWords = [];
 
     public static void Init()
@@ -27,10 +27,10 @@ public static class SpamManager
         {
             try
             {
-                if (!Directory.Exists("EHR_DATA")) Directory.CreateDirectory("EHR_DATA");
+                if (!Directory.Exists($"{Main.DataPath}/EHR_DATA")) Directory.CreateDirectory($"{Main.DataPath}/EHR_DATA");
 
-                if (File.Exists("./BanWords.txt"))
-                    File.Move("./BanWords.txt", BannedWordsFilePath);
+                if (File.Exists($"{Main.DataPath}/BanWords.txt"))
+                    File.Move($"{Main.DataPath}/BanWords.txt", BannedWordsFilePath);
                 else
                 {
                     string fileName;

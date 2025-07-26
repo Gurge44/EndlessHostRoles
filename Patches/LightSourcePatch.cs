@@ -14,6 +14,7 @@ internal static class LightSourceUpdatePatch
 
     public static bool Prefix(LightSource __instance)
     {
+        if (SubmergedCompatibility.IsSubmerged()) return true;
         Vector3 position = __instance.transform.position;
         position.z -= 7f;
         __instance.UpdateFlashlightAngle();
@@ -40,6 +41,7 @@ internal static class LightSourceGpuRendererPatch
 
     public static bool Prefix(LightSourceGpuRenderer __instance, [HarmonyArgument(0)] float effectiveRadius)
     {
+        if (SubmergedCompatibility.IsSubmerged()) return true;
         if (!__instance.shadowTexture || !__instance.shadowCasterMaterial) return false;
         float width = __instance.shadowTexture.width;
         __instance.shadowCasterMaterial.SetFloat(DepthCompressionValue, effectiveRadius);

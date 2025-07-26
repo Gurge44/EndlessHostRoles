@@ -75,9 +75,9 @@ public class Wiper : RoleBase
 
         switch (Main.CurrentMap)
         {
-            case MapNames.Skeld or MapNames.Dleks when room.RoomId == SystemTypes.Cafeteria: { return true; }
+            case MapNames.Skeld or MapNames.Dleks when room.RoomId == SystemTypes.Cafeteria:
+                return true;
             case MapNames.MiraHQ:
-            {
                 switch (MeetingStates.FirstMeeting, room.RoomId)
                 {
                     case (true, SystemTypes.Launchpad):
@@ -86,9 +86,7 @@ public class Wiper : RoleBase
                 }
 
                 break;
-            }
             case MapNames.Polus:
-            {
                 switch (MeetingStates.FirstMeeting, room.RoomId)
                 {
                     case (true, SystemTypes.Dropship):
@@ -97,8 +95,13 @@ public class Wiper : RoleBase
                 }
 
                 break;
-            }
-            case MapNames.Fungle when !MeetingStates.FirstMeeting && room.RoomId == SystemTypes.MeetingRoom: { return true; }
+            case MapNames.Fungle when !MeetingStates.FirstMeeting && room.RoomId == SystemTypes.MeetingRoom:
+                return true;
+            default:
+                if (SubmergedCompatibility.IsSubmerged() && room.RoomId is (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral or (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral)
+                    return true;
+
+                break;
         }
 
         return room.RoomId is SystemTypes.Outside or SystemTypes.Hallway or SystemTypes.Ventilation || room.RoomId.ToString().Contains("Decontamination");

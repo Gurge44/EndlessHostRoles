@@ -39,6 +39,7 @@ internal static class OnGameJoinedPatch
 
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
+        ChatCommands.VotedToStart = [];
 
         Utils.DirtyName = [];
 
@@ -218,7 +219,7 @@ internal static class OnPlayerJoinedPatch
 
                 if (Options.KickSlowJoiningPlayers.GetBool() && ((!client.IsDisconnected() && client.Character.Data.IsIncomplete) || ((client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length <= 15)))
                 {
-                    Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
+                    Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}", Color.yellow);
                     AmongUsClient.Instance.KickPlayer(client.Id, false);
                     Logger.Info($"Kicked client {client.Id}/{client.PlayerName} since its PlayerControl was not spawned in time.", "OnPlayerJoinedPatchPostfix");
                     return;
@@ -241,7 +242,7 @@ internal static class OnPlayerJoinedPatch
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid())) BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
 
             AmongUsClient.Instance.KickPlayer(client.Id, false);
-            Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName), Color.yellow);
             Logger.Info($"TempBanned a player {client.PlayerName} without a friend code", "Temp Ban");
         }
 
@@ -249,7 +250,7 @@ internal static class OnPlayerJoinedPatch
         {
             AmongUsClient.Instance.KickPlayer(client.Id, false);
             string msg = string.Format(GetString("KickAndriodPlayer"), client.PlayerName);
-            Logger.SendInGame(msg);
+            Logger.SendInGame(msg, Color.yellow);
             Logger.Info(msg, "Android Kick");
         }
 
@@ -330,7 +331,7 @@ internal static class OnPlayerLeftPatch
             switch (reason)
             {
                 case DisconnectReasons.Hacking:
-                    Logger.SendInGame(string.Format(GetString("PlayerLeftByAU-Anticheat"), data?.PlayerName));
+                    Logger.SendInGame(string.Format(GetString("PlayerLeftByAU-Anticheat"), data?.PlayerName), Color.yellow);
                     break;
             }
 
@@ -582,7 +583,7 @@ internal static class SetColorPatch
 
                     if (client != null)
                     {
-                        Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
+                        Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}", Color.yellow);
                         AmongUsClient.Instance.KickPlayer(client.Id, false);
                     }
                 }

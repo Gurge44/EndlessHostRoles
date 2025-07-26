@@ -17,13 +17,10 @@ internal static class MakePublicPatch
         {
             var message = string.Empty;
             if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
-
             if (ModUpdater.IsBroken) message = GetString("ModBrokenMessage");
-
             if (ModUpdater.HasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
-
             Logger.Info(message, "MakePublicPatch");
-            Logger.SendInGame(message);
+            Logger.SendInGame(message, Color.red);
             return false;
         }
 
@@ -112,7 +109,7 @@ internal static class KickPlayerPatch
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
-            Logger.SendInGame($"Game Attempting to {(ban ? "Ban" : "Kick")} Host, Blocked the attempt.");
+            Logger.SendInGame($"Game Attempting to {(ban ? "Ban" : "Kick")} Host, Blocked the attempt.", Color.red);
             return false;
         }
 
@@ -176,6 +173,23 @@ internal static class AuthTimeoutPatch
 
     // If you don't patch this, you still need to wait for 5 s.
     // I have no idea why this is happening
+#if ANDROID
+    [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__50), nameof(AmongUsClient._CoJoinOnlinePublicGame_d__50.MoveNext))]
+    [HarmonyPrefix]
+    public static void EnableUdpMatchmakingPrefix(AmongUsClient._CoJoinOnlinePublicGame_d__50 __instance)
+    {
+        // Skip to state 1, which just calls CoJoinOnlineGameDirect
+        if (__instance.__1__state == 0 && !ServerManager.Instance.IsHttp)
+        {
+            __instance.__1__state = 1;
+
+            __instance.__8__1 = new()
+            {
+                matchmakerToken = string.Empty
+            };
+        }
+    }
+#else
     [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__49), nameof(AmongUsClient._CoJoinOnlinePublicGame_d__49.MoveNext))]
     [HarmonyPrefix]
     public static void EnableUdpMatchmakingPrefix(AmongUsClient._CoJoinOnlinePublicGame_d__49 __instance)
@@ -191,4 +205,5 @@ internal static class AuthTimeoutPatch
             };
         }
     }
+#endif
 }

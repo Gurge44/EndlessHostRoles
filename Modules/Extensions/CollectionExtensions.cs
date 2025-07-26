@@ -42,7 +42,8 @@ public static class CollectionExtensions
     /// <typeparam name="TValue"></typeparam>
     public static void SetAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
     {
-        foreach (TKey key in dictionary.Keys.ToArray()) dictionary[key] = value;
+        foreach (TKey key in dictionary.Keys.ToArray())
+            dictionary[key] = value;
     }
 
     /// <summary>
@@ -54,7 +55,8 @@ public static class CollectionExtensions
     /// <typeparam name="TValue"></typeparam>
     public static void AdjustAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TValue, TValue> adjust)
     {
-        foreach (TKey key in dictionary.Keys.ToArray()) dictionary[key] = adjust(dictionary[key]);
+        foreach (TKey key in dictionary.Keys.ToArray())
+            dictionary[key] = adjust(dictionary[key]);
     }
 
     /// <summary>

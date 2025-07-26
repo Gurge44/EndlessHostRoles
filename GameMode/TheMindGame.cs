@@ -266,6 +266,7 @@ public static class TheMindGame
         if (currentMap is MapNames.Fungle) AllRooms.Remove(SystemTypes.FishingDock);
         if (currentMap is MapNames.Fungle) AllRooms.Remove(SystemTypes.Greenhouse);
         AllRooms.RemoveAll(x => x.ToString().Contains("Decontamination"));
+        if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveAll(x => (byte)x > 135);
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         Points = aapc.ToDictionary(x => x.PlayerId, _ => 0);

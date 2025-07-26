@@ -52,6 +52,8 @@ public static class NaturalDisasters
         return AllDisasters;
     }
 
+    public static int FrequencyOfDisasters => DisasterFrequency.GetInt();
+
     public static void SetupCustomOption()
     {
         var id = 69_216_001;

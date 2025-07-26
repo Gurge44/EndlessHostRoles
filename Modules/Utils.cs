@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using AmongUs.InnerNet.GameDataMessages;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -72,7 +73,13 @@ Symbols Emoji: ™ 〰 🆗 🆕 🆙 🆒 🆓 🆖 🅿 Ⓜ 🆑 🆘 🆚 ⚠
 public static class Utils
 {
     public const string EmptyMessage = "<size=0>.</size>";
-    private static readonly DateTime TimeStampStartTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+    private static readonly DateTime Epoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime StartTime = DateTime.UtcNow;
+    private static readonly long EpochStartSeconds = (long)(StartTime - Epoch).TotalSeconds;
+    private static readonly Stopwatch Stopwatch = Stopwatch.StartNew();
+
+    public static long TimeStamp => EpochStartSeconds + (long)Stopwatch.Elapsed.TotalSeconds;
 
     private static readonly StringBuilder SelfSuffix = new();
     private static readonly StringBuilder SelfMark = new(20);
@@ -87,7 +94,6 @@ public static class Utils
 
     private static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
 
-    public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModdedClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
     private static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
@@ -96,7 +102,7 @@ public static class Utils
 
     public static long GetTimeStamp(DateTime? dateTime = null)
     {
-        return (long)((dateTime ?? DateTime.Now).ToUniversalTime() - TimeStampStartTime).TotalSeconds;
+        return (long)((dateTime ?? DateTime.Now).ToUniversalTime() - Epoch).TotalSeconds;
     }
 
     public static void ErrorEnd(string text)
@@ -105,7 +111,7 @@ public static class Utils
         {
             Logger.Fatal($"{text} error, triggering anti-black screen measures", "Anti-Blackout");
             Main.OverrideWelcomeMsg = GetString("AntiBlackOutNotifyInLobby");
-            LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+            LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame") /*, true*/, Color.red); }, 3f, "Anti-Black Msg SendInGame");
 
             LateTask.New(() =>
             {
@@ -121,10 +127,10 @@ public static class Utils
             AmongUsClient.Instance.FinishRpcImmediately(writer);
 
             if (Options.EndWhenPlayerBug.GetBool())
-                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/), 3f, "Anti-Black Msg SendInGame");
+                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/, Color.red), 3f, "Anti-Black Msg SendInGame");
             else
             {
-                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd") /*, true*/), 3f, "Anti-Black Msg SendInGame");
+                LateTask.New(() => Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd") /*, true*/, Color.red), 3f, "Anti-Black Msg SendInGame");
 
                 LateTask.New(() =>
                 {
@@ -152,12 +158,13 @@ public static class Utils
     {
         PlayerControl pc = nt.myPlayer;
         var sendOption = SendOption.Reliable;
+        bool submerged = SubmergedCompatibility.IsSubmerged();
 
         if (!noCheckState)
         {
             if (pc.Is(CustomRoles.AntiTP)) return false;
 
-            if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+            if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || (submerged && pc.IsLocalPlayer() && SubmergedCompatibility.GetInTransition()))
             {
                 if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
                 return false;
@@ -208,6 +215,14 @@ public static class Utils
 
         CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
         CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
+        AFKDetector.TempIgnoredPlayers.Add(pc.PlayerId);
+        LateTask.New(() => AFKDetector.TempIgnoredPlayers.Remove(pc.PlayerId), 0.2f + CalculatePingDelay(), log: false);
+
+        if (submerged)
+        {
+            SubmergedCompatibility.ChangeFloor(pc.PlayerId, pc.transform.position.y > -7);
+            SubmergedCompatibility.CheckOutOfBoundsElevator(pc);
+        }
 
         if (sendOption == SendOption.Reliable) NumSnapToCallsThisRound++;
         return true;
@@ -328,12 +343,6 @@ public static class Utils
         if (IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
     }
 
-    public static void SetVisionV2(this IGameOptions opt)
-    {
-        opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.CrewLightMod));
-        if (IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.ImpostorLightMod, opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
-    }
-
     private static void TargetDies(PlayerControl killer, PlayerControl target)
     {
         if (target.IsAlive() || GameStates.IsMeeting) return;
@@ -379,16 +388,10 @@ public static class Utils
         return seer.Is(CustomRoles.EvilTracker) && EvilTracker.KillFlashCheck(killer, target);
     }
 
-    public static void BlackOut(this IGameOptions opt, bool isBlackOut)
+    public static void BlackOut(this IGameOptions opt, bool blackOut)
     {
-        opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);
-        opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
-
-        if (isBlackOut)
-        {
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
-            opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
-        }
+        opt.SetFloat(FloatOptionNames.ImpostorLightMod, blackOut ? 0 : Main.DefaultImpostorVision);
+        opt.SetFloat(FloatOptionNames.CrewLightMod, blackOut ? 0 : Main.DefaultCrewmateVision);
     }
 
     public static void SaveComboInfo()
@@ -836,6 +839,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Slenderman:
             case CustomRoles.Amogus:
             case CustomRoles.Weatherman:
             case CustomRoles.NoteKiller:
@@ -884,7 +888,7 @@ public static class Utils
             case CustomRoles.Magician:
             case CustomRoles.Vengeance:
             case CustomRoles.HeadHunter:
-            case CustomRoles.Imitator:
+            case CustomRoles.Pulse:
             case CustomRoles.Werewolf:
             case CustomRoles.Bandit:
             case CustomRoles.Jailor when !Options.UsePets.GetBool() || !Jailor.UsePet.GetBool():
@@ -1066,7 +1070,7 @@ public static class Utils
                (__instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && !__instance.IsAlive()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Hypocrite) && Hypocrite.AlliesKnowHypocrite.GetBool()) ||
-               (__instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId) == null && CustomTeamManager.GetCustomTeam(__instance.PlayerId) == null) ||
+               __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.ArentInCustomTeam(PlayerControl.LocalPlayer.PlayerId, __instance.PlayerId) ||
                (__instance.Is(CustomRoleTypes.Coven) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Coven)) ||
                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.IsLocalPlayer()) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                (CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, CTAOption.KnowRoles)) ||
@@ -1679,19 +1683,19 @@ public static class Utils
             "3" or "粉红" or "pink" or "Pink" or "Роз" or "роз" or "Розовый" or "розовый" or "Rosa" or "rosa" => 3,
             "4" or "橘" or "orange" or "Orange" or "оранж" or "Оранж" or "оранжевый" or "Оранжевый" or "Laranja" or "laranja" => 4,
             "5" or "黄" or "黃" or "yellow" or "Yellow" or "Жёлт" or "Желт" or "жёлт" or "желт" or "Жёлтый" or "Желтый" or "жёлтый" or "желтый" or "Amarelo" or "amarelo" => 5,
-            "6" or "黑" or "black" or "Black" or "Чёрный" or "Черный" or "чёрный" or "черный" or "Preto" or "preto" => 6,
-            "7" or "白" or "white" or "White" or "Белый" or "белый" or "Branco" or "branco" => 7,
+            "6" or "黑" or "black" or "Black" or "Чёрный" or "Черный" or "чёрный" or "черный" or "Чёрн" or "Черн" or "чёрн" or "черн" or "Preto" or "preto" => 6,
+            "7" or "白" or "white" or "White" or "Белый" or "белый" or "Бел" or "бел" or "Branco" or "branco" => 7,
             "8" or "紫" or "purple" or "Purple" or "Фиол" or "фиол" or "Фиолетовый" or "фиолетовый" or "Roxo" or "roxo" => 8,
             "9" or "棕" or "brown" or "Brown" or "Корич" or "корич" or "Коричневый" or "коричевый" or "Marrom" or "marrom" => 9,
-            "10" or "青" or "cyan" or "Cyan" or "Голуб" or "голуб" or "Голубой" or "голубой" or "Ciano" or "ciano" => 10,
-            "11" or "黄绿" or "黃綠" or "浅绿" or "lime" or "Lime" or "Лайм" or "лайм" or "Лаймовый" or "лаймовый" or "Lima" or "lima" or "Verde-Claro" or "verde-claro" => 11,
-            "12" or "红褐" or "紅褐" or "深红" or "maroon" or "Maroon" or "Борд" or "борд" or "Бордовый" or "бордовый" or "Bordô" or "bordô" or "Vinho" or "vinho" => 12,
+            "10" or "青" or "cyan" or "Cyan" or "Голуб" or "голуб" or "Голубой" or "голубой" or "Циановый" or "циановый" or "Циан" or "циан" or "Ciano" or "ciano" => 10,
+            "11" or "黄绿" or "黃綠" or "浅绿" or "lime" or "Lime" or "Лайм" or "лайм" or "Лаймовый" or "лаймовый" or "Салатовый" or "салатовый" or "Салат" or "салат" or "Lima" or "lima" or "Verde-Claro" or "verde-claro" => 11,
+            "12" or "红褐" or "紅褐" or "深红" or "maroon" or "Maroon" or "Борд" or "борд" or "Бордо" or "бордо" or "Бордовый" or "бордовый" or "Bordô" or "bordô" or "Vinho" or "vinho" => 12,
             "13" or "玫红" or "玫紅" or "浅粉" or "rose" or "Rose" or "Светло роз" or "светло роз" or "Светло розовый" or "светло розовый" or "Сирень" or "сирень" or "Сиреневый" or "сиреневый" or "Rosê" or "rosê" or "rosinha" or "Rosinha" or "Rosa-Claro" or "rosa-claro" => 13,
             "14" or "焦黄" or "焦黃" or "淡黄" or "banana" or "Banana" or "Банан" or "банан" or "Банановый" or "банановый" or "Amarelo-Claro" or "amarelo-claro" => 14,
             "15" or "灰" or "gray" or "Gray" or "Сер" or "сер" or "Серый" or "серый" or "Cinza" or "cinza" => 15,
-            "16" or "茶" or "tan" or "Tan" or "Загар" or "загар" or "Загаровый" or "загаровый" or "bege" or "bege" or "Creme" or "creme" => 16,
+            "16" or "茶" or "tan" or "Tan" or "Загар" or "загар" or "Загаровый" or "загаровый" or "Беж" or "беж" or "Бежевый" or "бежевый" or "bege" or "bege" or "Creme" or "creme" => 16,
             "17" or "珊瑚" or "coral" or "Coral" or "Корал" or "корал" or "Коралл" or "коралл" or "Коралловый" or "коралловый" => 17,
-            "18" or "隐藏" or "?" or "Fortegreen" or "fortegreen" => 18,
+            "18" or "隐藏" or "?" or "Fortegreen" or "fortegreen" or "Фортгрин" or "фортгрин" or "Форт" or "форт" => 18,
             _ => color
         };
 
@@ -1853,7 +1857,7 @@ public static class Utils
 
                     if (titleRpcSizeLimit - 4 < 1)
                     {
-                        Logger.SendInGame(GetString("MessageTooLong"));
+                        Logger.SendInGame(GetString("MessageTooLong"), Color.red);
                         if (!multiple) writer.SendMessage(dispose: true);
                         return writer;
                     }
@@ -1941,7 +1945,7 @@ public static class Utils
 
             if (textRpcSizeLimit < 1 && textRpcSize >= textRpcSizeLimit && !noSplit)
             {
-                Logger.SendInGame(GetString("MessageTooLong"));
+                Logger.SendInGame(GetString("MessageTooLong"), Color.red);
                 if (!multiple) writer.SendMessage(dispose: true);
                 return writer;
             }
@@ -2074,7 +2078,10 @@ public static class Utils
         if (AmongUsClient.Instance.IsGameStarted)
         {
             if (Options.FormatNameMode.GetInt() == 1 && Main.NickName == string.Empty)
-                name = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
+            {
+                string notFormattedName = Palette.GetColorName(player.Data.DefaultOutfit.ColorId);
+                name = char.ToUpper(notFormattedName[0]) + notFormattedName[1..].ToLower();
+            }
         }
         else
         {
@@ -2558,6 +2565,9 @@ public static class Utils
 
             string seerRealName = seer.GetRealName(forMeeting);
 
+            if (seer.Is(CustomRoles.BananaMan))
+                seerRealName = seerRealName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
+
             if (!GameStates.IsLobby)
             {
                 if ((Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool()) || Options.CurrentGameMode == CustomGameMode.HotPotato)
@@ -2756,7 +2766,7 @@ public static class Utils
                                 (target.Is(CustomRoles.Gravestone) && !target.IsAlive()) ||
                                 (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) ||
-                                (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.GetCustomTeam(seer.PlayerId) == null && CustomTeamManager.GetCustomTeam(target.PlayerId) == null) ||
+                                (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.ArentInCustomTeam(seer.PlayerId, target.PlayerId)) ||
                                 (seer.IsMadmate() && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.IsMadmate() && Options.ImpKnowWhosMadmate.GetBool()) ||
                                 (seer.Is(CustomRoles.Crewpostor) && target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) ||
@@ -2801,6 +2811,9 @@ public static class Utils
                                 targetRoleText = string.Empty;
 
                             string targetPlayerName = target.GetRealName(forMeeting);
+
+                            if (target.Is(CustomRoles.BananaMan))
+                                targetPlayerName = targetPlayerName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
 
                             if (GameStates.IsLobby) goto End;
 
@@ -2988,6 +3001,9 @@ public static class Utils
 
     public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null, SendOption sendOption = SendOption.Reliable)
     {
+        if (pc.Is(CustomRoles.BananaMan))
+            newOutfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Banana"));
+        
         if (newOutfit.Compare(pc.Data.DefaultOutfit)) return false;
 
         Camouflage.SetPetForOutfitIfNecessary(newOutfit);
@@ -3161,6 +3177,7 @@ public static class Utils
 
         int cd = role switch
         {
+            CustomRoles.PortalMaker => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
@@ -3239,7 +3256,7 @@ public static class Utils
         if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
         {
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
-            GameEndChecker.Prefix();
+            GameEndChecker.CheckCustomEndCriteria();
         }
 
         AFKDetector.NumAFK = 0;
@@ -3323,7 +3340,8 @@ public static class Utils
         Circumvent.AfterMeetingTasks();
         Deadlined.AfterMeetingTasks();
 
-        if (Options.AirshipVariableElectrical.GetBool()) AirshipElectricalDoors.Initialize();
+        if (Options.AirshipVariableElectrical.GetBool())
+            AirshipElectricalDoors.Initialize();
 
         Main.DontCancelVoteList.Clear();
 
@@ -3331,7 +3349,7 @@ public static class Utils
         RoleBlockManager.Reset();
         PhantomRolePatch.AfterMeeting();
 
-        if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
+        if (Main.CurrentMap == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
 
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
@@ -3468,35 +3486,40 @@ public static class Utils
 
     public static void CountAlivePlayers(bool sendLog = false)
     {
-        int aliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
-
-        if (Main.AliveImpostorCount != aliveImpostorCount)
+        try
         {
-            Logger.Info("Number of living Impostors: " + aliveImpostorCount, "CountAliveImpostors");
-            Main.AliveImpostorCount = aliveImpostorCount;
-            LastImpostor.SetSubRole();
-        }
+            int aliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
 
-        if (sendLog)
-        {
-            StringBuilder sb = new(100);
-
-            if (Options.CurrentGameMode == CustomGameMode.Standard)
+            if (Main.AliveImpostorCount != aliveImpostorCount)
             {
-                foreach (CountTypes countTypes in Enum.GetValues<CountTypes>())
-                {
-                    int playersCount = PlayersCount(countTypes);
-                    if (playersCount == 0) continue;
-
-                    sb.Append($"{countTypes}: {AlivePlayersCount(countTypes)}/{playersCount}, ");
-                }
+                Logger.Info("Number of living Impostors: " + aliveImpostorCount, "CountAliveImpostors");
+                Main.AliveImpostorCount = aliveImpostorCount;
+                LastImpostor.SetSubRole();
             }
 
-            sb.Append($"All: {AllAlivePlayersCount}/{AllPlayersCount}");
-            Logger.Info(sb.ToString(), "CountAlivePlayers");
-        }
+            if (sendLog)
+            {
+                StringBuilder sb = new(100);
 
-        if (AmongUsClient.Instance.AmHost && Main.IntroDestroyed) GameEndChecker.Prefix();
+                if (Options.CurrentGameMode == CustomGameMode.Standard)
+                {
+                    foreach (CountTypes countTypes in Enum.GetValues<CountTypes>())
+                    {
+                        int playersCount = PlayersCount(countTypes);
+                        if (playersCount == 0) continue;
+
+                        sb.Append($"{countTypes}: {AlivePlayersCount(countTypes)}/{playersCount}, ");
+                    }
+                }
+
+                sb.Append($"All: {AllAlivePlayersCount}/{AllPlayersCount}");
+                Logger.Info(sb.ToString(), "CountAlivePlayers");
+            }
+
+            if (AmongUsClient.Instance.AmHost && Main.IntroDestroyed)
+                GameEndChecker.CheckCustomEndCriteria();
+        }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static string GetVoteName(byte num)
@@ -3505,7 +3528,7 @@ public static class Utils
 
         return num switch
         {
-            < 15 when player != null => player.GetNameWithRole().RemoveHtmlTags(),
+            < 128 when player != null => player.GetNameWithRole().RemoveHtmlTags(),
             253 => "Skip",
             254 => "None",
             255 => "Dead",
@@ -3525,22 +3548,37 @@ public static class Utils
 
     public static void DumpLog(bool open = true, bool finish = true)
     {
-        if (finish) CustomLogger.Instance.Finish();
-        
-        var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-        var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
-        if (!Directory.Exists(f)) Directory.CreateDirectory(f);
+        try
+        {
+            if (finish) CustomLogger.Instance.Finish();
 
-        var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
-        FileInfo[] files = [new($"{Environment.CurrentDirectory}/BepInEx/LogOutput.log"), new($"{Environment.CurrentDirectory}/BepInEx/log.html")];
-        files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
+            var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+#if ANDROID
+            var f = $"{Main.DataPath}/EHR_Logs/{t}";
+#else
+            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs/{t}";
+#endif
+            if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-        if (!open) return;
+            var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
+#if ANDROID
+            var directory = Main.DataPath;
+#else
+            string directory = Environment.CurrentDirectory;
+#endif
+            FileInfo[] files = [new($"{directory}/BepInEx/LogOutput.log"), new($"{directory}/BepInEx/log.html")];
+            files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
 
-        if (PlayerControl.LocalPlayer != null)
-            FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+            if (!open) return;
 
-        Process.Start("explorer.exe", f.Replace("/", "\\"));
+            if (PlayerControl.LocalPlayer != null)
+                FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+
+#if !ANDROID
+            Process.Start("explorer.exe", f.Replace("/", "\\"));
+#endif
+        }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static (int Doused, int All) GetDousedPlayerCount(byte playerId)
@@ -4028,35 +4066,10 @@ public static class Utils
         AmongUsClient.Instance.NetIdCnt += 1U;
         var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", sendOption, true, false);
         MessageWriter writer = sender.stream;
-        writer.StartMessage(5);
-        writer.Write(AmongUsClient.Instance.GameId);
+        sender.StartMessage();
         writer.StartMessage(4);
-        writer.WritePacked(playerControl.SpawnId);
-        writer.WritePacked(-2);
-        writer.Write((byte)SpawnFlags.None);
-        InnerNetObject[] componentsInChildren = playerControl.GetComponentsInChildren<InnerNetObject>();
-        writer.WritePacked(componentsInChildren.Length);
-
-        for (var index = 0; index < componentsInChildren.Length; ++index)
-        {
-            InnerNetObject innerNetObject = componentsInChildren[index];
-            innerNetObject.OwnerId = -2;
-            innerNetObject.SpawnFlags = SpawnFlags.None;
-
-            if (innerNetObject.NetId == 0U)
-            {
-                innerNetObject.NetId = AmongUsClient.Instance.NetIdCnt++;
-                InnerNetObjectCollection allObjects = AmongUsClient.Instance.allObjects;
-                allObjects.allObjects.Add(innerNetObject);
-                allObjects.allObjectsFast.Add(innerNetObject.NetId, innerNetObject);
-            }
-
-            writer.WritePacked(innerNetObject.NetId);
-            writer.StartMessage(1);
-            innerNetObject.Serialize(writer, true);
-            writer.EndMessage();
-        }
-
+        SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
+        item.SerializeValues(writer);
         writer.EndMessage();
 
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
@@ -4077,6 +4090,7 @@ public static class Utils
 
         if (PlayerControl.AllPlayerControls.Contains(playerControl))
             PlayerControl.AllPlayerControls.Remove(playerControl);
+
         int baseColorId = playerControl.Data.DefaultOutfit.ColorId;
         sender.StartRpc(playerControl.NetId, RpcCalls.SetColor)
             .Write(playerControl.Data.NetId)

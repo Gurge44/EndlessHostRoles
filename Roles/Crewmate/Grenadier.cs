@@ -62,7 +62,7 @@ internal class Grenadier : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = GrenadierSkillCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.3f;
     }
 
     public override string GetProgressText(byte playerId, bool comms)

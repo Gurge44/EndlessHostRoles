@@ -21,6 +21,7 @@ public class Amnesiac : RoleBase
     public static OptionItem CanVent;
     private static OptionItem VentCooldown;
     private static OptionItem VentDuration;
+    private static OptionItem ReportBodyAfterRemember;
 
     private static readonly CustomRoles[] AmnesiacIncompatibleNeutralMode =
     [
@@ -69,6 +70,9 @@ public class Amnesiac : RoleBase
         VentDuration = new FloatOptionItem(Id + 15, "MaxInVentTime", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(CanVent)
             .SetValueFormat(OptionFormat.Seconds);
+
+        ReportBodyAfterRemember = new BooleanOptionItem(Id + 16, "ReportBodyAfterRemember", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
     }
 
     public override void Init()
@@ -123,7 +127,7 @@ public class Amnesiac : RoleBase
         if (RememberMode.GetValue() == 0)
         {
             RememberRole(reporter, target.Object);
-            return false;
+            return ReportBodyAfterRemember.GetBool();
         }
 
         return true;

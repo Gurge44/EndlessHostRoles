@@ -148,7 +148,7 @@ public static class MainMenuManagerPatch
                 "DiscordButton",
                 new(-0.5f, -1.3f, 1f),
                 new(88, 101, 242, byte.MaxValue),
-                new(148, 161, byte.MaxValue, byte.MaxValue),
+                new(148, 161, 255, byte.MaxValue),
                 () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
                 Translator.GetString("Discord")); //"Discord"
         }
@@ -163,7 +163,7 @@ public static class MainMenuManagerPatch
                 new(1.3f, -1.3f, 1f),
                 new(251, 81, 44, byte.MaxValue),
                 new(211, 77, 48, byte.MaxValue),
-                () => Application.OpenURL("https://sites.google.com/view/ehr-au"),
+                () => Application.OpenURL("https://gurge44.pythonanywhere.com"),
                 Translator.GetString("Website")); //"Website"
         }
 

@@ -7,7 +7,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+#if !ANDROID
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+#endif
 
 namespace EHR;
 
@@ -79,14 +81,14 @@ public static class Translator
         catch (Exception ex) { Logger.Error($"Error: {ex}", "Translator"); }
 
         // Loading custom translation files
-        if (!Directory.Exists(LanguageFolderName)) Directory.CreateDirectory(LanguageFolderName);
+        if (!Directory.Exists($"{Main.DataPath}/{LanguageFolderName}")) Directory.CreateDirectory($"{Main.DataPath}/{LanguageFolderName}");
 
         // Creating a translation template
         CreateTemplateFile();
 
         foreach (SupportedLangs lang in Enum.GetValues<SupportedLangs>())
         {
-            if (File.Exists($"./{LanguageFolderName}/{lang}.dat"))
+            if (File.Exists($"{Main.DataPath}/{LanguageFolderName}/{lang}.dat"))
             {
                 UpdateCustomTranslation($"{lang}.dat" /*, lang*/);
                 LoadCustomTranslation($"{lang}.dat", lang);
@@ -120,6 +122,9 @@ public static class Translator
 
     public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
     {
+        if (SubmergedCompatibility.IsSubmerged() && int.TryParse(s, out int roomNumber) && roomNumber is >= 128 and <= 135)
+            s = $"SubmergedRoomName.{roomNumber}";
+        
         SupportedLangs langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
         if (console) langId = SupportedLangs.English;
 
@@ -167,8 +172,9 @@ public static class Translator
     {
 #if ANDROID
         return TranslationController.Instance.GetString(stringName);
-#endif
+#else
         return FastDestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
+#endif
     }
 
     public static string GetRoleString(string str, bool forUser = true)
@@ -196,7 +202,7 @@ public static class Translator
 
     private static void UpdateCustomTranslation(string filename /*, SupportedLangs lang*/)
     {
-        var path = $"./{LanguageFolderName}/{filename}";
+        var path = $"{Main.DataPath}/{LanguageFolderName}/{filename}";
 
         if (File.Exists(path))
         {
@@ -241,7 +247,7 @@ public static class Translator
 
     private static void LoadCustomTranslation(string filename, SupportedLangs lang)
     {
-        var path = $"./{LanguageFolderName}/{filename}";
+        var path = $"{Main.DataPath}/{LanguageFolderName}/{filename}";
 
         if (File.Exists(path))
         {
@@ -274,7 +280,7 @@ public static class Translator
         var sb = new StringBuilder();
         foreach (KeyValuePair<string, Dictionary<int, string>> title in TranslateMaps) sb.Append($"{title.Key}:\n");
 
-        File.WriteAllText($"./{LanguageFolderName}/template.dat", sb.ToString());
+        File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/template.dat", sb.ToString());
     }
 
     public static void ExportCustomTranslation()
@@ -289,6 +295,6 @@ public static class Translator
             sb.Append($"{title.Key}:{text.Replace("\n", "\\n").Replace("\r", "\\r")}\n");
         }
 
-        File.WriteAllText($"./{LanguageFolderName}/export_{lang}.dat", sb.ToString());
+        File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/export_{lang}.dat", sb.ToString());
     }
 }

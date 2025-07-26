@@ -24,7 +24,7 @@ internal static class HotPotato
     private static long LastPassTS;
 
     public static bool CanPassViaKillButton => HolderCanPassViaKillButton.GetBool();
-
+    public static int TimeBetweenPasses => Time.GetInt();
     public static (byte HolderID, byte LastHolderID) GetState()
     {
         return (HotPotatoState.HolderID, HotPotatoState.LastHolderID);
@@ -140,7 +140,7 @@ internal static class HotPotato
             {
                 HotPotatoState.TimeLeft--;
                 LastFixedUpdate = now;
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(SendOption: SendOption.None);
             }
 
             if (HotPotatoState.TimeLeft <= 0)

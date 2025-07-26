@@ -195,11 +195,6 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("JesterVent");
                     break;
                 }
-                case CustomRoles.Mario:
-                {
-                    newAbilityButton = CustomButton.Get("Happy");
-                    break;
-                }
                 case CustomRoles.Transporter:
                 case CustomRoles.Swapster:
                 {

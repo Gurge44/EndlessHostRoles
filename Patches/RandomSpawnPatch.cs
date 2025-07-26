@@ -32,7 +32,7 @@ internal abstract class RandomSpawn
 
             if (!__instance.isActiveAndEnabled) return false;
 
-            if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+            if ((RpcCalls)callId == RpcCalls.SnapTo && Main.CurrentMap == MapNames.Airship)
             {
                 PlayerControl player = __instance.myPlayer;
 
@@ -114,6 +114,7 @@ internal abstract class RandomSpawn
                 MapNames.Dleks => new DleksSpawnMap(),
                 MapNames.Airship => new AirshipSpawnMap(),
                 MapNames.Fungle => new FungleSpawnMap(),
+                (MapNames)6 => new SubmergedSpawnMap(),
                 _ => throw new ArgumentOutOfRangeException(nameof(Main.CurrentMap), Main.CurrentMap, "Invalid map")
             };
         }
@@ -273,6 +274,36 @@ internal abstract class RandomSpawn
             [SystemTypes.MiningPit] = new(12.6f, 9.8f),
             [SystemTypes.UpperEngine] = new(22.4f, 3.4f),
             [SystemTypes.Comms] = new(22.2f, 13.7f)
+        };
+
+        public override Dictionary<SystemTypes, Vector2> Positions => positions;
+
+        protected override KeyValuePair<SystemTypes, Vector2> GetLocation()
+        {
+            return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
+        }
+    }
+
+    public class SubmergedSpawnMap : SpawnMap
+    {
+        public readonly Dictionary<SystemTypes, Vector2> positions = new()
+        {
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Filtration] = new(8.51f, -21.13f),
+            [SystemTypes.Electrical] = new(10.8f, -27.15f),
+            [SystemTypes.Storage] = new(2.55f, -34.73f),
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerLobby] = new(6.53f, -39.44f),
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast] = new(-8.26f, -39.84f),
+            [SystemTypes.Security] = new(-4.23f, -33.38f),
+            [SystemTypes.Engine] = new(-12.58f, -27.83f),
+            [SystemTypes.Admin] = new(-9.96f, 10.95f),
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Observatory] = new(-12.39f, 17.78f),
+            [SystemTypes.Lounge] = new(-6.43f, 14.11f),
+            [SystemTypes.MeetingRoom] = new(-1.85f, 12.32f),
+            [SystemTypes.Cafeteria] = new(-8.57f, 25.47f),
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Research] = new(0.96f, 29.84f),
+            [SystemTypes.Medical] = new(6.17f, 31.38f),
+            [SystemTypes.Comms] = new(11.03f, 23.53f),
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperLobby] = new(7.72f, 8.66f)
         };
 
         public override Dictionary<SystemTypes, Vector2> Positions => positions;

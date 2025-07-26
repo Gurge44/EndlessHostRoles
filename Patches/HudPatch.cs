@@ -184,8 +184,6 @@ internal static class HudManagerPatch
             // The following will not be executed unless the game is in progress
             if (!AmongUsClient.Instance.IsGameStarted) return;
 
-            Utils.CountAlivePlayers();
-
             bool shapeshifting = player.IsShifted();
 
             if (SetHudActivePatch.IsActive)
@@ -349,8 +347,7 @@ internal static class HudManagerPatch
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
                         __instance.AbilityButton.SetEnabled();
 
-                    if ((player.inVent || player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && !state.Role.CanUseSabotage(player))
-                        __instance.SabotageButton.ToggleVisible(false);
+                    __instance.SabotageButton.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
                 }
                 else
                 {
@@ -618,7 +615,7 @@ internal static class SetHudActivePatch
 
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
-        __instance.SabotageButton?.ToggleVisible(player.CanUseSabotage());
+        __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
     }
 }
 
@@ -669,6 +666,8 @@ internal static class SabotageMapPatch
 
     public static void Postfix(InfectedOverlay __instance)
     {
+        if (SubmergedCompatibility.IsSubmerged()) return;
+        
         float perc = __instance.sabSystem.PercentCool;
         int total = __instance.sabSystem.initialCooldown ? 10 : 30;
         if (SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled) total = (int)SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec;
@@ -711,7 +710,7 @@ internal static class MapRoomDoorsUpdatePatch
 
     public static bool Prefix(MapRoom __instance)
     {
-        if (!__instance.door || !ShipStatus.Instance) return false;
+        if (!__instance.door || !ShipStatus.Instance || SubmergedCompatibility.IsSubmerged()) return false;
 
         SystemTypes room = __instance.room;
 
@@ -827,15 +826,15 @@ internal static class TaskPanelBehaviourPatch
             {
                 string[] splitted = roleInfo.Split(' ');
 
-                roleWithInfo = splitted.Length <= 3
+                roleWithInfo = $"{GetString($"{Options.CurrentGameMode}")}\r\n" + (splitted.Length <= 3
                     ? $"<size=60%>{roleInfo}</size>\r\n"
-                    : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
+                    : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n");
             }
             else if (roleInfo.RemoveHtmlTags().Length > 35)
             {
                 string[] split = roleInfo.Split(' ');
                 int half = split.Length / 2;
-                roleWithInfo = $"{GetString($"{Options.CurrentGameMode}")}\r\n<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
+                roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
             }
 
             string finalText = Utils.ColorString(player.GetRoleColor(), roleWithInfo);
@@ -960,7 +959,7 @@ internal static class TaskPanelBehaviourPatch
                     else
                     {
                         finalText += Main.AllPlayerControls
-                            .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.Parse(RoomRush.GetPoints(x.PlayerId).Split('/')[0])))
+                            .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.TryParse(RoomRush.GetPoints(x.PlayerId).Split('/')[0], out int points) ? points : 0))
                             .OrderByDescending(x => x.points_int)
                             .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {x.points_string}");
                     }

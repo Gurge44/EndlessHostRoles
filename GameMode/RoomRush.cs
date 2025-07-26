@@ -103,6 +103,14 @@ public static class RoomRush
             [(SystemTypes.MiningPit, SystemTypes.Storage)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.Dropship)] = 2,
             [(SystemTypes.MiningPit, SystemTypes.Comms)] = 2
+        },
+        [(MapNames)6] = new()
+        {
+            [(SystemTypes.Admin, SystemTypes.MeetingRoom)] = 2,
+            [(SystemTypes.Admin, SystemTypes.Lounge)] = 2,
+            [(SystemTypes.Comms, SystemTypes.Medical)] = 2,
+            [((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Research, SystemTypes.Medical)] = 3,
+            [((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast, SystemTypes.Security)] = 2
         }
     };
 
@@ -188,6 +196,7 @@ public static class RoomRush
         AllRooms.Remove(SystemTypes.Outside);
         AllRooms.Remove(SystemTypes.Ventilation);
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
+        if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
         DonePlayers = [];
         Points = [];
@@ -313,6 +322,7 @@ public static class RoomRush
                 MapNames.Polus => SystemTypes.Dropship,
                 MapNames.Airship => SystemTypes.MainHall,
                 MapNames.Fungle => SystemTypes.Dropship,
+                (MapNames)6 => (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral,
                 _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
             };
 
@@ -330,6 +340,7 @@ public static class RoomRush
         {
             MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
             MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
+            (MapNames)6 => (previous == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast) ^ (RoomGoal == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast),
             _ => false
         };
 
@@ -341,7 +352,8 @@ public static class RoomRush
                     : Options.DecontaminationTimeOnMiraHQ.GetInt() + Options.DecontaminationDoorOpenTimeOnMiraHQ.GetInt()
                 : 6;
 
-            time += decontaminationTime + 3;
+            if (SubmergedCompatibility.IsSubmerged()) decontaminationTime = 3;
+            time += decontaminationTime;
         }
 
         switch (map)
@@ -363,7 +375,7 @@ public static class RoomRush
                 break;
         }
 
-        var maxTime = (int)Math.Ceiling(32 / speed);
+        var maxTime = (int)Math.Ceiling((map is MapNames.Skeld or MapNames.Dleks ? 25 : 32) / speed);
         time = Math.Clamp((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6, maxTime);
         TimeLimitEndTS = Utils.TimeStamp + time;
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {time}  ({map})", "RoomRush");
@@ -555,20 +567,17 @@ public static class RoomRush
             Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
             PlayerControl[] lateAapc = Main.AllAlivePlayerControls;
             PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
+            bool everyoneDies = playersOutsideRoom.Length == lateAapc.Length;
 
             if (WinByPointsInsteadOfDeaths.GetBool())
             {
-                if (playersOutsideRoom.Length == lateAapc.Length)
-                {
-                    Vector2 roomPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
-                    playersOutsideRoom.Do(x => x.TP(roomPos));
-                }
-                else playersOutsideRoom.Do(x => x.TP(DonePlayers.RandomElement().GetPlayer()));
+                Vector2 location = everyoneDies ? Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position) : DonePlayers.RandomElement().GetPlayer().Pos();
+                playersOutsideRoom.MassTP(location);
             }
             else
             {
-                if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                 playersOutsideRoom.Do(x => x.Suicide());
+                if (everyoneDies) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
             }
 
             StartNewRound();

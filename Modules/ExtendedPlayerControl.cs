@@ -261,6 +261,43 @@ internal static class ExtendedPlayerControl
         if (init) Main.PlayerStates[player.PlayerId].InitTask(player);
     }
 
+    public static readonly HashSet<byte> TempExiled = [];
+
+    public static void ExileTemporarily(this PlayerControl pc)
+    {
+        if (!TempExiled.Add(pc.PlayerId)) return;
+        
+        pc.Exiled();
+        Main.PlayerStates[pc.PlayerId].SetDead();
+
+        CustomRpcSender.Create("Temporary Death", SendOption.Reliable)
+            .AutoStartRpc(pc.NetId, RpcCalls.Exiled)
+            .EndRpc()
+            .SendMessage();
+
+        pc.SyncSettings();
+
+        if (!pc.AmOwner)
+        {
+            var sender = CustomRpcSender.Create("Temporary Death (2)", SendOption.Reliable);
+            sender.StartMessage(pc.OwnerId);
+            sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                .Write((ushort)RoleTypes.GuardianAngel)
+                .Write(true)
+                .EndRpc();
+            sender.StartRpc(pc.NetId, RpcCalls.ProtectPlayer)
+                .WriteNetObject(pc)
+                .Write(0)
+                .EndRpc();
+            sender.SendMessage();
+        }
+        else
+        {
+            pc.SetRole(RoleTypes.GuardianAngel);
+            pc.Data.Role.SetCooldown();
+        }
+    }
+
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)
     {
         if (player == null) return;
@@ -308,6 +345,7 @@ internal static class ExtendedPlayerControl
             return;
         }
 
+        TempExiled.Remove(player.PlayerId);
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
@@ -619,6 +657,7 @@ internal static class ExtendedPlayerControl
             MapNames.Skeld or MapNames.Dleks when room != null => true,
             MapNames.Polus when overlapPointNonAlloc >= 1 => true,
             MapNames.Polus when pos.y is >= -26.11f and <= -6.41f && pos.x is >= 3.56f and <= 32.68f => true,
+            (MapNames)6 => true,
             _ => false
         };
     }
@@ -629,7 +668,7 @@ internal static class ExtendedPlayerControl
 
         // Kill flash (blackout + reactor flash) processing
 
-        SystemTypes systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        SystemTypes systemtypes = Main.CurrentMap switch
         {
             MapNames.Polus => SystemTypes.Laboratory,
             MapNames.Airship => SystemTypes.HeliSabotage,
@@ -1117,7 +1156,7 @@ internal static class ExtendedPlayerControl
 
         Logger.Info($"Reactor Flash for {pc.GetNameWithRole()}", "ReactorFlash");
 
-        SystemTypes systemtypes = (MapNames)Main.NormalOptions.MapId switch
+        SystemTypes systemtypes = Main.CurrentMap switch
         {
             MapNames.Polus => SystemTypes.Laboratory,
             MapNames.Airship => SystemTypes.HeliSabotage,
@@ -1679,6 +1718,13 @@ internal static class ExtendedPlayerControl
         Vector2 pos = pc.Pos();
 
         return (pos, roomName);
+    }
+
+    public static void MassTP(this IEnumerable<PlayerControl> players, Vector2 location, bool noCheckState = false, bool log = true)
+    {
+        var sender = CustomRpcSender.Create("Mass TP", SendOption.Reliable);
+        bool hasValue = players.Aggregate(false, (current, pc) => current | sender.TP(pc, location, noCheckState, log));
+        sender.SendMessage(!hasValue);
     }
 
     public static bool TP(this PlayerControl pc, PlayerControl target, bool noCheckState = false, bool log = true)

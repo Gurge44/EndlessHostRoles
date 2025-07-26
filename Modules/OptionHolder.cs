@@ -57,7 +57,8 @@ public static class Options
         UseGameLanguage,
         Hungarian,
         Polish,
-        Indonesian
+        Indonesian,
+        Persian
     }
 
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
@@ -219,6 +220,7 @@ public static class Options
     public static OptionItem DisableWhisperCommand;
     public static OptionItem DisableSpectateCommand;
     public static OptionItem Disable8ballCommand;
+    public static OptionItem DisableVoteStartCommand;
 
     public static OptionItem DisableReactorOnSkeldAndMira;
     public static OptionItem DisableReactorOnPolus;
@@ -250,6 +252,8 @@ public static class Options
     public static OptionItem ShowTeamNextToRoleNameOnEject;
     public static OptionItem CheatResponses;
     public static OptionItem EnableMovementChecking;
+    public static OptionItem EnableEHRRateLimit;
+    public static OptionItem KickOnInvalidRPC;
     public static OptionItem LowLoadMode;
     public static OptionItem DeepLowLoad;
     public static OptionItem DisableVoteBan;
@@ -258,6 +262,7 @@ public static class Options
     public static OptionItem MaxNNKs;
 
     public static OptionItem CovenReceiveNecronomiconAfterNumMeetings;
+    public static OptionItem CovenLeaderSpawns;
     public static OptionItem CovenLeaderKillCooldown;
 
     public static OptionItem ConfirmEgoistOnEject;
@@ -337,6 +342,7 @@ public static class Options
     public static OptionItem ReportBaitAtAllCost;
 
     public static OptionItem GuesserDoesntDieOnMisguess;
+    public static OptionItem CanGuessDuringDiscussionTime;
 
     public static OptionItem GuesserMaxKillsPerMeeting;
     public static OptionItem GuesserMaxKillsPerGame;
@@ -749,6 +755,7 @@ public static class Options
     public static OptionItem ApplyBanList;
     public static OptionItem ApplyModeratorList;
     public static OptionItem ApplyVIPList;
+    public static OptionItem ApplyAdminList;
     public static OptionItem AutoWarnStopWords;
 
     public static OptionItem DIYGameSettings;
@@ -1005,7 +1012,8 @@ public static class Options
                     Command.UsageLevels.Everyone => ":purple_circle: Everyone",
                     Command.UsageLevels.Modded => ":green_circle: Modded Clients",
                     Command.UsageLevels.Host => ":yellow_circle: Host",
-                    Command.UsageLevels.HostOrModerator => ":red_circle: Host And Moderators",
+                    Command.UsageLevels.HostOrModerator => ":red_circle: Host, Moderators, And Admins",
+                    Command.UsageLevels.HostOrAdmin => ":white_circle: Host And Admins",
                     _ => string.Empty
                 };
 
@@ -1278,7 +1286,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
 
+        CovenLeaderSpawns = new BooleanOptionItem(650002, "CovenLeader", true, TabGroup.CovenRoles)
+            .SetGameMode(CustomGameMode.Standard);
+
         CovenLeaderKillCooldown = new FloatOptionItem(650000, "CovenLeaderKillCooldown", new(0f, 120f, 0.5f), 30f, TabGroup.CovenRoles)
+            .SetParent(CovenLeaderSpawns)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -1528,6 +1540,7 @@ public static class Options
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
         ApplyModeratorList = new BooleanOptionItem(19305, "ApplyModeratorList", true, TabGroup.SystemSettings);
         ApplyVIPList = new BooleanOptionItem(19306, "ApplyVIPList", true, TabGroup.SystemSettings);
+        ApplyAdminList = new BooleanOptionItem(19330, "ApplyAdminList", true, TabGroup.SystemSettings);
 
         LoadingPercentage = 61;
 
@@ -1604,6 +1617,12 @@ public static class Options
             .SetHeader(true);
 
         EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        EnableEHRRateLimit = new BooleanOptionItem(19318, "EnableEHRRateLimit", true, TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        KickOnInvalidRPC = new BooleanOptionItem(19319, "KickOnInvalidRPC", true, TabGroup.SystemSettings)
             .SetHeader(true);
 
 
@@ -2166,6 +2185,9 @@ public static class Options
         Disable8ballCommand = new BooleanOptionItem(22813, "Disable8ballCommand", false, TabGroup.GameSettings)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
+        DisableVoteStartCommand = new BooleanOptionItem(22814, "DisableVoteStartCommand", false, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
         LoadingPercentage = 75;
 
         DisableDevices = new BooleanOptionItem(22900, "DisableDevices", false, TabGroup.GameSettings)
@@ -2656,6 +2678,9 @@ public static class Options
             .SetColor(Color.green);
 
         GuesserDoesntDieOnMisguess = new BooleanOptionItem(19718, "GuesserDoesntDieOnMisguess", false, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard);
+
+        CanGuessDuringDiscussionTime = new BooleanOptionItem(19799, "CanGuessDuringDiscussionTime", true, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 92;

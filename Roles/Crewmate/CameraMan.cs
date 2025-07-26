@@ -59,6 +59,7 @@ public class CameraMan : RoleBase
             MapNames.Dleks => new(-13.5f, -5.5f),
             MapNames.Airship => new(5.8f, -10.8f),
             MapNames.Fungle => new(9.5f, 1.2f),
+            (MapNames)6 => new(-4.23f, -33.38f),
             _ => throw new NotImplementedException()
         };
     }
@@ -78,7 +79,7 @@ public class CameraMan : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.3f;
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

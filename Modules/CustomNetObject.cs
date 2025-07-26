@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.InnerNet.GameDataMessages;
 using EHR;
 using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -18,7 +20,7 @@ namespace EHR
 {
     public class CustomNetObject
     {
-        public static List<CustomNetObject> AllObjects = [];
+        public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
 
         private static List<CustomNetObject> TempDespawnedObjects = [];
@@ -43,7 +45,7 @@ namespace EHR
                 string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
                 string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
                 string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-                var sender = CustomRpcSender.Create("SetFakeData", this is BedWarsItemGenerator ? SendOption.None : SendOption.Reliable, log: false);
+                var sender = CustomRpcSender.Create("CustomNetObject.RpcChangeSprite", this is BedWarsItemGenerator ? SendOption.None : SendOption.Reliable, log: false);
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
@@ -173,61 +175,29 @@ namespace EHR
             msg.StartMessage(5);
             msg.Write(AmongUsClient.Instance.GameId);
             msg.StartMessage(4);
-            msg.WritePacked(playerControl.SpawnId);
-            msg.WritePacked(-2);
-            msg.Write((byte)SpawnFlags.None);
-            InnerNetObject[] componentsInChildren = playerControl.GetComponentsInChildren<InnerNetObject>();
-            msg.WritePacked(componentsInChildren.Length);
-
-            for (int index = 0; index < componentsInChildren.Length; ++index)
-            {
-                InnerNetObject innerNetObject = componentsInChildren[index];
-                innerNetObject.OwnerId = -2;
-                innerNetObject.SpawnFlags = SpawnFlags.None;
-
-                if (innerNetObject.NetId == 0U)
-                {
-                    innerNetObject.NetId = AmongUsClient.Instance.NetIdCnt++;
-                    InnerNetObjectCollection allObjects = AmongUsClient.Instance.allObjects;
-                    allObjects.allObjects.Add(innerNetObject);
-                    allObjects.allObjectsFast.Add(innerNetObject.NetId, innerNetObject);
-                }
-
-                msg.WritePacked(innerNetObject.NetId);
-                msg.StartMessage(1);
-                innerNetObject.Serialize(msg, true);
-                msg.EndMessage();
-            }
-
+            SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
+            item.SerializeValues(msg);
             msg.EndMessage();
-            msg.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(msg);
-            msg.Recycle();
 
             if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             {
-                MessageWriter msg2 = MessageWriter.Get(SendOption.Reliable);
-                msg2.StartMessage(6);
-                msg2.Write(AmongUsClient.Instance.GameId);
-                msg2.WritePacked(int.MaxValue);
-
                 for (uint i = 1; i <= 3; ++i)
                 {
-                    msg2.StartMessage(4);
-                    msg2.WritePacked(2U);
-                    msg2.WritePacked(-2);
-                    msg2.Write((byte)SpawnFlags.None);
-                    msg2.WritePacked(1);
-                    msg2.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
-                    msg2.StartMessage(1);
-                    msg2.EndMessage();
-                    msg2.EndMessage();
+                    msg.StartMessage(4);
+                    msg.WritePacked(2U);
+                    msg.WritePacked(-2);
+                    msg.Write((byte)SpawnFlags.None);
+                    msg.WritePacked(1);
+                    msg.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
+                    msg.StartMessage(1);
+                    msg.EndMessage();
+                    msg.EndMessage();
                 }
-
-                msg2.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(msg2);
-                msg2.Recycle();
             }
+
+            msg.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(msg);
+            msg.Recycle();
 
             if (PlayerControl.AllPlayerControls.Contains(playerControl))
                 PlayerControl.AllPlayerControls.Remove(playerControl);
@@ -249,7 +219,7 @@ namespace EHR
                 string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
                 string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
                 string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-                var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable, log: false);
+                var sender = CustomRpcSender.Create("CustomNetObject.CreateNetObject", SendOption.Reliable, log: false);
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
@@ -301,7 +271,7 @@ namespace EHR
 
                 LateTask.New(() =>
                 {
-                    var sender = CustomRpcSender.Create("SetFakeData", SendOption.Reliable, log: false);
+                    var sender = CustomRpcSender.Create("CustomNetObject.CreateNetObject (2)", SendOption.Reliable, log: false);
                     MessageWriter writer = sender.stream;
                     sender.StartMessage(pc.OwnerId);
                     writer.StartMessage(1);
@@ -357,7 +327,8 @@ namespace EHR
         {
             if (!(Options.IntegrateNaturalDisasters.GetBool() && Options.CurrentGameMode != CustomGameMode.NaturalDisasters))
                 TempDespawnedObjects = AllObjects.ToList();
-            
+
+            if (Abyssbringer.ShouldDespawnCNOOnMeeting) TempDespawnedObjects.RemoveAll(x => x is BlackHole);
             Reset();
         }
 
@@ -655,6 +626,14 @@ namespace EHR
                 BedWars.OnTNTExplode(Location);
                 Despawn();
             }
+        }
+    }
+
+    internal sealed class Portal : CustomNetObject
+    {
+        public Portal(Vector2 position)
+        {
+            CreateNetObject("<size=70%><line-height=67%><alpha=#00>█<#2b006b>█<#2b006b>█<#2b006b>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#fa69ff>█<#fa69ff>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#fa69ff>█<#fa69ff>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#fa69ff>█<#fa69ff>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#fa69ff>█<#fa69ff>█<#2b006b>█<alpha=#00>█<br><alpha=#00>█<#2b006b>█<#2b006b>█<#2b006b>█<#2b006b>█<alpha=#00>█<br></line-height></size>", position);
         }
     }
 }

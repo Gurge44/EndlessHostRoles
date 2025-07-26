@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -69,6 +68,13 @@ public static class KingOfTheZones
             [SystemTypes.Cafeteria, SystemTypes.Reactor],
             [SystemTypes.FishingDock, SystemTypes.Comms, SystemTypes.Reactor],
             [SystemTypes.FishingDock, SystemTypes.Dropship, SystemTypes.Comms, SystemTypes.Reactor]
+        ],
+        [(MapNames)6] =
+        [
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral],
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral],
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Research, SystemTypes.Admin, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperLobby],
+            [(SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast, SystemTypes.Cafeteria]
         ]
     };
 
@@ -95,6 +101,8 @@ public static class KingOfTheZones
     }
 
     public static int KCD => TagCooldown.GetInt();
+    public static int MaxGameTime => GameEndsByTimeLimit.GetBool() ? MaxGameLength.GetInt() : int.MaxValue;
+    public static int MaxGameTimeByPoints => GameEndsByPoints.GetBool() ? PointsToWin.GetInt() * 2 : MaxGameTime;
 
     public static void SetupCustomOption()
     {
@@ -235,6 +243,7 @@ public static class KingOfTheZones
         AllRooms.Remove(SystemTypes.Outside);
         AllRooms.Remove(SystemTypes.Ventilation);
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
+        if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
         Zones = DefaultZones[Main.CurrentMap][NumZones.GetInt() - 1];
 
@@ -496,9 +505,7 @@ public static class KingOfTheZones
         target.SetKillCooldown(GetKillCooldown(target));
 
         RespawnTimes[target.PlayerId] = Utils.TimeStamp + RespawnTime.GetInt() + 1;
-        Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
-        target.MarkDirtySettings();
-        target.TP(Pelican.GetBlackRoomPS());
+        target.ExileTemporarily();
     }
 
     private static float GetKillCooldown(PlayerControl player)
@@ -583,7 +590,7 @@ public static class KingOfTheZones
 
         if (!Main.IntroDestroyed) return false;
 
-        switch (aapc.Length)
+        switch (aapc.Length + ExtendedPlayerControl.TempExiled.Count)
         {
             case 0:
             {
@@ -780,10 +787,9 @@ public static class KingOfTheZones
                             PlayerControl player = id.GetPlayer();
                             if (player == null) continue;
 
-                            Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                            player.RpcRevive();
                             player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
                             player.SetKillCooldown(GetKillCooldown(player));
-                            player.MarkDirtySettings();
                             RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
 
                             int spawnProtectionTime = SpawnProtectionTime.GetInt();

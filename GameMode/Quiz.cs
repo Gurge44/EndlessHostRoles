@@ -2,9 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -69,6 +69,14 @@ public static class Quiz
             ['C'] = SystemTypes.Storage,
             ['D'] = SystemTypes.MeetingRoom,
             ['E'] = SystemTypes.Kitchen
+        },
+        [(MapNames)6] = new()
+        {
+            ['A'] = (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Observatory,
+            ['B'] = SystemTypes.Cafeteria,
+            ['C'] = (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral,
+            ['D'] = SystemTypes.Lounge,
+            ['E'] = SystemTypes.Admin
         }
     };
 
@@ -162,6 +170,8 @@ public static class Quiz
 
         if (FFAEndTS == 0)
         {
+            int numPlayers = Main.AllAlivePlayerControls.Length;
+            
             if (QuestionTimeLimitEndTS != 0)
             {
                 string answers = string.Empty;
@@ -190,7 +200,8 @@ public static class Quiz
                     if (index != -1) question = question.Insert(index + 1, "\n");
                 }
 
-                return $"<#ffff44>{question}</color>\n{answers}<#CF2472>{QuestionTimeLimitEndTS - Utils.TimeStamp}</color>";
+                string invis = numPlayers <= 3 && CurrentDifficulty > Difficulty.Test ? $"\n<#888888>{GetString("Quiz.Suffix.Invisible")}</color>" : string.Empty;
+                return $"<#ffff44>{question}</color>\n{answers}<#CF2472>{QuestionTimeLimitEndTS - Utils.TimeStamp}</color>{invis}";
             }
 
             string correctAnswer = CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex];
@@ -199,7 +210,6 @@ public static class Quiz
             string color = DyingPlayers.Contains(seer.PlayerId) ? "#FF0000" : "#00FF00";
             string str = string.Format(GetString("Quiz.Notify.CorrectAnswer"), color, correctAnswerLetter, correctAnswer, correctRoom);
 
-            int numPlayers = Main.AllAlivePlayerControls.Length;
             if (DyingPlayers.Count == numPlayers) str += "\n" + GetString(numPlayers <= 3 ? "Quiz.Notify.AllWrongShort" : "Quiz.Notify.AllWrong");
 
             if (CurrentDifficulty > Difficulty.Test && Settings[CurrentDifficulty].QuestionsAsked.GetInt() <= QuestionsAsked)
@@ -348,6 +358,11 @@ public static class Quiz
         if (Main.CurrentMap is MapNames.Skeld or MapNames.Dleks) time -= 3;
         QuestionTimeLimitEndTS = Utils.TimeStamp + time;
 
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+        if (aapc.Length is 3 or 2 && CurrentDifficulty > Difficulty.Test)
+            aapc.Do(x => x.RpcMakeInvisible());
+
         Logger.Info($"New question: {CurrentQuestion.Question} | {string.Join(", ", CurrentQuestion.Answers)} | {CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]}", "Quiz");
         Logger.Info($"Time limit: {time}", "Quiz");
     }
@@ -439,7 +454,7 @@ public static class Quiz
         Logger.Info($"Number of correct answers for everyone currently: {string.Join(", ", NumCorrectAnswers.Select(x => $"{Main.AllPlayerNames.GetValueOrDefault(x.Key, string.Empty)}: {x.Value[CurrentDifficulty][Round]}"))}", "Quiz");
 
         if (everyoneWasWrong) QuestionsAsked--;
-        else Utils.NotifyRoles();
+        Utils.NotifyRoles();
 
         yield return new WaitForSeconds(everyoneWasWrong ? aapc.Length <= 3 ? 4f : 6f : 3f);
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
@@ -468,27 +483,22 @@ public static class Quiz
                 yield break;
             case 1:
                 var pc = dyingPlayers[0].GetPlayer();
-                if (pc != null) pc.Suicide();
+                if (pc == null) goto case 0;
+                pc.RpcMakeVisible();
+                pc.Suicide();
                 goto case 0;
             case var x when x == aapc.Length:
                 Round--;
                 NumCorrectAnswers.Values.Do(d => d[CurrentDifficulty][Round] = 0);
                 goto case 0;
             default:
+                if (aapc.Length is 3 or 2) aapc.Do(x => x.RpcMakeVisible());
                 yield return new WaitForSeconds(2f);
                 AllowKills = true;
                 FFAEndTS = Utils.TimeStamp + FFAEventLength.GetInt();
                 var spectators = aapc.ExceptBy(dyingPlayers, x => x.PlayerId).ToArray();
-
-                foreach (PlayerControl spectator in spectators)
-                {
-                    spectator.RpcExileV2();
-                    spectator.RpcSetRoleDesync(RoleTypes.GuardianAngel, spectator.OwnerId);
-                }
-
+                spectators.Do(x => x.ExileTemporarily());
                 yield return new WaitForSeconds(0.2f);
-                spectators.Do(x => x.RpcResetAbilityCooldown());
-                Main.PlayerStates.Values.IntersectBy(spectators.Select(x => x.PlayerId), x => x.Player.PlayerId).Do(x => x.SetDead());
                 var stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
                 stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.NSerialKiller));
                 Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
@@ -497,7 +507,7 @@ public static class Quiz
                 {
                     yield return new WaitForSeconds(1f);
                     if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
-                    Utils.NotifyRoles();
+                    Utils.NotifyRoles(SendOption: SendOption.None);
                     stillLiving.RemoveAll(x => x == null || !x.IsAlive());
                     if (stillLiving.Count <= 1) break;
                 }
@@ -507,13 +517,13 @@ public static class Quiz
                 Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 
                 var location = RandomSpawn.SpawnMap.GetSpawnMap().Positions.IntersectBy(UsedRooms[Main.CurrentMap].Values, x => x.Key).RandomElement().Value;
-                PlayerControl ffaSurvivor = stillLiving[0];
-
+                
                 switch (stillLiving.Count)
                 {
                     case 0:
                         break;
                     case 1:
+                        PlayerControl ffaSurvivor = stillLiving[0];
                         ffaSurvivor.RpcChangeRoleBasis(CustomRoles.QuizPlayer);
                         ffaSurvivor.TP(location);
                         break;
@@ -579,6 +589,7 @@ public static class Quiz
                         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
                         DyingPlayers = Main.AllAlivePlayerControls.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
                         QuestionTimeLimitEndTS = 0;
+                        Utils.NotifyRoles();
                     }
                     else
                         Main.Instance.StartCoroutine(EndQuestion());

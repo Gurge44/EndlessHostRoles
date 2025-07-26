@@ -109,7 +109,7 @@ public static class Achievements
         ItsJustAPrankBro // As Bomber, Kill half the lobby in 1 bomb
     }
 
-    private const string SaveFilePath = $"{Main.DataPath}/EHR_DATA/Achievements.json";
+    private static readonly string SaveFilePath = $"{Main.DataPath}/EHR_DATA/Achievements.json";
 
     private const string ApiBaseUrl = "https://gurge44.pythonanywhere.com/achievements";
     private const string ApiSaveEndpoint = $"{ApiBaseUrl}/save";

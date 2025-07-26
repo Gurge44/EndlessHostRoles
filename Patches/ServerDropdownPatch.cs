@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !ANDROID
+using System;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
@@ -40,3 +41,4 @@ public static class ServerDropdownPatch
         return false;
     }
 }
+#endif

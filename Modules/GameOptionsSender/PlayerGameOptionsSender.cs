@@ -176,7 +176,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
-                case CustomGameMode.KingOfTheZones:
                     SetMaxVision();
                     break;
                 case CustomGameMode.BedWars:
@@ -205,6 +204,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     break;
                 case CustomGameMode.TheMindGame:
                     try { AURoleOptions.PhantomCooldown = 0.1f; }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
+                    goto case CustomGameMode.RoomRush;
+                case CustomGameMode.KingOfTheZones:
+                case CustomGameMode.SoloKombat:
+                    try { AURoleOptions.GuardianAngelCooldown = 900f; }
                     catch (Exception e) { Utils.ThrowException(e); }
 
                     goto case CustomGameMode.RoomRush;
@@ -287,7 +292,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             switch (role)
             {
                 case CustomRoles.Alchemist when ((Alchemist)state.Role).VisionPotionActive:
-                    opt.SetVisionV2();
+                    opt.SetVision(false);
 
                     if (Utils.IsActive(SystemTypes.Electrical))
                         opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
@@ -316,6 +321,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             }
 
             if (Minion.BlindPlayers.Contains(player.PlayerId)) SetBlind();
+            if (Slenderman.IsBlinded(player.PlayerId)) SetBlind();
 
             if (Sentinel.IsPatrolling(player.PlayerId))
             {

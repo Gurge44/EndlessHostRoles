@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.GameMode.HideAndSeekRoles;
 using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
@@ -32,6 +33,17 @@ public static class GameStartManagerPatch
     private static TextMeshPro WarningText;
     public static float Timer => Math.Max(0, 597f - (Utils.TimeStamp - TimerStartTS));
 
+    [HarmonyPatch(typeof(TimerTextTMP), nameof(TimerTextTMP.GetTextString))]
+    private static class TimerTextTMPGetTextStringPatch
+    {
+        public static bool Prefix(TimerTextTMP __instance, ref string __result)
+        {
+            int seconds = __instance.GetSecondsRemaining();
+            __result = string.Format(GetString("LobbyTimer"), seconds / 60, seconds % 60);
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public static class GameStartManagerStartPatch
     {
@@ -52,6 +64,7 @@ public static class GameStartManagerPatch
                     HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
                     hudManager.ShowLobbyTimer(597);
                     hudManager.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(false);
+                    GameStartManagerUpdatePatch.Warned = false;
                 }
 
                 if (AmongUsClient.Instance.AmHost)
@@ -122,7 +135,8 @@ public static class GameStartManagerPatch
         public static float ExitTimer = -1f;
         private static float MinWait, MaxWait;
         private static int MinPlayer;
-        public static SpriteRenderer LobbyTimerBg;
+        private static SpriteRenderer LobbyTimerBg;
+        public static bool Warned;
 
         public static bool Prefix(GameStartManager __instance)
         {
@@ -146,20 +160,20 @@ public static class GameStartManagerPatch
                     if (DataManager.Settings.Gameplay.StreamerMode)
                     {
                         if (__instance != null && __instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 0);
-
                         if (GameStartManagerStartPatch.HideName != null) GameStartManagerStartPatch.HideName.enabled = true;
                     }
                     else
                     {
                         if (__instance != null && __instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 255);
-
                         if (GameStartManagerStartPatch.HideName != null) GameStartManagerStartPatch.HideName.enabled = false;
                     }
                 }
 
                 if (AmongUsClient.Instance == null || GameData.Instance == null || !AmongUsClient.Instance.AmHost || !GameData.Instance) return true;
 
-                if (Main.AutoStart != null && Main.AutoStart.Value)
+                bool votedToStart = (int)Math.Round(ChatCommands.VotedToStart.Count / (float)PlayerControl.AllPlayerControls.Count * 100f) > 50;
+
+                if ((Main.AutoStart != null && Main.AutoStart.Value) || votedToStart)
                 {
                     Main.UpdateTime++;
 
@@ -169,7 +183,7 @@ public static class GameStartManagerPatch
 
                         float timer = Timer;
 
-                        if (((GameData.Instance?.PlayerCount >= MinPlayer && timer <= MinWait) || timer <= MaxWait) && !GameStates.IsCountDown)
+                        if (((GameData.Instance?.PlayerCount >= MinPlayer && timer <= MinWait) || timer <= MaxWait || votedToStart) && !GameStates.IsCountDown)
                         {
                             PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
@@ -179,7 +193,7 @@ public static class GameStartManagerPatch
                                     .Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId)
                                     .Do(p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
 
-                                Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
+                                Logger.SendInGame(GetString("Error.InvalidColorPreventStart"), Color.yellow);
                                 string msg = GetString("Error.InvalidColor");
                                 msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
                                 Utils.SendMessage(msg, sendOption: SendOption.None);
@@ -191,8 +205,9 @@ public static class GameStartManagerPatch
                                 CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
                             }
                             else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+                            else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
 
-                            if (Main.CurrentMap == MapNames.Dleks)
+                            if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
                             {
                                 var opt = Main.NormalOptions.CastFast<IGameOptions>();
 
@@ -230,10 +245,13 @@ public static class GameStartManagerPatch
             try { instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId); }
             catch (Exception e)
             {
-                if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length)
-                    ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
+                if (!(GameManager.Instance.LogicOptions.MapId == 6 && SubmergedCompatibility.Loaded))
+                {
+                    if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length)
+                        ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
 
-                Utils.ThrowException(e);
+                    Utils.ThrowException(e);
+                }
             }
 
             instance.CheckSettingsDiffs();
@@ -378,11 +396,20 @@ public static class GameStartManagerPatch
                 
                 int estimatedGameLength = Options.CurrentGameMode switch
                 {
+                    CustomGameMode.SoloKombat => SoloPVP.KB_GameTime.GetInt(),
                     CustomGameMode.FFA => Math.Clamp((FreeForAll.FFAKcd.GetInt() * (PlayerControl.AllPlayerControls.Count / 2)) + FreeForAll.FFAKcd.GetInt() + 5, FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAGameTime.GetInt()),
+                    CustomGameMode.MoveAndStop => ((Main.NormalOptions.NumShortTasks * 20) + (Main.NormalOptions.NumLongTasks * 40) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 30)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)),
+                    CustomGameMode.HotPotato => HotPotato.TimeBetweenPasses * (PlayerControl.AllPlayerControls.Count - 1),
+                    CustomGameMode.HideAndSeek => Math.Min((Seeker.KillCooldown.GetInt() * (PlayerControl.AllPlayerControls.Count - Main.NormalOptions.NumImpostors) / Main.NormalOptions.NumImpostors) + Seeker.BlindTime.GetInt() + 15, Math.Min(CustomHnS.MaximumGameLength, ((Main.NormalOptions.NumShortTasks * 15) + (Main.NormalOptions.NumLongTasks * 25) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 15)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)))),
+                    CustomGameMode.Speedrun => (Speedrun.TimeLimitValue * (Main.NormalOptions.NumShortTasks + Main.NormalOptions.NumLongTasks + Main.NormalOptions.NumCommonTasks)) + (Speedrun.KCD * (PlayerControl.AllPlayerControls.Count / 2)),
+                    CustomGameMode.CaptureTheFlag => CaptureTheFlag.GameEndCriteriaType == 2 ? CaptureTheFlag.MaxGameLength : CaptureTheFlag.IsDeathPossible ? 40 : Math.Max(30, 1500 / (int)Math.Pow(CaptureTheFlag.KCD + 0.5f, 2) * CaptureTheFlag.TotalRoundsToPlay),
+                    CustomGameMode.NaturalDisasters => 80 + (50 * NaturalDisasters.FrequencyOfDisasters * Math.Max(1, PlayerControl.AllPlayerControls.Count / 3)),
+                    CustomGameMode.RoomRush => (PlayerControl.AllPlayerControls.Count - 1) * (RoomRush.PointsSystem ? 20 : 15),
+                    CustomGameMode.KingOfTheZones => Math.Min(KingOfTheZones.MaxGameTime, KingOfTheZones.MaxGameTimeByPoints),
                     _ => 0
                 };
 
-                string suffix = estimatedGameLength != 0 ? $"{GetString("EstimatedGameLength")}: {estimatedGameLength}" : " ";
+                string suffix = estimatedGameLength != 0 ? $"<size=70%>{GetString("EstimatedGameLength")} - {estimatedGameLength / 60:00}:{estimatedGameLength % 60:00}</size>" : " ";
 
                 if (Options.NoGameEnd.GetBool())
                     suffix = Utils.ColorString(Color.yellow, $"{GetString("NoGameEnd").ToUpper()}");
@@ -414,8 +441,17 @@ public static class GameStartManagerPatch
                     float timer = Timer;
 
                     if (LobbyTimerBg == null) LobbyTimerBg = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
+                    LobbyTimerBg.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyTimerBG.png", 100f);
                     LobbyTimerBg.color = GetTimerColor(timer);
-                    if (timer <= 60) FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
+
+                    if (timer <= 60 && !Warned)
+                    {
+                        Warned = true;
+                        LobbyTimerExtensionUI lobbyTimerExtensionUI = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI;
+                        lobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
+                        SoundManager.Instance.PlaySound(lobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
+                        Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 2f);
+                    }
                 }
             }
             catch (NullReferenceException) { }
@@ -426,22 +462,15 @@ public static class GameStartManagerPatch
         {
             switch (timer)
             {
-                case >= 240f:
-                {
-                    // From 240 → 597: #00a5ff → #00a5ff (static color)
-                    return new Color32(0x00, 0xA5, 0xFF, 0xFF); // #00a5ff
-                }
                 case >= 180f:
                 {
-                    // 180 → 240: #00ffa5 → #00a5ff
-                    float lerpT = (timer - 180f) / 60f;
-                    return Color.Lerp(new Color32(0x00, 0xFF, 0xA5, 0xFF), new Color32(0x00, 0xA5, 0xFF, 0xFF), lerpT);
+                    return new Color32(0x00, 0x04, 0x44, 0xFF);
                 }
                 case >= 120f:
                 {
                     // 120 → 180: #ffff00 → #00ffa5
                     float lerpT = (timer - 120f) / 60f;
-                    return Color.Lerp(new Color32(0xFF, 0xFF, 0x00, 0xFF), new Color32(0x00, 0xFF, 0xA5, 0xFF), lerpT);
+                    return Color.Lerp(new Color32(0xFF, 0xFF, 0x00, 0xFF), new Color32(0x00, 0x04, 0x44, 0xFF), lerpT);
                 }
                 case >= 60f:
                 {
@@ -451,8 +480,7 @@ public static class GameStartManagerPatch
                 }
                 default:
                 {
-                    // timer < 60: stay red
-                    return new Color32(0xFF, 0x00, 0x00, 0xFF); // #ff0000
+                    return new Color32(0xFF, 0x00, 0x00, 0xFF);
                 }
             }
         }
@@ -486,7 +514,7 @@ public static class GameStartRandomMap
 
         if (invalidColor.Length > 0)
         {
-            Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
+            Logger.SendInGame(GetString("Error.InvalidColorPreventStart"), Color.yellow);
             string msg = GetString("Error.InvalidColor");
             msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
             Utils.SendMessage(msg, sendOption: SendOption.None);
@@ -528,43 +556,23 @@ public static class GameStartRandomMap
             CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
         }
         else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+        else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
     }
 
     public static byte SelectRandomMap()
     {
-        var rand = IRandom.Instance;
-        System.Collections.Generic.List<byte> randomMaps = [];
-
-        int tempRand = rand.Next(1, 100);
-
-        if (tempRand <= Options.SkeldChance.GetInt()) randomMaps.Add(0);
-        if (tempRand <= Options.MiraChance.GetInt()) randomMaps.Add(1);
-        if (tempRand <= Options.PolusChance.GetInt()) randomMaps.Add(2);
-        if (tempRand <= Options.DleksChance.GetInt()) randomMaps.Add(3);
-        if (tempRand <= Options.AirshipChance.GetInt()) randomMaps.Add(4);
-        if (tempRand <= Options.FungleChance.GetInt()) randomMaps.Add(5);
-
-        if (randomMaps.Count > 0)
+        System.Collections.Generic.Dictionary<byte, int> chance = Enumerable.Range(0, 6).ToDictionary(x => (byte)x, x => x switch
         {
-            byte mapsId = randomMaps[0];
-
-            Logger.Info($"{mapsId}", "Chance Select MapId");
-            return mapsId;
-        }
-        else
-        {
-            if (Options.SkeldChance.GetInt() > 0) randomMaps.Add(0);
-            if (Options.MiraChance.GetInt() > 0) randomMaps.Add(1);
-            if (Options.PolusChance.GetInt() > 0) randomMaps.Add(2);
-            if (Options.DleksChance.GetInt() > 0) randomMaps.Add(3);
-            if (Options.AirshipChance.GetInt() > 0) randomMaps.Add(4);
-            if (Options.FungleChance.GetInt() > 0) randomMaps.Add(5);
-
-            byte mapsId = randomMaps.RandomElement();
-
-            Logger.Info($"{mapsId}", "Random Select MapId");
-            return mapsId;
-        }
+            0 => Options.SkeldChance.GetInt(),
+            1 => Options.MiraChance.GetInt(),
+            2 => Options.PolusChance.GetInt(),
+            3 => Options.DleksChance.GetInt(),
+            4 => Options.AirshipChance.GetInt(),
+            5 => Options.FungleChance.GetInt(),
+            _ => 0
+        });
+        byte[] pool = chance.SelectMany(x => Enumerable.Repeat(x.Key, x.Value / 5)).ToArray();
+        return pool.Length == 0 ? chance.Keys.RandomElement() : pool.RandomElement();
     }
 }
 

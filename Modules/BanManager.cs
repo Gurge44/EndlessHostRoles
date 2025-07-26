@@ -8,16 +8,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HarmonyLib;
 using InnerNet;
+using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR;
 
 public static class BanManager
 {
-    private const string DenyNameListPath = $"{Main.DataPath}/EHR_DATA/DenyName.txt";
-    private const string BanListPath = $"{Main.DataPath}/EHR_DATA/BanList.txt";
-    private const string ModeratorListPath = $"{Main.DataPath}/EHR_DATA/Moderators.txt";
-    private const string WhiteListListPath = $"{Main.DataPath}/EHR_DATA/WhiteList.txt";
+    private static readonly string DenyNameListPath = $"{Main.DataPath}/EHR_DATA/DenyName.txt";
+    private static readonly string BanListPath = $"{Main.DataPath}/EHR_DATA/BanList.txt";
+    private static readonly string ModeratorListPath = $"{Main.DataPath}/EHR_DATA/Moderators.txt";
+    private static readonly string WhiteListListPath = $"{Main.DataPath}/EHR_DATA/WhiteList.txt";
     private static readonly List<string> EACList = [];
     public static readonly List<string> TempBanWhiteList = []; // To prevent writing to the banlist
 
@@ -25,7 +26,7 @@ public static class BanManager
     {
         try
         {
-            Directory.CreateDirectory("EHR_DATA");
+            if (!Directory.Exists($"{Main.DataPath}/EHR_DATA")) Directory.CreateDirectory($"{Main.DataPath}/EHR_DATA");
 
             if (!File.Exists(BanListPath))
             {
@@ -101,7 +102,7 @@ public static class BanManager
             if (!string.IsNullOrEmpty(hashedPuid))
             {
                 File.AppendAllText(BanListPath, $"{friendCode},{hashedPuid},{player.PlayerName.RemoveHtmlTags()}\n");
-                Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
+                Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName), Color.yellow);
             }
             else
                 Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{friendCode}/{hashedPuid} to ban list!", "AddBanPlayer");
@@ -114,7 +115,7 @@ public static class BanManager
 
         try
         {
-            Directory.CreateDirectory("EHR_DATA");
+            if (!Directory.Exists($"{Main.DataPath}/EHR_DATA")) Directory.CreateDirectory($"{Main.DataPath}/EHR_DATA");
             if (!File.Exists(DenyNameListPath)) File.Create(DenyNameListPath).Close();
 
             using StreamReader sr = new(DenyNameListPath);
@@ -123,10 +124,10 @@ public static class BanManager
             {
                 if (line == "") continue;
 
-                if (line.Contains("Amogus") || line.Contains("Amogus V") || Regex.IsMatch(name, line))
+                if (Regex.IsMatch(name, line))
                 {
                     AmongUsClient.Instance.KickPlayer(player.OwnerId, false);
-                    Logger.SendInGame(string.Format(GetString("Message.KickedByDenyName"), name, line));
+                    Logger.SendInGame(string.Format(GetString("Message.KickedByDenyName"), name, line), Color.yellow);
                     Logger.Info($"{name} was kicked because their name matched \"{line}\".", "Kick");
                     return true;
                 }
@@ -158,7 +159,7 @@ public static class BanManager
         if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
         {
             AmongUsClient.Instance.KickPlayer(player.Id, false);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} banned by EAC because their friend code is too short.", "EAC");
             return;
         }
@@ -166,7 +167,7 @@ public static class BanManager
         if (friendcode.Count(c => c == '#') != 1)
         {
             AmongUsClient.Instance.KickPlayer(player.Id, false);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} EAC Banned because friendcode contains more than 1 #", "EAC");
             return;
         }
@@ -177,7 +178,7 @@ public static class BanManager
         if (Regex.IsMatch(friendcode[..friendcode.IndexOf("#", StringComparison.Ordinal)], pattern))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} was banned because of a spoofed friend code", "EAC");
             return;
         }
@@ -185,7 +186,7 @@ public static class BanManager
         if (CheckBanList(friendcode, player.GetHashedPuid()))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} is banned because he has been banned in the past.", "BAN");
             return;
         }
@@ -193,7 +194,7 @@ public static class BanManager
         if (CheckEACList(friendcode, player.GetHashedPuid()))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName), Color.yellow);
             Logger.Info($"{player.PlayerName} is on the EAC ban list", "BAN");
         }
     }
@@ -215,7 +216,7 @@ public static class BanManager
 
         try
         {
-            Directory.CreateDirectory("EHR_DATA");
+            if (!Directory.Exists($"{Main.DataPath}/EHR_DATA")) Directory.CreateDirectory($"{Main.DataPath}/EHR_DATA");
             if (!File.Exists(BanListPath)) File.Create(BanListPath).Close();
 
             using StreamReader sr = new(BanListPath);

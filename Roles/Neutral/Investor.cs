@@ -67,6 +67,7 @@ public class Investor : RoleBase
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, target.PlayerId);
             killer.SetKillCooldown(AbilityCooldown.GetInt());
+            killer.RPCPlayCustomSound("Bet");
         }
 
         return false;

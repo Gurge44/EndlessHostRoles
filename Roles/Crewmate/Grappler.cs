@@ -12,6 +12,7 @@ public class Grappler : RoleBase
     private static OptionItem AbilityUseLimit;
     public static OptionItem AbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
+    
     private byte GrapplerId;
     private bool InUse;
 

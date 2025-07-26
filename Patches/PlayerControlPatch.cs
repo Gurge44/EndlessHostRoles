@@ -86,22 +86,23 @@ internal static class RpcMurderPlayerPatch
             __instance.MurderPlayer(target, murderResultFlags);
 
         var sender = CustomRpcSender.Create("RpcMurderPlayer", SendOption.Reliable);
+        sender.StartMessage();
 
         if (Main.Invisible.Contains(target.PlayerId) && murderResultFlags == MurderResultFlags.Succeeded)
         {
-            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(target.NetTransform.lastSequenceId + 16383))
                 .EndRpc();
-            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(target.NetTransform.lastSequenceId + 32767))
                 .EndRpc();
-            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(target.NetTransform.lastSequenceId + 32767 + 16383))
                 .EndRpc();
-            sender.AutoStartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(target.transform.position)
                 .Write(target.NetTransform.lastSequenceId)
                 .EndRpc();
@@ -109,7 +110,7 @@ internal static class RpcMurderPlayerPatch
             NumSnapToCallsThisRound += 4;
         }
 
-        sender.AutoStartRpc(__instance.NetId, RpcCalls.MurderPlayer)
+        sender.StartRpc(__instance.NetId, RpcCalls.MurderPlayer)
             .WriteNetObject(target)
             .Write((int)murderResultFlags)
             .EndRpc();
@@ -1073,6 +1074,12 @@ internal static class ReportDeadBodyPatch
                     Notify("TargetDisregarded");
                     return false;
                 }
+
+                if (__instance.Is(CustomRoles.Oblivious))
+                {
+                    Notify("AmOblivious");
+                    return false;
+                }
             }
 
             if (Options.SyncButtonMode.GetBool() && target == null)
@@ -1439,7 +1446,7 @@ internal static class FixedUpdatePatch
                     if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1) && !LobbyPatch.IsGlitchedRoomCode())
                     {
                         string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
-                        Logger.SendInGame(msg);
+                        Logger.SendInGame(msg, Color.yellow);
                         AmongUsClient.Instance.KickPlayer(player.OwnerId, true);
                         Logger.Info(msg, "Low Level Temp Ban");
                     }
@@ -1670,6 +1677,9 @@ internal static class FixedUpdatePatch
             Suffix.Clear();
 
             string realName = target.GetRealName();
+
+            if (target.Is(CustomRoles.BananaMan))
+                realName = realName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
 
             if (target.AmOwner && inTask)
             {
@@ -1956,12 +1966,12 @@ internal static class FixedUpdatePatch
     public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
         if (Options.CurrentGameMode != CustomGameMode.Standard) return;
-        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Exists(player => !player.IsAlive() && player.PlayerId == deathId) && !force)) return;
+        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (Main.LoversPlayers.FindAll(x => x.IsAlive()).Count != 1 && !force)) return;
+
+        PlayerControl partnerPlayer = Main.LoversPlayers.FirstOrDefault(player => player.PlayerId != deathId && player.IsAlive());
+        if (partnerPlayer == null) return;
 
         Main.IsLoversDead = true;
-        PlayerControl partnerPlayer = Main.LoversPlayers.FirstOrDefault(player => player.PlayerId != deathId && player.IsAlive());
-
-        if (partnerPlayer == null) return;
 
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {

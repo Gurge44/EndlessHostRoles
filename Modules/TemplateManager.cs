@@ -16,7 +16,7 @@ namespace EHR;
 
 public static class TemplateManager
 {
-    private const string TemplateFilePath = $"{Main.DataPath}/EHR_DATA/template.txt";
+    private static readonly string TemplateFilePath = $"{Main.DataPath}/EHR_DATA/template.txt";
 
     private static readonly Dictionary<string, Func<string>> ReplaceDictionary = new()
     {
@@ -52,10 +52,10 @@ public static class TemplateManager
         {
             try
             {
-                if (!Directory.Exists("EHR_DATA")) Directory.CreateDirectory("EHR_DATA");
+                if (!Directory.Exists($"{Main.DataPath}/EHR_DATA")) Directory.CreateDirectory($"{Main.DataPath}/EHR_DATA");
 
-                if (File.Exists("./template.txt"))
-                    File.Move("./template.txt", TemplateFilePath);
+                if (File.Exists($"{Main.DataPath}/template.txt"))
+                    File.Move($"{Main.DataPath}/template.txt", TemplateFilePath);
                 else
                 {
                     string fileName;

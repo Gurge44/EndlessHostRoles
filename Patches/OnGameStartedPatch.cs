@@ -173,9 +173,9 @@ internal static class ChangeRoleSettings
                 RoleTypes.Tracker
             }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
-            if (Main.NormalOptions.MapId > 5)
+            if (Main.NormalOptions.MapId > 5 && !(Main.NormalOptions.MapId == 6 && SubmergedCompatibility.Loaded))
             {
-                Logger.SendInGame(GetString("UnsupportedMap"));
+                Logger.SendInGame(GetString("UnsupportedMap"), Color.red);
                 ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
             }
 
@@ -255,6 +255,7 @@ internal static class ChangeRoleSettings
             SabotageMapPatch.TimerTexts = [];
             MapRoomDoorsUpdatePatch.DoorTimerTexts = [];
             GuessManager.Guessers = [];
+            ChatCommands.VotedToStart = [];
 
             Options.UsedButtonCount = 0;
 
@@ -290,8 +291,9 @@ internal static class ChangeRoleSettings
             Coven.Coven.CovenMeetingStartPatch.MeetingNum = 0;
 
             AFKDetector.ShieldedPlayers.Clear();
-
+            Main.Invisible.Clear();
             ChatCommands.MutedPlayers.Clear();
+            ExtendedPlayerControl.TempExiled.Clear();
 
             MeetingTimeManager.Init();
             Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);
@@ -319,7 +321,7 @@ internal static class ChangeRoleSettings
                 if (invalidColor.Length > 0)
                 {
                     string msg = GetString("Error.InvalidColor");
-                    Logger.SendInGame(msg);
+                    Logger.SendInGame(msg, Color.yellow);
                     msg += "\n" + string.Join(",", invalidColor);
                     Utils.SendMessage(msg, sendOption: SendOption.None);
                     Logger.Error(msg, "CoStartGame");
@@ -340,7 +342,12 @@ internal static class ChangeRoleSettings
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 int colorId = pc.Data.DefaultOutfit.ColorId;
-                if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1) pc.RpcSetName(Palette.GetColorName(colorId));
+                if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1)
+                {
+                    string colorName = Palette.GetColorName(colorId);
+                    string formattedColorName = char.ToUpper(colorName[0]) + colorName.Substring(1).ToLower();
+                    pc.RpcSetName(formattedColorName);
+                }
 
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
@@ -541,7 +548,19 @@ internal static class StartGameHostPatch
         catch (Exception e) { Utils.ThrowException(e); }
 
         if (LobbyBehaviour.Instance)
-            LobbyBehaviour.Instance.Despawn();
+        {
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            writer.StartMessage(5);
+            writer.Write(AUClient.GameId);
+            writer.StartMessage(5);
+            writer.WritePacked(LobbyBehaviour.Instance.NetId);
+            writer.EndMessage();
+            writer.EndMessage();
+            AUClient.SendOrDisconnect(writer);
+            writer.Recycle();
+            AUClient.RemoveNetObject(LobbyBehaviour.Instance);
+            Object.Destroy(LobbyBehaviour.Instance.gameObject);
+        }
 
         if (!ShipStatus.Instance)
         {
@@ -560,6 +579,7 @@ internal static class StartGameHostPatch
             GameObject result = AUClient.ShipLoadingAsyncHandle.Result;
             ShipStatus.Instance = result.GetComponent<ShipStatus>();
             AUClient.Spawn(ShipStatus.Instance);
+            Logger.Info($"Successfully spawned ShipStatus for map {GameOptionsManager.Instance.CurrentGameOptions.MapId} ({Constants.MapNames[GameOptionsManager.Instance.CurrentGameOptions.MapId]})", "StartGameHost");
         }
 
         try
@@ -782,7 +802,7 @@ internal static class StartGameHostPatch
                 if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
 
                 CustomRoles role = Enum.TryParse($"{pc.Data.Role.Role}EHR", out CustomRoles parsedRole) ? parsedRole : CustomRoles.NotAssigned;
-                if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
+                if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName), Color.red);
 
                 Main.PlayerStates[pc.PlayerId].SetMainRole(role);
             }
@@ -864,6 +884,9 @@ internal static class StartGameHostPatch
 
                 if (!state.MainRole.IsImpostor() && !(state.MainRole == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
                     state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
+
+                if (state.SubRoles.Contains(CustomRoles.BananaMan))
+                    Utils.RpcChangeSkin(state.Player, new());
             }
 
             foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)
@@ -1023,7 +1046,7 @@ internal static class StartGameHostPatch
                 if (Main.LoversPlayers.Count == 0) Main.LoversPlayers = Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Lovers) || x.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor).ToList();
             }, 7f, log: false);
 
-            if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value) LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
+            if (Main.CurrentMap == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value) LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
 
             LateTask.New(() => Main.HasJustStarted = false, 12f, "HasJustStarted to false");
         }
@@ -1044,6 +1067,8 @@ internal static class StartGameHostPatch
             pc.Data.Disconnected = true;
             pc.Data.SendGameData();
         }
+
+        Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
         LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
         yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
@@ -1174,10 +1199,19 @@ internal static class StartGameHostPatch
                 ? roleMap.RoleType
                 : RpcSetRoleReplacer.StoragedData[target.PlayerId];
 
-            bool forceDisplayCrewmate = Options.CurrentGameMode == CustomGameMode.Standard && target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel);
-            if (forceDisplayCrewmate) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;
+            RoleTypes displayRole = roleType;
 
-            target.RpcSetRoleDesync(forceDisplayCrewmate ? RoleTypes.Crewmate : roleType, targetClientId);
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
+            {
+                if (target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel))
+                    displayRole = RoleTypes.Crewmate;
+
+                if (target.Is(Team.Impostor) && roleType is not (RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.ImpostorGhost))
+                    displayRole = RoleTypes.Impostor;
+            }
+
+            if (displayRole != roleType) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;
+            target.RpcSetRoleDesync(displayRole, targetClientId);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

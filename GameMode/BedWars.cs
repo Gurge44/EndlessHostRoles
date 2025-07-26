@@ -11,6 +11,7 @@ namespace EHR;
 
 public static class BedWars
 {
+    private static int InventorySlots = 9;
     private static int SpeedPotionDuration = 30;
     private static int InvisPotionDuration = 20;
     private static int ReviveTime = 15;
@@ -38,6 +39,7 @@ public static class BedWars
     private static float IronSwordDamageMultiplier = 4f;
     private static float DiamondSwordDamageMultiplier = 7f;
 
+    private static OptionItem InventorySlotsOption;
     private static OptionItem SpeedPotionDurationOption;
     private static OptionItem InvisPotionDurationOption;
     private static OptionItem ReviveTimeOption;
@@ -74,9 +76,13 @@ public static class BedWars
         const CustomGameMode gameMode = CustomGameMode.BedWars;
         const TabGroup tab = TabGroup.GameSettings;
 
+        InventorySlotsOption = new IntegerOptionItem(id++, "BedWars.InventorySlotsOption", new(1, 12, 1), 9, tab)
+            .SetHeader(true)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
         SpeedPotionDurationOption = new IntegerOptionItem(id++, "BedWars.SpeedPotionDurationOption", new(1, 120, 1), 30, tab)
             .SetValueFormat(OptionFormat.Seconds)
-            .SetHeader(true)
             .SetColor(color)
             .SetGameMode(gameMode);
 
@@ -283,9 +289,7 @@ public static class BedWars
         
         float damage = 1;
 
-        Item? selectedItem = killerData.Inventory.GetSelectedItem();
-
-        damage *= selectedItem switch
+        damage *= killerData.Sword switch
         {
             Item.WoodenSword => WoodenSwordDamageMultiplier,
             Item.IronSword => IronSwordDamageMultiplier,
@@ -293,7 +297,7 @@ public static class BedWars
             _ => 1
         };
 
-        if (Upgrades.TryGetValue(killerData.Team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.Sharpness))
+        if (killerData.Sword.HasValue && Upgrades.TryGetValue(killerData.Team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.Sharpness))
             damage *= 1.25f;
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
@@ -321,6 +325,7 @@ public static class BedWars
         Winner = (Color.white, "No one wins");
         FixedUpdatePatch.LastUpdate = [];
 
+        InventorySlots = InventorySlotsOption.GetInt();
         SpeedPotionDuration = SpeedPotionDurationOption.GetInt();
         InvisPotionDuration = InvisPotionDurationOption.GetInt();
         ReviveTime = ReviveTimeOption.GetInt();
@@ -671,6 +676,7 @@ public static class BedWars
         public BedWarsTeam Team;
         public Base Base;
         public Item? Armor;
+        public Item? Sword;
 
         public void Damage(PlayerControl pc, float damage, PlayerControl killer = null)
         {
@@ -703,17 +709,13 @@ public static class BedWars
 
                     Inventory.Clear();
                     if (Reviving.Add(pc.PlayerId)) Main.Instance.StartCoroutine(ReviveCountdown(pc));
-                    pc.Exiled();
-                    CustomRpcSender.Create("BedWars Death", SendOption.Reliable).AutoStartRpc(pc.NetId, 4).EndRpc().SendMessage();
-                    Main.PlayerStates[pc.PlayerId].SetDead();
-                    pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.OwnerId);
-                    pc.RpcResetAbilityCooldown();
-                    pc.MarkDirtySettings();
+
+                    pc.ExileTemporarily();
                 }
                 else
                 {
                     Inventory.Items = [];
-                    pc.Suicide();
+                    pc.Suicide(PlayerState.DeathReason.Kill);
                 }
             }
         }
@@ -733,7 +735,6 @@ public static class BedWars
 
             Health = MaxHealth;
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
             pc.RpcRevive();
             pc.RpcSetColor(Team.GetColorId());
@@ -753,18 +754,22 @@ public static class BedWars
 
             sb.AppendLine(IsGracePeriod ? Translator.GetString("Bedwars.GracePeriod") : GetHealthInfo());
 
+            var topLines = 12;
+            
             if (InShop.TryGetValue(pc.PlayerId, out Shop shop))
             {
                 sb.AppendLine();
                 sb.AppendLine(shop.GetSuffix(pc));
+                topLines += 4;
             }
 
             int lines = sb.ToString().Count(x => x == '\n');
-            sb.Insert(0, Utils.ColorString(Color.clear, ".") + new string('\n', Math.Max(0, 14 - lines)));
+            sb.Insert(0, Utils.ColorString(Color.clear, ".") + new string('\n', Math.Max(0, topLines - lines)));
             sb.Append(new string('\n', Math.Max(0, 5 - lines)));
 
-            sb.AppendLine(GetArmorInfo());
-            sb.AppendLine();
+            sb.Append(GetArmorInfo());
+            sb.Append(" - ");
+            sb.AppendLine(GetSwordInfo());
 
             sb.Append(Inventory);
 
@@ -782,10 +787,15 @@ public static class BedWars
                 sb.Append(GetHealthInfo());
                 sb.Append(' ');
                 sb.Append(' ');
+                sb.Append(' ');
+                sb.Append(' ');
                 sb.Append(GetArmorInfo());
+                sb.Append(' ');
+                sb.Append(' ');
+                sb.Append(GetSwordInfo());
 
                 if (Inventory.Items.ContainsKey(Item.TNT) && ItemDisplayData.TryGetValue(Item.TNT, out ItemDisplay display))
-                    sb.Append(Utils.ColorString(display.Color, $"  {display.Icon} {display.Name.Invoke()} {display.Icon}"));
+                    sb.Append(Utils.ColorString(display.Color, $"    {display.Icon} {display.Name.Invoke()} {display.Icon}"));
             }
 
             return $"<#ffffff>{sb.ToString().Trim()}</color>";
@@ -794,6 +804,11 @@ public static class BedWars
         private string GetArmorInfo()
         {
             return $"<size=80%>{Translator.GetString("BedWars.Suffix.Armor")} {(Armor.HasValue && ItemDisplayData.TryGetValue(Armor.Value, out ItemDisplay display) ? Utils.ColorString(display.Color, display.Icon.ToString()) : Translator.GetString("None"))}</size>";
+        }
+
+        private string GetSwordInfo()
+        {
+            return $"<size=80%>{Translator.GetString("BedWars.Suffix.Sword")} {(Sword.HasValue && ItemDisplayData.TryGetValue(Sword.Value, out ItemDisplay display) ? Utils.ColorString(display.Color, display.Icon.ToString()) : Translator.GetString("None"))}</size>";
         }
 
         private string GetHealthInfo()
@@ -856,8 +871,15 @@ public static class BedWars
         {
             [BedWarsTeam.Blue] = new(new(15.18f, -11.91f), SystemTypes.Jungle, new(11.07f, -14f), new(11.07f, -16.18f), new(15.15f, -16.06f)),
             [BedWarsTeam.Yellow] = new(new(19.83f, 11.07f), SystemTypes.Comms, new(20.19f, 13.63f), new(22.89f, 13.32f), new(24.24f, 14.41f)),
-            [BedWarsTeam.Red] = new(new(-7.39f, 8.81f), SystemTypes.Dropship, new(-9.86f, 13.43f), new(-7.42f, 12.96f), new(-11.21f, 12.5f)),
+            [BedWarsTeam.Red] = new(new(-7.39f, 8.81f), SystemTypes.Dropship, new(-9.86f, 13.43f), new(-7.47f, 10.92f), new(-11.21f, 12.5f)),
             [BedWarsTeam.Green] = new(new(-15.55f, -7.04f), SystemTypes.Kitchen, new(-17.22f, -9.32f), new(-13.78f, -9.32f), new(-22.83f, -7.19f))
+        },
+        [(MapNames)6] = new()
+        {
+            [BedWarsTeam.Blue] = new(new(-12.69f, -27.88f), SystemTypes.Engine, new(-14.67f, -34.71f), new(-12f, -34.71f), new(-14.6f, -30.96f)),
+            [BedWarsTeam.Yellow] = new(new(9.84f, -27.66f), SystemTypes.Electrical, new(10.22f, -31.58f), new(12.76f, -32.24f), new(12.29f, -29.15f)),
+            [BedWarsTeam.Red] = new(new(11f, 23.43f), SystemTypes.Comms, new(14.33f, 25f), new(14.33f, 23.44f), new(12.77f, 23.85f)),
+            [BedWarsTeam.Green] = new(new(-12f, 19f), (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Observatory, new(-12f, 20f), new(-12.13f, 17.83f), new(-11.66f, 15.16f))
         }
     };
 
@@ -897,6 +919,13 @@ public static class BedWars
             [Item.Gold] = [new(18.19f, -12.48f), new(24.6f, 11.33f), new(-8.63f, 9.81f), new(-13.67f, -7.6f)],
             [Item.Emerald] = [new(9.37f, 0.99f), new(-3.15f, -10.55f), new(2f, -1.57f)],
             [Item.Diamond] = [new(22.28f, 3.18f), new(2.86f, 1.28f), new(-17.61f, 2.65f), new(-4.56f, -14.77f)]
+        },
+        [(MapNames)6] = new()
+        {
+            [Item.Iron] = [new(-11.39f, -30.8f), new(13f, -25.27f), new(10.45f, 28.13f), new(-15f, 17.1f)],
+            [Item.Gold] = [new(-11.39f, -31.43f), new(13f, -25.9f), new(10.45f, 27.4f), new(-15f, 17.72f)],
+            [Item.Emerald] = [new(1.11f, 9.93f), new(0f, 33.62f), new(8.79f, -38.3f), new(-11f, -39.22f)],
+            [Item.Diamond] = [new(3.71f, 32.11f), new(-6.69f, 9.65f), new(-12.32f, 30.53f), new(4.72f, 7.56f), new(-3.01f, -33.05f), new(-0.77f, -35.73f), new(1.71f, -20f), new(-6.5f, -43.06f)]
         }
     };
 
@@ -1018,25 +1047,18 @@ public static class BedWars
                 {
                     case ItemCategory.Armor when !data.Armor.HasValue || data.Armor.Value < selectedItem:
                         data.Armor = selectedItem;
-                        LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: pc), 0.2f, log: false);
+                        Utils.NotifyRoles(SpecifyTarget: pc);
                         break;
-                    case ItemCategory.Weapon:
-                        List<Item> toRemove = [];
-
-                        foreach (Item item in data.Inventory.Items.Keys)
-                        {
-                            if (ItemCategories[item] == itemCategory && item < selectedItem)
-                                toRemove.Add(item);
-                        }
-
-                        toRemove.ForEach(x => data.Inventory.Items.Remove(x));
+                    case ItemCategory.Weapon when !data.Sword.HasValue || data.Sword.Value < selectedItem:
+                        data.Sword = selectedItem;
+                        Utils.NotifyRoles(SpecifyTarget: pc);
                         break;
                     case ItemCategory.Utility when selectedItem == Item.TNT:
                         LateTask.New(() => Utils.NotifyRoles(SpecifyTarget: pc), 0.2f, log: false);
                         break;
                 }
 
-                if (itemCategory == ItemCategory.Armor || data.Inventory.Adjust(selectedItem))
+                if (itemCategory is ItemCategory.Armor or ItemCategory.Weapon || data.Inventory.Adjust(selectedItem))
                     data.Inventory.Adjust(cost.Resource, -cost.Count);
 
                 Logger.Info($"{pc.GetRealName()} purchased {selectedItem} for {cost.Count} {cost.Resource}", "BedWars");
@@ -1419,8 +1441,7 @@ public static class BedWars
     private class Inventory
     {
         public Dictionary<Item, int> Items = [];
-        private int SelectedSlot;
-        private const int MaxSlots = 9;
+        public int SelectedSlot;
 
         public void Clear()
         {
@@ -1430,7 +1451,7 @@ public static class BedWars
         public void NextSlot()
         {
             SelectedSlot++;
-            if (SelectedSlot >= MaxSlots) SelectedSlot = 0;
+            if (SelectedSlot >= InventorySlots) SelectedSlot = 0;
         }
 
         public bool Adjust(Item item, int count = 1)
@@ -1439,7 +1460,7 @@ public static class BedWars
                 Items[item] += count;
             else
             {
-                if (Items.Count >= MaxSlots) return false;
+                if (Items.Count >= InventorySlots) return false;
                 Items[item] = count;
             }
 
@@ -1549,7 +1570,7 @@ public static class BedWars
                 if (i++ == SelectedSlot) bottomText = display.Name.Invoke();
             }
 
-            while (itemsDisplays.Count < MaxSlots)
+            while (itemsDisplays.Count < InventorySlots)
                 itemsDisplays.Add(Utils.ColorString(Color.clear, "---"));
 
             const string baseColor = "<#000000>";
@@ -1774,6 +1795,13 @@ public static class BedWars
                 if (didDamage) bed.UpdateStatus();
             }
         }
+    }
+
+    public static void OnChat(PlayerControl player, string message)
+    {
+        message = message.Trim().Replace(" ", string.Empty).Trim();
+        if (int.TryParse(message, out int slot) && slot > 0 && slot <= InventorySlots && Data.TryGetValue(player.PlayerId, out PlayerData data))
+            data.Inventory.SelectedSlot = slot - 1;
     }
 
     public static void ApplyGameOptions(IGameOptions opt, byte playerId)

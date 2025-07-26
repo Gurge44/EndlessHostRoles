@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using AmongUs.GameOptions;
 using BepInEx;
 using BepInEx.Configuration;
@@ -13,11 +15,13 @@ using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
 using EHR.Modules;
 using EHR.Neutral;
-using EHR.Patches;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine;
 using UnityEngine.Networking;
+#if !ANDROID
+using EHR.Patches;
+#endif
 
 [assembly: AssemblyFileVersion(Main.PluginVersion)]
 [assembly: AssemblyInformationalVersion(Main.PluginVersion)]
@@ -30,6 +34,7 @@ namespace EHR;
 [BepInIncompatibility("MalumMenu")]
 [BepInIncompatibility("com.ten.thebetterroles")]
 [BepInIncompatibility("xyz.crowdedmods.crowdedmod")]
+[BepInDependency(SubmergedCompatibility.SubmergedGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
 public class Main : BasePlugin
@@ -39,7 +44,7 @@ public class Main : BasePlugin
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "6.0.0";
     public const string PluginDisplayVersion = "6.0.0";
-    public const bool TestBuild = true;
+    public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
@@ -55,7 +60,7 @@ public class Main : BasePlugin
     public const string ForkId = "EHR";
     public const string SupportedAUVersion = "2025.4.15";
 
-    public const string DataPath =
+    public static readonly string DataPath =
 #if ANDROID
         Application.persistentDataPath;
 #else
@@ -403,6 +408,8 @@ public class Main : BasePlugin
                 { CustomRoles.Helper, "#fcf1bd" },
                 { CustomRoles.Astral, "#b329d6" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Imitator, "#c99e28" },
+                { CustomRoles.PortalMaker, "#700078" },
                 { CustomRoles.Ankylosaurus, "#7FE44C" },
                 { CustomRoles.Leery, "#32a852" },
                 { CustomRoles.Wizard, "#FD05CC" },
@@ -523,6 +530,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Slenderman, "#2c2e00" },
                 { CustomRoles.Amogus, "#ff0000" },
                 { CustomRoles.Weatherman, "#347deb" },
                 { CustomRoles.NoteKiller, "#4CA8E4" },
@@ -570,7 +578,7 @@ public class Main : BasePlugin
                 { CustomRoles.Eclipse, "#0E6655" },
                 { CustomRoles.Vengeance, "#33cccc" },
                 { CustomRoles.HeadHunter, "#ffcc66" },
-                { CustomRoles.Imitator, "#ff00a5" },
+                { CustomRoles.Pulse, "#ff00a5" },
                 { CustomRoles.Werewolf, "#964B00" },
                 { CustomRoles.Bandit, "#8B008B" },
                 { CustomRoles.Agitater, "#F4A460" },
@@ -619,6 +627,7 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.BananaMan, "#ffe135" },
                 { CustomRoles.Blind, "#666666" },
                 { CustomRoles.Shy, "#9582f5" },
                 { CustomRoles.Blocked, "#B7A627" },
@@ -766,9 +775,11 @@ public class Main : BasePlugin
         handler.Info($"{nameof(ThisAssembly.Git.Tag)}: {ThisAssembly.Git.Tag}");
 
         ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
+#if !ANDROID
         ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
+#endif
 
         NormalGameOptionsV09.RecommendedImpostors = NormalGameOptionsV09.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
         NormalGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
@@ -810,10 +821,20 @@ public class Main : BasePlugin
             try { DevManager.StartFetchingTags(); }
             catch (Exception e) { Utils.ThrowException(e); }
 
+            try { SubmergedCompatibility.Initialize(); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            try { HandleRoleColorFiles(); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
+            if (AutoHaunt.Value)
+                Modules.AutoHaunt.Start();
+
             Logger.Msg("========= EHR loaded! =========", "Plugin Load");
             Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
         };
 
+#if !ANDROID
         try
         {
             if (TryFixStuttering.Value && Application.platform == RuntimePlatform.WindowsPlayer && Environment.ProcessorCount >= 4)
@@ -824,6 +845,31 @@ public class Main : BasePlugin
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
+#endif
+    }
+
+    private static void HandleRoleColorFiles()
+    {
+        string serialized = JsonSerializer.Serialize(RoleColors, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText($"{DataPath}/OriginalRoleColors.json", serialized);
+
+        if (!Directory.Exists($"{DataPath}/EHR_DATA"))
+            Directory.CreateDirectory($"{DataPath}/EHR_DATA");
+
+        var path = $"{DataPath}/EHR_DATA/RoleColors.json";
+
+        if (!File.Exists(path)) File.WriteAllText(path, serialized);
+        else
+        {
+            try
+            {
+                string json = File.ReadAllText(path);
+                if (string.IsNullOrEmpty(json) || json == serialized || json.Length < serialized.Length) return;
+                var deserialized = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                RoleColors = deserialized.ToDictionary(x => Enum.Parse<CustomRoles>(x.Key), x => x.Value);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+        }
     }
 
     public static void LoadRoleClasses()
@@ -959,6 +1005,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Slenderman = CustomRoles.Slenderman,
     Amogus = CustomRoles.Amogus,
     Weatherman = CustomRoles.Weatherman,
     NoteKiller = CustomRoles.NoteKiller,
@@ -1008,7 +1055,7 @@ public enum CustomWinner
     Doomsayer = CustomRoles.Doomsayer,
     RuthlessRomantic = CustomRoles.RuthlessRomantic,
     Doppelganger = CustomRoles.Doppelganger,
-    Imitator = CustomRoles.Imitator,
+    Pulse = CustomRoles.Pulse,
     Cherokious = CustomRoles.Cherokious,
     Specter = CustomRoles.Specter,
 

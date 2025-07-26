@@ -52,6 +52,42 @@ internal static class CanUseVentPatch
         // always true for engineer-based roles
         couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(__instance.CastFast<IUsable>()));
 
+        if (SubmergedCompatibility.IsSubmerged()) // From TheOtherRoles
+        {
+            // As submerged does, only change stuff for vents 9 and 14 of submerged. Code partially provided by AlexejheroYTB
+            if (SubmergedCompatibility.GetInTransition())
+            {
+                __result = float.MaxValue;
+                return canUse = couldUse = false;
+            }
+
+            switch (__instance.Id)
+            {
+                case 9: // Cannot enter vent 9 (Engine Room Exit Only Vent)!
+                {
+                    if (playerControl.inVent) break;
+                    __result = float.MaxValue;
+                    return canUse = couldUse = false;
+                }
+                case 14: // Lower Central
+                {
+                    __result = float.MaxValue;
+                    couldUse = couldUse && !pc.IsDead && (playerControl.CanMove || playerControl.inVent);
+                    canUse = couldUse;
+
+                    if (canUse)
+                    {
+                        Vector3 center = playerControl.Collider.bounds.center;
+                        Vector3 position = __instance.transform.position;
+                        __result = Vector2.Distance(center, position);
+                        canUse &= __result <= __instance.UsableDistance;
+                    }
+
+                    return false;
+                }
+            }
+        }
+        
         canUse = couldUse;
         // Not available if custom roles are not available
         if (!canUse) return false;

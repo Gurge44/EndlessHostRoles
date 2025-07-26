@@ -8,10 +8,13 @@ namespace EHR.Modules;
 
 public static class CustomSoundsManager
 {
-    private static readonly string SOUNDS_PATH = @$"{Environment.CurrentDirectory.Replace(@"\", "/")}/BepInEx/resources/";
+#if !ANDROID
+    private static readonly string SoundsPath = $"{Environment.CurrentDirectory.Replace(@"\", "/")}/BepInEx/resources/";
+#endif
 
     public static void RPCPlayCustomSound(this PlayerControl pc, string sound, bool force = false)
     {
+#if !ANDROID
         if (!force)
         {
             if (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())
@@ -27,16 +30,19 @@ public static class CustomSoundsManager
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable, pc.OwnerId);
         writer.Write(sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+#endif
     }
 
     public static void RPCPlayCustomSoundAll(string sound)
     {
+#if !ANDROID
         if (!AmongUsClient.Instance.AmHost) return;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable);
         writer.Write(sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         Play(sound);
+#endif
     }
 
     public static void ReceiveRPC(MessageReader reader)
@@ -46,12 +52,13 @@ public static class CustomSoundsManager
 
     public static void Play(string sound)
     {
+#if !ANDROID
         if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value) return;
 
-        string path = SOUNDS_PATH + sound + ".wav";
-        if (!Directory.Exists(SOUNDS_PATH)) Directory.CreateDirectory(SOUNDS_PATH);
+        string path = SoundsPath + sound + ".wav";
+        if (!Directory.Exists(SoundsPath)) Directory.CreateDirectory(SoundsPath);
 
-        DirectoryInfo folder = new(SOUNDS_PATH);
+        DirectoryInfo folder = new(SoundsPath);
         if ((folder.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden) folder.Attributes = FileAttributes.Hidden;
 
         if (!File.Exists(path))
@@ -71,6 +78,7 @@ public static class CustomSoundsManager
 
         StartPlay(path);
         Logger.Msg($"Playing sound: {sound}", "CustomSounds");
+#endif
     }
 
     [DllImport("winmm.dll", CharSet = CharSet.Unicode)]

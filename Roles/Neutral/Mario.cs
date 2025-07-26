@@ -38,7 +38,7 @@ internal class Mario : RoleBase
     {
         On = true;
         MarioVentCount[playerId] = 0;
-        MarioVentNumWin = MapWinCounts[Main.CurrentMap].GetInt();
+        MarioVentNumWin = MapWinCounts[SubmergedCompatibility.IsSubmerged() ? MapNames.Airship : Main.CurrentMap].GetInt();
     }
 
     public override void Init()
@@ -49,7 +49,7 @@ internal class Mario : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = MarioVentCD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.1f;
+        AURoleOptions.EngineerInVentMaxTime = 0.3f;
     }
 
     public override string GetProgressText(byte playerId, bool comms)

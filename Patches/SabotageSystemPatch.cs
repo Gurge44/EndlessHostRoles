@@ -21,7 +21,7 @@ public static class ReactorSystemTypePatch
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
 
-        if ((MapNames)Main.NormalOptions.MapId is MapNames.Airship) return;
+        if (Main.CurrentMap is MapNames.Airship) return;
 
         // When the sabotage ends
         if (!__instance.IsActive || !SetDurationForReactorSabotage)
@@ -65,7 +65,7 @@ public static class HeliSabotageSystemPatch
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
 
-        if ((MapNames)Main.NormalOptions.MapId is not MapNames.Airship) return;
+        if (Main.CurrentMap is not MapNames.Airship) return;
 
         // When the sabotage ends
         if (!__instance.IsActive || ShipStatus.Instance == null || !SetDurationForReactorSabotage)
@@ -93,7 +93,7 @@ public static class LifeSuppSystemTypePatch
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
 
-        if ((MapNames)Main.NormalOptions.MapId is MapNames.Polus or MapNames.Airship or MapNames.Fungle) return;
+        if (Main.CurrentMap is MapNames.Polus or MapNames.Airship or MapNames.Fungle) return;
 
         // When the sabotage ends
         if (!__instance.IsActive || !SetDurationForO2Sabotage)
@@ -155,7 +155,7 @@ public static class MushroomMixupSabotageSystemPatch
 
         if (!Options.SabotageTimeControl.GetBool()) return;
 
-        if ((MapNames)Main.NormalOptions.MapId is not MapNames.Fungle) return;
+        if (Main.CurrentMap is not MapNames.Fungle) return;
 
         // When the sabotage ends
         if (!__instance.IsActive || !SetDurationMushroomMixupSabotage)
@@ -378,6 +378,8 @@ public static class SabotageSystemTypeRepairDamagePatch
             newReader.Recycle();
         }
 
+        if (SubmergedCompatibility.IsSubmerged()) return CheckSabotage(__instance, player, systemTypes);
+
         if (Options.EnableCustomSabotages.GetBool())
         {
             if (Options.EnableGrabOxygenMaskCustomSabotage.GetBool() && systemTypes == SystemTypes.Comms)
@@ -513,7 +515,7 @@ public static class SecurityCameraPatch
 
         if (amount == SecurityCameraSystemType.IncrementOp)
         {
-            return !((MapNames)Main.NormalOptions.MapId switch
+            return !(Main.CurrentMap switch
             {
                 MapNames.Skeld or MapNames.Dleks => Options.DisableSkeldCamera.GetBool(),
                 MapNames.Polus => Options.DisablePolusCamera.GetBool(),
@@ -529,7 +531,7 @@ public static class SecurityCameraPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RepairCriticalSabotages))]
 internal static class ShipStatusRepairCriticalSabotagesPatch
 {
-    public static void Postfix(ShipStatus __instance)
+    public static void Postfix()
     {
         CustomSabotage.Reset();
     }

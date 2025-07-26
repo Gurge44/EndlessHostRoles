@@ -14,6 +14,7 @@ using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR.Modules;
@@ -135,8 +136,18 @@ public enum CustomRPC
     SyncRomanticTarget,
     SyncVengefulRomanticTarget,
     SetRevealedPlayer,
-    SetCurrentRevealTarget,
-    SetDoomsayerProgress,
+    SetCurrentRevealTarget = 209,
+
+    /*
+     * SUBMERGED RPCs
+     * 210 - SetCustomData
+     * 211 - RequestChangeFloor
+     * 212 - AcknowledgeChangeFloor
+     * 213 - EngineVent
+     * 214 - OxygenDeath
+     */
+
+    SetDoomsayerProgress = 215,
     SetTrackerTarget,
     RpcPassBomb,
     SetAlchemistTimer,
@@ -228,6 +239,7 @@ internal static class RPCHandlerPatch
 
     private static bool TrustedRpc(byte id)
     {
+        if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
         return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand;
     }
 
@@ -237,10 +249,10 @@ internal static class RPCHandlerPatch
         Dictionary<RpcCalls, int> calls = NumRPCsThisSecond[__instance.PlayerId];
         if (!calls.TryAdd(rpcType, 1)) calls[rpcType]++;
 
-        if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
+        if (AmongUsClient.Instance.AmHost && Options.EnableEHRRateLimit.GetBool() && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
         {
             AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
-            Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName));
+            Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName), Color.yellow);
             Logger.Warn($"Sent {calls[rpcType]} RPCs of type {rpcType} ({(byte)rpcType}), which exceeds the limit of {limit}. Kicking player.", "Kick");
             return false;
         }
@@ -315,7 +327,7 @@ internal static class RPCHandlerPatch
                 {
                     Logger.Warn($"{__instance.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) canceled because it was sent by someone other than the host.", "CustomRPC");
 
-                    if (!AmongUsClient.Instance.AmHost || !EAC.ReceiveInvalidRpc(__instance, callId))
+                    if (!Options.KickOnInvalidRPC.GetBool() || !AmongUsClient.Instance.AmHost || !EAC.ReceiveInvalidRpc(__instance, callId))
                     {
                         subReader.Recycle();
                         return false;
@@ -323,7 +335,7 @@ internal static class RPCHandlerPatch
 
                     AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
                     Logger.Warn($"The RPC received from {__instance.Data?.PlayerName} is not trusted, so they were kicked.", "Kick");
-                    Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance.Data?.PlayerName));
+                    Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance.Data?.PlayerName), Color.yellow);
                     subReader.Recycle();
                     return false;
                 }
@@ -351,7 +363,7 @@ internal static class RPCHandlerPatch
                 {
                     case 70:
                     {
-                        Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName));
+                        Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName), Color.yellow);
                         break;
                     }
                     case 80:
@@ -360,10 +372,7 @@ internal static class RPCHandlerPatch
                         reader.ReadString();
 
                         if (reader.ReadString() != Main.ForkId)
-                        {
-                            AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
-                            Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName));
-                        }
+                            Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName), Color.red);
 
                         break;
                     }
@@ -380,7 +389,7 @@ internal static class RPCHandlerPatch
                     {
                         Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): {reader.ReadString()} - Error, terminate the game according to settings", "Anti-blackout");
                         Main.OverrideWelcomeMsg = string.Format(GetString("RpcAntiBlackOutNotifyInLobby"), __instance?.Data?.PlayerName, GetString("EndWhenPlayerBug"));
-                        LateTask.New(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutEndGame"), __instance?.Data?.PlayerName) /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+                        LateTask.New(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutEndGame"), __instance?.Data?.PlayerName) /*, true*/, Color.red); }, 3f, "Anti-Black Msg SendInGame");
 
                         LateTask.New(() =>
                         {
@@ -392,7 +401,7 @@ internal static class RPCHandlerPatch
                     else if (GameStates.IsOnlineGame)
                     {
                         Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): Change Role Setting Postfix - Error, continue the game according to settings", "Anti-blackout");
-                        LateTask.New(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutIgnored"), __instance?.Data?.PlayerName) /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+                        LateTask.New(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutIgnored"), __instance?.Data?.PlayerName) /*, true*/, Color.red); }, 3f, "Anti-Black Msg SendInGame");
                     }
 
                     break;
@@ -412,22 +421,6 @@ internal static class RPCHandlerPatch
                         catch { }
 
                         Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
-
-                        // Kick Unmached Player Start
-                        if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId)
-                        {
-                            LateTask.New(() =>
-                            {
-                                if (__instance.Data?.Disconnected is not null and not true)
-                                {
-                                    string msg = string.Format(GetString("KickBecauseDiffrentVersionOrMod"), __instance.Data?.PlayerName);
-                                    Logger.Warn(msg, "Version Kick");
-                                    Logger.SendInGame(msg);
-                                    AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
-                                }
-                            }, 5f, "Kick");
-                        }
-                        // Kick Unmached Player End
                     }
                     catch (Exception e)
                     {
@@ -659,8 +652,10 @@ internal static class RPCHandlerPatch
                     PlayerControl player = reader.ReadByte().GetPlayer();
                     string text = reader.ReadString();
                     bool modCommand = reader.ReadBoolean();
+                    bool adminCommand = reader.ReadBoolean();
 
                     if (modCommand && !ChatCommands.IsPlayerModerator(player.FriendCode)) break;
+                    if (adminCommand && !ChatCommands.IsPlayerAdmin(player.FriendCode)) break;
 
                     const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
                     typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [player, text, text.Split(' ')]);

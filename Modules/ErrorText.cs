@@ -197,7 +197,7 @@ public enum ErrorCode
 
     // 002 Support related
     UnsupportedVersion = 002_000_3, // 002-000-1 AmongUs version is outdated
-    UnsupportedMap = 002_000_2, // 002-000-2 Unsupported Map
+    UnsupportedMap = 002_000_1, // 002-000-1 Unsupported Map
 
     // ==========
     // 000 Test

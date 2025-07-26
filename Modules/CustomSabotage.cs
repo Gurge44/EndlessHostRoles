@@ -112,6 +112,7 @@ public class GrabOxygenMaskSabotage : CustomSabotage
             MapNames.Polus => SystemTypes.Specimens,
             MapNames.Airship => SystemTypes.Medical,
             MapNames.Fungle => SystemTypes.Kitchen,
+            (MapNames)6 => (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Filtration,
             _ => SystemTypes.Outside
         };
 

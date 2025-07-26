@@ -40,9 +40,16 @@ public static class Statistics
             {
                 try
                 {
+                    Dictionary<string, int> winners = CustomWinnerHolder.WinnerIds.ToValidPlayers().Select(x => x.GetClient()).Where(x => x != null).ToDictionary(x => x.GetHashedPuid(), _ => 0);
+                    
                     Main.NumWinsPerGM.TryAdd(gm, []);
-                    Main.NumWinsPerGM[gm].AddRange(CustomWinnerHolder.WinnerIds.ToValidPlayers().ToDictionary(x => x.GetClient().GetHashedPuid(), _ => 0), false);
-                    Main.NumWinsPerGM[gm].AdjustAllValues(x => ++x);
+                    Main.NumWinsPerGM[gm].AddRange(winners, false);
+
+                    foreach (string hashedpuid in Main.NumWinsPerGM[gm].Keys.ToArray())
+                    {
+                        if (winners.ContainsKey(hashedpuid))
+                            Main.NumWinsPerGM[gm][hashedpuid]++;
+                    }
 
                     if (Main.NumWinsPerGM[gm].Count != 0)
                     {
@@ -52,7 +59,7 @@ public static class Statistics
 
                         foreach ((string hashedpuid, int wins) in Main.NumWinsPerGM[gm])
                         {
-                            if (!apc.FindFirst(x => x.GetClient().GetHashedPuid() == hashedpuid, out PlayerControl player)) continue;
+                            if (!apc.FindFirst(x => x.GetClient()?.GetHashedPuid() == hashedpuid, out PlayerControl player)) continue;
                             sb.AppendLine($"{player.PlayerId.ColoredPlayerName()}: {wins}");
                             any = true;
                         }
@@ -110,7 +117,7 @@ public static class Statistics
             if (Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId) >= 7)
                 Achievements.Type.TheKillingMachine2Point0.CompleteAfterGameEnd();
 
-            if (won && lp.IsCrewmate() && aapc.Length == 1)
+            if (won && lp.IsCrewmate() && aapc.Length == 1 && lp.IsAlive())
                 Achievements.Type.TheLastSurvivor.CompleteAfterGameEnd();
 
             if (addons.Contains(CustomRoles.Spurt) && Spurt.LocalPlayerAvoidsZeroAndOneHundredPrecent)
