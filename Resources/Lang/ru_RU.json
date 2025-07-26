@@ -3254,7 +3254,7 @@
   "EAC.CheatDetected.HighLevel": "Предупреждение: EAC обнаружил высокий уровень читов.",
   "EAC.CheatDetected.LowLevel": "Предупреждение: EAC обнаружил низкий уровень читов. Один из игроков читерит.",
   "EnableMovementChecking": "Включить проверки EAC на неправильное движение (защита от читов на скорость) (может вызвать ложные срабатывания)",
-  "EnableEHRRateLimit": "Enable Custom Rate Limit (to prevent hackers from crashing your game)",
+  "EnableEHRRateLimit": "Включить лимит скорости отправки RPC (мешает читерам) (если у вас нет читеров, отключайте)",
   "KickOnInvalidRPC": "Кикать игроков с неправильными RPC (обычно это бывает из-за другого мода или читов)",
   "DisableVoteBan": "Отключить сапог-кик для всех, кроме хоста (не даёт читерам всех кикнуть)",
   "PlayerIsRole": "{0} был {1}.",
