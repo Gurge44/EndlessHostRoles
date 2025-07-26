@@ -57,7 +57,8 @@ public static class Options
         UseGameLanguage,
         Hungarian,
         Polish,
-        Indonesian
+        Indonesian,
+        Persian
     }
 
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
