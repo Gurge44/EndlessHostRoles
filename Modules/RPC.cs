@@ -249,7 +249,7 @@ internal static class RPCHandlerPatch
         Dictionary<RpcCalls, int> calls = NumRPCsThisSecond[__instance.PlayerId];
         if (!calls.TryAdd(rpcType, 1)) calls[rpcType]++;
 
-        if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
+        if (AmongUsClient.Instance.AmHost && Options.EnableEHRRateLimit.GetBool() && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
         {
             AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
             Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName), Color.yellow);
@@ -327,7 +327,7 @@ internal static class RPCHandlerPatch
                 {
                     Logger.Warn($"{__instance.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) canceled because it was sent by someone other than the host.", "CustomRPC");
 
-                    if (!AmongUsClient.Instance.AmHost || !EAC.ReceiveInvalidRpc(__instance, callId))
+                    if (!Options.KickOnInvalidRPC.GetBool() || !AmongUsClient.Instance.AmHost || !EAC.ReceiveInvalidRpc(__instance, callId))
                     {
                         subReader.Recycle();
                         return false;
@@ -372,10 +372,7 @@ internal static class RPCHandlerPatch
                         reader.ReadString();
 
                         if (reader.ReadString() != Main.ForkId)
-                        {
-                            AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
-                            Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName), Color.yellow);
-                        }
+                            Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName), Color.red);
 
                         break;
                     }
@@ -424,22 +421,6 @@ internal static class RPCHandlerPatch
                         catch { }
 
                         Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
-
-                        // Kick Unmached Player Start
-                        if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId)
-                        {
-                            LateTask.New(() =>
-                            {
-                                if (__instance.Data?.Disconnected is not null and not true)
-                                {
-                                    string msg = string.Format(GetString("KickBecauseDiffrentVersionOrMod"), __instance.Data?.PlayerName);
-                                    Logger.Warn(msg, "Version Kick");
-                                    Logger.SendInGame(msg, Color.yellow);
-                                    AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
-                                }
-                            }, 5f, "Kick");
-                        }
-                        // Kick Unmached Player End
                     }
                     catch (Exception e)
                     {

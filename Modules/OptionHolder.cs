@@ -252,6 +252,8 @@ public static class Options
     public static OptionItem ShowTeamNextToRoleNameOnEject;
     public static OptionItem CheatResponses;
     public static OptionItem EnableMovementChecking;
+    public static OptionItem EnableEHRRateLimit;
+    public static OptionItem KickOnInvalidRPC;
     public static OptionItem LowLoadMode;
     public static OptionItem DeepLowLoad;
     public static OptionItem DisableVoteBan;
@@ -1615,6 +1617,12 @@ public static class Options
             .SetHeader(true);
 
         EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        EnableEHRRateLimit = new BooleanOptionItem(19318, "EnableEHRRateLimit", true, TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        KickOnInvalidRPC = new BooleanOptionItem(19319, "KickOnInvalidRPC", true, TabGroup.SystemSettings)
             .SetHeader(true);
 
 

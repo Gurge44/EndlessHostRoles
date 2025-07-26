@@ -124,7 +124,7 @@ public static class BanManager
             {
                 if (line == "") continue;
 
-                if (line.Contains("Amogus") || line.Contains("Amogus V") || Regex.IsMatch(name, line))
+                if (Regex.IsMatch(name, line))
                 {
                     AmongUsClient.Instance.KickPlayer(player.OwnerId, false);
                     Logger.SendInGame(string.Format(GetString("Message.KickedByDenyName"), name, line), Color.yellow);

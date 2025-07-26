@@ -187,6 +187,7 @@ public enum CustomRoles
     Guardian,
     Helper,
     Ignitor,
+    Imitator,
     Insight,
     ParityCop, // Inspector
     Inquirer,
@@ -296,7 +297,7 @@ public enum CustomRoles
     HeadHunter,
     HexMaster,
     Hookshot,
-    Imitator,
+    Pulse,
     Impartial,
     Innocent,
     Investor,
