@@ -1,6 +1,5 @@
 {
   "LanguageID": "5",
-  "TextBelowVersionText": "",
   "HostText": "Хост",
   "IconColor": "#00a5ff",
   "HostColor": "#00ffa5",
@@ -137,7 +136,6 @@
   "MaxNNKs": "<#00ffa5>Макс.</color> кол-во <#ffff00>Пассивных</color> <#ffab1b>Нейтралов</color> <#888888>(Добрых, Злых, Отверженных)</color>",
   "NeutralNonKillingRoles": "<#ffff00>Пассивные</color>",
   "CTA.TeamEnabled.Prefix": "Включить команду ",
-  "CTA.TeamEnabled.Suffix": " ",
   "CTA.KnowRoles": "Участники команды знают роли друг друга",
   "CTA.WinWithOriginalTeam": "Участники команды могут выиграть с командой их роли",
   "CTA.KillEachOther": "Участники команды могут убивать друг друга",
