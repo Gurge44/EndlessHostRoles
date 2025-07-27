@@ -2234,7 +2234,7 @@
   "BKInProtect": "Щит активен",
   "BKProtectOut": "Щит пропал",
   "BKSkillTimeRemain": "<color=#00ffa5>У тебя щит на</color> <b>{0}</b>с",
-  "BKSkillNotice": "Убейте, чтобы получить щит",
+  "BKSkillNotice": "Убей, чтобы получить щит",
   "BKOffsetKill": "Тебя пытались убить",
   "MedicKillerTryBrokenShieldTargetForMedic": "Кто-то пытается сломать щит!",
   "MedicKillerTryBrokenShieldTargetForTarget": "Тебя пытались убить!",
