@@ -16,15 +16,15 @@ public class Pulse : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pulse);
 
-        OddKillCooldown = new FloatOptionItem(Id + 10, "OddKillCooldown", new(0f, 60f, 0.5f), 27.5f, TabGroup.NeutralRoles)
+        OddKillCooldown = new FloatOptionItem(Id + 10, "OddKillCooldown", new(0f, 120f, 0.5f), 27.5f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pulse])
             .SetValueFormat(OptionFormat.Seconds);
 
-        EvenKillCooldown = new FloatOptionItem(Id + 11, "EvenKillCooldown", new(0f, 30f, 0.5f), 15f, TabGroup.NeutralRoles)
+        EvenKillCooldown = new FloatOptionItem(Id + 11, "EvenKillCooldown", new(0f, 120f, 0.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pulse])
             .SetValueFormat(OptionFormat.Seconds);
 
-        AfterMeetingKillCooldown = new FloatOptionItem(Id + 12, "AfterMeetingKillCooldown", new(0f, 30f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+        AfterMeetingKillCooldown = new FloatOptionItem(Id + 12, "AfterMeetingKillCooldown", new(0f, 120f, 0.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pulse])
             .SetValueFormat(OptionFormat.Seconds);
 
