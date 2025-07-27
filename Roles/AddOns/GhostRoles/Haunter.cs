@@ -98,7 +98,7 @@ internal class Haunter : IGhostRole
         {
             TargetArrow.Add(imp.PlayerId, pc.PlayerId);
             WarnedImps.Add(imp.PlayerId);
-            imp.Notify(Translator.GetString("Haunter1TaskLeft"), 300f);
+            imp.Notify(Translator.GetString("Haunter1TaskLeft"), 10f);
         }
 
         WarnTimeStamp = Utils.TimeStamp;

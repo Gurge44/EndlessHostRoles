@@ -1265,16 +1265,21 @@ internal static class ReportDeadBodyPatch
 
         Main.ProcessShapeshifts = false;
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
-                Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
-
-            if (Magistrate.CallCourtNextMeeting)
+            if (pc.IsAlive())
             {
-                string name = pc.GetRealName();
-                RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+                if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
+                    Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
+
+                if (Magistrate.CallCourtNextMeeting)
+                {
+                    string name = pc.GetRealName();
+                    RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+                }
             }
+            else if (!pc.Data.IsDead)
+                pc.RpcExileV2();
         }
 
         RPCHandlerPatch.RemoveExpiredWhiteList();
@@ -1308,10 +1313,7 @@ internal static class FixedUpdatePatch
         CheckMurderPatch.Update(__instance.PlayerId);
 
         if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
-        {
             CustomNetObject.FixedUpdate();
-            EAC.TimeSinceLastTaskCompletion.AdjustAllValues(f => f + Time.fixedDeltaTime);
-        }
 
         byte id = __instance.PlayerId;
 

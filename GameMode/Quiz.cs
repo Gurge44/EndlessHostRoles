@@ -273,7 +273,7 @@ public static class Quiz
 
         NoSuffix = true;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
-        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 2;
+        bool showTutorial = !SubmergedCompatibility.IsSubmerged() && aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Length / 2;
 
         var usedRooms = string.Join('\n', UsedRooms[Main.CurrentMap].Select(x => $"{x.Key}: {GetString(x.Value.ToString())}"));
         aapc.NotifyPlayers(string.Format(GetString("Quiz.Tutorial.Basics"), usedRooms), 11f);

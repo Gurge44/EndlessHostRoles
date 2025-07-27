@@ -507,7 +507,8 @@ public class TaskState
                     {
                         if (CompletedTasksCount + 1 >= AllTasksCount)
                             haunter.OnFinishedTasks(player);
-                        else if (CompletedTasksCount + 1 >= Haunter.TasksBeforeBeingKnown.GetInt()) haunter.OnOneTaskLeft(player);
+                        else if (RemainingTasksCount - 1 <= Haunter.TasksBeforeBeingKnown.GetInt())
+                            haunter.OnOneTaskLeft(player);
                     }
                 }
 
