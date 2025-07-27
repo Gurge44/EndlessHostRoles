@@ -197,7 +197,7 @@ internal static class CheckForEndVotingPatch
                 if (canVote) AddVote();
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Magistrate) && Magistrate.CallCourtNextMeeting) Loop.Times(Magistrate.ExtraVotes.GetInt(), _ => AddVote());
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool()) Loop.Times(Mayor.MayorAdditionalVote.GetInt(), _ => AddVote());
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool()) Loop.Times(Mayor.MayorAdditionalVote.GetInt() + Mayor.TaskVotes, _ => AddVote());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator) && !Options.VindicatorHideVote.GetBool()) Loop.Times(Options.VindicatorAdditionalVote.GetInt(), _ => AddVote());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) AddVote();
 
@@ -623,7 +623,7 @@ internal static class ExtendedMeetingHud
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Magistrate) && Magistrate.CallCourtNextMeeting) voteNum += Magistrate.ExtraVotes.GetInt();
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Mayor)) voteNum += Mayor.MayorAdditionalVote.GetInt();
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Mayor)) voteNum += (Mayor.MayorAdditionalVote.GetInt() + Mayor.TaskVotes);
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool()) voteNum = 0;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) voteNum = 0;
