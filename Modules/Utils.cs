@@ -2063,6 +2063,7 @@ public static class Utils
         if (!AmongUsClient.Instance.AmHost || player == null) return false;
 
         DevManager.TagInfo devUser = player.FriendCode.GetDevUser();
+        bool admin = ChatCommands.IsPlayerAdmin(player.FriendCode);
         bool mod = ChatCommands.IsPlayerModerator(player.FriendCode);
         bool vip = ChatCommands.IsPlayerVIP(player.FriendCode);
         bool hasTag = devUser.HasTag();
@@ -2121,9 +2122,10 @@ public static class Utils
 
                 bool host = player.IsHost();
                 string separator = player.AmOwner || player.IsModdedClient() ? "\r\n" : " ";
+                string adminTag = host ? string.Empty : $"<size=1.7>{GetString("AdminTag")}{separator}</size>";
                 string modTag = host ? string.Empty : $"<size=1.7>{GetString("ModeratorTag")}{separator}</size>";
                 string vipTag = host ? string.Empty : $"<size=1.7>{GetString("VIPTag")}{separator}</size>";
-                name = $"{(hasTag ? tag.Replace("\r\n", separator) : string.Empty)}{(mod ? modTag : string.Empty)}{(vip ? vipTag : string.Empty)}{pTag}{name}";
+                name = $"{(hasTag ? tag.Replace("\r\n", separator) : string.Empty)}{(admin ? adminTag : mod ? modTag : string.Empty)}{(vip ? vipTag : string.Empty)}{pTag}{name}";
             }
 
             if (player.AmOwner)

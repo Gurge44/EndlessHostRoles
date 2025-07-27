@@ -42,7 +42,7 @@ public sealed class Stealth : RoleBase
             return true;
         }
 
-        if (excludeImpostors) playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoles.Impostor));
+        if (excludeImpostors) playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoleTypes.Impostor));
 
         DarkenPlayers(playersToDarken);
         return true;
