@@ -1440,7 +1440,7 @@
   "MayorNumOfUseButton": "Número Máximo de Botões de Emergência Móveis",
   "MayorHideVote": "Ocultar voto(s) adicional(is)",
   "MayorCanGainVotes": "<color=#204d42>Mayor</color> can gain votes by doing tasks",
-  "MayorTasksPerVoteGain": "Amount of tasks for <color=#204d42>Mayor</color> to complete for an extra vote",
+  "MayorTasksPerVoteGain": "Amount of votes gained per task completed",
   "MaxMayorTaskVotes": "Maximum votes Mayor can gain by task",
   "ExecutionerCanTargetImpostor": "O seu alvo pode ser um <color=#ff1919>Impostor</color>",
   "ExecutionerCanTargetNeutralKiller": "O seu alvo pode ser um <color=#ffab1b>Neutro</color> <color=#ff1919>Assassino</color>",
