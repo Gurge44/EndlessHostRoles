@@ -1440,7 +1440,7 @@
   "MayorNumOfUseButton": "Batas penggunaan alternatif panggilan rapat",
   "MayorHideVote": "Sembunyikan tambahan suara",
   "MayorCanGainVotes": "<color=#204d42>Mayor</color> can gain votes by doing tasks",
-  "MayorTasksPerVoteGain": "Amount of tasks for <color=#204d42>Mayor</color> to complete for an extra vote",
+  "MayorTasksPerVoteGain": "Amount of votes gained per task completed",
   "MaxMayorTaskVotes": "Maximum votes Mayor can gain by task",
   "ExecutionerCanTargetImpostor": "<color=#ff1919>Impostor</color> bisa menjadi target",
   "ExecutionerCanTargetNeutralKiller": "<color=#ffab1b>Netral</color> <color=#ff1919>Pembunuh</color> bisa menjadi target",
