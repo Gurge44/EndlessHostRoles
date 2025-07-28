@@ -1440,7 +1440,7 @@
   "MayorNumOfUseButton": "携帯緊急ボタンの最大数",
   "MayorHideVote": "追加の投票を隠す(票)",
   "MayorCanGainVotes": "<color=#204d42>Mayor</color> can gain votes by doing tasks",
-  "MayorTasksPerVoteGain": "Amount of tasks for <color=#204d42>Mayor</color> to complete for an extra vote",
+  "MayorTasksPerVoteGain": "Amount of votes gained per task completed",
   "MaxMayorTaskVotes": "Maximum votes Mayor can gain by task",
   "ExecutionerCanTargetImpostor": "<color=#ff1919>インポスター</color>をターゲットにできる",
   "ExecutionerCanTargetNeutralKiller": "<color=#ff1919>殺害する</color> <color=#ffab1b>ニュートラル</color>をターゲットにできる",
