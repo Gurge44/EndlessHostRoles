@@ -1440,7 +1440,7 @@
   "MayorNumOfUseButton": "Кол-во портативных кнопок",
   "MayorHideVote": "Спрятать доп. голоса",
   "MayorCanGainVotes": "<color=#204d42>Мэр</color> может получить ещё больше голосов, делая таски",
-  "MayorTasksPerVoteGain": "Кол-во тасков для получения доп. голоса",
+  "MayorTasksPerVoteGain": "Amount of votes gained per task completed",
   "MaxMayorTaskVotes": "Макс. кол-во доп. голосов, которые <color=#204d42>Мэр</color> может получить, делая таски",
   "ExecutionerCanTargetImpostor": "Целью может являться <color=#ff1919>Предатель</color>",
   "ExecutionerCanTargetNeutralKiller": "Целью может являться <color=#ffab1b>Нейтральный</color> <color=#ff1919>Убийца</color>",
