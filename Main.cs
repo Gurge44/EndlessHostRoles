@@ -479,6 +479,7 @@ public class Main : BasePlugin
                 { CustomRoles.Merchant, "#D27D2D" },
                 { CustomRoles.Monitor, "#7223DA" },
                 { CustomRoles.Deputy, "#df9026" },
+                { CustomRoles.Retributionist, "#cfc999" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.NiceSwapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },

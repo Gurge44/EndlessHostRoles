@@ -229,6 +229,7 @@ public enum CustomRoles
     Psychic,
     Rabbit,
     Randomizer,
+    Retributionist,
     Rhapsode,
     Ricochet,
     Safeguard,

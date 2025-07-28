@@ -467,6 +467,58 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void RetributeCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(RetributeCommand), text);
+            return;
+        }
+
+        if (!player.IsAlive() || !Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.Role is not Retributionist { Notified: true } rb || rb.Camping == byte.MaxValue) return;
+
+        PlayerControl campTarget = Utils.GetPlayerById(rb.Camping);
+        if (campTarget == null || campTarget.IsAlive() || !Main.PlayerStates.TryGetValue(campTarget.PlayerId, out PlayerState campState)) return;
+
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
+
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+
+        byte realKiller = campState.GetRealKiller();
+
+        if (realKiller != targetId)
+        {
+            rb.Notified = false;
+            Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Fail"));
+        }
+        else
+        {
+            PlayerControl killer = Utils.GetPlayerById(realKiller);
+
+            if (killer == null || !killer.IsAlive())
+            {
+                rb.Notified = false;
+                Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.KillerDead"));
+            }
+            else
+            {
+                killer.SetRealKiller(player);
+                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
+                killerState.deathReason = PlayerState.DeathReason.Retribution;
+                killerState.SetDead();
+                Medic.IsDead(killer);
+                killer.RpcExileV2();
+                Utils.AfterPlayerDeathTasks(killer, true);
+                Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())));
+                Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
+            }
+        }
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+    
     private static void ImitateCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;

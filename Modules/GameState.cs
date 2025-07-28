@@ -67,6 +67,7 @@ public class PlayerState(byte playerId)
         Mauled,
         WipedOut,
         OutOfOxygen,
+        Retribution,
 
         // Natural Disasters
         Meteor,

@@ -183,6 +183,7 @@ public static class NameColorManager
             CustomRoles.Dreamweaver when ((Dreamweaver)seerRoleClass).InsanePlayers.Contains(target.PlayerId) || target.Is(CustomRoles.Insane) => "000000",
             CustomRoles.Banshee when ((Banshee)seerRoleClass).ScreechedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Illusionist when ((Illusionist)seerRoleClass).SampledPlayerId == target.PlayerId => "000000",
+            CustomRoles.Retributionist when ((Retributionist)seerRoleClass).Camping == target.PlayerId => "000000",
             CustomRoles.Seamstress when ((Seamstress)seerRoleClass).SewedPlayers.Item1 == target.PlayerId || ((Seamstress)seerRoleClass).SewedPlayers.Item2 == target.PlayerId => "000000",
             CustomRoles.Spirit when ((Spirit)seerRoleClass).Targets.Item1 == target.PlayerId || ((Spirit)seerRoleClass).Targets.Item2 == target.PlayerId => "000000",
             CustomRoles.Starspawn when ((Starspawn)seerRoleClass).IsolatedPlayers.Contains(target.PlayerId) => "000000",
