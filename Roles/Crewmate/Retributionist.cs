@@ -1,4 +1,7 @@
-﻿namespace EHR.Crewmate;
+﻿using EHR.Modules;
+using Hazel;
+
+namespace EHR.Crewmate;
 
 public class Retributionist : RoleBase
 {
@@ -51,6 +54,7 @@ public class Retributionist : RoleBase
         {
             Notified = false;
             Camping = byte.MaxValue;
+            Utils.SendRPC(CustomRPC.SyncRoleData, RetributionistPC.PlayerId, Camping);
             RetributionistPC.RpcChangeRoleBasis(CustomRoles.Retributionist);
         }
     }
@@ -58,6 +62,7 @@ public class Retributionist : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         Camping = target.PlayerId;
+        Utils.SendRPC(CustomRPC.SyncRoleData, RetributionistPC.PlayerId, Camping);
         RetributionistPC.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
         return false;
     }
@@ -70,7 +75,12 @@ public class Retributionist : RoleBase
 
         if (campTarget == null)
         {
-            if (!Notified) Camping = byte.MaxValue;
+            if (!Notified)
+            {
+                Camping = byte.MaxValue;
+                Utils.SendRPC(CustomRPC.SyncRoleData, RetributionistPC.PlayerId, Camping);
+            }
+
             return;
         }
 
@@ -80,5 +90,10 @@ public class Retributionist : RoleBase
             pc.Notify(Translator.GetString("Retributionist.TargetDead"), 15f);
             Notified = true;
         }
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        Camping = reader.ReadByte();
     }
 }
