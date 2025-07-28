@@ -8986,7 +8986,7 @@
   "Tank.Suffix": "<size=80%><#00ffa5>一个你还没跳过的随机管道口:</color> {0}</size>",
   "Retributionist": "惩罚者",
   "RetributionistInfo": "查找并杀死你认为是目标的杀手",
-  "RetributionistInfoLong": "(Crewmates):\\nAs the Retributionist, you may mark a player using your kill button to camp them. If they die, you will be notified. In the meeting after that, you may use <b>/retribute {id}</b> to kill the player who killed your target. If you guess wrong, nothing happens. After the meeting, you may camp another player.",
+  "RetributionistInfoLong": "(船员职业):\\n惩罚者可以使用击杀按钮来标记玩家。如果他们死了，你会收到通知。在之后的会议上，您可以使用<b>/retribute {id}</b>杀死杀死目标的玩家。如果你猜错了，什么都不会发生。会议结束后，您可以标记另一个玩家。",
   "Retributionist.TargetDead": "<#ffff00>你的目标死了！</color>\\n您可以使用<u>/retribute {id}</u>在下一次会议中杀死杀死目标的玩家。",
   "Retributionist.Fail": "<#ff0000>X</color> <#bb0000>错误！",
   "Retributionist.KillerDead": "<#ffa500>-</color> <#ffab1b>正确，但凶手已经死了，或者他已经断开了连接。",
