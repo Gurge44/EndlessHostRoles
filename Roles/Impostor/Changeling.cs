@@ -107,14 +107,14 @@ internal class Changeling : RoleBase
         SelectNextRole(pc);
     }
 
-    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    public override bool OnVanish(PlayerControl pc)
     {
         LateTask.New(() =>
         {
-            shapeshifter.RpcSetCustomRole(CurrentRole);
-            shapeshifter.RpcChangeRoleBasis(CurrentRole);
-            ChangedRole[shapeshifter.PlayerId] = true;
-            shapeshifter.RpcResetAbilityCooldown();
+            pc.RpcSetCustomRole(CurrentRole);
+            pc.RpcChangeRoleBasis(CurrentRole);
+            ChangedRole[pc.PlayerId] = true;
+            pc.RpcResetAbilityCooldown();
         }, 0.3f, log: false);
 
         return false;

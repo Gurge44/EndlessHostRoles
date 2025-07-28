@@ -160,7 +160,7 @@ internal static class CustomRolesHelper
             CustomRoles.Blackmailer => CustomRoles.Impostor,
             CustomRoles.Commander => CustomRoles.Shapeshifter,
             CustomRoles.Freezer => CustomRoles.Shapeshifter,
-            CustomRoles.Changeling => CustomRoles.Shapeshifter,
+            CustomRoles.Changeling => CustomRoles.Phantom,
             CustomRoles.Swapster => CustomRoles.Shapeshifter,
             CustomRoles.Kamikaze => CustomRoles.Impostor,
             CustomRoles.Librarian => CustomRoles.Shapeshifter,
