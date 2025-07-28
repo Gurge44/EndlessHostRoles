@@ -1440,7 +1440,7 @@
   "MayorNumOfUseButton": "緊急會議次數上限",
   "MayorHideVote": "隱藏市長附加的投票",
   "MayorCanGainVotes": "<color=#204d42>Mayor</color> can gain votes by doing tasks",
-  "MayorTasksPerVoteGain": "Amount of tasks for <color=#204d42>Mayor</color> to complete for an extra vote",
+  "MayorTasksPerVoteGain": "Amount of votes gained per task completed",
   "MaxMayorTaskVotes": "Maximum votes Mayor can gain by task",
   "ExecutionerCanTargetImpostor": "<color=#ff1919>偽裝者</color>可以成為目標",
   "ExecutionerCanTargetNeutralKiller": "<color=#ff1919>帶刀</color> <color=#ffab1b>中立</color>玩家可以成為目標",
