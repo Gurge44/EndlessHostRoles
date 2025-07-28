@@ -6,11 +6,8 @@ namespace EHR.Crewmate;
 
 internal class Mayor : RoleBase
 {
-    public static Dictionary<byte, int> MayorUsedButtonCount = [];
-    public static float VoteDecimal = 0;
-    public static int TaskVotes = 0;
-    
     public static bool On;
+    public static Dictionary<byte, int> MayorUsedButtonCount = [];
 
     public static OptionItem MayorAdditionalVote;
     public static OptionItem MayorHasPortableButton;
@@ -21,7 +18,11 @@ internal class Mayor : RoleBase
     public static OptionItem MayorCanGainVotes;
     public static OptionItem MayorTasksPerVoteGain;
     public static OptionItem MaxMayorTaskVotes;
+
     public override bool IsEnable => On;
+
+    private float VoteDecimal;
+    public int TaskVotes;
 
     public override void Add(byte playerId)
     {
@@ -86,13 +87,8 @@ internal class Mayor : RoleBase
         if (TaskVotes >= MaxMayorTaskVotes.GetInt()) return;
             
         VoteDecimal += MayorTasksPerVoteGain.GetFloat();
-        
-        if (VoteDecimal >= 1)
-        {
-            VoteDecimal -= 1;
-            TaskVotes++;
-        }
-        if (VoteDecimal >= 1)
+
+        while (VoteDecimal >= 1)
         {
             VoteDecimal -= 1;
             TaskVotes++;
@@ -125,8 +121,8 @@ internal class Mayor : RoleBase
 
         MayorCanGainVotes = new BooleanOptionItem(9520, "MayorCanGainVotes", false, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
-        
-        MayorTasksPerVoteGain = new FloatOptionItem(id: 9521, "MayorTasksPerVoteGain", new(0f, 2f, 0.2f), 1f, TabGroup.CrewmateRoles)
+
+        MayorTasksPerVoteGain = new FloatOptionItem(9521, "MayorTasksPerVoteGain", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
             .SetParent(MayorCanGainVotes);
 
         MaxMayorTaskVotes = new IntegerOptionItem(id: 9522, "MaxMayorTaskVotes", new(1, 10, 1), 3, TabGroup.CrewmateRoles)
