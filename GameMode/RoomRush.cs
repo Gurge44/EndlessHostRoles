@@ -53,6 +53,7 @@ public static class RoomRush
             [(SystemTypes.MedBay, SystemTypes.Security)] = 3,
             [(SystemTypes.Admin, SystemTypes.Security)] = 2,
             [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
+            [(SystemTypes.Cafeteria, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.Storage, SystemTypes.Security)] = 2,
             [(SystemTypes.Storage, SystemTypes.MedBay)] = 2
         },

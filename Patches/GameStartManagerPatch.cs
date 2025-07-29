@@ -404,7 +404,7 @@ public static class GameStartManagerPatch
                     CustomGameMode.Speedrun => (Speedrun.TimeLimitValue * (Main.NormalOptions.NumShortTasks + Main.NormalOptions.NumLongTasks + Main.NormalOptions.NumCommonTasks)) + (Speedrun.KCD * (PlayerControl.AllPlayerControls.Count / 2)),
                     CustomGameMode.CaptureTheFlag => CaptureTheFlag.GameEndCriteriaType == 2 ? CaptureTheFlag.MaxGameLength : CaptureTheFlag.IsDeathPossible ? 40 : Math.Max(30, 1500 / (int)Math.Pow(CaptureTheFlag.KCD + 0.5f, 2) * CaptureTheFlag.TotalRoundsToPlay),
                     CustomGameMode.NaturalDisasters => 80 + (50 * NaturalDisasters.FrequencyOfDisasters * Math.Max(1, PlayerControl.AllPlayerControls.Count / 3)),
-                    CustomGameMode.RoomRush => (PlayerControl.AllPlayerControls.Count - 1) * (RoomRush.PointsSystem ? 20 : 15),
+                    CustomGameMode.RoomRush => (int)Math.Round((PlayerControl.AllPlayerControls.Count - 1) * ((Main.NormalOptions.MapId is 0 or 3 ? RoomRush.PointsSystem ? 20 : 15 : RoomRush.PointsSystem ? 25 : 20) / Main.NormalOptions.PlayerSpeedMod)),
                     CustomGameMode.KingOfTheZones => Math.Min(KingOfTheZones.MaxGameTime, KingOfTheZones.MaxGameTimeByPoints),
                     _ => 0
                 };

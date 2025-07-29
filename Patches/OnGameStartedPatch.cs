@@ -797,6 +797,31 @@ internal static class StartGameHostPatch
 
         try
         {
+            if (RoleResult.ContainsValue(CustomRoles.DoubleAgent))
+            {
+                foreach ((byte targetId, CustomRoles targetRole) in RoleResult)
+                {
+                    if (targetRole != CustomRoles.DoubleAgent) continue;
+
+                    PlayerControl target = Utils.GetPlayerById(targetId);
+                    if (target == null) continue;
+
+                    foreach ((byte seerId, CustomRoles seerRole) in RoleResult)
+                    {
+                        if (seerId == targetId || !seerRole.IsImpostor()) continue;
+
+                        PlayerControl seer = Utils.GetPlayerById(seerId);
+                        if (seer == null) continue;
+
+                        target.RpcSetRoleDesync(RoleTypes.Impostor, seer.OwnerId);
+                    }
+                }
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try
+        {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
