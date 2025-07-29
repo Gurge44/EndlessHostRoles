@@ -34,6 +34,7 @@ public enum CustomRoles
     Changeling,
     Chronomancer,
     Cleaner,
+    ClockBlocker,
     Commander,
     EvilDiviner, // Consigliere
     Consort,

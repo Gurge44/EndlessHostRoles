@@ -510,6 +510,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     Options.AdditionalEmergencyCooldownTime.GetInt());
             }
 
+            if (CustomRoles.ClockBlocker.RoleExist(true))
+            {
+                int originalTime = opt.GetInt(Int32OptionNames.EmergencyCooldown);
+                opt.SetInt(Int32OptionNames.EmergencyCooldown, ClockBlocker.GetTotalTime(originalTime));
+            }
+
             if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount)
                 opt.SetInt(Int32OptionNames.EmergencyCooldown, 3600);
 
