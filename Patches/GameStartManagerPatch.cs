@@ -27,19 +27,21 @@ public static class GameStartManagerUpdatePatch
     }
 }
 
+[HarmonyPatch]
 public static class GameStartManagerPatch
 {
     public static long TimerStartTS;
     private static TextMeshPro WarningText;
     public static float Timer => Math.Max(0, 597f - (Utils.TimeStamp - TimerStartTS));
 
-    [HarmonyPatch(typeof(TimerTextTMP), nameof(TimerTextTMP.GetTextString))]
-    private static class TimerTextTMPGetTextStringPatch
+    [HarmonyPatch(typeof(TimerTextTMP), nameof(TimerTextTMP.UpdateText))]
+    public static class TimerTextTMPUpdateTextPatch
     {
-        public static bool Prefix(TimerTextTMP __instance, ref string __result)
+        public static bool Prefix(TimerTextTMP __instance)
         {
             int seconds = __instance.GetSecondsRemaining();
-            __result = string.Format(GetString("LobbyTimer"), seconds / 60, seconds % 60);
+            __instance.text.text = string.Format(GetString("LobbyTimer"), seconds / 60, seconds % 60);
+            Logger.Warn($"Remaining time: {seconds / 60:00}:{seconds % 60:00}", "TimerTextTMPGetTextStringPatch.Prefix");
             return false;
         }
     }

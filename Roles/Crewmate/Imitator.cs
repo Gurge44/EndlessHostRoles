@@ -11,7 +11,7 @@ public class Imitator : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(653100);
+        StartSetup(653190);
     }
 
     public override void Init()
