@@ -529,8 +529,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsAlive() || !Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.Role is not Imitator imitator) return;
-        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
+        if (!player.IsAlive() || args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
 
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
@@ -546,7 +545,8 @@ internal static class ChatCommands
             return;
         }
 
-        imitator.ImitatingRole = targetState.MainRole;
+        Imitator.ImitatingRole[player.PlayerId] = targetState.MainRole;
+        Logger.Info($"{player.GetRealName()} will be imitating as {targetState.MainRole}", "Imitator");
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Imitator.Success"), targetId.ColoredPlayerName()));
 
         MeetingManager.SendCommandUsedMessage(args[0]);

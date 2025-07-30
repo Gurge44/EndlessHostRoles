@@ -50,7 +50,14 @@ public static class AntiBlackout
     // After the ejection screen, we revert the role types to their actual values.
     public static void RevertToActualRoleTypes()
     {
-        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default || CachedRoleMap.Count == 0) return;
+        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+
+        if (CachedRoleMap.Count == 0)
+        {
+            SkipTasks = false;
+            ExileControllerWrapUpPatch.AfterMeetingTasks();
+            return;
+        }
 
         // Set the temporarily revived crewmate back to dead.
         foreach (PlayerControl pc in Main.AllPlayerControls)

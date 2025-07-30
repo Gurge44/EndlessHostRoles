@@ -3266,6 +3266,9 @@ public static class Utils
 
         Camouflage.CheckCamouflage();
 
+        CopyCat.ResetRoles();
+        Imitator.SetRoles();
+
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             if (pc.IsAlive())
@@ -3320,8 +3323,6 @@ public static class Utils
         }
 
         LateTask.New(() => Main.ProcessShapeshifts = true, 1f, log: false);
-
-        CopyCat.ResetRoles();
 
         if (Options.DiseasedCDReset.GetBool())
         {

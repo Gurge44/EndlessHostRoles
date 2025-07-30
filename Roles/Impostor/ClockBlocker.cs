@@ -20,9 +20,9 @@ public class ClockBlocker : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(653300)
-            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0.5f, 120f, 0.5f))
-            .AutoSetupOption(ref EmergencyCooldownIncreasePerKill, 5, new IntegerValueRule(1, 30, 1))
-            .AutoSetupOption(ref MaxEmergencyCooldown, 90, new IntegerValueRule(5, 300, 5));
+            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0.5f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref EmergencyCooldownIncreasePerKill, 5, new IntegerValueRule(1, 30, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref MaxEmergencyCooldown, 90, new IntegerValueRule(5, 300, 5), OptionFormat.Seconds);
     }
 
     public override void Init()

@@ -431,7 +431,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             if (state.SubRoles.Contains(CustomRoles.Energetic))
             {
-                switch (roleTypes)
+                if (player.CanUseKillButton())
+                    energeticDecreaseCooldown = true;
+                else
+                    switch (roleTypes)
                 {
                     case RoleTypes.Impostor:
                         energeticDecreaseCooldown = true;
