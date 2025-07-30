@@ -588,6 +588,8 @@ When using this integration, we collect the following non-personal information:
 - **Mod Version:** The version of the Endless Host Roles (EHR) mod being used.
 - **Host Name:** The username of the player who created the lobby.
 - **Player Count:** The number of players in the lobby.
+- **Map Name:** The name of the map selected for the game (e.g., Skeld, Polus, Submerged).
+- **Game Mode:** The selected game mode (e.g., Standard, Room Rush, Free For All, Bed Wars).
 - **Lobby Status:** The current status of the lobby (e.g., In Lobby, In Game, Ended).
 
 Furthermore, the following information is collected to enhance the user experience:
