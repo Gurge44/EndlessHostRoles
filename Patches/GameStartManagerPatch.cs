@@ -41,7 +41,6 @@ public static class GameStartManagerPatch
         {
             int seconds = __instance.GetSecondsRemaining();
             __instance.text.text = string.Format(GetString("LobbyTimer"), seconds / 60, seconds % 60);
-            Logger.Warn($"Remaining time: {seconds / 60:00}:{seconds % 60:00}", "TimerTextTMPGetTextStringPatch.Prefix");
             return false;
         }
     }
