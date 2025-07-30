@@ -63,6 +63,7 @@ public class Retributionist : RoleBase
     {
         Camping = target.PlayerId;
         Utils.SendRPC(CustomRPC.SyncRoleData, RetributionistPC.PlayerId, Camping);
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         RetributionistPC.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
         return false;
     }

@@ -572,7 +572,7 @@ internal static class ChatCommands
             int playerCount = PlayerControl.AllPlayerControls.Count;
             var percentage = (int)Math.Round(voteCount / (float)playerCount * 100f);
             var required = (int)Math.Ceiling(playerCount / 2f);
-            Utils.SendMessage(string.Format(GetString("VotedToStart"), player.PlayerId.ColoredPlayerName(), voteCount, playerCount, required, percentage), title: GetString("VotedToStart.Title"));
+            Utils.SendMessage(string.Format(GetString("VotedToStart"), player.PlayerId.ColoredPlayerName(), voteCount, playerCount, percentage, required), title: GetString("VotedToStart.Title"));
         }
     }
     
