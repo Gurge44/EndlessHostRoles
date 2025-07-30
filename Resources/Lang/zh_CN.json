@@ -8869,7 +8869,7 @@
   "Beehive.Notify": "<#ffff00>你被蛰了!\\n快跑 {0} 米!在 {1}内,否则你会死!</color>",
   "SearchNoResult": "未找到结果",
   "ClockBlocker": "时间干扰者",
-  "ClockBlockerInfo": "通过击杀增加紧急会议冷却时间",
+  "ClockBlockerInfo": "抱歉，我认为现在并不是很紧急...",
   "ClockBlockerInfoLong": "(内鬼阵营):\\n时间干扰者每次击杀都会增加紧急会议的冷却时间。",
   "ClockBlocker.EmergencyCooldownIncreasePerKill": "每次击杀增加紧急会议冷却时间",
   "ClockBlocker.MaxEmergencyCooldown": "最大紧急会议冷却时间",
