@@ -214,7 +214,8 @@ internal static class ChatCommands
             new(["addadmin", "добавитьадмин", "добадмин", "指定管理员", "admin-add"], "{id}", GetString("CommandDescription.AddAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
             new(["deleteadmin", "удалитьадмин", "убратьадмин", "удалитьадминку", "убратьадминку", "删除管理员", "admin-remover"], "{id}", GetString("CommandDescription.DeleteAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
             new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
-            new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, false, [GetString("CommandArgs.Imitate.Id")]),
+            new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
+            new(["retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
             
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),

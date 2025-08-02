@@ -65,8 +65,16 @@ public class Stasis : RoleBase
     {
         if (Options.UsePets.GetBool()) return;
 
-        AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetInt();
-        AURoleOptions.ShapeshifterDuration = 1f;
+        if (Options.UsePhantomBasis.GetBool())
+        {
+            AURoleOptions.PhantomCooldown = AbilityCooldown.GetInt();
+            AURoleOptions.PhantomDuration = 1f;
+        }
+        else
+        {
+            AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetInt();
+            AURoleOptions.ShapeshifterDuration = 1f;
+        }
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

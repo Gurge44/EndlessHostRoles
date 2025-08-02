@@ -84,7 +84,8 @@ internal class Mayor : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (TaskVotes >= MaxMayorTaskVotes.GetInt()) return;
+        int maxVotes = MaxMayorTaskVotes.GetInt();
+        if (TaskVotes >= maxVotes) return;
             
         VoteDecimal += MayorTasksPerVoteGain.GetFloat();
 
@@ -93,6 +94,9 @@ internal class Mayor : RoleBase
             VoteDecimal -= 1;
             TaskVotes++;
         }
+
+        if (TaskVotes > maxVotes)
+            TaskVotes = maxVotes;
     }
 
     public override void SetupCustomOption()

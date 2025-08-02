@@ -1,4 +1,5 @@
-﻿using EHR.Modules;
+﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 
 namespace EHR.Crewmate;
@@ -9,6 +10,7 @@ public class Retributionist : RoleBase
 
     public override bool IsEnable => On;
 
+    public static OptionItem ResetCampedPlayerAfterEveryMeeting;
     public static OptionItem UsePet;
 
     public byte Camping;
@@ -18,6 +20,7 @@ public class Retributionist : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(653200)
+            .AutoSetupOption(ref ResetCampedPlayerAfterEveryMeeting, false)
             .CreatePetUseSetting(ref UsePet);
     }
 
@@ -32,6 +35,11 @@ public class Retributionist : RoleBase
         Camping = byte.MaxValue;
         Notified = false;
         RetributionistPC = playerId.GetPlayer();
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(false);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -50,7 +58,7 @@ public class Retributionist : RoleBase
 
         PlayerControl campTarget = Camping.GetPlayer();
 
-        if (campTarget == null || !campTarget.IsAlive())
+        if (ResetCampedPlayerAfterEveryMeeting.GetBool() || campTarget == null || !campTarget.IsAlive())
         {
             Notified = false;
             Camping = byte.MaxValue;
