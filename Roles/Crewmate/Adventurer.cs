@@ -134,7 +134,7 @@ internal class Adventurer : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = 0.1f;
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
     }
 
     public override void OnExitVent(PlayerControl pc, Vent vent)
@@ -414,9 +414,7 @@ internal class Adventurer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.IsModdedClient() && !hud) return string.Empty;
-
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
+        if ((seer.IsModdedClient() && !hud) || seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
 
         IEnumerable<string> resources =
             from resource in Enum.GetValues<Resource>()

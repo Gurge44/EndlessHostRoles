@@ -78,7 +78,7 @@ public class Druid : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = VentCooldown.GetInt();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
     }
 
     public static void SendRPCAddTrigger(bool add, byte playerId, Vector2 position, string roomName = "")

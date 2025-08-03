@@ -23,7 +23,7 @@ internal class SecurityGuard : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Seconds);
 
-        SecurityGuardSkillMaxOfUseage = new IntegerOptionItem(6866, "AbilityUseLimit", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
+        SecurityGuardSkillMaxOfUseage = new IntegerOptionItem(6866, "AbilityUseLimit", new(0, 30, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Times);
 
@@ -51,7 +51,7 @@ internal class SecurityGuard : RoleBase
     {
         if (UsePets.GetBool()) return;
 
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
         AURoleOptions.EngineerCooldown = SecurityGuardSkillCooldown.GetFloat();
     }
 

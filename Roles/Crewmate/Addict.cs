@@ -120,7 +120,7 @@ public class Addict : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

@@ -49,7 +49,7 @@ internal class Mario : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = MarioVentCD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
     }
 
     public override string GetProgressText(byte playerId, bool comms)

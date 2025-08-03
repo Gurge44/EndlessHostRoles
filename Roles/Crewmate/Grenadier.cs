@@ -33,7 +33,7 @@ internal class Grenadier : RoleBase
         GrenadierCanAffectNeutral = new BooleanOptionItem(6813, "GrenadierCanAffectNeutral", false, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier]);
 
-        GrenadierSkillMaxOfUseage = new IntegerOptionItem(6814, "GrenadierSkillMaxOfUseage", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
+        GrenadierSkillMaxOfUseage = new IntegerOptionItem(6814, "GrenadierSkillMaxOfUseage", new(0, 30, 1), 2, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
             .SetValueFormat(OptionFormat.Times);
 
@@ -62,7 +62,7 @@ internal class Grenadier : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = GrenadierSkillCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
     }
 
     public override string GetProgressText(byte playerId, bool comms)

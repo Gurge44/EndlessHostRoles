@@ -182,7 +182,7 @@ internal class Sentinel : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = PatrolCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
