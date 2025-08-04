@@ -787,10 +787,11 @@ public static class KingOfTheZones
                             PlayerControl player = id.GetPlayer();
                             if (player == null) continue;
 
-                            player.RpcRevive();
+                            player.ReviveFromTemporaryExile();
                             player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
                             player.SetKillCooldown(GetKillCooldown(player));
                             RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
+                            Utils.NotifyRoles(SpecifyTarget: player, SendOption: SendOption.None);
 
                             int spawnProtectionTime = SpawnProtectionTime.GetInt();
                             if (spawnProtectionTime > 0) SpawnProtectionTimes[id] = now + spawnProtectionTime;

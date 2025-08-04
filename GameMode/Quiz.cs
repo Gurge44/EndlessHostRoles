@@ -512,7 +512,7 @@ public static class Quiz
                     if (stillLiving.Count <= 1) break;
                 }
 
-                spectators.Do(x => x.RpcRevive());
+                spectators.Do(x => x.ReviveFromTemporaryExile());
                 AllowKills = false;
                 Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 

@@ -750,10 +750,11 @@ public static class CaptureTheFlag
                 if (Utils.TimeStamp >= endTS)
                 {
                     TemporarilyOutPlayers.Remove(__instance.PlayerId);
-                    __instance.RpcRevive();
+                    __instance.ReviveFromTemporaryExile();
                     __instance.TP(team.GetFlagBase().Position);
                     __instance.SetKillCooldown();
                     RPC.PlaySoundRPC(__instance.PlayerId, Sounds.TaskComplete);
+                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
                 }
                 else if (GameEndCriteria.GetValue() != 2)
                     Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);

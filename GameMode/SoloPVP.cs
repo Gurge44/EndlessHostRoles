@@ -222,7 +222,6 @@ internal static class SoloPVP
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-        if (!target.IsModdedClient() && !target.AmOwner) target.SetKillCooldown(0.01f);
 
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
@@ -233,9 +232,10 @@ internal static class SoloPVP
         BackCountdown.Remove(pc.PlayerId);
         PlayerHP[pc.PlayerId] = PlayerHPMax[pc.PlayerId];
         LastHurt[pc.PlayerId] = Utils.TimeStamp;
-        pc.RpcRevive();
+        pc.ReviveFromTemporaryExile();
         RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
         SpawnMap.GetSpawnMap().RandomTeleport(pc);
+        Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
     }
 
     private static void OnPlayerDead(PlayerControl target)

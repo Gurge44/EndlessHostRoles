@@ -26,6 +26,8 @@ public static class HudSpritePatch
     private static Sprite Pet;
     private static Sprite Report;
 
+    private static Sprite[] DefaultIcons = [];
+
     private static long LastErrorTime;
 
     public static bool ResetButtonIcons;
@@ -55,12 +57,25 @@ public static class HudSpritePatch
 
             bool shapeshifting = player.IsShifted();
 
-            if (!Kill) Kill = __instance.KillButton.graphic.sprite;
-            if (!Ability) Ability = __instance.AbilityButton.graphic.sprite;
-            if (!Vent) Vent = __instance.ImpostorVentButton.graphic.sprite;
-            if (!Sabotage) Sabotage = __instance.SabotageButton.graphic.sprite;
-            if (!Pet) Pet = __instance.PetButton.graphic.sprite;
-            if (!Report) Report = __instance.ReportButton.graphic.sprite;
+            if (DefaultIcons.Length == 0)
+            {
+                DefaultIcons =
+                [
+                    __instance.KillButton.graphic.sprite,
+                    __instance.AbilityButton.graphic.sprite,
+                    __instance.ImpostorVentButton.graphic.sprite,
+                    __instance.SabotageButton.graphic.sprite,
+                    __instance.PetButton.graphic.sprite,
+                    __instance.ReportButton.graphic.sprite
+                ];
+            }
+
+            if (!Kill) Kill = DefaultIcons[0];
+            if (!Ability) Ability = DefaultIcons[1];
+            if (!Vent) Vent = DefaultIcons[2];
+            if (!Sabotage) Sabotage = DefaultIcons[3];
+            if (!Pet) Pet = DefaultIcons[4];
+            if (!Report) Report = DefaultIcons[5];
 
             Sprite newKillButton = Kill;
             Sprite newAbilityButton = Ability;
