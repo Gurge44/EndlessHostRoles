@@ -12,6 +12,8 @@ internal class NiceEraser : RoleBase
     private static OptionItem EraseLimitOpt;
     public static OptionItem HideVote;
     public static OptionItem CancelVote;
+    public static OptionItem NiceEraserAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private static List<byte> DidVote = [];
     private static List<byte> PlayerToErase = [];
@@ -28,6 +30,15 @@ internal class NiceEraser : RoleBase
 
         HideVote = new BooleanOptionItem(Id + 3, "NiceEraserHideVote", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser]);
         CancelVote = Options.CreateVoteCancellingUseSetting(Id + 4, CustomRoles.NiceEraser, TabGroup.CrewmateRoles);
+        
+        NiceEraserAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
+            .SetValueFormat(OptionFormat.Times);
+        
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
+            .SetValueFormat(OptionFormat.Times);
+        
     }
 
     public override void Init()
