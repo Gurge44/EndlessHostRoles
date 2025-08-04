@@ -65,6 +65,12 @@ internal class Transporter : RoleBase
 
         if (FirstSwapTarget.TryGetValue(shapeshifter.PlayerId, out byte firstTargetId))
         {
+            if (target.PlayerId == firstTargetId)
+            {
+                FirstSwapTarget[shapeshifter.PlayerId] = shapeshifter.PlayerId;
+                return false;
+            }
+            
             PlayerControl firstTarget = firstTargetId.GetPlayer();
 
             if (firstTarget == null || !firstTarget.IsAlive())

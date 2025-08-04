@@ -1619,10 +1619,10 @@ public static class Options
         EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", false, TabGroup.SystemSettings)
             .SetHeader(true);
 
-        EnableEHRRateLimit = new BooleanOptionItem(19318, "EnableEHRRateLimit", true, TabGroup.SystemSettings)
+        EnableEHRRateLimit = new BooleanOptionItem(19333, "EnableEHRRateLimit", true, TabGroup.SystemSettings)
             .SetHeader(true);
 
-        KickOnInvalidRPC = new BooleanOptionItem(19319, "KickOnInvalidRPC", true, TabGroup.SystemSettings)
+        KickOnInvalidRPC = new BooleanOptionItem(19334, "KickOnInvalidRPC", true, TabGroup.SystemSettings)
             .SetHeader(true);
 
 

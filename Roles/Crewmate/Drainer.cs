@@ -60,7 +60,7 @@ public class Drainer : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.EngineerCooldown = VentCD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
     }
 
     public static void OnAnyoneExitVent(PlayerControl pc)

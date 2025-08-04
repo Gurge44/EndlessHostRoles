@@ -53,6 +53,7 @@ public static class RoomRush
             [(SystemTypes.MedBay, SystemTypes.Security)] = 3,
             [(SystemTypes.Admin, SystemTypes.Security)] = 2,
             [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
+            [(SystemTypes.Cafeteria, SystemTypes.LifeSupp)] = 2,
             [(SystemTypes.Storage, SystemTypes.Security)] = 2,
             [(SystemTypes.Storage, SystemTypes.MedBay)] = 2
         },
@@ -383,7 +384,7 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
         Utils.NotifyRoles();
-        LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 0.1f, log: false);
+        LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), Math.Min(0.5f, Utils.CalculatePingDelay()), log: false);
 
         if (WinByPointsInsteadOfDeaths.GetBool())
         {

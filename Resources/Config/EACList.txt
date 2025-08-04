@@ -83,6 +83,7 @@ dollepic#0847,17be4645c // DESTRUCT10
 donehoof#2148
 huesassy#4051 // Harassment
 daytiddly#8682,f5f420927,Wardpatchy // Nuking lobbies
+coachcalm#9343,354aa4ac3,Twinfabled // Hacking the game
 
 ## Griefer
 setmolar#4374,藏族顶针

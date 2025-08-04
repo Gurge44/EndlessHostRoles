@@ -142,12 +142,7 @@ internal static class ExileControllerWrapUpPatch
             string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
 
             if (!string.IsNullOrEmpty(finalText))
-            {
-                var r = IRandom.Instance;
-
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                    pc.Notify(finalText, r.Next(7, 13));
-            }
+                Main.AllAlivePlayerControls.NotifyPlayers(finalText, 13f);
         }
 
         LateTask.New(() =>

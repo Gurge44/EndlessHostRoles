@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.0.0";
-    public const string PluginDisplayVersion = "6.0.0";
+    public const string PluginVersion = "6.1.1";
+    public const string PluginDisplayVersion = "6.1.1";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -479,6 +479,7 @@ public class Main : BasePlugin
                 { CustomRoles.Merchant, "#D27D2D" },
                 { CustomRoles.Monitor, "#7223DA" },
                 { CustomRoles.Deputy, "#df9026" },
+                { CustomRoles.Retributionist, "#cfc999" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.NiceSwapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },

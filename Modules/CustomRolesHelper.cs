@@ -146,6 +146,7 @@ internal static class CustomRolesHelper
             CustomRoles.Occultist => CustomRoles.Impostor,
             CustomRoles.Wiper => CustomRoles.Impostor,
             CustomRoles.Forger => CustomRoles.Impostor,
+            CustomRoles.ClockBlocker => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
             CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Wasp => CustomRoles.Impostor,
@@ -160,7 +161,7 @@ internal static class CustomRolesHelper
             CustomRoles.Blackmailer => CustomRoles.Impostor,
             CustomRoles.Commander => CustomRoles.Shapeshifter,
             CustomRoles.Freezer => CustomRoles.Shapeshifter,
-            CustomRoles.Changeling => CustomRoles.Shapeshifter,
+            CustomRoles.Changeling => CustomRoles.Phantom,
             CustomRoles.Swapster => CustomRoles.Shapeshifter,
             CustomRoles.Kamikaze => CustomRoles.Impostor,
             CustomRoles.Librarian => CustomRoles.Shapeshifter,
@@ -441,6 +442,7 @@ internal static class CustomRolesHelper
             CustomRoles.Agitater => RoleTypes.Impostor,
             CustomRoles.Monarch => UsePets && Monarch.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Deputy => UsePets && Deputy.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
+            CustomRoles.Retributionist => UsePets && Retributionist.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Arsonist => RoleTypes.Impostor,
             CustomRoles.Jackal => RoleTypes.Impostor,
             CustomRoles.Medusa => RoleTypes.Impostor,
@@ -688,6 +690,7 @@ internal static class CustomRolesHelper
             CustomRoles.Inhibitor or
             CustomRoles.Wiper or
             CustomRoles.Kidnapper or
+            CustomRoles.ClockBlocker or
             CustomRoles.Forger or
             CustomRoles.Stasis or
             CustomRoles.Occultist or
@@ -835,6 +838,7 @@ internal static class CustomRolesHelper
             CustomRoles.CopyCat when CopyCat.UsePet.GetBool() => true,
             CustomRoles.Farseer when Farseer.UsePet.GetBool() => true,
             CustomRoles.Deputy when Deputy.UsePet.GetBool() => true,
+            CustomRoles.Retributionist when Retributionist.UsePet.GetBool() => true,
             CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
             CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
 
@@ -1523,6 +1527,7 @@ internal static class CustomRolesHelper
         return role switch
         {
             CustomRoles.Sans => RoleOptionType.Impostor_Killing,
+            CustomRoles.Abyssbringer => RoleOptionType.Impostor_Killing,
             CustomRoles.Assassin => RoleOptionType.Impostor_Killing,
             CustomRoles.Assumer => RoleOptionType.Impostor_Killing,
             CustomRoles.Augmenter => RoleOptionType.Impostor_Killing,
@@ -1559,6 +1564,7 @@ internal static class CustomRolesHelper
             CustomRoles.Camouflager => RoleOptionType.Impostor_Support,
             CustomRoles.Capitalism => RoleOptionType.Impostor_Support,
             CustomRoles.Cleaner => RoleOptionType.Impostor_Support,
+            CustomRoles.ClockBlocker => RoleOptionType.Impostor_Support,
             CustomRoles.Commander => RoleOptionType.Impostor_Support,
             CustomRoles.Consort => RoleOptionType.Impostor_Support,
             CustomRoles.Framer => RoleOptionType.Impostor_Support,
@@ -1605,7 +1611,6 @@ internal static class CustomRolesHelper
             CustomRoles.Undertaker => RoleOptionType.Impostor_Concealing,
             CustomRoles.Vampire => RoleOptionType.Impostor_Concealing,
             CustomRoles.Warlock => RoleOptionType.Impostor_Concealing,
-            CustomRoles.Abyssbringer => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.AntiAdminer => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Changeling => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.EvilDiviner => RoleOptionType.Impostor_Miscellaneous,
@@ -1650,6 +1655,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mole => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Nightmare => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Paranoia => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.PortalMaker => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Ricochet => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Safeguard => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.SuperStar => RoleOptionType.Crewmate_Miscellaneous,
@@ -1686,7 +1692,6 @@ internal static class CustomRolesHelper
             CustomRoles.Observer => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Oracle => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Perceiver => RoleOptionType.Crewmate_Investigate,
-            CustomRoles.PortalMaker => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Psychic => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Rabbit => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Scout => RoleOptionType.Crewmate_Investigate,
@@ -1739,6 +1744,7 @@ internal static class CustomRolesHelper
             CustomRoles.Drainer => RoleOptionType.Crewmate_Killing,
             CustomRoles.Judge => RoleOptionType.Crewmate_Killing,
             CustomRoles.NiceGuesser => RoleOptionType.Crewmate_Killing,
+            CustomRoles.Retributionist => RoleOptionType.Crewmate_Killing,
             CustomRoles.Sentinel => RoleOptionType.Crewmate_Killing,
             CustomRoles.Sheriff => RoleOptionType.Crewmate_Killing,
             CustomRoles.Veteran => RoleOptionType.Crewmate_Killing,

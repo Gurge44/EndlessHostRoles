@@ -19,7 +19,7 @@ internal class DovesOfNeace : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
             .SetValueFormat(OptionFormat.Seconds);
 
-        DovesOfNeaceMaxOfUseage = new IntegerOptionItem(7711, "DovesOfNeaceMaxOfUseage", new(0, 180, 1), 0, TabGroup.CrewmateRoles)
+        DovesOfNeaceMaxOfUseage = new IntegerOptionItem(7711, "DovesOfNeaceMaxOfUseage", new(0, 30, 1), 0, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
             .SetValueFormat(OptionFormat.Times);
 
@@ -49,7 +49,7 @@ internal class DovesOfNeace : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = DovesOfNeaceCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 0.5f;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

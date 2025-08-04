@@ -1230,6 +1230,8 @@ internal static class ReportDeadBodyPatch
         Divinator.DidVote.Clear();
         Oracle.DidVote.Clear();
 
+        Imitator.ImitatingRole.SetAllValues(CustomRoles.Imitator);
+
         foreach (PlayerState state in Main.PlayerStates.Values)
         {
             if (state.Role.IsEnable)

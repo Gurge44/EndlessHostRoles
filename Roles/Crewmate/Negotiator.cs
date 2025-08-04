@@ -35,7 +35,7 @@ public class Negotiator : RoleBase
             .AutoSetupOption(ref AbilityUseLimit, 0f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.4f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityChargesWhenFinishedTasks, 0.2f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
-            .CreateVoteCancellingSetting(ref CancelVote);
+            .CreateVoteCancellingUseSetting(ref CancelVote);
     }
 
     public override void Init()

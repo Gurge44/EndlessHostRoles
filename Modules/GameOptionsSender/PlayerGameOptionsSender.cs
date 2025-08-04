@@ -431,7 +431,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             if (state.SubRoles.Contains(CustomRoles.Energetic))
             {
-                switch (roleTypes)
+                if (player.CanUseKillButton())
+                    energeticDecreaseCooldown = true;
+                else
+                    switch (roleTypes)
                 {
                     case RoleTypes.Impostor:
                         energeticDecreaseCooldown = true;
@@ -508,6 +511,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 opt.SetInt(
                     Int32OptionNames.EmergencyCooldown,
                     Options.AdditionalEmergencyCooldownTime.GetInt());
+            }
+
+            if (CustomRoles.ClockBlocker.RoleExist(true))
+            {
+                int originalTime = opt.GetInt(Int32OptionNames.EmergencyCooldown);
+                opt.SetInt(Int32OptionNames.EmergencyCooldown, ClockBlocker.GetTotalTime(originalTime));
             }
 
             if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount)

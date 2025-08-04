@@ -736,9 +736,10 @@ public static class BedWars
             Health = MaxHealth;
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
-            pc.RpcRevive();
+            pc.ReviveFromTemporaryExile();
             pc.RpcSetColor(Team.GetColorId());
             pc.TP(Base.SpawnPosition);
+            Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
 
             Reviving.Remove(pc.PlayerId);
         }

@@ -1,41 +1,50 @@
-﻿namespace EHR.Crewmate;
+﻿using System.Collections.Generic;
+using EHR.Modules;
+
+namespace EHR.Crewmate;
 
 public class Imitator : RoleBase
 {
     public static bool On;
+    private static List<byte> PlayerIdList = [];
+    public static Dictionary<byte, CustomRoles> ImitatingRole = [];
 
     public override bool IsEnable => On;
 
-    private PlayerControl ImitatorPC;
-    public CustomRoles ImitatingRole;
 
     public override void SetupCustomOption()
     {
-        StartSetup(653100);
+        StartSetup(653190);
     }
 
     public override void Init()
     {
+        if (GameStates.InGame && !Main.HasJustStarted) return;
         On = false;
+        PlayerIdList = [];
+        ImitatingRole = [];
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        ImitatorPC = playerId.GetPlayer();
-        ImitatingRole = CustomRoles.Imitator;
+        ImitatingRole[playerId] = CustomRoles.Imitator;
+        PlayerIdList.Add(playerId);
     }
 
-    public override void OnReportDeadBody()
+    public static void SetRoles()
     {
-        ImitatingRole = CustomRoles.Imitator;
-    }
+        foreach (byte id in PlayerIdList)
+        {
+            PlayerControl pc = id.GetPlayer();
 
-    public override void AfterMeetingTasks()
-    {
-        if (ImitatorPC == null || !ImitatorPC.IsAlive()) return;
-
-        ImitatorPC.RpcChangeRoleBasis(ImitatingRole);
-        ImitatorPC.RpcSetCustomRole(ImitatingRole);
+            if (pc != null && pc.IsAlive() && ImitatingRole.TryGetValue(id, out CustomRoles role) && !pc.Is(role))
+            {
+                Main.AbilityUseLimit.Remove(pc.PlayerId);
+                Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, pc.PlayerId);
+                pc.RpcChangeRoleBasis(role);
+                pc.RpcSetCustomRole(role);
+            }
+        }
     }
 }

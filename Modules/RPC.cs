@@ -249,10 +249,11 @@ internal static class RPCHandlerPatch
         Dictionary<RpcCalls, int> calls = NumRPCsThisSecond[__instance.PlayerId];
         if (!calls.TryAdd(rpcType, 1)) calls[rpcType]++;
 
-        if (AmongUsClient.Instance.AmHost && Options.EnableEHRRateLimit.GetBool() && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
+        if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
         {
-            AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
-            Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), __instance.Data?.PlayerName), Color.yellow);
+            bool kick = Options.EnableEHRRateLimit.GetBool();
+            if (kick) AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
+            Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), kick ? __instance.Data?.PlayerName : "Someone"), Color.yellow);
             Logger.Warn($"Sent {calls[rpcType]} RPCs of type {rpcType} ({(byte)rpcType}), which exceeds the limit of {limit}. Kicking player.", "Kick");
             return false;
         }

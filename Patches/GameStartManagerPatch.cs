@@ -27,19 +27,21 @@ public static class GameStartManagerUpdatePatch
     }
 }
 
+[HarmonyPatch]
 public static class GameStartManagerPatch
 {
     public static long TimerStartTS;
     private static TextMeshPro WarningText;
     public static float Timer => Math.Max(0, 597f - (Utils.TimeStamp - TimerStartTS));
 
-    [HarmonyPatch(typeof(TimerTextTMP), nameof(TimerTextTMP.GetTextString))]
-    private static class TimerTextTMPGetTextStringPatch
+    [HarmonyPatch(typeof(TimerTextTMP), nameof(TimerTextTMP.UpdateText))]
+    public static class TimerTextTMPUpdateTextPatch
     {
-        public static bool Prefix(TimerTextTMP __instance, ref string __result)
+        public static bool Prefix(TimerTextTMP __instance)
         {
             int seconds = __instance.GetSecondsRemaining();
-            __result = string.Format(GetString("LobbyTimer"), seconds / 60, seconds % 60);
+            if (seconds < 60) return true;
+            __instance.text.text = string.Format(GetString("LobbyTimer"), seconds / 60, seconds % 60);
             return false;
         }
     }
@@ -56,7 +58,7 @@ public static class GameStartManagerPatch
             {
                 if (__instance == null) return;
 
-                GameCountdown = Object.Instantiate(__instance.PlayerCounter, AmongUsClient.Instance.AmHost ? __instance.StartButton.transform : __instance.HostInfoPanel.transform);
+                GameCountdown = Object.Instantiate(__instance.PlayerCounter, __instance.HostInfoPanel.transform);
                 GameCountdown.text = string.Empty;
 
                 if (GameData.Instance && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
@@ -403,8 +405,8 @@ public static class GameStartManagerPatch
                     CustomGameMode.HideAndSeek => Math.Min((Seeker.KillCooldown.GetInt() * (PlayerControl.AllPlayerControls.Count - Main.NormalOptions.NumImpostors) / Main.NormalOptions.NumImpostors) + Seeker.BlindTime.GetInt() + 15, Math.Min(CustomHnS.MaximumGameLength, ((Main.NormalOptions.NumShortTasks * 15) + (Main.NormalOptions.NumLongTasks * 25) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 15)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)))),
                     CustomGameMode.Speedrun => (Speedrun.TimeLimitValue * (Main.NormalOptions.NumShortTasks + Main.NormalOptions.NumLongTasks + Main.NormalOptions.NumCommonTasks)) + (Speedrun.KCD * (PlayerControl.AllPlayerControls.Count / 2)),
                     CustomGameMode.CaptureTheFlag => CaptureTheFlag.GameEndCriteriaType == 2 ? CaptureTheFlag.MaxGameLength : CaptureTheFlag.IsDeathPossible ? 40 : Math.Max(30, 1500 / (int)Math.Pow(CaptureTheFlag.KCD + 0.5f, 2) * CaptureTheFlag.TotalRoundsToPlay),
-                    CustomGameMode.NaturalDisasters => 80 + (50 * NaturalDisasters.FrequencyOfDisasters * Math.Max(1, PlayerControl.AllPlayerControls.Count / 3)),
-                    CustomGameMode.RoomRush => (PlayerControl.AllPlayerControls.Count - 1) * (RoomRush.PointsSystem ? 20 : 15),
+                    CustomGameMode.NaturalDisasters => 80 + (50 * NaturalDisasters.FrequencyOfDisasters * Math.Max(1, PlayerControl.AllPlayerControls.Count / 4)),
+                    CustomGameMode.RoomRush => (int)Math.Round((PlayerControl.AllPlayerControls.Count - 1) * ((Main.NormalOptions.MapId is 0 or 3 ? RoomRush.PointsSystem ? 20 : 15 : RoomRush.PointsSystem ? 25 : 20) / Main.NormalOptions.PlayerSpeedMod)),
                     CustomGameMode.KingOfTheZones => Math.Min(KingOfTheZones.MaxGameTime, KingOfTheZones.MaxGameTimeByPoints),
                     _ => 0
                 };
@@ -428,7 +430,7 @@ public static class GameStartManagerPatch
                     tmp.color = Color.cyan;
                     tmp.outlineColor = Color.black;
                     tmp.outlineWidth = 0.4f;
-                    tmp.transform.localPosition += new Vector3(-0.8f, -0.42f, 0f);
+                    tmp.transform.localPosition += new Vector3(-0.625f, -0.12f, 0f);
                     tmp.transform.localScale = new(0.6f, 0.6f, 1f);
                 }
 

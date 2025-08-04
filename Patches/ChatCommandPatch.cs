@@ -214,7 +214,8 @@ internal static class ChatCommands
             new(["addadmin", "добавитьадмин", "добадмин", "指定管理员", "admin-add"], "{id}", GetString("CommandDescription.AddAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
             new(["deleteadmin", "удалитьадмин", "убратьадмин", "удалитьадминку", "убратьадминку", "删除管理员", "admin-remover"], "{id}", GetString("CommandDescription.DeleteAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
             new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
-            new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, false, [GetString("CommandArgs.Imitate.Id")]),
+            new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
+            new(["retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
             
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -467,6 +468,58 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void RetributeCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(RetributeCommand), text);
+            return;
+        }
+
+        if (!player.IsAlive() || !Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.Role is not Retributionist { Notified: true } rb || rb.Camping == byte.MaxValue) return;
+
+        PlayerControl campTarget = Utils.GetPlayerById(rb.Camping);
+        if (campTarget == null || campTarget.IsAlive() || !Main.PlayerStates.TryGetValue(campTarget.PlayerId, out PlayerState campState)) return;
+
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
+
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+
+        byte realKiller = campState.GetRealKiller();
+
+        if (realKiller != targetId)
+        {
+            rb.Notified = false;
+            Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Fail"));
+        }
+        else
+        {
+            PlayerControl killer = Utils.GetPlayerById(realKiller);
+
+            if (killer == null || !killer.IsAlive())
+            {
+                rb.Notified = false;
+                Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.KillerDead"));
+            }
+            else
+            {
+                killer.SetRealKiller(player);
+                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
+                killerState.deathReason = PlayerState.DeathReason.Retribution;
+                killerState.SetDead();
+                Medic.IsDead(killer);
+                killer.RpcExileV2();
+                Utils.AfterPlayerDeathTasks(killer, true);
+                Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())));
+                Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
+            }
+        }
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+    
     private static void ImitateCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
@@ -477,8 +530,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsAlive() || !Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.Role is not Imitator imitator) return;
-        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
+        if (!player.IsAlive() || args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
 
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
@@ -494,7 +546,8 @@ internal static class ChatCommands
             return;
         }
 
-        imitator.ImitatingRole = targetState.MainRole;
+        Imitator.ImitatingRole[player.PlayerId] = targetState.MainRole;
+        Logger.Info($"{player.GetRealName()} will be imitating as {targetState.MainRole}", "Imitator");
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Imitator.Success"), targetId.ColoredPlayerName()));
 
         MeetingManager.SendCommandUsedMessage(args[0]);
@@ -520,7 +573,7 @@ internal static class ChatCommands
             int playerCount = PlayerControl.AllPlayerControls.Count;
             var percentage = (int)Math.Round(voteCount / (float)playerCount * 100f);
             var required = (int)Math.Ceiling(playerCount / 2f);
-            Utils.SendMessage(string.Format(GetString("VotedToStart"), player.PlayerId.ColoredPlayerName(), voteCount, playerCount, required, percentage), title: GetString("VotedToStart.Title"));
+            Utils.SendMessage(string.Format(GetString("VotedToStart"), player.PlayerId.ColoredPlayerName(), voteCount, playerCount, percentage, required), title: GetString("VotedToStart.Title"));
         }
     }
     

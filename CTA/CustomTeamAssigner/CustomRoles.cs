@@ -34,6 +34,7 @@ public enum CustomRoles
     Changeling,
     Chronomancer,
     Cleaner,
+    ClockBlocker,
     Commander,
     EvilDiviner, // Consigliere
     Consort,
@@ -229,6 +230,7 @@ public enum CustomRoles
     Psychic,
     Rabbit,
     Randomizer,
+    Retributionist,
     Rhapsode,
     Ricochet,
     Safeguard,

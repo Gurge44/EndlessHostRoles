@@ -243,9 +243,15 @@ public class OptionSetupHandler(int id, TabGroup tab, CustomRoles role)
         return this;
     }
 
-    public OptionSetupHandler CreateVoteCancellingSetting(ref OptionItem field)
+    public OptionSetupHandler CreateVoteCancellingUseSetting(ref OptionItem field)
     {
         field = Options.CreateVoteCancellingUseSetting(++_id, role, tab);
+        return this;
+    }
+    
+    public OptionSetupHandler CreatePetUseSetting(ref OptionItem field)
+    {
+        field = Options.CreatePetUseSetting(++_id, role);
         return this;
     }
 }
