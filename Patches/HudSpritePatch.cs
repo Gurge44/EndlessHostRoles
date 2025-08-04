@@ -187,7 +187,7 @@ public static class HudSpritePatch
                 case CustomRoles.Glitch when Main.PlayerStates[player.PlayerId].Role is Glitch gc:
                 {
                     if (gc.KCDTimer > 0 && gc.HackCDTimer <= 0) newKillButton = CustomButton.Get("GlitchHack");
-                    newSabotageButton = CustomButton.Get("GlitchMimic");
+                    newAbilityButton = CustomButton.Get("GlitchMimic");
                     break;
                 }
                 case CustomRoles.Jester:
