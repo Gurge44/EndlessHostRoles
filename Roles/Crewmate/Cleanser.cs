@@ -17,7 +17,9 @@ public class Cleanser : RoleBase
     public static OptionItem CleanserUsesOpt;
     public static OptionItem CleansedCanGetAddon;
     public static OptionItem CancelVote;
-
+    public static OptionItem CleanserAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
+    
     private byte CleanserId;
     public byte CleanserTarget = byte.MaxValue;
     public int CleanserUses;
@@ -36,6 +38,13 @@ public class Cleanser : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
 
         CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Cleanser, TabGroup.CrewmateRoles);
+        
+        CleanserAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Cleanser])
+            .SetValueFormat(OptionFormat.Times);
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Cleanser])
+            .SetValueFormat(OptionFormat.Times);
     }
 
     public override void Init()
