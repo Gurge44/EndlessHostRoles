@@ -87,7 +87,7 @@ internal class Paranoia : RoleBase
 
     private static void Panic(PlayerControl pc)
     {
-        if (pc.GetAbilityUseLimit() >= 1);
+        if (pc.GetAbilityUseLimit() >= 1)
         {
             pc.RpcRemoveAbilityUse();
             if (AmongUsClient.Instance.AmHost) LateTask.New(() => { Utils.SendMessage(Translator.GetString("SkillUsedLeft") + (ParanoiaNumOfUseButton.GetInt() - ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId); }, 4.0f, "Paranoia Skill Remain Message");
