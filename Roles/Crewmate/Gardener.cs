@@ -22,7 +22,7 @@ public class Gardener : RoleBase
             .AutoSetupOption(ref AbilityCooldown, 30, new IntegerValueRule(0, 120, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref PlantRange, 2.5f, new FloatValueRule(0.1f, 10f, 0.1f), OptionFormat.Multiplier)
             .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
-            .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.3f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.4f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityChargesWhenFinishedTasks, 0.05f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times);
     }
 
