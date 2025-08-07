@@ -474,6 +474,12 @@ internal static class CheckMurderPatch
             return false;
         }
 
+        if (!Gardener.OnAnyoneCheckMurder(killer, target))
+        {
+            Notify("GardenerPlantNearby");
+            return false;
+        }
+
         if (!Socialite.OnAnyoneCheckMurder(killer, target))
         {
             Notify("SocialiteTarget");

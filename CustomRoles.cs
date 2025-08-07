@@ -180,6 +180,7 @@ public enum CustomRoles
     Express,
     Farseer,
     Divinator, // Fortune Teller
+    Gardener,
     Gaulois,
     Goose,
     Grappler,

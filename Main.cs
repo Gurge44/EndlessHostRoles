@@ -407,6 +407,7 @@ public class Main : BasePlugin
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Helper, "#fcf1bd" },
                 { CustomRoles.Astral, "#b329d6" },
+                { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Transmitter, "#c9a11e" },
                 { CustomRoles.Imitator, "#c99e28" },
                 { CustomRoles.PortalMaker, "#700078" },

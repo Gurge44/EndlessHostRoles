@@ -3183,6 +3183,7 @@ public static class Utils
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
+            CustomRoles.Gardener => Gardener.AbilityCooldown.GetInt(),
             CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Paranoia => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
