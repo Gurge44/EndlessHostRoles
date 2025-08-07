@@ -1529,6 +1529,7 @@ internal static class CustomRolesHelper
         return role switch
         {
             CustomRoles.Sans => RoleOptionType.Impostor_Killing,
+            CustomRoles.Abyssbringer => RoleOptionType.Impostor_Killing,
             CustomRoles.Assassin => RoleOptionType.Impostor_Killing,
             CustomRoles.Assumer => RoleOptionType.Impostor_Killing,
             CustomRoles.Augmenter => RoleOptionType.Impostor_Killing,
@@ -1612,7 +1613,6 @@ internal static class CustomRolesHelper
             CustomRoles.Undertaker => RoleOptionType.Impostor_Concealing,
             CustomRoles.Vampire => RoleOptionType.Impostor_Concealing,
             CustomRoles.Warlock => RoleOptionType.Impostor_Concealing,
-            CustomRoles.Abyssbringer => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.AntiAdminer => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Changeling => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.EvilDiviner => RoleOptionType.Impostor_Miscellaneous,
