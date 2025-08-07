@@ -32,7 +32,7 @@ public static class LobbySharingAPI
         string serverName = Utils.GetRegionName();
         string hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
         string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
-        string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Translator.GetString(Options.CurrentGameMode.ToString()).ToUpper();
+        string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Translator.GetString(Options.CurrentGameMode.ToString(), SupportedLangs.English).ToUpper();
         const string version = $"EHR v{Main.PluginDisplayVersion}";
         Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode));
     }
@@ -97,7 +97,7 @@ public static class LobbySharingAPI
         void StartMessageEdit()
         {
             string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
-            string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Translator.GetString(Options.CurrentGameMode.ToString()).ToUpper();
+            string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Translator.GetString(Options.CurrentGameMode.ToString(), SupportedLangs.English).ToUpper();
             Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' '), PlayerControl.AllPlayerControls.Count, map, gameMode));
         }
     }
