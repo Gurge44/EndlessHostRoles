@@ -19,6 +19,7 @@ internal class Mario : RoleBase
 
     private static Dictionary<MapNames, OptionItem> MapWinCounts = [];
     private static int MarioVentNumWin;
+    
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
