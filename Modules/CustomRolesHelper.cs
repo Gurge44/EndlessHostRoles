@@ -37,6 +37,7 @@ internal static class CustomRolesHelper
         CustomRoles.Amogus,
         CustomRoles.Wiper,
         CustomRoles.PortalMaker,
+        CustomRoles.Gardener,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -227,6 +228,7 @@ internal static class CustomRolesHelper
             CustomRoles.MeetingManager => CustomRoles.Crewmate,
             CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Gardener => CustomRoles.Crewmate,
             CustomRoles.Imitator => CustomRoles.Crewmate,
             CustomRoles.PortalMaker => CustomRoles.Crewmate,
             CustomRoles.Astral => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -1722,6 +1724,7 @@ internal static class CustomRolesHelper
             CustomRoles.DovesOfNeace => RoleOptionType.Crewmate_Support,
             CustomRoles.Electric => RoleOptionType.Crewmate_Support,
             CustomRoles.Escort => RoleOptionType.Crewmate_Support,
+            CustomRoles.Gardener => RoleOptionType.Crewmate_Support,
             CustomRoles.Gaulois => RoleOptionType.Crewmate_Support,
             CustomRoles.Grappler => RoleOptionType.Crewmate_Support,
             CustomRoles.Grenadier => RoleOptionType.Crewmate_Support,

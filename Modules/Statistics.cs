@@ -36,7 +36,7 @@ public static class Statistics
 
             CustomGameMode gm = Options.CurrentGameMode;
 
-            if (gm != CustomGameMode.Standard && GameStates.CurrentServerType is not GameStates.ServerType.Modded and not GameStates.ServerType.Niko)
+            if (GameStates.CurrentServerType is not GameStates.ServerType.Modded and not GameStates.ServerType.Niko)
             {
                 try
                 {

@@ -85,7 +85,7 @@ public class Catcher : RoleBase
         if (Options.UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.5f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     private void PlaceTrap(PlayerControl pc)
@@ -178,7 +178,6 @@ public class Catcher : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != CatcherId || meeting || (seer.IsModdedClient() && !hud) || DelayStartTS == 0 || Options.UsePets.GetBool()) return string.Empty;
-
         return string.Format(Translator.GetString("Catcher.Suffix"), TrapPlaceDelay.GetInt() - (Utils.TimeStamp - DelayStartTS));
     }
 

@@ -183,7 +183,7 @@ public class Dad : RoleBase
         }
 
         AURoleOptions.EngineerCooldown = 0.1f;
-        AURoleOptions.EngineerInVentMaxTime = 0.5f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override void OnReportDeadBody()
@@ -358,12 +358,14 @@ public class Dad : RoleBase
         if (UsingAbilities.Contains(Ability.BecomeGodOfAlcohol))
             Alcohol += NormalAlcoholDecreaseValue.GetInt();
         else
+        {
             Alcohol -= NormalAlcoholDecreaseValue.GetInt();
 
-        if (Alcohol <= 0)
-        {
-            pc.Suicide();
-            return;
+            if (Alcohol <= 0)
+            {
+                pc.Suicide();
+                return;
+            }
         }
 
         NotifyIfNecessary(pc, notify);

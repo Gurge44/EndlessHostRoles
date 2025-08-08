@@ -62,7 +62,7 @@ internal class Paranoia : RoleBase
                 ? ParanoiaVentCooldown.GetFloat()
                 : 300f;
 
-        AURoleOptions.EngineerInVentMaxTime = 0.5f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -90,8 +90,7 @@ internal class Paranoia : RoleBase
         if (pc.GetAbilityUseLimit() >= 1)
         {
             pc.RpcRemoveAbilityUse();
-            if (AmongUsClient.Instance.AmHost) LateTask.New(() => { Utils.SendMessage(Translator.GetString("SkillUsedLeft") + (ParanoiaNumOfUseButton.GetInt() - ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId); }, 4.0f, "Paranoia Skill Remain Message");
-
+            if (AmongUsClient.Instance.AmHost) LateTask.New(() => Utils.SendMessage(Translator.GetString("SkillUsedLeft") + (ParanoiaNumOfUseButton.GetInt() - ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId), 4f, "Paranoia Skill Remain Message");
             pc.NoCheckStartMeeting(pc.Data);
         }
     }

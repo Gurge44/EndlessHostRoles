@@ -51,7 +51,7 @@ internal class SecurityGuard : RoleBase
     {
         if (UsePets.GetBool()) return;
 
-        AURoleOptions.EngineerInVentMaxTime = 0.5f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
         AURoleOptions.EngineerCooldown = SecurityGuardSkillCooldown.GetFloat();
     }
 
