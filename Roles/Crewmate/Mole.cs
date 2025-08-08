@@ -35,15 +35,14 @@ internal class Mole : RoleBase
     {
         if (UsePets.GetBool()) return;
 
-        AURoleOptions.EngineerInVentMaxTime = 0.5f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
         AURoleOptions.EngineerCooldown = CD.GetFloat();
     }
 
     public override void OnExitVent(PlayerControl pc, Vent vent)
     {
         if (UsePets.GetBool()) return;
-
-        LateTask.New(() => { pc.TPToRandomVent(); }, 0.5f, "Mole TP");
+        LateTask.New(() => pc.TPToRandomVent(), 0.5f, "Mole TP");
     }
 
     public override void OnPet(PlayerControl pc)

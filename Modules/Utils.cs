@@ -2268,6 +2268,8 @@ public static class Utils
         {
             LongRoleDescriptions.Clear();
 
+            if (!Options.ShowLongInfo.GetBool()) return;
+
             int charsInOneLine = GetUserTrueLang() is SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Japanese or SupportedLangs.Korean ? 35 : 50;
 
             foreach (PlayerControl seer in Main.AllPlayerControls)

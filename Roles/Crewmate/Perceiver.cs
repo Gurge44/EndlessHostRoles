@@ -55,7 +55,7 @@ internal class Perceiver : RoleBase
         if (Options.UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = CD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.5f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override void OnPet(PlayerControl pc)

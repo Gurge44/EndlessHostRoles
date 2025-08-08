@@ -62,7 +62,7 @@ internal class Lighter : RoleBase
     {
         if (!UsePets.GetBool())
         {
-            AURoleOptions.EngineerInVentMaxTime = 0.5f;
+            AURoleOptions.EngineerInVentMaxTime = 1f;
             AURoleOptions.EngineerCooldown = LighterSkillCooldown.GetFloat();
         }
 
