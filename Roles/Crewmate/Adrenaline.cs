@@ -12,7 +12,9 @@ public class Adrenaline : RoleBase
     private static OptionItem MinTasksRequired;
     private static OptionItem CanCallMeetingDuringTimer;
     private static OptionItem SpeedIncreaseDuringTimer;
-
+    public static OptionItem AdrenalineAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
+    
     private byte AdrenalineId;
     private float DefaultSpeed;
     private long LastUpdate;
@@ -41,6 +43,13 @@ public class Adrenaline : RoleBase
         SpeedIncreaseDuringTimer = new FloatOptionItem(++id, "Adrenaline.SpeedDuringTimer", new(0f, 3f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adrenaline]);
+        
+        AdrenalineAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adrenaline])
+            .SetValueFormat(OptionFormat.Times);
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adrenaline])
+            .SetValueFormat(OptionFormat.Times);
     }
 
     public override void Init()
