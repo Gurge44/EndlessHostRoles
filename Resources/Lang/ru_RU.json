@@ -5007,7 +5007,7 @@
   "KOTZ.SuffixHelp.Points": "<size=80%>Очки: </size>",
   "KOTZ.SuffixHelp.GameEndTimer": "<size=80%>Осталось времени: </size>",
   "KOTZ.Suffix.RespawnTime": "<#ff0000>МЁРТВ</color> <#888888>-</color> ВОЗРОЖДЕНИЕ ЧЕРЕЗ <#ffff44>{0}</color>",
-  "KOTZ.Suffix.SpawnProtectionTime": "<#00ffa5>Эти игроки сейчас неуязвимы:</color> <#888888>-</color> <#ffff44>{0}</color>",
+  "KOTZ.Suffix.SpawnProtectionTime": "<#00ffa5>Вы временно неуязвимы:</color> <#888888>-</color> <#ffff44>{0}</color>",
   "KOTZ.Suffix.PointsToWin": "Первая команда, достигшая <#ffff44>{0}</color> очков побеждает",
   "KOTZ.Suffix.Tie": "У нескольких команд одинаковое кол-во очков: {0}\\nВ ожидании превосходства одной из команд...",
   "KOTZ.EndScreen.Winner.Red": "Красная Команда Победила!",
