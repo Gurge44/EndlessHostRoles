@@ -718,7 +718,7 @@ internal static class MurderPlayerPatch
 
         Postman.CheckAndResetTargets(target, true);
 
-        if (target.Is(CustomRoles.Trapper) && killer != target) killer.TrapperKilled(target);
+        if (target.Is(CustomRoles.Beartrap) && killer != target) killer.BeartrapKilled(target);
 
         if (target.Is(CustomRoles.Stained)) Stained.OnDeath(target, killer);
 
@@ -1075,7 +1075,7 @@ internal static class ReportDeadBodyPatch
                     }
                 }
 
-                if (tpc.Is(CustomRoles.Unreportable))
+                if (tpc.Is(CustomRoles.Disregarded))
                 {
                     Notify("TargetDisregarded");
                     return false;

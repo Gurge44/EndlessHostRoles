@@ -122,7 +122,7 @@ public class Amnesiac : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (target.Object.Is(CustomRoles.Unreportable)) return true;
+        if (target.Object.Is(CustomRoles.Disregarded)) return true;
 
         if (RememberMode.GetValue() == 0)
         {

@@ -158,7 +158,7 @@ public class Vampire : RoleBase
             if (!isButton && vampire.IsAlive())
             {
                 RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
-                if (target.Is(CustomRoles.Trapper)) vampire.TrapperKilled(target);
+                if (target.Is(CustomRoles.Beartrap)) vampire.BeartrapKilled(target);
 
                 vampire.Notify(GetString("VampireTargetDead"));
             }

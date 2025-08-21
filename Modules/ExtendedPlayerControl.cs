@@ -1717,9 +1717,9 @@ internal static class ExtendedPlayerControl
         if (sync) player.SyncSettings();
     }
 
-    public static void TrapperKilled(this PlayerControl killer, PlayerControl target)
+    public static void BeartrapKilled(this PlayerControl killer, PlayerControl target)
     {
-        Logger.Info($"{target?.Data?.PlayerName} was Trapper", "Trapper");
+        Logger.Info($"{target?.Data?.PlayerName} was Beartrap", "Beartrap");
         float tmpSpeed = Main.AllPlayerSpeed[killer.PlayerId];
         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
         ReportDeadBodyPatch.CanReport[killer.PlayerId] = false;
@@ -1731,7 +1731,7 @@ internal static class ExtendedPlayerControl
             ReportDeadBodyPatch.CanReport[killer.PlayerId] = true;
             killer.MarkDirtySettings();
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
-        }, Options.TrapperBlockMoveTime.GetFloat(), "Trapper BlockMove");
+        }, Options.BeartrapBlockMoveTime.GetFloat(), "Beartrap BlockMove");
 
         if (killer.IsLocalPlayer())
             Achievements.Type.TooCold.CompleteAfterGameEnd();

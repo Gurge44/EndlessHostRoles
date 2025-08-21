@@ -46,7 +46,7 @@ internal class OverKiller : RoleBase
     {
         if (!killer.RpcCheckAndMurder(target, true)) return false;
 
-        if (killer.PlayerId != target.PlayerId && !target.Is(CustomRoles.Unreportable) && Main.IntroDestroyed && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
+        if (killer.PlayerId != target.PlayerId && !target.Is(CustomRoles.Disregarded) && Main.IntroDestroyed && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
         {
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
 

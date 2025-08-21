@@ -466,7 +466,7 @@ public enum CustomRoles
     Avanger,
     Bait,
     BananaMan,
-    Trapper, // Beartrap
+    Beartrap,
     Bewilder,
     Blind,
     Blocked,
@@ -484,7 +484,7 @@ public enum CustomRoles
     Disco,
     Diseased,
     Dynamo,
-    Unreportable, // Disregarded
+    Disregarded, // Disregarded
     DoubleShot,
     Egoist,
     Energetic,

@@ -71,7 +71,7 @@ internal class BoobyTrap : RoleBase
 
     public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
-        if (BoobyTrapBody.Contains(target.PlayerId) && reporter.IsAlive() && !target.Object.Is(CustomRoles.Unreportable))
+        if (BoobyTrapBody.Contains(target.PlayerId) && reporter.IsAlive() && !target.Object.Is(CustomRoles.Disregarded))
         {
             if (!TrapOnlyWorksOnTheBodyBoobyTrap.GetBool())
             {

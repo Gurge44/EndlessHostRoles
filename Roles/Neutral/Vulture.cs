@@ -139,7 +139,7 @@ public class Vulture : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (pc.GetAbilityUseLimit() < 1f || target.Object == null || target.Object.Is(CustomRoles.Unreportable)) return true;
+        if (pc.GetAbilityUseLimit() < 1f || target.Object == null || target.Object.Is(CustomRoles.Disregarded)) return true;
 
         if (CooldownFinishTS > Utils.TimeStamp) return true;
 

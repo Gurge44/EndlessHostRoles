@@ -93,7 +93,7 @@ public class Bloodhound : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (killer != null && !target.Object.Is(CustomRoles.Unreportable))
+        if (killer != null && !target.Object.Is(CustomRoles.Disregarded))
         {
             if (BloodhoundTargets.Contains(killer.PlayerId)) return false;
 
