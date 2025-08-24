@@ -736,9 +736,17 @@ public static class BedWars
             Health = MaxHealth;
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
-            pc.ReviveFromTemporaryExile();
-            pc.RpcSetColor(Team.GetColorId());
+            pc.ReviveFromTemporaryExile(sender =>
+            {
+                sender.AutoStartRpc(pc.NetId, RpcCalls.SetColor)
+                    .Write(pc.Data.NetId)
+                    .Write(Team.GetColorId())
+                    .EndRpc();
+
+                return true;
+            });
             pc.TP(Base.SpawnPosition);
+            pc.SetChatVisible(true);
             Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
 
             Reviving.Remove(pc.PlayerId);
@@ -1202,7 +1210,7 @@ public static class BedWars
 
         [Item.WoodenSword] = (Item.Iron, 1),
         [Item.IronSword] = (Item.Gold, 3),
-        [Item.DiamondSword] = (Item.Emerald, 1),
+        [Item.DiamondSword] = (Item.Emerald, 2),
 
         [Item.IronArmor] = (Item.Gold, 6),
         [Item.DiamondArmor] = (Item.Emerald, 4),
@@ -1397,7 +1405,7 @@ public static class BedWars
         [Item.DiamondSword] = new(Color.cyan, '✽', () => Translator.GetString("BedWars.Item.DiamondSword")),
 
         [Item.IronArmor] = new(Color.white, '◎', () => Translator.GetString("BedWars.Item.IronArmor")),
-        [Item.DiamondArmor] = new(Color.cyan, '◍', () => Translator.GetString("BedWars.Item.DiamondArmor")),
+        [Item.DiamondArmor] = new(Color.cyan, '⊗', () => Translator.GetString("BedWars.Item.DiamondArmor")),
 
         [Item.Pickaxe] = new(new Color32(85, 92, 133, 255), '┯', () => Translator.GetString("BedWars.Item.Pickaxe")),
         [Item.Axe] = new(new Color32(108, 112, 77, 255), '┭', () => Translator.GetString("BedWars.Item.Axe")),
@@ -1708,7 +1716,7 @@ public static class BedWars
                         if (newStr != str) pc.Notify(newStr, 100f, true);
                     }
 
-                    if (Vector2.Distance(pc.Pos(), Position) > BedBreakAndProtectRange)
+                    if (!pc.IsAlive() || Vector2.Distance(pc.Pos(), Position) > BedBreakAndProtectRange)
                     {
                         Breaking.Remove(pc.PlayerId);
                         yield break;
@@ -1721,20 +1729,13 @@ public static class BedWars
                 data.Inventory.Adjust(topLayer, GetNextProtectReq());
                 UpdateStatus();
                 Breaking.Remove(pc.PlayerId);
-                if (Layers.Count == 0) Broken();
+                if (Layers.Count == 0 && data.Team != Team) Broken();
             }
         }
 
         private void Broken()
         {
-            BedWarsTeam team = this switch
-            {
-                BlueBed => BedWarsTeam.Blue,
-                YellowBed => BedWarsTeam.Yellow,
-                GreenBed => BedWarsTeam.Green,
-                RedBed => BedWarsTeam.Red,
-                _ => throw new InvalidOperationException("Unknown bed type")
-            };
+            BedWarsTeam team = Team;
 
             foreach ((byte id, PlayerData data) in Data)
             {
@@ -1748,6 +1749,15 @@ public static class BedWars
             Despawn();
             IsBroken = true;
         }
+
+        private BedWarsTeam Team => this switch
+        {
+            BlueBed => BedWarsTeam.Blue,
+            YellowBed => BedWarsTeam.Yellow,
+            GreenBed => BedWarsTeam.Green,
+            RedBed => BedWarsTeam.Red,
+            _ => throw new InvalidOperationException("Unknown bed type")
+        };
     }
 
     public static void OnTNTExplode(Vector2 position)

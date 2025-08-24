@@ -2068,8 +2068,9 @@ public static class Utils
         bool vip = ChatCommands.IsPlayerVIP(player.FriendCode);
         bool hasTag = devUser.HasTag();
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out string privateTag);
+        bool hasTagInUserData = Main.UserData.TryGetValue(player.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0;
 
-        if (!player.AmOwner && !hasTag && !mod && !vip && !hasPrivateTag && !DirtyName.Contains(player.PlayerId)) return false;
+        if (!player.AmOwner && !hasTag && !mod && !vip && !hasPrivateTag && !hasTagInUserData && !DirtyName.Contains(player.PlayerId)) return false;
 
         if (!Main.AllPlayerNames.TryGetValue(player.PlayerId, out name)) return false;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
@@ -2114,9 +2115,9 @@ public static class Utils
                 };
             }
 
-            if (hasTag || mod || vip || hasPrivateTag)
+            if (hasTag || mod || vip || hasPrivateTag || hasTagInUserData)
             {
-                string pTag = hasPrivateTag ? privateTag : string.Empty;
+                string pTag = hasPrivateTag ? privateTag : hasTagInUserData ? userData.Tag : string.Empty;
                 string tag = hasTag ? devUser.GetTag() : string.Empty;
                 if (tag == "null") tag = string.Empty;
 
@@ -2332,7 +2333,7 @@ public static class Utils
 
     public static IEnumerator NotifyEveryoneAsync(int speed = 2, bool noCache = true)
     {
-        if (GameStates.IsMeeting) yield break;
+        if (!AmongUsClient.Instance.AmHost || GameStates.IsMeeting) yield break;
 
         var count = 0;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -2355,7 +2356,8 @@ public static class Utils
     {
         try
         {
-            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
+            if (!AmongUsClient.Instance.AmHost) return;
+            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
             PlayerControl[] apc = Main.AllPlayerControls;
             PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
@@ -2714,6 +2716,7 @@ public static class Utils
                             TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, forMeeting));
                             if (forMeeting) TargetMark.Append(Wasp.GetStungMark(target.PlayerId));
                             if (forMeeting) TargetMark.Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
+                            if (forMeeting) TargetMark.Append(Commited.GetMark(seer, target));
 
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
@@ -2731,7 +2734,6 @@ public static class Utils
                             {
                                 case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId):
                                     TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
-                                    PlagueBearer.SendRPC(seer, target);
                                     break;
                                 case CustomRoles.Arsonist:
                                     if (seer.IsDousedPlayer(target))
@@ -3005,6 +3007,8 @@ public static class Utils
 
     public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null, SendOption sendOption = SendOption.Reliable)
     {
+        if (!AmongUsClient.Instance.AmHost) return false;
+        
         if (pc.Is(CustomRoles.BananaMan))
             newOutfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Banana"));
         
@@ -3364,6 +3368,20 @@ public static class Utils
         CustomNetObject.AfterMeeting();
 
         RPCHandlerPatch.RemoveExpiredWhiteList();
+
+        LateTask.New(() =>
+        {
+            if (GameStates.IsEnded) return;
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            writer.StartMessage(5);
+            writer.Write(AmongUsClient.Instance.GameId);
+            writer.StartMessage(5);
+            writer.WritePacked(Main.LobbyBehaviourNetId);
+            writer.EndMessage();
+            writer.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
+        }, 3f, "Repeat Lobby Despawn");
     }
 
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)

@@ -296,6 +296,9 @@ public static class ElectricTaskCompletePatch
                     if (Options.UsePhantomBasis.GetBool()) pc.RpcResetAbilityCooldown();
                     else pc.AddAbilityCD();
                 }
+
+                if (pc.Is(CustomRoles.Sleep))
+                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             }
         }
 

@@ -368,7 +368,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     case CustomRoles.Mare when Options.MareHasIncreasedSpeed.GetBool():
                         Main.AllPlayerSpeed[player.PlayerId] = Options.MareSpeedDuringLightsOut.GetFloat();
                         break;
-                    case CustomRoles.Sleep when Utils.IsActive(SystemTypes.Electrical):
+                    case CustomRoles.Sleep when player.IsAlive() && Utils.IsActive(SystemTypes.Electrical):
                         SetBlind();
                         Main.AllPlayerSpeed[player.PlayerId] = Main.MinSpeed;
                         break;

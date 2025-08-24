@@ -961,6 +961,8 @@ public static class NaturalDisasters
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
+                if (pc.onLadder || pc.inMovingPlat || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation()) continue;
+                
                 PlainShipRoom room = pc.GetPlainShipRoom();
 
                 if (room != null && CollapsedRooms.Exists(x => x == room))

@@ -214,6 +214,13 @@ public class BountyHunter : RoleBase
         }
     }
 
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        if (!AmongUsClient.Instance.AmHost) return string.Empty;
+        if (Timer > 15) return base.GetProgressText(playerId, comms);
+        return $"{base.GetProgressText(playerId, comms)} <#777777>-</color> {string.Format(GetString("BountyHunterSwapTimer"), Timer)}";
+    }
+
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         return GetTargetText(seer, target, hud) + GetTargetArrow(seer, target);
@@ -221,9 +228,7 @@ public class BountyHunter : RoleBase
 
     private static string GetTargetText(PlayerControl bounty, PlayerControl tar, bool hud)
     {
-        if (GameStates.IsMeeting || bounty.PlayerId != tar.PlayerId) return string.Empty;
-
-        if (Main.PlayerStates[bounty.PlayerId].Role is not BountyHunter bh) return string.Empty;
+        if (GameStates.IsMeeting || bounty.PlayerId != tar.PlayerId || Main.PlayerStates[bounty.PlayerId].Role is not BountyHunter bh) return string.Empty;
 
         byte targetId = bh.GetTarget(bounty);
         return targetId != 0xff ? $"<color=#00ffa5>{(hud ? GetString("BountyCurrentTarget") : GetString("Target"))}:</color> <b>{Main.AllPlayerNames[targetId].RemoveHtmlTags().Replace("\r\n", string.Empty)}</b>" : string.Empty;
@@ -231,11 +236,7 @@ public class BountyHunter : RoleBase
 
     private static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (!ShowTargetArrow || GameStates.IsMeeting) return string.Empty;
-
-        if (Main.PlayerStates[seer.PlayerId].Role is not BountyHunter bh) return string.Empty;
+        if ((target != null && seer.PlayerId != target.PlayerId) || !ShowTargetArrow || GameStates.IsMeeting || Main.PlayerStates[seer.PlayerId].Role is not BountyHunter bh) return string.Empty;
 
         byte targetId = bh.GetTarget(seer);
         return $"<color=#ffffff> {TargetArrow.GetArrows(seer, targetId)}</color>";

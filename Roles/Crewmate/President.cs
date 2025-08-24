@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Neutral;
 
 namespace EHR.Crewmate;
 
@@ -234,6 +235,7 @@ public class President : RoleBase
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (voter.PlayerId != PresidentId || !IsRecruiting || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
         if (!target.Is(CustomRoleTypes.Crewmate) || target.IsConverted())

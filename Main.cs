@@ -127,6 +127,7 @@ public class Main : BasePlugin
     public static readonly Dictionary<string, int> GamesPlayed = [];
     public static readonly HashSet<byte> GotShieldAnimationInfoThisGame = [];
     public static readonly HashSet<byte> Invisible = [];
+    public static readonly Dictionary<string, Options.UserData> UserData = [];
 
     public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
     {
@@ -150,7 +151,9 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> KilledAntidote = [];
     public static List<byte> BrakarVoteFor = [];
     public static Dictionary<byte, string> SleuthMsgs = [];
+    public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
+    public static uint LobbyBehaviourNetId;
 
     public static bool ShowResult = true;
 
@@ -629,6 +632,7 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Commited, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },
                 { CustomRoles.Blind, "#666666" },
                 { CustomRoles.Shy, "#9582f5" },

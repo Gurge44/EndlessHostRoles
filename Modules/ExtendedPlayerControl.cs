@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
 using EHR.Coven;
@@ -299,7 +300,7 @@ internal static class ExtendedPlayerControl
     }
 
     // Saves some RPC calls for vanilla servers to make innersloth's rate limit happy
-    public static void ReviveFromTemporaryExile(this PlayerControl player) // Only used in game modes
+    public static void ReviveFromTemporaryExile(this PlayerControl player, Func<CustomRpcSender, bool> extraWrites = null) // Only used in game modes
     {
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
         {
@@ -313,29 +314,37 @@ internal static class ExtendedPlayerControl
         state.IsDead = false;
         state.deathReason = PlayerState.DeathReason.etc;
 
-        var sender = CustomRpcSender.Create("ReviveFromTemporaryExile", SendOption.Reliable);
-        var hasValue = false;
-
         player.RpcSetRoleGlobal(RoleTypes.Crewmate);
 
-        RoleTypes newRoleType = state.MainRole.GetRoleTypes();
-
-        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars)
-            hasValue |= sender.RpcSetRole(player, newRoleType, player.OwnerId);
-
-        player.ResetKillCooldown();
-        LateTask.New(() => player.SetKillCooldown(), 0.2f, log: false);
-
-        if (newRoleType is not (RoleTypes.Crewmate or RoleTypes.Impostor or RoleTypes.Noisemaker))
-            hasValue |= sender.RpcResetAbilityCooldown(player);
-
-        if (DoRPC)
+        LateTask.New(() =>
         {
-            sender.SyncGeneralOptions(player);
-            hasValue = true;
-        }
+            var sender = CustomRpcSender.Create("ReviveFromTemporaryExile", SendOption.Reliable);
+            var hasValue = false;
 
-        sender.SendMessage(!hasValue);
+            RoleTypes newRoleType = state.MainRole.GetRoleTypes();
+
+            if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars)
+                hasValue |= sender.RpcSetRole(player, newRoleType, player.OwnerId);
+
+            player.ResetKillCooldown();
+
+            if (Options.CurrentGameMode != CustomGameMode.KingOfTheZones)
+                LateTask.New(() => player.SetKillCooldown(), 0.2f, log: false);
+
+            if (newRoleType is not (RoleTypes.Crewmate or RoleTypes.Impostor or RoleTypes.Noisemaker))
+                hasValue |= sender.RpcResetAbilityCooldown(player);
+
+            if (DoRPC)
+            {
+                sender.SyncGeneralOptions(player);
+                hasValue = true;
+            }
+
+            if (extraWrites != null)
+                hasValue |= extraWrites(sender);
+
+            sender.SendMessage(!hasValue);
+        }, 1f, log: false);
     }
 
     // If you use vanilla RpcSetRole, it will block further SetRole calls until the next game starts.
@@ -904,11 +913,14 @@ internal static class ExtendedPlayerControl
     {
         if (player == null) return;
 
-        Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(Math.Abs(time - -1f) < 0.5f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
+        if (!Mathf.Approximately(time, -1f) && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+            time = Math.Max(time - reduction, 0.01f);
+
+        Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(time < 0f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
 
         if (player.GetCustomRole().UsesPetInsteadOfKill())
         {
-            if (Math.Abs(time - -1f) < 0.5f)
+            if (time < 0f)
                 player.AddKCDAsAbilityCD();
             else
                 player.AddAbilityCD((int)Math.Round(time));
@@ -1714,6 +1726,9 @@ internal static class ExtendedPlayerControl
             Logger.Info($"KCD of player set to {Main.AllPlayerKillCooldown[player.PlayerId]}", "Antidote");
         }
 
+        if (Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+            Main.AllPlayerKillCooldown[player.PlayerId] -= reduction;
+
         if (sync) player.SyncSettings();
     }
 
@@ -2168,6 +2183,7 @@ internal static class ExtendedPlayerControl
         if (ChatCommands.IsPlayerModerator(pc.FriendCode)) return true;
         if (ChatCommands.IsPlayerVIP(pc.FriendCode)) return true;
         if (PrivateTagManager.Tags.ContainsKey(pc.FriendCode)) return true;
+        if (Main.UserData.TryGetValue(pc.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0) return true;
         
         ClientData client = pc.GetClient();
         return client != null && FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);

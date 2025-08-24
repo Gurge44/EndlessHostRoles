@@ -51,6 +51,8 @@ public abstract class CustomSabotage
 
     public static string GetAllSuffix(PlayerControl seer, PlayerControl target, bool hud, bool meeting)
     {
+        if (!AmongUsClient.Instance.AmHost) return string.Empty;
+        
         StringBuilder suffix = new();
 
         foreach (CustomSabotage sabotage in Instances)
@@ -61,7 +63,16 @@ public abstract class CustomSabotage
                 suffix.Append($"{tempSuffix}\n");
         }
 
-        return suffix.ToString().Trim();
+        var result = suffix.ToString();
+
+        if (seer.IsNonHostModdedClient())
+        {
+            if (NameNotifyManager.GetNameNotify(seer, out string name) && name == result) return string.Empty;
+            seer.Notify(result, 3f, true, false);
+            return string.Empty;
+        }
+
+        return result.Trim();
     }
 
     public static void UpdateAll()

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using EHR.Modules;
-using UnityEngine;
 
 namespace EHR.Impostor;
 
@@ -13,8 +12,8 @@ public class SerialKiller : RoleBase
     private static OptionItem TimeLimit;
     private static OptionItem WaitFor1Kill;
 
-    private float SuicideTimer;
     private int Timer;
+    private long LastUpdate;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -37,7 +36,6 @@ public class SerialKiller : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        SuicideTimer = TimeLimit.GetFloat();
         Timer = TimeLimit.GetInt();
     }
 
@@ -45,7 +43,6 @@ public class SerialKiller : RoleBase
     {
         PlayerIdList.Add(serial);
         Timer = TimeLimit.GetInt();
-        SuicideTimer = TimeLimit.GetFloat();
     }
 
     public override void Remove(byte playerId)
@@ -67,7 +64,6 @@ public class SerialKiller : RoleBase
     {
         if (!killer.Is(CustomRoles.SerialKiller)) return true;
 
-        SuicideTimer = float.NaN;
         Timer = TimeLimit.GetInt();
         killer.MarkDirtySettings();
         return true;
@@ -75,44 +71,42 @@ public class SerialKiller : RoleBase
 
     public override void OnReportDeadBody()
     {
-        SuicideTimer = float.NaN;
         Timer = TimeLimit.GetInt();
     }
 
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!GameStates.IsInTask) return;
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !player.IsAlive()) return;
+
+        long now = Utils.TimeStamp;
+        if (now == LastUpdate) return;
+        LastUpdate = now;
 
         if (!HasKilled(player))
         {
-            SuicideTimer = float.NaN;
-            Timer = TimeLimit.GetInt();
+            Timer = int.MaxValue;
             return;
         }
 
-        if (float.IsNaN(SuicideTimer)) return;
-
-        if (SuicideTimer >= TimeLimit.GetFloat())
+        if (Timer < 0)
         {
             player.Suicide();
-            SuicideTimer = float.NaN;
-            Timer = TimeLimit.GetInt();
+            Timer = int.MaxValue;
 
             if (player.IsLocalPlayer())
                 Achievements.Type.OutOfTime.Complete();
         }
         else
         {
-            SuicideTimer += Time.fixedDeltaTime;
-            int tempTimer = Timer;
-            Timer = TimeLimit.GetInt() - (int)SuicideTimer;
-            if (Timer != tempTimer && Timer <= 20 && !player.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+            Timer--;
+
+            if (Timer <= 20)
+                player.Notify(string.Format(Translator.GetString("SerialKillerTimeLeft"), Timer), 3f, true, false);
         }
     }
 
     public override void AfterMeetingTasks()
     {
-        SuicideTimer = 0f;
         Timer = TimeLimit.GetInt();
     }
 }

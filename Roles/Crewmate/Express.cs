@@ -12,13 +12,13 @@ internal class Express : RoleBase
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(5585, TabGroup.CrewmateRoles, CustomRoles.Express);
+        Options.SetupRoleOptions(653500, TabGroup.CrewmateRoles, CustomRoles.Express);
 
-        Options.ExpressSpeed = new FloatOptionItem(5587, "ExpressSpeed", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.CrewmateRoles)
+        Options.ExpressSpeed = new FloatOptionItem(653502, "ExpressSpeed", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Express])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        Options.ExpressSpeedDur = new IntegerOptionItem(5588, "ExpressSpeedDur", new(0, 90, 1), 5, TabGroup.CrewmateRoles)
+        Options.ExpressSpeedDur = new IntegerOptionItem(653503, "ExpressSpeedDur", new(0, 90, 1), 5, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Express])
             .SetValueFormat(OptionFormat.Seconds);
     }

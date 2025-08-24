@@ -12,7 +12,7 @@ namespace EHR;
 // Reference: https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
 internal static class DisableDevice
 {
-    private static readonly List<byte> DesyncComms = [];
+    public static readonly List<byte> DesyncComms = [];
     private static int frame;
 
     public static readonly Dictionary<string, Vector2> DevicePos = new()

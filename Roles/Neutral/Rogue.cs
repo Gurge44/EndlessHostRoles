@@ -17,8 +17,8 @@ public class Rogue : RoleBase
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
-    private bool AllTasksCompleted;
 
+    private bool AllTasksCompleted;
     private int Count;
     private (Objective Objective, Reward Reward, object Data, bool IsCompleted) CurrentTask;
     private bool DoCheck;
@@ -93,16 +93,27 @@ public class Rogue : RoleBase
 
     public override bool OnSabotage(PlayerControl pc)
     {
-        if (GotRewards.Contains(Reward.Morph) && MorphCooldown <= 0)
+        if (!Options.UsePets.GetBool() && GotRewards.Contains(Reward.Morph) && MorphCooldown <= 0)
         {
-            MorphCooldown = 15 + (int)Options.AdjustedDefaultKillCooldown;
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
-            PlayerControl target = Main.AllAlivePlayerControls.Except([pc]).RandomElement();
-            pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
+            Morph(pc);
             return false;
         }
 
         return GotRewards.Contains(Reward.Sabotage) || pc.Is(CustomRoles.Mischievous);
+    }
+
+    public override void OnPet(PlayerControl pc)
+    {
+        if (GotRewards.Contains(Reward.Morph) && MorphCooldown <= 0)
+            Morph(pc);
+    }
+
+    private void Morph(PlayerControl pc)
+    {
+        MorphCooldown = 15 + (int)Options.AdjustedDefaultKillCooldown;
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
+        PlayerControl target = Main.AllAlivePlayerControls.Except([pc]).RandomElement();
+        pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -40,11 +40,11 @@ public class Cleanser : RoleBase
         CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Cleanser, TabGroup.CrewmateRoles);
         
         CleanserAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Cleanser])
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
             .SetValueFormat(OptionFormat.Times);
         
         AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Cleanser])
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
             .SetValueFormat(OptionFormat.Times);
     }
 
@@ -95,6 +95,7 @@ public class Cleanser : RoleBase
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (DidVote[voter.PlayerId] || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
         DidVote[voter.PlayerId] = true;

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.GameMode.HideAndSeekRoles;
 using UnityEngine;
 
@@ -37,13 +38,18 @@ public static class AutoHaunt
         {
             while (Main.AutoHaunt.Value)
             {
-                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && HauntMenuMinigameStartPatch.Instance != null)
+                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Data.RoleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
                 {
-                    PlayerControl currentTarget = HauntMenuMinigameStartPatch.Instance.HauntTarget;
-                    PlayerControl preferredTarget = GetPreferredHauntTarget();
+                    if (HauntMenuMinigameStartPatch.Instance != null)
+                    {
+                        PlayerControl currentTarget = HauntMenuMinigameStartPatch.Instance.HauntTarget;
+                        PlayerControl preferredTarget = GetPreferredHauntTarget();
 
-                    if (preferredTarget != null && currentTarget != preferredTarget)
-                        HauntMenuMinigameSetHauntTargetPatch.Prefix(HauntMenuMinigameStartPatch.Instance, preferredTarget);
+                        if (preferredTarget != null && currentTarget != preferredTarget)
+                            HauntMenuMinigameSetHauntTargetPatch.Prefix(HauntMenuMinigameStartPatch.Instance, preferredTarget);
+                    }
+                    else
+                        FastDestroyableSingleton<HudManager>.Instance.AbilityButton.DoClick();
                 }
 
                 yield return new WaitForSeconds(5f);

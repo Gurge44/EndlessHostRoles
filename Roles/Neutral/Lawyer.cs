@@ -92,6 +92,7 @@ public class Lawyer : RoleBase
     public override void Remove(byte playerId)
     {
         PlayerIdList.Remove(playerId);
+        Target.Remove(playerId);
     }
 
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
