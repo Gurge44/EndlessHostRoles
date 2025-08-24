@@ -728,7 +728,7 @@ public static class BedWars
             {
                 if (pc == null) yield break;
 
-                pc.Notify(string.Format(Translator.GetString("Bedwars.ReviveCountdown"), time), overrideAll: true);
+                pc.Notify(string.Format(Translator.GetString("Bedwars.ReviveCountdown"), time), overrideAll: true, sendOption: SendOption.None);
                 yield return new WaitForSeconds(1f);
                 time--;
             }
@@ -754,12 +754,12 @@ public static class BedWars
 
         public string BuildSuffix(PlayerControl pc)
         {
-            if (!pc.IsAlive()) return string.Empty;
-
             var sb = new StringBuilder();
 
             if (NameNotifyManager.GetNameNotify(pc, out string notify) && notify.Length > 0)
                 sb.AppendLine(notify);
+
+            if (!pc.IsAlive()) return $"<#ffffff>{sb.ToString().Trim()}</color>";
 
             sb.AppendLine(IsGracePeriod ? Translator.GetString("Bedwars.GracePeriod") : GetHealthInfo());
 

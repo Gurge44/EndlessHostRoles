@@ -280,8 +280,6 @@ public static class ElectricTaskCompletePatch
         if (LastUpdate >= now) return;
         LastUpdate = now;
 
-        Utils.MarkEveryoneDirtySettingsV2();
-
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -301,6 +299,8 @@ public static class ElectricTaskCompletePatch
                     Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             }
         }
+
+        Utils.MarkEveryoneDirtySettingsV2();
 
         Logger.Info("Lights sabotage fixed", "ElectricTask");
     }

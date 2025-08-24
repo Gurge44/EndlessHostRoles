@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -77,7 +78,7 @@ public static class Speedrun
         int kcd = KillCooldown.GetInt();
         Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
         pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
-        pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
+        pc.Notify(Translator.GetString("Speedrun_CompletedTasks"), sendOption: SendOption.None);
         pc.SyncSettings();
         LateTask.New(() => pc.SetKillCooldown(kcd), 0.2f, log: false);
     }
