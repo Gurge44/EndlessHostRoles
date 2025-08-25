@@ -111,7 +111,7 @@ public class Mastermind : RoleBase
                     pc.SetKillCooldown(1f);
                 }
                 else
-                    pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+                    pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
 
                 NotifyRoles(SpecifySeer: MastermindPC, SpecifyTarget: pc);
             }

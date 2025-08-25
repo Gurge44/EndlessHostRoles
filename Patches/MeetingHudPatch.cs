@@ -1044,8 +1044,8 @@ internal static class MeetingHudStartPatch
                 case CustomRoles.Psychic when Psychic.IsRedForPsy(target, seer) && !seer.Data.IsDead:
                     pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), pva.NameText.text);
                     break;
-                case CustomRoles.Gamer:
-                    sb.Append(Gamer.TargetMark(seer, target));
+                case CustomRoles.Demon:
+                    sb.Append(Demon.TargetMark(seer, target));
                     sb.Append(Snitch.GetWarningMark(seer, target));
                     break;
                 case CustomRoles.Scout:

@@ -500,7 +500,7 @@ public static class Quiz
                 spectators.Do(x => x.ExileTemporarily());
                 yield return new WaitForSeconds(0.2f);
                 var stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
-                stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.NSerialKiller));
+                stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.SerialKiller));
                 Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 
                 while (Utils.TimeStamp < FFAEndTS)

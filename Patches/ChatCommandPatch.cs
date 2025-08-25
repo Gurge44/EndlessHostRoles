@@ -439,7 +439,7 @@ internal static class ChatCommands
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
         }
 
-        if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Gamer))
+        if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Demon))
             Achievements.Type.WhatTheHell.Complete();
 
         return !canceled;

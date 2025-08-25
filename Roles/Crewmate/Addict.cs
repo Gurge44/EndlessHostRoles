@@ -35,7 +35,7 @@ public class Addict : RoleBase
         VentCooldown = new FloatOptionItem(Id + 11, "VentCooldown", new(5f, 70f, 1f), 40f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
             .SetValueFormat(OptionFormat.Seconds);
 
-        TimeLimit = new FloatOptionItem(Id + 12, "SerialKillerLimit", new(5f, 75f, 1f), 45f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
+        TimeLimit = new FloatOptionItem(Id + 12, "MercenaryLimit", new(5f, 75f, 1f), 45f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
             .SetValueFormat(OptionFormat.Seconds);
 
         ImmortalTimeAfterVent = new FloatOptionItem(Id + 13, "AddictInvulnerbilityTimeAfterVent", new(0f, 30f, 1f), 10f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])

@@ -167,22 +167,22 @@ public static class HudSpritePatch
 
                     break;
                 }
-                case CustomRoles.Assassin:
+                case CustomRoles.Ninja:
                 case CustomRoles.Undertaker:
                 {
-                    if (Main.PlayerStates[player.PlayerId].Role is not Assassin assassin) break;
+                    if (Main.PlayerStates[player.PlayerId].Role is not Ninja ninja) break;
 
                     if (Options.UsePets.GetBool())
                     {
                         newKillButton = CustomButton.Get("Mark");
-                        if (assassin.MarkedPlayer != byte.MaxValue) newPetButton = CustomButton.Get("Assassinate");
+                        if (ninja.MarkedPlayer != byte.MaxValue) newPetButton = CustomButton.Get("Assassinate");
                     }
                     else
                     {
                         if (!shapeshifting)
                         {
                             newKillButton = CustomButton.Get("Mark");
-                            if (assassin.MarkedPlayer != byte.MaxValue) newAbilityButton = CustomButton.Get("Assassinate");
+                            if (ninja.MarkedPlayer != byte.MaxValue) newAbilityButton = CustomButton.Get("Assassinate");
                         }
                     }
 

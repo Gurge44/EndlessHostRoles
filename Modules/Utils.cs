@@ -838,7 +838,7 @@ public static class Utils
             case CustomRoles.Poisoner:
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
-            case CustomRoles.NSerialKiller:
+            case CustomRoles.SerialKiller:
             case CustomRoles.Slenderman:
             case CustomRoles.Amogus:
             case CustomRoles.Weatherman:
@@ -910,7 +910,7 @@ public static class Utils
             case CustomRoles.Medusa:
             case CustomRoles.Revolutionist:
             case CustomRoles.FFF:
-            case CustomRoles.Gamer:
+            case CustomRoles.Demon:
             case CustomRoles.HexMaster:
             case CustomRoles.Wraith:
             case CustomRoles.Juggernaut:
@@ -2458,7 +2458,7 @@ public static class Utils
 
                 SelfMark.Append(Medic.GetMark(seer, seer));
                 SelfMark.Append(Gaslighter.GetMark(seer, seer, forMeeting));
-                SelfMark.Append(Gamer.TargetMark(seer, seer));
+                SelfMark.Append(Demon.TargetMark(seer, seer));
                 SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
                 if (Silencer.ForSilencer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Silencer), "╳"));
 
@@ -2867,7 +2867,7 @@ public static class Utils
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
 
                             TargetMark.Append(Executioner.TargetMark(seer, target));
-                            TargetMark.Append(Gamer.TargetMark(seer, target));
+                            TargetMark.Append(Demon.TargetMark(seer, target));
                             TargetMark.Append(Medic.GetMark(seer, target));
                             TargetMark.Append(Gaslighter.GetMark(seer, target, forMeeting));
                             TargetMark.Append(Totocalcio.TargetMark(seer, target));
@@ -3210,7 +3210,7 @@ public static class Utils
             CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
             CustomRoles.AntiAdminer => AntiAdminer.AbilityCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
-            CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
+            CustomRoles.Ninja => Ninja.AssassinateCooldownOpt.GetInt(),
             CustomRoles.Undertaker => Undertaker.UndertakerAssassinateCooldown.GetInt(),
             CustomRoles.Bomber => Bomber.BombCooldown.GetInt(),
             CustomRoles.Nuker => Bomber.NukeCooldown.GetInt(),
