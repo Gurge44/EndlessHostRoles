@@ -203,7 +203,7 @@ internal static class HotPotato
 
                 if (CanPassViaKillButton)
                 {
-                    target.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+                    target.RpcChangeRoleBasis(CustomRoles.SerialKiller);
                     LateTask.New(() => target.SetKillCooldown(1f), 0.2f, log: false);
                 }
 

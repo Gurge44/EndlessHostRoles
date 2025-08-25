@@ -1591,7 +1591,7 @@ internal static class FixedUpdatePatch
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Assassin) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
+                    if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Ninja) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
                         Main.AllPlayerKillCooldown[pc.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
                 }
             }
@@ -1821,8 +1821,8 @@ internal static class FixedUpdatePatch
                 case CustomRoles.Executioner:
                     Mark.Append(Executioner.TargetMark(seer, target));
                     break;
-                case CustomRoles.Gamer:
-                    Mark.Append(Gamer.TargetMark(seer, target));
+                case CustomRoles.Demon:
+                    Mark.Append(Demon.TargetMark(seer, target));
                     break;
             }
 

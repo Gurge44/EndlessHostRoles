@@ -185,7 +185,7 @@ public enum ErrorCode
 {
     //xxxyyyz: ERR-xxx-yyy-z
     // xxx: General type of error (HUD-related, banishment-related, etc.)
-    // yyy: Detailed type of error (BoutyHunter processing, SerialKiller processing, etc.)
+    // yyy: Detailed type of error (BoutyHunter processing, Mercenary processing, etc.)
     // z: Severity
     //      0: No action required (hide)
     //      1: Abandon village if not working properly (hide after a certain period of time)
