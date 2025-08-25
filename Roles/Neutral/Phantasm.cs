@@ -25,4 +25,13 @@ internal class Phantasm : RoleBase
     public override void Init() { }
 
     public override void Add(byte playerId) { }
+
+    public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
+    {
+        if (completedTaskCount + 1 >= totalTaskCount)
+        {
+            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Phantom);
+            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+        }
+    }
 }

@@ -358,7 +358,7 @@ public enum CustomRoles
     Sprayer,
     DarkHide, // Stalker
     Starspawn,
-    Succubus,
+    Succubus, // Cultist
     Sunnyboy,
     Technician,
     Tank,
@@ -477,6 +477,7 @@ public enum CustomRoles
     Circumvent,
     Cleansed,
     Clumsy,
+    Commited,
     Contagious,
     Damocles,
     Deadlined,

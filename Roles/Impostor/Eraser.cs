@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Neutral;
 using Hazel;
 using static EHR.Translator;
 
@@ -101,6 +102,7 @@ internal class Eraser : RoleBase
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null || EraseMethod.GetInt() == 0) return false;
 
         if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;

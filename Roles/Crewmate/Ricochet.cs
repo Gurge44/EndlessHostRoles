@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 
 namespace EHR.Crewmate;
@@ -94,6 +95,7 @@ public class Ricochet : RoleBase
 
     public override bool OnVote(PlayerControl pc, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
         if (pc.GetAbilityUseLimit() >= 1)

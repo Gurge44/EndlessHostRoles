@@ -10,8 +10,9 @@ internal class Enderman : RoleBase
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private static OptionItem Time;
-    private byte EndermanId = byte.MaxValue;
+    private static OptionItem ImpostorVision;
 
+    private byte EndermanId = byte.MaxValue;
     private (Vector2 Position, long MarkTimeStamp, bool TP) MarkedPosition = (Vector2.zero, 0, false);
     private static int Id => 643200;
 
@@ -33,6 +34,9 @@ internal class Enderman : RoleBase
         Time = new IntegerOptionItem(Id + 4, "EndermanSecondsBeforeTP", new(1, 60, 1), 7, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Enderman])
             .SetValueFormat(OptionFormat.Seconds);
+
+        ImpostorVision = new BooleanOptionItem(Id + 5, "ImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Enderman]);
     }
 
     public override void Init()
@@ -64,7 +68,7 @@ internal class Enderman : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        opt.SetVision(true);
+        opt.SetVision(ImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = Time.GetInt() + 2f;
     }
 

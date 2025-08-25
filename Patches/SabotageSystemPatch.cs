@@ -261,7 +261,7 @@ public static class ElectricTaskInitializePatch
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
-                    Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
+                    Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true, SendOption: SendOption.None);
             }
         }
 
@@ -280,8 +280,6 @@ public static class ElectricTaskCompletePatch
         if (LastUpdate >= now) return;
         LastUpdate = now;
 
-        Utils.MarkEveryoneDirtySettingsV2();
-
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
@@ -289,15 +287,20 @@ public static class ElectricTaskCompletePatch
                 CustomRoles role = pc.GetCustomRole();
 
                 if (role.NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
-                    Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
+                    Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true, SendOption: SendOption.None);
 
                 if (role == CustomRoles.Wiper)
                 {
                     if (Options.UsePhantomBasis.GetBool()) pc.RpcResetAbilityCooldown();
                     else pc.AddAbilityCD();
                 }
+
+                if (pc.Is(CustomRoles.Sleep))
+                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             }
         }
+
+        Utils.MarkEveryoneDirtySettingsV2();
 
         Logger.Info("Lights sabotage fixed", "ElectricTask");
     }

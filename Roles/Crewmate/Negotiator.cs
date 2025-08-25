@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 
 namespace EHR.Crewmate;
 
@@ -17,8 +18,8 @@ public class Negotiator : RoleBase
     private static OptionItem AbilityUseLimit;
     private static OptionItem AbilityUseGainWithEachTaskCompleted;
     private static OptionItem AbilityChargesWhenFinishedTasks;
-
     public static OptionItem CancelVote;
+
     private byte NegotiatorId;
     private NegotiationType Penalty;
     private Dictionary<byte, HashSet<NegotiationType>> PermanentPenalties;
@@ -126,6 +127,7 @@ public class Negotiator : RoleBase
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || MinVotingTimeLeftToNegotiate.GetInt() > MeetingTimeManager.VotingTimeLeft || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
         bool votedLast = MeetingHud.Instance.playerStates.All(x => x.TargetPlayerId == voter.PlayerId || x.DidVote);

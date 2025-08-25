@@ -66,7 +66,7 @@ internal static class CheckForEndVotingPatch
                     }
                 }
 
-                if (pc.Is(CustomRoles.Dictator) && pva.DidVote && pc.PlayerId != pva.VotedFor && pva.VotedFor < 253 && pc.Data?.IsDead == false)
+                if (pc.Is(CustomRoles.Dictator) && pva.DidVote && pc.PlayerId != pva.VotedFor && pva.VotedFor < 253 && pc.Data?.IsDead == false && pc.GetTaskState().CompletedTasksCount >= Dictator.MinTasksToDictate.GetInt())
                 {
                     PlayerControl voteTarget = Utils.GetPlayerById(pva.VotedFor);
                     TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, pc.PlayerId);
@@ -233,6 +233,8 @@ internal static class CheckForEndVotingPatch
 
             Blackmailer.OnCheckForEndVoting();
             NiceSwapper.OnCheckForEndVoting();
+
+            Commited.OnVotingResultsShown(statesList);
 
             states = [.. statesList];
 
@@ -1062,6 +1064,7 @@ internal static class MeetingHudStartPatch
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));
             sb.Append(Wasp.GetStungMark(target.PlayerId));
             sb.Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? Utils.ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
+            sb.Append(Commited.GetMark(seer, target));
 
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));

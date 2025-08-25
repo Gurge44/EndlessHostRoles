@@ -314,6 +314,8 @@ internal static class ChangeRoleSettings
             Camouflage.BlockCamouflage = false;
             Camouflage.Init();
 
+            Main.NumEmergencyMeetingsUsed = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => 0);
+
             if (AmongUsClient.Instance.AmHost)
             {
                 string[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
@@ -394,6 +396,7 @@ internal static class ChangeRoleSettings
                 Asthmatic.Init();
                 DoubleShot.Init();
                 Circumvent.Init();
+                Commited.Init();
             }
             catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }
 
@@ -549,6 +552,7 @@ internal static class StartGameHostPatch
 
         if (LobbyBehaviour.Instance)
         {
+            Main.LobbyBehaviourNetId = LobbyBehaviour.Instance.NetId;
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(5);
             writer.Write(AUClient.GameId);
@@ -560,6 +564,11 @@ internal static class StartGameHostPatch
             writer.Recycle();
             AUClient.RemoveNetObject(LobbyBehaviour.Instance);
             Object.Destroy(LobbyBehaviour.Instance.gameObject);
+        }
+        else
+        {
+            Logger.Fatal($"LobbyBehaviour.Instance is null in {nameof(StartGameHostPatch)}.{nameof(StartGameHost)}", "StartGameHost");
+            Main.LobbyBehaviourNetId = uint.MaxValue;
         }
 
         if (!ShipStatus.Instance)

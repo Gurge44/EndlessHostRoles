@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Neutral;
 
 namespace EHR.Crewmate;
 
@@ -42,6 +43,7 @@ public class Soothsayer : RoleBase
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null || player.PlayerId == target.PlayerId) return false;
         if (Target != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 

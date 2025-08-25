@@ -93,6 +93,8 @@ internal class Spiritualist : RoleBase
             LastGhostArrowShowTime = 0;
             ShowGhostArrowUntil = 0;
 
+            if (!AmongUsClient.Instance.AmHost) continue;
+
             PlayerControl target = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == SpiritualistTarget);
             if (target == null) continue;
 

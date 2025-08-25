@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using EHR.AddOns;
 using EHR.AddOns.GhostRoles;
 using EHR.Modules;
@@ -173,7 +175,9 @@ public static class Options
 
     public static readonly string[] PetToAssign =
     [
+        "pet_Goose",
         "pet_Bedcrab",
+        "pet_DancingSkeletonPet",
         "pet_BredPet",
         "pet_YuleGoatPet",
         "pet_Bush",
@@ -181,9 +185,12 @@ public static class Options
         "pet_ChewiePet",
         "pet_clank",
         "pet_coaltonpet",
+        "pet_Creb",
         "pet_Cube",
+        "pet_lny_dragon",
         "pet_Doggy",
         "pet_Ellie",
+        "pet_Strawb",
         "pet_frankendog",
         "pet_D2GhostPet",
         "pet_test",
@@ -194,13 +201,23 @@ public static class Options
         "pet_Alien",
         "pet_poro",
         "pet_HamPet",
+        "pet_Crow",
         "pet_Lava",
         "pet_Crewmate",
+        "pet_Mister",
+        "pet_nancy",
+        "pet_napstamate",
+        "pet_Pip",
+        "pet_pocketCircuitCar",
         "pet_D2PoukaPet",
         "pet_Pusheen",
+        "pet_Pate",
+        "pet_Rammy",
         "pet_Robot",
         "pet_Snow",
+        "pet_spaceCat",
         "pet_Squig",
+        "pet_Stormy",
         "pet_nuggetPet",
         "pet_Charles_Red",
         "pet_UFO",
@@ -907,6 +924,7 @@ public static class Options
         Logger.Info("Options.Load End", "Options");
         GroupOptions();
         GroupAddons();
+        LoadUserData();
         Achievements.LoadAllData();
         OptionShower.LastText = Translator.GetString("Loading");
 
@@ -1125,6 +1143,48 @@ public static class Options
             .Where(x => x != null)
             .GroupBy(x => x.Type)
             .ToDictionary(x => x.Key, x => x.Select(y => Enum.Parse<CustomRoles>(y.GetType().Name, true)).ToList());
+    }
+
+    public static void LoadUserData()
+    {
+        try
+        {
+            Main.UserData.Clear();
+
+            var path = $"{Main.DataPath}/EHR_DATA/UserData";
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+                File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData(), new JsonSerializerOptions { WriteIndented = true }));
+            }
+
+            foreach (string file in Directory.GetFiles(path, "*.txt"))
+            {
+                try
+                {
+                    string content = File.ReadAllText(file);
+                    var userData = JsonSerializer.Deserialize<UserData>(content);
+                    if (userData == null) throw new FormatException($"The data in {file} was not in the correct format.");
+                    string fileName = Path.GetFileNameWithoutExtension(file);
+                    Main.UserData[fileName] = userData;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"Failed to load user data from {file}", "Options");
+                    Utils.ThrowException(e);
+                }
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+    }
+
+    public class UserData
+    {
+        public bool Vip { get; init; }
+        public bool Moderator { get; init; }
+        public bool Admin { get; init; }
+        public string Tag { get; init; }
     }
 
     public static VoteMode GetWhenSkipVote()
@@ -2280,7 +2340,7 @@ public static class Options
             .SetHeader(true)
             .SetColor(new Color32(60, 0, 255, byte.MaxValue));
 
-        PetToAssignToEveryone = new StringOptionItem(23854, "PetToAssign", PetToAssign, 24, TabGroup.TaskSettings)
+        PetToAssignToEveryone = new StringOptionItem(23854, "PetToAssign", PetToAssign, 18, TabGroup.TaskSettings)
             .SetParent(UsePets)
             .SetColor(new Color32(60, 0, 255, byte.MaxValue));
 

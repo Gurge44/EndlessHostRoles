@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
@@ -75,6 +76,11 @@ public class Vampire : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (IsPoisoner) opt.SetVision(Poisoner.ImpostorVision.GetBool());
+    }
+
     public static bool IsVampire(byte playerId)
     {
         return PlayerIdList.Contains(playerId);
@@ -93,17 +99,11 @@ public class Vampire : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsVampire(killer.PlayerId)) return true;
-
         if (target.Is(CustomRoles.Bait)) return true;
-
         if (target.Is(CustomRoles.Pestilence)) return true;
-
         if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted()) return true;
-
         if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted() && Opportunist.OppoImmuneToAttacksWhenTasksDone.GetBool()) return true;
-
         if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return true;
-
         if (Medic.ProtectList.Contains(target.PlayerId)) return true;
 
         if (CanKillNormally) return killer.CheckDoubleTrigger(target, Bite);

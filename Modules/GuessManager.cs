@@ -461,6 +461,8 @@ public static class GuessManager
                     Main.GuesserGuessed[pc.PlayerId]++;
                     Main.GuesserGuessedMeeting[pc.PlayerId]++;
 
+                    if (pc.IsHost()) Utils.FlashColor(guesserSuicide ? new(1f, 0f, 0f, 0.3f) : new(0f, 1f, 0f, 0.3f));
+
                     if (Main.PlayerStates[pc.PlayerId].Role is NecroGuesser ng)
                     {
                         if (!guesserSuicide) ng.GuessedPlayers++;

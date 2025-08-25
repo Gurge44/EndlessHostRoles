@@ -987,6 +987,17 @@ internal static class ReportDeadBodyPatch
             // Next, check whether this meeting is allowed
             //=============================================
 
+            if (Main.NumEmergencyMeetingsUsed.TryGetValue(__instance.PlayerId, out int used))
+            {
+                if (used >= Main.RealOptionsData.GetInt(Int32OptionNames.NumEmergencyMeetings))
+                {
+                    Notify("NoMoreEmergencyMeetingsLeft");
+                    return false;
+                }
+
+                Main.NumEmergencyMeetingsUsed[__instance.PlayerId]++;
+            }
+
             PlayerControl killer = target?.Object?.GetRealKiller();
             CustomRoles? killerRole = killer?.GetCustomRole();
 
@@ -1149,6 +1160,8 @@ internal static class ReportDeadBodyPatch
 
         if (Lovers.PrivateChat.GetBool()) ChatManager.ClearChat(Main.AllAlivePlayerControls.ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray());
 
+        CustomSabotage.Reset();
+        
         if (target == null)
         {
             switch (Main.PlayerStates[player.PlayerId].Role)
@@ -1223,6 +1236,7 @@ internal static class ReportDeadBodyPatch
 
         Bloodmoon.OnMeetingStart();
         Deadlined.OnMeetingStart();
+        Commited.OnMeetingStart();
 
         Main.LastVotedPlayerInfo = null;
         Arsonist.ArsonistTimer.Clear();

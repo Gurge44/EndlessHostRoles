@@ -125,6 +125,7 @@ public class PlagueBearer : RoleBase
         }
 
         PlaguedList[killer.PlayerId].Add(target.PlayerId);
+        SendRPC(killer, target);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         killer.ResetKillCooldown();
         killer.SetKillCooldown();

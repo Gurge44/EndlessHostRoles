@@ -16,7 +16,7 @@ public static class NameNotifyManager
         Notifies = [];
     }
 
-    public static void Notify(this PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true)
+    public static void Notify(this PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, SendOption sendOption = SendOption.Reliable)
     {
         if (!AmongUsClient.Instance.AmHost || pc == null) return;
         if (!GameStates.IsInTask) return;
@@ -30,8 +30,8 @@ public static class NameNotifyManager
         else
             notifies[text] = expireTS;
 
-        if (pc.IsNonHostModdedClient()) SendRPC(pc.PlayerId, text, expireTS, overrideAll);
-        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (pc.IsNonHostModdedClient()) SendRPC(pc.PlayerId, text, expireTS, overrideAll, sendOption);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: sendOption);
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
     }
 
@@ -73,11 +73,11 @@ public static class NameNotifyManager
         return true;
     }
 
-    private static void SendRPC(byte playerId, string text, long expireTS, bool overrideAll) // Only sent when adding a new notification
+    private static void SendRPC(byte playerId, string text, long expireTS, bool overrideAll, SendOption sendOption) // Only sent when adding a new notification
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify, sendOption);
         writer.Write(playerId);
         writer.Write(text);
         writer.Write(expireTS.ToString());

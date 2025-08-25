@@ -1,4 +1,6 @@
-﻿namespace EHR.Neutral;
+﻿using AmongUs.GameOptions;
+
+namespace EHR.Neutral;
 
 public class Nonplus : RoleBase
 {
@@ -8,6 +10,7 @@ public class Nonplus : RoleBase
     public static OptionItem BlindDuration;
     public static OptionItem UseLimit;
     public static OptionItem NonplusAbilityUseGainWithEachKill;
+    public static OptionItem ImpostorVision;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -33,6 +36,9 @@ public class Nonplus : RoleBase
         NonplusAbilityUseGainWithEachKill = new FloatOptionItem(id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1.5f, tab)
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Times);
+
+        ImpostorVision = new BooleanOptionItem(id + 6, "ImpostorVision", true, tab)
+            .SetParent(Options.CustomRoleSpawnChances[role]);
     }
 
     public override void Init()
@@ -44,6 +50,11 @@ public class Nonplus : RoleBase
     {
         On = true;
         playerId.SetAbilityUseLimit(UseLimit.GetFloat());
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(ImpostorVision.GetBool());
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

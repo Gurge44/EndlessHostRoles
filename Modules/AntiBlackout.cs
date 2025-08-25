@@ -124,7 +124,7 @@ public static class AntiBlackout
             {
                 SkipTasks = false;
                 ExileControllerWrapUpPatch.AfterMeetingTasks();
-            }, Math.Max(1f, Utils.CalculatePingDelay() * 2f), "Reset SkipTasks after SetRealPlayerRoles");
+            }, Math.Min(3f, Math.Max(1f, Utils.CalculatePingDelay() * 2f)), "Reset SkipTasks after SetRealPlayerRoles");
         }, 0.2f, "SetRealPlayerRoles - Reset Cooldowns");
     }
 

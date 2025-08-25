@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.GameOptions;
 using Assets.CoreScripts;
@@ -14,6 +15,7 @@ using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
+using UnityEngine.Networking;
 using static EHR.Translator;
 
 // ReSharper disable InconsistentNaming
@@ -216,6 +218,8 @@ internal static class ChatCommands
             new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
             new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
             new(["retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
+
+            new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -242,6 +246,9 @@ internal static class ChatCommands
         friendCode = friendCode.Replace(':', '#');
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
+
+        if (Main.UserData.TryGetValue(friendCode, out Options.UserData userData) && userData.Moderator)
+            return true;
 
         long now = Utils.TimeStamp;
         string[] friendCodes;
@@ -272,6 +279,9 @@ internal static class ChatCommands
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool()) return false;
 
+        if (Main.UserData.TryGetValue(friendCode, out Options.UserData userData) && userData.Vip)
+            return true;
+
         long now = Utils.TimeStamp;
         string[] friendCodes;
 
@@ -300,6 +310,9 @@ internal static class ChatCommands
         friendCode = friendCode.Replace(':', '#');
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyAdminList.GetBool()) return false;
+
+        if (Main.UserData.TryGetValue(friendCode, out Options.UserData userData) && userData.Admin)
+            return true;
 
         long now = Utils.TimeStamp;
         string[] friendCodes;
@@ -468,7 +481,76 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
-    private static void RetributeCommand(PlayerControl player, string text, string[] args)
+    private static void ConfirmAuthCommand(PlayerControl player, string text, string[] args)
+    {
+        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("ConfirmAuth.ErrorNotVanilla"));
+            return;
+        }
+
+        if (!Options.PostLobbyCodeToEHRWebsite.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ConfirmAuth.ErrorLobbyUnlisted"), GetString("PostLobbyCodeToEHRDiscordServer")));
+            return;
+        }
+
+        if (args.Length >= 2)
+        {
+            string uuid = args[1].Trim();
+            if (string.IsNullOrEmpty(uuid)) return;
+
+            Main.Instance.StartCoroutine(SendVerificationCoroutine(uuid));
+        }
+
+        return;
+
+        IEnumerator SendVerificationCoroutine(string uuid)
+        {
+            string friendCode = player.FriendCode;
+            string puid = player.GetClient().ProductUserId;
+            var gameId = AmongUsClient.Instance.GameId.ToString();
+
+            if (string.IsNullOrEmpty(friendCode) || string.IsNullOrEmpty(puid))
+            {
+                Logger.Error($" Missing friendcode/puid for player {player.PlayerId}", "ConfirmAuth");
+                yield break;
+            }
+
+            if (string.IsNullOrEmpty(gameId) || gameId == "32")
+            {
+                Logger.Error(" Invalid GameId", "ConfirmAuth");
+                yield break;
+            }
+
+            var json = $"{{\"uuid\":\"{uuid}\",\"friend_code\":\"{friendCode}\",\"puid\":\"{puid}\",\"game_id\":\"{gameId}\"}}";
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+            var uwr = new UnityWebRequest("https://gurge44.pythonanywhere.com/api/verify_ingame", "POST")
+            {
+                uploadHandler = new UploadHandlerRaw(bodyRaw),
+                downloadHandler = new DownloadHandlerBuffer()
+            };
+            uwr.SetRequestHeader("Content-Type", "application/json");
+            uwr.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
+            uwr.timeout = 10; // seconds
+
+            yield return uwr.SendWebRequest();
+
+            if (uwr.result != UnityWebRequest.Result.Success)
+            {
+                Logger.Error($" HTTP error sending verification: {uwr.error} (code {(int)uwr.responseCode})", "ConfirmAuth");
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ConfirmAuth.Error"), uwr.error));
+            }
+            else
+            {
+                Logger.Msg($" Sent ok. Resp code {(int)uwr.responseCode}. Body: {uwr.downloadHandler?.text}", "ConfirmAuth");
+                Utils.SendMessage("\n", player.PlayerId, GetString("ConfirmAuth.Success"));
+            }
+        }
+    }
+
+    public static void RetributeCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
@@ -2809,21 +2891,25 @@ internal static class ChatCommands
 
                 switch (subArgs)
                 {
+                    case "skeld":
                     case "theskeld":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 0);
                         break;
+                    case "mira":
                     case "mirahq":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 1);
                         break;
                     case "polus":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 2);
                         break;
+                    case "dleks":
                     case "dlekseht":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 3);
                         break;
                     case "airship":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 4);
                         break;
+                    case "fungle":
                     case "thefungle":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 5);
                         break;

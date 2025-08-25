@@ -246,7 +246,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (!resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null)
+                    if (!resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null && !target.Data.IsDead)
                         LateTask.New(() => target.RpcRevive(), 0.1f, log: false);
 
                     Report(pc, "Directly Murder Player");
