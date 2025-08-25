@@ -120,6 +120,11 @@ public class Cleanser : RoleBase
         return true;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public override void AfterMeetingTasks()
     {
         if (CleanserTarget == byte.MaxValue || CleanserId == byte.MaxValue) return;

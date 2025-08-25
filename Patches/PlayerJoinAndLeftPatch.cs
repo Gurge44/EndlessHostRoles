@@ -354,6 +354,9 @@ internal static class OnPlayerLeftPatch
                             var message = new DespawnGameDataMessage(netid);
                             AmongUsClient.Instance.LateBroadcastReliableMessage(message.CastFast<IGameDataMessage>());
                         }
+
+                        if (GameStates.IsLobby)
+                            Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                     }, 2.5f, "Repeat Despawn", false);
                 }
             }
@@ -364,7 +367,8 @@ internal static class OnPlayerLeftPatch
         catch (Exception ex) { Logger.Error(ex.ToString(), "OnPlayerLeftPatch.Postfix"); }
         finally
         {
-            if (!GameStates.IsLobby && GameStates.IsInTask && !ExileController.Instance) Utils.NotifyRoles(ForceLoop: true);
+            if (!GameStates.IsLobby && GameStates.IsInTask && !ExileController.Instance)
+                Utils.NotifyRoles(ForceLoop: true);
         }
     }
 }

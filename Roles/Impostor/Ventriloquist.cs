@@ -34,4 +34,10 @@ public class Ventriloquist : RoleBase
         Target = byte.MaxValue;
         playerId.SetAbilityUseLimit(UseLimit.GetFloat());
     }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        var command = $"/target {target.PlayerId}";
+        ChatCommands.TargetCommand(shapeshifter, command, command.Split(' '));
+    }
 }

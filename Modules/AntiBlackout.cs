@@ -37,6 +37,10 @@ public static class AntiBlackout
                 // Fix the black screen manually for each player after the ejection screen.
                 if (CheckForEndVotingPatch.TempExiledPlayer != null) CheckForEndVotingPatch.TempExiledPlayer.Object.FixBlackScreen();
                 players.Do(x => x.FixBlackScreen());
+
+                // Don't skip tasks since we couldn't set the optimal roles.
+                SkipTasks = false;
+                CachedRoleMap = [];
                 return;
             }
 
@@ -96,6 +100,9 @@ public static class AntiBlackout
 
         LateTask.New(() =>
         {
+            ExileControllerWrapUpPatch.Stopwatch.Stop();
+            var elapsedSeconds = (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
+            
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 try
@@ -104,7 +111,11 @@ public static class AntiBlackout
                     {
                         // Due to the role base change, we need to reset the cooldowns for abilities.
                         pc.RpcResetAbilityCooldown();
-                        pc.SetKillCooldown();
+
+                        if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd))
+                            pc.SetKillCooldown(kcd - elapsedSeconds);
+                        else
+                            pc.SetKillCooldown();
                     }
                     else
                     {

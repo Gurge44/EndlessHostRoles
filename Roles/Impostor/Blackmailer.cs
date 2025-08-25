@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EHR.Patches;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EHR.Impostor;
 
@@ -68,41 +67,45 @@ internal class Blackmailer : RoleBase
         if (AbilityExpires.GetValue() == 0) BlackmailedPlayerIds.Clear();
     }
 
-    public static void OnCheckForEndVoting()
+    public static void ManipulateVotingResult(Dictionary<byte, int> votingData, MeetingHud.VoterState[] states)
     {
-        if (!On) return;
-
-        CheckForEndVotingPatch.RunRoleCode = false;
-
         try
         {
-            KeyValuePair<byte, PlayerState> bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
-            if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0) return;
-
-            MeetingHud meetingHud = MeetingHud.Instance;
-
-            byte? bmVotedForTemp = meetingHud.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
-            if (bmVotedForTemp == null) return;
-
-            var bmVotedFor = (byte)bmVotedForTemp;
-
-            meetingHud.playerStates.DoIf(x => bm.BlackmailedPlayerIds.Contains(x.TargetPlayerId), x =>
+            foreach ((byte id, PlayerState state) in Main.PlayerStates)
             {
-                if (x.DidVote)
+                try
                 {
-                    x.UnsetVote();
-                    meetingHud.SetDirtyBit(1U);
-                    AmongUsClient.Instance.SendAllStreamedObjects();
-                    meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
-                    meetingHud.SetDirtyBit(1U);
-                    AmongUsClient.Instance.SendAllStreamedObjects();
-                }
+                    if (state.MainRole != CustomRoles.Blackmailer || state.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0 || !states.FindFirst(x => x.VoterId == id, out MeetingHud.VoterState vs)) continue;
 
-                meetingHud.CastVote(x.TargetPlayerId, bmVotedFor);
-                x.VotedFor = bmVotedFor;
-            });
+                    foreach (byte targetId in bm.BlackmailedPlayerIds)
+                    {
+                        try
+                        {
+                            if (!Main.PlayerStates.TryGetValue(targetId, out PlayerState ps) || ps.IsDead) continue;
+                            if (!states.FindFirst(x => x.VoterId == targetId, out MeetingHud.VoterState targetVs) || vs.VotedForId == targetVs.VotedForId) continue;
+
+                            byte vote;
+
+                            if (vs.SkippedVote)
+                                vote = 253;
+                            else if (vs.AmDead || vs.VotedForId.GetPlayer() == null)
+                                vote = 254;
+                            else
+                                vote = vs.VotedForId;
+
+                            votingData[targetVs.VotedForId]--;
+                            targetVs.VotedForId = vote;
+
+                            if (vote <= 253 && !votingData.TryAdd(vote, 1))
+                                votingData[vote]++;
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
+                    }
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+            }
         }
-        finally { CheckForEndVotingPatch.RunRoleCode = true; }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

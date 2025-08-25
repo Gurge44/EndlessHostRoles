@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -265,6 +266,12 @@ public class Judge : RoleBase
         }
 
         return false;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return;
+        TrialMsg(shapeshifter, $"/tl {target.PlayerId}");
     }
 
     private static void SendRPC(byte playerId)

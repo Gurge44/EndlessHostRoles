@@ -50,6 +50,11 @@ internal class Markseeker : RoleBase
         return true;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public static void OnDeath(PlayerControl player)
     {
         if (Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true } ms || ms.MarkedId == byte.MaxValue) return;

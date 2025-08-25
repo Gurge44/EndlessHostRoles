@@ -110,6 +110,11 @@ public class Ricochet : RoleBase
         return false;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public override void OnReportDeadBody()
     {
         ProtectAgainst = byte.MaxValue;
@@ -118,6 +123,6 @@ public class Ricochet : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return ProtectAgainst != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == RicochetId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(ProtectAgainst).GetRealName()}</color>" : string.Empty;
+        return ProtectAgainst != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == RicochetId ? $"<color=#00ffa5>{Translator.GetString("Target")}:</color> <color=#ffffff>{Utils.GetPlayerById(ProtectAgainst).GetRealName()}</color>" : string.Empty;
     }
 }

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using EHR.Patches;
+using EHR.Neutral;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -190,49 +189,25 @@ public class NiceSwapper : RoleBase
         }
     }
 
-    public static void OnCheckForEndVoting()
+    public static void ManipulateVotingResult(Dictionary<byte, int> votingData, MeetingHud.VoterState[] states)
     {
-        if (NiceSwapperId == byte.MaxValue || SwapTargets.Item1 == byte.MaxValue || SwapTargets.Item2 == byte.MaxValue) return;
-
-        CheckForEndVotingPatch.RunRoleCode = false;
-
         try
         {
-            MeetingHud meetingHud = MeetingHud.Instance;
-            Il2CppReferenceArray<PlayerVoteArea> playerStates = meetingHud.playerStates;
-            List<PlayerVoteArea> votedFor2 = playerStates.Where(x => x.VotedFor == SwapTargets.Item2).ToList();
+            if (NiceSwapperId == byte.MaxValue || SwapTargets.Item1 == byte.MaxValue || SwapTargets.Item2 == byte.MaxValue) return;
 
-            playerStates.DoIf(x => x.VotedFor == SwapTargets.Item1, x =>
-            {
-                x.UnsetVote();
-                meetingHud.SetDirtyBit(1U);
-                AmongUsClient.Instance.SendAllStreamedObjects();
-                meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
-                meetingHud.SetDirtyBit(1U);
-                AmongUsClient.Instance.SendAllStreamedObjects();
-                meetingHud.CastVote(x.TargetPlayerId, SwapTargets.Item2);
-                x.VotedFor = SwapTargets.Item2;
-            });
+            // Swap the number of votes received internally
+            int count1 = votingData.GetValueOrDefault(SwapTargets.Item1, 0);
+            int count2 = votingData.GetValueOrDefault(SwapTargets.Item2, 0);
+            votingData[SwapTargets.Item1] = count2;
+            votingData[SwapTargets.Item2] = count1;
 
-            votedFor2.ForEach(x =>
-            {
-                x.UnsetVote();
-                meetingHud.SetDirtyBit(1U);
-                AmongUsClient.Instance.SendAllStreamedObjects();
-                meetingHud.RpcClearVote(x.TargetPlayerId.GetPlayer().OwnerId);
-                meetingHud.SetDirtyBit(1U);
-                AmongUsClient.Instance.SendAllStreamedObjects();
-                meetingHud.CastVote(x.TargetPlayerId, SwapTargets.Item1);
-                x.VotedFor = SwapTargets.Item1;
-            });
-
-            PlayerControl target1 = Utils.GetPlayerById(SwapTargets.Item1);
-            PlayerControl target2 = Utils.GetPlayerById(SwapTargets.Item2);
-            if (target1 == null || target2 == null) return;
-
-            Utils.SendMessage(string.Format(GetString("SwapVote"), target1.GetRealName(), target2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
+            // Swap the votes visually
+            List<MeetingHud.VoterState> votedFor1 = states.Where(x => x.VotedForId == SwapTargets.Item1).ToList();
+            List<MeetingHud.VoterState> votedFor2 = states.Where(x => x.VotedForId == SwapTargets.Item2).ToList();
+            votedFor1.ForEach(x => x.VotedForId = SwapTargets.Item2);
+            votedFor2.ForEach(x => x.VotedForId = SwapTargets.Item1);
         }
-        finally { CheckForEndVotingPatch.RunRoleCode = true; }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)
@@ -256,6 +231,12 @@ public class NiceSwapper : RoleBase
         }
 
         return false;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return;
+        SwapMsg(shapeshifter, $"/sw {target.PlayerId}");
     }
 
     private static void SendRPC(byte playerId)

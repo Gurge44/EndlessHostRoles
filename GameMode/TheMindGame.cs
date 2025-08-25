@@ -34,6 +34,7 @@ public static class TheMindGame
     private static List<byte> Round4PlacesFromFirst;
     private static List<byte> Round4PlacesFromLast;
     private static List<byte> EjectedPlayers;
+    private static bool PreventGameEnd;
     private static int Round;
 
     // Settings
@@ -288,6 +289,7 @@ public static class TheMindGame
         Round4PlacesFromLast = [];
         WinningBriefcaseHolderId = byte.MaxValue;
         WinningBriefcaseLastHolderId = byte.MaxValue;
+        PreventGameEnd = false;
         AuctionValue = 0;
 
         ItemCosts = ItemCostsOptions.ToDictionary(x => x.Key, x => x.Value.GetInt());
@@ -551,6 +553,8 @@ public static class TheMindGame
         yield return NotifyEveryone("TMG.Tutorial.Round4", 20);
         if (Stop) yield break;
 
+        PreventGameEnd = true;
+
         while (true)
         {
             PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
@@ -658,6 +662,7 @@ public static class TheMindGame
 
         yield return NotifyEveryone("TMG.Notify.TheWinnerIs", 2);
 
+        PreventGameEnd = false;
         int highestPoints = Points.Values.Max();
         HashSet<byte> winners = Points.Where(x => x.Value == highestPoints).Select(x => x.Key).ToHashSet();
         CustomWinnerHolder.WinnerIds = winners;
@@ -966,6 +971,8 @@ public static class TheMindGame
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
+
+        if (PreventGameEnd) return false;
 
         if (CustomWinnerHolder.WinnerIds.Count > 0) return true;
 

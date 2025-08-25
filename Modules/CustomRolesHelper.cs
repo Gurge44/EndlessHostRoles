@@ -810,6 +810,12 @@ internal static class CustomRolesHelper
         return !role.UsesPetInsteadOfKill() && role.IsCrewmate() && role.IsDesyncRole();
     }
 
+    public static bool UsesMeetingShapeshift(this CustomRoles role)
+    {
+        Type type = role.GetRoleClass().GetType();
+        return type.GetMethod("OnMeetingShapeshift")?.DeclaringType == type;
+    }
+
     public static bool PetActivatedAbility(this CustomRoles role)
     {
         if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;
@@ -865,7 +871,6 @@ internal static class CustomRolesHelper
             CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool() => true,
             CustomRoles.Socialite when Socialite.CancelVote.GetBool() => true,
             CustomRoles.Negotiator when Negotiator.CancelVote.GetBool() => true,
-            CustomRoles.Retributionist when Retributionist.CancelVote.GetBool() => true,
 
             CustomRoles.President => true,
 

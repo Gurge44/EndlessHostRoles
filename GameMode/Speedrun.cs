@@ -19,6 +19,7 @@ public static class Speedrun
 
     public static int KCD => KillCooldown.GetInt();
     public static int TimeLimitValue => TimeLimit.GetInt();
+    public static bool RestrictedKilling => !KillersCanKillTaskingPlayers.GetBool();
 
     public static void SetupCustomOption()
     {

@@ -66,6 +66,13 @@ internal static class ExtendedPlayerControl
         }
     }
 
+    public static bool UsesMeetingShapeshift(this PlayerControl player)
+    {
+        CustomRoles role = player.GetCustomRole();
+        if (player.IsModdedClient() && role is CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Mafia) return false;
+        return role.UsesMeetingShapeshift();
+    }
+
     public static bool CanUseVent(this PlayerControl player)
     {
         try { return CanUseVent(player, GetClosestVent(player)?.Id ?? int.MaxValue); }
@@ -82,7 +89,7 @@ internal static class ExtendedPlayerControl
         {
             case CustomGameMode.RoomRush:
                 return true;
-            case CustomGameMode.Standard when Main.AllAlivePlayerControls.Length == 2:
+            case CustomGameMode.Standard when Main.AllAlivePlayerControls.Length == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
                 return false;
         }
 

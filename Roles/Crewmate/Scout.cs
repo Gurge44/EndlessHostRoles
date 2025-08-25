@@ -120,6 +120,11 @@ public class Scout : RoleBase
         return true;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer == null || seer.PlayerId != TrackerId) return string.Empty;

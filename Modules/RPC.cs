@@ -161,6 +161,7 @@ public enum CustomRPC
     SyncAllergic,
     SyncAsthmatic,
     ParityCopCommand,
+    ImitatorClick,
     Invisibility,
     ResetAbilityCooldown,
 
@@ -240,7 +241,7 @@ internal static class RPCHandlerPatch
     private static bool TrustedRpc(byte id)
     {
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand or CustomRPC.ImitatorClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -1300,6 +1301,11 @@ internal static class RPCHandlerPatch
                     ParityCop.ReceiveRPC(reader);
                     break;
                 }
+                case CustomRPC.ImitatorClick:
+                {
+                    Imitator.ReceiveRPC(reader, __instance);
+                    break;
+                }
                 case CustomRPC.Invisibility:
                 {
                     if (reader.ReadBoolean())
@@ -1337,7 +1343,7 @@ internal static class RPC
             if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
 
-        if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
+        if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer == null)) return;
 
         int amount = OptionItem.AllOptions.Count;
         int divideBy = amount / 10;
@@ -1352,7 +1358,7 @@ internal static class RPC
             if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
 
-        if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
+        if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer == null)) return;
 
         int amountAllOptions = OptionItem.AllOptions.Count;
 

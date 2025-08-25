@@ -118,8 +118,6 @@ public class PotionMaster : Coven
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
-
-        return;
     }
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)

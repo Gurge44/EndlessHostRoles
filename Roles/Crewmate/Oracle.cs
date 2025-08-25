@@ -100,4 +100,9 @@ public class Oracle : RoleBase
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;
     }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
 }

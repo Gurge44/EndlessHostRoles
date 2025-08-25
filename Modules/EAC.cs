@@ -290,7 +290,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance) && target != pc)
+                    if (((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance) && target != pc && !(Options.UseMeetingShapeshift.GetBool() && pc.UsesMeetingShapeshift()))
                     {
                         WarnHost();
                         Report(pc, "Trying to shift during meeting");

@@ -114,6 +114,11 @@ public class Socialite : RoleBase
         return false;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public void ReceiveRPC(MessageReader reader)
     {
         switch (reader.ReadPackedInt32())

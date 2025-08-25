@@ -85,16 +85,16 @@ public class Tether : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        Teleport(pc, 0, true);
+        Teleport(pc, true);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (UsePets.GetBool()) return;
-        Teleport(pc, vent.Id);
+        Teleport(pc);
     }
 
-    private void Teleport(PlayerControl pc, int ventId, bool isPet = false)
+    private void Teleport(PlayerControl pc, bool isPet = false)
     {
         if (pc == null) return;
 
@@ -132,6 +132,11 @@ public class Tether : RoleBase
         return false;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public override void OnReportDeadBody()
     {
         Target = byte.MaxValue;
@@ -150,7 +155,7 @@ public class Tether : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
+        return Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>{Translator.GetString("Target")}:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

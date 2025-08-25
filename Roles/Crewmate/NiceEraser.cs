@@ -96,6 +96,11 @@ internal class NiceEraser : RoleBase
         return true;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public override void OnReportDeadBody()
     {
         PlayerToErase = [];

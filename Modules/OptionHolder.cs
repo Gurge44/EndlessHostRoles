@@ -273,7 +273,6 @@ public static class Options
     public static OptionItem KickOnInvalidRPC;
     public static OptionItem LowLoadMode;
     public static OptionItem DeepLowLoad;
-    public static OptionItem DisableVoteBan;
 
     public static OptionItem MinNNKs;
     public static OptionItem MaxNNKs;
@@ -759,6 +758,7 @@ public static class Options
     public static OptionItem EveryoneSeesDeadPlayersRoles;
     public static OptionItem UsePhantomBasis;
     public static OptionItem UsePhantomBasisForNKs;
+    public static OptionItem UseMeetingShapeshift;
     public static OptionItem AutoKickStart;
     public static OptionItem AutoKickStartAsBan;
     public static OptionItem AutoKickStartTimes;
@@ -1686,9 +1686,6 @@ public static class Options
             .SetHeader(true);
 
 
-        DisableVoteBan = new BooleanOptionItem(19320, "DisableVoteBan", true, TabGroup.SystemSettings, true);
-
-
         LoadingPercentage = 63;
 
 
@@ -2363,6 +2360,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(UsePhantomBasis)
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));
+
+        UseMeetingShapeshift = new BooleanOptionItem(23865, "UseMeetingShapeshift", true, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(Palette.Orange);
 
         EveryoneCanVent = new BooleanOptionItem(23853, "EveryoneCanVent", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)

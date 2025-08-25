@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
+using EHR.Crewmate;
 
 
 namespace EHR;
@@ -126,6 +127,17 @@ public abstract class RoleBase : IComparable<RoleBase>
     }
 
     public virtual void OnMurder(PlayerControl killer, PlayerControl target) { }
+
+    public virtual void OnVoteKick(PlayerControl pc, PlayerControl target)
+    {
+        if (Imitator.PlayerIdList.Contains(pc.PlayerId))
+        {
+            string command = $"/imitate {target.PlayerId}";
+            ChatCommands.ImitateCommand(pc, command, command.Split(' '));
+        }
+    }
+
+    public virtual void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target) { }
 
     public virtual bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {

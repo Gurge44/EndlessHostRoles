@@ -46,7 +46,7 @@ public class Investor : RoleBase
     {
         On = true;
         MarkedPlayers = [];
-        playerId.SetAbilityUseLimit(playerId);
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

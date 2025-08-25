@@ -143,6 +143,11 @@ public class Negotiator : RoleBase
         return true;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public static void ReceiveCommand(PlayerControl pc, int index)
     {
         foreach (Negotiator instance in Instances)

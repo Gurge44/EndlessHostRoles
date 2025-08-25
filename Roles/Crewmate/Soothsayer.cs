@@ -53,6 +53,11 @@ public class Soothsayer : RoleBase
         return true;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public static void OnAnyoneDeath(PlayerControl killer)
     {
         if (killer == null) return;

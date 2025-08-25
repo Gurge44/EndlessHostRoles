@@ -116,6 +116,7 @@ public static class RoomRush
     };
 
     public static bool PointsSystem => WinByPointsInsteadOfDeaths.GetBool();
+    public static int RawPointsToWin => PointsToWin.GetInt();
 
     public static void SetupCustomOption()
     {

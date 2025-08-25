@@ -20,19 +20,11 @@ namespace EHR.Patches;
 internal static class CheckForEndVotingPatch
 {
     public static string EjectionText = string.Empty;
-    public static bool RunRoleCode = true;
     public static NetworkedPlayerInfo TempExiledPlayer;
 
     public static bool Prefix(MeetingHud __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
-
-        if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
-        {
-            Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
-            LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
-            return false;
-        }
 
         if (Medic.PlayerIdList.Count > 0) Medic.OnCheckMark();
 
@@ -231,15 +223,16 @@ internal static class CheckForEndVotingPatch
                     });
             }
 
-            Blackmailer.OnCheckForEndVoting();
-            NiceSwapper.OnCheckForEndVoting();
-
             Commited.OnVotingResultsShown(statesList);
 
             states = [.. statesList];
 
             Dictionary<byte, int> votingData = __instance.CustomCalculateVotes();
+
+            Blackmailer.ManipulateVotingResult(votingData, states);
+            NiceSwapper.ManipulateVotingResult(votingData, states);
             Assumer.OnVotingEnd(votingData);
+            
             var exileId = byte.MaxValue;
             var max = 0;
             voteLog.Info("===Decision to expel player processing begins===");
@@ -311,7 +304,6 @@ internal static class CheckForEndVotingPatch
                     case TieMode.All:
                         byte[] exileIds = votingData.Where(x => x.Key < 15 && x.Value == max).Select(kvp => kvp.Key).ToArray();
                         foreach (byte playerId in exileIds) Utils.GetPlayerById(playerId).SetRealKiller(null);
-
                         TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Vote, exileIds);
                         exiledPlayer = null;
                         break;
@@ -668,8 +660,6 @@ internal static class MeetingHudStartPatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        CheckForEndVotingPatch.RunRoleCode = true;
-
         List<Message> msgToSend = [];
 
         if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting && Options.CurrentGameMode == CustomGameMode.Standard)
@@ -707,6 +697,8 @@ internal static class MeetingHudStartPatch
                 }
 
                 if (settings.Length > 0) roleDescMsgs.Add(new("\n", pc.PlayerId, settings.ToString()));
+                if (role.UsesPetInsteadOfKill()) roleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesPetInsteadOfKillNotice")));
+                if (pc.UsesMeetingShapeshift()) roleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesMeetingShapeshiftNotice")));
 
                 roleDescMsgs.Add(new(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString()));
             }
@@ -985,6 +977,15 @@ internal static class MeetingHudStartPatch
 
                 sender.SendMessage();
             }, 3f, "SetName To Chat");
+
+            if (Options.UseMeetingShapeshift.GetBool())
+            {
+                LateTask.New(() =>
+                {
+                    if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding) return;
+                    Main.AllAlivePlayerControls.DoIf(x => x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(RoleTypes.Shapeshifter, x.OwnerId));
+                }, 8f, "Set Shapeshifter Role For Meeting Use");
+            }
         }
 
         foreach (PlayerVoteArea pva in __instance.playerStates)
@@ -1106,6 +1107,7 @@ internal static class MeetingHudStartPatch
         NiceSwapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
         Mafia.StartMeetingPatch.Postfix(__instance);
+        Imitator.StartMeetingPatch.Postfix(__instance);
         ShowHostMeetingPatch.Setup_Postfix(__instance);
 #if !ANDROID
         Crowded.MeetingHudStartPatch.Postfix(__instance);
@@ -1240,6 +1242,9 @@ internal static class MeetingHudOnDestroyPatch
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
 
             Main.LastVotedPlayerInfo = null;
+
+            if (Options.UseMeetingShapeshift.GetBool() && !AntiBlackout.SkipTasks)
+                Main.AllAlivePlayerControls.DoIf(x => x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(x.GetRoleTypes(), x.OwnerId));
         }
     }
 }
@@ -1292,7 +1297,7 @@ internal static class MeetingHudCastVotePatch
 
         var voteCanceled = false;
 
-        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pcSrc.GetCustomRole().CancelsVote() && Main.PlayerStates[srcPlayerId].Role.OnVote(pcSrc, pcTarget))
+        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pcSrc.GetCustomRole().CancelsVote() && !pcSrc.UsesMeetingShapeshift() && Main.PlayerStates[srcPlayerId].Role.OnVote(pcSrc, pcTarget))
         {
             ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pvaSrc, pcSrc));
             voteCanceled = true;

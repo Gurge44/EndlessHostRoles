@@ -33,4 +33,9 @@ internal class Godfather : RoleBase
         Main.DontCancelVoteList.Add(voter.PlayerId);
         return true;
     }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
 }

@@ -138,6 +138,11 @@ public class Divinator : RoleBase
         return true;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
+    }
+
     public static void OnRoleChange(byte id, CustomRoles previousRole, CustomRoles newRole)
     {
         try

@@ -828,7 +828,8 @@ internal static class ShapeshiftPatch
 {
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        if (!Main.ProcessShapeshifts || shapeshifter.PlayerId >= 254) return true;
+        bool meetingSS = Options.UseMeetingShapeshift.GetBool() && GameStates.IsMeeting;
+        if ((!Main.ProcessShapeshifts && !meetingSS) || shapeshifter.PlayerId >= 254) return true;
 
         if (AntiBlackout.SkipTasks)
         {
@@ -839,6 +840,15 @@ internal static class ShapeshiftPatch
         if (shapeshifter == null || target == null) return true;
 
         Logger.Info($"{shapeshifter.GetNameWithRole()} => {target.GetNameWithRole()}", "Shapeshift");
+
+        if (meetingSS)
+        {
+            if (MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)
+                Main.PlayerStates[shapeshifter.PlayerId].Role.OnMeetingShapeshift(shapeshifter, target);
+
+            shapeshifter.RpcRejectShapeshift();
+            return false;
+        }
 
         bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
@@ -851,6 +861,7 @@ internal static class ShapeshiftPatch
             if (shapeshifter.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
             {
                 shapeshifter.Notify(GetString("TraineeNotify"));
+                shapeshifter.RpcRejectShapeshift();
                 return false;
             }
         }
@@ -987,7 +998,7 @@ internal static class ReportDeadBodyPatch
             // Next, check whether this meeting is allowed
             //=============================================
 
-            if (Main.NumEmergencyMeetingsUsed.TryGetValue(__instance.PlayerId, out int used))
+            if (target == null && Main.NumEmergencyMeetingsUsed.TryGetValue(__instance.PlayerId, out int used))
             {
                 if (used >= Main.RealOptionsData.GetInt(Int32OptionNames.NumEmergencyMeetings))
                 {

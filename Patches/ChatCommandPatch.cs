@@ -601,8 +601,8 @@ internal static class ChatCommands
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
-    
-    private static void ImitateCommand(PlayerControl player, string text, string[] args)
+
+    public static void ImitateCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
@@ -612,7 +612,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsAlive() || args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
+        if (!Imitator.PlayerIdList.Contains(player.PlayerId) || !player.IsAlive() || args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
 
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
@@ -818,7 +818,7 @@ internal static class ChatCommands
             Logger.SendInGame(GetString("FixBlackScreenWaitForDead"), Color.yellow);
     }
 
-    private static void DayBreakCommand(PlayerControl player, string text, string[] args)
+    public static void DayBreakCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
@@ -1364,7 +1364,6 @@ internal static class ChatCommands
         if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
         string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
         sb.Clear().Append(txt);
-        if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
         if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
         Utils.SendMessage(sb.ToString(), player.PlayerId, title);
         return;
@@ -1385,7 +1384,14 @@ internal static class ChatCommands
             return;
         }
 
-        if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex) || roles.Count < chosenIndex) return;
+        if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex)) return;
+
+        if (roles.Count < chosenIndex || chosenIndex < 1)
+        {
+            DraftResult.Remove(player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("DraftChosen"), GetString("pet_RANDOM_FOR_EVERYONE")), player.PlayerId, GetString("DraftTitle"));
+            return;
+        }
 
         CustomRoles role = roles[chosenIndex - 1];
         DraftResult[player.PlayerId] = role;
@@ -1456,7 +1462,6 @@ internal static class ChatCommands
         {
             option.SetValue(chance == 0 ? 0 : 1);
             if (!Options.CustomAdtRoleSpawnRate.TryGetValue(role, out IntegerOptionItem adtOption)) return;
-
             adtOption.SetValue(chance / 5);
         }
         else
@@ -2129,7 +2134,7 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void TargetCommand(PlayerControl player, string text, string[] args)
+    public static void TargetCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
@@ -2387,6 +2392,7 @@ internal static class ChatCommands
 
             Utils.SendMessage(sb.Append("</size>").ToString(), player.PlayerId, titleSb.ToString());
             if (role.UsesPetInsteadOfKill()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesPetInsteadOfKillNotice"));
+            if (player.UsesMeetingShapeshift()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesMeetingShapeshiftNotice"));
         }
         else
             Utils.SendMessage((player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -3499,6 +3505,8 @@ internal static class ChatCommands
                 if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
 
                 if (settings.Length > 0) Utils.SendMessage("\n", playerId, settings.ToString());
+                if (rl.UsesPetInsteadOfKill()) Utils.SendMessage("\n", playerId, GetString("UsesPetInsteadOfKillNotice"));
+                if (rl.UsesMeetingShapeshift()) Utils.SendMessage("\n", playerId, GetString("UsesMeetingShapeshiftNotice"));
 
                 Utils.SendMessage(sb.ToString(), playerId, title);
                 return;

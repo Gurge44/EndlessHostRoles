@@ -158,6 +158,12 @@ public class NoteKiller : RoleBase
         Utils.NotifyRoles(SpecifySeer: pc);
     }
 
+    public override bool OnVanish(PlayerControl pc)
+    {
+        OnPet(pc);
+        return false;
+    }
+
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask || ExileController.Instance || pc == null || !pc.IsAlive() || ShowClueEndTimeStamp == 0 || ShownClues.Count == 0) return;

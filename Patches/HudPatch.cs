@@ -511,7 +511,8 @@ internal static class SetHudActivePatch
 
     public static void Prefix( /*HudManager __instance,*/ [HarmonyArgument(2)] ref bool isActive)
     {
-        isActive &= !GameStates.IsMeeting;
+        if (!Options.UseMeetingShapeshift.GetBool() || !PlayerControl.LocalPlayer.UsesMeetingShapeshift())
+            isActive &= !GameStates.IsMeeting;
     }
 
     public static void Postfix(HudManager __instance, [HarmonyArgument(2)] bool isActive)
@@ -616,6 +617,12 @@ internal static class SetHudActivePatch
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
         __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
+
+        if (Options.UseMeetingShapeshift.GetBool() && PlayerControl.LocalPlayer.UsesMeetingShapeshift() && GameStates.IsMeeting)
+        {
+            __instance.AbilityButton?.Show();
+            __instance.AbilityButton?.SetEnabled();
+        }
     }
 }
 
