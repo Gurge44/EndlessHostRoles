@@ -106,7 +106,7 @@ public enum CustomRPC
     SetNiceHackerLimit,
     SetCurrentDrawTarget,
     SetCpTasksDone,
-    SetGamerHealth,
+    SetDemonHealth,
     SetPelicanEtenNum,
     SwordsManKill,
     SetGhostPlayer,
@@ -990,9 +990,9 @@ internal static class RPCHandlerPatch
                     GameStartManagerPatch.TimerStartTS = long.Parse(reader.ReadString());
                     break;
                 }
-                case CustomRPC.SetGamerHealth:
+                case CustomRPC.SetDemonHealth:
                 {
-                    Gamer.ReceiveRPC(reader);
+                    Demon.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetPelicanEtenNum:
@@ -1050,7 +1050,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SetMarkedPlayer:
                 {
-                    Assassin.ReceiveRPC(reader);
+                    Ninja.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SyncChronomancer:

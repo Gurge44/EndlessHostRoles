@@ -89,7 +89,7 @@ internal class DovesOfNeace : RoleBase
                 x.RPCPlayCustomSound("Dove");
                 x.ResetKillCooldown();
                 x.SetKillCooldown();
-                if (Main.PlayerStates[x.PlayerId].Role is SerialKiller sk) sk.OnReportDeadBody();
+                if (Main.PlayerStates[x.PlayerId].Role is Mercenary m) m.OnReportDeadBody();
 
                 x.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.DovesOfNeace), Translator.GetString("DovesOfNeaceSkillNotify")));
             });

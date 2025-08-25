@@ -103,7 +103,7 @@ public class CopyCat : RoleBase
                 CustomRoles.AntiAdminer => CustomRoles.Monitor,
                 CustomRoles.CursedWolf or CustomRoles.Jinx => CustomRoles.Veteran,
                 CustomRoles.EvilTracker => CustomRoles.TrackerEHR,
-                CustomRoles.SerialKiller => CustomRoles.Addict,
+                CustomRoles.Mercenary => CustomRoles.Addict,
                 CustomRoles.Miner => CustomRoles.Mole,
                 CustomRoles.Escapee => CustomRoles.Tunneler,
                 CustomRoles.Twister => CustomRoles.TimeMaster,

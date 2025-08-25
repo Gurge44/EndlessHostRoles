@@ -78,7 +78,7 @@ public static class Speedrun
         Utils.SendRPC(CustomRPC.SpeedrunSync, 2, pc.PlayerId);
         int kcd = KillCooldown.GetInt();
         Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
-        pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+        pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
         pc.Notify(Translator.GetString("Speedrun_CompletedTasks"), sendOption: SendOption.None);
         pc.SyncSettings();
         LateTask.New(() => pc.SetKillCooldown(kcd), 0.2f, log: false);
