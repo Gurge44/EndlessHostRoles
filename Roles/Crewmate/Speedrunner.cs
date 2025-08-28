@@ -91,4 +91,10 @@ internal class Speedrunner : RoleBase
         string notifyString = "\n" + Translator.GetString("SpeedrunnerHasXTasksLeft");
         return string.Format(notifyString, speedrunnerName, ts.RemainingTasksCount);
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
+    }
 }

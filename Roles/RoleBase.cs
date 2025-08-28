@@ -137,7 +137,11 @@ public abstract class RoleBase : IComparable<RoleBase>
         }
     }
 
-    public virtual void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target) { }
+    public virtual void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        if (Options.UseMeetingShapeshiftForGuessing.GetBool())
+            GuessManager.OnMeetingShapeshiftReceived(shapeshifter, target);
+    }
 
     public virtual bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
@@ -185,6 +189,12 @@ public abstract class RoleBase : IComparable<RoleBase>
 
         CustomRoles seerRole = seer.GetCustomRole();
         return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
+    }
+
+    public virtual void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = false;
+        countsAs = 1;
     }
 
     protected bool IsThisRole(PlayerControl pc)

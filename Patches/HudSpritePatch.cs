@@ -26,7 +26,7 @@ public static class HudSpritePatch
     private static Sprite Pet;
     private static Sprite Report;
 
-    private static Sprite[] DefaultIcons = [];
+    public static Sprite[] DefaultIcons = [];
 
     private static long LastErrorTime;
 
@@ -57,18 +57,7 @@ public static class HudSpritePatch
 
             bool shapeshifting = player.IsShifted();
 
-            if (DefaultIcons.Length == 0)
-            {
-                DefaultIcons =
-                [
-                    __instance.KillButton.graphic.sprite,
-                    __instance.AbilityButton.graphic.sprite,
-                    __instance.ImpostorVentButton.graphic.sprite,
-                    __instance.SabotageButton.graphic.sprite,
-                    __instance.PetButton.graphic.sprite,
-                    __instance.ReportButton.graphic.sprite
-                ];
-            }
+            if (DefaultIcons.Length == 0) return;
 
             if (!Kill) Kill = DefaultIcons[0];
             if (!Ability) Ability = DefaultIcons[1];

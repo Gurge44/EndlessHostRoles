@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
@@ -803,6 +805,52 @@ internal static class MurderPlayerPatch
     }
 }
 
+[HarmonyPatch(typeof(ShapeshifterMinigame), nameof(ShapeshifterMinigame.Begin))]
+internal static class ShapeshifterMinigamePatch
+{
+    public static bool Prefix(ShapeshifterMinigame __instance, [HarmonyArgument(0)] PlayerTask task)
+    {
+        if (!Options.UseMeetingShapeshift.GetBool() || !MeetingHud.Instance || MeetingHud.Instance.state is not MeetingHud.VoteStates.Discussion and not MeetingHud.VoteStates.Voted and not MeetingHud.VoteStates.NotVoted) return true;
+
+        CallBaseBegin();
+
+        // HERE DETERMINE WHAT CHOICES WILL BE SHOWN AND PUT IT INTO A LIST
+
+        __instance.potentialVictims = new Il2CppSystem.Collections.Generic.List<ShapeshifterPanel>();
+        var selectableElements = new Il2CppSystem.Collections.Generic.List<UiElement>();
+
+        for (var index = 0; index < 15; ++index)
+        {
+            int num1 = index % 3;
+            int num2 = index / 3;
+            ShapeshifterPanel shapeshifterPanel = Object.Instantiate(__instance.PanelPrefab, __instance.transform);
+            shapeshifterPanel.transform.localPosition = new Vector3(__instance.XStart + (num1 * __instance.XOffset), __instance.YStart + (num2 * __instance.YOffset), -1f);
+
+            shapeshifterPanel.shapeshift = (Action)(() => { }) /*ACTION WHEN CHOSEN*/;
+            shapeshifterPanel.PlayerIcon.gameObject.SetActive(false);
+            shapeshifterPanel.LevelNumberText.gameObject.SetActive(false);
+            shapeshifterPanel.Background.sprite = ShipStatus.Instance.CosmeticsCache.GetNameplate("" /*NamePlateID*/).Image;
+            shapeshifterPanel.NameText.text = "CHOICE NAME" /*PLATE TEXT*/;
+            DataManager.Settings.Accessibility.OnColorBlindModeChanged += new Action(shapeshifterPanel.SetColorblindText);
+            shapeshifterPanel.SetColorblindText();
+
+            shapeshifterPanel.NameText.color = Color.white;
+            __instance.potentialVictims.Add(shapeshifterPanel);
+            selectableElements.Add(shapeshifterPanel.Button);
+        }
+
+        ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, selectableElements);
+        return false;
+
+        void CallBaseBegin()
+        {
+            Type baseType = typeof(ShapeshifterMinigame).BaseType; // == typeof(Minigame)
+            MethodInfo method = baseType?.GetMethod("Begin", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            method?.Invoke(__instance, [task]);
+        }
+    }
+}
+
 // Triggered when the shapeshifter selects a target
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
 internal static class CheckShapeshiftPatch
@@ -967,10 +1015,11 @@ internal static class ReportDeadBodyPatch
 {
     public static Dictionary<byte, bool> CanReport;
     public static readonly Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = [];
+    public static bool MeetingStarted;
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
     {
-        if (GameStates.IsMeeting) return false;
+        if (GameStates.IsMeeting || MeetingStarted) return false;
         if (Options.DisableMeeting.GetBool()) return false;
         if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (Options.DisableReportWhenCC.GetBool() && Camouflage.IsCamouflage) return false;
@@ -1142,6 +1191,9 @@ internal static class ReportDeadBodyPatch
         //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
         //=============================================================================================
 
+        if (MeetingStarted) return;
+        MeetingStarted = true;
+
         CustomNetObject.OnMeeting();
 
         Asthmatic.RunChecks = false;
@@ -1310,6 +1362,8 @@ internal static class ReportDeadBodyPatch
                     string name = pc.GetRealName();
                     RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
                 }
+
+                if (pc.IsShifted()) pc.RpcShapeshift(pc, false);
             }
             else if (!pc.Data.IsDead)
                 pc.RpcExileV2();

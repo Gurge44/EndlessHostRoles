@@ -74,10 +74,10 @@ public enum CustomRoles
     Mafioso,
     Mastermind,
     Mafia, // Nemesis
-    SerialKiller, // Mercenary
+    Mercenary,
     Miner,
     Morphling,
-    Assassin, // Ninja
+    Ninja,
     Nuker,
     Nullifier,
     Occultist,
@@ -285,7 +285,7 @@ public enum CustomRoles
     Collector,
     Curser,
     Deathknight,
-    Gamer, // Demon
+    Demon,
     Doppelganger,
     Doomsayer,
     Eclipse,
@@ -347,7 +347,7 @@ public enum CustomRoles
     Samurai,
     SchrodingersCat,
     Seamstress,
-    NSerialKiller, // Serial Killer
+    SerialKiller,
     Shifter,
     Sidekick,
     Simon,

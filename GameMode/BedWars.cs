@@ -887,8 +887,8 @@ public static class BedWars
         {
             [BedWarsTeam.Blue] = new(new(-12.69f, -27.88f), SystemTypes.Engine, new(-14.67f, -34.71f), new(-12f, -34.71f), new(-14.6f, -30.96f)),
             [BedWarsTeam.Yellow] = new(new(9.84f, -27.66f), SystemTypes.Electrical, new(10.22f, -31.58f), new(12.76f, -32.24f), new(12.29f, -29.15f)),
-            [BedWarsTeam.Red] = new(new(11f, 23.43f), SystemTypes.Comms, new(14.33f, 25f), new(14.33f, 23.44f), new(12.77f, 23.85f)),
-            [BedWarsTeam.Green] = new(new(-12f, 19f), (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Observatory, new(-12f, 20f), new(-12.13f, 17.83f), new(-11.66f, 15.16f))
+            [BedWarsTeam.Red] = new(new(-8.36f, -40.06f), (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast, new(-8.25f, -43f), new(-10.7f, -40.36f), new(-9.44f, -41.55f)),
+            [BedWarsTeam.Green] = new(new(5.71f, -38.68f), (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerLobby, new(4.59f, -39.83f), new(6.46f, -39.83f), new(8.79f, -38.3f))
         }
     };
 
@@ -919,7 +919,7 @@ public static class BedWars
         {
             [Item.Iron] = [new(-21.58f, -3.44f), new(5.61f, -14.36f), new(28.95f, -1.25f), new(10.72f, 14.23f)],
             [Item.Gold] = [new(-21f, -3.44f), new(6.23f, -14.36f), new(28.95f, -1.77f), new(11.34f, 14.23f)],
-            [Item.Emerald] = [new(19.04f, 0.07f)],
+            [Item.Emerald] = [new(19.04f, 0.07f), new(19.04f, 0.67f)],
             [Item.Diamond] = [new(-13.6f, -14.38f), new(19.37f, -3.95f), new(19.86f, 11.76f), new(-0.8f, -2.55f)]
         },
         [MapNames.Fungle] = new()
@@ -931,10 +931,10 @@ public static class BedWars
         },
         [(MapNames)6] = new()
         {
-            [Item.Iron] = [new(-11.39f, -30.8f), new(13f, -25.27f), new(10.45f, 28.13f), new(-15f, 17.1f)],
-            [Item.Gold] = [new(-11.39f, -31.43f), new(13f, -25.9f), new(10.45f, 27.4f), new(-15f, 17.72f)],
-            [Item.Emerald] = [new(1.11f, 9.93f), new(0f, 33.62f), new(8.79f, -38.3f), new(-11f, -39.22f)],
-            [Item.Diamond] = [new(3.71f, 32.11f), new(-6.69f, 9.65f), new(-12.32f, 30.53f), new(4.72f, 7.56f), new(-3.01f, -33.05f), new(-0.77f, -35.73f), new(1.71f, -20f), new(-6.5f, -43.06f)]
+            [Item.Iron] = [new(-11.39f, -30.8f), new(13f, -25.27f), new(-11.41f, -38.57f), new(8.79f, -40.54f)],
+            [Item.Gold] = [new(-11.39f, -31.43f), new(13f, -25.9f), new(-11.41f, -39.13f), new(8.79f, -40f)],
+            [Item.Emerald] = [new(-3.09f, -40.54f), new(-1f, -29.11f)],
+            [Item.Diamond] = [new(-9.34f, -33.79f), new(-7.07f, -33.79f), new(2.79f, -32f), new(2.79f, -31.37f)]
         }
     };
 

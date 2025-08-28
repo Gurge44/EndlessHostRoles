@@ -327,4 +327,10 @@ public class Judge : RoleBase
                 CreateJudgeButton(__instance);
         }
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
+    }
 }

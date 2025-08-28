@@ -259,6 +259,11 @@ public static class SubmergedCompatibility
         return (IList)Activator.CreateInstance(genericListType);
     }
 
+    public static bool IsSupported(CustomGameMode mode)
+    {
+        return mode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars;
+    }
+
     public enum SubmergedSystemTypes : byte
     {
         Research = 0x80, // 128

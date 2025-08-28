@@ -1215,6 +1215,21 @@ internal static class IntroCutsceneDestroyPatch
 
         LateTask.New(() =>
         {
+            HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+
+            HudSpritePatch.DefaultIcons =
+            [
+                hud.KillButton.graphic.sprite,
+                hud.AbilityButton.graphic.sprite,
+                hud.ImpostorVentButton.graphic.sprite,
+                hud.SabotageButton.graphic.sprite,
+                hud.PetButton.graphic.sprite,
+                hud.ReportButton.graphic.sprite
+            ];
+        }, 1f, log: false);
+
+        LateTask.New(() =>
+        {
             if (Main.CurrentMap == MapNames.Airship && Vector2.Distance(PlayerControl.LocalPlayer.Pos(), new Vector2(-25f, 40f)) < 8f && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
         }, 4f, "Airship Spawn FailSafe");

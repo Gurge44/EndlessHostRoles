@@ -54,7 +54,7 @@ public class Imitator : RoleBase
 
     private static void SendRPC(byte playerId)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ImitatorClick, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ImitatorClick, SendOption.Reliable, AmongUsClient.Instance.HostId);
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -97,7 +97,7 @@ public class Imitator : RoleBase
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = Object.Instantiate(template, pva.transform);
             targetBox.name = "ImitatorButton";
-            targetBox.transform.localPosition = new(-0.95f, 0.03f, -1.31f);
+            targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
             var renderer = targetBox.GetComponent<SpriteRenderer>();
             renderer.sprite = CustomButton.Get("TargetIcon");
             var button = targetBox.GetComponent<PassiveButton>();
@@ -114,5 +114,11 @@ public class Imitator : RoleBase
             if (PlayerIdList.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
                 CreateImitatorButton(__instance);
         }
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
     }
 }

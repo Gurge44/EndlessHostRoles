@@ -759,6 +759,7 @@ public static class Options
     public static OptionItem UsePhantomBasis;
     public static OptionItem UsePhantomBasisForNKs;
     public static OptionItem UseMeetingShapeshift;
+    public static OptionItem UseMeetingShapeshiftForGuessing;
     public static OptionItem AutoKickStart;
     public static OptionItem AutoKickStartAsBan;
     public static OptionItem AutoKickStartTimes;
@@ -2364,6 +2365,12 @@ public static class Options
         UseMeetingShapeshift = new BooleanOptionItem(23865, "UseMeetingShapeshift", true, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
+            .SetColor(Palette.Orange);
+
+        UseMeetingShapeshiftForGuessing = new BooleanOptionItem(23866, "UseMeetingShapeshiftForGuessing", false, TabGroup.TaskSettings)
+            .SetHidden(true)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(UseMeetingShapeshift)
             .SetColor(Palette.Orange);
 
         EveryoneCanVent = new BooleanOptionItem(23853, "EveryoneCanVent", false, TabGroup.TaskSettings)

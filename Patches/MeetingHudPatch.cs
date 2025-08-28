@@ -1236,14 +1236,24 @@ internal static class MeetingHudOnDestroyPatch
         MeetingStates.FirstMeeting = false;
         Logger.Info("------------End of meeting------------", "Phase");
 
+        ReportDeadBodyPatch.MeetingStarted = false;
+
         if (AmongUsClient.Instance.AmHost)
         {
+            bool meetingSS = Options.UseMeetingShapeshift.GetBool();
+
+            if (meetingSS && Options.UseMeetingShapeshiftForGuessing.GetBool())
+            {
+                GuessManager.Data.Values.Do(x => x.Reset());
+                GuessManager.Data.Clear();
+            }
+
             AntiBlackout.SetOptimalRoleTypesToPreventBlackScreen();
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
 
             Main.LastVotedPlayerInfo = null;
 
-            if (Options.UseMeetingShapeshift.GetBool() && !AntiBlackout.SkipTasks)
+            if (meetingSS && !AntiBlackout.SkipTasks)
                 Main.AllAlivePlayerControls.DoIf(x => x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(x.GetRoleTypes(), x.OwnerId));
         }
     }

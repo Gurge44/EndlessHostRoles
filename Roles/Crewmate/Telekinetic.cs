@@ -225,4 +225,10 @@ public class Telekinetic : RoleBase
         Speed,
         Doors
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
+    }
 }

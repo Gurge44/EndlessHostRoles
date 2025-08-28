@@ -225,4 +225,22 @@ internal class TimeMaster : RoleBase
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = false;
+        countsAs = 1;
+        int length = TimeMasterRewindTimeLength.GetInt();
+
+        foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
+        {
+            if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out PlayerState ps)) continue;
+
+            if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
+            {
+                keepGameGoing = true;
+                return;
+            }
+        }
+    }
 }

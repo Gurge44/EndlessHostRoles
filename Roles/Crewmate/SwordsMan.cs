@@ -107,4 +107,10 @@ public class SwordsMan : RoleBase
         killer.RpcResetTasks();
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = PlayerIdList.Exists(x => !Killed.Contains(x));
+        countsAs = 1;
+    }
 }

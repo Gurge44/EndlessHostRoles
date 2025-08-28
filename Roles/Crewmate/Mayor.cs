@@ -139,4 +139,10 @@ internal class Mayor : RoleBase
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = false;
+        countsAs = 1 + MayorAdditionalVote.GetInt() + TaskVotes;
+    }
 }

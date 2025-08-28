@@ -441,4 +441,10 @@ internal class Adventurer : RoleBase
 
         return finalText;
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
+    }
 }

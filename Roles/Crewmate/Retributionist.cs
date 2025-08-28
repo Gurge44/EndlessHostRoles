@@ -111,4 +111,10 @@ public class Retributionist : RoleBase
     {
         Camping = reader.ReadByte();
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = GameStates.IsInTask || Notified;
+        countsAs = 1;
+    }
 }

@@ -168,4 +168,10 @@ public class Negotiator : RoleBase
         LowVision,
         LowSpeed
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
+    }
 }

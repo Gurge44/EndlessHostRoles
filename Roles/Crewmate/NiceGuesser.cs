@@ -29,4 +29,10 @@ internal class NiceGuesser : RoleBase
     public override void Init() { }
 
     public override void Add(byte playerId) { }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
+    }
 }

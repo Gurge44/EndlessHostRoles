@@ -6,7 +6,6 @@ using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.AddOns.Common;
 using EHR.AddOns.GhostRoles;
-using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
@@ -579,16 +578,24 @@ internal static class GameEndChecker
 
             if (Main.AllAlivePlayerControls.Any(x => x.GetCountTypes() == CountTypes.CustomTeam)) return false;
 
-            var statesCoutingAsCrew = Main.PlayerStates.Values.Where(x => x.countTypes == CountTypes.Crew).ToList();
+            PlayerState[] statesCoutingAsCrew = Main.PlayerStates.Values.Where(x => x.countTypes == CountTypes.Crew).ToArray();
 
-            if (statesCoutingAsCrew.Count > 0 && statesCoutingAsCrew.TrueForAll(WouldWinIfCrewLost))
-                statesCoutingAsCrew.ForEach(x => x.countTypes = CountTypes.None);
-
-            int sheriffCount = AlivePlayersCount(CountTypes.Sheriff);
+            if (statesCoutingAsCrew.Length > 0 && statesCoutingAsCrew.All(WouldWinIfCrewLost))
+                statesCoutingAsCrew.Do(x => x.countTypes = CountTypes.None);
 
             int imp = AlivePlayersCount(CountTypes.Impostor);
-            int crew = AlivePlayersCount(CountTypes.Crew) + sheriffCount;
+            int crew = AlivePlayersCount(CountTypes.Crew);
             int coven = AlivePlayersCount(CountTypes.Coven);
+
+            var crewKeepsGameGoing = false;
+
+            foreach (PlayerState playerState in statesCoutingAsCrew)
+            {
+                if (playerState.Player == null || !playerState.Player.IsAlive()) continue;
+                playerState.Role.ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs);
+                crewKeepsGameGoing |= keepGameGoing;
+                crew += countsAs - 1;
+            }
 
             Dictionary<(CustomRoles? Role, CustomWinner Winner), int> roleCounts = [];
 
@@ -638,7 +645,7 @@ internal static class GameEndChecker
                         reason = GameOverReason.ImpostorsByKill;
                         winner = CustomWinner.None;
                     }
-                    else if (crew <= imp && sheriffCount == 0)
+                    else if (crew <= imp && !crewKeepsGameGoing)
                     {
                         reason = GameOverReason.ImpostorsByKill;
                         winner = CustomWinner.Impostor;
@@ -664,7 +671,7 @@ internal static class GameEndChecker
                 {
                     if (imp >= 1) return false;
                     if (crew > coven) return false;
-                    if (sheriffCount > 0) return false;
+                    if (crewKeepsGameGoing) return false;
 
                     Logger.Info($"Crew: {crew}, Imp: {imp}, Coven: {coven}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
                     reason = GameOverReason.ImpostorsByKill;
@@ -676,7 +683,7 @@ internal static class GameEndChecker
 
             if (imp >= 1) return false; // both imps and NKs are alive, game must continue
             if (coven >= 1) return false; // both covens and NKs are alive, game must continue
-            if (crew > totalNKAlive) return false; // Imps are dead, but crew still outnumbers NKs, game must continue
+            if (crew > totalNKAlive || crewKeepsGameGoing) return false; // Imps are dead, but crew still outnumbers NKs, game must continue
 
             // Imps dead, Crew <= NK, Checking if all NKs alive are in 1 team
             List<int> aliveCounts = roleCounts.Values.Where(x => x > 0).ToList();
@@ -684,9 +691,7 @@ internal static class GameEndChecker
             switch (aliveCounts.Count)
             {
                 // There are multiple types of NKs alive, the game must continue
-                // If the Sheriff keeps the game going, the game must continue
                 case > 1:
-                case 1 when Sheriff.KeepsGameGoing.GetBool() && sheriffCount > 0:
                     return false;
                 // There is only one type of NK alive, they've won
                 case 1:

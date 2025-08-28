@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.AddOns.Common;
@@ -109,6 +110,7 @@ public static class GuessManager
                     (pc.Is(CustomRoles.Decryptor) && Decryptor.GuessMode.GetValue() == 0) ||
                     (Options.GuesserNumRestrictions.GetBool() && !Guessers.Contains(pc.PlayerId)))
                 {
+                    if (pc.GetCustomRole() is CustomRoles.EvilGuesser or CustomRoles.NiceGuesser) goto SkipCheck;
                     if (pc.Is(CustomRoles.Guesser)) goto SkipCheck;
                     if (hasGuessingRole) goto SkipCheck;
                     if ((pc.Is(CustomRoles.Madmate) || pc.IsConverted()) && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
@@ -801,15 +803,14 @@ public static class GuessManager
             exitButtonParent.transform.localPosition = new Vector3(3.88f, 2.12f, -200f);
             exitButtonParent.transform.localScale = new Vector3(0.22f, 0.9f, 1f);
             exitButtonParent.transform.SetAsFirstSibling();
-            exitButton.GetComponent<PassiveButton>().OnClick.RemoveAllListeners();
-
-            exitButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() =>
+            var passiveButton = exitButton.GetComponent<PassiveButton>();
+            passiveButton.OnClick.RemoveAllListeners();
+            passiveButton.OnClick.AddListener((Action)(() =>
             {
                 __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(true));
                 Object.Destroy(container.gameObject);
             }));
 
-            exitButton.GetComponent<PassiveButton>();
 
             List<Transform> buttons = [];
             Transform selectedButton = null;
@@ -859,12 +860,16 @@ public static class GuessManager
                 if (PlayerControl.LocalPlayer.IsAlive()) CreateTeamButton(teambutton, (CustomRoleTypes)index);
                 continue;
 
-                static void CreateTeamButton(Transform teambutton, CustomRoleTypes type) =>
-                    teambutton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() =>
+                static void CreateTeamButton(Transform teambutton, CustomRoleTypes type)
+                {
+                    var passiveButton = teambutton.GetComponent<PassiveButton>();
+                    passiveButton.OnClick.RemoveAllListeners();
+                    passiveButton.OnClick.AddListener((UnityAction)(() =>
                     {
                         GuesserSelectRole(type);
                         ReloadPage();
                     }));
+                }
             }
 
             static void ReloadPage()
@@ -912,7 +917,9 @@ public static class GuessManager
                 pagelabel.transform.localScale *= 1.6f;
                 pagelabel.autoSizeTextContainer = true;
                 if (!isNext && Page <= 1) pagebutton.GetComponent<SpriteRenderer>().color = new(1, 1, 1, 0.1f);
-                pagebutton.GetComponent<PassiveButton>().OnClick.AddListener((Action)ClickEvent);
+                var passiveButton = pagebutton.GetComponent<PassiveButton>();
+                passiveButton.OnClick.RemoveAllListeners();
+                passiveButton.OnClick.AddListener((Action)ClickEvent);
                 PageButtons.Add(pagebutton.GetComponent<SpriteRenderer>());
                 return;
 
@@ -934,30 +941,7 @@ public static class GuessManager
 
             foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
             {
-                if (role is
-                        CustomRoles.GM or
-                        CustomRoles.SpeedBooster or
-                        CustomRoles.Engineer or
-                        CustomRoles.Crewmate or
-                        CustomRoles.Oblivious or
-                        CustomRoles.Scientist or
-                        CustomRoles.Impostor or
-                        CustomRoles.Shapeshifter or
-                        CustomRoles.Flashman or
-                        CustomRoles.Disco or
-                        CustomRoles.Giant or
-                        CustomRoles.NotAssigned or
-                        CustomRoles.KB_Normal or
-                        CustomRoles.Paranoia or
-                        CustomRoles.SuperStar or
-                        CustomRoles.Konan or
-                        CustomRoles.GuardianAngelEHR
-                    )
-                    continue;
-
-                if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) continue;
-
-                if (Options.CurrentGameMode != CustomGameMode.Standard || CustomHnS.AllHnSRoles.Contains(role)) continue;
+                if (!ShowRoleOnUI(role)) continue;
 
                 CreateRole(role);
             }
@@ -991,11 +975,12 @@ public static class GuessManager
                 label.transform.localScale *= 1.6f;
                 label.autoSizeTextContainer = true;
 
-                button.GetComponent<PassiveButton>().OnClick.RemoveAllListeners();
+                var component = button.GetComponent<PassiveButton>();
+                component.OnClick.RemoveAllListeners();
 
                 if (PlayerControl.LocalPlayer.IsAlive())
                 {
-                    button.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() =>
+                    component.OnClick.AddListener((Action)(() =>
                     {
                         if (selectedButton != button)
                         {
@@ -1035,10 +1020,31 @@ public static class GuessManager
         CustomSoundsManager.Play("Gunload");
     }
 
+    private static bool ShowRoleOnUI(CustomRoles role)
+    {
+        if (role is
+                CustomRoles.GM or
+                CustomRoles.Oblivious or
+                CustomRoles.Flashman or
+                CustomRoles.Disco or
+                CustomRoles.Giant or
+                CustomRoles.NotAssigned or
+                CustomRoles.KB_Normal or
+                CustomRoles.Paranoia or
+                CustomRoles.SuperStar or
+                CustomRoles.Konan or
+                CustomRoles.GuardianAngelEHR
+            )
+            return false;
+
+        if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) return false;
+        return Options.CurrentGameMode == CustomGameMode.Standard && !CustomHnS.AllHnSRoles.Contains(role) && !role.IsVanilla();
+    }
+
     // Modded non-host client guess Role/Add-on
     private static void SendRPC(int playerId, CustomRoles role)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (int)CustomRPC.Guess, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (int)CustomRPC.Guess, SendOption.Reliable, AmongUsClient.Instance.HostId);
         writer.Write(playerId);
         writer.Write((int)role);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1074,6 +1080,16 @@ public static class GuessManager
 
                 if (Guessers.Count == 0 && restrictions)
                     InitializeGuesserPlayers();
+
+                HashSet<byte> guessers = Main.AllAlivePlayerControls.Where(x => !x.IsModdedClient() && CanGuess(x, restrictions)).Select(x => x.PlayerId).ToHashSet();
+                //bool meetingSS = Options.UseMeetingShapeshift.GetBool() && Options.UseMeetingShapeshiftForGuessing.GetBool();
+                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString( /*meetingSS ? "YouCanGuessMeetingSS" : */"YouCanGuess"), x, GetString("YouCanGuessTitle"))), 12f, log: false);
+
+                /*if (meetingSS)
+                {
+                    LateTask.New(() => guessers.ToValidPlayers().DoIf(x => !x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(RoleTypes.Shapeshifter, x.OwnerId)), 8f, "Meeting Shapeshift Setup For Guessing");
+                    Data = guessers.ToDictionary(x => x, x => new MeetingShapeshiftData(x));
+                }*/
             }
 
             PlayerControl lp = PlayerControl.LocalPlayer;
@@ -1081,12 +1097,6 @@ public static class GuessManager
 
             if (CanGuess(lp, restrictions))
                 CreateGuesserButton(__instance);
-
-            if (AmongUsClient.Instance.AmHost)
-            {
-                HashSet<byte> guessers = Main.AllAlivePlayerControls.Where(x => !x.IsModdedClient() && CanGuess(x, false)).Select(x => x.PlayerId).ToHashSet();
-                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString("YouCanGuess"), x, GetString("YouCanGuessTitle"))), 12f, log: false);
-            }
         }
 
         private static bool CanGuess(PlayerControl lp, bool restrictions)
@@ -1136,5 +1146,439 @@ public static class GuessManager
         {
             Object.Destroy(TextTemplate.gameObject);
         }
+    }
+
+    // ----------------------------------------------------------------------------------------
+    // Meeting Shapeshift for Guessing
+    // ----------------------------------------------------------------------------------------
+
+    public class MeetingShapeshiftData(byte guesserId)
+    {
+        private enum State
+        {
+            WaitingForTargetSelection,
+            TeamSelection,
+            FirstLetterSelection,
+            RoleSelection
+        }
+
+        private State CurrentState = State.WaitingForTargetSelection;
+        private readonly byte GuesserId = guesserId;
+        private PlayerControl Target;
+        private CustomRoleTypes CurrentTeamType;
+        private CustomRoles[] ShownRoles;
+        private List<CustomRoles> CurrentRoles;
+        private CustomRoles SelectedRole;
+        private readonly List<ShapeshiftMenuElement> ExistingCNOs = [];
+        private readonly Dictionary<byte, string> PlayerIdToRawDisplay = [];
+
+        public void Reset()
+        {
+            if (CurrentState == State.WaitingForTargetSelection) return;
+            CurrentState = State.WaitingForTargetSelection;
+            Target = null;
+            CurrentTeamType = default(CustomRoleTypes);
+            ExistingCNOs.Do(x => x.Despawn());
+            ExistingCNOs.Clear();
+            PlayerIdToRawDisplay.Clear();
+            Utils.SendGameDataTo(GuesserId.GetPlayer().OwnerId);
+            Logger.Msg($"Reset Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")})", "Meeting Shapeshift For Guessing");
+        }
+
+        public void AdvanceStep(PlayerControl target)
+        {
+            switch (CurrentState)
+            {
+                case State.WaitingForTargetSelection:
+                {
+                    Target = target;
+                    CurrentState = State.TeamSelection;
+                    SpawnCNOs();
+                    break;
+                }
+                case State.TeamSelection:
+                {
+                    if (!TryGetDisplay(out string display)) return;
+
+                    if (display == "Cancel")
+                    {
+                        Reset();
+                        return;
+                    }
+
+                    CurrentTeamType = Enum.Parse<CustomRoleTypes>(display, true);
+                    ShownRoles = Enum.GetValues<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CurrentTeamType && ShowRoleOnUI(x)).ToArray();
+                    CurrentState = State.FirstLetterSelection;
+                    SpawnCNOs();
+                    break;
+                }
+                case State.FirstLetterSelection:
+                {
+                    if (!TryGetDisplay(out string display)) return;
+
+                    if (display == "Cancel")
+                    {
+                        Reset();
+                        return;
+                    }
+
+                    CurrentRoles = ShownRoles.Select(x => GetString(x.ToString())).Where(x => display.Split('-').Any(y => x.StartsWith(y.Trim(), StringComparison.InvariantCultureIgnoreCase))).Select(x => Enum.Parse<CustomRoles>(x, true)).ToList();
+
+                    if (CurrentRoles.Count == 0)
+                    {
+                        Reset();
+                        return;
+                    }
+
+                    if (CurrentRoles.Count == 1)
+                    {
+                        // Directly select if there's only one role
+                        SelectedRole = CurrentRoles[0];
+                        goto case State.RoleSelection;
+                    }
+
+                    CurrentState = State.RoleSelection;
+                    SpawnCNOs();
+                    break;
+                }
+                case State.RoleSelection:
+                {
+                    if (SelectedRole == default(CustomRoles))
+                    {
+                        if (!TryGetDisplay(out string display)) return;
+
+                        if (display == "Cancel")
+                        {
+                            Reset();
+                            return;
+                        }
+
+                        SelectedRole = Enum.Parse<CustomRoles>(display, true);
+                    }
+
+                    GuesserMsg(GuesserId.GetPlayer(), $"/bt {Target.PlayerId} {GetString(SelectedRole.ToString())}");
+                    Reset();
+                    break;
+                }
+            }
+
+            return;
+
+            bool TryGetDisplay(out string display)
+            {
+                if (!PlayerIdToRawDisplay.TryGetValue(target.PlayerId, out display)) //TODO: ANY WAY TO FIND CNOS FROM PLAYERCONTROL?
+                    display = ExistingCNOs.FindFirst(x => x.playerControl.name == target.name, out ShapeshiftMenuElement cno) ? cno.playerControl.tag : string.Empty;
+
+                if (string.IsNullOrEmpty(display))
+                {
+                    Reset();
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        public void SpawnCNOs()
+        {
+            IEnumerable<string> choices = CurrentState switch
+            {
+                State.TeamSelection => Enum.GetNames<CustomRoleTypes>(),
+                State.FirstLetterSelection => BuildLetterGroups(ShownRoles.Select(x => GetString(x.ToString())).OrderBy(x => x)),
+                State.RoleSelection => CurrentRoles.Select(x => x.ToString()),
+                _ => []
+            };
+
+            IEnumerable<string> namePlateIds = CurrentState switch
+            {
+                State.TeamSelection => ["nameplate_ripple", "nameplate_seeker", "nameplate_Polus_Lava", "nameplate_Celeste", "nameplate0001"],
+                _ => Enumerable.Repeat(CurrentTeamType switch
+                {
+                    CustomRoleTypes.Impostor => "nameplate_seeker",
+                    CustomRoleTypes.Crewmate => "nameplate_ripple",
+                    CustomRoleTypes.Neutral => "nameplate_Polus_Lava",
+                    CustomRoleTypes.Coven => "nameplate_Celeste",
+                    CustomRoleTypes.Addon => "nameplate0001",
+                    _ => ""
+                }, 14)
+            };
+
+            choices = choices.Prepend("Cancel");
+            namePlateIds = namePlateIds.Prepend("nameplate_candyCanePlate");
+
+            (string choice, string namePlateId)[] data = choices.Zip(namePlateIds, (choice, namePlateId) => (choice, namePlateId)).ToArray();
+            PlayerControl[] alivePlayerControls = Main.AllAlivePlayerControls;
+            int alivePlayerControlsLength = alivePlayerControls.Length - 1;
+
+            Logger.Info($"Set Up Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")}, {CurrentState})", "Meeting Shapeshift For Guessing");
+
+            // First, use living players to show choices by changing their names
+            // The local player can't be used to show a choice (-1)
+
+            var skipped = false;
+            PlayerControl guesser = GuesserId.GetPlayer();
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            writer.StartMessage(6);
+            writer.Write(AmongUsClient.Instance.GameId);
+            writer.WritePacked(guesser.OwnerId);
+
+            for (var i = 0; i < alivePlayerControls.Length && (skipped ? i - 1 : i) < data.Length; i++)
+            {
+                string choice = data[skipped ? i - 1 : i].choice;
+                string namePlateId = data[skipped ? i - 1 : i].namePlateId;
+                PlayerControl pc = alivePlayerControls[i];
+
+                if (pc.PlayerId == GuesserId)
+                {
+                    skipped = true;
+                    continue;
+                }
+
+                PlayerIdToRawDisplay[pc.PlayerId] = choice;
+
+                string originalNamePlateId = pc.Data.DefaultOutfit.NamePlateId;
+                string originalPlayerName = pc.Data.DefaultOutfit.PlayerName;
+                pc.Data.DefaultOutfit.NamePlateSequenceId += 10;
+                pc.Data.DefaultOutfit.NamePlateId = namePlateId;
+                pc.Data.DefaultOutfit.PlayerName = GetString(choice).ToUpper();
+
+                if (writer.Length > 500)
+                {
+                    writer.EndMessage();
+                    AmongUsClient.Instance.SendOrDisconnect(writer);
+                    writer.Clear(SendOption.Reliable);
+                    writer.StartMessage(6);
+                    writer.Write(AmongUsClient.Instance.GameId);
+                    writer.WritePacked(guesser.OwnerId);
+                }
+
+                writer.StartMessage(1);
+                writer.WritePacked(pc.Data.NetId);
+                pc.Data.Serialize(writer, false);
+                writer.EndMessage();
+
+                pc.Data.DefaultOutfit.NamePlateId = originalNamePlateId;
+                pc.Data.DefaultOutfit.PlayerName = originalPlayerName;
+            }
+
+            writer.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
+
+            ExistingCNOs.ForEach(x => x.Despawn());
+            ExistingCNOs.Clear();
+
+            // If there aren't enough living players, spawn new CNOs to show the rest of choices
+
+            if (data.Length >= alivePlayerControlsLength)
+            {
+                string originalNamePlateId = guesser.Data.DefaultOutfit.NamePlateId;
+                string originalPlayerName = guesser.Data.DefaultOutfit.PlayerName;
+
+                for (int i = alivePlayerControlsLength; i < data.Length; i++)
+                {
+                    string choice = data[i].choice;
+                    string namePlateId = data[i].namePlateId;
+
+                    guesser.Data.DefaultOutfit.NamePlateSequenceId += 10;
+                    guesser.Data.DefaultOutfit.NamePlateId = namePlateId;
+                    guesser.Data.DefaultOutfit.PlayerName = $"{GetString(choice).ToUpper()}<size=0>{choice}";
+
+                    writer = MessageWriter.Get(SendOption.Reliable);
+                    writer.StartMessage(6);
+                    writer.Write(AmongUsClient.Instance.GameId);
+                    writer.WritePacked(guesser.OwnerId);
+                    writer.StartMessage(1);
+                    writer.WritePacked(guesser.Data.NetId);
+                    guesser.Data.Serialize(writer, false);
+                    writer.EndMessage();
+                    writer.EndMessage();
+                    AmongUsClient.Instance.SendOrDisconnect(writer);
+                    writer.Recycle();
+
+                    var cno = new ShapeshiftMenuElement(choice, namePlateId, GuesserId);
+                    ExistingCNOs.Add(cno);
+                }
+
+                guesser.Data.DefaultOutfit.NamePlateSequenceId += 10;
+                guesser.Data.DefaultOutfit.NamePlateId = originalNamePlateId;
+                guesser.Data.DefaultOutfit.PlayerName = originalPlayerName;
+            }
+
+            Logger.Info($"Spawned {ExistingCNOs.Count} CNOs, Used {alivePlayerControlsLength} Living Players, Showing {data.Length} Choices", "Meeting Shapeshift For Guessing");
+        }
+
+        // This problem goes beyond my ability to solve it perfectly, so I used AI
+        // Even this solution is not perfect, but it should be good enough for most cases
+        /// <summary>
+        ///     Build up to maxGroups labels (like "[A-B]") from ordered roleNames so:
+        ///     - each label covers contiguous starting-prefixes,
+        ///     - no label contains more than maxItemsPerGroup roles,
+        ///     - if a single starting-prefix has > maxItemsPerGroup roles, it will be subdivided by longer prefixes,
+        ///     - tries to balance groups by merging adjacent buckets while respecting the maxItemsPerGroup limit.
+        /// </summary>
+        public static IEnumerable<string> BuildLetterGroups(
+            IEnumerable<string> roleNamesOrdered,
+            int maxGroups = 14,
+            int maxItemsPerGroup = 14,
+            CultureInfo culture = null)
+        {
+            culture ??= CultureInfo.CurrentCulture;
+            List<string> roles = roleNamesOrdered.ToList();
+            if (roles.Count == 0) yield break;
+
+            // Step 1: initial buckets grouped by first grapheme
+            var orderedKeys = new List<string>(); // preserve appearance order
+            var map = new Dictionary<string, List<string>>();
+
+            foreach (string r in roles)
+            {
+                string key = GetPrefix(r, 1);
+
+                if (!map.ContainsKey(key))
+                {
+                    orderedKeys.Add(key);
+                    map[key] = [];
+                }
+
+                map[key].Add(r);
+            }
+
+            // Represent buckets as list of (prefix, rolesList)
+            List<(string prefix, List<string> roles)> buckets = orderedKeys.Select(k => (prefix: k, roles: map[k])).ToList();
+
+            // Step 2: For any bucket with count > maxItemsPerGroup, subdivide it by increasing prefix length
+            for (var i = 0; i < buckets.Count; ++i)
+            {
+                if (buckets[i].roles.Count <= maxItemsPerGroup) continue;
+
+                List<string> tooBigRoles = buckets[i].roles;
+                var p = 2; // try second grapheme, third, ...
+
+                while (true)
+                {
+                    var subOrder = new List<string>();
+                    var subMap = new Dictionary<string, List<string>>();
+
+                    foreach (string r in tooBigRoles)
+                    {
+                        string subKey = GetPrefix(r, p);
+
+                        if (!subMap.ContainsKey(subKey))
+                        {
+                            subOrder.Add(subKey);
+                            subMap[subKey] = [];
+                        }
+
+                        subMap[subKey].Add(r);
+                    }
+
+                    // If any sub-bucket still larger than maxItemsPerGroup, increase p and try again.
+                    bool anyTooLarge = subMap.Values.Any(list => list.Count > maxItemsPerGroup);
+
+                    if (!anyTooLarge)
+                    {
+                        // replace the single too-large bucket with its sub-buckets (in order)
+                        var newList = new List<(string prefix, List<string> roles)>();
+                        foreach (string k in subOrder) newList.Add((k, subMap[k]));
+                        // replace in buckets
+                        buckets.RemoveAt(i);
+                        buckets.InsertRange(i, newList);
+                        i += newList.Count - 1;
+                        break;
+                    }
+
+                    p++;
+                    // safeguard: if p grows beyond the longest role length, break to avoid infinite loop
+                    int maxTextElements = tooBigRoles.Max(rr => StringInfo.ParseCombiningCharacters(rr).Length);
+
+                    if (p > maxTextElements)
+                    {
+                        // As a last resort, split the list into chunks of maxItemsPerGroup preserving order
+                        var finalSplit = new List<(string prefix, List<string> roles)>();
+                        var idx = 0;
+
+                        while (idx < tooBigRoles.Count)
+                        {
+                            List<string> slice = tooBigRoles.Skip(idx).Take(maxItemsPerGroup).ToList();
+                            // prefix label use first and last role's prefix for clarity (not perfect but safe)
+                            string label = GetPrefix(slice.First(), 1);
+                            finalSplit.Add((label, slice));
+                            idx += maxItemsPerGroup;
+                        }
+
+                        buckets.RemoveAt(i);
+                        buckets.InsertRange(i, finalSplit);
+                        i += finalSplit.Count - 1;
+                        break;
+                    }
+                }
+            }
+
+            // Step 3: If we have more buckets than maxGroups, merge adjacent buckets where possible
+            // We'll greedily merge the adjacent pair with smallest combined size that doesn't exceed maxItemsPerGroup,
+            // repeating until buckets.Count <= maxGroups or no mergeable pair exists.
+            while (buckets.Count > maxGroups)
+            {
+                int bestIdx = -1;
+                var bestCombinedSize = int.MaxValue;
+
+                for (var i = 0; i < buckets.Count - 1; ++i)
+                {
+                    int combined = buckets[i].roles.Count + buckets[i + 1].roles.Count;
+
+                    if (combined <= maxItemsPerGroup && combined < bestCombinedSize)
+                    {
+                        bestCombinedSize = combined;
+                        bestIdx = i;
+                    }
+                }
+
+                if (bestIdx == -1)
+                {
+                    // No adjacent pair can be merged without exceeding maxItemsPerGroup.
+                    // Absolutely diabolical.
+                    // Here we choose to break and output as-is (caller gets <= buckets.Count labels, possibly > maxGroups).
+                    break;
+                }
+
+                // merge buckets[bestIdx] and buckets[bestIdx+1]
+                var mergedRoles = new List<string>(buckets[bestIdx].roles.Count + buckets[bestIdx + 1].roles.Count);
+                mergedRoles.AddRange(buckets[bestIdx].roles);
+                mergedRoles.AddRange(buckets[bestIdx + 1].roles);
+                string mergedPrefix = buckets[bestIdx].prefix; // prefix string for merged block will be the first prefix (label will show range)
+                buckets[bestIdx] = (mergedPrefix, mergedRoles);
+                buckets.RemoveAt(bestIdx + 1);
+            }
+
+            // Step 4: build label strings for each bucket: if bucket covers multiple distinct prefixes, show "first-last" else show "first"
+            // But we might have buckets whose prefix string is identical for every role (common case).
+            foreach ((string prefix, List<string> roles) bucket in buckets)
+            {
+                // show all distinct prefixes in this bucket (e.g. "A-B-C" if roles are "Ant", "Bat", "Cat")
+                List<string> distinctPrefixes = bucket.roles.Select(r => GetPrefix(r, 1)).Distinct().ToList();
+                string label = distinctPrefixes.Count == 1 ? distinctPrefixes[0] : string.Join('-', distinctPrefixes);
+                yield return label;
+            }
+
+            yield break;
+
+            // Helper: get first p text elements (grapheme clusters), upper-cased by culture.
+            string GetPrefix(string s, int p)
+            {
+                if (string.IsNullOrEmpty(s)) return s;
+                var si = new StringInfo(s);
+                int take = Math.Min(p, si.LengthInTextElements);
+                return culture.TextInfo.ToUpper(si.SubstringByTextElements(0, take));
+            }
+        }
+    }
+
+    public static Dictionary<byte, MeetingShapeshiftData> Data = [];
+
+    public static void OnMeetingShapeshiftReceived(PlayerControl shapeshifter, PlayerControl target)
+    {
+        if (Data.TryGetValue(shapeshifter.PlayerId, out MeetingShapeshiftData msd))
+            msd.AdvanceStep(target);
     }
 }

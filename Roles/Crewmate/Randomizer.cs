@@ -794,4 +794,10 @@ internal class Randomizer : RoleBase
         }
         catch (Exception ex) { Logger.Exception(ex, "Randomizer"); }
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
+    }
 }

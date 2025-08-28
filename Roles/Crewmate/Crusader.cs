@@ -84,4 +84,10 @@ public class Crusader : RoleBase
         target.RpcGuardAndKill(killer);
         return false;
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = false;
+        countsAs = 2;
+    }
 }
