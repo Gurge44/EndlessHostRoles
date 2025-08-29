@@ -771,11 +771,8 @@ internal static class GameEndChecker
             if (FreeForAll.RoundTime <= 0)
             {
                 PlayerControl winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FreeForAll.GetRankFromScore(x.PlayerId)).First();
-
                 byte winnerId = winner.PlayerId;
-
                 Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
-
                 WinnerIds = [winnerId];
 
                 Main.DoBlockNameChange = true;
