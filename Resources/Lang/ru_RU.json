@@ -4426,7 +4426,7 @@
   "UsesPetInsteadOfKillNotice": "<#ffff00>⚠ Играя за эту роль, вы должны использовать\\nкнопку питомца вместо кнопки убийства!</color>",
   "UsesMeetingShapeshiftNotice": "<#ffff00>⚠ За эту роль вместо команд вы можете использовать меню морфа на собраниях для выбора своей цели!</color>",
   "UseMeetingShapeshift": "Использовать меню морфа на собраниях для выбора цели вместо команд/голосов",
-  "UseMeetingShapeshiftForGuessing": "Even For Guessing  (may disconnect the host on vanilla servers)",
+  "UseMeetingShapeshiftForGuessing": "Даже для угадывания (может вызывать проблемы с вылетами игроков на ванильных серверах) (рекомендуется, если никто не вылетает)",
   "AddonListTitle": "<b><u>Ваши атрибуты:</u></b>",
   "Framer": "Обвинитель",
   "FramerInfo": "Подставляй других игроков",
