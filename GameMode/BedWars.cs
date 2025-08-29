@@ -1810,9 +1810,18 @@ public static class BedWars
 
     public static void OnChat(PlayerControl player, string message)
     {
+        if (!Data.TryGetValue(player.PlayerId, out PlayerData data)) return;
+        
         message = message.Trim().Replace(" ", string.Empty).Trim();
-        if (int.TryParse(message, out int slot) && slot > 0 && slot <= InventorySlots && Data.TryGetValue(player.PlayerId, out PlayerData data))
+
+        if (int.TryParse(message, out int slot) && slot > 0 && slot <= InventorySlots)
             data.Inventory.SelectedSlot = slot - 1;
+
+        if (message == "cls" && data.Inventory.SelectedSlot >= 0 && data.Inventory.SelectedSlot < data.Inventory.Items.Count)
+        {
+            KeyValuePair<Item, int> selected = data.Inventory.Items.ElementAt(data.Inventory.SelectedSlot);
+            data.Inventory.Adjust(selected.Key, -selected.Value);
+        }
     }
 
     public static void ApplyGameOptions(IGameOptions opt, byte playerId)
