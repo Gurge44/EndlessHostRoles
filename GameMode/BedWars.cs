@@ -28,7 +28,7 @@ public static class BedWars
     private static float TNTRange = 3f;
     private static float TrapTriggerRange = 3f;
     private static float HealPoolRange = 2.5f;
-    private static float ShopAndItemGeneratorRange = 0.7f;
+    private static float ShopAndItemGeneratorRange = 0.75f;
     private static float BedBreakAndProtectRange = 1f;
     private static float IronArmorDamageDivision = 1.25f;
     private static float DiamondArmorDamageDivision = 2f;
@@ -159,7 +159,7 @@ public static class BedWars
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        ShopAndItemGeneratorRangeOption = new FloatOptionItem(id++, "BedWars.ShopAndItemGeneratorRangeOption", new(0.25f, 10f, 0.25f), 0.7f, tab)
+        ShopAndItemGeneratorRangeOption = new FloatOptionItem(id++, "BedWars.ShopAndItemGeneratorRangeOption", new(0.25f, 10f, 0.25f), 0.75f, tab)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color)
             .SetGameMode(gameMode);

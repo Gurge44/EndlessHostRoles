@@ -1215,6 +1215,17 @@ internal static class IntroCutsceneDestroyPatch
 
         LateTask.New(() =>
         {
+            if (SubmergedCompatibility.IsSubmerged())
+            {
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    PlainShipRoom room = pc.GetPlainShipRoom();
+
+                    if (room == null || room.RoomId is not ((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral or (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral))
+                        pc.TP(new Vector2(3.32f, -26.57f));
+                }
+            }
+            
             HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
 
             HudSpritePatch.DefaultIcons =

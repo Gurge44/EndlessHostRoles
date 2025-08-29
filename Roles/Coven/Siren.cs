@@ -117,7 +117,7 @@ public class Siren : Coven
 
     public override bool OnVanish(PlayerControl pc)
     {
-        PlayerControl[] nearbyPlayers = Utils.GetPlayersInRadius(SingRange.GetFloat(), pc.Pos()).Without(pc).ToArray();
+        PlayerControl[] nearbyPlayers = Utils.GetPlayersInRadius(SingRange.GetFloat(), pc.Pos()).Without(pc).Where(x => !x.Is(Team.Coven)).ToArray();
 
         foreach (PlayerControl player in nearbyPlayers)
         {
@@ -151,6 +151,7 @@ public class Siren : Coven
         if (lowLoad || !GameStates.IsInTask || ExileController.Instance || !pc.IsAlive() || !EffectEndTS.TryGetValue(pc.PlayerId, out var endTS) || endTS > Utils.TimeStamp) return;
 
         ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
+        Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         EffectEndTS.Remove(pc.PlayerId);
         pc.MarkDirtySettings();
     }
