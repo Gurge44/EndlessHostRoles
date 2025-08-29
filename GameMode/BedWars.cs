@@ -736,15 +736,8 @@ public static class BedWars
             Health = MaxHealth;
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
-            pc.ReviveFromTemporaryExile(sender =>
-            {
-                sender.AutoStartRpc(pc.NetId, RpcCalls.SetColor)
-                    .Write(pc.Data.NetId)
-                    .Write(Team.GetColorId())
-                    .EndRpc();
-
-                return true;
-            });
+            pc.ReviveFromTemporaryExile();
+            pc.RpcSetColor(Team.GetColorId());
             pc.TP(Base.SpawnPosition);
             pc.SetChatVisible(true);
             Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
@@ -1817,10 +1810,11 @@ public static class BedWars
         if (int.TryParse(message, out int slot) && slot > 0 && slot <= InventorySlots)
             data.Inventory.SelectedSlot = slot - 1;
 
-        if (message == "cls" && data.Inventory.SelectedSlot >= 0 && data.Inventory.SelectedSlot < data.Inventory.Items.Count)
+        if (message == "cls")
         {
-            KeyValuePair<Item, int> selected = data.Inventory.Items.ElementAt(data.Inventory.SelectedSlot);
-            data.Inventory.Adjust(selected.Key, -selected.Value);
+            Item? selected = data.Inventory.GetSelectedItem();
+            if (!selected.HasValue) return;
+            data.Inventory.Adjust(selected.Value, -data.Inventory.Items[selected.Value]);
         }
     }
 

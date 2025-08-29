@@ -586,11 +586,12 @@ public static class KingOfTheZones
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
         if (!Main.IntroDestroyed) return false;
 
-        switch (aapc.Length + ExtendedPlayerControl.TempExiled.Count)
+        PlayerControl[] aapc = Main.AllAlivePlayerControls.Concat(ExtendedPlayerControl.TempExiled.ToValidPlayers()).ToArray();
+
+        switch (aapc.Length)
         {
             case 0:
             {
@@ -612,7 +613,7 @@ public static class KingOfTheZones
             }
             default:
             {
-                if (Options.IntegrateNaturalDisasters.GetBool() && Enum.GetValues<KOTZTeam>().FindFirst(x => Main.AllAlivePlayerControls.All(p => PlayerTeams[p.PlayerId] == x), out KOTZTeam team))
+                if (Options.IntegrateNaturalDisasters.GetBool() && Enum.GetValues<KOTZTeam>().FindFirst(x => aapc.All(p => PlayerTeams[p.PlayerId] == x), out KOTZTeam team))
                 {
                     ResetSkins();
                     Color color = team.GetColor();

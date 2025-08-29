@@ -76,7 +76,11 @@ public class Astral : RoleBase
         CustomRpcSender.Create("Astral", (SendOption)1).AutoStartRpc(pc.NetId, 4).EndRpc().SendMessage();
         LateTask.New(() => pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.OwnerId), 0.2f, log: false);
         LateTask.New(pc.RpcResetAbilityCooldown, 0.4f, log: false);
-        LateTask.New(() => pc.SetChatVisible(false), 0.6f, log: false);
+        LateTask.New(() =>
+        {
+            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
+            pc.SetChatVisible(false);
+        }, 0.6f, log: false);
         pc.MarkDirtySettings();
 
         BackTS = Utils.TimeStamp + AbilityDuration.GetInt() + 1;

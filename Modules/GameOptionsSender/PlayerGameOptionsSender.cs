@@ -58,7 +58,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         {
             GameOptionsSender allSender = AllSenders[index];
 
-            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.HasDesyncRole() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId)))
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.HasDesyncRole() || (sender.player.GetCustomRole() == CustomRoles.Transporter && sender.player.GetTaskState().IsTaskFinished) || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId)))
                 sender.SetDirty();
         }
     }

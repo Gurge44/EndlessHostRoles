@@ -233,11 +233,12 @@ public static class CaptureTheFlag
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
         if (!ValidTag) return false;
 
-        switch (aapc.Length + ExtendedPlayerControl.TempExiled.Count)
+        PlayerControl[] aapc = Main.AllAlivePlayerControls.Concat(ExtendedPlayerControl.TempExiled.ToValidPlayers()).ToArray();
+
+        switch (aapc.Length)
         {
             case 0:
                 ResetSkins();

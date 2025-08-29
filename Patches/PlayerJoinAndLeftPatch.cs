@@ -36,6 +36,7 @@ internal static class OnGameJoinedPatch
         Main.PlayerVersion = [];
         RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
+        Options.LoadUserData();
 
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();

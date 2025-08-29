@@ -307,7 +307,7 @@ internal static class ExtendedPlayerControl
     }
 
     // Saves some RPC calls for vanilla servers to make innersloth's rate limit happy
-    public static void ReviveFromTemporaryExile(this PlayerControl player, Func<CustomRpcSender, bool> extraWrites = null) // Only used in game modes
+    public static void ReviveFromTemporaryExile(this PlayerControl player) // Only used in game modes
     {
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
         {
@@ -315,13 +315,13 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        TempExiled.Remove(player.PlayerId);
-
         PlayerState state = Main.PlayerStates[player.PlayerId];
         state.IsDead = false;
         state.deathReason = PlayerState.DeathReason.etc;
 
         player.RpcSetRoleGlobal(RoleTypes.Crewmate);
+
+        TempExiled.Remove(player.PlayerId);
 
         LateTask.New(() =>
         {
@@ -346,9 +346,6 @@ internal static class ExtendedPlayerControl
                 sender.SyncGeneralOptions(player);
                 hasValue = true;
             }
-
-            if (extraWrites != null)
-                hasValue |= extraWrites(sender);
 
             sender.SendMessage(!hasValue);
         }, 1f, log: false);
@@ -411,10 +408,10 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        TempExiled.Remove(player.PlayerId);
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
+        TempExiled.Remove(player.PlayerId);
         var sender = CustomRpcSender.Create("RpcRevive", SendOption.Reliable);
         player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole);
         player.ResetKillCooldown();

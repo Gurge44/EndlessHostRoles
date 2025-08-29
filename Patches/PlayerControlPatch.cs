@@ -810,6 +810,7 @@ internal static class ShapeshifterMinigamePatch
 {
     public static bool Prefix(ShapeshifterMinigame __instance, [HarmonyArgument(0)] PlayerTask task)
     {
+        return true; // Not in use until I find a way to make it work properly for vanilla clients
         if (!Options.UseMeetingShapeshift.GetBool() || !MeetingHud.Instance || MeetingHud.Instance.state is not MeetingHud.VoteStates.Discussion and not MeetingHud.VoteStates.Voted and not MeetingHud.VoteStates.NotVoted) return true;
 
         CallBaseBegin();
