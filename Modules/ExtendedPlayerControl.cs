@@ -861,7 +861,7 @@ internal static class ExtendedPlayerControl
 
     public static void SetAbilityUseLimit(this byte playerId, float limit, bool rpc = true, bool log = true)
     {
-        limit = (float)Math.Round(limit, 1);
+        limit = (float)Math.Round(limit, 2);
 
         if (float.IsNaN(limit) || limit is < 0f or > 100f || (Main.AbilityUseLimit.TryGetValue(playerId, out float beforeLimit) && Math.Abs(beforeLimit - limit) < 0.01f)) return;
 
@@ -877,7 +877,7 @@ internal static class ExtendedPlayerControl
 
         PlayerControl pc = GetPlayerById(playerId);
         if (Main.IntroDestroyed) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        if (log) Logger.Info($" {pc.GetNameWithRole()} => {Math.Round(limit, 1)}", "SetAbilityUseLimit");
+        if (log) Logger.Info($" {pc.GetNameWithRole()} => {Math.Round(limit, 2)}", "SetAbilityUseLimit");
     }
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
