@@ -3035,7 +3035,7 @@
   "WitchModeDouble": "1/2 нажатия",
   "HexMasterModeDouble": "1/2 нажатия",
   "BountyCurrentTarget": "Текущая цель",
-  "Dictator.MinTasksToDictate": "Минимальное количество выполненных заданий, необходимое для того, чтобы диктовать другим",
+  "Dictator.MinTasksToDictate": "Мин. кол-во выполненных тасков для того, чтобы выкинуть кого-то",
   "AntiAdminerAD": "<size=1.7><color=#ffff00>⚠ Админка ⚠</color></size>",
   "AntiAdminerVI": "<size=1.7><color=#ffff00>⚠ Пульсы ⚠</color></size>",
   "AntiAdminerDL": "<size=1.7><color=#ffff00>⚠ Дурлог ⚠</color></size>",
