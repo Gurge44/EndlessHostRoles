@@ -1350,35 +1350,45 @@ internal static class ReportDeadBodyPatch
         NameNotifyManager.Reset();
         NotifyRoles(true, ForceLoop: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
-        Main.ProcessShapeshifts = false;
-
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        try
         {
-            if (pc.IsAlive())
+            Main.ProcessShapeshifts = false;
+
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
-                    Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
-
-                if (Magistrate.CallCourtNextMeeting)
+                try
                 {
-                    string name = pc.GetRealName();
-                    RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+                    if (pc.IsAlive())
+                    {
+                        if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
+                            Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
+
+                        if (Magistrate.CallCourtNextMeeting)
+                        {
+                            string name = pc.GetRealName();
+                            RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+                        }
+
+                        if (pc.IsShifted()) pc.RpcShapeshift(pc, false);
+                    }
+                    else if (!pc.Data.IsDead)
+                        pc.RpcExileV2();
                 }
-
-                if (pc.IsShifted()) pc.RpcShapeshift(pc, false);
+                catch (Exception e) { ThrowException(e); }
             }
-            else if (!pc.Data.IsDead)
-                pc.RpcExileV2();
+
+            RPCHandlerPatch.RemoveExpiredWhiteList();
+
+            Camouflage.CamoTimesThisRound = 0;
+
+            NumSnapToCallsThisRound = 0;
+
+            if (HudManagerPatch.AchievementUnlockedText == string.Empty)
+                HudManagerPatch.ClearLowerInfoText();
+
+            Logger.Info("AfterReportTasks finished", "ReportDeadBody");
         }
-
-        RPCHandlerPatch.RemoveExpiredWhiteList();
-
-        Camouflage.CamoTimesThisRound = 0;
-
-        NumSnapToCallsThisRound = 0;
-
-        if (HudManagerPatch.AchievementUnlockedText == string.Empty)
-            HudManagerPatch.ClearLowerInfoText();
+        catch (Exception e) { ThrowException(e); }
     }
 }
 
