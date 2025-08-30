@@ -382,7 +382,7 @@ public static class GuessManager
                     {
                         switch (pc.GetCustomRole())
                         {
-                            // Assassin & Nice Guesser Can't Guess Addons
+                            // Evil & Nice Guessers Can't Guess Addons
                             case CustomRoles.EvilGuesser when !Options.EGCanGuessAdt.GetBool():
                             case CustomRoles.NiceGuesser when !Options.GGCanGuessAdt.GetBool():
                                 ShowMessage("GuessAdtRole");
