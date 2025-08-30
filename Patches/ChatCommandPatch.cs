@@ -3284,7 +3284,7 @@ internal static class ChatCommands
 
         return text switch
         {
-            // There is no need to use these now
+            // There is no need to use these now //I guess forever
             
             /*"管理員" or "管理" or "gm" => GetString("GM"),
             "賞金獵人" or "赏金" or "bh" or "bounty" => GetString("BountyHunter"),
@@ -3305,7 +3305,7 @@ internal static class ChatCommands
             "吸血鬼" or "吸血" or "vamp" => GetString("Vampire"),
             "術士" => GetString("Warlock"),
             "駭客" or "黑客" => GetString("Hacker"),
-            "刺客" or "忍者" => GetString("Assassin"),
+            "刺客" or "忍者" => GetString("Ninja"),
             "礦工" => GetString("Miner"),
             "逃逸者" or "逃逸" => GetString("Escapee"),
             "女巫" => GetString("Witch"),
