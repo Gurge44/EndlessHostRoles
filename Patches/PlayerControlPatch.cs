@@ -1194,6 +1194,7 @@ internal static class ReportDeadBodyPatch
 
         if (MeetingStarted) return;
         MeetingStarted = true;
+        LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
 
         CustomNetObject.OnMeeting();
 

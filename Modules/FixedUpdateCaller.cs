@@ -14,6 +14,8 @@ public static class FixedUpdateCaller
 {
     private static int NonLowLoadPlayerIndex;
 
+    private static long LastFileLoadTS;
+
     // ReSharper disable once UnusedMember.Global
     public static void Postfix()
     {
@@ -38,6 +40,14 @@ public static class FixedUpdateCaller
             {
                 LobbyFixedUpdatePatch.Postfix();
                 LobbyBehaviourUpdatePatch.Postfix(lobbyBehaviour);
+
+                long now = Utils.TimeStamp;
+
+                if (now - LastFileLoadTS > 10)
+                {
+                    LastFileLoadTS = now;
+                    Options.LoadUserData();
+                }
             }
 
             HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;

@@ -983,7 +983,19 @@ internal static class MeetingHudStartPatch
                 LateTask.New(() =>
                 {
                     if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding) return;
-                    Main.AllAlivePlayerControls.DoIf(x => x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(RoleTypes.Shapeshifter, x.OwnerId));
+
+                    PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+                    foreach (PlayerControl pc in aapc)
+                    {
+                        if (pc.UsesMeetingShapeshift())
+                        {
+                            var sender = CustomRpcSender.Create($"RpcSetRoleDesync for meeting shapeshift ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Someone")})", SendOption.Reliable);
+                            sender.RpcSetRole(pc, RoleTypes.Shapeshifter, pc.OwnerId);
+                            aapc.DoIf(x => x.IsImpostor(), x => sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
+                            sender.SendMessage();
+                        }
+                    }
                 }, 8f, "Set Shapeshifter Role For Meeting Use");
             }
         }
@@ -1254,7 +1266,11 @@ internal static class MeetingHudOnDestroyPatch
             Main.LastVotedPlayerInfo = null;
 
             if (meetingSS && !AntiBlackout.SkipTasks)
-                Main.AllAlivePlayerControls.DoIf(x => x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(x.GetRoleTypes(), x.OwnerId));
+            {
+                PlayerControl[] aapc = Main.AllAlivePlayerControls;
+                aapc.DoIf(x => x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(x.GetRoleTypes(), x.OwnerId));
+                aapc.DoIf(x => x.IsImpostor(), x => x.RpcSetRoleGlobal(x.GetRoleTypes()));
+            }
         }
     }
 }

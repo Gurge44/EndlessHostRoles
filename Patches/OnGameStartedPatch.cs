@@ -281,6 +281,7 @@ internal static class ChangeRoleSettings
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
             GameEndChecker.Ended = false;
+            ReportDeadBodyPatch.MeetingStarted = false;
 
             HudSpritePatch.ResetButtonIcons = true;
 

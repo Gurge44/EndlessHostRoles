@@ -352,7 +352,7 @@ internal static class ExtendedPlayerControl
     }
 
     // If you use vanilla RpcSetRole, it will block further SetRole calls until the next game starts.
-    private static void RpcSetRoleGlobal(this PlayerControl player, RoleTypes roleTypes)
+    public static void RpcSetRoleGlobal(this PlayerControl player, RoleTypes roleTypes)
     {
         if (AmongUsClient.Instance.AmClient) player.StartCoroutine(player.CoSetRole(roleTypes, true));
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable);

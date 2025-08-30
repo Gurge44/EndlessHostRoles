@@ -32,7 +32,8 @@ public class Deadlined : IAddon
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             TaskState ts = pc.GetTaskState();
-            if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || (!ts.HasTasks && !pc.CanUseKillButton()))) Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Deadlined);
+            if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || (!ts.HasTasks && !pc.CanUseKillButton())))
+                Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Deadlined);
         }
     }
 
