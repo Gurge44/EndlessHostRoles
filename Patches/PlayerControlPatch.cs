@@ -755,32 +755,38 @@ internal static class MurderPlayerPatch
             if (!rp.Is(CustomRoles.Pestilence)) rp.Suicide(PlayerState.DeathReason.Revenge, target);
         }
 
-        if (target.Is(CustomRoles.Bait) && !killer.Is(CustomRoles.Minimalism) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
+        if (target.Is(CustomRoles.Bait))
         {
-            killer.RPCPlayCustomSound("Congrats");
-            target.RPCPlayCustomSound("Congrats");
-            float delay;
-
-            if (Options.BaitDelayMax.GetFloat() < Options.BaitDelayMin.GetFloat())
-                delay = 0f;
-            else
-                delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
-
-            delay = Math.Max(delay, 0.15f);
-            if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
-
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} killed Bait => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
-
-            LateTask.New(() =>
+            var realKiller = target.GetRealKiller();
+            if (realKiller != null) killer = realKiller;
+            
+            if (target != killer && !killer.Is(CustomRoles.Minimalism) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
             {
-                if (GameStates.IsInTask)
+                killer.RPCPlayCustomSound("Congrats");
+                target.RPCPlayCustomSound("Congrats");
+                float delay;
+
+                if (Options.BaitDelayMax.GetFloat() < Options.BaitDelayMin.GetFloat())
+                    delay = 0f;
+                else
+                    delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
+
+                delay = Math.Max(delay, 0.15f);
+                if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
+
+                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} killed Bait => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
+
+                LateTask.New(() =>
                 {
-                    if (!Options.ReportBaitAtAllCost.GetBool())
-                        killer.CmdReportDeadBody(target.Data);
-                    else
-                        killer.NoCheckStartMeeting(target.Data, true);
-                }
-            }, delay, "Bait Self Report");
+                    if (GameStates.IsInTask)
+                    {
+                        if (!Options.ReportBaitAtAllCost.GetBool())
+                            killer.CmdReportDeadBody(target.Data);
+                        else
+                            killer.NoCheckStartMeeting(target.Data, true);
+                    }
+                }, delay, "Bait Self Report");
+            }
         }
 
         AfterPlayerDeathTasks(target);
