@@ -54,7 +54,7 @@ public class Decryptor : RoleBase
         Instances = [];
         AllRoleNames = [];
         KnownCharacters = [];
-        LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle()), 10f, log: false);
+        LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Where(c => c is not '-' and not ' ' and not '\'').Shuffle()), 10f, log: false);
     }
 
     public override void Add(byte playerId)
