@@ -36,7 +36,7 @@ public static class Statistics
 
             CustomGameMode gm = Options.CurrentGameMode;
 
-            if (gm != CustomGameMode.Standard)
+            if (GameStates.CurrentServerType is not GameStates.ServerType.Modded and not GameStates.ServerType.Niko)
             {
                 try
                 {
@@ -45,11 +45,8 @@ public static class Statistics
                     Main.NumWinsPerGM.TryAdd(gm, []);
                     Main.NumWinsPerGM[gm].AddRange(winners, false);
 
-                    foreach (string hashedpuid in Main.NumWinsPerGM[gm].Keys.ToArray())
-                    {
-                        if (winners.ContainsKey(hashedpuid))
-                            Main.NumWinsPerGM[gm][hashedpuid]++;
-                    }
+                    foreach (string hashedpuid in Main.NumWinsPerGM[gm].Keys.Intersect(winners.Keys).ToArray())
+                        Main.NumWinsPerGM[gm][hashedpuid]++;
 
                     if (Main.NumWinsPerGM[gm].Count != 0)
                     {

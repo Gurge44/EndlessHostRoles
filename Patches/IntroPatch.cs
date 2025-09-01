@@ -1215,6 +1215,32 @@ internal static class IntroCutsceneDestroyPatch
 
         LateTask.New(() =>
         {
+            if (SubmergedCompatibility.IsSubmerged())
+            {
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    PlainShipRoom room = pc.GetPlainShipRoom();
+
+                    if (room == null || room.RoomId is not ((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral or (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral))
+                        pc.TP(new Vector2(3.32f, -26.57f));
+                }
+            }
+            
+            HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+
+            HudSpritePatch.DefaultIcons =
+            [
+                hud.KillButton.graphic.sprite,
+                hud.AbilityButton.graphic.sprite,
+                hud.ImpostorVentButton.graphic.sprite,
+                hud.SabotageButton.graphic.sprite,
+                hud.PetButton.graphic.sprite,
+                hud.ReportButton.graphic.sprite
+            ];
+        }, 1f, log: false);
+
+        LateTask.New(() =>
+        {
             if (Main.CurrentMap == MapNames.Airship && Vector2.Distance(PlayerControl.LocalPlayer.Pos(), new Vector2(-25f, 40f)) < 8f && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
         }, 4f, "Airship Spawn FailSafe");

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Neutral;
 using Hazel;
 using static EHR.Translator;
 
@@ -12,6 +13,8 @@ internal class NiceEraser : RoleBase
     private static OptionItem EraseLimitOpt;
     public static OptionItem HideVote;
     public static OptionItem CancelVote;
+    public static OptionItem NiceEraserAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private static List<byte> DidVote = [];
     private static List<byte> PlayerToErase = [];
@@ -28,6 +31,15 @@ internal class NiceEraser : RoleBase
 
         HideVote = new BooleanOptionItem(Id + 3, "NiceEraserHideVote", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser]);
         CancelVote = Options.CreateVoteCancellingUseSetting(Id + 4, CustomRoles.NiceEraser, TabGroup.CrewmateRoles);
+        
+        NiceEraserAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
+            .SetValueFormat(OptionFormat.Times);
+        
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
+            .SetValueFormat(OptionFormat.Times);
+        
     }
 
     public override void Init()
@@ -49,6 +61,7 @@ internal class NiceEraser : RoleBase
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;
 
         if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
@@ -81,6 +94,11 @@ internal class NiceEraser : RoleBase
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
     }
 
     public override void OnReportDeadBody()

@@ -292,9 +292,13 @@ internal static class CustomRoleSelector
         RoleResult.AddRange(ChatCommands.Spectators.ToDictionary(x => x, _ => CustomRoles.GM));
 
         Dictionary<byte, CustomRoles> preSetRoles = Main.SetRoles.AddRange(ChatCommands.DraftResult, false);
-        
-        if (ChatCommands.DraftResult.Count > 0 && ChatCommands.DraftResult.Count + Main.SetRoles.Count >= allPlayers.Count && preSetRoles.All(x => x.Value.GetCountTypes() is CountTypes.Crew or CountTypes.None))
-            ChatCommands.DraftResult.Remove(ChatCommands.DraftResult.Keys.RandomElement());
+
+        if (ChatCommands.DraftResult.Count > 0 && ChatCommands.DraftResult.Count + Main.SetRoles.Count >= allPlayers.Count && preSetRoles.All(x => x.Value.GetCountTypes() is CountTypes.Crew or CountTypes.None or CountTypes.OutOfGame))
+        {
+            byte removeKey = ChatCommands.DraftResult.Keys.RandomElement();
+            ChatCommands.DraftResult.Remove(removeKey);
+            preSetRoles.Remove(removeKey);
+        }
 
         // Pre-Assigned Roles By Host Are Selected First
         foreach ((byte id, CustomRoles role) in preSetRoles)

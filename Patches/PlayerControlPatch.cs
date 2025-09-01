@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
@@ -474,6 +476,12 @@ internal static class CheckMurderPatch
             return false;
         }
 
+        if (!Gardener.OnAnyoneCheckMurder(killer, target))
+        {
+            Notify("GardenerPlantNearby");
+            return false;
+        }
+
         if (!Socialite.OnAnyoneCheckMurder(killer, target))
         {
             Notify("SocialiteTarget");
@@ -803,6 +811,53 @@ internal static class MurderPlayerPatch
     }
 }
 
+[HarmonyPatch(typeof(ShapeshifterMinigame), nameof(ShapeshifterMinigame.Begin))]
+internal static class ShapeshifterMinigamePatch
+{
+    public static bool Prefix(ShapeshifterMinigame __instance, [HarmonyArgument(0)] PlayerTask task)
+    {
+        return true; // Not in use until I find a way to make it work properly for vanilla clients
+        if (!Options.UseMeetingShapeshift.GetBool() || !MeetingHud.Instance || MeetingHud.Instance.state is not MeetingHud.VoteStates.Discussion and not MeetingHud.VoteStates.Voted and not MeetingHud.VoteStates.NotVoted) return true;
+
+        CallBaseBegin();
+
+        // HERE DETERMINE WHAT CHOICES WILL BE SHOWN AND PUT IT INTO A LIST
+
+        __instance.potentialVictims = new Il2CppSystem.Collections.Generic.List<ShapeshifterPanel>();
+        var selectableElements = new Il2CppSystem.Collections.Generic.List<UiElement>();
+
+        for (var index = 0; index < 15; ++index)
+        {
+            int num1 = index % 3;
+            int num2 = index / 3;
+            ShapeshifterPanel shapeshifterPanel = Object.Instantiate(__instance.PanelPrefab, __instance.transform);
+            shapeshifterPanel.transform.localPosition = new Vector3(__instance.XStart + (num1 * __instance.XOffset), __instance.YStart + (num2 * __instance.YOffset), -1f);
+
+            shapeshifterPanel.shapeshift = (Action)(() => { }) /*ACTION WHEN CHOSEN*/;
+            shapeshifterPanel.PlayerIcon.gameObject.SetActive(false);
+            shapeshifterPanel.LevelNumberText.gameObject.SetActive(false);
+            shapeshifterPanel.Background.sprite = ShipStatus.Instance.CosmeticsCache.GetNameplate("" /*NamePlateID*/).Image;
+            shapeshifterPanel.NameText.text = "CHOICE NAME" /*PLATE TEXT*/;
+            DataManager.Settings.Accessibility.OnColorBlindModeChanged += new Action(shapeshifterPanel.SetColorblindText);
+            shapeshifterPanel.SetColorblindText();
+
+            shapeshifterPanel.NameText.color = Color.white;
+            __instance.potentialVictims.Add(shapeshifterPanel);
+            selectableElements.Add(shapeshifterPanel.Button);
+        }
+
+        ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, selectableElements);
+        return false;
+
+        void CallBaseBegin()
+        {
+            Type baseType = typeof(ShapeshifterMinigame).BaseType; // == typeof(Minigame)
+            MethodInfo method = baseType?.GetMethod("Begin", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            method?.Invoke(__instance, [task]);
+        }
+    }
+}
+
 // Triggered when the shapeshifter selects a target
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
 internal static class CheckShapeshiftPatch
@@ -828,7 +883,8 @@ internal static class ShapeshiftPatch
 {
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        if (!Main.ProcessShapeshifts || shapeshifter.PlayerId >= 254) return true;
+        bool meetingSS = Options.UseMeetingShapeshift.GetBool() && GameStates.IsMeeting;
+        if ((!Main.ProcessShapeshifts && !meetingSS) || shapeshifter.PlayerId >= 254) return true;
 
         if (AntiBlackout.SkipTasks)
         {
@@ -839,6 +895,15 @@ internal static class ShapeshiftPatch
         if (shapeshifter == null || target == null) return true;
 
         Logger.Info($"{shapeshifter.GetNameWithRole()} => {target.GetNameWithRole()}", "Shapeshift");
+
+        if (meetingSS)
+        {
+            if (MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)
+                Main.PlayerStates[shapeshifter.PlayerId].Role.OnMeetingShapeshift(shapeshifter, target);
+
+            shapeshifter.RpcRejectShapeshift();
+            return false;
+        }
 
         bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
@@ -851,6 +916,7 @@ internal static class ShapeshiftPatch
             if (shapeshifter.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
             {
                 shapeshifter.Notify(GetString("TraineeNotify"));
+                shapeshifter.RpcRejectShapeshift();
                 return false;
             }
         }
@@ -956,10 +1022,11 @@ internal static class ReportDeadBodyPatch
 {
     public static Dictionary<byte, bool> CanReport;
     public static readonly Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = [];
+    public static bool MeetingStarted;
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
     {
-        if (GameStates.IsMeeting) return false;
+        if (GameStates.IsMeeting || MeetingStarted) return false;
         if (Options.DisableMeeting.GetBool()) return false;
         if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (Options.DisableReportWhenCC.GetBool() && Camouflage.IsCamouflage) return false;
@@ -986,6 +1053,17 @@ internal static class ReportDeadBodyPatch
             //=============================================
             // Next, check whether this meeting is allowed
             //=============================================
+
+            if (target == null && Main.NumEmergencyMeetingsUsed.TryGetValue(__instance.PlayerId, out int used))
+            {
+                if (used >= Main.RealOptionsData.GetInt(Int32OptionNames.NumEmergencyMeetings))
+                {
+                    Notify("NoMoreEmergencyMeetingsLeft");
+                    return false;
+                }
+
+                Main.NumEmergencyMeetingsUsed[__instance.PlayerId]++;
+            }
 
             PlayerControl killer = target?.Object?.GetRealKiller();
             CustomRoles? killerRole = killer?.GetCustomRole();
@@ -1120,6 +1198,10 @@ internal static class ReportDeadBodyPatch
         //    Hereinafter, it is confirmed that the meeting is allowed, and the meeting will start.
         //=============================================================================================
 
+        if (MeetingStarted) return;
+        MeetingStarted = true;
+        LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
+
         CustomNetObject.OnMeeting();
 
         Asthmatic.RunChecks = false;
@@ -1149,6 +1231,8 @@ internal static class ReportDeadBodyPatch
 
         if (Lovers.PrivateChat.GetBool()) ChatManager.ClearChat(Main.AllAlivePlayerControls.ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray());
 
+        CustomSabotage.Reset();
+        
         if (target == null)
         {
             switch (Main.PlayerStates[player.PlayerId].Role)
@@ -1223,6 +1307,7 @@ internal static class ReportDeadBodyPatch
 
         Bloodmoon.OnMeetingStart();
         Deadlined.OnMeetingStart();
+        Commited.OnMeetingStart();
 
         Main.LastVotedPlayerInfo = null;
         Arsonist.ArsonistTimer.Clear();
@@ -1235,6 +1320,8 @@ internal static class ReportDeadBodyPatch
         Grenadier.MadGrenadierBlinding.Clear();
         Divinator.DidVote.Clear();
         Oracle.DidVote.Clear();
+
+        Imitator.ImitatingRole.SetAllValues(CustomRoles.Imitator);
 
         foreach (PlayerState state in Main.PlayerStates.Values)
         {
@@ -1269,33 +1356,45 @@ internal static class ReportDeadBodyPatch
         NameNotifyManager.Reset();
         NotifyRoles(true, ForceLoop: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
-        Main.ProcessShapeshifts = false;
-
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        try
         {
-            if (pc.IsAlive())
+            Main.ProcessShapeshifts = false;
+
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
-                    Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
-
-                if (Magistrate.CallCourtNextMeeting)
+                try
                 {
-                    string name = pc.GetRealName();
-                    RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+                    if (pc.IsAlive())
+                    {
+                        if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
+                            Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
+
+                        if (Magistrate.CallCourtNextMeeting)
+                        {
+                            string name = pc.GetRealName();
+                            RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+                        }
+
+                        if (pc.IsShifted()) pc.RpcShapeshift(pc, false);
+                    }
+                    else if (!pc.Data.IsDead)
+                        pc.RpcExileV2();
                 }
+                catch (Exception e) { ThrowException(e); }
             }
-            else if (!pc.Data.IsDead)
-                pc.RpcExileV2();
+
+            RPCHandlerPatch.RemoveExpiredWhiteList();
+
+            Camouflage.CamoTimesThisRound = 0;
+
+            NumSnapToCallsThisRound = 0;
+
+            if (HudManagerPatch.AchievementUnlockedText == string.Empty)
+                HudManagerPatch.ClearLowerInfoText();
+
+            Logger.Info("AfterReportTasks finished", "ReportDeadBody");
         }
-
-        RPCHandlerPatch.RemoveExpiredWhiteList();
-
-        Camouflage.CamoTimesThisRound = 0;
-
-        NumSnapToCallsThisRound = 0;
-
-        if (HudManagerPatch.AchievementUnlockedText == string.Empty)
-            HudManagerPatch.ClearLowerInfoText();
+        catch (Exception e) { ThrowException(e); }
     }
 }
 
@@ -1575,7 +1674,7 @@ internal static class FixedUpdatePatch
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Assassin) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
+                    if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Ninja) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
                         Main.AllPlayerKillCooldown[pc.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
                 }
             }
@@ -1805,8 +1904,8 @@ internal static class FixedUpdatePatch
                 case CustomRoles.Executioner:
                     Mark.Append(Executioner.TargetMark(seer, target));
                     break;
-                case CustomRoles.Gamer:
-                    Mark.Append(Gamer.TargetMark(seer, target));
+                case CustomRoles.Demon:
+                    Mark.Append(Demon.TargetMark(seer, target));
                     break;
             }
 

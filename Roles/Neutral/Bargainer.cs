@@ -415,8 +415,8 @@ internal class Bargainer : RoleBase
             switch (ActiveItems[i].Item)
             {
                 case Item.LensOfTruth:
-                    if ((AlignmentVisibleOptions)AlignmentVisible.GetValue() is AlignmentVisibleOptions.ForSpecifiedTime or AlignmentVisibleOptions.UntilNextMeeting) indexesToRemove.Add(i);
-
+                    if ((AlignmentVisibleOptions)AlignmentVisible.GetValue() is AlignmentVisibleOptions.ForSpecifiedTime or AlignmentVisibleOptions.UntilNextMeeting)
+                        indexesToRemove.Add(i);
                     break;
                 default:
                     indexesToRemove.Add(i);
@@ -436,7 +436,6 @@ internal class Bargainer : RoleBase
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
         if (base.KnowRole(seer, target)) return true;
-
         return Main.PlayerStates[seer.PlayerId].Role is Bargainer bg && bg.ActiveItems.Any(x => x.Target == target.PlayerId);
     }
 
@@ -470,9 +469,7 @@ internal class Bargainer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (Main.PlayerStates[seer.PlayerId].Role is not Bargainer bg) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Bargainer bg) return string.Empty;
 
         var result = string.Empty;
 

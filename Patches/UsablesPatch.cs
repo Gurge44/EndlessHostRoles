@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using HarmonyLib;
 using UnityEngine;
 
@@ -15,7 +16,12 @@ internal static class CanUsePatch
 
         PlayerControl lp = PlayerControl.LocalPlayer;
 
-        return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && (!lp.Is(CustomRoles.Wizard) || HasTasksAsWizard()));
+        return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && lp.GetCustomRole() switch
+        {
+            CustomRoles.Wizard => HasTasksAsWizard(),
+            CustomRoles.Medic => (Options.UsePets.GetBool() && Medic.UsePet.GetBool()) || lp.GetAbilityUseLimit() < 1f,
+            _ => true
+        });
 
         bool HasTasksAsWizard()
         {
@@ -31,7 +37,8 @@ internal static class EmergencyMinigamePatch
 {
     public static void Postfix(EmergencyMinigame __instance)
     {
-        if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) __instance.Close();
+        if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
+            __instance.Close();
     }
 }
 

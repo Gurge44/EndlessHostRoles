@@ -37,6 +37,10 @@ public static class AntiBlackout
                 // Fix the black screen manually for each player after the ejection screen.
                 if (CheckForEndVotingPatch.TempExiledPlayer != null) CheckForEndVotingPatch.TempExiledPlayer.Object.FixBlackScreen();
                 players.Do(x => x.FixBlackScreen());
+
+                // Don't skip tasks since we couldn't set the optimal roles.
+                SkipTasks = false;
+                CachedRoleMap = [];
                 return;
             }
 
@@ -50,7 +54,14 @@ public static class AntiBlackout
     // After the ejection screen, we revert the role types to their actual values.
     public static void RevertToActualRoleTypes()
     {
-        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default || CachedRoleMap.Count == 0) return;
+        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+
+        if (CachedRoleMap.Count == 0)
+        {
+            SkipTasks = false;
+            ExileControllerWrapUpPatch.AfterMeetingTasks();
+            return;
+        }
 
         // Set the temporarily revived crewmate back to dead.
         foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -89,6 +100,9 @@ public static class AntiBlackout
 
         LateTask.New(() =>
         {
+            ExileControllerWrapUpPatch.Stopwatch.Stop();
+            var elapsedSeconds = (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
+            
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 try
@@ -97,7 +111,11 @@ public static class AntiBlackout
                     {
                         // Due to the role base change, we need to reset the cooldowns for abilities.
                         pc.RpcResetAbilityCooldown();
-                        pc.SetKillCooldown();
+
+                        if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd))
+                            pc.SetKillCooldown(kcd - elapsedSeconds);
+                        else
+                            pc.SetKillCooldown();
                     }
                     else
                     {
@@ -117,7 +135,7 @@ public static class AntiBlackout
             {
                 SkipTasks = false;
                 ExileControllerWrapUpPatch.AfterMeetingTasks();
-            }, Math.Max(1f, Utils.CalculatePingDelay() * 2f), "Reset SkipTasks after SetRealPlayerRoles");
+            }, Math.Min(3f, Math.Max(1f, Utils.CalculatePingDelay() * 2f)), "Reset SkipTasks after SetRealPlayerRoles");
         }, 0.2f, "SetRealPlayerRoles - Reset Cooldowns");
     }
 

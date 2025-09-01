@@ -34,6 +34,7 @@ public enum CustomRoles
     Changeling,
     Chronomancer,
     Cleaner,
+    ClockBlocker,
     Commander,
     EvilDiviner, // Consigliere
     Consort,
@@ -73,10 +74,10 @@ public enum CustomRoles
     Mafioso,
     Mastermind,
     Mafia, // Nemesis
-    SerialKiller, // Mercenary
+    Mercenary,
     Miner,
     Morphling,
-    Assassin, // Ninja
+    Ninja,
     Nuker,
     Nullifier,
     Occultist,
@@ -179,6 +180,7 @@ public enum CustomRoles
     Express,
     Farseer,
     Divinator, // Fortune Teller
+    Gardener,
     Gaulois,
     Goose,
     Grappler,
@@ -229,6 +231,7 @@ public enum CustomRoles
     Psychic,
     Rabbit,
     Randomizer,
+    Retributionist,
     Rhapsode,
     Ricochet,
     Safeguard,
@@ -282,7 +285,7 @@ public enum CustomRoles
     Collector,
     Curser,
     Deathknight,
-    Gamer, // Demon
+    Demon,
     Doppelganger,
     Doomsayer,
     Eclipse,
@@ -344,7 +347,7 @@ public enum CustomRoles
     Samurai,
     SchrodingersCat,
     Seamstress,
-    NSerialKiller, // Serial Killer
+    SerialKiller,
     Shifter,
     Sidekick,
     Simon,
@@ -355,7 +358,7 @@ public enum CustomRoles
     Sprayer,
     DarkHide, // Stalker
     Starspawn,
-    Succubus,
+    Succubus, // Cultist
     Sunnyboy,
     Technician,
     Tank,
@@ -474,6 +477,7 @@ public enum CustomRoles
     Circumvent,
     Cleansed,
     Clumsy,
+    Commited,
     Contagious,
     Damocles,
     Deadlined,

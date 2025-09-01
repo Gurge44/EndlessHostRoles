@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
+using EHR.Crewmate;
 
 
 namespace EHR;
@@ -127,6 +128,21 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual void OnMurder(PlayerControl killer, PlayerControl target) { }
 
+    public virtual void OnVoteKick(PlayerControl pc, PlayerControl target)
+    {
+        if (Imitator.PlayerIdList.Contains(pc.PlayerId))
+        {
+            string command = $"/imitate {target.PlayerId}";
+            ChatCommands.ImitateCommand(pc, command, command.Split(' '));
+        }
+    }
+
+    public virtual void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        if (Options.UseMeetingShapeshiftForGuessing.GetBool())
+            GuessManager.OnMeetingShapeshiftReceived(shapeshifter, target);
+    }
+
     public virtual bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         return true;
@@ -173,6 +189,12 @@ public abstract class RoleBase : IComparable<RoleBase>
 
         CustomRoles seerRole = seer.GetCustomRole();
         return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
+    }
+
+    public virtual void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = false;
+        countsAs = 1;
     }
 
     protected bool IsThisRole(PlayerControl pc)
@@ -243,9 +265,15 @@ public class OptionSetupHandler(int id, TabGroup tab, CustomRoles role)
         return this;
     }
 
-    public OptionSetupHandler CreateVoteCancellingSetting(ref OptionItem field)
+    public OptionSetupHandler CreateVoteCancellingUseSetting(ref OptionItem field)
     {
         field = Options.CreateVoteCancellingUseSetting(++_id, role, tab);
+        return this;
+    }
+    
+    public OptionSetupHandler CreatePetUseSetting(ref OptionItem field)
+    {
+        field = Options.CreatePetUseSetting(++_id, role);
         return this;
     }
 }

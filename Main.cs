@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.0.0";
-    public const string PluginDisplayVersion = "6.0.0";
+    public const string PluginVersion = "6.2.1";
+    public const string PluginDisplayVersion = "6.2.1";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -127,6 +127,7 @@ public class Main : BasePlugin
     public static readonly Dictionary<string, int> GamesPlayed = [];
     public static readonly HashSet<byte> GotShieldAnimationInfoThisGame = [];
     public static readonly HashSet<byte> Invisible = [];
+    public static readonly Dictionary<string, Options.UserData> UserData = [];
 
     public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
     {
@@ -150,7 +151,9 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> KilledAntidote = [];
     public static List<byte> BrakarVoteFor = [];
     public static Dictionary<byte, string> SleuthMsgs = [];
+    public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
+    public static uint LobbyBehaviourNetId;
 
     public static bool ShowResult = true;
 
@@ -249,7 +252,7 @@ public class Main : BasePlugin
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data == null || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId)) continue;
 
                 result[i++] = pc;
             }
@@ -407,6 +410,7 @@ public class Main : BasePlugin
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Helper, "#fcf1bd" },
                 { CustomRoles.Astral, "#b329d6" },
+                { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Transmitter, "#c9a11e" },
                 { CustomRoles.Imitator, "#c99e28" },
                 { CustomRoles.PortalMaker, "#700078" },
@@ -479,6 +483,7 @@ public class Main : BasePlugin
                 { CustomRoles.Merchant, "#D27D2D" },
                 { CustomRoles.Monitor, "#7223DA" },
                 { CustomRoles.Deputy, "#df9026" },
+                { CustomRoles.Retributionist, "#cfc999" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.NiceSwapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },
@@ -512,7 +517,7 @@ public class Main : BasePlugin
                 { CustomRoles.Revolutionist, "#ba4d06" },
                 { CustomRoles.FFF, "#414b66" },
                 { CustomRoles.Konan, "#4d4dff" },
-                { CustomRoles.Gamer, "#68bc71" },
+                { CustomRoles.Demon, "#68bc71" },
                 { CustomRoles.DarkHide, "#483d8b" },
                 { CustomRoles.Workaholic, "#008b8b" },
                 { CustomRoles.Collector, "#9d8892" },
@@ -529,7 +534,7 @@ public class Main : BasePlugin
                 { CustomRoles.Deathknight, "#361d12" },
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
-                { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.SerialKiller, "#233fcc" },
                 { CustomRoles.Slenderman, "#2c2e00" },
                 { CustomRoles.Amogus, "#ff0000" },
                 { CustomRoles.Weatherman, "#347deb" },
@@ -627,6 +632,7 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Commited, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },
                 { CustomRoles.Blind, "#666666" },
                 { CustomRoles.Shy, "#9582f5" },
@@ -993,7 +999,7 @@ public enum CustomWinner
     Pelican = CustomRoles.Pelican,
     Youtuber = CustomRoles.Youtuber,
     Egoist = CustomRoles.Egoist,
-    Gamer = CustomRoles.Gamer,
+    Demon = CustomRoles.Demon,
     DarkHide = CustomRoles.DarkHide,
     Workaholic = CustomRoles.Workaholic,
     Collector = CustomRoles.Collector,
@@ -1004,7 +1010,7 @@ public enum CustomWinner
     Succubus = CustomRoles.Succubus,
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
-    SerialKiller = CustomRoles.NSerialKiller,
+    SerialKiller = CustomRoles.SerialKiller,
     Slenderman = CustomRoles.Slenderman,
     Amogus = CustomRoles.Amogus,
     Weatherman = CustomRoles.Weatherman,

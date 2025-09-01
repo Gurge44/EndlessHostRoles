@@ -20,19 +20,11 @@ namespace EHR.Patches;
 internal static class CheckForEndVotingPatch
 {
     public static string EjectionText = string.Empty;
-    public static bool RunRoleCode = true;
     public static NetworkedPlayerInfo TempExiledPlayer;
 
     public static bool Prefix(MeetingHud __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
-
-        if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
-        {
-            Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
-            LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
-            return false;
-        }
 
         if (Medic.PlayerIdList.Count > 0) Medic.OnCheckMark();
 
@@ -66,7 +58,7 @@ internal static class CheckForEndVotingPatch
                     }
                 }
 
-                if (pc.Is(CustomRoles.Dictator) && pva.DidVote && pc.PlayerId != pva.VotedFor && pva.VotedFor < 253 && pc.Data?.IsDead == false)
+                if (pc.Is(CustomRoles.Dictator) && pva.DidVote && pc.PlayerId != pva.VotedFor && pva.VotedFor < 253 && pc.Data?.IsDead == false && pc.GetTaskState().CompletedTasksCount >= Dictator.MinTasksToDictate.GetInt())
                 {
                     PlayerControl voteTarget = Utils.GetPlayerById(pva.VotedFor);
                     TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, pc.PlayerId);
@@ -192,12 +184,14 @@ internal static class CheckForEndVotingPatch
                     case Dad { IsEnable: true } dad when dad.UsingAbilities.Contains(Dad.Ability.GoForMilk):
                         canVote = false;
                         break;
+                    case Mayor mayor when !Mayor.MayorHideVote.GetBool():
+                        Loop.Times(Mayor.MayorAdditionalVote.GetInt() + mayor.TaskVotes, _ => AddVote());
+                        break;
                 }
 
                 if (canVote) AddVote();
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Magistrate) && Magistrate.CallCourtNextMeeting) Loop.Times(Magistrate.ExtraVotes.GetInt(), _ => AddVote());
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool()) Loop.Times(Mayor.MayorAdditionalVote.GetInt(), _ => AddVote());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator) && !Options.VindicatorHideVote.GetBool()) Loop.Times(Options.VindicatorAdditionalVote.GetInt(), _ => AddVote());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) AddVote();
 
@@ -229,13 +223,16 @@ internal static class CheckForEndVotingPatch
                     });
             }
 
-            Blackmailer.OnCheckForEndVoting();
-            NiceSwapper.OnCheckForEndVoting();
+            Commited.OnVotingResultsShown(statesList);
 
             states = [.. statesList];
 
             Dictionary<byte, int> votingData = __instance.CustomCalculateVotes();
+
+            Blackmailer.ManipulateVotingResult(votingData, states);
+            NiceSwapper.ManipulateVotingResult(votingData, states);
             Assumer.OnVotingEnd(votingData);
+            
             var exileId = byte.MaxValue;
             var max = 0;
             voteLog.Info("===Decision to expel player processing begins===");
@@ -307,7 +304,6 @@ internal static class CheckForEndVotingPatch
                     case TieMode.All:
                         byte[] exileIds = votingData.Where(x => x.Key < 15 && x.Value == max).Select(kvp => kvp.Key).ToArray();
                         foreach (byte playerId in exileIds) Utils.GetPlayerById(playerId).SetRealKiller(null);
-
                         TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Vote, exileIds);
                         exiledPlayer = null;
                         break;
@@ -623,7 +619,6 @@ internal static class ExtendedMeetingHud
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Magistrate) && Magistrate.CallCourtNextMeeting) voteNum += Magistrate.ExtraVotes.GetInt();
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Mayor)) voteNum += Mayor.MayorAdditionalVote.GetInt();
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool()) voteNum = 0;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) voteNum = 0;
@@ -643,6 +638,9 @@ internal static class ExtendedMeetingHud
                     case Amogus { IsEnable: true, ExtraVotes: > 0 } amogus:
                         voteNum += amogus.ExtraVotes;
                         break;
+                    case Mayor mayor:
+                        voteNum += Mayor.MayorAdditionalVote.GetInt() + mayor.TaskVotes;
+                        break;
                 }
 
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) voteNum = 0;
@@ -661,8 +659,6 @@ internal static class MeetingHudStartPatch
     private static void NotifyRoleSkillOnMeetingStart()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-
-        CheckForEndVotingPatch.RunRoleCode = true;
 
         List<Message> msgToSend = [];
 
@@ -701,6 +697,8 @@ internal static class MeetingHudStartPatch
                 }
 
                 if (settings.Length > 0) roleDescMsgs.Add(new("\n", pc.PlayerId, settings.ToString()));
+                if (role.UsesPetInsteadOfKill()) roleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesPetInsteadOfKillNotice")));
+                if (pc.UsesMeetingShapeshift()) roleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesMeetingShapeshiftNotice")));
 
                 roleDescMsgs.Add(new(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString()));
             }
@@ -979,6 +977,27 @@ internal static class MeetingHudStartPatch
 
                 sender.SendMessage();
             }, 3f, "SetName To Chat");
+
+            if (Options.UseMeetingShapeshift.GetBool())
+            {
+                LateTask.New(() =>
+                {
+                    if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding) return;
+
+                    PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+                    foreach (PlayerControl pc in aapc)
+                    {
+                        if (pc.UsesMeetingShapeshift())
+                        {
+                            var sender = CustomRpcSender.Create($"RpcSetRoleDesync for meeting shapeshift ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Someone")})", SendOption.Reliable);
+                            sender.RpcSetRole(pc, RoleTypes.Shapeshifter, pc.OwnerId);
+                            aapc.DoIf(x => x.IsImpostor(), x => sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
+                            sender.SendMessage();
+                        }
+                    }
+                }, 8f, "Set Shapeshifter Role For Meeting Use");
+            }
         }
 
         foreach (PlayerVoteArea pva in __instance.playerStates)
@@ -1040,8 +1059,8 @@ internal static class MeetingHudStartPatch
                 case CustomRoles.Psychic when Psychic.IsRedForPsy(target, seer) && !seer.Data.IsDead:
                     pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), pva.NameText.text);
                     break;
-                case CustomRoles.Gamer:
-                    sb.Append(Gamer.TargetMark(seer, target));
+                case CustomRoles.Demon:
+                    sb.Append(Demon.TargetMark(seer, target));
                     sb.Append(Snitch.GetWarningMark(seer, target));
                     break;
                 case CustomRoles.Scout:
@@ -1058,6 +1077,7 @@ internal static class MeetingHudStartPatch
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));
             sb.Append(Wasp.GetStungMark(target.PlayerId));
             sb.Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? Utils.ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
+            sb.Append(Commited.GetMark(seer, target));
 
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
@@ -1099,6 +1119,7 @@ internal static class MeetingHudStartPatch
         NiceSwapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
         Mafia.StartMeetingPatch.Postfix(__instance);
+        Imitator.StartMeetingPatch.Postfix(__instance);
         ShowHostMeetingPatch.Setup_Postfix(__instance);
 #if !ANDROID
         Crowded.MeetingHudStartPatch.Postfix(__instance);
@@ -1227,12 +1248,29 @@ internal static class MeetingHudOnDestroyPatch
         MeetingStates.FirstMeeting = false;
         Logger.Info("------------End of meeting------------", "Phase");
 
+        ReportDeadBodyPatch.MeetingStarted = false;
+
         if (AmongUsClient.Instance.AmHost)
         {
+            bool meetingSS = Options.UseMeetingShapeshift.GetBool();
+
+            if (meetingSS && Options.UseMeetingShapeshiftForGuessing.GetBool())
+            {
+                GuessManager.Data.Values.Do(x => x.Reset());
+                GuessManager.Data.Clear();
+            }
+
             AntiBlackout.SetOptimalRoleTypesToPreventBlackScreen();
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
 
             Main.LastVotedPlayerInfo = null;
+
+            if (meetingSS && !AntiBlackout.SkipTasks)
+            {
+                PlayerControl[] aapc = Main.AllAlivePlayerControls;
+                aapc.DoIf(x => x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(x.GetRoleTypes(), x.OwnerId));
+                aapc.DoIf(x => x.IsImpostor(), x => x.RpcSetRoleGlobal(x.GetRoleTypes()));
+            }
         }
     }
 }
@@ -1285,7 +1323,7 @@ internal static class MeetingHudCastVotePatch
 
         var voteCanceled = false;
 
-        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pcSrc.GetCustomRole().CancelsVote() && Main.PlayerStates[srcPlayerId].Role.OnVote(pcSrc, pcTarget))
+        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !skip && pcSrc.GetCustomRole().CancelsVote() && !pcSrc.UsesMeetingShapeshift() && Main.PlayerStates[srcPlayerId].Role.OnVote(pcSrc, pcTarget))
         {
             ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pvaSrc, pcSrc));
             voteCanceled = true;

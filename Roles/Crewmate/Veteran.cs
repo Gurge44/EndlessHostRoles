@@ -25,7 +25,7 @@ internal class Veteran : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Seconds);
 
-        VeteranSkillMaxOfUseage = new IntegerOptionItem(id + 4, "VeteranSkillMaxOfUseage", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
+        VeteranSkillMaxOfUseage = new IntegerOptionItem(id + 4, "VeteranSkillMaxOfUseage", new(0, 30, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Times);
 
@@ -54,7 +54,7 @@ internal class Veteran : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = VeteranSkillCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override string GetProgressText(byte playerId, bool comms)
@@ -144,5 +144,11 @@ internal class Veteran : RoleBase
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
     }
 }

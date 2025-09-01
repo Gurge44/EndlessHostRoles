@@ -244,7 +244,7 @@ internal static class HudManagerPatch
                             break;
                         case CustomRoles.KB_Normal:
                         case CustomRoles.BedWarsPlayer:
-                            __instance.KillButton?.OverrideText(GetString("GamerButtonText"));
+                            __instance.KillButton?.OverrideText(GetString("DemonButtonText"));
                             break;
                         case CustomRoles.Deputy:
                             usedButton?.OverrideText(GetString("DeputyHandcuffText"));
@@ -257,7 +257,7 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Assassin && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())))
+                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())))
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)
@@ -511,7 +511,8 @@ internal static class SetHudActivePatch
 
     public static void Prefix( /*HudManager __instance,*/ [HarmonyArgument(2)] ref bool isActive)
     {
-        isActive &= !GameStates.IsMeeting;
+        if (!Options.UseMeetingShapeshift.GetBool() || !PlayerControl.LocalPlayer.UsesMeetingShapeshift())
+            isActive &= !GameStates.IsMeeting;
     }
 
     public static void Postfix(HudManager __instance, [HarmonyArgument(2)] bool isActive)
@@ -590,7 +591,7 @@ internal static class SetHudActivePatch
             case CustomRoles.Pelican:
             case CustomRoles.FFF:
             case CustomRoles.Medic:
-            case CustomRoles.Gamer:
+            case CustomRoles.Demon:
             case CustomRoles.DarkHide:
             case CustomRoles.Farseer:
             case CustomRoles.Crusader:
@@ -616,6 +617,12 @@ internal static class SetHudActivePatch
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
         __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
+
+        if (Options.UseMeetingShapeshift.GetBool() && PlayerControl.LocalPlayer.UsesMeetingShapeshift() && GameStates.IsMeeting)
+        {
+            __instance.AbilityButton?.Show();
+            __instance.AbilityButton?.SetEnabled();
+        }
     }
 }
 

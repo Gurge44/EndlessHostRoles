@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Crewmate;
 using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
@@ -12,6 +13,8 @@ namespace EHR.Modules;
 public static class FixedUpdateCaller
 {
     private static int NonLowLoadPlayerIndex;
+
+    private static long LastFileLoadTS;
 
     // ReSharper disable once UnusedMember.Global
     public static void Postfix()
@@ -37,6 +40,14 @@ public static class FixedUpdateCaller
             {
                 LobbyFixedUpdatePatch.Postfix();
                 LobbyBehaviourUpdatePatch.Postfix(lobbyBehaviour);
+
+                long now = Utils.TimeStamp;
+
+                if (now - LastFileLoadTS > 10)
+                {
+                    LastFileLoadTS = now;
+                    Options.LoadUserData();
+                }
             }
 
             HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
@@ -92,6 +103,12 @@ public static class FixedUpdateCaller
                     else
                         killButton.SetDisabled();
                 }
+            }
+            catch { }
+
+            try
+            {
+                if (CopyCat.Instances.Count > 0) CopyCat.Instances.RemoveAll(x => x.CopyCatPC == null);
             }
             catch { }
 

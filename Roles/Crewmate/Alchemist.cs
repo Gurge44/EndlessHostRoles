@@ -159,17 +159,17 @@ public class Alchemist : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        DrinkPotion(pc, 0, true);
+        DrinkPotion(pc, true);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (OnCoEnterVent(pc.MyPhysics, vent.Id)) return;
         if (UsePets.GetBool()) return;
-        DrinkPotion(pc, vent.Id);
+        DrinkPotion(pc);
     }
 
-    public static void DrinkPotion(PlayerControl player, int ventId, bool isPet = false)
+    public static void DrinkPotion(PlayerControl player, bool isPet = false)
     {
         if (Main.PlayerStates[player.PlayerId].Role is not Alchemist am) return;
 
@@ -184,11 +184,11 @@ public class Alchemist : RoleBase
                 {
                     am.IsProtected = false;
                     player.Notify(GetString("AlchemistShieldOut"));
-                }, ShieldDuration.GetInt(), "Alchemist Shield");
+                }, ShieldDuration.GetInt() + 1, "Alchemist Shield");
 
                 break;
             case 2: // Suicide
-                LateTask.New(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 2f : 0.1f, "Alchemist Suicide");
+                LateTask.New(() => player.Suicide(PlayerState.DeathReason.Poison), !isPet ? 2f : 0.1f, "Alchemist Suicide");
                 break;
             case 3: // TP to random player
                 LateTask.New(() =>
@@ -196,7 +196,6 @@ public class Alchemist : RoleBase
                     player.TP(Main.AllAlivePlayerControls.Without(player).Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList().RandomElement());
                     player.RPCPlayCustomSound("Teleport");
                 }, !isPet ? 2f : 0.1f, "AlchemistTPToRandomPlayer");
-
                 break;
             case 4: // Increased speed
                 player.Notify(GetString("AlchemistHasSpeed"));
@@ -206,10 +205,10 @@ public class Alchemist : RoleBase
 
                 LateTask.New(() =>
                 {
-                    Main.AllPlayerSpeed[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId] - Speed.GetFloat() + tmpSpeed;
+                    Main.AllPlayerSpeed[player.PlayerId] = tmpSpeed;
                     player.MarkDirtySettings();
                     player.Notify(GetString("AlchemistSpeedOut"));
-                }, SpeedDuration.GetInt(), "Alchemist Speed");
+                }, SpeedDuration.GetInt() + 1, "Alchemist Speed");
 
                 break;
             case 5: // Quick fix next sabo
@@ -228,7 +227,7 @@ public class Alchemist : RoleBase
                     am.VisionPotionActive = false;
                     player.MarkDirtySettings();
                     player.Notify(GetString("AlchemistVisionOut"));
-                }, VisionDuration.GetFloat(), "Alchemist Vision");
+                }, VisionDuration.GetFloat() + 1f, "Alchemist Vision");
 
                 break;
             case 10 when !player.Is(CustomRoles.Nimble):
@@ -262,7 +261,7 @@ public class Alchemist : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     bool OnCoEnterVent(PlayerPhysics instance, int ventId)

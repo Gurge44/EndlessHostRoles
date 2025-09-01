@@ -420,6 +420,7 @@ public static class InGameRoleInfoMenu
 
         addons.Append("</size>");
         if (role.UsesPetInsteadOfKill()) sb.Append($"\n\n<size=85%>{GetString("UsesPetInsteadOfKillNotice")}</size>");
+        if (player.UsesMeetingShapeshift()) sb.Append($"\n\n<size=85%>{GetString("UsesMeetingShapeshiftNotice")}</size>");
 
         sb.Insert(0, $"{titleSb}\n");
 

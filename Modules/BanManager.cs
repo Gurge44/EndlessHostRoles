@@ -152,7 +152,7 @@ public static class BanManager
             Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
         }
 
-        if (GameStates.CurrentServerType is GameStates.ServerType.Modded or GameStates.ServerType.Local) return;
+        if (GameStates.CurrentServerType is GameStates.ServerType.Modded or GameStates.ServerType.Niko or GameStates.ServerType.Local) return;
 
         string friendcode = player.FriendCode.Replace(':', '#');
 

@@ -7,6 +7,7 @@ public class Poisoner : RoleBase
     public static OptionItem CanVent;
     public static OptionItem KillCooldown;
     public static OptionItem CanKillNormally;
+    public static OptionItem ImpostorVision;
 
     public override bool IsEnable => false;
 
@@ -26,6 +27,9 @@ public class Poisoner : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Poisoner]);
 
         CanKillNormally = new BooleanOptionItem(Id + 13, "CanKillNormally", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Poisoner]);
+
+        ImpostorVision = new BooleanOptionItem(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Poisoner]);
     }
 

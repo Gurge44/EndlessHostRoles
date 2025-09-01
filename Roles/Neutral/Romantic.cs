@@ -4,8 +4,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
-using static EHR.Options;
-using static EHR.Translator;
 
 namespace EHR.Neutral;
 
@@ -50,54 +48,54 @@ public class Romantic : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Romantic);
+        Options.SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Romantic);
 
         BetCooldown = new FloatOptionItem(Id + 10, "RomanticBetCooldown", new(0f, 60f, 1f), 7f, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
         ProtectCooldown = new FloatOptionItem(Id + 11, "RomanticProtectCooldown", new(0f, 60f, 0.5f), 25f, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
         ProtectDuration = new FloatOptionItem(Id + 12, "RomanticProtectDuration", new(0f, 60f, 0.5f), 10f, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
         KnowTargetRole = new BooleanOptionItem(Id + 13, "RomanticKnowTargetRole", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
 
         BetTargetKnowRomantic = new BooleanOptionItem(Id + 14, "RomanticBetTargetKnowRomantic", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
 
         RomanticGetsPartnerConvertedAddons = new BooleanOptionItem(Id + 15, "RomanticGetsPartnerConvertedAddons", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
 
         Arrows = new BooleanOptionItem(Id + 16, "RomanticArrows", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
 
         PartnerHasArrows = new BooleanOptionItem(Id + 17, "RomanticPartnerHasArrows", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
 
         VengefulKCD = new FloatOptionItem(Id + 18, "VengefulKCD", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
         VengefulCanVent = new BooleanOptionItem(Id + 19, "VengefulCanVent", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
 
         VengefulHasImpVision = new BooleanOptionItem(Id + 20, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
 
         RuthlessKCD = new FloatOptionItem(Id + 21, "RuthlessKCD", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
 
         RuthlessCanVent = new BooleanOptionItem(Id + 22, "RuthlessCanVent", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
 
         RuthlessHasImpVision = new BooleanOptionItem(Id + 23, "RuthlessHasImpVision", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Romantic]);
     }
 
     public override void Init()
@@ -169,8 +167,8 @@ public class Romantic : RoleBase
             RomanticPC.SetKillCooldown();
             RomanticPC.RPCPlayCustomSound("Bet");
 
-            RomanticPC.Notify(GetString("RomanticBetPlayer"));
-            if (BetTargetKnowRomantic.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
+            RomanticPC.Notify(Translator.GetString("RomanticBetPlayer"));
+            if (BetTargetKnowRomantic.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), Translator.GetString("RomanticBetOnYou")));
 
             if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted()) Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !RomanticPC.Is(x), x => RomanticPC.RpcSetCustomRole(x));
 
@@ -190,8 +188,8 @@ public class Romantic : RoleBase
             RomanticPC.SetKillCooldown();
             RomanticPC.RPCPlayCustomSound("Shield");
 
-            RomanticPC.Notify(GetString("RomanticProtectPartner"));
-            Partner.Notify(GetString("RomanticIsProtectingYou"));
+            RomanticPC.Notify(Translator.GetString("RomanticProtectPartner"));
+            Partner.Notify(Translator.GetString("RomanticIsProtectingYou"));
 
             LateTask.New(() =>
             {
@@ -201,8 +199,8 @@ public class Romantic : RoleBase
 
                 if (!GameStates.IsInTask) return;
 
-                RomanticPC.Notify(GetString("ProtectingOver"));
-                Partner.Notify(GetString("ProtectingOver"));
+                RomanticPC.Notify(Translator.GetString("ProtectingOver"));
+                Partner.Notify(Translator.GetString("ProtectingOver"));
 
                 RomanticPC.SetKillCooldown();
             }, ProtectDuration.GetFloat(), "RomanticProtecting");
@@ -241,7 +239,7 @@ public class Romantic : RoleBase
         if (seer.PlayerId != RomanticId || !seer.Is(CustomRoles.Romantic)) return string.Empty;
 
         Color color = !HasPickedPartner ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic);
-        string text = !HasPickedPartner ? GetString("Romantic.PickPartnerText") : "♥";
+        string text = !HasPickedPartner ? Translator.GetString("Romantic.PickPartnerText") : "♥";
         if (Arrows.GetBool()) text += TargetArrow.GetArrows(seer, PartnerId);
 
         return Utils.ColorString(color, text);
@@ -264,7 +262,15 @@ public class Romantic : RoleBase
 
     private static void ChangeRole()
     {
-        if (Partner == null || RomanticPC == null || !RomanticPC.Is(CustomRoles.Romantic)) return;
+        if (RomanticPC == null || !RomanticPC.Is(CustomRoles.Romantic)) return;
+
+        if (Partner == null)
+        {
+            Logger.Info("Romantic Partner is null => Changing to Ruthless Romantic", "Romantic");
+            RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
+            RomanticPC.SetKillCooldown();
+            return;
+        }
 
         CustomRoles partnerRole = Partner.GetCustomRole();
         PlayerControl killer = Partner.GetRealKiller();
@@ -326,7 +332,7 @@ public class Romantic : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.KillButton?.OverrideText(!HasPickedPartner ? GetString("RomanticKillButtonText") : GetString("MedicalerButtonText"));
+        hud.KillButton?.OverrideText(!HasPickedPartner ? Translator.GetString("RomanticKillButtonText") : Translator.GetString("MedicalerButtonText"));
     }
 }
 
@@ -406,7 +412,7 @@ public class VengefulRomantic : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.KillButton?.OverrideText(GetString("VengefulRomanticKillButtonText"));
+        hud.KillButton?.OverrideText(Translator.GetString("VengefulRomanticKillButtonText"));
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

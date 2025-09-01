@@ -173,4 +173,10 @@ internal class Tornado : RoleBase
 
         return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.RoomName)} {GetFormattedVectorText(x.Key.Location)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
+    }
 }

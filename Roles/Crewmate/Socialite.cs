@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 
 namespace EHR.Crewmate;
@@ -100,6 +101,7 @@ public class Socialite : RoleBase
 
     public override bool OnVote(PlayerControl pc, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
         if (GuestList.Add(target.PlayerId))
@@ -110,6 +112,11 @@ public class Socialite : RoleBase
         }
 
         return false;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
     }
 
     public void ReceiveRPC(MessageReader reader)

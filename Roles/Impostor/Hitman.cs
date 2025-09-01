@@ -132,6 +132,6 @@ public class Hitman : RoleBase
         if (seer.PlayerId != target.PlayerId) return string.Empty;
 
         byte id = (Main.PlayerStates[seer.PlayerId].Role as Hitman)?.TargetId ?? byte.MaxValue;
-        return id == byte.MaxValue ? string.Empty : $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(id).GetRealName().RemoveHtmlTags()}</color>";
+        return id == byte.MaxValue ? string.Empty : $"<color=#00ffa5>{Translator.GetString("Target")}:</color> <color=#ffffff>{GetPlayerById(id).GetRealName().RemoveHtmlTags()}</color>";
     }
 }

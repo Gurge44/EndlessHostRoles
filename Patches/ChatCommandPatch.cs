@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.GameOptions;
 using Assets.CoreScripts;
@@ -14,6 +15,7 @@ using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
+using UnityEngine.Networking;
 using static EHR.Translator;
 
 // ReSharper disable InconsistentNaming
@@ -214,7 +216,10 @@ internal static class ChatCommands
             new(["addadmin", "добавитьадмин", "добадмин", "指定管理员", "admin-add"], "{id}", GetString("CommandDescription.AddAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
             new(["deleteadmin", "удалитьадмин", "убратьадмин", "удалитьадминку", "убратьадминку", "删除管理员", "admin-remover"], "{id}", GetString("CommandDescription.DeleteAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
             new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
-            new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, false, [GetString("CommandArgs.Imitate.Id")]),
+            new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
+            new(["retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
+
+            new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -241,6 +246,9 @@ internal static class ChatCommands
         friendCode = friendCode.Replace(':', '#');
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
+
+        if (Main.UserData.TryGetValue(friendCode, out Options.UserData userData) && userData.Moderator)
+            return true;
 
         long now = Utils.TimeStamp;
         string[] friendCodes;
@@ -271,6 +279,9 @@ internal static class ChatCommands
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool()) return false;
 
+        if (Main.UserData.TryGetValue(friendCode, out Options.UserData userData) && userData.Vip)
+            return true;
+
         long now = Utils.TimeStamp;
         string[] friendCodes;
 
@@ -299,6 +310,9 @@ internal static class ChatCommands
         friendCode = friendCode.Replace(':', '#');
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyAdminList.GetBool()) return false;
+
+        if (Main.UserData.TryGetValue(friendCode, out Options.UserData userData) && userData.Admin)
+            return true;
 
         long now = Utils.TimeStamp;
         string[] friendCodes;
@@ -438,7 +452,7 @@ internal static class ChatCommands
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
         }
 
-        if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Gamer))
+        if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Demon))
             Achievements.Type.WhatTheHell.Complete();
 
         return !canceled;
@@ -467,7 +481,128 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
-    private static void ImitateCommand(PlayerControl player, string text, string[] args)
+    private static void ConfirmAuthCommand(PlayerControl player, string text, string[] args)
+    {
+        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("ConfirmAuth.ErrorNotVanilla"));
+            return;
+        }
+
+        if (!Options.PostLobbyCodeToEHRWebsite.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ConfirmAuth.ErrorLobbyUnlisted"), GetString("PostLobbyCodeToEHRDiscordServer")));
+            return;
+        }
+
+        if (args.Length >= 2)
+        {
+            string uuid = args[1].Trim();
+            if (string.IsNullOrEmpty(uuid)) return;
+
+            Main.Instance.StartCoroutine(SendVerificationCoroutine(uuid));
+        }
+
+        return;
+
+        IEnumerator SendVerificationCoroutine(string uuid)
+        {
+            string friendCode = player.FriendCode;
+            string puid = player.GetClient().ProductUserId;
+            var gameId = AmongUsClient.Instance.GameId.ToString();
+
+            if (string.IsNullOrEmpty(friendCode) || string.IsNullOrEmpty(puid))
+            {
+                Logger.Error($" Missing friendcode/puid for player {player.PlayerId}", "ConfirmAuth");
+                yield break;
+            }
+
+            if (string.IsNullOrEmpty(gameId) || gameId == "32")
+            {
+                Logger.Error(" Invalid GameId", "ConfirmAuth");
+                yield break;
+            }
+
+            var json = $"{{\"uuid\":\"{uuid}\",\"friend_code\":\"{friendCode}\",\"puid\":\"{puid}\",\"game_id\":\"{gameId}\"}}";
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+            var uwr = new UnityWebRequest("https://gurge44.pythonanywhere.com/api/verify_ingame", "POST")
+            {
+                uploadHandler = new UploadHandlerRaw(bodyRaw),
+                downloadHandler = new DownloadHandlerBuffer()
+            };
+            uwr.SetRequestHeader("Content-Type", "application/json");
+            uwr.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
+            uwr.timeout = 10; // seconds
+
+            yield return uwr.SendWebRequest();
+
+            if (uwr.result != UnityWebRequest.Result.Success)
+            {
+                Logger.Error($" HTTP error sending verification: {uwr.error} (code {(int)uwr.responseCode})", "ConfirmAuth");
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ConfirmAuth.Error"), uwr.error));
+            }
+            else
+            {
+                Logger.Msg($" Sent ok. Resp code {(int)uwr.responseCode}. Body: {uwr.downloadHandler?.text}", "ConfirmAuth");
+                Utils.SendMessage("\n", player.PlayerId, GetString("ConfirmAuth.Success"));
+            }
+        }
+    }
+
+    public static void RetributeCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(RetributeCommand), text);
+            return;
+        }
+
+        if (!player.IsAlive() || !Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.Role is not Retributionist { Notified: true } rb || rb.Camping == byte.MaxValue) return;
+
+        PlayerControl campTarget = Utils.GetPlayerById(rb.Camping);
+        if (campTarget == null || campTarget.IsAlive() || !Main.PlayerStates.TryGetValue(campTarget.PlayerId, out PlayerState campState)) return;
+
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
+
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+
+        byte realKiller = campState.GetRealKiller();
+
+        if (realKiller != targetId)
+        {
+            rb.Notified = false;
+            Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Fail"));
+        }
+        else
+        {
+            PlayerControl killer = Utils.GetPlayerById(realKiller);
+
+            if (killer == null || !killer.IsAlive())
+            {
+                rb.Notified = false;
+                Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.KillerDead"));
+            }
+            else
+            {
+                killer.SetRealKiller(player);
+                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
+                killerState.deathReason = PlayerState.DeathReason.Retribution;
+                killerState.SetDead();
+                Medic.IsDead(killer);
+                killer.RpcExileV2();
+                Utils.AfterPlayerDeathTasks(killer, true);
+                Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())));
+                Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
+            }
+        }
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+
+    public static void ImitateCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
@@ -477,8 +612,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsAlive() || !Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.Role is not Imitator imitator) return;
-        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
+        if (!Imitator.PlayerIdList.Contains(player.PlayerId) || !player.IsAlive() || args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
 
         if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
@@ -494,7 +628,8 @@ internal static class ChatCommands
             return;
         }
 
-        imitator.ImitatingRole = targetState.MainRole;
+        Imitator.ImitatingRole[player.PlayerId] = targetState.MainRole;
+        Logger.Info($"{player.GetRealName()} will be imitating as {targetState.MainRole}", "Imitator");
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Imitator.Success"), targetId.ColoredPlayerName()));
 
         MeetingManager.SendCommandUsedMessage(args[0]);
@@ -520,7 +655,7 @@ internal static class ChatCommands
             int playerCount = PlayerControl.AllPlayerControls.Count;
             var percentage = (int)Math.Round(voteCount / (float)playerCount * 100f);
             var required = (int)Math.Ceiling(playerCount / 2f);
-            Utils.SendMessage(string.Format(GetString("VotedToStart"), player.PlayerId.ColoredPlayerName(), voteCount, playerCount, required, percentage), title: GetString("VotedToStart.Title"));
+            Utils.SendMessage(string.Format(GetString("VotedToStart"), player.PlayerId.ColoredPlayerName(), voteCount, playerCount, percentage, required), title: GetString("VotedToStart.Title"));
         }
     }
     
@@ -683,7 +818,7 @@ internal static class ChatCommands
             Logger.SendInGame(GetString("FixBlackScreenWaitForDead"), Color.yellow);
     }
 
-    private static void DayBreakCommand(PlayerControl player, string text, string[] args)
+    public static void DayBreakCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
@@ -1229,7 +1364,6 @@ internal static class ChatCommands
         if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
         string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
         sb.Clear().Append(txt);
-        if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
         if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
         Utils.SendMessage(sb.ToString(), player.PlayerId, title);
         return;
@@ -1250,7 +1384,14 @@ internal static class ChatCommands
             return;
         }
 
-        if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex) || roles.Count < chosenIndex) return;
+        if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex)) return;
+
+        if (roles.Count < chosenIndex || chosenIndex < 1)
+        {
+            DraftResult.Remove(player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("DraftChosen"), GetString("pet_RANDOM_FOR_EVERYONE")), player.PlayerId, GetString("DraftTitle"));
+            return;
+        }
 
         CustomRoles role = roles[chosenIndex - 1];
         DraftResult[player.PlayerId] = role;
@@ -1321,7 +1462,6 @@ internal static class ChatCommands
         {
             option.SetValue(chance == 0 ? 0 : 1);
             if (!Options.CustomAdtRoleSpawnRate.TryGetValue(role, out IntegerOptionItem adtOption)) return;
-
             adtOption.SetValue(chance / 5);
         }
         else
@@ -1994,7 +2134,7 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void TargetCommand(PlayerControl player, string text, string[] args)
+    public static void TargetCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
@@ -2252,6 +2392,7 @@ internal static class ChatCommands
 
             Utils.SendMessage(sb.Append("</size>").ToString(), player.PlayerId, titleSb.ToString());
             if (role.UsesPetInsteadOfKill()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesPetInsteadOfKillNotice"));
+            if (player.UsesMeetingShapeshift()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesMeetingShapeshiftNotice"));
         }
         else
             Utils.SendMessage((player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -2756,21 +2897,25 @@ internal static class ChatCommands
 
                 switch (subArgs)
                 {
+                    case "skeld":
                     case "theskeld":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 0);
                         break;
+                    case "mira":
                     case "mirahq":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 1);
                         break;
                     case "polus":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 2);
                         break;
+                    case "dleks":
                     case "dlekseht":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 3);
                         break;
                     case "airship":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 4);
                         break;
+                    case "fungle":
                     case "thefungle":
                         GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 5);
                         break;
@@ -3139,7 +3284,7 @@ internal static class ChatCommands
 
         return text switch
         {
-            // There is no need to use these now
+            // There is no need to use these now //I guess forever
             
             /*"管理員" or "管理" or "gm" => GetString("GM"),
             "賞金獵人" or "赏金" or "bh" or "bounty" => GetString("BountyHunter"),
@@ -3160,7 +3305,7 @@ internal static class ChatCommands
             "吸血鬼" or "吸血" or "vamp" => GetString("Vampire"),
             "術士" => GetString("Warlock"),
             "駭客" or "黑客" => GetString("Hacker"),
-            "刺客" or "忍者" => GetString("Assassin"),
+            "刺客" or "忍者" => GetString("Ninja"),
             "礦工" => GetString("Miner"),
             "逃逸者" or "逃逸" => GetString("Escapee"),
             "女巫" => GetString("Witch"),
@@ -3360,6 +3505,8 @@ internal static class ChatCommands
                 if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
 
                 if (settings.Length > 0) Utils.SendMessage("\n", playerId, settings.ToString());
+                if (rl.UsesPetInsteadOfKill()) Utils.SendMessage("\n", playerId, GetString("UsesPetInsteadOfKillNotice"));
+                if (rl.UsesMeetingShapeshift()) Utils.SendMessage("\n", playerId, GetString("UsesMeetingShapeshiftNotice"));
 
                 Utils.SendMessage(sb.ToString(), playerId, title);
                 return;

@@ -88,7 +88,7 @@ public static class CaptureTheFlag
         MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Laboratory))),
         MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(nameof(SystemTypes.CargoBay))),
         MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(nameof(SystemTypes.Comms))),
-        (MapNames)6 => (new(14.07f, 23.93f), Translator.GetString(nameof(SystemTypes.Comms))),
+        (MapNames)6 => (new(12.98f, -25.68f), Translator.GetString(nameof(SystemTypes.Comms))),
         _ => (Vector2.zero, string.Empty)
     };
 
@@ -233,11 +233,12 @@ public static class CaptureTheFlag
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
         if (!ValidTag) return false;
 
-        switch (aapc.Length + ExtendedPlayerControl.TempExiled.Count)
+        PlayerControl[] aapc = Main.AllAlivePlayerControls.Concat(ExtendedPlayerControl.TempExiled.ToValidPlayers()).ToArray();
+
+        switch (aapc.Length)
         {
             case 0:
                 ResetSkins();
@@ -750,10 +751,10 @@ public static class CaptureTheFlag
                 if (Utils.TimeStamp >= endTS)
                 {
                     TemporarilyOutPlayers.Remove(__instance.PlayerId);
-                    __instance.RpcRevive();
+                    __instance.ReviveFromTemporaryExile();
                     __instance.TP(team.GetFlagBase().Position);
-                    __instance.SetKillCooldown();
                     RPC.PlaySoundRPC(__instance.PlayerId, Sounds.TaskComplete);
+                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
                 }
                 else if (GameEndCriteria.GetValue() != 2)
                     Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);

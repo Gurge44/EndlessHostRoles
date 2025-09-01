@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -267,6 +268,12 @@ public class Judge : RoleBase
         return false;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return;
+        TrialMsg(shapeshifter, $"/tl {target.PlayerId}");
+    }
+
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.Judge, SendOption.Reliable, AmongUsClient.Instance.HostId);
@@ -319,5 +326,11 @@ public class Judge : RoleBase
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Judge) && PlayerControl.LocalPlayer.IsAlive())
                 CreateJudgeButton(__instance);
         }
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
     }
 }

@@ -14,6 +14,7 @@ internal class Tiger : RoleBase
     public static OptionItem EnrageDuration;
     public static OptionItem KillCooldown;
     public static OptionItem CanVent;
+    public static OptionItem ImpostorVision;
 
     public static bool On;
 
@@ -44,6 +45,9 @@ internal class Tiger : RoleBase
             .SetValueFormat(OptionFormat.Seconds);
 
         CanVent = new BooleanOptionItem(Id + 6, "CanVent", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger]);
+
+        ImpostorVision = new BooleanOptionItem(Id + 7, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger]);
     }
 
@@ -76,7 +80,10 @@ internal class Tiger : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+        opt.SetVision(ImpostorVision.GetBool());
+
+        if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.PhantomCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
     }
 
     public override bool OnSabotage(PlayerControl pc)

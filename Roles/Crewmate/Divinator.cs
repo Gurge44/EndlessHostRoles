@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
@@ -100,6 +101,7 @@ public class Divinator : RoleBase
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;
 
         if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
@@ -134,6 +136,11 @@ public class Divinator : RoleBase
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
     }
 
     public static void OnRoleChange(byte id, CustomRoles previousRole, CustomRoles newRole)

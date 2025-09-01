@@ -124,7 +124,8 @@ internal static class SetResolutionManager
 {
     public static void Postfix()
     {
-        if (MainMenuManagerPatch.UpdateButton != null) MainMenuManagerPatch.UpdateButton.transform.localPosition = MainMenuManagerPatch.Template.transform.localPosition + new Vector3(0.25f, 0.75f);
+        if (MainMenuManagerPatch.UpdateButton != null)
+            MainMenuManagerPatch.UpdateButton.transform.localPosition = MainMenuManagerPatch.Template.transform.localPosition + new Vector3(0.25f, 0.75f);
     }
 }
 
@@ -145,7 +146,6 @@ internal static class InnerNetObjectSerializePatch
 }
 
 // https://github.com/Rabek009/MoreGamemodes/blob/master/Patches/ClientPatch.cs
-
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CheckOnlinePermissions))]
 static class CheckOnlinePermissionsPatch
 {

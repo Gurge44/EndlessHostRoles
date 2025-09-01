@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -17,7 +17,9 @@ public class Cleanser : RoleBase
     public static OptionItem CleanserUsesOpt;
     public static OptionItem CleansedCanGetAddon;
     public static OptionItem CancelVote;
-
+    public static OptionItem CleanserAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
+    
     private byte CleanserId;
     public byte CleanserTarget = byte.MaxValue;
     public int CleanserUses;
@@ -36,13 +38,20 @@ public class Cleanser : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
 
         CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Cleanser, TabGroup.CrewmateRoles);
+        
+        CleanserAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
+            .SetValueFormat(OptionFormat.Times);
+        
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
+            .SetValueFormat(OptionFormat.Times);
     }
 
     public override void Init()
     {
         PlayerIdList = [];
         CleanserTarget = byte.MaxValue;
-        CleanserUses = 0;
         CleansedPlayers = [];
         DidVote = [];
         CleanserId = byte.MaxValue;
@@ -52,7 +61,7 @@ public class Cleanser : RoleBase
     {
         PlayerIdList.Add(playerId);
         CleanserTarget = byte.MaxValue;
-        CleanserUses = 0;
+        playerId.SetAbilityUseLimit(CleanserUsesOpt.GetFloat());
         DidVote[playerId] = false;
         CleanserId = playerId;
     }
@@ -64,11 +73,6 @@ public class Cleanser : RoleBase
     }
 
     //public static string GetProgressText(byte playerId) => Utils.ColorString(CleanserUsesOpt.GetInt() - CleanserUses[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.Cleanser).ShadeColor(0.25f) : Color.gray, CleanserUses.TryGetValue(playerId, out var x) ? $"({CleanserUsesOpt.GetInt() - x})" : "Invalid");
-    public override string GetProgressText(byte playerId, bool comms)
-    {
-        Color x = CleanserUsesOpt.GetInt() - CleanserUses > 0 ? Utils.GetRoleColor(CustomRoles.Cleanser) : Color.gray;
-        return Utils.ColorString(x, $"({CleanserUsesOpt.GetInt() - CleanserUses})");
-    }
 
     public void SendRPC(byte playerId)
     {
@@ -91,10 +95,11 @@ public class Cleanser : RoleBase
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (DidVote[voter.PlayerId] || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
         DidVote[voter.PlayerId] = true;
-        if (CleanserUses >= CleanserUsesOpt.GetInt()) return false;
+        if (voter.GetAbilityUseLimit() < 1) return false;
 
         if (target.PlayerId == voter.PlayerId)
         {
@@ -104,7 +109,7 @@ public class Cleanser : RoleBase
 
         if (CleanserTarget != byte.MaxValue) return false;
 
-        CleanserUses++;
+        voter.RpcRemoveAbilityUse();
         CleanserTarget = target.PlayerId;
         Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} cleansed {target.GetNameWithRole().RemoveHtmlTags()}", "Cleansed");
         CleansedPlayers.Add(target.PlayerId);
@@ -113,6 +118,11 @@ public class Cleanser : RoleBase
 
         Main.DontCancelVoteList.Add(voter.PlayerId);
         return true;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
     }
 
     public override void AfterMeetingTasks()

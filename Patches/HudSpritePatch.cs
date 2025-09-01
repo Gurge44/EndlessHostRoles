@@ -26,6 +26,8 @@ public static class HudSpritePatch
     private static Sprite Pet;
     private static Sprite Report;
 
+    public static Sprite[] DefaultIcons = [];
+
     private static long LastErrorTime;
 
     public static bool ResetButtonIcons;
@@ -40,7 +42,7 @@ public static class HudSpritePatch
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
             if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive() || Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.CaptureTheFlag) return;
 
-            if (ResetButtonIcons || !AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
+            if (ResetButtonIcons || !AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed || GameStates.IsLobby || GameStates.IsNotJoined || !GameStates.InGame)
             {
                 Kill = null;
                 Ability = null;
@@ -55,12 +57,14 @@ public static class HudSpritePatch
 
             bool shapeshifting = player.IsShifted();
 
-            if (!Kill) Kill = __instance.KillButton.graphic.sprite;
-            if (!Ability) Ability = __instance.AbilityButton.graphic.sprite;
-            if (!Vent) Vent = __instance.ImpostorVentButton.graphic.sprite;
-            if (!Sabotage) Sabotage = __instance.SabotageButton.graphic.sprite;
-            if (!Pet) Pet = __instance.PetButton.graphic.sprite;
-            if (!Report) Report = __instance.ReportButton.graphic.sprite;
+            if (DefaultIcons.Length == 0) return;
+
+            if (!Kill) Kill = DefaultIcons[0];
+            if (!Ability) Ability = DefaultIcons[1];
+            if (!Vent) Vent = DefaultIcons[2];
+            if (!Sabotage) Sabotage = DefaultIcons[3];
+            if (!Pet) Pet = DefaultIcons[4];
+            if (!Report) Report = DefaultIcons[5];
 
             Sprite newKillButton = Kill;
             Sprite newAbilityButton = Ability;
@@ -152,22 +156,22 @@ public static class HudSpritePatch
 
                     break;
                 }
-                case CustomRoles.Assassin:
+                case CustomRoles.Ninja:
                 case CustomRoles.Undertaker:
                 {
-                    if (Main.PlayerStates[player.PlayerId].Role is not Assassin assassin) break;
+                    if (Main.PlayerStates[player.PlayerId].Role is not Ninja ninja) break;
 
                     if (Options.UsePets.GetBool())
                     {
                         newKillButton = CustomButton.Get("Mark");
-                        if (assassin.MarkedPlayer != byte.MaxValue) newPetButton = CustomButton.Get("Assassinate");
+                        if (ninja.MarkedPlayer != byte.MaxValue) newPetButton = CustomButton.Get("Assassinate");
                     }
                     else
                     {
                         if (!shapeshifting)
                         {
                             newKillButton = CustomButton.Get("Mark");
-                            if (assassin.MarkedPlayer != byte.MaxValue) newAbilityButton = CustomButton.Get("Assassinate");
+                            if (ninja.MarkedPlayer != byte.MaxValue) newAbilityButton = CustomButton.Get("Assassinate");
                         }
                     }
 
@@ -187,7 +191,7 @@ public static class HudSpritePatch
                 case CustomRoles.Glitch when Main.PlayerStates[player.PlayerId].Role is Glitch gc:
                 {
                     if (gc.KCDTimer > 0 && gc.HackCDTimer <= 0) newKillButton = CustomButton.Get("GlitchHack");
-                    newSabotageButton = CustomButton.Get("GlitchMimic");
+                    newAbilityButton = CustomButton.Get("GlitchMimic");
                     break;
                 }
                 case CustomRoles.Jester:

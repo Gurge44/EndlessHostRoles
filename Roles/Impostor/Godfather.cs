@@ -1,4 +1,6 @@
-﻿namespace EHR.Impostor;
+﻿using EHR.Neutral;
+
+namespace EHR.Impostor;
 
 internal class Godfather : RoleBase
 {
@@ -24,10 +26,16 @@ internal class Godfather : RoleBase
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (voter == null || target == null || voter.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
         GodfatherTarget = target.PlayerId;
         Main.DontCancelVoteList.Add(voter.PlayerId);
         return true;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
     }
 }

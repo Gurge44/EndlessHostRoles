@@ -83,6 +83,7 @@ public class Lawyer : RoleBase
                 SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
 
+                if (!TargetKnowsLawyer.GetBool()) return;
                 LateTask.New(() => selectedTarget.Notify(string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 18f, log: false);
             }
         }
@@ -92,6 +93,7 @@ public class Lawyer : RoleBase
     public override void Remove(byte playerId)
     {
         PlayerIdList.Remove(playerId);
+        Target.Remove(playerId);
     }
 
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")

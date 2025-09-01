@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Neutral;
 
 namespace EHR.Crewmate;
 
@@ -40,12 +41,18 @@ internal class Markseeker : RoleBase
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null || player.PlayerId == target.PlayerId || MarkedId != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
         MarkedId = target.PlayerId;
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
     }
 
     public static void OnDeath(PlayerControl player)

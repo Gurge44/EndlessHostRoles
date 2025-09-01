@@ -27,7 +27,6 @@ public class Sheriff : RoleBase
     private static OptionItem NonCrewCanKillCrew;
     private static OptionItem NonCrewCanKillImp;
     private static OptionItem NonCrewCanKillNeutral;
-    public static OptionItem KeepsGameGoing;
     public static OptionItem UsePet;
     private static readonly Dictionary<CustomRoles, OptionItem> KillTargetOptions = [];
 
@@ -61,7 +60,6 @@ public class Sheriff : RoleBase
         NonCrewCanKillImp = new BooleanOptionItem(Id + 19, "SheriffMadCanKillImp", true, TabGroup.CrewmateRoles).SetParent(SetNonCrewCanKill);
         NonCrewCanKillCrew = new BooleanOptionItem(Id + 21, "SheriffMadCanKillCrew", true, TabGroup.CrewmateRoles).SetParent(SetNonCrewCanKill);
         NonCrewCanKillNeutral = new BooleanOptionItem(Id + 20, "SheriffMadCanKillNeutral", true, TabGroup.CrewmateRoles).SetParent(SetNonCrewCanKill);
-        KeepsGameGoing = new BooleanOptionItem(Id + 26, "SheriffKeepsGameGoing", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         UsePet = Options.CreatePetUseSetting(Id + 29, CustomRoles.Sheriff);
     }
 
@@ -182,5 +180,11 @@ public class Sheriff : RoleBase
     public override string GetProgressText(byte playerId, bool comms)
     {
         return ShowShotLimit.GetBool() ? base.GetProgressText(playerId, comms) : Utils.GetTaskCount(playerId, comms);
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
     }
 }

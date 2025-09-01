@@ -281,6 +281,7 @@ internal static class ChangeRoleSettings
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
             GameEndChecker.Ended = false;
+            ReportDeadBodyPatch.MeetingStarted = false;
 
             HudSpritePatch.ResetButtonIcons = true;
 
@@ -313,6 +314,8 @@ internal static class ChangeRoleSettings
 
             Camouflage.BlockCamouflage = false;
             Camouflage.Init();
+
+            Main.NumEmergencyMeetingsUsed = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => 0);
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -394,6 +397,7 @@ internal static class ChangeRoleSettings
                 Asthmatic.Init();
                 DoubleShot.Init();
                 Circumvent.Init();
+                Commited.Init();
             }
             catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }
 
@@ -549,6 +553,7 @@ internal static class StartGameHostPatch
 
         if (LobbyBehaviour.Instance)
         {
+            Main.LobbyBehaviourNetId = LobbyBehaviour.Instance.NetId;
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(5);
             writer.Write(AUClient.GameId);
@@ -560,6 +565,11 @@ internal static class StartGameHostPatch
             writer.Recycle();
             AUClient.RemoveNetObject(LobbyBehaviour.Instance);
             Object.Destroy(LobbyBehaviour.Instance.gameObject);
+        }
+        else
+        {
+            Logger.Fatal($"LobbyBehaviour.Instance is null in {nameof(StartGameHostPatch)}.{nameof(StartGameHost)}", "StartGameHost");
+            Main.LobbyBehaviourNetId = uint.MaxValue;
         }
 
         if (!ShipStatus.Instance)
@@ -794,6 +804,31 @@ internal static class StartGameHostPatch
 
         // Send all RPCs
         RpcSetRoleReplacer.Release();
+
+        try
+        {
+            if (RoleResult.ContainsValue(CustomRoles.DoubleAgent))
+            {
+                foreach ((byte targetId, CustomRoles targetRole) in RoleResult)
+                {
+                    if (targetRole != CustomRoles.DoubleAgent) continue;
+
+                    PlayerControl target = Utils.GetPlayerById(targetId);
+                    if (target == null) continue;
+
+                    foreach ((byte seerId, CustomRoles seerRole) in RoleResult)
+                    {
+                        if (seerId == targetId || !seerRole.IsImpostor()) continue;
+
+                        PlayerControl seer = Utils.GetPlayerById(seerId);
+                        if (seer == null) continue;
+
+                        target.RpcSetRoleDesync(RoleTypes.Impostor, seer.OwnerId);
+                    }
+                }
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         try
         {

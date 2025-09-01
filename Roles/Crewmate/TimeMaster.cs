@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -12,6 +13,7 @@ internal class TimeMaster : RoleBase
 {
     public static bool On;
 
+    public static OptionItem TimeMasterCanUseVitals;
     public static OptionItem TimeMasterRewindTimeLength;
     public static OptionItem TimeMasterSkillCooldown;
     public static OptionItem TimeMasterMaxUses;
@@ -23,9 +25,14 @@ internal class TimeMaster : RoleBase
 
     public override bool IsEnable => On;
 
+    private bool DesyncCommsActive;
+
     public override void SetupCustomOption()
     {
         SetupRoleOptions(652100, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
+
+        TimeMasterCanUseVitals = new BooleanOptionItem(652109, "TimeMasterCanUseVitals", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster]);
 
         TimeMasterRewindTimeLength = new IntegerOptionItem(652110, "TimeMasterRewindTimeLength", new(0, 30, 1), 15, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
@@ -52,6 +59,7 @@ internal class TimeMaster : RoleBase
     {
         On = true;
         BackTrack = [];
+        DesyncCommsActive = false;
         playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetFloat());
     }
 
@@ -66,7 +74,7 @@ internal class TimeMaster : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = TimeMasterSkillCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -166,10 +174,73 @@ internal class TimeMaster : RoleBase
         if (BackTrack.ContainsKey(now)) return;
 
         BackTrack[now] = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, x => x.Pos());
+
+        if (TimeMasterCanUseVitals.GetBool()) return;
+
+        var doComms = false;
+        bool commsSaboActive = Utils.IsActive(SystemTypes.Comms);
+        float usableDistance = DisableDevice.UsableDistance + 2f;
+        Vector2 pos = player.Pos();
+
+        if (!commsSaboActive)
+        {
+            switch (Main.NormalOptions.MapId)
+            {
+                case 2:
+                    doComms |= Vector2.Distance(pos, DisableDevice.DevicePos["PolusVital"]) <= usableDistance;
+                    break;
+                case 4:
+                    doComms |= Vector2.Distance(pos, DisableDevice.DevicePos["AirshipVital"]) <= usableDistance;
+                    break;
+                case 5:
+                    doComms |= Vector2.Distance(pos, DisableDevice.DevicePos["FungleVital"]) <= usableDistance;
+                    break;
+            }
+        }
+
+        var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
+        var hasValue = false;
+
+        if (doComms && !player.inVent && !DisableDevice.DesyncComms.Contains(player.PlayerId))
+        {
+            DesyncCommsActive = true;
+            sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 128);
+            hasValue = true;
+        }
+        else if (!commsSaboActive && DesyncCommsActive)
+        {
+            DesyncCommsActive = false;
+            sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 16);
+
+            if (Main.NormalOptions.MapId is 1 or 5) // Mira HQ or The Fungle
+                sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 17);
+
+            hasValue = true;
+        }
+
+        sender.SendMessage(!hasValue);
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = false;
+        countsAs = 1;
+        int length = TimeMasterRewindTimeLength.GetInt();
+
+        foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
+        {
+            if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out PlayerState ps)) continue;
+
+            if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
+            {
+                keepGameGoing = true;
+                return;
+            }
+        }
     }
 }

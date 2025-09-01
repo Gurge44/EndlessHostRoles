@@ -64,7 +64,7 @@ public class Telekinetic : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = 0f;
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
@@ -202,7 +202,6 @@ public class Telekinetic : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != TelekineticPC.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
-
         return string.Format(Translator.GetString("Telekinetic.Suffix"), Translator.GetString($"Telekinetic.Mode.{CurrentMode}"));
     }
 
@@ -225,5 +224,11 @@ public class Telekinetic : RoleBase
         Shield,
         Speed,
         Doors
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
     }
 }

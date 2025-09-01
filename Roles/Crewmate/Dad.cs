@@ -183,7 +183,7 @@ public class Dad : RoleBase
         }
 
         AURoleOptions.EngineerCooldown = 0.1f;
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override void OnReportDeadBody()
@@ -358,12 +358,14 @@ public class Dad : RoleBase
         if (UsingAbilities.Contains(Ability.BecomeGodOfAlcohol))
             Alcohol += NormalAlcoholDecreaseValue.GetInt();
         else
+        {
             Alcohol -= NormalAlcoholDecreaseValue.GetInt();
 
-        if (Alcohol <= 0)
-        {
-            pc.Suicide();
-            return;
+            if (Alcohol <= 0)
+            {
+                pc.Suicide();
+                return;
+            }
         }
 
         NotifyIfNecessary(pc, notify);
@@ -469,5 +471,11 @@ public class Dad : RoleBase
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
     }
 }

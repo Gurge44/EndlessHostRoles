@@ -52,7 +52,7 @@ internal class Minimalism : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        opt.SetVision(true);
+        opt.SetVision(false);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -74,5 +74,10 @@ internal class Minimalism : RoleBase
         }
 
         return true;
+    }
+
+    public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
+    {
+        return false;
     }
 }

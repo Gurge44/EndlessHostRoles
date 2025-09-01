@@ -63,7 +63,7 @@ public class TimeThief : RoleBase
 
     public static int TotalDecreasedMeetingTime()
     {
-        int sec = PlayerIdList.ToArray().Aggregate(0, (current, playerId) => current - StolenTime(playerId));
+        int sec = PlayerIdList.Aggregate(0, (current, playerId) => current - StolenTime(playerId));
 
         Logger.Info($"{sec} second", "TimeThief.TotalDecreasedMeetingTime");
         return sec;

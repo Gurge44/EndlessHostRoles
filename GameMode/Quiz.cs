@@ -500,7 +500,7 @@ public static class Quiz
                 spectators.Do(x => x.ExileTemporarily());
                 yield return new WaitForSeconds(0.2f);
                 var stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
-                stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.NSerialKiller));
+                stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.SerialKiller));
                 Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 
                 while (Utils.TimeStamp < FFAEndTS)
@@ -512,7 +512,7 @@ public static class Quiz
                     if (stillLiving.Count <= 1) break;
                 }
 
-                spectators.Do(x => x.RpcRevive());
+                spectators.Do(x => x.ReviveFromTemporaryExile());
                 AllowKills = false;
                 Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 

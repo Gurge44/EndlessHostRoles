@@ -30,7 +30,7 @@ internal class Lighter : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        LighterSkillMaxOfUseage = new IntegerOptionItem(6856, "AbilityUseLimit", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
+        LighterSkillMaxOfUseage = new IntegerOptionItem(6856, "AbilityUseLimit", new(0, 30, 1), 2, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
             .SetValueFormat(OptionFormat.Times);
 
@@ -62,7 +62,7 @@ internal class Lighter : RoleBase
     {
         if (!UsePets.GetBool())
         {
-            AURoleOptions.EngineerInVentMaxTime = 0.3f;
+            AURoleOptions.EngineerInVentMaxTime = 1f;
             AURoleOptions.EngineerCooldown = LighterSkillCooldown.GetFloat();
         }
 

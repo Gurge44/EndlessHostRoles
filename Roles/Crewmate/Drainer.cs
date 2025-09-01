@@ -60,7 +60,7 @@ public class Drainer : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.EngineerCooldown = VentCD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public static void OnAnyoneExitVent(PlayerControl pc)
@@ -126,5 +126,11 @@ public class Drainer : RoleBase
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
     }
 }

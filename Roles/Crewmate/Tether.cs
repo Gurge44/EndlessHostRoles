@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 
 namespace EHR.Crewmate;
@@ -84,16 +85,16 @@ public class Tether : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        Teleport(pc, 0, true);
+        Teleport(pc, true);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (UsePets.GetBool()) return;
-        Teleport(pc, vent.Id);
+        Teleport(pc);
     }
 
-    private void Teleport(PlayerControl pc, int ventId, bool isPet = false)
+    private void Teleport(PlayerControl pc, bool isPet = false)
     {
         if (pc == null) return;
 
@@ -111,11 +112,12 @@ public class Tether : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override bool OnVote(PlayerControl pc, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
         if (pc.GetAbilityUseLimit() >= 1)
@@ -128,6 +130,11 @@ public class Tether : RoleBase
         }
 
         return false;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
     }
 
     public override void OnReportDeadBody()
@@ -148,7 +155,7 @@ public class Tether : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
+        return Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>{Translator.GetString("Target")}:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

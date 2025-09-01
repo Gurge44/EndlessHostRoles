@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.Data;
 using EHR.AddOns.Crewmate;
@@ -14,6 +15,7 @@ namespace EHR.Patches;
 internal static class ExileControllerWrapUpPatch
 {
     public static NetworkedPlayerInfo LastExiled;
+    public static Stopwatch Stopwatch;
 
     public static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
@@ -118,6 +120,8 @@ internal static class ExileControllerWrapUpPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
+            Stopwatch = Stopwatch.StartNew();
+            
             LateTask.New(() =>
             {
                 if (GameStates.IsEnded) return;
@@ -142,12 +146,7 @@ internal static class ExileControllerWrapUpPatch
             string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
 
             if (!string.IsNullOrEmpty(finalText))
-            {
-                var r = IRandom.Instance;
-
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                    pc.Notify(finalText, r.Next(7, 13));
-            }
+                Main.AllAlivePlayerControls.NotifyPlayers(finalText, 13f);
         }
 
         LateTask.New(() =>

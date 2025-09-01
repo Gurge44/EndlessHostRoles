@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 
 namespace EHR.Crewmate;
 
@@ -17,8 +18,8 @@ public class Negotiator : RoleBase
     private static OptionItem AbilityUseLimit;
     private static OptionItem AbilityUseGainWithEachTaskCompleted;
     private static OptionItem AbilityChargesWhenFinishedTasks;
-
     public static OptionItem CancelVote;
+
     private byte NegotiatorId;
     private NegotiationType Penalty;
     private Dictionary<byte, HashSet<NegotiationType>> PermanentPenalties;
@@ -35,7 +36,7 @@ public class Negotiator : RoleBase
             .AutoSetupOption(ref AbilityUseLimit, 0f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.4f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityChargesWhenFinishedTasks, 0.2f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
-            .CreateVoteCancellingSetting(ref CancelVote);
+            .CreateVoteCancellingUseSetting(ref CancelVote);
     }
 
     public override void Init()
@@ -126,6 +127,7 @@ public class Negotiator : RoleBase
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
+        if (Starspawn.IsDayBreak) return false;
         if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || MinVotingTimeLeftToNegotiate.GetInt() > MeetingTimeManager.VotingTimeLeft || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
         bool votedLast = MeetingHud.Instance.playerStates.All(x => x.TargetPlayerId == voter.PlayerId || x.DidVote);
@@ -139,6 +141,11 @@ public class Negotiator : RoleBase
 
         Main.DontCancelVoteList.Add(voter.PlayerId);
         return true;
+    }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        OnVote(shapeshifter, target);
     }
 
     public static void ReceiveCommand(PlayerControl pc, int index)
@@ -160,5 +167,11 @@ public class Negotiator : RoleBase
         HarmfulAddon,
         LowVision,
         LowSpeed
+    }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = true;
+        countsAs = 1;
     }
 }

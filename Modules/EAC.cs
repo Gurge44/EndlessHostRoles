@@ -246,7 +246,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (!resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null)
+                    if (!resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null && !target.Data.IsDead)
                         LateTask.New(() => target.RpcRevive(), 0.1f, log: false);
 
                     Report(pc, "Directly Murder Player");
@@ -290,7 +290,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance) && target != pc)
+                    if (((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance) && target != pc && !(Options.UseMeetingShapeshift.GetBool() && (GuessManager.Data.ContainsKey(pc.PlayerId) || pc.UsesMeetingShapeshift())))
                     {
                         WarnHost();
                         Report(pc, "Trying to shift during meeting");

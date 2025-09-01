@@ -86,7 +86,7 @@ public class NiceHacker : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = AbilityCD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public static void SendRPC(byte playerId, float secondsLeft)
@@ -112,15 +112,15 @@ public class NiceHacker : RoleBase
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (UsePets.GetBool()) return;
-        UseAbility(pc);
+        UseAbility(pc, false);
     }
 
     public override void OnPet(PlayerControl pc)
     {
-        UseAbility(pc);
+        UseAbility(pc, true);
     }
 
-    private static void UseAbility(PlayerControl pc)
+    private static void UseAbility(PlayerControl pc, bool pet)
     {
         if (pc == null) return;
 
@@ -135,7 +135,7 @@ public class NiceHacker : RoleBase
             foreach (KeyValuePair<string, int> location in list)
                 sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
 
-            pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat());
+            pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat() + (pet ? 0f : 1.5f));
         }
         else
             pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));

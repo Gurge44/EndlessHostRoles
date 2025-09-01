@@ -19,6 +19,7 @@ internal class Mario : RoleBase
 
     private static Dictionary<MapNames, OptionItem> MapWinCounts = [];
     private static int MarioVentNumWin;
+    
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -49,7 +50,7 @@ internal class Mario : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = MarioVentCD.GetFloat();
-        AURoleOptions.EngineerInVentMaxTime = 0.3f;
+        AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
     public override string GetProgressText(byte playerId, bool comms)

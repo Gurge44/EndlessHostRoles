@@ -586,11 +586,12 @@ public static class KingOfTheZones
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
         if (!Main.IntroDestroyed) return false;
 
-        switch (aapc.Length + ExtendedPlayerControl.TempExiled.Count)
+        PlayerControl[] aapc = Main.AllAlivePlayerControls.Concat(ExtendedPlayerControl.TempExiled.ToValidPlayers()).ToArray();
+
+        switch (aapc.Length)
         {
             case 0:
             {
@@ -612,7 +613,7 @@ public static class KingOfTheZones
             }
             default:
             {
-                if (Options.IntegrateNaturalDisasters.GetBool() && Enum.GetValues<KOTZTeam>().FindFirst(x => Main.AllAlivePlayerControls.All(p => PlayerTeams[p.PlayerId] == x), out KOTZTeam team))
+                if (Options.IntegrateNaturalDisasters.GetBool() && Enum.GetValues<KOTZTeam>().FindFirst(x => aapc.All(p => PlayerTeams[p.PlayerId] == x), out KOTZTeam team))
                 {
                     ResetSkins();
                     Color color = team.GetColor();
@@ -787,10 +788,11 @@ public static class KingOfTheZones
                             PlayerControl player = id.GetPlayer();
                             if (player == null) continue;
 
-                            player.RpcRevive();
+                            player.ReviveFromTemporaryExile();
                             player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
-                            player.SetKillCooldown(GetKillCooldown(player));
+                            LateTask.New(() => player.SetKillCooldown(GetKillCooldown(player)), 1.5f, log: false);
                             RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
+                            Utils.NotifyRoles(SpecifyTarget: player, SendOption: SendOption.None);
 
                             int spawnProtectionTime = SpawnProtectionTime.GetInt();
                             if (spawnProtectionTime > 0) SpawnProtectionTimes[id] = now + spawnProtectionTime;

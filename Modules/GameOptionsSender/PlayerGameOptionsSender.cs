@@ -58,7 +58,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         {
             GameOptionsSender allSender = AllSenders[index];
 
-            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.HasDesyncRole() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId)))
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.HasDesyncRole() || (sender.player.GetCustomRole() == CustomRoles.Transporter && sender.player.GetTaskState().IsTaskFinished) || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId)))
                 sender.SetDirty();
         }
     }
@@ -368,7 +368,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     case CustomRoles.Mare when Options.MareHasIncreasedSpeed.GetBool():
                         Main.AllPlayerSpeed[player.PlayerId] = Options.MareSpeedDuringLightsOut.GetFloat();
                         break;
-                    case CustomRoles.Sleep when Utils.IsActive(SystemTypes.Electrical):
+                    case CustomRoles.Sleep when player.IsAlive() && Utils.IsActive(SystemTypes.Electrical):
                         SetBlind();
                         Main.AllPlayerSpeed[player.PlayerId] = Main.MinSpeed;
                         break;
@@ -431,7 +431,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             if (state.SubRoles.Contains(CustomRoles.Energetic))
             {
-                switch (roleTypes)
+                if (player.CanUseKillButton())
+                    energeticDecreaseCooldown = true;
+                else
+                    switch (roleTypes)
                 {
                     case RoleTypes.Impostor:
                         energeticDecreaseCooldown = true;
@@ -508,6 +511,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 opt.SetInt(
                     Int32OptionNames.EmergencyCooldown,
                     Options.AdditionalEmergencyCooldownTime.GetInt());
+            }
+
+            if (CustomRoles.ClockBlocker.RoleExist(true))
+            {
+                int originalTime = opt.GetInt(Int32OptionNames.EmergencyCooldown);
+                opt.SetInt(Int32OptionNames.EmergencyCooldown, ClockBlocker.GetTotalTime(originalTime));
             }
 
             if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount)

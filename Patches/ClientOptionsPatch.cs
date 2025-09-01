@@ -77,7 +77,7 @@ public static class OptionsMenuBehaviourStartPatch
 
             static void AutoStartButtonToggle()
             {
-                if (Main.AutoStart.Value == false && GameStates.IsCountDown)
+                if (!Main.AutoStart.Value && GameStates.IsCountDown)
                 {
                     GameStartManager.Instance.ResetStartState();
                     Logger.SendInGame(Translator.GetString("CancelStartCountDown"));
