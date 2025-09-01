@@ -54,7 +54,7 @@ public class Decryptor : RoleBase
         Instances = [];
         AllRoleNames = [];
         KnownCharacters = [];
-        LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle()), 10f, log: false);
+        LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Where(c => c is not '-' and not ' ' and not '\'').Shuffle()), 10f, log: false);
     }
 
     public override void Add(byte playerId)
@@ -120,7 +120,7 @@ public class Decryptor : RoleBase
     {
         Utils.SendRPC(CustomRPC.SyncRoleData, DecryptorId, 3, id);
         CustomRoles newRole = Main.PlayerStates[id].MainRole;
-        AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Where(c => c is not '-' and not ' ').Shuffle();
+        AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Where(c => c is not '-' and not ' ' and not 'ё' and not 'ъ').Shuffle();
         int count = KnownCharacters[id].Count;
         KnownCharacters[id] = AllRoleNames[id].Take(count).ToList();
         KnownCharacters[id].ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, DecryptorId, 2, id, x));
