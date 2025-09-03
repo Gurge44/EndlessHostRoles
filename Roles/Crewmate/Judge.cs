@@ -8,7 +8,6 @@ using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
-
 namespace EHR.Crewmate;
 
 public class Judge : RoleBase
@@ -204,7 +203,7 @@ public class Judge : RoleBase
                         MeetingManager.OnTrial(dp, pc);
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))), 0.6f, "Guess Msg");
+                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle"))), 0.6f, "Guess Msg");
                     }, 0.2f, "Trial Kill");
                 }
 
@@ -333,4 +332,5 @@ public class Judge : RoleBase
         keepGameGoing = true;
         countsAs = 1;
     }
+
 }
