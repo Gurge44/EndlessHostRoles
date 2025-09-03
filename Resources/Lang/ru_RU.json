@@ -9168,7 +9168,7 @@
   "MainMenu.InventoryButton": "Гардероб",
   "MainMenu.CreditsButton": "Титры",
   "MainMenu.ExitGameButton": "Выйти",
-  "Unbound": "Unbound",
+  "Unbound": "Уязвимый",
   "UnboundInfo": "You're Always Correctly Guessed",
   "UnboundInfoLong": "(Add-ons):\\nAs the Unbound, when someone tries to guess you, even if they guessed you as an incorrect role or add-on, it will be successful anyway.",
   "Listener": "Listener",
