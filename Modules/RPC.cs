@@ -175,6 +175,7 @@ public enum CustomRPC
     CTFSync,
     KOTZSync,
     SpeedrunSync,
+    NaturalDisastersSync,
     TMGSync
 }
 
@@ -1291,6 +1292,11 @@ internal static class RPCHandlerPatch
 
                     break;
                 }
+                case CustomRPC.NaturalDisastersSync:
+                {
+                    NaturalDisasters.SurvivalTimes[reader.ReadByte()] = reader.ReadPackedInt32();
+                    break;
+                }
                 case CustomRPC.TMGSync:
                 {
                     TheMindGame.ReceiveRPC(reader);
@@ -1668,4 +1674,5 @@ internal static class PlayerPhysicsRPCHandlerPatch
 
         return true;
     }
+
 }
