@@ -13,6 +13,7 @@ public class Pelican : RoleBase
     private static List<byte> PlayerIdList = [];
     private static Dictionary<byte, List<byte>> EatenList = [];
     private static readonly Dictionary<byte, float> OriginalSpeed = [];
+    
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private static OptionItem ImpostorVision;
@@ -282,3 +283,4 @@ public class Pelican : RoleBase
     }
 
 }
+
