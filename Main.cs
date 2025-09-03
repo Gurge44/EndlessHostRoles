@@ -631,6 +631,8 @@ public class Main : BasePlugin
                 { CustomRoles.Energetic, "#ffff00" },
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
+                { CustomRoles.Listener, "#060270" },
+                { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
                 { CustomRoles.Commited, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },

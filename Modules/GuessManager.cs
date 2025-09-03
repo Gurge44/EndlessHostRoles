@@ -434,7 +434,7 @@ public static class GuessManager
 
                         return true;
                     }
-                    else if (!target.Is(role))
+                    else if (!target.Is(role) && !target.Is(CustomRoles.Unbound))
                     {
                         if (DoubleShot.CheckGuess(pc, isUI)) return true;
 

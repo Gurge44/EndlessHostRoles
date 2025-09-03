@@ -508,6 +508,7 @@ public enum CustomRoles
     Knighted,
     LastImpostor,
     Lazy,
+    Listener,
     Lovers,
     Loyal,
     Lucky,
@@ -546,6 +547,7 @@ public enum CustomRoles
     Brakar, // Tiebreaker
     Torch,
     Truant,
+    Unbound,
     Undead,
     Underdog,
     Unlucky,

@@ -1118,13 +1118,25 @@ internal static class ChatCommands
         PlayerState state = Main.PlayerStates[targetId];
         if (state.IsDead || state.SubRoles.Contains(CustomRoles.Shy)) return;
 
+        string fromName = player.PlayerId.ColoredPlayerName();
+        string toName = targetId.ColoredPlayerName();
+        
         string msg = args[2..].Join(delimiter: " ");
-        string title = string.Format(GetString("WhisperTitle"), player.PlayerId.ColoredPlayerName(), player.PlayerId);
+        string title = string.Format(GetString("WhisperTitle"), fromName, player.PlayerId);
 
         Utils.SendMessage(msg, targetId, title);
         ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
 
         MeetingManager.SendCommandUsedMessage(args[0]);
+
+        string coloredRole = CustomRoles.Listener.ToColoredString();
+
+        foreach (PlayerControl listener in Main.AllAlivePlayerControls)
+        {
+            if (!listener.Is(CustomRoles.Listener) || IRandom.Instance.Next(100) >= Listener.WhisperHearChance.GetInt()) continue;
+            string message = IRandom.Instance.Next(100) < Listener.FullMessageHearChance.GetInt() ? string.Format(GetString("Listener.FullMessage"), coloredRole, fromName, toName, msg) : string.Format(GetString("Listener.FromTo"), coloredRole, fromName, toName);
+            Utils.SendMessage("\n", listener.PlayerId, message);
+        }
     }
 
     private static void HWhisperCommand(PlayerControl player, string text, string[] args)
