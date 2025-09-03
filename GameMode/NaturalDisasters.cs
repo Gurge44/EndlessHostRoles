@@ -22,7 +22,7 @@ public static class NaturalDisasters
     private static List<Type> AllDisasters = [];
     private static readonly List<Disaster> ActiveDisasters = [];
     private static readonly List<NaturalDisaster> PreparingDisasters = [];
-    private static readonly Dictionary<byte, int> SurvivalTimes = [];
+    public static readonly Dictionary<byte, int> SurvivalTimes = [];
 
     private static ((float Left, float Right) X, (float Bottom, float Top) Y) MapBounds;
     private static long GameStartTimeStamp;
@@ -164,6 +164,7 @@ public static class NaturalDisasters
         string message = Translator.GetString($"ND_DRLaughMessage.{deathReason}");
         message = Utils.ColorString(DeathReasonColor(deathReason), message);
         LateTask.New(() => pc.Notify(message, 20f), 1f, $"{pc.GetRealName()} died with the reason {deathReason}, survived for {SurvivalTime(pc.PlayerId)} seconds");
+        Utils.SendRPC(CustomRPC.NaturalDisastersSync, pc.PlayerId, SurvivalTimes[pc.PlayerId]);
     }
 
     private static Color DeathReasonColor(PlayerState.DeathReason deathReason)
