@@ -23,6 +23,7 @@ public class Councillor : RoleBase
     private static OptionItem CanMurderImpostor;
     private static OptionItem KillCooldown;
     public static OptionItem CouncillorAbilityUseGainWithEachKill;
+    
     private static Dictionary<byte, int> MeetingKillLimit = [];
     private static Dictionary<byte, int> TotalKillLimit = [];
 
@@ -348,3 +349,4 @@ public class Councillor : RoleBase
     }
 
 }
+
