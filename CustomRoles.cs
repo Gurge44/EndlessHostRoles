@@ -84,6 +84,7 @@ public enum CustomRoles
     Overheat,
     Parasite,
     Penguin,
+    Psychopath,
     Puppeteer,
     QuickShooter,
     Refugee,
