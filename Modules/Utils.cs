@@ -957,6 +957,7 @@ public static class Utils
             case CustomRoles.Executioner:
             case CustomRoles.Lawyer:
             case CustomRoles.Phantasm:
+            case CustomRoles.Duality:
                 if (forRecompute) hasTasks = false;
                 break;
             case CustomRoles.Pawn:
@@ -4079,8 +4080,8 @@ public static class Utils
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
         float divice = Options.CurrentGameMode switch
         {
-            CustomGameMode.BedWars => 3000f,
             CustomGameMode.SoloKombat => 3000f,
+            CustomGameMode.BedWars => 1500f,
             CustomGameMode.CaptureTheFlag => 1500f,
             CustomGameMode.KingOfTheZones => 1500f,
             _ => 1000f

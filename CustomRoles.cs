@@ -289,6 +289,7 @@ public enum CustomRoles
     Demon,
     Doppelganger,
     Doomsayer,
+    Duality,
     Eclipse,
     Enderman,
     Evolver,

@@ -1,5 +1,6 @@
 using AmongUs.GameOptions;
 using EHR.Crewmate;
+using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ internal static class CanUsePatch
         {
             CustomRoles.Wizard => HasTasksAsWizard(),
             CustomRoles.Medic => (Options.UsePets.GetBool() && Medic.UsePet.GetBool()) || lp.GetAbilityUseLimit() < 1f,
+            CustomRoles.Duality => !((Duality)Main.PlayerStates[lp.PlayerId].Role).KillingPhase,
             _ => true
         });
 
