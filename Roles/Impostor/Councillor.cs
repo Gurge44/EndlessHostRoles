@@ -8,7 +8,6 @@ using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
-
 namespace EHR.Impostor;
 
 public class Councillor : RoleBase
@@ -18,11 +17,13 @@ public class Councillor : RoleBase
     private static OptionItem AbilityUseLimit;
     private static OptionItem MurderLimitPerGame;
     private static OptionItem MurderLimitPerMeeting;
+    private static OptionItem MakeEvilJudgeClear;
     private static OptionItem TryHideMsg;
     private static OptionItem CanMurderMadmate;
     private static OptionItem CanMurderImpostor;
     private static OptionItem KillCooldown;
     public static OptionItem CouncillorAbilityUseGainWithEachKill;
+    
     private static Dictionary<byte, int> MeetingKillLimit = [];
     private static Dictionary<byte, int> TotalKillLimit = [];
 
@@ -48,6 +49,9 @@ public class Councillor : RoleBase
         MurderLimitPerMeeting = new IntegerOptionItem(Id + 14, "MurderLimitPerMeeting", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Times);
+
+        MakeEvilJudgeClear = new BooleanOptionItem(Id + 18, "CouncillorMakeEvilJudgeClear", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
 
         CanMurderMadmate = new BooleanOptionItem(Id + 12, "CouncillorCanMurderMadmate", true, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
@@ -214,7 +218,14 @@ public class Councillor : RoleBase
 
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("MurderKillTitle"))), 0.6f, "Guess Msg");
+                        LateTask.New(() =>
+                        {
+                            if (!MakeEvilJudgeClear.GetBool())
+                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle")));
+                            else
+                                Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Councillor), GetString("MurderKillTitle")));
+                        }, 0.6f, "Guess Msg");
+                        
                     }, 0.2f, "Murder Kill");
                 }
 
@@ -336,4 +347,6 @@ public class Councillor : RoleBase
                 CreateCouncillorButton(__instance);
         }
     }
+
 }
+
