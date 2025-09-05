@@ -176,7 +176,8 @@ public enum CustomRPC
     KOTZSync,
     SpeedrunSync,
     NaturalDisastersSync,
-    TMGSync
+    TMGSync,
+    BedWarsSync
 }
 
 public enum Sounds
@@ -1302,6 +1303,11 @@ internal static class RPCHandlerPatch
                     TheMindGame.ReceiveRPC(reader);
                     break;
                 }
+                case CustomRPC.BedWarsSync:
+                {
+                    BedWars.ReceiveRPC(reader);
+                    break;
+                }
                 case CustomRPC.ParityCopCommand:
                 {
                     ParityCop.ReceiveRPC(reader);
@@ -1676,3 +1682,4 @@ internal static class PlayerPhysicsRPCHandlerPatch
     }
 
 }
+

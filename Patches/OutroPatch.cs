@@ -13,7 +13,6 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
-
 namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
@@ -281,7 +280,7 @@ internal static class SetEverythingUpPatch
             }
             case CustomGameMode.BedWars:
             {
-                (Color Color, string Team) winnerData = AmongUsClient.Instance.AmHost ? BedWars.Winner : (Color.black, string.Empty);
+                (Color Color, string Team) winnerData = BedWars.WinnerData;
                 __instance.BackgroundBar.material.color = winnerData.Color;
                 winnerText.text = winnerData.Team;
                 winnerText.color = winnerData.Color;
@@ -717,4 +716,5 @@ internal static class SetEverythingUpPatch
             return name;
         }
     }
+
 }
