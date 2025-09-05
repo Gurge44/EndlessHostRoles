@@ -86,6 +86,7 @@ internal class Ventguard : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
+        if (IsThisRole(pc)) return pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
         return !BlockedVents.Contains(ventId) || (pc.IsCrewmate() && VentguardBlockDoesNotAffectCrew.GetBool());
     }
 }
