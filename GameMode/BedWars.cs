@@ -67,7 +67,7 @@ public static class BedWars
     private static OptionItem IronSwordDamageMultiplierOption;
     private static OptionItem DiamondSwordDamageMultiplierOption;
 
-    public static (Color Color, string Team) Winner = (Color.white, "No one wins");
+    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     public static void SetupCustomOption()
     {
@@ -268,13 +268,50 @@ public static class BedWars
 
         if (Enum.GetValues<BedWarsTeam>().FindFirst(x => Main.AllAlivePlayerControls.Select(p => p.PlayerId).Concat(Reviving).All(p => !Data.TryGetValue(p, out PlayerData data) || data.Team == x), out BedWarsTeam team))
         {
-            Winner = (team.GetColor(), team.GetName() + Translator.GetString("Win"));
+            WinnerData = (team.GetColor(), team.GetName() + Translator.GetString("Win"));
             CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Team == team).Select(x => x.Key).ToHashSet();
             Logger.Info($"Winners: {team.GetName()} - {string.Join(", ", CustomWinnerHolder.WinnerIds.Select(id => Main.AllPlayerNames.GetValueOrDefault(id, string.Empty)))}", "BedWars");
+            SendRPC();
             return true;
         }
 
         return false;
+    }
+
+    private static void SendRPC()
+    {
+        var w = Utils.CreateRPC(CustomRPC.BedWarsSync);
+
+        w.Write(WinnerData.Color);
+        w.Write(WinnerData.Team);
+
+        w.Write(Data.Count);
+
+        foreach ((byte id, PlayerData data) in Data)
+        {
+            w.Write(id);
+            w.Write((byte)data.Team);
+        }
+
+        Utils.EndRPC(w);
+    }
+
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        WinnerData.Color = reader.ReadColor();
+        WinnerData.Team = reader.ReadString();
+
+        int count = reader.ReadInt32();
+
+        for (int i = 0; i < count; i++)
+        {
+            byte id = reader.ReadByte();
+
+            if (!Data.TryGetValue(id, out PlayerData data))
+                Data[id] = data = new PlayerData();
+
+            data.Team = (BedWarsTeam)reader.ReadInt32();
+        }
     }
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -322,7 +359,7 @@ public static class BedWars
         Trapped = [];
         Reviving = [];
 
-        Winner = (Color.white, "No one wins");
+        WinnerData = (Color.white, "No one wins");
         FixedUpdatePatch.LastUpdate = [];
 
         InventorySlots = InventorySlotsOption.GetInt();
@@ -358,7 +395,7 @@ public static class BedWars
     {
         if (Options.CurrentGameMode != CustomGameMode.BedWars) yield break;
 
-        Winner = (Color.white, "No one wins");
+        WinnerData = (Color.white, "No one wins");
 
         yield return new WaitForSecondsRealtime(3f);
 
