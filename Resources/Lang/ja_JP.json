@@ -9796,6 +9796,8 @@
   "UpReplacedMessage": "<size=80%><b>/up</b>は <b>/setrole</b>により置き換えられ あなたが <b>/setrole (ID) (役割)</b>を入力することによって 任意のゲームの誰かの役割をセットが可能になりました。\\nあなたは <b>/id</b>で IDを見ることができます。\n<b>/up</b>で あなたの自身の好きな役割をセットするには、あなたは <b>/setrole 0 (役割)</b>を行う必要があります。</size>",
   "PingText": "Ping",
   "SettingsForRoleText": "設定",
+  "GMPoll.Allow": "Show {gm} in /gmpoll choices",
+  "CrewAdvancedGameEndChecking": "Enable Advanced Game End Checking For {role}",
   "EnableAutoGMRotation": "自動的に ゲームモードを回転する",
   "AutoGMRotationSlot": "ゲーム {index} のゲームモード (スロット {index})",
   "AGMR.Explicit": "明確に指定する",
