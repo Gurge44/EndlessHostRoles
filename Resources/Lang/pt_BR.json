@@ -9796,6 +9796,8 @@
   "UpReplacedMessage": "O /up foi substituído por /setrole que permite definir a função de qualquer um em qualquer jogo usando '/setrole (ID) (FUNÇÂO)'. Você pode ver os IDs com /id. \nPara definir sua própria função como /up, você precisa usar '/setrole 0 (FUNÇÃO)'.",
   "PingText": "Latência",
   "SettingsForRoleText": "Configurações para",
+  "GMPoll.Allow": "Show {gm} in /gmpoll choices",
+  "CrewAdvancedGameEndChecking": "Enable Advanced Game End Checking For {role}",
   "EnableAutoGMRotation": "Alternar Modos de Jogo Automaticamente",
   "AutoGMRotationSlot": "Modo de Jogo para a Partida {index} (Slot {index})",
   "AGMR.Explicit": "Especificado Explicitamente",
