@@ -305,6 +305,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     break;
             }
 
+            Farmer.OnAnyoneApplyGameOptions(opt, player);
             Siren.ApplyGameOptionsForOthers(opt, player.PlayerId);
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
             President.OnAnyoneApplyGameOptions(opt);

@@ -3216,6 +3216,7 @@ public static class Utils
 
         int cd = role switch
         {
+            CustomRoles.Farmer => 2,
             CustomRoles.PortalMaker => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),

@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;

@@ -660,6 +660,26 @@ namespace EHR
         }
     }
 
+    internal sealed class Seed : CustomNetObject
+    {
+        public bool Spawned;
+        private readonly string Color;
+
+        public Seed(Vector2 position, string color)
+        {
+            Position = position;
+            Spawned = false;
+            Color = color;
+        }
+
+        public void SpawnIfNotSpawned()
+        {
+            if (Spawned) return;
+            CreateNetObject($"<size=100%><line-height=67%><alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><#{Color}>█<#{Color}>█<alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><#{Color}>█<alpha=#00>█<alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><#{Color}>█<alpha=#00>█<#{Color}>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><#{Color}>█<alpha=#00>█<#{Color}>█<alpha=#00>█<alpha=#00>█<#{Color}>█<br></line-height></size>", Position);
+            Spawned = true;
+        }
+    }
+
     internal sealed class ShapeshiftMenuElement : CustomNetObject
     {
         private readonly byte VisibleTo;

@@ -179,6 +179,7 @@ public enum CustomRoles
     Enigma,
     Escort,
     Express,
+    Farmer,
     Farseer,
     Divinator, // Fortune Teller
     Gardener,
