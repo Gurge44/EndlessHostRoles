@@ -1334,7 +1334,13 @@ internal static class CustomRolesHelper
 
     public static bool IsEnable(this CustomRoles role)
     {
-        return role.GetCount() > 0;
+        return role switch
+        {
+            CustomRoles.Nuker => Bomber.NukerChance.GetInt() > 0,
+            CustomRoles.Bard => Sans.BardChance.GetInt() > 0,
+            CustomRoles.Sunnyboy => Jester.SunnyboyChance.GetInt() > 0,
+            _ => role.GetCount() > 0
+        };
     }
 
     public static bool IsDevFavoriteRole(this CustomRoles role)

@@ -887,7 +887,7 @@ internal static class ChatCommands
             return;
         }
 
-        string gmNames = string.Join(' ', Enum.GetNames<CustomGameMode>()[..^1].Select(x => GetString(x).Replace(' ', '_')));
+        string gmNames = string.Join(' ', Enum.GetValues<CustomGameMode>()[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
