@@ -9796,6 +9796,8 @@
   "UpReplacedMessage": "/up 被 /setrole 取代，它允許你透過使用\"/setrole (ID) (職業名)\"來設定任何遊戲中任何人的職業。你可以使用 /id 查看 ID。\n要像 /up 一樣設定你自己的職業，你需要執行\"/setrole 0 (職業名)\"\n。",
   "PingText": "延遲",
   "SettingsForRoleText": "設定",
+  "GMPoll.Allow": "Show {gm} in /gmpoll choices",
+  "CrewAdvancedGameEndChecking": "Enable Advanced Game End Checking For {role}",
   "EnableAutoGMRotation": "Automatically Rotate Game Modes",
   "AutoGMRotationSlot": "Game Mode for Game {index} (Slot {index})",
   "AGMR.Explicit": "Specified Explicitly",
