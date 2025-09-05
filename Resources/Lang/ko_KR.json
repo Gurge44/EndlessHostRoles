@@ -9796,6 +9796,8 @@
   "UpReplacedMessage": "/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.",
   "PingText": "Ping",
   "SettingsForRoleText": "Settings for",
+  "GMPoll.Allow": "Show {gm} in /gmpoll choices",
+  "CrewAdvancedGameEndChecking": "Enable Advanced Game End Checking For {role}",
   "EnableAutoGMRotation": "Automatically Rotate Game Modes",
   "AutoGMRotationSlot": "Game Mode for Game {index} (Slot {index})",
   "AGMR.Explicit": "Specified Explicitly",
