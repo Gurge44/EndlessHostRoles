@@ -2997,6 +2997,7 @@
   "ActiveRolesList": "開啟職業列表",
   "ForExample": "使用例子",
   "HideGameCodes": "隱藏遊戲代碼",
+  "NewUpdateAvailable": "<size=400%><b>New Update Available!</b></size>\n<size=200%><b>{0}</b></size>",
   "updateButton": "更新",
   "updatePleaseWait": "請稍候…",
   "updateManually": "更新失敗。\\n請嘗試手動更新",
