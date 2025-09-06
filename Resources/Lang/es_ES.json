@@ -2997,6 +2997,7 @@
   "ActiveRolesList": "Lista de Roles Activos",
   "ForExample": "Ejemplo de Uso",
   "HideGameCodes": "Ocultar Código del Juego",
+  "NewUpdateAvailable": "<size=400%><b>New Update Available!</b></size>\n<size=200%><b>{0}</b></size>",
   "updateButton": "Actualizar",
   "updatePleaseWait": "Por Favor Espere...",
   "updateManually": "Actualización falló.\\nPor Favor Actualice Manualmente.",
