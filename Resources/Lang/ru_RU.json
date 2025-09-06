@@ -2997,7 +2997,7 @@
   "ActiveRolesList": "Список Активных Ролей",
   "ForExample": "Например",
   "HideGameCodes": "Скрыть Игровой Код",
-  "NewUpdateAvailable": "<size=400%><b>New Update Available!</b></size>\n<size=200%><b>{0}</b></size>",
+  "NewUpdateAvailable": "<size=400%><b>Доступно новое обновление!</b></size>\n<size=200%><b>{0}</b></size>",
   "updateButton": "Обновить",
   "updatePleaseWait": "Пожалуйста, подождите...",
   "updateManually": "Не удалось обновить.\\nПожалуйста, обновите вручную.",
