@@ -2997,6 +2997,7 @@
   "ActiveRolesList": "有效职业一览",
   "ForExample": "使用例",
   "HideGameCodes": "直播模式(将隐藏游戏代码)",
+  "NewUpdateAvailable": "<size=400%><b>New Update Available!</b></size>\n<size=200%><b>{0}</b></size>",
   "updateButton": "更新",
   "updatePleaseWait": "请等待...",
   "updateManually": "更新失败(T_T).\\n请尝试手动更新.",
