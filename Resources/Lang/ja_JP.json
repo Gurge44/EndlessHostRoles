@@ -2997,6 +2997,7 @@
   "ActiveRolesList": "有効な役割リスト",
   "ForExample": "使用例",
   "HideGameCodes": "ゲームコードを隠す",
+  "NewUpdateAvailable": "<size=400%><b>New Update Available!</b></size>\n<size=200%><b>{0}</b></size>",
   "updateButton": "アップデート",
   "updatePleaseWait": "しばらくお待ちください...",
   "updateManually": "アップデートに失敗した。\\n手動でアップデートしてください。",
