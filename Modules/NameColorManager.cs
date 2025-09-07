@@ -142,6 +142,7 @@ public static class NameColorManager
         {
             CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId) => "000000",
             CustomRoles.Executioner when Executioner.Target.TryGetValue(seer.PlayerId, out byte exeTarget) && exeTarget == target.PlayerId => "000000",
+            CustomRoles.Lawyer when Lawyer.Target.TryGetValue(seer.PlayerId, out byte lawyerTarget) && lawyerTarget == target.PlayerId => "000000",
             CustomRoles.Gangster when target.Is(CustomRoles.Madmate) => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.Crewpostor when target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool() => Main.ImpostorColor,
             CustomRoles.Hypocrite when target.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool() => Main.ImpostorColor,

@@ -346,7 +346,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+                    if ((MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !ReportDeadBodyPatch.MeetingStarted) || ExileController.Instance)
                     {
                         WarnHost();
                         Report(pc, "Doing task during meeting");

@@ -91,6 +91,9 @@ public static class Options
     public static Dictionary<CustomRoles, OptionItem> CustomRoleCounts;
     public static Dictionary<CustomRoles, StringOptionItem> CustomRoleSpawnChances;
     public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
+    
+    public static Dictionary<CustomGameMode, OptionItem> GMPollGameModesSettings;
+    public static Dictionary<CustomRoles, OptionItem> CrewAdvancedGameEndCheckingSettings;
 
     public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
     public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
@@ -2974,6 +2977,30 @@ public static class Options
 
         yield return null;
 
+        id = 69900;
+        
+        GMPollGameModesSettings = Enum.GetValues<CustomGameMode>()[..^1].ToDictionary(x => x, x => new BooleanOptionItem(id++, "GMPoll.Allow", true, TabGroup.SystemSettings)
+            .SetColor(Main.GameModeColors[x])
+            .SetHeader(x == CustomGameMode.Standard)
+            .AddReplacement(("{gm}", Translator.GetString($"{x}"))));
+
+        id = 69920;
+
+        CrewAdvancedGameEndCheckingSettings = [];
+        bool first = true;
+
+        foreach (RoleBase roleBase in Main.AllRoleClasses)
+        {
+            Type type = roleBase.GetType();
+            if (type.GetMethod(nameof(roleBase.ManipulateGameEndCheckCrew))?.DeclaringType != type) continue;
+            CustomRoles role = Enum.Parse<CustomRoles>(type.Name, true);
+            
+            CrewAdvancedGameEndCheckingSettings[role] = new BooleanOptionItem(id++, "CrewAdvancedGameEndChecking", true, TabGroup.SystemSettings)
+                .SetHeader(first)
+                .AddReplacement(("{role}", role.ToColoredString()));
+            
+            first = false;
+        }
 
         id = 69000;
 

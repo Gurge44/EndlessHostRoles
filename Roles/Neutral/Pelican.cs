@@ -13,6 +13,7 @@ public class Pelican : RoleBase
     private static List<byte> PlayerIdList = [];
     private static Dictionary<byte, List<byte>> EatenList = [];
     private static readonly Dictionary<byte, float> OriginalSpeed = [];
+    
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private static OptionItem ImpostorVision;
@@ -141,6 +142,7 @@ public class Pelican : RoleBase
             3 => new(27f, 3.3f), // dlekS ehT
             4 => new(-16.8f, -6.2f), // Airship
             5 => new(9.6f, 23.2f), // The Fungle
+            6 => new(-8.8f, 5.5f), // Submerged
             _ => new(50f, 50f) // Default position if the map is not recognized
         };
     }
@@ -279,4 +281,6 @@ public class Pelican : RoleBase
     {
         hud.KillButton?.OverrideText(Translator.GetString("PelicanButtonText"));
     }
+
 }
+

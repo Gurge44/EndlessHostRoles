@@ -103,7 +103,7 @@ public enum CustomRPC
     SyncGlitchTimers,
     SyncSpy,
     SetSabotageMasterLimit,
-    SetNiceHackerLimit,
+    SetHackerLimit,
     SetCurrentDrawTarget,
     SetCpTasksDone,
     SetDemonHealth,
@@ -175,7 +175,9 @@ public enum CustomRPC
     CTFSync,
     KOTZSync,
     SpeedrunSync,
-    TMGSync
+    NaturalDisastersSync,
+    TMGSync,
+    BedWarsSync
 }
 
 public enum Sounds
@@ -873,9 +875,9 @@ internal static class RPCHandlerPatch
                     SabotageMaster.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SetNiceHackerLimit:
+                case CustomRPC.SetHackerLimit:
                 {
-                    NiceHacker.ReceiveRPC(reader);
+                    Hacker.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetLoversPlayers:
@@ -1291,9 +1293,19 @@ internal static class RPCHandlerPatch
 
                     break;
                 }
+                case CustomRPC.NaturalDisastersSync:
+                {
+                    NaturalDisasters.SurvivalTimes[reader.ReadByte()] = reader.ReadPackedInt32();
+                    break;
+                }
                 case CustomRPC.TMGSync:
                 {
                     TheMindGame.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.BedWarsSync:
+                {
+                    BedWars.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.ParityCopCommand:
@@ -1668,4 +1680,6 @@ internal static class PlayerPhysicsRPCHandlerPatch
 
         return true;
     }
+
 }
+

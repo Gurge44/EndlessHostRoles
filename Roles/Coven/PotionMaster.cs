@@ -81,6 +81,7 @@ public class PotionMaster : Coven
         if (HasNecronomicon) return true;
 
         RevealedPlayers.Add(target.PlayerId);
+        Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 3, target.PlayerId);
         Main.AllAlivePlayerControls.DoIf(x => x.Is(Team.Coven), x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: target));
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
         return false;
@@ -140,6 +141,9 @@ public class PotionMaster : Coven
                 break;
             case 2:
                 ShieldedPlayers.Remove(reader.ReadByte());
+                break;
+            case 3:
+                RevealedPlayers.Add(reader.ReadByte());
                 break;
         }
     }

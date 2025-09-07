@@ -466,6 +466,7 @@ internal static class CheckMurderPatch
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
             Gaslighter.IsShielded(target) ||
+            !Farmer.OnAnyoneCheckMurder(target) ||
             !PotionMaster.OnAnyoneCheckMurder(target) ||
             !Grappler.OnAnyoneCheckMurder(target) ||
             !Adventurer.OnAnyoneCheckMurder(target) ||

@@ -160,6 +160,7 @@ public class RoomRusher : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, RoomRusherId, 1, (byte)RoomGoal);
         Utils.SendRPC(CustomRPC.SyncRoleData, RoomRusherId, 2, VentsLeft);
         Utils.SendRPC(CustomRPC.SyncRoleData, RoomRusherId, 3, CompletedNum);
+        Utils.SendRPC(CustomRPC.SyncRoleData, RoomRusherId, 4, TimeLeft);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -195,6 +196,7 @@ public class RoomRusher : RoleBase
         LastUpdate = now;
 
         TimeLeft--;
+        Utils.SendRPC(CustomRPC.SyncRoleData, RoomRusherId, 4, TimeLeft);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
         if (TimeLeft <= 0)
@@ -221,6 +223,9 @@ public class RoomRusher : RoleBase
                 break;
             case 3:
                 CompletedNum = reader.ReadPackedInt32();
+                break;
+            case 4:
+                TimeLeft = reader.ReadPackedInt32();
                 break;
         }
     }

@@ -151,6 +151,7 @@ internal class Ninja : RoleBase
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
         if (killer.IsModdedClient()) killer.RpcResetAbilityCooldown();
+        if (UsePets.GetBool()) killer.AddAbilityCD(includeDuration: false);
 
         killer.SyncSettings();
         killer.RPCPlayCustomSound("Clothe");

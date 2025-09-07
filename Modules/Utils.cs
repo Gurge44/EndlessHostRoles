@@ -246,7 +246,7 @@ public static class Utils
 
     public static bool IsAnySabotageActive()
     {
-        return CustomSabotage.Instances.Count > 0 || new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(IsActive);
+        return CustomSabotage.Instances.Count > 0 || new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast }.Any(IsActive);
     }
 
     public static bool IsActive(SystemTypes type)
@@ -957,6 +957,7 @@ public static class Utils
             case CustomRoles.Executioner:
             case CustomRoles.Lawyer:
             case CustomRoles.Phantasm:
+            case CustomRoles.Duality:
                 if (forRecompute) hasTasks = false;
                 break;
             case CustomRoles.Pawn:
@@ -3215,6 +3216,7 @@ public static class Utils
 
         int cd = role switch
         {
+            CustomRoles.Farmer => 2,
             CustomRoles.PortalMaker => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
@@ -3234,7 +3236,7 @@ public static class Utils
             CustomRoles.Convener => Convener.CD.GetInt(),
             CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
-            CustomRoles.NiceHacker => playerId.IsPlayerModdedClient() ? -1 : NiceHacker.AbilityCD.GetInt(),
+            CustomRoles.Hacker => playerId.IsPlayerModdedClient() ? -1 : Hacker.AbilityCD.GetInt(),
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
@@ -3498,7 +3500,7 @@ public static class Utils
 
             if (!onMeeting && !disconnect)
             {
-                Hacker.AddDeadBody(target);
+                Anonymous.AddDeadBody(target);
                 Mortician.OnPlayerDead(target);
                 Tracefinder.OnPlayerDead(target);
                 Scout.OnPlayerDeath(target);
@@ -4079,8 +4081,8 @@ public static class Utils
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
         float divice = Options.CurrentGameMode switch
         {
-            CustomGameMode.BedWars => 3000f,
             CustomGameMode.SoloKombat => 3000f,
+            CustomGameMode.BedWars => 1500f,
             CustomGameMode.CaptureTheFlag => 1500f,
             CustomGameMode.KingOfTheZones => 1500f,
             _ => 1000f
@@ -4178,3 +4180,4 @@ public class Message(string text, byte sendTo = byte.MaxValue, string title = ""
     public byte SendTo { get; } = sendTo;
     public string Title { get; } = title;
 }
+

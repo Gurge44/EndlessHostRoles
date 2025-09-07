@@ -206,6 +206,8 @@ public class NiceSwapper : RoleBase
             List<MeetingHud.VoterState> votedFor2 = states.Where(x => x.VotedForId == SwapTargets.Item2).ToList();
             votedFor1.ForEach(x => x.VotedForId = SwapTargets.Item2);
             votedFor2.ForEach(x => x.VotedForId = SwapTargets.Item1);
+            
+            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
