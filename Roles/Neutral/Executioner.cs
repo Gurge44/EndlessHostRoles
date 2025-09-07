@@ -78,10 +78,10 @@ public class Executioner : RoleBase
                     return;
                 }
 
-                PlayerControl SelectedTarget = targetList.RandomElement();
-                Target[playerId] = SelectedTarget.PlayerId;
-                SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-                Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
+                PlayerControl selectedTarget = targetList.RandomElement();
+                Target[playerId] = selectedTarget.PlayerId;
+                SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
+                Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
             }
             catch (Exception ex) { Logger.Error(ex.ToString(), "Executioner.Add"); }
         }, 8f, log: false);

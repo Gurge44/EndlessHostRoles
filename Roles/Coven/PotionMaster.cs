@@ -87,7 +87,7 @@ public class PotionMaster : Coven
         return false;
     }
 
-    protected override void OnReceiveNecronomicon()
+    public override void OnReceiveNecronomicon()
     {
         PotionMasterId.GetPlayer().ResetKillCooldown();
     }

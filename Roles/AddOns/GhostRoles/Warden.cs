@@ -47,7 +47,7 @@ internal class Warden : IGhostRole
         NotifyTarget = new BooleanOptionItem(649204, "WardenNotifyTarget", true, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden]);
 
-        CD = new IntegerOptionItem(649205, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
+        CD = new IntegerOptionItem(649205, "AbilityCooldown", new(0, 120, 1), 30, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
             .SetValueFormat(OptionFormat.Seconds);
     }

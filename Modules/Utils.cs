@@ -3257,6 +3257,7 @@ public static class Utils
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
             CustomRoles.Abyssbringer => Abyssbringer.BlackHolePlaceCooldown.GetInt(),
+            CustomRoles.Venerer => Venerer.AbilityCooldown.GetInt(),
             CustomRoles.Wiper => Wiper.AbilityCooldown.GetInt(),
             CustomRoles.Warlock => Warlock.IsCursed ? -1 : Warlock.ShapeshiftCooldown.GetInt(),
             CustomRoles.Stasis => Stasis.AbilityCooldown.GetInt() + (includeDuration ? Stasis.AbilityDuration.GetInt() : 0),
@@ -3697,7 +3698,7 @@ public static class Utils
                         CustomRoles.Hypocrite => Color.red,
                         CustomRoles.Crewpostor => Color.red,
                         CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
-                        CustomRoles.Pawn => GetRoleColor(CustomRoles.Cherokious),
+                        CustomRoles.Pawn => GetRoleColor(CustomRoles.Pawn),
                         _ => normalColor
                     };
                 }
@@ -3710,6 +3711,9 @@ public static class Utils
                 taskCount = string.Empty;
 
             var summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, true)}{taskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
+
+            CustomTeamManager.CustomTeam customTeam = CustomTeamManager.GetCustomTeam(id);
+            if (customTeam != null) summary += $" ({ColorString(customTeam.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(customTeam.RoleRevealScreenBackgroundColor, out Color color) ? Color.yellow : color, customTeam.RoleRevealScreenTitle == "*" ? customTeam.TeamName : customTeam.RoleRevealScreenTitle)})";
 
             switch (Options.CurrentGameMode)
             {

@@ -620,6 +620,7 @@ public class Main : BasePlugin
                 { CustomRoles.Haunter, "#d1b1de" },
                 { CustomRoles.Bloodmoon, "#ff1313" },
                 { CustomRoles.GA, "#8cffff" },
+                { CustomRoles.Facilitator, CovenColor },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 // Add-ons

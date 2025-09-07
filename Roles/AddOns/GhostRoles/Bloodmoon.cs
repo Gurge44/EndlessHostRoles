@@ -33,7 +33,7 @@ internal class Bloodmoon : IGhostRole
     {
         Options.SetupRoleOptions(649400, TabGroup.OtherRoles, CustomRoles.Bloodmoon);
 
-        CD = new IntegerOptionItem(649402, "AbilityCooldown", new(0, 60, 1), 60, TabGroup.OtherRoles)
+        CD = new IntegerOptionItem(649402, "AbilityCooldown", new(0, 120, 1), 60, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
             .SetValueFormat(OptionFormat.Seconds);
 

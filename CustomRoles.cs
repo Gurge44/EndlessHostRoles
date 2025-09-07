@@ -106,6 +106,7 @@ public enum CustomRoles
     Twister,
     Undertaker,
     Vampire,
+    Venerer,
     Ventriloquist,
     Vindicator,
     Visionary,
@@ -494,6 +495,7 @@ public enum CustomRoles
     Energetic,
     Entranced,
     EvilSpirit,
+    Facilitator, // Ghost role
     Finder,
     Flashman,
     Fragile,

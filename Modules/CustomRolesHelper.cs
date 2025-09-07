@@ -150,6 +150,7 @@ internal static class CustomRolesHelper
             CustomRoles.Forger => CustomRoles.Impostor,
             CustomRoles.ClockBlocker => CustomRoles.Impostor,
             CustomRoles.Psychopath => CustomRoles.Impostor,
+            CustomRoles.Venerer => CustomRoles.Shapeshifter,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
             CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Wasp => CustomRoles.Impostor,
@@ -698,6 +699,7 @@ internal static class CustomRolesHelper
             CustomRoles.Wiper or
             CustomRoles.Psychopath or
             CustomRoles.Kidnapper or
+            CustomRoles.Venerer or
             CustomRoles.ClockBlocker or
             CustomRoles.Forger or
             CustomRoles.Stasis or
@@ -1021,6 +1023,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sniper or
             CustomRoles.Twister or
             CustomRoles.Swooper or
+            CustomRoles.Venerer or
             CustomRoles.Wraith or
             CustomRoles.RouleteGrandeur or
             CustomRoles.Enderman or
@@ -1627,6 +1630,7 @@ internal static class CustomRolesHelper
             CustomRoles.Trickster => RoleOptionType.Impostor_Concealing,
             CustomRoles.Undertaker => RoleOptionType.Impostor_Concealing,
             CustomRoles.Vampire => RoleOptionType.Impostor_Concealing,
+            CustomRoles.Venerer => RoleOptionType.Impostor_Concealing,
             CustomRoles.Warlock => RoleOptionType.Impostor_Concealing,
             CustomRoles.AntiAdminer => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Changeling => RoleOptionType.Impostor_Miscellaneous,
