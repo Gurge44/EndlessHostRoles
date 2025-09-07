@@ -342,6 +342,7 @@ internal static class MoveAndStop
         FixedUpdatePatch.Limit = [];
         AllPlayerTimers = [];
         RoundTime = GameTime.GetInt() + 14;
+        Utils.SendRPC(CustomRPC.MASSync, RoundTime);
 
         FixedUpdatePatch.DoChecks = false;
     }
@@ -568,6 +569,7 @@ internal static class MoveAndStop
             LastFixedUpdate = now;
 
             RoundTime--;
+            Utils.SendRPC(CustomRPC.MASSync, RoundTime);
 
             Utils.NotifyRoles();
         }
