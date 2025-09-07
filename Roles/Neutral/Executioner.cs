@@ -69,6 +69,7 @@ public class Executioner : RoleBase
                 List<PlayerControl> targetList = [];
                 targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || (!target.IsNeutralEvil() && !target.IsNeutralPariah()) where CanTargetCoven.GetBool() || !target.Is(CustomRoleTypes.Coven) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
                 targetList.AddRange(Main.AllPlayerControls.Where(x => x.IsCrewmate() && x.GetCustomRole() is not (CustomRoles.NiceSwapper or CustomRoles.Mayor or CustomRoles.NiceGuesser or CustomRoles.Dictator)));
+                targetList.RemoveAll(x => x.GetCustomRole() is CustomRoles.NiceSwapper or CustomRoles.Mayor or CustomRoles.NiceGuesser or CustomRoles.Dictator or CustomRoles.Executioner);
                 if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool()) targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
 
                 if (targetList.Count == 0)
@@ -83,7 +84,7 @@ public class Executioner : RoleBase
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
             }
             catch (Exception ex) { Logger.Error(ex.ToString(), "Executioner.Add"); }
-        }, 3f, log: false);
+        }, 8f, log: false);
     }
 
     public override void Remove(byte playerId)
