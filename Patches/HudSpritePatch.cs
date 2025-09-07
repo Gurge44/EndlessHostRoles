@@ -301,7 +301,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get(fw.nowFireWorksCount == 0 ? "FireworkD" : "FireworkP");
                     break;
                 }
-                case CustomRoles.Hacker:
+                case CustomRoles.Anonymous:
                 {
                     newAbilityButton = CustomButton.Get("Hack");
                     break;

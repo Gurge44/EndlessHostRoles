@@ -3236,7 +3236,7 @@ public static class Utils
             CustomRoles.Convener => Convener.CD.GetInt(),
             CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
-            CustomRoles.NiceHacker => playerId.IsPlayerModdedClient() ? -1 : NiceHacker.AbilityCD.GetInt(),
+            CustomRoles.Hacker => playerId.IsPlayerModdedClient() ? -1 : Hacker.AbilityCD.GetInt(),
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
@@ -3500,7 +3500,7 @@ public static class Utils
 
             if (!onMeeting && !disconnect)
             {
-                Hacker.AddDeadBody(target);
+                Anonymous.AddDeadBody(target);
                 Mortician.OnPlayerDead(target);
                 Tracefinder.OnPlayerDead(target);
                 Scout.OnPlayerDeath(target);

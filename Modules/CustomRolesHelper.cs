@@ -198,7 +198,7 @@ internal static class CustomRolesHelper
             CustomRoles.Needy => CustomRoles.Crewmate,
             CustomRoles.Twister => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.SuperStar => CustomRoles.Crewmate,
-            CustomRoles.Hacker => CustomRoles.Shapeshifter,
+            CustomRoles.Anonymous => CustomRoles.Shapeshifter,
             CustomRoles.Visionary => CustomRoles.Shapeshifter,
             CustomRoles.Ninja => CustomRoles.Phantom,
             CustomRoles.Undertaker => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -684,7 +684,7 @@ internal static class CustomRolesHelper
             CustomRoles.Warlock or
             CustomRoles.Ninja or
             CustomRoles.Undertaker or
-            CustomRoles.Hacker or
+            CustomRoles.Anonymous or
             CustomRoles.Visionary or
             CustomRoles.Miner or
             CustomRoles.Escapee or
@@ -1345,7 +1345,7 @@ internal static class CustomRolesHelper
 
     public static bool IsDevFavoriteRole(this CustomRoles role)
     {
-        return role is CustomRoles.Adventurer or CustomRoles.Chef or CustomRoles.Detour or CustomRoles.NiceHacker or CustomRoles.NiceSwapper or CustomRoles.Sentinel or CustomRoles.Sentry or CustomRoles.Tornado or CustomRoles.Tunneler or CustomRoles.Whisperer or CustomRoles.Wizard or
+        return role is CustomRoles.Adventurer or CustomRoles.Chef or CustomRoles.Detour or CustomRoles.Hacker or CustomRoles.NiceSwapper or CustomRoles.Sentinel or CustomRoles.Sentry or CustomRoles.Tornado or CustomRoles.Tunneler or CustomRoles.Whisperer or CustomRoles.Wizard or
                        CustomRoles.Abyssbringer or CustomRoles.Assumer or CustomRoles.Chronomancer or CustomRoles.Echo or CustomRoles.Escapee or CustomRoles.Hypnotist or CustomRoles.Librarian or CustomRoles.Mafioso or CustomRoles.Mastermind or CustomRoles.Mercenary or CustomRoles.Penguin or CustomRoles.RiftMaker or CustomRoles.Sapper or CustomRoles.Wiper or
                        CustomRoles.Bargainer or CustomRoles.Bubble or CustomRoles.Doomsayer or CustomRoles.Enderman or CustomRoles.Evolver or CustomRoles.HeadHunter or CustomRoles.Impartial or CustomRoles.Patroller or CustomRoles.Pawn or CustomRoles.PlagueDoctor or CustomRoles.Postman or CustomRoles.Pyromaniac or CustomRoles.Revolutionist or CustomRoles.Rogue or CustomRoles.Romantic or CustomRoles.RoomRusher or CustomRoles.RouleteGrandeur or CustomRoles.Simon or CustomRoles.SoulHunter or CustomRoles.Sprayer or CustomRoles.Technician or CustomRoles.Tank or CustomRoles.Tiger or CustomRoles.Tremor or CustomRoles.Vengeance or CustomRoles.Vortex or CustomRoles.Werewolf or CustomRoles.WeaponMaster or
                        CustomRoles.Reaper or CustomRoles.VoodooMaster or CustomRoles.Dreamweaver or CustomRoles.Banshee or
@@ -1604,7 +1604,7 @@ internal static class CustomRolesHelper
             CustomRoles.Ventriloquist => RoleOptionType.Impostor_Support,
             CustomRoles.Vindicator => RoleOptionType.Impostor_Support,
             CustomRoles.YinYanger => RoleOptionType.Impostor_Support,
-            CustomRoles.Hacker => RoleOptionType.Impostor_Concealing,
+            CustomRoles.Anonymous => RoleOptionType.Impostor_Concealing,
             CustomRoles.Duellist => RoleOptionType.Impostor_Concealing,
             CustomRoles.Echo => RoleOptionType.Impostor_Concealing,
             CustomRoles.Escapee => RoleOptionType.Impostor_Concealing,
@@ -1705,7 +1705,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mediumshiper => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Monitor => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Mortician => RoleOptionType.Crewmate_Investigate,
-            CustomRoles.NiceHacker => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.Hacker => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Observer => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Oracle => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Perceiver => RoleOptionType.Crewmate_Investigate,

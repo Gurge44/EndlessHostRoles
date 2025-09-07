@@ -11,7 +11,7 @@ using static Options;
 using static Translator;
 using static Utils;
 
-public class NiceHacker : RoleBase
+public class Hacker : RoleBase
 {
     private const int Id = 641000;
     public static Dictionary<byte, bool> PlayerIdList = [];
@@ -22,7 +22,7 @@ public class NiceHacker : RoleBase
 
     public static OptionItem AbilityCD;
     public static OptionItem UseLimitOpt;
-    public static OptionItem NiceHackerAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem HackerAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem ModdedClientAbilityUseSecondsMultiplier;
     public static OptionItem ModdedClientCanMoveWhileViewingMap;
@@ -32,29 +32,29 @@ public class NiceHacker : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceHacker);
+        SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Hacker);
 
-        AbilityCD = new FloatOptionItem(Id + 10, "AbilityCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
+        AbilityCD = new FloatOptionItem(Id + 10, "AbilityCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
+        UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
 
-        NiceHackerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
+        HackerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
 
         AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
 
-        ModdedClientAbilityUseSecondsMultiplier = new FloatOptionItem(Id + 14, "NiceHackerModdedClientAbilityUseSecondsMultiplier", new(0f, 70f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
+        ModdedClientAbilityUseSecondsMultiplier = new FloatOptionItem(Id + 14, "HackerModdedClientAbilityUseSecondsMultiplier", new(0f, 70f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ModdedClientCanMoveWhileViewingMap = new BooleanOptionItem(Id + 15, "NiceHackerModdedClientCanMoveWhileViewingMap", false, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker]);
+        ModdedClientCanMoveWhileViewingMap = new BooleanOptionItem(Id + 15, "HackerModdedClientCanMoveWhileViewingMap", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker]);
 
-        VanillaClientSeesInfoFor = new FloatOptionItem(Id + 16, "NiceHackerVanillaClientSeesInfoFor", new(0f, 70f, 1f), 4f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
+        VanillaClientSeesInfoFor = new FloatOptionItem(Id + 16, "HackerVanillaClientSeesInfoFor", new(0f, 70f, 1f), 4f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -93,7 +93,7 @@ public class NiceHacker : RoleBase
     {
         if (!DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetHackerLimit, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(secondsLeft);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -172,7 +172,7 @@ public class NiceHacker : RoleBase
             UseLimitSeconds[pc.PlayerId] -= 1; // Remove 1s for opening the map, so they can't utilize spamming
             SendRPC(pc.PlayerId, UseLimitSeconds[pc.PlayerId]);
             opts.Mode = MapOptions.Modes.CountOverlay;
-            LateTask.New(() => { MapCountdown(pc, map, opts, (int)UseLimitSeconds[pc.PlayerId]); }, 1f, "NiceHacker.StartCountdown");
+            LateTask.New(() => { MapCountdown(pc, map, opts, (int)UseLimitSeconds[pc.PlayerId]); }, 1f, "Hacker.StartCountdown");
         }
         else
         {
@@ -195,14 +195,14 @@ public class NiceHacker : RoleBase
 
         UseLimitSeconds[pc.PlayerId] -= 1;
         SendRPC(pc.PlayerId, UseLimitSeconds[pc.PlayerId]);
-        LateTask.New(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
+        LateTask.New(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "HackerAbilityCountdown");
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (!hud || seer == null) return string.Empty;
 
-        return !seer.Is(CustomRoles.NiceHacker) ? string.Empty : $"<color=#00ffa5>{GetString("NiceHackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[seer.PlayerId]}</b>s";
+        return !seer.Is(CustomRoles.Hacker) ? string.Empty : $"<color=#00ffa5>{GetString("HackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[seer.PlayerId]}</b>s";
     }
 
     public override string GetProgressText(byte playerId, bool comms)
