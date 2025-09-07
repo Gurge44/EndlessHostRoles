@@ -647,10 +647,10 @@ internal static class MapBehaviourShowPatch
 
         PlayerControl player = PlayerControl.LocalPlayer;
 
-        if (player.GetCustomRole() == CustomRoles.NiceHacker && NiceHacker.PlayerIdList.ContainsKey(player.PlayerId))
+        if (player.GetCustomRole() == CustomRoles.Hacker && Hacker.PlayerIdList.ContainsKey(player.PlayerId))
         {
-            Logger.Info("Modded Client uses Map", "NiceHacker");
-            NiceHacker.MapHandle(player, __instance, opts);
+            Logger.Info("Modded Client uses Map", "Hacker");
+            Hacker.MapHandle(player, __instance, opts);
         }
         else if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
         {

@@ -477,12 +477,12 @@ public class TaskState
                             sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
                             sm.SendRPC();
                             break;
-                        case CustomRoles.NiceHacker:
-                            if (!player.IsModdedClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId))
-                                NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                            else if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
+                        case CustomRoles.Hacker:
+                            if (!player.IsModdedClient() && Hacker.UseLimit.ContainsKey(player.PlayerId))
+                                Hacker.UseLimit[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetFloat();
+                            else if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId)) Hacker.UseLimitSeconds[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetInt() * Hacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
 
-                            if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.SendRPC(player.PlayerId, NiceHacker.UseLimitSeconds[player.PlayerId]);
+                            if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId)) Hacker.SendRPC(player.PlayerId, Hacker.UseLimitSeconds[player.PlayerId]);
 
                             break;
                     }
