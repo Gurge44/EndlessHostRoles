@@ -40,7 +40,7 @@ public static class HudSpritePatch
             if (player == null) return;
 
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
-            if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive() || Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.CaptureTheFlag) return;
+            if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive()) return;
 
             if (ResetButtonIcons || !AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed || GameStates.IsLobby || GameStates.IsNotJoined || !GameStates.InGame)
             {
@@ -301,7 +301,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get(fw.nowFireWorksCount == 0 ? "FireworkD" : "FireworkP");
                     break;
                 }
-                case CustomRoles.Hacker:
+                case CustomRoles.Anonymous:
                 {
                     newAbilityButton = CustomButton.Get("Hack");
                     break;
@@ -516,3 +516,4 @@ public static class HudSpritePatch
         }
     }
 }
+

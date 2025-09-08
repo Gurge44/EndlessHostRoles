@@ -46,7 +46,7 @@ public class CovenLeader : Coven
         Main.AllPlayerKillCooldown[id] = HasNecronomicon ? kcd / 2f : kcd;
     }
 
-    protected override void OnReceiveNecronomicon()
+    public override void OnReceiveNecronomicon()
     {
         CovenLeaderId.GetPlayer()?.ResetKillCooldown();
     }

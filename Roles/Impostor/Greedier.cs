@@ -32,15 +32,15 @@ public class Greedier : RoleBase // Also used for Pulse as the NK version of thi
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Greedier);
 
-        OddKillCooldown = new FloatOptionItem(Id + 10, "OddKillCooldown", new(0f, 60f, 0.5f), 27.5f, TabGroup.ImpostorRoles)
+        OddKillCooldown = new FloatOptionItem(Id + 10, "OddKillCooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
             .SetValueFormat(OptionFormat.Seconds);
 
-        EvenKillCooldown = new FloatOptionItem(Id + 11, "EvenKillCooldown", new(0f, 30f, 0.5f), 15f, TabGroup.ImpostorRoles)
+        EvenKillCooldown = new FloatOptionItem(Id + 11, "EvenKillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
             .SetValueFormat(OptionFormat.Seconds);
 
-        AfterMeetingKillCooldown = new FloatOptionItem(Id + 12, "AfterMeetingKillCooldown", new(0f, 30f, 0.5f), 25f, TabGroup.ImpostorRoles)
+        AfterMeetingKillCooldown = new FloatOptionItem(Id + 12, "AfterMeetingKillCooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
             .SetValueFormat(OptionFormat.Seconds);
     }

@@ -15,9 +15,9 @@ public abstract class Coven : RoleBase
 
     protected abstract NecronomiconReceivePriorities NecronomiconReceivePriority { get; }
 
-    protected bool HasNecronomicon { get; private set; }
+    public bool HasNecronomicon { get; set; }
 
-    protected virtual void OnReceiveNecronomicon() { }
+    public virtual void OnReceiveNecronomicon() { }
 
     private static void GiveNecronomicon()
     {

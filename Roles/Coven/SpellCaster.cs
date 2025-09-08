@@ -65,7 +65,7 @@ public class SpellCaster : Coven
         return false;
     }
 
-    protected override void OnReceiveNecronomicon()
+    public override void OnReceiveNecronomicon()
     {
         VisibleHexes = HexedPlayers.Keys.Concat(PlayerIdList).ToHashSet();
 

@@ -184,8 +184,8 @@ public class President : RoleBase
                         case SabotageMaster sm:
                             sm.UsedSkillCount--;
                             break;
-                        case NiceHacker when NiceHacker.UseLimit.ContainsKey(player.PlayerId):
-                            NiceHacker.UseLimit[player.PlayerId]++;
+                        case Hacker when Hacker.UseLimit.ContainsKey(player.PlayerId):
+                            Hacker.UseLimit[player.PlayerId]++;
                             break;
                         default:
                             player.RpcIncreaseAbilityUseLimitBy(1f);

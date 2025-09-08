@@ -18,7 +18,7 @@ public enum CustomRoles
     // Impostors
 
     Abyssbringer,
-    Hacker, // Anonymous
+    Anonymous,
     AntiAdminer,
     Sans, // Arrogance
     Assumer,
@@ -106,6 +106,7 @@ public enum CustomRoles
     Twister,
     Undertaker,
     Vampire,
+    Venerer,
     Ventriloquist,
     Vindicator,
     Visionary,
@@ -189,6 +190,7 @@ public enum CustomRoles
     Grenadier,
     MeetingManager,
     Guardian,
+    Hacker,
     Helper,
     Ignitor,
     Imitator,
@@ -218,7 +220,6 @@ public enum CustomRoles
     Mortician,
     NiceEraser,
     NiceGuesser,
-    NiceHacker,
     NiceSwapper,
     Nightmare,
     Negotiator,
@@ -494,6 +495,7 @@ public enum CustomRoles
     Energetic,
     Entranced,
     EvilSpirit,
+    Facilitator, // Ghost role
     Finder,
     Flashman,
     Fragile,

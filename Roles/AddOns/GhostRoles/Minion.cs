@@ -37,7 +37,7 @@ internal class Minion : IGhostRole
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CD = new IntegerOptionItem(649003, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
+        CD = new IntegerOptionItem(649003, "AbilityCooldown", new(0, 120, 1), 30, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
             .SetValueFormat(OptionFormat.Seconds);
     }

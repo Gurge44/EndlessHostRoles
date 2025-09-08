@@ -30,7 +30,7 @@ internal class GA : IGhostRole
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.GA])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CD = new IntegerOptionItem(649603, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
+        CD = new IntegerOptionItem(649603, "AbilityCooldown", new(0, 120, 1), 30, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.GA])
             .SetValueFormat(OptionFormat.Seconds);
     }

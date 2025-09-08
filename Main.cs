@@ -443,7 +443,7 @@ public class Main : BasePlugin
                 { CustomRoles.Benefactor, "#4aeaff" },
                 { CustomRoles.MeetingManager, "#d4ff00" },
                 { CustomRoles.Drainer, "#149627" },
-                { CustomRoles.NiceHacker, "#75fa4c" },
+                { CustomRoles.Hacker, "#75fa4c" },
                 { CustomRoles.Aid, "#D7BDE2" },
                 { CustomRoles.DonutDelivery, "#a46efa" },
                 { CustomRoles.Analyst, "#33ddff" },
@@ -620,6 +620,7 @@ public class Main : BasePlugin
                 { CustomRoles.Haunter, "#d1b1de" },
                 { CustomRoles.Bloodmoon, "#ff1313" },
                 { CustomRoles.GA, "#8cffff" },
+                { CustomRoles.Facilitator, CovenColor },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 // Add-ons

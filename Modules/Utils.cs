@@ -246,7 +246,7 @@ public static class Utils
 
     public static bool IsAnySabotageActive()
     {
-        return CustomSabotage.Instances.Count > 0 || new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(IsActive);
+        return CustomSabotage.Instances.Count > 0 || new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast }.Any(IsActive);
     }
 
     public static bool IsActive(SystemTypes type)
@@ -3236,7 +3236,7 @@ public static class Utils
             CustomRoles.Convener => Convener.CD.GetInt(),
             CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
-            CustomRoles.NiceHacker => playerId.IsPlayerModdedClient() ? -1 : NiceHacker.AbilityCD.GetInt(),
+            CustomRoles.Hacker => playerId.IsPlayerModdedClient() ? -1 : Hacker.AbilityCD.GetInt(),
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
@@ -3257,6 +3257,7 @@ public static class Utils
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
             CustomRoles.Abyssbringer => Abyssbringer.BlackHolePlaceCooldown.GetInt(),
+            CustomRoles.Venerer => Venerer.AbilityCooldown.GetInt(),
             CustomRoles.Wiper => Wiper.AbilityCooldown.GetInt(),
             CustomRoles.Warlock => Warlock.IsCursed ? -1 : Warlock.ShapeshiftCooldown.GetInt(),
             CustomRoles.Stasis => Stasis.AbilityCooldown.GetInt() + (includeDuration ? Stasis.AbilityDuration.GetInt() : 0),
@@ -3500,7 +3501,7 @@ public static class Utils
 
             if (!onMeeting && !disconnect)
             {
-                Hacker.AddDeadBody(target);
+                Anonymous.AddDeadBody(target);
                 Mortician.OnPlayerDead(target);
                 Tracefinder.OnPlayerDead(target);
                 Scout.OnPlayerDeath(target);
@@ -3697,7 +3698,7 @@ public static class Utils
                         CustomRoles.Hypocrite => Color.red,
                         CustomRoles.Crewpostor => Color.red,
                         CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
-                        CustomRoles.Pawn => GetRoleColor(CustomRoles.Cherokious),
+                        CustomRoles.Pawn => GetRoleColor(CustomRoles.Pawn),
                         _ => normalColor
                     };
                 }
@@ -3710,6 +3711,9 @@ public static class Utils
                 taskCount = string.Empty;
 
             var summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, true)}{taskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
+
+            CustomTeamManager.CustomTeam customTeam = CustomTeamManager.GetCustomTeam(id);
+            if (customTeam != null) summary += $" ({ColorString(customTeam.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(customTeam.RoleRevealScreenBackgroundColor, out Color color) ? Color.yellow : color, customTeam.RoleRevealScreenTitle == "*" ? customTeam.TeamName : customTeam.RoleRevealScreenTitle)})";
 
             switch (Options.CurrentGameMode)
             {
@@ -4180,3 +4184,4 @@ public class Message(string text, byte sendTo = byte.MaxValue, string title = ""
     public byte SendTo { get; } = sendTo;
     public string Title { get; } = title;
 }
+
