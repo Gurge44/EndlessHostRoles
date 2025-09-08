@@ -1295,7 +1295,7 @@ internal static class RPCHandlerPatch
                     {
                         case 1:
                             int timeLeft = reader.ReadPackedInt32();
-                            CustomHnS.TimeLeft = timeLEft;
+                            CustomHnS.TimeLeft = timeLeft;
                             break;
                         case 2:
                             CustomHnS.Danger[reader.ReadByte()] = reader.ReadPackedInt32();
@@ -1732,6 +1732,7 @@ internal static class PlayerPhysicsRPCHandlerPatch
     }
 
 }
+
 
 
 
