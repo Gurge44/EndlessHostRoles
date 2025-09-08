@@ -1167,7 +1167,7 @@ internal static class ExtendedPlayerControl
 
             var murderPos = Pelican.GetBlackRoomPS();
 
-            sender.TP(pc, murderPos);
+            sender.TP(pc, murderPos, noCheckState: true);
 
             sender.AutoStartRpc(pc.NetId, 12, targetClientId);
             sender.WriteNetObject(dummyGhost);
@@ -1201,7 +1201,7 @@ internal static class ExtendedPlayerControl
 
             if (pc.IsAlive())
             {
-                sender.TP(pc, pcPos);
+                sender.TP(pc, pcPos, noCheckState: true);
                 sender.SetKillCooldown(pc, timer);
                 sender.Notify(pc, GetString("BlackScreenFixCompleteNotify"));
 
