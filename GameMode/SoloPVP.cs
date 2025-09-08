@@ -136,7 +136,7 @@ internal static class SoloPVP
     private static string GetStatsForVanilla(PlayerControl pc)
     {
         var finalText = string.Empty;
-        if (pc.IsHost()) return finalText;
+        if (pc.IsModdedClient()) return finalText;
 
         finalText += "\n<size=90%>";
         finalText += GetHudText();
