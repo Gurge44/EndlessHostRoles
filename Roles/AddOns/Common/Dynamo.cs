@@ -64,7 +64,6 @@ public class Dynamo : IAddon
 
         float modulator = Modulator.GetFloat();
         float increaseBy = Mathf.Clamp(modulator / 20 * 1.5f, 0.05f, 0.6f);
-        float decreaseby = Mathf.Clamp(modulator / 20 * 0.5f, 0.01f, 0.3f);
 
         int charge = DetermineCharge(player, out float minSpeed, out float maxSpeed);
 
@@ -80,7 +79,7 @@ public class Dynamo : IAddon
             }
         }
 
-        if (!moving) Main.AllPlayerSpeed[player.PlayerId] -= Mathf.Clamp(decreaseby, 0f, Main.AllPlayerSpeed[player.PlayerId] - minSpeed);
+        if (!moving) Main.AllPlayerSpeed[player.PlayerId] = minSpeed;
         else Main.AllPlayerSpeed[player.PlayerId] += Mathf.Clamp(increaseBy, 0f, maxSpeed - Main.AllPlayerSpeed[player.PlayerId]);
 
         if (moving) player.MarkDirtySettings();

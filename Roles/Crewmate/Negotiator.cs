@@ -98,7 +98,7 @@ public class Negotiator : RoleBase
 
             switch (Penalty)
             {
-                case NegotiationType.Suicide:
+                case NegotiationType.Suicide when !target.Is(CustomRoles.Pestilence):
                     target.SetRealKiller(negotiator);
                     PlayerState state = Main.PlayerStates[target.PlayerId];
                     state.deathReason = PlayerState.DeathReason.Negotiation;

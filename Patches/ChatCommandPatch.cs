@@ -585,7 +585,7 @@ internal static class ChatCommands
                 rb.Notified = false;
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.KillerDead"));
             }
-            else
+            else if (!killer.Is(CustomRoles.Pestilence))
             {
                 killer.SetRealKiller(player);
                 PlayerState killerState = Main.PlayerStates[killer.PlayerId];

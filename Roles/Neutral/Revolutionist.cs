@@ -122,7 +122,7 @@ internal class Revolutionist : RoleBase
         foreach (KeyValuePair<byte, long> x in RevolutionistStart)
         {
             PlayerControl tar = Utils.GetPlayerById(x.Key);
-            if (tar == null) continue;
+            if (tar == null || tar.Is(CustomRoles.Pestilence)) continue;
 
             tar.Data.IsDead = true;
             Main.PlayerStates[tar.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;

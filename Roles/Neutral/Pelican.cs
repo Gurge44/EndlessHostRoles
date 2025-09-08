@@ -129,7 +129,7 @@ public class Pelican : RoleBase
         if (!pc.Is(CustomRoles.Pelican) || GameStates.IsMeeting) return false;
 
         PlayerControl target = Utils.GetPlayerById(id);
-        return target != null && target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !IsEaten(pc, id) && !IsEaten(id);
+        return target != null && target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !target.Is(CustomRoles.Pestilence) && !IsEaten(pc, id) && !IsEaten(id);
     }
 
     public static Vector2 GetBlackRoomPS()

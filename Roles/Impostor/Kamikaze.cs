@@ -96,7 +96,7 @@ internal class Kamikaze : RoleBase
                 foreach (byte id in kk.MarkedPlayers)
                 {
                     PlayerControl victim = GetPlayerById(id);
-                    if (victim == null || !victim.IsAlive()) continue;
+                    if (victim == null || !victim.IsAlive() || victim.Is(CustomRoles.Pestilence)) continue;
 
                     if (GameStates.IsInTask && !ExileController.Instance)
                         victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
