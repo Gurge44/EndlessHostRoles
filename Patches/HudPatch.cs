@@ -11,7 +11,6 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
-
 namespace EHR.Patches;
 
 //[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
@@ -274,10 +273,10 @@ internal static class HudManagerPatch
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloKombat => SoloPVP.GetHudText(),
-                        CustomGameMode.FFA when player.IsHost() => FreeForAll.GetHudText(),
-                        CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
-                        CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
-                        CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
+                        CustomGameMode.FFA => FreeForAll.GetHudText(),
+                        CustomGameMode.MoveAndStop => MoveAndStop.HUDText,
+                        CustomGameMode.HotPotato => HotPotato.GetSuffixText(player.PlayerId),
+                        CustomGameMode.HideAndSeek => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
@@ -1067,3 +1066,4 @@ internal static class RepairSender
         return SystemType + "(" + (SystemTypes)SystemType + ")\r\n" + Amount;
     }
 }
+
