@@ -1161,9 +1161,6 @@ internal static class RPCHandlerPatch
                     VengefulRomantic.ReceiveRPC(reader);
                     break;
                 }
-                //case CustomRPC.SetCursedSoulCurseLimit:
-                //    CursedSoul.ReceiveRPC(reader);
-                //    break;
                 case CustomRPC.SetEvilDiviner:
                 {
                     byte id = reader.ReadByte();
@@ -1732,6 +1729,7 @@ internal static class PlayerPhysicsRPCHandlerPatch
     }
 
 }
+
 
 
 
