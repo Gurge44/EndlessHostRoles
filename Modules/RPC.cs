@@ -1291,8 +1291,16 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.HNSSync:
                 {
-                    int timeLeft = reader.ReadPackedInt32();
-                    CustomHnS.TimeLeft = timeLeft;
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            int timeLeft = reader.ReadPackedInt32();
+                            CustomHnS.TimeLeft = timeLEft;
+                            break;
+                        case 2:
+                            CustomHnS.Danger[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                    }
                     break;
                 }
                 case CustomRPC.SoloPVPSync:
@@ -1724,5 +1732,6 @@ internal static class PlayerPhysicsRPCHandlerPatch
     }
 
 }
+
 
 
