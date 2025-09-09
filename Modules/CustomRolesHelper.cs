@@ -482,6 +482,7 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.Duality => RoleTypes.Impostor,
             CustomRoles.SerialKiller => RoleTypes.Impostor,
+            CustomRoles.Thanos => RoleTypes.Shapeshifter,
             CustomRoles.Slenderman => RoleTypes.Impostor,
             CustomRoles.Amogus => RoleTypes.Impostor,
             CustomRoles.Weatherman => RoleTypes.Impostor,
@@ -610,6 +611,7 @@ internal static class CustomRolesHelper
             CustomRoles.Rogue or
             CustomRoles.Parasite or
             CustomRoles.SerialKiller or
+            CustomRoles.Thanos or
             CustomRoles.Duality or
             CustomRoles.Slenderman or
             CustomRoles.Amogus or
@@ -1033,6 +1035,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sprayer or
             CustomRoles.Werewolf or
             CustomRoles.WeaponMaster or
+            CustomRoles.Thanos or
             CustomRoles.Tiger or
             CustomRoles.Bargainer or
             CustomRoles.Chemist or
@@ -1860,6 +1863,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     SerialKiller,
+    Thanos,
     Duality,
     Slenderman,
     Amogus,

@@ -367,6 +367,7 @@ public enum CustomRoles
     Technician,
     Tank,
     Terrorist,
+    Thanos,
     Tiger,
     Traitor,
     Tremor,

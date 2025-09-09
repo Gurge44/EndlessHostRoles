@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 
 namespace EHR.Coven;
@@ -62,6 +63,7 @@ public class Dreamweaver : Coven
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        if (Thanos.IsImmune(target)) return false;
         InsanePlayers.Add(target.PlayerId);
         Utils.SendRPC(CustomRPC.SyncRoleData, DreamweaverId, 1, target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);

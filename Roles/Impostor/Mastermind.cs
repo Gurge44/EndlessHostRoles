@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using EHR.Crewmate;
 using EHR.Modules;
+using EHR.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -72,10 +73,10 @@ public class Mastermind : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsEnable) return false;
-
         if (killer == null) return false;
-
         if (target == null) return false;
+        
+        if (Thanos.IsImmune(target)) return false;
 
         return killer.CheckDoubleTrigger(target, () =>
         {

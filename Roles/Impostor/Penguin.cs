@@ -2,6 +2,7 @@
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -165,6 +166,8 @@ public class Penguin : RoleBase
     private void AddVictim(PlayerControl target)
     {
         if (!IsEnable) return;
+        
+        if (Thanos.IsImmune(target)) return;
 
         AbductVictim = target;
         AbductTimer = AbductTimerLimit;

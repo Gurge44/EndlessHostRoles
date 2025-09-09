@@ -839,6 +839,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.SerialKiller:
+            case CustomRoles.Thanos:
             case CustomRoles.Slenderman:
             case CustomRoles.Amogus:
             case CustomRoles.Weatherman:
@@ -3217,6 +3218,7 @@ public static class Utils
         int cd = role switch
         {
             CustomRoles.Farmer => 2,
+            CustomRoles.Thanos => 5,
             CustomRoles.PortalMaker => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
@@ -3498,6 +3500,7 @@ public static class Utils
             Hitman.CheckAndResetTargets();
             Reaper.OnAnyoneDead(target);
             Wyrd.OnAnyoneDeath(target);
+            Thanos.OnDeath(targetRealKiller, target, disconnect);
 
             if (!onMeeting && !disconnect)
             {

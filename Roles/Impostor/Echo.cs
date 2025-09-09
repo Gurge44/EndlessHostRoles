@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 
 namespace EHR.Impostor;
 
@@ -80,6 +81,8 @@ public class Echo : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
+        if (Thanos.IsImmune(target)) return false;
+        
         if (shapeshifting)
         {
             Vector2 pos = target.Pos();
