@@ -739,7 +739,7 @@ internal static class CustomRolesHelper
             CustomRoles.TimeThief or
             CustomRoles.Trickster or
             CustomRoles.Mafia or
-            CustomRoles.Minimalism or
+            CustomRoles.KillingMachine or
             CustomRoles.FireWorks or
             CustomRoles.Sniper or
             CustomRoles.EvilTracker or
@@ -1564,7 +1564,7 @@ internal static class CustomRolesHelper
             CustomRoles.Hitman => RoleOptionType.Impostor_Killing,
             CustomRoles.Inhibitor => RoleOptionType.Impostor_Killing,
             CustomRoles.Kamikaze => RoleOptionType.Impostor_Killing,
-            CustomRoles.Minimalism => RoleOptionType.Impostor_Killing,
+            CustomRoles.KillingMachine => RoleOptionType.Impostor_Killing,
             CustomRoles.Lurker => RoleOptionType.Impostor_Killing,
             CustomRoles.Mafioso => RoleOptionType.Impostor_Killing,
             CustomRoles.Mafia => RoleOptionType.Impostor_Killing,
