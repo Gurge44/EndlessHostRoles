@@ -100,8 +100,8 @@ public class Explosivist : RoleBase
             sender.SendMessage();
             Utils.NumSnapToCallsThisRound += 2;
         }
-        
-        if (player.AmOwner) player.Visible = false;
+
+        player.Visible = false;
 
         ExplodeTS = Utils.TimeStamp + ExplosionDelay.GetInt();
     }
@@ -137,7 +137,6 @@ public class Explosivist : RoleBase
 
     private void RevertFreeze(PlayerControl pc)
     {
-        if (pc.AmOwner) pc.Visible = true;
         pc.NetTransform.SnapTo(RealPosition, (ushort)(pc.NetTransform.lastSequenceId + 128));
         CustomRpcSender sender = CustomRpcSender.Create("Explosivist Revert", SendOption.Reliable);
         sender.StartMessage();
@@ -155,6 +154,7 @@ public class Explosivist : RoleBase
             .EndRpc();
         sender.EndMessage();
         sender.SendMessage();
+        pc.Visible = true;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
