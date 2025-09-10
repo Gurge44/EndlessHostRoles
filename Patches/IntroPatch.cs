@@ -685,7 +685,8 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Nightmare
                     => GetIntroSound(RoleTypes.Impostor),
 
-                CustomRoles.Beacon or
+                CustomRoles.Astral or
+                    CustomRoles.Beacon or
                     CustomRoles.DovesOfNeace or
                     CustomRoles.Mediumshiper or
                     CustomRoles.Observer or
@@ -1273,4 +1274,5 @@ internal static class IntroCutsceneDestroyPatch
     }
 
 }
+
 
