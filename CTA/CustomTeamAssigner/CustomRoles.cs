@@ -9,11 +9,13 @@ public enum CustomRoles
     Impostor,
     Phantom,
     Shapeshifter,
+    Viper,
 
     // Vanilla Remakes
     ImpostorEHR,
     PhantomEHR,
     ShapeshifterEHR,
+    ViperEHR,
 
     // Impostors
 
@@ -67,7 +69,7 @@ public enum CustomRoles
     Inhibitor,
     Kamikaze,
     Kidnapper,
-    Minimalism, // Killing Machine
+    KillingMachine,
     BallLightning, // Lightning
     Librarian,
     Lurker,
@@ -124,6 +126,7 @@ public enum CustomRoles
     Noisemaker,
     Scientist,
     Tracker,
+    Detective,
 
     // Vanilla Remakes
     CrewmateEHR,
@@ -132,6 +135,7 @@ public enum CustomRoles
     NoisemakerEHR,
     ScientistEHR,
     TrackerEHR,
+    DetectiveEHR,
 
     // Crewmates
 
@@ -497,6 +501,7 @@ public enum CustomRoles
     Energetic,
     Entranced,
     EvilSpirit,
+    Examiner,
     Facilitator, // Ghost role
     Finder,
     Flashman,
@@ -557,6 +562,7 @@ public enum CustomRoles
     Undead,
     Underdog,
     Unlucky,
+    Venom,
     Warden, // Ghost role
     Watcher,
     Workhorse,
