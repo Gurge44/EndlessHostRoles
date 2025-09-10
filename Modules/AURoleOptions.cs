@@ -120,6 +120,18 @@ public static class AURoleOptions
         set => Opt.SetFloat(FloatOptionNames.TrackerDelay, value);
     }
 
+    public static float ViperDissolveTime
+    {
+        get => Opt.GetFloat(FloatOptionNames.ViperDissolveTime);
+        set => Opt.SetFloat(FloatOptionNames.ViperDissolveTime, value);
+    }
+    
+    public static float DetectiveSuspectLimit
+    {
+        get => Opt.GetFloat(FloatOptionNames.DetectiveSuspectLimit);
+        set => Opt.SetFloat(FloatOptionNames.DetectiveSuspectLimit, value);
+    }
+
     public static void SetOpt(IGameOptions opt)
     {
         Opt = opt;

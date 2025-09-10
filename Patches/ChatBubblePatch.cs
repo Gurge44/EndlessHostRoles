@@ -23,7 +23,8 @@ internal static class ChatBubbleSetNamePatch
 
         if (GameStates.IsInGame && !voted && seer.PlayerId == target.PlayerId) __instance.NameText.color = seer.GetRoleColor();
 
-        if (seer.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom) __instance.NameText.color = Color.white;
+        if (seer.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.Viper)
+            __instance.NameText.color = Color.white;
 
         if (Main.DarkTheme.Value)
         {

@@ -219,6 +219,7 @@ internal static class HudManagerPatch
 
                     RoleTypes roleTypes = player.GetRoleTypes();
                     __instance.AbilityButton?.OverrideText(GetString($"AbilityButtonText.{roleTypes}"));
+                    __instance.SecondaryAbilityButton?.OverrideText(GetString($"SecondaryAbilityButtonText.{roleTypes}"));
 
                     PlayerState state = Main.PlayerStates[player.PlayerId];
 

@@ -113,9 +113,9 @@ internal class Puppeteer : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (target.Is(CustomRoles.Needy) && PuppeteerManipulationBypassesLazyGuy.GetBool()) return false;
-
-        if (target.Is(CustomRoles.Lazy) && PuppeteerManipulationBypassesLazy.GetBool()) return false;
+        if (Thanos.IsImmune(target)) return false;
+        if (target.Is(CustomRoles.Needy) && !PuppeteerManipulationBypassesLazyGuy.GetBool()) return false;
+        if (target.Is(CustomRoles.Lazy) && !PuppeteerManipulationBypassesLazy.GetBool()) return false;
 
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
@@ -202,7 +202,7 @@ internal class Puppeteer : RoleBase
                 {
                     KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float killRange = NormalGameOptionsV09.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+                    float killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
 
                     if (min.Value <= killRange && player.CanMove && target.CanMove)
                     {

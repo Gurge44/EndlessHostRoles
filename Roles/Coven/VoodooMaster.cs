@@ -1,4 +1,5 @@
 ﻿using System;
+using EHR.Neutral;
 
 namespace EHR.Coven;
 
@@ -52,6 +53,8 @@ public class VoodooMaster : Coven
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        if (Thanos.IsImmune(target)) return HasNecronomicon;
+        
         if (killer.GetAbilityUseLimit() > 0)
         {
             RoleBase roleBase = Main.PlayerStates[target.PlayerId].Role;

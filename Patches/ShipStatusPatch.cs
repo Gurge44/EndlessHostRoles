@@ -342,7 +342,7 @@ public static class HauntMenuMinigameSetHauntTargetPatch
         {
             __instance.HauntTarget = target;
             __instance.HauntingText.enabled = true;
-            __instance.NameText.text = target.Data?.GetPlayerName(PlayerOutfitType.Default);
+            __instance.NameText.text = Main.AllPlayerNames.GetValueOrDefault(target.PlayerId, target.Data?.GetPlayerName(PlayerOutfitType.Default));
 
             if (__instance.HauntTarget != null && Options.GhostCanSeeOtherRoles.GetBool() && (!Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId) || !Utils.IsRevivingRoleAlive()))
                 __instance.FilterText.text = __instance.HauntTarget.GetCustomRole().ToColoredString();

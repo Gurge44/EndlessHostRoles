@@ -52,6 +52,8 @@ public class Venerer : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
+        if (Options.UsePets.GetBool()) return;
+        
         if (Options.UsePhantomBasis.GetBool())
         {
             AURoleOptions.PhantomCooldown = AbilityCooldown.GetInt();

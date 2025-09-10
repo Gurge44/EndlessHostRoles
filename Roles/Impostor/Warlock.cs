@@ -135,6 +135,8 @@ internal class Warlock : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy) || Thanos.IsImmune(target)) return false;
+        
         if (killer.IsShifted()) return false;
 
         if (killer.CheckDoubleTrigger(target, () =>

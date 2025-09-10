@@ -58,7 +58,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2025.4.15";
+    public const string SupportedAUVersion = "2025.9.9";
 
     public static readonly string DataPath =
 #if ANDROID
@@ -175,7 +175,7 @@ public class Main : BasePlugin
 
     private Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV09 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
+    public static NormalGameOptionsV10 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }
@@ -356,6 +356,7 @@ public class Main : BasePlugin
                 { CustomRoles.GuardianAngel, "#77e6d1" },
                 { CustomRoles.Tracker, "#34ad50" },
                 { CustomRoles.Noisemaker, "#ff4a62" },
+                { CustomRoles.Detective, "#625EEE" },
                 // Vanilla Remakes
                 { CustomRoles.CrewmateEHR, "#8cffff" },
                 { CustomRoles.EngineerEHR, "#FF6A00" },
@@ -363,6 +364,7 @@ public class Main : BasePlugin
                 { CustomRoles.GuardianAngelEHR, "#77e6d1" },
                 { CustomRoles.TrackerEHR, "#34ad50" },
                 { CustomRoles.NoisemakerEHR, "#ff4a62" },
+                { CustomRoles.DetectiveEHR, "#625EEE" },
                 // Crewmates
                 { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },
@@ -455,7 +457,7 @@ public class Main : BasePlugin
                 { CustomRoles.SpeedBooster, "#00ffff" },
                 { CustomRoles.Doctor, "#80ffdd" },
                 { CustomRoles.Dictator, "#df9b00" },
-                { CustomRoles.Detective, "#7160e8" },
+                { CustomRoles.Forensic, "#7160e8" },
                 { CustomRoles.NiceGuesser, "#f0e68c" },
                 { CustomRoles.SwordsMan, "#7a7a7a" },
                 { CustomRoles.Transporter, "#42D1FF" },
@@ -536,7 +538,9 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.Duality, "#8D6F64" },
+                { CustomRoles.Thanos, "#F9D401" },
                 { CustomRoles.SerialKiller, "#233fcc" },
+                { CustomRoles.Explosivist, "#D20103" },
                 { CustomRoles.Slenderman, "#2c2e00" },
                 { CustomRoles.Amogus, "#ff0000" },
                 { CustomRoles.Weatherman, "#347deb" },
@@ -667,6 +671,8 @@ public class Main : BasePlugin
                 { CustomRoles.Physicist, "#87e9ff" },
                 { CustomRoles.Finder, "#32a879" },
                 { CustomRoles.Noisy, "#e34fb2" },
+                { CustomRoles.Examiner, "#625EEE" },
+                { CustomRoles.Venom, "#ff1919" },
                 { CustomRoles.Torch, "#eee5be" },
                 { CustomRoles.Seer, "#61b26c" },
                 { CustomRoles.Brakar, "#1447af" },
@@ -792,9 +798,9 @@ public class Main : BasePlugin
         ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
 #endif
 
-        NormalGameOptionsV09.RecommendedImpostors = NormalGameOptionsV09.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
-        NormalGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
-        HideNSeekGameOptionsV09.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
+        NormalGameOptionsV10.RecommendedImpostors = NormalGameOptionsV10.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
+        NormalGameOptionsV10.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
+        HideNSeekGameOptionsV10.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
 
         PrivateTagManager.LoadTagsFromFile();
 
@@ -1016,6 +1022,8 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.SerialKiller,
+    Explosivist = CustomRoles.Explosivist,
+    Thanos = CustomRoles.Thanos,
     Duality = CustomRoles.Duality,
     Slenderman = CustomRoles.Slenderman,
     Amogus = CustomRoles.Amogus,

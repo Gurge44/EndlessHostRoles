@@ -160,7 +160,7 @@ public class Agitater : RoleBase
 
         PlayerControl target = Utils.GetPlayerById(CurrentBombedPlayer);
         PlayerControl killer = Utils.GetPlayerById(PlayerIdList[0]);
-        if (target == null || killer == null) return;
+        if (target == null || killer == null || target.Is(CustomRoles.Pestilence)) return;
 
         target.RpcExileV2();
         target.SetRealKiller(killer);
@@ -199,7 +199,7 @@ public class Agitater : RoleBase
                 {
                     KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float KillRange = NormalGameOptionsV09.KillDistances[Mathf.Clamp(GameOptionsManager.Instance.currentNormalGameOptions.KillDistance, 0, 2)];
+                    float KillRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(GameOptionsManager.Instance.currentNormalGameOptions.KillDistance, 0, 2)];
                     if (min.Value <= KillRange && player.CanMove && target.CanMove) PassBomb(player, target);
                 }
             }

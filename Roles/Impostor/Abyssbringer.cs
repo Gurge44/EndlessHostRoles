@@ -164,7 +164,7 @@ public class Abyssbringer : RoleBase
                     blackHole.Position = newPosition;
                 }
 
-                if (Vector2.Distance(pos, blackHole.Position) <= BlackHoleRadius.GetFloat())
+                if (Vector2.Distance(pos, blackHole.Position) <= BlackHoleRadius.GetFloat() && !nearestPlayer.Is(CustomRoles.Pestilence))
                 {
                     nearestPlayer.RpcExileV2();
                     RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);

@@ -68,7 +68,7 @@ public class Workhorse : IAddon
     {
         if (!pc.IsAlive() || IsThisRole(pc.PlayerId)) return false;
         if (pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Lazy) || pc.Is(CustomRoles.Bloodlust)) return false;
-        if (pc.GetCustomRole().GetVNRole(true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR or CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR or CustomRoles.Phantom or CustomRoles.PhantomEHR) return false;
+        if (pc.GetCustomRole().GetVNRole(true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR or CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR or CustomRoles.Phantom or CustomRoles.PhantomEHR or CustomRoles.Viper or CustomRoles.ViperEHR) return false;
 
         TaskState taskState = pc.GetTaskState();
         if (taskState.CompletedTasksCount + 1 < taskState.AllTasksCount) return false;

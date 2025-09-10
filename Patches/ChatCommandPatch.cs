@@ -585,7 +585,7 @@ internal static class ChatCommands
                 rb.Notified = false;
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.KillerDead"));
             }
-            else
+            else if (!killer.Is(CustomRoles.Pestilence))
             {
                 killer.SetRealKiller(player);
                 PlayerState killerState = Main.PlayerStates[killer.PlayerId];
@@ -3238,6 +3238,30 @@ internal static class ChatCommands
                 subArgs = args.Length < 3 ? "" : args[2];
                 GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.TrackerDelay, float.Parse(subArgs));
                 break;
+            case "vipercount":
+                subArgs = args.Length < 3 ? "" : args[2];
+                GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Viper, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.Viper));
+                break;
+            case "viperchance":
+                subArgs = args.Length < 3 ? "" : args[2];
+                GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Viper, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.Viper), int.Parse(subArgs));
+                break;
+            case "viperdissolvetime":
+                subArgs = args.Length < 3 ? "" : args[2];
+                GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.ViperDissolveTime, float.Parse(subArgs));
+                break;
+            case "detectivecount":
+                subArgs = args.Length < 3 ? "" : args[2];
+                GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Detective, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.Detective));
+                break;
+            case "detectivechance":
+                subArgs = args.Length < 3 ? "" : args[2];
+                GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Detective, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.Detective), int.Parse(subArgs));
+                break;
+            case "detectivesuspectlimit":
+                subArgs = args.Length < 3 ? "" : args[2];
+                GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.DetectiveSuspectLimit, float.Parse(subArgs));
+                break;
             default:
                 Utils.SendMessage(GetString("Commands.ChangeSettingHelp"), player.PlayerId);
                 break;
@@ -3309,7 +3333,7 @@ internal static class ChatCommands
             "嗜血殺手" or "嗜血" or "sk" => GetString("SerialKiller"),
             "千面鬼" or "千面" => GetString("ShapeMaster"),
             "狂妄殺手" or "狂妄" or "arr" => GetString("Sans"),
-            "殺戮機器" or "杀戮" or "机器" or "杀戮兵器" or "km" => GetString("Minimalism"),
+            "殺戮機器" or "杀戮" or "机器" or "杀戮兵器" or "km" => GetString("KillingMachine"),
             "蝕時者" or "蚀时" or "偷时" or "tt" => GetString("TimeThief"),
             "狙擊手" or "狙击" => GetString("Sniper"),
             "傀儡師" or "傀儡" => GetString("Puppeteer"),
@@ -3328,7 +3352,7 @@ internal static class ChatCommands
             "擺爛人" or "摆烂" => GetString("Needy"),
             "獨裁者" or "独裁" or "dict" => GetString("Dictator"),
             "法醫" or "doc" => GetString("Doctor"),
-            "偵探" or "det" => GetString("Detective"),
+            "偵探" or "det" => GetString("Forensic"),
             "幸運兒" or "幸运" => GetString("Luckey"),
             "大明星" or "明星" or "ss" => GetString("SuperStar"),
             "demo" => GetString("Demolitionist"),

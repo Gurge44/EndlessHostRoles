@@ -76,11 +76,13 @@ internal class Analyst : RoleBase
                 CustomRoles.Impostor or CustomRoles.ImpostorEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
                 CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
                 CustomRoles.Phantom or CustomRoles.PhantomEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Witness), GetString("Phantom")),
+                CustomRoles.Viper or CustomRoles.ViperEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Poisoner), GetString("Viper")),
                 CustomRoles.Crewmate or CustomRoles.CrewmateEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
                 CustomRoles.Engineer or CustomRoles.EngineerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
                 CustomRoles.Scientist or CustomRoles.ScientistEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
                 CustomRoles.Noisemaker or CustomRoles.NoisemakerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bubble), GetString("Noisemaker")),
                 CustomRoles.Tracker or CustomRoles.TrackerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Scout), GetString("Tracker")),
+                CustomRoles.Detective or CustomRoles.DetectiveEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Forensic), GetString("Detective")),
                 _ => string.Empty
             }
             : string.Empty;

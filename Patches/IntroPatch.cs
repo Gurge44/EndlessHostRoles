@@ -639,7 +639,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Provocateur
                     => ShipStatus.Instance.SabotageSound,
 
-                CustomRoles.Minimalism or
+                CustomRoles.KillingMachine or
                     CustomRoles.NiceGuesser or
                     CustomRoles.SwordsMan or
                     CustomRoles.Veteran
@@ -711,6 +711,14 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.EvilTracker
                     or CustomRoles.Scout
                     => GetIntroSound(RoleTypes.Tracker),
+                
+                CustomRoles.Viper
+                    or CustomRoles.ViperEHR
+                    => GetIntroSound(RoleTypes.Viper),
+                
+                CustomRoles.Detective
+                    or CustomRoles.DetectiveEHR
+                    => GetIntroSound(RoleTypes.Detective),
 
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
@@ -921,7 +929,7 @@ internal static class BeginCrewmatePatch
 
     private static AudioClip GetIntroSound(RoleTypes roleType)
     {
-        return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType)?.IntroSound;
+        return RoleManager.Instance.AllRoles.Find((Il2CppSystem.Predicate<RoleBehaviour>)(role => role.Role == roleType))?.IntroSound;
     }
 }
 

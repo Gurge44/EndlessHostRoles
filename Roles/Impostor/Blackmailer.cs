@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EHR.Neutral;
 
 namespace EHR.Impostor;
 
@@ -45,12 +46,11 @@ internal class Blackmailer : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.GetAbilityUseLimit() < 1) return true;
-
         if (NumBlackmailedThisRound >= MaxBlackmailedPlayersPerMeeting.GetInt()) return true;
-
         if (BlackmailedPlayerIds.Count >= MaxBlackmailedPlayersAtOnce.GetInt()) return true;
-
         if (BlackmailedPlayerIds.Contains(target.PlayerId)) return true;
+        
+        if (Thanos.IsImmune(target)) return false;
 
         return killer.CheckDoubleTrigger(target, () =>
         {
