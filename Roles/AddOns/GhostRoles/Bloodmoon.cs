@@ -24,8 +24,7 @@ internal class Bloodmoon : IGhostRole
 
     public void OnProtect(PlayerControl pc, PlayerControl target)
     {
-        if (!pc.RpcCheckAndMurder(target, true)) return;
-
+        if (target.Is(CustomRoles.Pestilence) || !pc.RpcCheckAndMurder(target, true)) return;
         ScheduledDeaths.TryAdd(target.PlayerId, Utils.TimeStamp);
     }
 
