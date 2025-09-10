@@ -3333,7 +3333,7 @@ internal static class ChatCommands
             "嗜血殺手" or "嗜血" or "sk" => GetString("SerialKiller"),
             "千面鬼" or "千面" => GetString("ShapeMaster"),
             "狂妄殺手" or "狂妄" or "arr" => GetString("Sans"),
-            "殺戮機器" or "杀戮" or "机器" or "杀戮兵器" or "km" => GetString("Minimalism"),
+            "殺戮機器" or "杀戮" or "机器" or "杀戮兵器" or "km" => GetString("KillingMachine"),
             "蝕時者" or "蚀时" or "偷时" or "tt" => GetString("TimeThief"),
             "狙擊手" or "狙击" => GetString("Sniper"),
             "傀儡師" or "傀儡" => GetString("Puppeteer"),

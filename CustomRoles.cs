@@ -69,7 +69,7 @@ public enum CustomRoles
     Inhibitor,
     Kamikaze,
     Kidnapper,
-    Minimalism, // Killing Machine
+    KillingMachine,
     BallLightning, // Lightning
     Librarian,
     Lurker,

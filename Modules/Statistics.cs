@@ -169,7 +169,7 @@ public static class Statistics
                 case CustomRoles.Snitch when lp.AllTasksCompleted() && CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate && won:
                     Achievements.Type.CrewHero.Complete();
                     break;
-                case CustomRoles.Minimalism when Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId) >= 8:
+                case CustomRoles.KillingMachine when Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId) >= 8:
                     Achievements.Type.Bloodbath.CompleteAfterGameEnd();
                     break;
                 case CustomRoles.Technician when Technician.LocalPlayerFixedSabotageTypes.Count >= 4:

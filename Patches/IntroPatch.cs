@@ -639,7 +639,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Provocateur
                     => ShipStatus.Instance.SabotageSound,
 
-                CustomRoles.Minimalism or
+                CustomRoles.KillingMachine or
                     CustomRoles.NiceGuesser or
                     CustomRoles.SwordsMan or
                     CustomRoles.Veteran

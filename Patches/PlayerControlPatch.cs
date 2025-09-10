@@ -573,7 +573,7 @@ internal static class CheckMurderPatch
                 {
                     switch (killer.Is(CustomRoles.Pestilence))
                     {
-                        case false when !killer.Is(CustomRoles.Minimalism):
+                        case false when !killer.Is(CustomRoles.KillingMachine):
                             player.Kill(killer);
                             Crusader.ForCrusade.Remove(target.PlayerId);
                             killer.RpcGuardAndKill(target);
@@ -769,7 +769,7 @@ internal static class MurderPlayerPatch
             var realKiller = target.GetRealKiller();
             if (realKiller != null) killer = realKiller;
             
-            if (target != killer && !killer.Is(CustomRoles.Minimalism) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
+            if (target != killer && !killer.Is(CustomRoles.KillingMachine) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
             {
                 killer.RPCPlayCustomSound("Congrats");
                 target.RPCPlayCustomSound("Congrats");
