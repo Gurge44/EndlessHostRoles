@@ -14,6 +14,7 @@ internal class CrewmateVanillaRoles : IVanillaSettingHolder
     public static OptionItem TrackerCooldown;
     public static OptionItem TrackerDuration;
     public static OptionItem TrackerDelay;
+    public static OptionItem DetectiveSuspectLimit;
     public TabGroup Tab => TabGroup.CrewmateRoles;
 
     public void SetupCustomOption()
@@ -65,5 +66,11 @@ internal class CrewmateVanillaRoles : IVanillaSettingHolder
         TrackerDelay = new FloatOptionItem(5064, "TrackerDelay", new(1f, 250f, 1f), 5f, Tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TrackerEHR])
             .SetValueFormat(OptionFormat.Seconds);
+        
+        SetupRoleOptions(5080, Tab, CustomRoles.DetectiveEHR);
+        
+        DetectiveSuspectLimit = new FloatOptionItem(5082, "DetectiveSuspectLimit", new(1f, 30f, 1f), 4f, Tab)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.DetectiveEHR])
+            .SetValueFormat(OptionFormat.Players);
     }
 }

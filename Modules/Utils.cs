@@ -839,6 +839,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.SerialKiller:
+            case CustomRoles.Explosivist:
             case CustomRoles.Thanos:
             case CustomRoles.Slenderman:
             case CustomRoles.Amogus:
@@ -3269,6 +3270,7 @@ public static class Utils
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
             CustomRoles.Nonplus => Nonplus.BlindCooldown.GetInt() + (includeDuration ? Nonplus.BlindDuration.GetInt() : 0),
             CustomRoles.Amogus => Amogus.AbilityCooldown.GetInt() + (includeDuration ? Amogus.AbilityDuration.GetInt() : 0),
+            CustomRoles.Explosivist => Explosivist.AbilityCooldown.GetInt() + (includeDuration ? Explosivist.ExplosionDelay.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
             CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
             CustomRoles.NoteKiller => NoteKiller.AbilityCooldown.GetInt(),
@@ -4105,7 +4107,7 @@ public static class Utils
     {
         int baseColorId = deadBodyParent.Data.DefaultOutfit.ColorId;
         deadBodyParent.Data.DefaultOutfit.ColorId = colorId;
-        DeadBody deadBody = Object.Instantiate(GameManager.Instance.DeadBodyPrefab);
+        DeadBody deadBody = Object.Instantiate(GameManager.Instance.deadBodyPrefab[0]);
         deadBody.enabled = false;
         deadBody.ParentId = deadBodyParent.PlayerId;
         foreach (SpriteRenderer b in deadBody.bodyRenderers)

@@ -776,7 +776,7 @@ internal static class MeetingHudStartPatch
                 AddMsg(string.Format(GetString("SilencerDead"), playername, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Silencer), GetString("SilencerKillTitle"))));
             }
 
-            if (Detective.DetectiveNotify.TryGetValue(pc.PlayerId, out string value1)) AddMsg(value1, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Detective), GetString("DetectiveNoticeTitle")));
+            if (Forensic.ForensicNotify.TryGetValue(pc.PlayerId, out string value1)) AddMsg(value1, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Forensic), GetString("ForensicNoticeTitle")));
             if (Main.SleuthMsgs.TryGetValue(pc.PlayerId, out string msg)) AddMsg(msg, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Sleuth), GetString("Sleuth")));
 
             if (pc.Is(CustomRoles.Mimic) && !pc.IsAlive())
@@ -815,7 +815,7 @@ internal static class MeetingHudStartPatch
         Main.SuperStarDead.Clear();
         Express.SpeedNormal.Clear();
         Express.SpeedUp.Clear();
-        Detective.DetectiveNotify.Clear();
+        Forensic.ForensicNotify.Clear();
         Main.SleuthMsgs.Clear();
         Virus.VirusNotify.Clear();
         Mortician.MsgToSend.Clear();

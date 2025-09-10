@@ -1258,8 +1258,8 @@ internal static class ReportDeadBodyPatch
 
             if (tpc != null && !tpc.IsAlive())
             {
-                if (player.Is(CustomRoles.Detective) && player.PlayerId != target.PlayerId)
-                    Detective.OnReportDeadBody(player, target.Object);
+                if (player.Is(CustomRoles.Forensic) && player.PlayerId != target.PlayerId)
+                    Forensic.OnReportDeadBody(player, target.Object);
                 else if (player.Is(CustomRoles.Sleuth) && player.PlayerId != target.PlayerId)
                 {
                     string msg = string.Format(GetString("SleuthMsg"), tpc.GetRealName(), tpc.GetDisplayRoleName());
@@ -2444,6 +2444,8 @@ internal static class PlayerControlLocalSetRolePatch
                 RoleTypes.Noisemaker => CustomRoles.NoisemakerEHR,
                 RoleTypes.Scientist => CustomRoles.ScientistEHR,
                 RoleTypes.Tracker => CustomRoles.TrackerEHR,
+                RoleTypes.Detective => CustomRoles.DetectiveEHR,
+                RoleTypes.Viper => CustomRoles.ViperEHR,
                 _ => CustomRoles.NotAssigned
             };
 

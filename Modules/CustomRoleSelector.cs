@@ -18,6 +18,8 @@ internal static class CustomRoleSelector
     public static int AddNoisemakerNum;
     public static int AddTrackerNum;
     public static int AddPhantomNum;
+    public static int AddViperNum;
+    public static int AddDetectiveNum;
 
     public static readonly Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
     {
@@ -905,6 +907,8 @@ internal static class CustomRoleSelector
         AddNoisemakerNum = 0;
         AddTrackerNum = 0;
         AddPhantomNum = 0;
+        AddViperNum = 0;
+        AddDetectiveNum = 0;
 
         foreach (CustomRoles role in RoleResult.Values)
         {
@@ -929,6 +933,12 @@ internal static class CustomRoleSelector
                         break;
                     case CustomRoles.Phantom:
                         AddPhantomNum++;
+                        break;
+                    case CustomRoles.Viper:
+                        AddViperNum++;
+                        break;
+                    case CustomRoles.Detective:
+                        AddDetectiveNum++;
                         break;
                 }
             }
@@ -955,7 +965,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.Mare or CustomRoles.Glow or CustomRoles.Sleep when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
                 case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead or CustomRoles.Insane:
-                case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy: // Assigned at a different function due to role base change
+                case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy or CustomRoles.Examiner or CustomRoles.Venom: // Assigned at a different function due to role base change
                     continue;
             }
 

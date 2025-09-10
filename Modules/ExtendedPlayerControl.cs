@@ -477,6 +477,8 @@ internal static class ExtendedPlayerControl
                     CustomRoles.Physicist when newRoleType == RoleTypes.Crewmate => RoleTypes.Scientist,
                     CustomRoles.Finder when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker => RoleTypes.Tracker,
                     CustomRoles.Noisy when newRoleType == RoleTypes.Crewmate => RoleTypes.Noisemaker,
+                    CustomRoles.Examiner when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker => RoleTypes.Detective,
+                    CustomRoles.Venom when newRoleType == RoleTypes.Impostor => RoleTypes.Viper,
                     _ => newRoleType
                 },
                 _ => newRoleType
@@ -1337,7 +1339,7 @@ internal static class ExtendedPlayerControl
     {
         CustomRoles role = pc.GetCustomRole();
         if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
-        if (role.GetVNRole(true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR or CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR or CustomRoles.Phantom or CustomRoles.PhantomEHR) return true;
+        if (role.GetVNRole(true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR or CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR or CustomRoles.Phantom or CustomRoles.PhantomEHR or CustomRoles.Viper or CustomRoles.ViperEHR) return true;
         if (pc.GetRoleTypes() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) return true;
         if (pc.Is(CustomRoles.Bloodlust)) return true;
         return !HasTasks(pc.Data, false);
@@ -2112,6 +2114,8 @@ internal static class ExtendedPlayerControl
                 { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
                 { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
                 { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
+                { } x when x.Contains(CustomRoles.Examiner) => RoleTypes.Detective,
+                { } x when x.Contains(CustomRoles.Venom) => RoleTypes.Viper,
                 _ => pc.GetCustomRole().GetRoleTypes()
             };
         }

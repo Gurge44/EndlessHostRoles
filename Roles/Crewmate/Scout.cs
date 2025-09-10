@@ -18,7 +18,7 @@ public class Scout : RoleBase
     private static OptionItem OptionCanSeeLastRoomInMeeting;
     private static OptionItem CanGetColoredArrow;
     public static OptionItem HideVote;
-    public static OptionItem TrackerAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem ScoutAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem CancelVote;
 
@@ -48,7 +48,7 @@ public class Scout : RoleBase
         HideVote = new BooleanOptionItem(Id + 8, "TrackerHideVote", false, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
 
-        TrackerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 9, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
+        ScoutAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 9, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
             .SetValueFormat(OptionFormat.Times);
 

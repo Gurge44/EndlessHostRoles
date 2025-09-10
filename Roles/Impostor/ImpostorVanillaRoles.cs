@@ -8,6 +8,7 @@ internal class ImpostorVanillaRoles : IVanillaSettingHolder
     public static OptionItem PhantomDuration;
     public static OptionItem ShapeshiftCD;
     public static OptionItem ShapeshiftDur;
+    public static OptionItem ViperDissolveTime;
     public TabGroup Tab => TabGroup.ImpostorRoles;
 
     public void SetupCustomOption()
@@ -31,6 +32,12 @@ internal class ImpostorVanillaRoles : IVanillaSettingHolder
 
         ShapeshiftDur = new FloatOptionItem(403, "ShapeshiftDuration", new(1f, 60f, 1f), 10f, Tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterEHR])
+            .SetValueFormat(OptionFormat.Seconds);
+        
+        SetupRoleOptions(410, Tab, CustomRoles.ViperEHR);
+        
+        ViperDissolveTime = new FloatOptionItem(412, "ViperDissolveTime", new(0f, 60f, 0.5f), 10f, Tab)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.ViperEHR])
             .SetValueFormat(OptionFormat.Seconds);
     }
 }

@@ -39,6 +39,7 @@ internal static class CustomRolesHelper
         CustomRoles.PortalMaker,
         CustomRoles.Gardener,
         CustomRoles.Farmer,
+        CustomRoles.Explosivist,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -279,7 +280,7 @@ internal static class CustomRolesHelper
             CustomRoles.Escapee => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.NiceGuesser => CustomRoles.Crewmate,
             CustomRoles.EvilGuesser => CustomRoles.Impostor,
-            CustomRoles.Detective => CustomRoles.Crewmate,
+            CustomRoles.Forensic => CustomRoles.Crewmate,
             CustomRoles.God => CustomRoles.Crewmate,
             CustomRoles.Tank => CustomRoles.Engineer,
             CustomRoles.Technician => Technician.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
@@ -339,7 +340,7 @@ internal static class CustomRolesHelper
             CustomRoles.Devourer => CustomRoles.Shapeshifter,
             CustomRoles.Deathpact => CustomRoles.Shapeshifter,
             CustomRoles.Bloodhound => CustomRoles.Crewmate,
-            CustomRoles.Tracker => CustomRoles.Crewmate,
+            CustomRoles.Scout => CustomRoles.Crewmate,
             CustomRoles.Merchant => CustomRoles.Crewmate,
             CustomRoles.Lookout => CustomRoles.Crewmate,
             CustomRoles.Guardian => CustomRoles.Crewmate,
@@ -365,6 +366,8 @@ internal static class CustomRolesHelper
             CustomRoles.ScientistEHR => CustomRoles.Scientist,
             CustomRoles.TrackerEHR => CustomRoles.Tracker,
             CustomRoles.NoisemakerEHR => CustomRoles.Noisemaker,
+            CustomRoles.DetectiveEHR => CustomRoles.Detective,
+            CustomRoles.ViperEHR => CustomRoles.Viper,
 
             // Hide And Seek
             CustomRoles.Hider => CustomRoles.Crewmate,
@@ -418,6 +421,8 @@ internal static class CustomRolesHelper
             CustomRoles.Impostor => CustomRoles.ImpostorEHR,
             CustomRoles.Phantom => CustomRoles.PhantomEHR,
             CustomRoles.Shapeshifter => CustomRoles.ShapeshifterEHR,
+            CustomRoles.Detective => CustomRoles.DetectiveEHR,
+            CustomRoles.Viper => CustomRoles.ViperEHR,
             _ => role.IsImpostor() ? CustomRoles.ImpostorEHR : CustomRoles.CrewmateEHR
         };
     }
@@ -482,6 +487,7 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.Duality => RoleTypes.Impostor,
             CustomRoles.SerialKiller => RoleTypes.Impostor,
+            CustomRoles.Explosivist => RoleTypes.Impostor,
             CustomRoles.Thanos => RoleTypes.Shapeshifter,
             CustomRoles.Slenderman => RoleTypes.Impostor,
             CustomRoles.Amogus => RoleTypes.Impostor,
@@ -611,6 +617,7 @@ internal static class CustomRolesHelper
             CustomRoles.Rogue or
             CustomRoles.Parasite or
             CustomRoles.SerialKiller or
+            CustomRoles.Explosivist or
             CustomRoles.Thanos or
             CustomRoles.Duality or
             CustomRoles.Slenderman or
@@ -673,6 +680,8 @@ internal static class CustomRolesHelper
             CustomRoles.PhantomEHR or
             CustomRoles.Shapeshifter or
             CustomRoles.ShapeshifterEHR or
+            CustomRoles.Viper or
+            CustomRoles.ViperEHR or
             CustomRoles.LovingImpostor or
             CustomRoles.Godfather or
             CustomRoles.EvilDiviner or
@@ -1029,6 +1038,7 @@ internal static class CustomRolesHelper
             CustomRoles.Wraith or
             CustomRoles.RouleteGrandeur or
             CustomRoles.Enderman or
+            CustomRoles.Explosivist or
             CustomRoles.Hookshot or
             CustomRoles.Mycologist or
             CustomRoles.Magician or
@@ -1052,12 +1062,12 @@ internal static class CustomRolesHelper
     {
         return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
         {
-            CustomRoles.Commited when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter) => false,
+            CustomRoles.Commited when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
             CustomRoles.Underdog when pc.Is(CustomRoles.Mare) => false,
             CustomRoles.Shy when Options.DisableWhisperCommand.GetBool() => false,
             CustomRoles.Blocked when !pc.CanUseVent() => false,
             CustomRoles.Aide when pc.IsMadmate() || pc.Is(CustomRoles.Saboteur) => false,
-            CustomRoles.Sleuth when pc.GetCustomRole() is CustomRoles.NecroGuesser or CustomRoles.Imitator or CustomRoles.Detective => false,
+            CustomRoles.Sleuth when pc.GetCustomRole() is CustomRoles.NecroGuesser or CustomRoles.Imitator or CustomRoles.Forensic => false,
             CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
             CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker=> false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
@@ -1070,7 +1080,7 @@ internal static class CustomRolesHelper
             CustomRoles.Magnet when pc.Is(Team.Impostor) => false,
             CustomRoles.Swift when pc.Is(CustomRoles.Magnet) => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Amnesiac) && Amnesiac.RememberMode.GetValue() == 0 => false,
-            CustomRoles.Rookie when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter) => false,
+            CustomRoles.Rookie when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
             CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,
             CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistEHR) || pc.Is(CustomRoles.Sunnyboy) => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,
@@ -1088,11 +1098,11 @@ internal static class CustomRolesHelper
             CustomRoles.Sunglasses when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelEHR) || pc.Is(CustomRoles.Bewilder) => false,
             CustomRoles.Guesser when pc.GetCustomRole() is CustomRoles.EvilGuesser or CustomRoles.NiceGuesser or CustomRoles.Doomsayer or CustomRoles.CopyCat => false,
             CustomRoles.Madmate when !pc.CanBeMadmate() || pc.Is(CustomRoles.Egoist) || pc.Is(CustomRoles.Rascal) => false,
-            CustomRoles.Oblivious when pc.Is(CustomRoles.Detective) || pc.Is(CustomRoles.Cleaner) || pc.Is(CustomRoles.Medusa) || pc.Is(CustomRoles.Mortician) || pc.Is(CustomRoles.Mediumshiper) || pc.Is(CustomRoles.GuardianAngelEHR) => false,
+            CustomRoles.Oblivious when pc.Is(CustomRoles.Forensic) || pc.Is(CustomRoles.Cleaner) || pc.Is(CustomRoles.Medusa) || pc.Is(CustomRoles.Mortician) || pc.Is(CustomRoles.Mediumshiper) || pc.Is(CustomRoles.GuardianAngelEHR) => false,
             CustomRoles.Youtuber when !pc.IsCrewmate() || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Sheriff) || pc.Is(CustomRoles.GuardianAngelEHR) => false,
             CustomRoles.Egoist when !pc.IsImpostor() => false,
             CustomRoles.Damocles when pc.GetCustomRole() is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.Mercenary or CustomRoles.Cantankerous => false,
-            CustomRoles.Damocles when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter) => false,
+            CustomRoles.Damocles when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
             CustomRoles.Flashman when pc.Is(CustomRoles.Swiftclaw) || pc.Is(CustomRoles.Giant) || pc.Is(CustomRoles.Spurt) || pc.GetCustomRole() is CustomRoles.Tank or CustomRoles.Zombie => false,
             CustomRoles.Giant when pc.Is(CustomRoles.Flashman) || pc.Is(CustomRoles.Spurt) || pc.Is(CustomRoles.RoomRusher) => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Visionary) => false,
@@ -1140,9 +1150,9 @@ internal static class CustomRolesHelper
             CustomRoles.Swift when pc.Is(CustomRoles.Mafia) => false,
             CustomRoles.Reach when pc.GetCustomRole() is CustomRoles.Mafioso or CustomRoles.Evolver => false,
             CustomRoles.Trapper when pc.Is(CustomRoles.GuardianAngelEHR) => false,
-            CustomRoles.Reach when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter) => false,
-            CustomRoles.Magnet when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter) => false,
-            CustomRoles.Haste when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter) || !pc.CanUseImpostorVentButton() => false,
+            CustomRoles.Reach when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
+            CustomRoles.Magnet when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
+            CustomRoles.Haste when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) || !pc.CanUseImpostorVentButton() => false,
             CustomRoles.Diseased when pc.Is(CustomRoles.Antidote) => false,
             CustomRoles.Antidote when pc.Is(CustomRoles.Diseased) => false,
             CustomRoles.Flashman or CustomRoles.Giant when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist or CustomRoles.Ankylosaurus => false,
@@ -1153,6 +1163,8 @@ internal static class CustomRolesHelper
             CustomRoles.Physicist when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || (pc.Is(CustomRoles.TimeMaster) && !TimeMaster.TimeMasterCanUseVitals.GetBool()) => false,
             CustomRoles.Finder when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
             CustomRoles.Noisy when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
+            CustomRoles.Examiner when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
+            CustomRoles.Venom when !pc.IsImpostor() => false,
             CustomRoles.Unreportable when pc.Is(CustomRoles.Bait) => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Bloodhound) => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Vulture) => false,
@@ -1284,6 +1296,8 @@ internal static class CustomRolesHelper
             CustomRoles.Scientist or
             CustomRoles.GuardianAngel or
             CustomRoles.Impostor or
+            CustomRoles.Detective or
+            CustomRoles.Viper or
             CustomRoles.Phantom or
             CustomRoles.Shapeshifter;
     }
@@ -1312,30 +1326,6 @@ internal static class CustomRolesHelper
     public static int GetMode(this CustomRoles role)
     {
         return Options.GetRoleSpawnMode(role);
-    }
-
-    public static float GetChance(this CustomRoles role)
-    {
-        if (role.IsVanilla())
-        {
-            IRoleOptionsCollection roleOpt = Main.NormalOptions.RoleOptions;
-
-            return role switch
-            {
-                CustomRoles.Engineer => roleOpt.GetChancePerGame(RoleTypes.Engineer),
-                CustomRoles.Noisemaker => roleOpt.GetChancePerGame(RoleTypes.Noisemaker),
-                CustomRoles.Tracker => roleOpt.GetChancePerGame(RoleTypes.Tracker),
-                CustomRoles.Scientist => roleOpt.GetChancePerGame(RoleTypes.Scientist),
-                CustomRoles.Impostor => roleOpt.GetChancePerGame(RoleTypes.Impostor),
-                CustomRoles.Phantom => roleOpt.GetChancePerGame(RoleTypes.Phantom),
-                CustomRoles.Shapeshifter => roleOpt.GetChancePerGame(RoleTypes.Shapeshifter),
-                CustomRoles.GuardianAngel => roleOpt.GetChancePerGame(RoleTypes.GuardianAngel),
-                CustomRoles.Crewmate => roleOpt.GetChancePerGame(RoleTypes.Crewmate),
-                _ => 0
-            } / 100f;
-        }
-
-        return Options.GetRoleChance(role);
     }
 
     public static bool IsEnable(this CustomRoles role)
@@ -1441,7 +1431,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Impostor_Concealing => Utils.GetRoleColor(CustomRoles.CopyCat),
             RoleOptionType.Impostor_Miscellaneous => Palette.ImpostorRed,
             RoleOptionType.Crewmate_Miscellaneous => Palette.CrewmateBlue,
-            RoleOptionType.Crewmate_Investigate => Utils.GetRoleColor(CustomRoles.Detective),
+            RoleOptionType.Crewmate_Investigate => Utils.GetRoleColor(CustomRoles.Forensic),
             RoleOptionType.Crewmate_Support => Utils.GetRoleColor(CustomRoles.NiceEraser),
             RoleOptionType.Crewmate_Killing => Utils.GetRoleColor(CustomRoles.Sheriff),
             RoleOptionType.Crewmate_Power => Utils.GetRoleColor(CustomRoles.Electric),
@@ -1650,6 +1640,8 @@ internal static class CustomRolesHelper
             CustomRoles.ShapeshifterEHR => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Phantom => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.PhantomEHR => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.Viper => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.ViperEHR => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
             _ => role.IsCrewmate() ? RoleOptionType.Crewmate_Miscellaneous : RoleOptionType.Neutral_Benign
         };
@@ -1669,6 +1661,8 @@ internal static class CustomRolesHelper
             CustomRoles.TrackerEHR => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Noisemaker => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.NoisemakerEHR => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.Detective => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.DetectiveEHR => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Demolitionist => RoleOptionType.Crewmate_Miscellaneous,
@@ -1692,7 +1686,7 @@ internal static class CustomRolesHelper
             CustomRoles.Chameleon => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Clairvoyant => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Bloodhound => RoleOptionType.Crewmate_Investigate,
-            CustomRoles.Detective => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.Forensic => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Doctor => RoleOptionType.Crewmate_Investigate,
             CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Druid => RoleOptionType.Crewmate_Investigate,
@@ -1863,6 +1857,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     SerialKiller,
+    Explosivist,
     Thanos,
     Duality,
     Slenderman,

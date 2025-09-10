@@ -35,7 +35,7 @@ public class Psychopath : RoleBase
     {
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || Main.KillTimers[pc.PlayerId] > 0f || Count++ < 10) return;
         var pos = pc.Pos();
-        var killRange = NormalGameOptionsV09.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+        var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
         var closestPlayer = Main.AllAlivePlayerControls.Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).MinBy(x => x.distance).pc;
         if (closestPlayer == null) return;
         Count = 0;

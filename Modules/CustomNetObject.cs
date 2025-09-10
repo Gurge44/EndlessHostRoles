@@ -624,6 +624,7 @@ namespace EHR
         protected override void OnFixedUpdate()
         {
             base.OnFixedUpdate();
+            if (Options.CurrentGameMode != CustomGameMode.BedWars) return;
             timer -= Time.fixedDeltaTime;
 
             if (timer <= 0f)

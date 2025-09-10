@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
+using EHR.AddOns.Impostor;
 using EHR.Coven;
 using EHR.Crewmate;
 using EHR.Impostor;
@@ -22,7 +23,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     public PlayerControl player = player;
 
     private static IGameOptions BasedGameOptions =>
-        Main.RealOptionsData.Restore(new NormalGameOptionsV09(new UnityLogger().CastFast<ILogger>()).CastFast<IGameOptions>());
+        Main.RealOptionsData.Restore(new NormalGameOptionsV10(new UnityLogger().CastFast<ILogger>()).CastFast<IGameOptions>());
 
     protected override bool IsDirty { get; set; }
 
@@ -254,6 +255,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     AURoleOptions.TrackerDuration = CrewmateVanillaRoles.TrackerDuration.GetFloat();
                     AURoleOptions.TrackerDelay = CrewmateVanillaRoles.TrackerDelay.GetFloat();
                     break;
+                case CustomRoles.DetectiveEHR:
+                    AURoleOptions.DetectiveSuspectLimit = CrewmateVanillaRoles.DetectiveSuspectLimit.GetFloat();
+                    break;
+                case CustomRoles.ViperEHR:
+                    AURoleOptions.ViperDissolveTime  = ImpostorVanillaRoles.ViperDissolveTime.GetFloat();
+                    break;
             }
 
             // When impostor alert is off, and the player is a desync crewmate, set impostor alert as true
@@ -425,6 +432,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                         AURoleOptions.NoisemakerImpostorAlert = Noisy.NoisyImpostorAlert.GetBool();
                         AURoleOptions.NoisemakerAlertDuration = Noisy.NoisyAlertDuration.GetFloat();
                         break;
+                    case CustomRoles.Examiner when roleTypes == RoleTypes.Detective:
+                        AURoleOptions.DetectiveSuspectLimit = Examiner.ExaminerSuspectLimit.GetFloat();
+                        break;
+                    case CustomRoles.Venom when roleTypes == RoleTypes.Viper:
+                        AURoleOptions.ViperDissolveTime = Venom.VenomDissolveTime.GetFloat();
+                        break;
                 }
             }
 
@@ -458,6 +471,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     case RoleTypes.Tracker:
                         AURoleOptions.TrackerCooldown *= 0.75f;
                         break;
+                    case RoleTypes.Viper:
+                        AURoleOptions.ViperDissolveTime *= 0.75f;
+                        break;
+                    case RoleTypes.Detective:
+                        AURoleOptions.DetectiveSuspectLimit *= 1.25f;
+                        goto default;
                     case RoleTypes.CrewmateGhost:
                     case RoleTypes.ImpostorGhost:
                         break;

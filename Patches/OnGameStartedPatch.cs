@@ -170,7 +170,9 @@ internal static class ChangeRoleSettings
                 RoleTypes.Shapeshifter,
                 RoleTypes.Noisemaker,
                 RoleTypes.Phantom,
-                RoleTypes.Tracker
+                RoleTypes.Tracker,
+                RoleTypes.Detective,
+                RoleTypes.Viper
             }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
             if (Main.NormalOptions.MapId > 5 && !(Main.NormalOptions.MapId == 6 && SubmergedCompatibility.Loaded))
@@ -241,7 +243,7 @@ internal static class ChangeRoleSettings
             Mafia.MafiaRevenged = [];
             Warlock.IsCurseAndKill = [];
             Warlock.IsCursed = false;
-            Detective.DetectiveNotify = [];
+            Forensic.ForensicNotify = [];
             Provocateur.Provoked = [];
             Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;
@@ -472,7 +474,7 @@ internal static class StartGameHostPatch
 
     public static readonly Dictionary<byte, bool> DataDisconnected = [];
 
-    private static RoleOptionsCollectionV09 RoleOpt => Main.NormalOptions.roleOptions;
+    private static RoleOptionsCollectionV10 RoleOpt => Main.NormalOptions.roleOptions;
 
     private static void UpdateRoleTypeNums()
     {
@@ -483,7 +485,9 @@ internal static class StartGameHostPatch
             { RoleTypes.Shapeshifter, AddShapeshifterNum },
             { RoleTypes.Noisemaker, AddNoisemakerNum },
             { RoleTypes.Phantom, AddPhantomNum },
-            { RoleTypes.Tracker, AddTrackerNum }
+            { RoleTypes.Tracker, AddTrackerNum },
+            { RoleTypes.Detective, AddDetectiveNum },
+            { RoleTypes.Viper, AddViperNum }
         };
     }
 
@@ -690,6 +694,8 @@ internal static class StartGameHostPatch
                 bool nimbleSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out IntegerOptionItem option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
                 bool finderSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Finder, out IntegerOptionItem option3) ? option3.GetFloat() : 0) && CustomRoles.Finder.IsEnable();
                 bool noisySpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Noisy, out IntegerOptionItem option4) ? option4.GetFloat() : 0) && CustomRoles.Noisy.IsEnable();
+                bool examinerSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Examiner, out IntegerOptionItem option5) ? option5.GetFloat() : 0) && CustomRoles.Examiner.IsEnable();
+                bool venomSpawn = random.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Venom, out IntegerOptionItem option6) ? option6.GetFloat() : 0) && CustomRoles.Venom.IsEnable();
 
                 if (Options.EveryoneCanVent.GetBool())
                 {
@@ -697,12 +703,13 @@ internal static class StartGameHostPatch
                     physicistSpawn = false;
                     finderSpawn = false;
                     noisySpawn = false;
+                    examinerSpawn = false;
                 }
 
-                HashSet<byte> bloodlustList = [], nimbleList = [], physicistList = [], finderList = [], noisyList = [];
+                HashSet<byte> bloodlustList = [], nimbleList = [], physicistList = [], finderList = [], noisyList = [], examinerList = [], venomList = [];
                 bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> banned);
 
-                if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn || bloodlustSpawn)
+                if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn || bloodlustSpawn || examinerSpawn || venomSpawn)
                 {
                     foreach (PlayerControl player in Main.AllPlayerControls)
                     {
@@ -715,6 +722,8 @@ internal static class StartGameHostPatch
                         bool physicistBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Physicist));
                         bool finderBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Finder));
                         bool noisyBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Noisy));
+                        bool examinerBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Examiner));
+                        bool venomBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Venom));
 
                         if (kp.Value.IsCrewmate())
                         {
@@ -726,8 +735,12 @@ internal static class StartGameHostPatch
                                 if (!physicistBanned) physicistList.Add(player.PlayerId);
                                 if (!finderBanned) finderList.Add(player.PlayerId);
                                 if (!noisyBanned) noisyList.Add(player.PlayerId);
+                                if (!examinerBanned) examinerList.Add(player.PlayerId);
                             }
                         }
+
+                        if (kp.Value.IsImpostor() && kp.Value.GetRoleTypes() == RoleTypes.Impostor && !venomBanned)
+                            venomList.Add(player.PlayerId);
                     }
                 }
 
@@ -737,7 +750,9 @@ internal static class StartGameHostPatch
                     { CustomRoles.Nimble, (nimbleSpawn, nimbleList) },
                     { CustomRoles.Physicist, (physicistSpawn, physicistList) },
                     { CustomRoles.Finder, (finderSpawn, finderList) },
-                    { CustomRoles.Noisy, (noisySpawn, noisyList) }
+                    { CustomRoles.Noisy, (noisySpawn, noisyList) },
+                    { CustomRoles.Examiner, (examinerSpawn, examinerList) },
+                    { CustomRoles.Venom, (venomSpawn, venomList) }
                 };
 
                 for (var i = 0; i < roleSpawnMapping.Count; i++)
@@ -875,7 +890,7 @@ internal static class StartGameHostPatch
                 {
                     foreach (CustomRoles role in item.Value)
                     {
-                        if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy) continue;
+                        if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy or CustomRoles.Examiner or CustomRoles.Venom) continue;
 
                         state.SetSubRole(role);
                         if (overrideLovers && role == CustomRoles.Lovers) Main.LoversPlayers.Add(Utils.GetPlayerById(item.Key));
@@ -1238,10 +1253,10 @@ internal static class StartGameHostPatch
 
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                if (target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel))
+                if (target.Is(Team.Crewmate) && roleType is not (RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel))
                     displayRole = RoleTypes.Crewmate;
 
-                if (target.Is(Team.Impostor) && roleType is not (RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.ImpostorGhost))
+                if (target.Is(Team.Impostor) && roleType is not (RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.Viper or RoleTypes.ImpostorGhost))
                     displayRole = RoleTypes.Impostor;
             }
 
@@ -1399,6 +1414,8 @@ internal static class StartGameHostPatch
                                     CustomRoles.Physicist => RoleTypes.Scientist,
                                     CustomRoles.Finder => RoleTypes.Tracker,
                                     CustomRoles.Noisy => RoleTypes.Noisemaker,
+                                    CustomRoles.Examiner => RoleTypes.Detective,
+                                    CustomRoles.Venom => RoleTypes.Viper,
                                     _ => roleType
                                 };
                             }
@@ -1536,6 +1553,8 @@ internal static class StartGameHostPatch
                         CustomRoles.Physicist when roleTypes == RoleTypes.Crewmate => RoleTypes.Scientist,
                         CustomRoles.Finder when roleTypes is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker => RoleTypes.Tracker,
                         CustomRoles.Noisy when roleTypes == RoleTypes.Crewmate => RoleTypes.Noisemaker,
+                        CustomRoles.Examiner when roleTypes is RoleTypes.Crewmate or RoleTypes.Scientist or RoleTypes.Noisemaker => RoleTypes.Detective,
+                        CustomRoles.Venom when roleTypes == RoleTypes.Impostor => RoleTypes.Viper,
                         _ => roleTypes
                     }
                     : roleTypes;

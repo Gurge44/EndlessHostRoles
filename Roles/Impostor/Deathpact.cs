@@ -191,7 +191,7 @@ public class Deathpact : RoleBase
 
         foreach (PlayerControl player in dp.PlayersInDeathpact)
         {
-            float range = NormalGameOptionsV09.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
+            float range = NormalGameOptionsV10.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
             cancelDeathpact = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Select(otherPlayerInPact => Vector2.Distance(player.Pos(), otherPlayerInPact.Pos())).Aggregate(cancelDeathpact, (current, dis) => current && dis <= range);
         }
 
