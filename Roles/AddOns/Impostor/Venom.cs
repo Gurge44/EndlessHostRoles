@@ -2,7 +2,7 @@
 
 public class Venom : IAddon
 {
-    public AddonTypes Type => AddonTypes.Helpful;
+    public AddonTypes Type => AddonTypes.ImpOnly;
 
     public static OptionItem VenomDissolveTime;
 
