@@ -149,7 +149,6 @@ public class Librarian : RoleBase
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
         if (!IsEnable) return false;
-
         if (pc == null) return false;
 
         ChangeSilencingMode(pc);
@@ -160,7 +159,6 @@ public class Librarian : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         if (!IsEnable) return false;
-
         if (pc == null) return false;
 
         ChangeSilencingMode(pc);
@@ -183,7 +181,6 @@ public class Librarian : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!IsEnable) return;
-
         if (ShowSSAnimation.GetBool() && !UsePhantomBasis.GetBool()) return;
 
         if (IsInSilencingMode.SILENCING && IsInSilencingMode.LAST_CHANGE + SSDur.GetInt() < TimeStamp)
