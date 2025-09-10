@@ -629,7 +629,8 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Workaholic
                     => FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
 
-                CustomRoles.TaskManager
+                CustomRoles.Helper or
+                    CustomRoles.TaskManager
                     => FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
 
                 CustomRoles.Inhibitor or
@@ -667,7 +668,8 @@ internal static class BeginCrewmatePatch
                     CustomRoles.TimeMaster
                     => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
 
-                CustomRoles.Tremor
+                CustomRoles.Chronomancer or
+                    CustomRoles.Tremor
                     => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
 
                 CustomRoles.Deputy or
@@ -683,19 +685,22 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Nightmare
                     => GetIntroSound(RoleTypes.Impostor),
 
-                CustomRoles.Beacon or
-                    CustomRoles.Divinator or
+                CustomRoles.Astral or
+                    CustomRoles.Beacon or
                     CustomRoles.DovesOfNeace or
-                    CustomRoles.Farseer or
                     CustomRoles.Mediumshiper or
                     CustomRoles.Observer or
-                    CustomRoles.Oracle or
                     CustomRoles.Spiritcaller or
                     CustomRoles.Spiritualist
                     => GetIntroSound(RoleTypes.GuardianAngel),
 
                 CustomRoles.Engineer or
-                    CustomRoles.EngineerEHR
+                    CustomRoles.EngineerEHR or
+                    CustomRoles.Dealer or
+                    CustomRoles.Detour or
+                    CustomRoles.Investor or
+                    CustomRoles.Sentinel or
+                    CustomRoles.Sentry
                     => GetIntroSound(RoleTypes.Engineer),
 
                 CustomRoles.Scientist or
@@ -714,10 +719,23 @@ internal static class BeginCrewmatePatch
                 
                 CustomRoles.Viper
                     or CustomRoles.ViperEHR
+                    or CustomRoles.Beehive
+                    or CustomRoles.Demon
+                    or CustomRoles.Pelican
+                    or CustomRoles.Scavenger
+                    or CustomRoles.Vampire
+                    or CustomRoles.Vulture
+                    or CustomRoles.Wasp
                     => GetIntroSound(RoleTypes.Viper),
                 
                 CustomRoles.Detective
                     or CustomRoles.DetectiveEHR
+                    or CustomRoles.Analyst
+                    or CustomRoles.Divinator
+                    or CustomRoles.Farseer
+                    or CustomRoles.Forensic
+                    or CustomRoles.Insight
+                    or CustomRoles.Oracle
                     => GetIntroSound(RoleTypes.Detective),
 
                 CustomRoles.Noisemaker
@@ -740,6 +758,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.Mastermind
                     or CustomRoles.Randomizer
                     or CustomRoles.Shiftguard
+                    or CustomRoles.Wizard
                     => GetIntroSound(RoleTypes.Shapeshifter),
 
                 _ => GetAudioClipFromCustomRoleType()
@@ -826,7 +845,7 @@ internal static class BeginCrewmatePatch
             {
                 __instance.TeamTitle.text = GetString("HotPotato");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(232, 205, 70, byte.MaxValue);
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Viper);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("PotatoInfo");
                 break;
@@ -1253,4 +1272,7 @@ internal static class IntroCutsceneDestroyPatch
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
         }, 4f, "Airship Spawn FailSafe");
     }
+
 }
+
+
