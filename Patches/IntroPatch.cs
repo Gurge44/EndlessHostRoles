@@ -719,6 +719,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Viper
                     or CustomRoles.ViperEHR
                     or CustomRoles.Beehive
+                    or CustomRoles.Demon
                     or CustomRoles.Pelican
                     or CustomRoles.Scavenger
                     or CustomRoles.Vampire
@@ -1272,3 +1273,4 @@ internal static class IntroCutsceneDestroyPatch
     }
 
 }
+
