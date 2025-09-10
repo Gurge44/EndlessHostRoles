@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
 
 namespace EHR.Neutral;
@@ -84,7 +83,7 @@ public class Explosivist : RoleBase
         RealPosition = pos;
         
         // From https://github.com/Rabek009/MoreGamemodes/blob/master/Roles/Impostor/Concealing/Droner.cs
-        foreach (var pc in PlayerControl.AllPlayerControls)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (pc == player || pc.AmOwner) continue;
             CustomRpcSender sender = CustomRpcSender.Create("Explosivist", SendOption.Reliable);
@@ -113,7 +112,7 @@ public class Explosivist : RoleBase
 
         Explosive?.TP(pc.transform.position);
 
-        if (Explosive != null && ExplodeTS >= Utils.TimeStamp)
+        if (Explosive != null && ExplodeTS <= Utils.TimeStamp)
         {
             Utils.GetPlayersInRadius(ExplosionRadius.GetFloat(), Explosive.Position).Without(pc).Do(x => x.Suicide(PlayerState.DeathReason.Bombed, pc));
             

@@ -168,6 +168,11 @@ public class Librarian : RoleBase
         return false;
     }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        OnVanish(pc);
+    }
+
     private void ChangeSilencingMode(PlayerControl pc)
     {
         IsInSilencingMode = (!IsInSilencingMode.SILENCING, TimeStamp);

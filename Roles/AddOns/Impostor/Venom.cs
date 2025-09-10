@@ -11,7 +11,7 @@ public class Venom : IAddon
         Options.SetupAdtRoleOptions(654500, CustomRoles.Venom, canSetNum: true);
         
         VenomDissolveTime = new FloatOptionItem(654510, "ViperDissolveTime", new(0f, 60f, 0.5f), 10f, TabGroup.Addons)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.ViperEHR])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venom])
             .SetValueFormat(OptionFormat.Seconds);
     }
 }

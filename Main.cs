@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.2.1";
-    public const string PluginDisplayVersion = "6.2.1";
+    public const string PluginVersion = "6.3.0";
+    public const string PluginDisplayVersion = "6.3.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -540,7 +540,7 @@ public class Main : BasePlugin
                 { CustomRoles.Duality, "#8D6F64" },
                 { CustomRoles.Thanos, "#F9D401" },
                 { CustomRoles.SerialKiller, "#233fcc" },
-                { CustomRoles.Explosivist, "#D20103" },
+                { CustomRoles.Explosivist, "#ff5900" },
                 { CustomRoles.Slenderman, "#2c2e00" },
                 { CustomRoles.Amogus, "#ff0000" },
                 { CustomRoles.Weatherman, "#347deb" },

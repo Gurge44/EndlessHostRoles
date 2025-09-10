@@ -19,7 +19,7 @@ public class Facilitator : IGhostRole
 
     public void SetupCustomOption()
     {
-        Options.SetupRoleOptions(649700, TabGroup.OtherRoles, CustomRoles.Facilitator);
+        Options.SetupRoleOptions(654600, TabGroup.OtherRoles, CustomRoles.Facilitator);
 
         CD = new IntegerOptionItem(649702, "AbilityCooldown", new(0, 120, 1), 60, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Facilitator])

@@ -11,7 +11,7 @@ public class Examiner : IAddon
         Options.SetupAdtRoleOptions(654400, CustomRoles.Examiner, canSetNum: true);
         
         ExaminerSuspectLimit = new FloatOptionItem(654410, "DetectiveSuspectLimit", new(1f, 30f, 1f), 4f, TabGroup.Addons)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.DetectiveEHR])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Examiner])
             .SetValueFormat(OptionFormat.Players);
     }
 }

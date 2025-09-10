@@ -106,6 +106,11 @@ public class Camouflager : RoleBase
         return false;
     }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        OnVanish(pc);
+    }
+
     public override void OnReportDeadBody()
     {
         IsActive = false;
