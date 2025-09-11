@@ -1348,6 +1348,9 @@ internal static class ReportDeadBodyPatch
 
             if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
                 pc.FixMixedUpOutfit();
+            
+            if (Main.Invisible.Contains(pc.PlayerId))
+                pc.RpcMakeVisible();
 
             PhantomRolePatch.OnReportDeadBody(pc);
         }
@@ -2108,7 +2111,7 @@ internal static class PlayerStartPatch
             TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
             TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
             bool largerFontSize = Options.LargerRoleTextSize.GetBool();
-            roleText.transform.localPosition = new(0f, largerFontSize ? 0.4f : 0.2f, 0f);
+            roleText.transform.localPosition = new(0f, largerFontSize ? 0.35f : 0.2f, 0f);
             if (!largerFontSize) roleText.fontSize -= 0.9f;
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
