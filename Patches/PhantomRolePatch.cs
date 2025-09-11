@@ -61,35 +61,8 @@ public static class PhantomRolePatch
         PlayerControl phantom = __instance;
         Logger.Info($"Player: {phantom.GetNameWithRole()}", "CheckVanish");
 
-        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !Main.PlayerStates[__instance.PlayerId].Role.OnVanish(__instance))
-        {
-            if (phantom.AmOwner)
-            {
-                FastDestroyableSingleton<HudManager>.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
-                phantom.Data.Role.SetCooldown();
-                return false;
-            }
-
-            var sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}", SendOption.Reliable);
-            sender.StartMessage(phantom.OwnerId);
-
-            sender.StartRpc(phantom.NetId, RpcCalls.SetRole)
-                .Write((ushort)RoleTypes.Phantom)
-                .Write(true)
-                .EndRpc();
-
-            sender.StartRpc(phantom.NetId, RpcCalls.ProtectPlayer)
-                .WriteNetObject(phantom)
-                .Write(0)
-                .EndRpc();
-
-            sender.EndMessage();
-            sender.SendMessage();
-
-            LateTask.New(() => phantom.SetKillCooldown(Math.Max(Main.KillTimers[phantom.PlayerId], 0.001f)), 0.2f);
-
+        if (!CheckTrigger(phantom))
             return false;
-        }
 
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
@@ -165,6 +138,41 @@ public static class PhantomRolePatch
         }, 1.2f, "Set Phantom Invisible");
 
         InvisibilityList.Add(phantom);
+        return true;
+    }
+
+    public static bool CheckTrigger(PlayerControl phantom)
+    {
+        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !Main.PlayerStates[phantom.PlayerId].Role.OnVanish(phantom))
+        {
+            if (phantom.AmOwner)
+            {
+                FastDestroyableSingleton<HudManager>.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                phantom.Data.Role.SetCooldown();
+                return false;
+            }
+
+            var sender = CustomRpcSender.Create($"Cancel vanish for {phantom.GetRealName()}", SendOption.Reliable);
+            sender.StartMessage(phantom.OwnerId);
+
+            sender.StartRpc(phantom.NetId, RpcCalls.SetRole)
+                .Write((ushort)RoleTypes.Phantom)
+                .Write(true)
+                .EndRpc();
+
+            sender.StartRpc(phantom.NetId, RpcCalls.ProtectPlayer)
+                .WriteNetObject(phantom)
+                .Write(0)
+                .EndRpc();
+
+            sender.EndMessage();
+            sender.SendMessage();
+
+            LateTask.New(() => phantom.SetKillCooldown(Math.Max(Main.KillTimers[phantom.PlayerId], 0.001f)), 0.2f);
+
+            return false;
+        }
+
         return true;
     }
 

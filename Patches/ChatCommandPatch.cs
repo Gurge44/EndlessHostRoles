@@ -106,6 +106,7 @@ internal static class ChatCommands
     private static readonly Dictionary<char, string> PollAnswers = [];
     private static readonly List<byte> PollVoted = [];
     private static float PollTimer = 45f;
+    private static List<CustomGameMode> GMPollGameModes = [];
 
     public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration)> MutedPlayers = [];
 
@@ -887,7 +888,8 @@ internal static class ChatCommands
             return;
         }
 
-        string gmNames = string.Join(' ', Enum.GetValues<CustomGameMode>()[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).Select(x => GetString(x.ToString()).Replace(' ', '_')));
+        GMPollGameModes = Enum.GetValues<CustomGameMode>()[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
+        string gmNames = string.Join(' ', GMPollGameModes.Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
@@ -1637,7 +1639,7 @@ internal static class ChatCommands
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
 
         PollTimer = gmPoll ? 60f : 45f;
-        Color[] gmPollColors = gmPoll ? Main.GameModeColors.Values.ToArray() : [];
+        Color[] gmPollColors = gmPoll ? Main.GameModeColors.Where(x => GMPollGameModes.Contains(x.Key)).Select(x => x.Value).ToArray() : [];
 
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
@@ -1701,7 +1703,8 @@ internal static class ChatCommands
             if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
             {
                 int winnerIndex = winners[0].Key - 65;
-                Options.GameMode.SetValue(winnerIndex);
+                CustomGameMode mode = GMPollGameModes[winnerIndex];
+                Options.GameMode.SetValue((int)mode - 1);
             }
         }
 

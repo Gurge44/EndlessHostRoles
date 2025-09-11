@@ -1106,7 +1106,10 @@ internal static class StartGameHostPatch
             Utils.ThrowException(ex);
             yield break;
         }
-
+        
+        
+        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 95f, 1f, GetString("LoadingBarText.1"));
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
@@ -1120,8 +1123,7 @@ internal static class StartGameHostPatch
 
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
-        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(95f, 100f, 1f, GetString("LoadingBarText.1"));
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.AllPlayerControls.Do(SetRoleSelf);
