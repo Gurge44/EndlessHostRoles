@@ -369,7 +369,7 @@ internal static class ChangeRoleSettings
                 pc.cosmetics.nameText.text = pc.name;
                 RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
                 NetworkedPlayerInfo.PlayerOutfit outfit = pc.Data.DefaultOutfit;
-                Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
+                Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, outfit.PlayerName), outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.ClientIdList.Add(pc.OwnerId);
 
                 try { Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId]; }
