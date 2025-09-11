@@ -91,6 +91,8 @@ internal static class ExtendedPlayerControl
                 return true;
             case CustomGameMode.Standard when Main.AllAlivePlayerControls.Length == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
                 return false;
+            case CustomGameMode.MoveAndStop:
+                return MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.VentAccess;
         }
 
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
