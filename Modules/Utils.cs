@@ -3340,6 +3340,7 @@ public static class Utils
                     {
                         string petId = PetsHelper.GetPetId();
                         PetsHelper.SetPet(pc, petId);
+                        pc.RpcSetPet(petId);
                     }, 3f, "No Pet Reassign");
                 }
 
