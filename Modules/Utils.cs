@@ -2319,7 +2319,7 @@ public static class Utils
 
     public static string BuildSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        StringBuilder suffix = new();
+        StringBuilder suffix = new("<#ffffff>");
 
         foreach (PlayerState state in Main.PlayerStates.Values)
         {

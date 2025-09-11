@@ -4,7 +4,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Neutral;
 
@@ -113,6 +112,7 @@ public class Thanos : RoleBase
             Utils.AfterPlayerDeathTasks(target);
             target.SetRealKiller(killer);
             killer.SetKillCooldown(KillCooldown.GetFloat());
+            OnMurder(killer, target);
             return false;
         }
 

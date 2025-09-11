@@ -21,7 +21,7 @@ public class Duality : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(12800)
+        StartSetup(654700)
             .AutoSetupOption(ref Time, 40, new IntegerValueRule(1, 120, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref CanVent, true)
             .AutoSetupOption(ref ImpostorVision, true);

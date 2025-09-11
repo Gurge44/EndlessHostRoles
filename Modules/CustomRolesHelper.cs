@@ -107,9 +107,9 @@ internal static class CustomRolesHelper
         if (role.IsVanilla()) return role;
         if (role is CustomRoles.GM) return CustomRoles.Crewmate;
         if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
-        if ((Options.UsePhantomBasis.GetBool() || role.AlwaysUsesPhantomBase()) && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
 
         bool UsePets = Options.UsePets.GetBool();
+        if ((Options.UsePhantomBasis.GetBool() || role.AlwaysUsesPhantomBase()) && role.SimpleAbilityTrigger() && (!UsePets || role is CustomRoles.Swooper or CustomRoles.Wraith)) return CustomRoles.Phantom;
 
         return role switch
         {
@@ -429,10 +429,9 @@ internal static class CustomRolesHelper
 
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
-        if (!load && ((Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
-
         bool UsePets = !load && Options.UsePets.GetBool();
-
+        if (!load && ((Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger() && (!UsePets || role is CustomRoles.Swooper or CustomRoles.Wraith)) return RoleTypes.Phantom;
+        
         return role switch
         {
             // SoloKombat
@@ -488,7 +487,7 @@ internal static class CustomRolesHelper
             CustomRoles.Duality => RoleTypes.Impostor,
             CustomRoles.SerialKiller => RoleTypes.Impostor,
             CustomRoles.Explosivist => RoleTypes.Impostor,
-            CustomRoles.Thanos => RoleTypes.Shapeshifter,
+            CustomRoles.Thanos => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoles.Slenderman => RoleTypes.Impostor,
             CustomRoles.Amogus => RoleTypes.Impostor,
             CustomRoles.Weatherman => RoleTypes.Impostor,
@@ -1033,9 +1032,9 @@ internal static class CustomRolesHelper
             CustomRoles.Sapper or
             CustomRoles.Sniper or
             CustomRoles.Twister or
-            CustomRoles.Swooper or
+            CustomRoles.Swooper or //!
             CustomRoles.Venerer or
-            CustomRoles.Wraith or
+            CustomRoles.Wraith or //!
             CustomRoles.RouleteGrandeur or
             CustomRoles.Enderman or
             CustomRoles.Explosivist or

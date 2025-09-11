@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
 
 namespace EHR.Neutral;
@@ -84,7 +83,7 @@ public class Explosivist : RoleBase
         RealPosition = pos;
         
         // From https://github.com/Rabek009/MoreGamemodes/blob/master/Roles/Impostor/Concealing/Droner.cs
-        foreach (var pc in PlayerControl.AllPlayerControls)
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (pc == player || pc.AmOwner) continue;
             CustomRpcSender sender = CustomRpcSender.Create("Explosivist", SendOption.Reliable);
@@ -101,8 +100,8 @@ public class Explosivist : RoleBase
             sender.SendMessage();
             Utils.NumSnapToCallsThisRound += 2;
         }
-        
-        if (player.AmOwner) player.Visible = false;
+
+        player.Visible = false;
 
         ExplodeTS = Utils.TimeStamp + ExplosionDelay.GetInt();
     }
@@ -113,7 +112,7 @@ public class Explosivist : RoleBase
 
         Explosive?.TP(pc.transform.position);
 
-        if (Explosive != null && ExplodeTS >= Utils.TimeStamp)
+        if (Explosive != null && ExplodeTS <= Utils.TimeStamp)
         {
             Utils.GetPlayersInRadius(ExplosionRadius.GetFloat(), Explosive.Position).Without(pc).Do(x => x.Suicide(PlayerState.DeathReason.Bombed, pc));
             
@@ -138,7 +137,6 @@ public class Explosivist : RoleBase
 
     private void RevertFreeze(PlayerControl pc)
     {
-        if (pc.AmOwner) pc.Visible = true;
         pc.NetTransform.SnapTo(RealPosition, (ushort)(pc.NetTransform.lastSequenceId + 128));
         CustomRpcSender sender = CustomRpcSender.Create("Explosivist Revert", SendOption.Reliable);
         sender.StartMessage();
@@ -156,6 +154,7 @@ public class Explosivist : RoleBase
             .EndRpc();
         sender.EndMessage();
         sender.SendMessage();
+        pc.Visible = true;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

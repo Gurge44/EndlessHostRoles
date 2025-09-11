@@ -102,6 +102,8 @@ public class Farmer : RoleBase
             }
             
             existing.NetObject.Despawn();
+            SeedPositions.Remove(existing);
+            return;
         }
         
         if (Seeds.Count == 0) return;
