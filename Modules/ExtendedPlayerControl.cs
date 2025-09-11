@@ -197,7 +197,7 @@ internal static class ExtendedPlayerControl
     }
 
     /// <summary>
-    ///     *Sub-roles cannot be obtained.
+    ///     *Add-ons cannot be obtained.
     /// </summary>
     public static CustomRoles GetCustomRole(this PlayerControl player)
     {
