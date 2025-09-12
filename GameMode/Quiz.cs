@@ -87,6 +87,7 @@ public static class Quiz
     private static Difficulty CurrentDifficulty;
     private static int Round;
     private static int QuestionsAsked;
+    private static int NumAllCorrectAnswers;
     private static long FFAEndTS;
     private static bool NoSuffix;
     public static bool AllowKills;
@@ -252,6 +253,7 @@ public static class Quiz
         CurrentDifficulty = Difficulty.Easy;
         Round = 0;
         QuestionsAsked = 0;
+        NumAllCorrectAnswers = 0;
         FFAEndTS = 0;
         AllowKills = false;
         NoSuffix = true;
@@ -356,6 +358,7 @@ public static class Quiz
         time += CurrentQuestion.Question.Length / 20;
         time += CurrentQuestion.Answers.Sum(x => x.Length / 15);
         if (Main.CurrentMap is MapNames.Skeld or MapNames.Dleks) time -= 3;
+        time -= NumAllCorrectAnswers;
         QuestionTimeLimitEndTS = Utils.TimeStamp + time;
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -448,6 +451,7 @@ public static class Quiz
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
         DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
+        if (DyingPlayers.Count == 0) NumAllCorrectAnswers++;
         bool everyoneWasWrong = DyingPlayers.Count == aapc.Length;
         if (!everyoneWasWrong) NumCorrectAnswers.IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key).DoIf(x => !DyingPlayers.Contains(x.Key), x => x.Value[CurrentDifficulty][Round]++);
         Logger.Info($"{(everyoneWasWrong ? "Everyone" : "Players who")} got the question wrong: {string.Join(", ", DyingPlayers.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, $"Someone (ID {x})")))}", "Quiz");
