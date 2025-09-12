@@ -516,6 +516,7 @@ internal static class CustomRolesHelper
             CustomRoles.Postman => RoleTypes.Impostor,
             CustomRoles.Dealer => RoleTypes.Impostor,
             CustomRoles.Auditor => RoleTypes.Impostor,
+            CustomRoles.Clerk => RoleTypes.Impostor,
             CustomRoles.Seamstress => RoleTypes.Shapeshifter,
             CustomRoles.Spirit => RoleTypes.Shapeshifter,
             CustomRoles.Starspawn => RoleTypes.Impostor,
@@ -889,6 +890,7 @@ internal static class CustomRolesHelper
             CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool() => true,
             CustomRoles.Socialite when Socialite.CancelVote.GetBool() => true,
             CustomRoles.Negotiator when Negotiator.CancelVote.GetBool() => true,
+            CustomRoles.Clerk when Clerk.CancelVote.GetBool() => true,
 
             CustomRoles.President => true,
 
@@ -1525,6 +1527,7 @@ internal static class CustomRolesHelper
             CustomRoles.Innocent => RoleOptionType.Neutral_Evil,
             CustomRoles.Curser => RoleOptionType.Neutral_Pariah,
             CustomRoles.Auditor => RoleOptionType.Neutral_Pariah,
+            CustomRoles.Clerk => RoleOptionType.Neutral_Pariah,
             CustomRoles.Magistrate => RoleOptionType.Neutral_Pariah,
             CustomRoles.Seamstress => RoleOptionType.Neutral_Pariah,
             CustomRoles.Spirit => RoleOptionType.Neutral_Pariah,

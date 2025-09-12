@@ -729,6 +729,8 @@ public static class Options
     public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem MessageRpcSizeLimit;
     public static OptionItem KickSlowJoiningPlayers;
+    public static OptionItem EnableAutoMessage;
+    public static OptionItem AutoMessageSendInterval;
     public static OptionItem DraftMaxRolesPerPlayer;
     public static OptionItem LargerRoleTextSize;
     public static OptionItem ShowTaskCountWhenAlive;
@@ -1738,6 +1740,13 @@ public static class Options
 
         KickSlowJoiningPlayers = new BooleanOptionItem(19428, "KickSlowJoiningPlayers", false, TabGroup.SystemSettings)
             .SetHeader(true);
+        
+        EnableAutoMessage = new BooleanOptionItem(19429, "EnableAutoMessage", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+        
+        AutoMessageSendInterval = new IntegerOptionItem(19430, "AutoMessageSendInterval", new(10, 300, 5), 60, TabGroup.SystemSettings)
+            .SetParent(EnableAutoMessage)
+            .SetValueFormat(OptionFormat.Seconds);
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .SetHeader(true)

@@ -320,6 +320,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             Wizard.OnAnyoneApplyGameOptions(opt, player.PlayerId);
             Curser.OnAnyoneApplyGameOptions(opt, player.PlayerId);
             Auditor.OnAnyoneApplyGameOptions(opt, player.PlayerId);
+            Clerk.OnAnyoneApplyGameOptions(opt, player.PlayerId);
 
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {

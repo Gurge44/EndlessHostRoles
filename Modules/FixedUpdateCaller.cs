@@ -15,6 +15,7 @@ public static class FixedUpdateCaller
     private static int NonLowLoadPlayerIndex;
 
     private static long LastFileLoadTS;
+    private static long LastAutoMessageSendTS;
 
     // ReSharper disable once UnusedMember.Global
     public static void Postfix()
@@ -47,6 +48,12 @@ public static class FixedUpdateCaller
                 {
                     LastFileLoadTS = now;
                     Options.LoadUserData();
+                }
+
+                if (Options.EnableAutoMessage.GetBool() && now - LastAutoMessageSendTS > Options.AutoMessageSendInterval.GetInt())
+                {
+                    LastAutoMessageSendTS = now;
+                    TemplateManager.SendTemplate("Notification", sendOption: Hazel.SendOption.None);
                 }
             }
 

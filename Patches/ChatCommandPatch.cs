@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -164,7 +165,7 @@ internal static class ChatCommands
             new(["target", "цель", "腹语者标记", "alvo"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, true, [GetString("CommandArgs.Target.Id")]),
             new(["chat", "сообщение", "腹语者发送消息"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, true, [GetString("CommandArgs.Chat.Message")]),
             new(["check", "проверить", "检查", "veificar"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
-            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id")]),
+            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id} [reason]", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id"), GetString("CommandArgs.Ban.Reason")]),
             new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
@@ -1304,6 +1305,8 @@ internal static class ChatCommands
             return;
         }
 
+        DraftResult = [];
+
         byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
         List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM and not CustomRoles.Konan).ToList();
 
@@ -2088,13 +2091,30 @@ internal static class ChatCommands
             return;
         }
 
-        // Kick the specified Player
-        AmongUsClient.Instance.KickPlayer(kickedPlayer.OwnerId, args[0] == "/ban");
-        string kickedPlayerName = kickedPlayer.GetRealName();
-        var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
-        if (GameStates.IsInGame) textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
+        try
+        {
+            string kickedPlayerName = kickedPlayer.GetRealName();
+            var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
+            if (GameStates.IsInGame) textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
+            if (args.Length >= 3) textToSend += $"\n{GetString("KickCommandKickedReason")} {string.Join(' ', args[2..])}";
 
-        Utils.SendMessage(textToSend, sendOption: GameStates.IsInGame ? SendOption.Reliable : SendOption.None);
+            Utils.SendMessage(textToSend, sendOption: GameStates.IsInGame ? SendOption.Reliable : SendOption.None);
+        
+            string modLogFilePath = $"{Main.DataPath}/EHR_DATA/ModLogs/{DateTime.Now:yyyy-MM-dd}.txt";
+        
+            if (!File.Exists(modLogFilePath))
+            {
+                string directoryName = Path.GetDirectoryName(modLogFilePath);
+                if (!string.IsNullOrEmpty(directoryName)) Directory.CreateDirectory(directoryName);
+                File.WriteAllText(modLogFilePath, "=== Moderation Log ===\n");
+            }
+        
+            string logEntry = $"[{DateTime.Now:HH:mm:ss}] {player.GetRealName()} {(args[0] == "/ban" ? "banned" : "kicked")} {kickedPlayerName} [{kickedPlayer.FriendCode}|{kickedPlayer.GetClient().GetHashedPuid()}] for {(args.Length >= 3 ? string.Join(' ', args[2..]) : "[no reason provided]")}\n";
+            File.AppendAllText(modLogFilePath, logEntry);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+        
+        AmongUsClient.Instance.KickPlayer(kickedPlayer.OwnerId, args[0] == "/ban");
     }
 
     private static void CheckCommand(PlayerControl player, string text, string[] args)

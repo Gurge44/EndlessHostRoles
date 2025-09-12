@@ -68,6 +68,7 @@ public class PlayerState(byte playerId)
         WipedOut,
         OutOfOxygen,
         Retribution,
+        Taxes,
 
         // Natural Disasters
         Meteor,
@@ -456,6 +457,8 @@ public class TaskState
 
             if (AmongUsClient.Instance.AmHost)
             {
+                Clerk.DidTaskThisRound.Add(player.PlayerId);
+                
                 bool alive = player.IsAlive();
 
                 if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)

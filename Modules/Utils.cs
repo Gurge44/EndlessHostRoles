@@ -871,6 +871,7 @@ public static class Utils
             case CustomRoles.Postman:
             case CustomRoles.Dealer:
             case CustomRoles.Auditor:
+            case CustomRoles.Clerk:
             case CustomRoles.Magistrate:
             case CustomRoles.Seamstress:
             case CustomRoles.Spirit:
