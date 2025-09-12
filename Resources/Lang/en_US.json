@@ -9258,7 +9258,7 @@
   "Prefix.Sleep": "Sleeping",
   "Clerk": "Clerk",
   "ClerkInfo": "Check Players' Taxes",
-  "ClerkInfoLong": "(Neutrals):\\nAs the Clerk, you may vote for someone in a meeting to check their taxes. If they've completed a task in the last round (or finished them all, or they have none), they get a tax refund (speed & vision boost for the next round). Otherwise, they die.",
+  "ClerkInfoLong": "(Neutrals):\\nAs the Clerk, you may vote for someone in a meeting to check their taxes. If they've completed a task in the last round (or finished them all, or they have none), they get a tax refund (speed & vision boost for the next round). Otherwise, they die.\\n\\nYou win if crewmates lose. Or if the game ends due to a task win (everyone did their taxes)!",
   "Clerk.CanUseAbilityOnFirstMeeting": "Can Use Ability on First Meeting",
   "Clerk.DidTax": "{0} did their taxes. They got a refund!",
   "Clerk.Killed": "{0} was cought not doing their taxes (tasks). They were killed!",
