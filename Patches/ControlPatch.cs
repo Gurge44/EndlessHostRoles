@@ -55,7 +55,16 @@ internal static class ControllerManagerUpdatePatch
             else
                 InGameRoleInfoMenu.Hide();
 
-            if (Input.GetKeyDown(KeyCode.F11))
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
+                HudManager.Instance.Chat.SetVisible(true);
+
+            if (Input.GetKeyDown(KeyCode.P) && PlayerControl.LocalPlayer != null)
+            {
+                Logger.Info(PlayerControl.LocalPlayer.GetTruePosition().ToString(), "GetLocalPlayerPos GetTruePosition()");
+                Logger.Info(PlayerControl.LocalPlayer.transform.position.ToString(), "GetLocalPlayerPos transform.position");
+            }
+            
+            if (KeysDown(KeyCode.F11, KeyCode.LeftAlt))
             {
                 ResolutionIndex++;
                 if (ResolutionIndex >= Resolutions.Length) ResolutionIndex = 0;
@@ -88,10 +97,7 @@ internal static class ControllerManagerUpdatePatch
 
             if (!AmongUsClient.Instance.AmHost) return;
 
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
-                HudManager.Instance.Chat.SetVisible(true);
-
-            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
+            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame || ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode))
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 GameEndChecker.CheckCustomEndCriteria();
@@ -447,4 +453,5 @@ public static class InGameRoleInfoMenu
             Menu?.SetActive(false);
         }
     }
+
 }
