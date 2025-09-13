@@ -1247,7 +1247,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ExeCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(nameof(ReadyCheckCommand), text, adminCommand: true);
             return;
         }
 
@@ -1444,7 +1444,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ExeCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(nameof(UnmuteCommand), text, adminCommand: true);
             return;
         }
 
@@ -2438,7 +2438,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ExeCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(nameof(AFKExemptCommand), text, adminCommand: true);
             return;
         }
 
@@ -3826,4 +3826,5 @@ internal static class RpcSendChatPatch
         return false;
     }
 }
+
 
