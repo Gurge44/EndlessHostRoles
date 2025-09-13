@@ -112,8 +112,17 @@ internal static class HotPotato
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        HotPotatoState.HolderID = reader.ReadByte();
-        HotPotatoState.LastHolderID = reader.ReadByte();
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+                int timeLeft = reader.ReadPackedInt32();
+                HotPotatoState.TimeLeft = timeLeft;
+                break;
+            case 2:
+                HotPotatoState.HolderID = reader.ReadByte();
+                HotPotatoState.LastHolderID = reader.ReadByte();
+                break;
+        }
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -139,6 +148,7 @@ internal static class HotPotato
             if (now > LastFixedUpdate)
             {
                 HotPotatoState.TimeLeft--;
+                Utils.SendRPC(CustomRPC.HotPotatoSync, 1, HotPotatoState.TimeLeft);
                 LastFixedUpdate = now;
                 Utils.NotifyRoles(SendOption: SendOption.None);
             }
@@ -199,7 +209,7 @@ internal static class HotPotato
                 HotPotatoState.LastHolderID = HotPotatoState.HolderID;
                 HotPotatoState.HolderID = target.PlayerId;
 
-                Utils.SendRPC(CustomRPC.HotPotatoSync, HotPotatoState.HolderID, HotPotatoState.LastHolderID);
+                Utils.SendRPC(CustomRPC.HotPotatoSync, 2, HotPotatoState.HolderID, HotPotatoState.LastHolderID);
 
                 if (CanPassViaKillButton)
                 {

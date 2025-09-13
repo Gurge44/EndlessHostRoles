@@ -61,6 +61,8 @@ internal static class CustomHnS
     public static void Init()
     {
         TimeLeft = MaxGameLength.GetInt();
+        Utils.SendRPC(CustomRPC.HNSSync, 1, TimeLeft);
+        
         LastUpdate = Utils.TimeStamp;
 
         Type[] types = GetAllHnsRoleTypes();
@@ -300,7 +302,7 @@ internal static class CustomHnS
 
     public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
     {
-        if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
+        if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || TimeLeft < 0) return string.Empty;
 
         string dangerMeter = GetDangerMeter(seer);
 
@@ -319,6 +321,7 @@ internal static class CustomHnS
 
     private static string GetDangerMeter(PlayerControl seer)
     {
+        Utils.SendRPC(CustomRPC.HNSSync, 2, seer.PlayerId, Danger[seer.PlayerId]);
         return Danger.TryGetValue(seer.PlayerId, out int danger)
             ? danger <= 5
                 ? $"\n<color={GetColorFromDanger()}>{new('\u25a0', 5 - danger)}{new('\u25a1', danger)}</color>"
@@ -459,6 +462,7 @@ internal static class CustomHnS
         // If the Troll is killed, they win
         if (target.Is(CustomRoles.Troll))
         {
+            CustomSoundsManager.RPCPlayCustomSoundAll("Congrats");
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Troll);
             CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
             AddFoxesToWinners();
@@ -477,6 +481,7 @@ internal static class CustomHnS
             LastUpdate = now;
 
             TimeLeft--;
+            Utils.SendRPC(CustomRPC.HNSSync, 1, RoundTime);
 
             PlayerRoles = PlayerRoles.IntersectBy(Main.AllPlayerControls.Select(x => x.PlayerId), x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
