@@ -49,7 +49,7 @@ Share the download link with your friends: [bit.ly/downloadehr](https://bit.ly/d
 ## Want to become a beta tester?
 
 Join our Discord server and download the latest test build from the #test-builds channel.
-You do **NOT** need to pay, boost the server, donate, be a VIP, contributor or anything like that.
+You do **NOT** need to pay, boost the server, donate, be a VIP, Contributor or anything like that.
 In this mod and its discord server, everything is free.
 We don't want your money, we want your feedback.
 You can also report bugs and suggest features in the #bug-reports and #suggestions channels.
@@ -66,9 +66,9 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-#### Over 400 roles and add-ons, 12 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+#### Over 400+ roles and add-ons, 13 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
-## List of Roles <span style="font-size: 12px;">(excluding (Custom) Hide and Seek roles and vanilla roles)</span>
+## List of Roles <span style="font-size: 12px;">(excluding (Custom) Hide And Seek roles and Vanilla roles)</span>
 
 | Crewmates         | Impostors       | Neutrals          | Coven         | Add-ons        |
 |-------------------|-----------------|-------------------|---------------|----------------|
@@ -101,7 +101,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Dad               | Disperser       | The Glitch        |               | Diseased       |
 | Demolitionist     | Duellist        | God               |               | Dynamo         |
 | Deputy            | Dazzler         | Hater             |               | Disregarded    |
-| Detective         | Echo            | Head Hunter       |               | Double Shot    |
+| Forensic          | Echo            | Head Hunter       |               | Double Shot    |
 | Detour            | Escapist        | Hex Master        |               | Egoist         |
 | Dictator          | Evil Eraser     | Hookshot          |               | Energetic      |
 | Doctor            | Evil Guesser    | Pulse             |               | Entranced      |
@@ -204,7 +204,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 |                   |                 |                   |               |                |
 | 129               | 98              | 107               | 17            | 95             |
 
-## VIP and Moderator perks
+## VIP, Moderator, and Admin perks
 
 :heavy_check_mark:   Can always use the command<br>
 :x:   Can never use the command<br>
@@ -249,7 +249,7 @@ Source language: English
 - /up was reworked to /setrole, allowing you to set anyone's role for the next game, not only yours.
 - You can fully gain access to /setrole by just hosting EHR lobbies weekly or uploading EHR content to YouTube, but
   everyone can use /setrole to set their own role without any requirements (essentially /up).
-- EHR has a custom team assigner application, which is a unique feature that no other mod has.
+- EHR has a Custom Team Assigner application, which is a unique feature that no other mod has.
 - You can force or ban certain role/add-on combinations directly in the game using /combo.
 - Not sure how to use commands? Use /help to see a list of all available commands.
 - EHR helps the host use commands by directly displaying their short descriptions, arguments, descriptions for all
@@ -257,7 +257,7 @@ Source language: English
 - You can also press TAB to autocomplete commands.
 - Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
   features.
-- EHR has 12 unique custom game modes, which can be played with any number of players, some even alone.
+- EHR has 13 unique custom game modes, which can be played with any number of players, some even alone.
 - You can make lobbies with more than 15 players on modded servers, just type /cs players 100 - for example - to set the
   player limit to 100.
 - I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as
@@ -293,7 +293,7 @@ Source language: English
 | /deletemod                                     | Removes the specified player from the list of moderators                                      | &#x1F538; **id** – The player's ID to remove from the list of moderators<br>                                                                                                                                                                                                                                                 | :yellow_circle: Host                      | :purple_square: Always                  | :x:                |
 | /combo                                         | Set roles and add-ons that always or never spawn together                                     | &#x1F538; **mode** – add/ban/remove/allow (leave blank to view all combos)<br>&#x1F538; **role** – The name of the main role in 1 word<br>&#x1F538; **addon** – The name of the add-on in 1 word<br>&#x1F539; **all** – Whether to apply to all presets (all/[blank])<br>                                                    | :yellow_circle: Host                      | :purple_square: Always                  | :x:                |
 | /eff<br>/effect                                | Apply a Randomizer effect to yourself                                                         | &#x1F538; **effect** – The name of the effect to apply<br>                                                                                                                                                                                                                                                                   | :yellow_circle: Host                      | :white_large_square: In Game            | :x:                |
-| /afkexempt                                     | Exempt a player from being checked by the AFK detector                                        | &#x1F538; **id** – The player's ID to exempt from AFK detection<br>                                                                                                                                                                                                                                                          | :yellow_circle: Host                      | :purple_square: Always                  | :x:                |
+| /afkexempt                                     | Exempt a player from being checked by the AFK detector                                        | &#x1F538; **id** – The player's ID to exempt from AFK detection<br>                                                                                                                                                                                                                                                          | :white_circle: Host And Admins                    | :purple_square: Always                  | :x:                |
 | /m<br>/myrole                                  | View the description and settings of your role                                                | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :white_large_square: In Game            | :x:                |
 | /tpout                                         | Teleport out of the lobby                                                                     | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :green_square: In Lobby                 | :x:                |
 | /tpin                                          | Teleport into the lobby                                                                       | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :green_square: In Lobby                 | :x:                |
@@ -332,11 +332,11 @@ Source language: English
 | /os<br>/optionset                              | Set the spawn chance of a role                                                                | &#x1F538; **chance** – The spawn chance for the role<br>&#x1F538; **role** – The role to set the spawn chance for<br>                                                                                                                                                                                                        | :yellow_circle: Host                      | :green_square: In Lobby                 | :x:                |
 | /negotiation<br>/neg                           | Pick your negotiation method when asked by the Negotiator                                     | &#x1F538; **number** – The index of the picked negotiation method (0/1/2/3)<br>                                                                                                                                                                                                                                              | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
 | /mute                                          | Mute someone. Muted players can't chat. Everyone is unmuted on game start.                    | &#x1F538; **id** – The player's ID to mute<br>&#x1F539; **duration** – The duration in seconds (leaving blank => 60s)<br>                                                                                                                                                                                                    | :red_circle: Host, Moderators, And Admins | :brown_square: After Death And In Lobby | :x:                |
-| /unmute                                        | Unmute someone.                                                                               | &#x1F538; **id** – The player's ID to unmute<br>                                                                                                                                                                                                                                                                             | :yellow_circle: Host                      | :purple_square: Always                  | :x:                |
+| /unmute                                        | Unmute someone.                                                                               | &#x1F538; **id** – The player's ID to unmute<br>                                                                                                                                                                                                                                                                             | :white_circle: Host And Admins                    | :purple_square: Always                  | :x:                |
 | /draftstart<br>/ds                             | Start drafting, where players may choose their roles for the next game                        | –                                                                                                                                                                                                                                                                                                                            | :red_circle: Host, Moderators, And Admins | :green_square: In Lobby                 | :x:                |
 | /dd<br>/draftdesc<br>/draftdescription         | View the description of one of the roles you got in the draft.                                | &#x1F538; **index** – The number in the drafting message of the role to view the description of<br>                                                                                                                                                                                                                          | :purple_circle: Everyone                  | :green_square: In Lobby                 | :x:                |
 | /draft                                         | Choose a role in the draft                                                                    | &#x1F538; **number** – The number of the role to choose<br>                                                                                                                                                                                                                                                                  | :purple_circle: Everyone                  | :green_square: In Lobby                 | :x:                |
-| /rc<br>/readycheck                             | Start a ready check (check who is AFK) (results displayed after 30s)                          | –                                                                                                                                                                                                                                                                                                                            | :yellow_circle: Host                      | :green_square: In Lobby                 | :x:                |
+| /rc<br>/readycheck                             | Start a ready check (check who is AFK) (results displayed after 30s)                          | –                                                                                                                                                                                                                                                                                                                            | :white_circle: Host And Admins                    | :green_square: In Lobby                 | :x:                |
 | /ready                                         | Mark yourself as ready                                                                        | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :green_square: In Lobby                 | :x:                |
 | /enableallroles                                | Enables all roles and add-ons                                                                 | –                                                                                                                                                                                                                                                                                                                            | :yellow_circle: Host                      | :green_square: In Lobby                 | :x:                |
 | /achievements                                  | See which achievements you have unlocked and which you haven't                                | –                                                                                                                                                                                                                                                                                                                            | :green_circle: Modded Clients             | :purple_square: Always                  | :x:                |
@@ -384,14 +384,14 @@ Source language: English
 ### :star: [Town Of Host Re-Edited](https://github.com/Loonie-Toons/) :
 
 >
-> - Our repo is forked from TOHRE (from a long time ago)
+> - Our repository is forked from TOHRE (from a long time ago)
 > - Ported PhantomRolePatch.cs (partially broken)
 >
 
 ### :star: [Town Of Host Edited / Town Of Next](https://github.com/KARPED1EM/TownOfHostEdited) :
 
 >
-> - Our repo is a continuation of Town Of Host Edited
+> - Our repository is a continuation of Town Of Host Edited
 > - Town Of Next reference: Modify character limit for chat messages
 > - Town Of Next reference: Modify and apply cool animations on Main Menu
 >
@@ -399,7 +399,7 @@ Source language: English
 ### :star: [TOH](https://github.com/tukasa0001/TownOfHost) :
 
 >
-> - Our repo is based initially on TOH
+> - Our repository is based initially on TOH
 >
 
 ### :star: [TOHY](https://github.com/Yumenopai/TownOfHost_Y) :
@@ -515,7 +515,7 @@ Source language: English
 - PH_Gaming
 - TommyXL
 - Drakos
-- Peppercula
+- PEPPERcula
 
 ##### Special Thanks:
 
@@ -667,3 +667,6 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
+
+

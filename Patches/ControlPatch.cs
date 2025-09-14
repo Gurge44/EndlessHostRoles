@@ -55,7 +55,12 @@ internal static class ControllerManagerUpdatePatch
             else
                 InGameRoleInfoMenu.Hide();
 
-            if (Input.GetKeyDown(KeyCode.F11))
+            bool admin = ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode);
+
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift) && admin)
+                HudManager.Instance.Chat.SetVisible(true);
+            
+            if (KeysDown(KeyCode.F11, KeyCode.LeftAlt))
             {
                 ResolutionIndex++;
                 if (ResolutionIndex >= Resolutions.Length) ResolutionIndex = 0;
@@ -84,18 +89,18 @@ internal static class ControllerManagerUpdatePatch
                 Utils.DumpLog();
             }
 
-            if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined) Utils.CopyCurrentSettings();
+            if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
+                Utils.CopyCurrentSettings();
 
-            if (!AmongUsClient.Instance.AmHost) return;
-
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
-                HudManager.Instance.Chat.SetVisible(true);
+            if (!AmongUsClient.Instance.AmHost && !admin) return;
 
             if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 GameEndChecker.CheckCustomEndCriteria();
             }
+
+            if (!AmongUsClient.Instance.AmHost) return;
 
             if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift, KeyCode.LeftControl) && GameStates.IsInGame)
                 Utils.SetChatVisibleForAll();
@@ -447,4 +452,6 @@ public static class InGameRoleInfoMenu
             Menu?.SetActive(false);
         }
     }
+
 }
+
