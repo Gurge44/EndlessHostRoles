@@ -55,14 +55,10 @@ internal static class ControllerManagerUpdatePatch
             else
                 InGameRoleInfoMenu.Hide();
 
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
-                HudManager.Instance.Chat.SetVisible(true);
+            bool admin = ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode);
 
-            if (Input.GetKeyDown(KeyCode.P) && PlayerControl.LocalPlayer != null)
-            {
-                Logger.Info(PlayerControl.LocalPlayer.GetTruePosition().ToString(), "GetLocalPlayerPos GetTruePosition()");
-                Logger.Info(PlayerControl.LocalPlayer.transform.position.ToString(), "GetLocalPlayerPos transform.position");
-            }
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift) && admin)
+                HudManager.Instance.Chat.SetVisible(true);
             
             if (KeysDown(KeyCode.F11, KeyCode.LeftAlt))
             {
@@ -93,15 +89,18 @@ internal static class ControllerManagerUpdatePatch
                 Utils.DumpLog();
             }
 
-            if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined) Utils.CopyCurrentSettings();
+            if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
+                Utils.CopyCurrentSettings();
 
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost && !admin) return;
 
-            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame || ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode))
+            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 GameEndChecker.CheckCustomEndCriteria();
             }
+
+            if (!AmongUsClient.Instance.AmHost) return;
 
             if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift, KeyCode.LeftControl) && GameStates.IsInGame)
                 Utils.SetChatVisibleForAll();
@@ -455,3 +454,4 @@ public static class InGameRoleInfoMenu
     }
 
 }
+
