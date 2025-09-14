@@ -49,7 +49,7 @@ Share the download link with your friends: [bit.ly/downloadehr](https://bit.ly/d
 ## Want to become a beta tester?
 
 Join our Discord server and download the latest test build from the #test-builds channel.
-You do **NOT** need to pay, boost the server, donate, be a VIP, a Contributor or anything like that.
+You do **NOT** need to pay, boost the server, donate, be a VIP, Contributor or anything like that.
 In this mod and its discord server, everything is free.
 We don't want your money, we want your feedback.
 You can also report bugs and suggest features in the #bug-reports and #suggestions channels.
@@ -66,9 +66,9 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-#### Over 400 roles and add-ons, 13 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+#### Over 400+ roles and add-ons, 13 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
-## List of Roles <span style="font-size: 12px;">(excluding (Custom) Hide and Seek roles and vanilla roles)</span>
+## List of Roles <span style="font-size: 12px;">(excluding (Custom) Hide And Seek roles and Vanilla roles)</span>
 
 | Crewmates         | Impostors       | Neutrals          | Coven         | Add-ons        |
 |-------------------|-----------------|-------------------|---------------|----------------|
@@ -667,4 +667,5 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
 
