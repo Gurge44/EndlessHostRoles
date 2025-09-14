@@ -1448,13 +1448,12 @@ internal static class ChatCommands
             return;
         }
 
-        bool host = player.IsHost();
-        if (args.Length < 2 || !byte.TryParse(args[1], out byte id) || (!host && IsPlayerAdmin(id.GetPlayer()?.FriendCode))) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte id)) return;
 
         MutedPlayers.Remove(id);
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerUnmuted"), id.ColoredPlayerName()));
         Utils.SendMessage("\n", id, string.Format(GetString("YouUnmuted"), player.PlayerId.ColoredPlayerName()));
-        if (!host) Utils.SendMessage("\n", 0, string.Format(GetString("AdminUnmuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName()));
+        if (!player.IsHost()) Utils.SendMessage("\n", 0, string.Format(GetString("AdminUnmuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName()));
     }
 
     private static void NegotiationCommand(PlayerControl player, string text, string[] args)
@@ -3826,6 +3825,7 @@ internal static class RpcSendChatPatch
         return false;
     }
 }
+
 
 
 
