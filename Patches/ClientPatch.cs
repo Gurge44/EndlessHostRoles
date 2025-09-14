@@ -108,7 +108,7 @@ internal static class KickPlayerPatch
 {
     public static bool Prefix( /*InnerNetClient __instance,*/ int clientId, bool ban)
     {
-        if (!AmongUsClient.Instance.AmHost || !ChatCommands.IsPlayerModerator(PlayerControl.LocalPlayer.FriendCode) && !OnGameJoinedPatch.JoiningGame) return true;
+        if ((!AmongUsClient.Instance.AmHost || !ChatCommands.IsPlayerModerator(PlayerControl.LocalPlayer.FriendCode)) && !OnGameJoinedPatch.JoiningGame) return true;
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
@@ -211,4 +211,5 @@ internal static class AuthTimeoutPatch
 #endif
 
 }
+
 
