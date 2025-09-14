@@ -83,7 +83,7 @@ internal static class BanMenuSetVisiblePatch
 {
     public static bool Prefix(BanMenu __instance, bool show)
     {
-        if (!AmongUsClient.Instance.AmHost || !ChatCommands.IsPlayerModerator(PlayerControl.LocalPlayer.FriendCode)) return true;
+        if (!AmongUsClient.Instance.AmHost) return true;
 
         show &= PlayerControl.LocalPlayer && PlayerControl.LocalPlayer.Data != null;
         __instance.BanButton.gameObject.SetActive(AmongUsClient.Instance.CanBan());
@@ -108,7 +108,7 @@ internal static class KickPlayerPatch
 {
     public static bool Prefix( /*InnerNetClient __instance,*/ int clientId, bool ban)
     {
-        if ((!AmongUsClient.Instance.AmHost || !ChatCommands.IsPlayerModerator(PlayerControl.LocalPlayer.FriendCode)) && !OnGameJoinedPatch.JoiningGame) return true;
+        if (!AmongUsClient.Instance.AmHost && !OnGameJoinedPatch.JoiningGame) return true;
 
         if (AmongUsClient.Instance.ClientId == clientId)
         {
@@ -211,5 +211,6 @@ internal static class AuthTimeoutPatch
 #endif
 
 }
+
 
 
