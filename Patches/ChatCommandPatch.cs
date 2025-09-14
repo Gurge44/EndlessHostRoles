@@ -1449,7 +1449,7 @@ internal static class ChatCommands
         }
 
         bool host = player.IsHost();
-        if (args.Length < 2 || !byte.TryParse(args[1], out byte id) || id.IsHost() || (!host && IsPlayerAdmin(id.GetPlayer()?.FriendCode))) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte id) || (!host && IsPlayerAdmin(id.GetPlayer()?.FriendCode))) return;
 
         MutedPlayers.Remove(id);
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerUnmuted"), id.ColoredPlayerName()));
@@ -3826,5 +3826,6 @@ internal static class RpcSendChatPatch
         return false;
     }
 }
+
 
 
