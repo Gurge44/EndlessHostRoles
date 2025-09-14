@@ -18,7 +18,7 @@ public static class ServerDropdownPatch
         SpriteRenderer bg = __instance.background;
         bg.size = new Vector2(4, 1);
         ServerManager sm = FastDestroyableSingleton<ServerManager>.Instance;
-        TranslationController tc = FastDestroyableSingleton<TranslationController>.Instance;
+        TranslationController tc = TranslationController.Instance;
         int totalCols = Mathf.Max(1, Mathf.CeilToInt(sm.AvailableRegions.Length / (float)5));
         int rowLimit = Mathf.Min(sm.AvailableRegions.Length, 5);
 

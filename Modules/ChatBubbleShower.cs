@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Patches;
+using Il2CppSystem.Runtime.Remoting.Messaging;
 using TMPro;
 using UnityEngine;
 
@@ -27,7 +28,9 @@ public static class ChatBubbleShower
             (string message, string title) = Queue.First();
             Queue.Remove((message, title));
 
-            ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+            if (!HudManager.InstanceExists) return;
+
+            ChatController chat = HudManager.Instance.Chat;
 
             if (GameStates.IsMeeting || chat.IsOpenOrOpening) ShowBubbleWithoutPlayer();
             else if (GameStates.IsLobby) Utils.SendMessage(message, PlayerControl.LocalPlayer.PlayerId, title);

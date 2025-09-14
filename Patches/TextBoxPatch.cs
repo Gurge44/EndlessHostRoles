@@ -63,7 +63,7 @@ public static class TextBoxPatch
             }
         }
 
-        if (!__instance.tempTxt.ToString().Equals(FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
+        if (!__instance.tempTxt.ToString().Equals(TranslationController.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
         {
             int length = __instance.tempTxt.Length;
             __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
@@ -194,9 +194,9 @@ public static class TextBoxPatch
                 PlaceHolderText.transform.localPosition = __instance.outputText.transform.localPosition;
             }
 
-            if (CommandInfoText == null)
+            if (CommandInfoText == null && HudManager.InstanceExists)
             {
-                HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+                HudManager hud = HudManager.Instance;
                 CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
                 CommandInfoText.name = "CommandInfoText";
                 CommandInfoText.alignment = TextAlignmentOptions.Left;
@@ -210,9 +210,9 @@ public static class TextBoxPatch
                 CommandInfoText.transform.SetAsLastSibling();
             }
 
-            if (AdditionalInfoText == null)
+            if (AdditionalInfoText == null && HudManager.InstanceExists)
             {
-                HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+                HudManager hud = HudManager.Instance;
                 AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
                 AdditionalInfoText.name = "AdditionalInfoText";
                 AdditionalInfoText.alignment = TextAlignmentOptions.Left;
@@ -340,9 +340,9 @@ public static class TextBoxPatch
             if (PlaceHolderText != null) PlaceHolderText.enabled = false;
             if (CommandInfoText != null) CommandInfoText.enabled = false;
 
-            if (AdditionalInfoText != null)
+            if (AdditionalInfoText != null && HudManager.InstanceExists)
             {
-                bool showLobbyCode = FastDestroyableSingleton<HudManager>.Instance?.Chat?.IsOpenOrOpening == true && GameStates.IsLobby && Options.GetSuffixMode() == SuffixModes.Streaming && !Options.HideGameSettings.GetBool() && !DataManager.Settings.Gameplay.StreamerMode;
+                bool showLobbyCode = HudManager.Instance?.Chat?.IsOpenOrOpening == true && GameStates.IsLobby && Options.GetSuffixMode() == SuffixModes.Streaming && !Options.HideGameSettings.GetBool() && !DataManager.Settings.Gameplay.StreamerMode;
                 AdditionalInfoText.enabled = showLobbyCode;
                 if (showLobbyCode) AdditionalInfoText.text = $"\n\n{Translator.GetString("LobbyCode")}:\n<size=250%><b>{GameCode.IntToGameName(AmongUsClient.Instance.GameId)}</b></size>";
             }
@@ -364,7 +364,12 @@ public static class TextBoxPatch
     {
         try
         {
-            bool open = FastDestroyableSingleton<HudManager>.Instance?.Chat?.IsOpenOrOpening ?? false;
+            if (!HudManager.InstanceExists)
+            {
+                Logger.Error("HudManager instance does not exist.", "TextBoxPatch");
+                return;
+            }
+            bool open = HudManager.Instance.Chat.IsOpenOrOpening;
             PlaceHolderText?.gameObject.SetActive(open);
             CommandInfoText?.gameObject.SetActive(open);
             AdditionalInfoText?.gameObject.SetActive(open);

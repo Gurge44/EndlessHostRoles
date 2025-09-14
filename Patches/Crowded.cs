@@ -240,7 +240,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static bool Prefix(CreateOptionsPicker __instance, int maxPlayers)
         {
-            if (DestroyableSingleton<FindAGameManager>.InstanceExists || __instance.mode != SettingsMode.Host)
+            if (FindAGameManager.InstanceExists || __instance.mode != SettingsMode.Host)
                 return true;
 
             IGameOptions targetOptions = __instance.GetTargetOptions();
@@ -261,7 +261,7 @@ internal static class Crowded
             __instance.UpdateMaxPlayersButtons(targetOptions);
             __instance.UpdateLanguageButton((uint)targetOptions.Keywords);
             __instance.MapMenu.UpdateMapButtons(targetOptions.MapId);
-            __instance.GameModeText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(GameModesHelpers.ModeToName[GameOptionsManager.Instance.CurrentGameOptions.GameMode]);
+            __instance.GameModeText.text = TranslationController.Instance.GetString(GameModesHelpers.ModeToName[GameOptionsManager.Instance.CurrentGameOptions.GameMode]);
             return false;
         }
     }

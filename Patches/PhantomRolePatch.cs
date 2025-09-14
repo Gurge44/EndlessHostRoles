@@ -147,7 +147,7 @@ public static class PhantomRolePatch
         {
             if (phantom.AmOwner)
             {
-                FastDestroyableSingleton<HudManager>.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                HudManager.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
                 phantom.Data.Role.SetCooldown();
                 return false;
             }
@@ -332,8 +332,8 @@ public static class PhantomRoleUseAbilityPatch
                     return false;
                 }
 
-                FastDestroyableSingleton<HudManager>.Instance.AbilityButton.SetSecondImage(__instance.Ability);
-                FastDestroyableSingleton<HudManager>.Instance.AbilityButton.OverrideText(FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PhantomAbilityUndo, new Il2CppReferenceArray<Il2CppSystem.Object>(0)));
+                HudManager.Instance.AbilityButton.SetSecondImage(__instance.Ability);
+                HudManager.Instance.AbilityButton.OverrideText(TranslationController.Instance.GetString(StringNames.PhantomAbilityUndo, new Il2CppReferenceArray<Il2CppSystem.Object>(0)));
                 __instance.Player.CmdCheckVanish(GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.PhantomDuration));
                 return false;
             }

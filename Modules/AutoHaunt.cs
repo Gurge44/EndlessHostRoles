@@ -48,8 +48,10 @@ public static class AutoHaunt
                         if (preferredTarget != null && currentTarget != preferredTarget)
                             HauntMenuMinigameSetHauntTargetPatch.Prefix(HauntMenuMinigameStartPatch.Instance, preferredTarget);
                     }
-                    else
-                        FastDestroyableSingleton<HudManager>.Instance.AbilityButton.DoClick();
+                    else if (HudManager.InstanceExists)
+                    {
+                        HudManager.Instance.AbilityButton.DoClick();
+                    }
                 }
 
                 yield return new WaitForSeconds(5f);

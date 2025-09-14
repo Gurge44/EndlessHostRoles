@@ -1955,7 +1955,8 @@ internal static class ExtendedPlayerControl
 
         LateTask.New(() =>
         {
-            FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
+            if (!HudManager.InstanceExists) return;
+            HudManager.Instance.OpenMeetingRoom(reporter);
             reporter.RpcStartMeeting(target);
         }, 0.2f, "NoCheckStartMeeting Delay");
     }
@@ -2198,7 +2199,7 @@ internal static class ExtendedPlayerControl
         if (Main.UserData.TryGetValue(pc.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0) return true;
         
         ClientData client = pc.GetClient();
-        return client != null && FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);
+        return client != null && (FriendsListManager.InstanceExists && FriendsListManager.Instance.IsPlayerFriend(client.ProductUserId));
     }
 
     public static bool IsBeginner(this PlayerControl pc)

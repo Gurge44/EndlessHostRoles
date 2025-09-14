@@ -152,7 +152,14 @@ internal static class ControllerManagerUpdatePatch
                         yield return new WaitForSeconds(0.1f);
 
                         string format = GetString("ResettingOptions");
-                        HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+
+                        if (!HudManager.InstanceExists)
+                        {
+                            IsResetting = false;
+                            yield break;
+                        }
+
+                        HudManager hudManager = HudManager.Instance;
                         hudManager.ShowPopUp(string.Format(format, 0, OptionItem.AllOptions.Count));
                         hudManager.Dialogue.BackButton.gameObject.SetActive(false);
 
@@ -324,15 +331,21 @@ internal static class HandleHUDPatch
 {
     public static void Postfix(Player player)
     {
+        if (!HudManager.InstanceExists)
+        {
+            Logger.Error("HudManager instance does not exist", "HandleHUDPatch");
+            return;
+        }
+
         if (player.GetButtonDown(8) && // 8: Kill button actionId
             PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
             PlayerControl.LocalPlayer.CanUseKillButton())
-            FastDestroyableSingleton<HudManager>.Instance.KillButton.DoClick();
+            HudManager.Instance.KillButton.DoClick();
 
         if (player.GetButtonDown(50) && // 50: Impostor vent button actionId
             PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
             PlayerControl.LocalPlayer.CanUseImpostorVentButton())
-            FastDestroyableSingleton<HudManager>.Instance.ImpostorVentButton.DoClick();
+            HudManager.Instance.ImpostorVentButton.DoClick();
     }
 }
 

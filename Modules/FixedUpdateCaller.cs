@@ -57,61 +57,64 @@ public static class FixedUpdateCaller
                 }
             }
 
-            HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
-
-            if (hudManager)
+            if (HudManager.InstanceExists)
             {
-                HudManagerPatch.Postfix(hudManager);
-                Zoom.Postfix();
-                HudSpritePatch.Postfix(hudManager);
-            }
+                HudManager hudManager = HudManager.Instance;
 
-            try
-            {
-                foreach (byte key in EAC.TimeSinceLastTaskCompletion.Keys.ToArray())
-                    EAC.TimeSinceLastTaskCompletion[key] += Time.fixedDeltaTime;
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            if (!PlayerControl.LocalPlayer) return;
-
-            if (AmongUsClient.Instance.IsGameStarted)
-                Utils.CountAlivePlayers();
-
-            try
-            {
-                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
+                if (hudManager)
                 {
-                    Predicate<PlayerControl> predicate = AmongUsClient.Instance.AmHost
-                        ? Options.CurrentGameMode switch
-                        {
-                            CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
-                            CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
-                            CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
-                            _ => _ => true
-                        }
-                        : _ => true;
-
-                    List<PlayerControl> players = PlayerControl.LocalPlayer.GetPlayersInAbilityRangeSorted(predicate);
-                    PlayerControl closest = players.Count == 0 ? null : players[0];
-
-                    KillButton killButton = hudManager.KillButton;
-
-                    if (killButton.currentTarget && killButton.currentTarget != closest)
-                        killButton.currentTarget.ToggleHighlight(false, RoleTeamTypes.Impostor);
-
-                    killButton.currentTarget = closest;
-
-                    if (killButton.currentTarget)
-                    {
-                        killButton.currentTarget.ToggleHighlight(true, RoleTeamTypes.Impostor);
-                        killButton.SetEnabled();
-                    }
-                    else
-                        killButton.SetDisabled();
+                    HudManagerPatch.Postfix(hudManager);
+                    Zoom.Postfix();
+                    HudSpritePatch.Postfix(hudManager);
                 }
+
+                try
+                {
+                    foreach (byte key in EAC.TimeSinceLastTaskCompletion.Keys.ToArray())
+                        EAC.TimeSinceLastTaskCompletion[key] += Time.fixedDeltaTime;
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                if (!PlayerControl.LocalPlayer) return;
+
+                if (AmongUsClient.Instance.IsGameStarted)
+                    Utils.CountAlivePlayers();
+
+                try
+                {
+                    if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
+                    {
+                        Predicate<PlayerControl> predicate = AmongUsClient.Instance.AmHost
+                            ? Options.CurrentGameMode switch
+                            {
+                                CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
+                                CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
+                                CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
+                                _ => _ => true
+                            }
+                            : _ => true;
+
+                        List<PlayerControl> players = PlayerControl.LocalPlayer.GetPlayersInAbilityRangeSorted(predicate);
+                        PlayerControl closest = players.Count == 0 ? null : players[0];
+
+                        KillButton killButton = hudManager.KillButton;
+
+                        if (killButton.currentTarget && killButton.currentTarget != closest)
+                            killButton.currentTarget.ToggleHighlight(false, RoleTeamTypes.Impostor);
+
+                        killButton.currentTarget = closest;
+
+                        if (killButton.currentTarget)
+                        {
+                            killButton.currentTarget.ToggleHighlight(true, RoleTeamTypes.Impostor);
+                            killButton.SetEnabled();
+                        }
+                        else
+                            killButton.SetDisabled();
+                    }
+                }
+                catch { }
             }
-            catch { }
 
             try
             {

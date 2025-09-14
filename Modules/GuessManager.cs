@@ -610,7 +610,12 @@ public static class GuessManager
 
     private static void ProcessGuess(PlayerControl pc, MeetingHud meetingHud)
     {
-        HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+        if (!HudManager.InstanceExists)
+        {
+            Logger.Error("HudManager instance does not exist!", "Guesser Kill");;
+            return;
+        }
+        HudManager hudManager = HudManager.Instance;
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         if (!Options.DisableKillAnimationOnGuess.GetBool()) hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
 

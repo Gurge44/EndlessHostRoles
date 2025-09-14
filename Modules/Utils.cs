@@ -1818,7 +1818,15 @@ public static class Utils
             {
                 string name = sender.Data.PlayerName;
                 sender.SetName(title);
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
+
+                if (HudManager.InstanceExists)
+                {
+                    HudManager.Instance.Chat.AddChat(sender, text);
+                }
+                else
+                {
+                    Logger.Error("HudManager Instance not found, message not sent to chat.", "SendMessage");
+                }
                 sender.SetName(name);
 
                 try
@@ -2027,7 +2035,15 @@ public static class Utils
             {
                 string name = sender.Data.PlayerName;
                 sender.SetName(title);
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
+
+                if (HudManager.InstanceExists)
+                {
+                    HudManager.Instance.Chat.AddChat(sender, text);
+                }
+                else
+                {
+                    Logger.Error("HudManager Instance not found, message not sent to chat.", "SendMessage");
+                }
                 sender.SetName(name);
             }
 
@@ -3635,8 +3651,14 @@ public static class Utils
 
             if (!open) return;
 
-            if (PlayerControl.LocalPlayer != null)
-                FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+            if (PlayerControl.LocalPlayer != null && HudManager.InstanceExists)
+            {
+                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+            }
+            else
+            {
+                Logger.Error("Could not send chat message, HudManager or LocalPlayer is null", "DumpLog");
+            }
 
 #if !ANDROID
             Process.Start("explorer.exe", f.Replace("/", "\\"));
@@ -3870,7 +3892,12 @@ public static class Utils
 
     public static void FlashColor(Color color, float duration = 1f)
     {
-        HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+        if (!HudManager.InstanceExists)
+        {
+            Logger.Error("HudManager does not exist!", "FlashColor");
+            return;
+        }
+        HudManager hud = HudManager.Instance;
         if (hud.FullScreen == null) return;
 
         GameObject obj = hud.transform.FindChild("FlashColor_FullScreen")?.gameObject;

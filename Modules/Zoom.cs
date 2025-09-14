@@ -70,7 +70,14 @@ public static class Zoom
             HudManager.Instance.UICamera.orthographicSize *= size;
         }
 
-        FastDestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive((reset || Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
+        if (HudManager.InstanceExists)
+        {
+            HudManager.Instance.ShadowQuad.gameObject.SetActive((reset || Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive()); 
+        }
+        else
+        {
+            Logger.Error("HudManager instance does not exist.", "Zoom");
+        }
 
         if (ResetButtons)
         {
@@ -81,9 +88,9 @@ public static class Zoom
 
     public static void OnFixedUpdate()
     {
-        if (Camera.main == null) return;
+        if (Camera.main == null || !HudManager.InstanceExists) return;
 
-        FastDestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive(Mathf.Approximately(Camera.main.orthographicSize, 3.0f) && PlayerControl.LocalPlayer.IsAlive());
+        HudManager.Instance.ShadowQuad.gameObject.SetActive(Mathf.Approximately(Camera.main.orthographicSize, 3.0f) && PlayerControl.LocalPlayer.IsAlive());
     }
 }
 

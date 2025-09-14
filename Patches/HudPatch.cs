@@ -14,6 +14,15 @@ using static EHR.Translator;
 
 namespace EHR.Patches;
 
+[HarmonyPatch(typeof(HudManager), nameof(HudManager.Start))]
+internal static class HudManagerStartPatch
+{
+    public static void Postfix(HudManager __instance)
+    {
+        Logger.Fatal("HudManager Start", "HudManagerStartPatch.Postfix");
+    }
+}
+
 //[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 internal static class HudManagerPatch
 {
@@ -820,7 +829,7 @@ internal static class TaskPanelBehaviourPatch
         if (MeetingStates.FirstMeeting)
         {
             NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
-            if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
+            if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {TranslationController.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
         }
 
         CustomRoles role = player.GetCustomRole();

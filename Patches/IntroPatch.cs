@@ -87,7 +87,7 @@ static class CoShowIntroPatch
             __instance.LobbyTimerExtensionUI.HideAll();
             __instance.SetMapButtonEnabled(false);
 
-            HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+            HudManager hudManager = __instance;
             hudManager.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
 
             yield return hudManager.ShowEmblem(true);
@@ -137,7 +137,7 @@ static class CoShowIntroPatch
             else
             {
                 int adjustedNumImpostors = GameManager.Instance.LogicOptions.GetAdjustedNumImpostors(GameData.Instance.PlayerCount);
-                introCutscene.ImpostorText.text = adjustedNumImpostors == 1 ? FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsS) : FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsP, adjustedNumImpostors);
+                introCutscene.ImpostorText.text = adjustedNumImpostors == 1 ? TranslationController.Instance.GetString(StringNames.NumImpostorsS) : TranslationController.Instance.GetString(StringNames.NumImpostorsP, adjustedNumImpostors);
                 introCutscene.ImpostorText.text = introCutscene.ImpostorText.text.Replace("[FF1919FF]", "<color=#FF1919FF>");
                 introCutscene.ImpostorText.text = introCutscene.ImpostorText.text.Replace("[]", "</color>");
             }
@@ -617,21 +617,21 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Dictator or
                     CustomRoles.Mayor or
                     CustomRoles.NiceSwapper
-                    => FastDestroyableSingleton<HudManager>.Instance.Chat.messageSound,
+                    => HudManager.Instance.Chat.messageSound,
 
                 CustomRoles.AntiAdminer or
                     CustomRoles.Monitor
-                    => FastDestroyableSingleton<HudManager>.Instance.Chat.warningSound,
+                    => HudManager.Instance.Chat.warningSound,
 
                 CustomRoles.GM or
                     CustomRoles.Snitch or
                     CustomRoles.Speedrunner or
                     CustomRoles.Workaholic
-                    => FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
+                    => HudManager.Instance.TaskCompleteSound,
 
                 CustomRoles.Helper or
                     CustomRoles.TaskManager
-                    => FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
+                    => HudManager.Instance.TaskUpdateSound,
 
                 CustomRoles.Inhibitor or
                     CustomRoles.SabotageMaster or
@@ -668,14 +668,15 @@ internal static class BeginCrewmatePatch
                     CustomRoles.TimeMaster
                     => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
 
+                /* TODO: Find out how to access HnSImpostorScreamSfx properly
                 CustomRoles.Chronomancer or
                     CustomRoles.Tremor
-                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
+                    => HnSImpostorScreamSfx.Instance.HnSOtherImpostorTransformSfx,
 
                 CustomRoles.Deputy or
                     CustomRoles.Sheriff
-                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
-
+                    => HnSImpostorScreamSfx.Instance.HnSOtherYeehawSfx,
+                    */
                 CustomRoles.FFF or
                     CustomRoles.Opportunist or
                     CustomRoles.Revolutionist
@@ -819,7 +820,8 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("ModeSoloKombat");
                 __instance.BackgroundBar.material.color = color;
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
+                //PlayerControl.LocalPlayer.Data.Role.IntroSound = HnSImpostorScreamSfx.Instance.HnSOtherImpostorTransformSfx;
+                // TODO: Find out how to access HnSImpostorScreamSfx properly
                 break;
             }
             case CustomGameMode.FFA:
@@ -1253,7 +1255,7 @@ internal static class IntroCutsceneDestroyPatch
                 }
             }
             
-            HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+            HudManager hud = HudManager.Instance;
 
             HudSpritePatch.DefaultIcons =
             [
