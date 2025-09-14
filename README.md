@@ -101,7 +101,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Dad               | Disperser       | The Glitch        |               | Diseased       |
 | Demolitionist     | Duellist        | God               |               | Dynamo         |
 | Deputy            | Dazzler         | Hater             |               | Disregarded    |
-| Detective         | Echo            | Head Hunter       |               | Double Shot    |
+| Forensic          | Echo            | Head Hunter       |               | Double Shot    |
 | Detour            | Escapist        | Hex Master        |               | Egoist         |
 | Dictator          | Evil Eraser     | Hookshot          |               | Energetic      |
 | Doctor            | Evil Guesser    | Pulse             |               | Entranced      |
@@ -667,5 +667,6 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
 
 
