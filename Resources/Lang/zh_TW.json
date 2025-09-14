@@ -2178,7 +2178,7 @@
   "KB_Buff_ATK": "獎勵: 攻擊力 +{0}",
   "KB_Buff_DF": "獎勵: 防禦力 +{0}",
   "NKWinsBySabotageIfNoImpAlive": "當沒有<#ff1919>偽裝者存活時，<#ff1919>帶刀 <#ffab1b>中立</color>可以透過破壞獲勝",
-  "IfSelectedTeamIsDead": "If the selected team is dead, then the winning team is",
+  "IfSelectedTeamIsDead": "如果選擇的陣營已經死亡，那麼獲勝的陣營是",
   "SabotageTimeLimitWinners.Imps": "<#ff1919>偽裝者陣營</color>",
   "SabotageTimeLimitWinners.NKs": "<#ffab1b>Neutral</color> <#ff1919>Killers</color>",
   "SabotageTimeLimitWinners.Coven": "<#7b3fbb>Coven</color>",
