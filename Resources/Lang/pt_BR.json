@@ -2263,6 +2263,7 @@
   "BittenByInfectious": "Você foi infectado pelo Infeccioso!",
   "InfectiousBittenPlayer": "Você infectou com sucesso o jogador",
   "GuessNotAllowed": "Desculpe, sua função não tem acesso a adivinhação.",
+  "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessOnbound": "Este jogador tem o Atributo Inadinhável, então seu palpite sobre ele foi cancelado.",
   "GuessPhantom": "Você não consegue adivinhar um Fantasma, isso permite que eles ganhem!",
   "DovesOfNeaceOnGuard": "Habilidade usada, {0} usos restantes",
