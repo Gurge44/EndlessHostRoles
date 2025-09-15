@@ -12,6 +12,7 @@ using InnerNet;
 using TMPro;
 using UnityEngine;
 using GameStates = EHR.GameStates;
+using Tree = EHR.Crewmate.Tree;
 
 // Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/AllObjects
 // Huge thanks to Rabek009 for this code!
@@ -678,6 +679,14 @@ namespace EHR
             if (Spawned) return;
             CreateNetObject($"<size=100%><line-height=67%><alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><#{Color}>█<#{Color}>█<alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><#{Color}>█<alpha=#00>█<alpha=#00>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><#{Color}>█<alpha=#00>█<#{Color}>█<#{Color}>█<alpha=#00>█<#{Color}>█<br><#{Color}>█<alpha=#00>█<#{Color}>█<alpha=#00>█<alpha=#00>█<#{Color}>█<br></line-height></size>", Position);
             Spawned = true;
+        }
+    }
+
+    internal sealed class FallenTree : CustomNetObject
+    {
+        public FallenTree(Vector2 position)
+        {
+            CreateNetObject(Tree.FallenSprite, position);
         }
     }
 

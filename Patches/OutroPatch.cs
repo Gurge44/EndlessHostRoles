@@ -118,6 +118,7 @@ internal static class EndGamePatch
             ChatCommands.Spectators.Clear();
 
             Utils.NumSnapToCallsThisRound = 0;
+            Main.GameTimer = 0f;
 
             switch (Options.CurrentGameMode)
             {

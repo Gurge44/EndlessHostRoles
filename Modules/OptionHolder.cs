@@ -736,6 +736,8 @@ public static class Options
     public static OptionItem ShowTaskCountWhenAlive;
     public static OptionItem ShowTaskCountWhenDead;
     public static OptionItem IntegrateNaturalDisasters;
+    public static OptionItem EnableGameTimeLimit;
+    public static OptionItem GameTimeLimit;
     public static OptionItem ShowDifferentEjectionMessageForSomeRoles;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
@@ -2941,6 +2943,15 @@ public static class Options
         IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReloadUI());
+
+        EnableGameTimeLimit = new BooleanOptionItem(24455, "EnableGameTimeLimit", false, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .SetHeader(true);
+        
+        GameTimeLimit = new FloatOptionItem(24456, "GameTimeLimit", new(20f, 3600f, 20f), 900f, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .SetParent(EnableGameTimeLimit)
+            .SetValueFormat(OptionFormat.Seconds);
 
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)

@@ -40,6 +40,7 @@ internal static class CustomRolesHelper
         CustomRoles.Gardener,
         CustomRoles.Farmer,
         CustomRoles.Explosivist,
+        CustomRoles.Tree,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -151,6 +152,7 @@ internal static class CustomRolesHelper
             CustomRoles.Forger => CustomRoles.Impostor,
             CustomRoles.ClockBlocker => CustomRoles.Impostor,
             CustomRoles.Psychopath => CustomRoles.Impostor,
+            CustomRoles.Postponer => CustomRoles.Impostor,
             CustomRoles.Venerer => CustomRoles.Shapeshifter,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
             CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -233,6 +235,8 @@ internal static class CustomRolesHelper
             CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Farmer => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Tree => CustomRoles.Crewmate,
+            CustomRoles.Inquisitor => CustomRoles.Crewmate,
             CustomRoles.Gardener => CustomRoles.Crewmate,
             CustomRoles.Imitator => CustomRoles.Crewmate,
             CustomRoles.PortalMaker => CustomRoles.Crewmate,
@@ -710,6 +714,7 @@ internal static class CustomRolesHelper
             CustomRoles.Wiper or
             CustomRoles.Psychopath or
             CustomRoles.Kidnapper or
+            CustomRoles.Postponer or
             CustomRoles.Venerer or
             CustomRoles.ClockBlocker or
             CustomRoles.Forger or
@@ -1628,6 +1633,7 @@ internal static class CustomRolesHelper
             CustomRoles.Miner => RoleOptionType.Impostor_Concealing,
             CustomRoles.Morphling => RoleOptionType.Impostor_Concealing,
             CustomRoles.Penguin => RoleOptionType.Impostor_Concealing,
+            CustomRoles.Postponer => RoleOptionType.Impostor_Concealing,
             CustomRoles.Puppeteer => RoleOptionType.Impostor_Concealing,
             CustomRoles.RiftMaker => RoleOptionType.Impostor_Concealing,
             CustomRoles.Scavenger => RoleOptionType.Impostor_Concealing,
@@ -1712,9 +1718,10 @@ internal static class CustomRolesHelper
             CustomRoles.MeetingManager => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Ignitor => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Imitator => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.Inquirer => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.Inquisitor => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Insight => RoleOptionType.Crewmate_Investigate,
             CustomRoles.ParityCop => RoleOptionType.Crewmate_Investigate,
-            CustomRoles.Inquirer => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Leery => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Lighter => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Lookout => RoleOptionType.Crewmate_Investigate,
@@ -1809,6 +1816,7 @@ internal static class CustomRolesHelper
             CustomRoles.Randomizer => RoleOptionType.Crewmate_Chaos,
             CustomRoles.ToiletMaster => RoleOptionType.Crewmate_Chaos,
             CustomRoles.Tornado => RoleOptionType.Crewmate_Chaos,
+            CustomRoles.Tree => RoleOptionType.Crewmate_Chaos,
             _ => role.IsImpostor() ? RoleOptionType.Impostor_Miscellaneous : RoleOptionType.Neutral_Benign
         };
     }

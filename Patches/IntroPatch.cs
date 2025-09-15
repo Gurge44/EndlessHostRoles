@@ -1242,6 +1242,8 @@ internal static class IntroCutsceneDestroyPatch
 
         LateTask.New(() =>
         {
+            Main.GameTimer = 0f;
+            
             if (SubmergedCompatibility.IsSubmerged())
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)

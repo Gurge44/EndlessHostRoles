@@ -22,6 +22,7 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
+using Tree = EHR.Crewmate.Tree;
 
 namespace EHR;
 
@@ -1780,6 +1781,13 @@ internal static class FixedUpdatePatch
             if (target.Is(CustomRoles.Car))
             {
                 target.cosmetics.nameText.text = Car.Name;
+                roleText.enabled = false;
+                return;
+            }
+
+            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true })
+            {
+                target.cosmetics.nameText.text = Tree.Sprite;
                 roleText.enabled = false;
                 return;
             }

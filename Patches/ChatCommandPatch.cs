@@ -219,7 +219,8 @@ internal static class ChatCommands
             new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
             new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
             new(["retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
-
+            new(["revive", "воскрешение", "воскрешать", "复活", "reviver"], "{id}", GetString("CommandDescription.Revive"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ReviveCommand, true, false, [GetString("CommandArgs.Revive.Id")]),
+            
             new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
             // Commands with action handled elsewhere
@@ -482,6 +483,16 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void ReviveCommand(PlayerControl player, string text, string[] args)
+    {
+        if ((!Options.NoGameEnd.GetBool() && !player.FriendCode.GetDevUser().up) || args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
+        
+        PlayerControl target = Utils.GetPlayerById(targetId);
+        if (target == null) return;
+        
+        target.RpcRevive();
+    }
+    
     private static void ConfirmAuthCommand(PlayerControl player, string text, string[] args)
     {
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)

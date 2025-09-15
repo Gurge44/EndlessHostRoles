@@ -30,6 +30,7 @@ using InnerNet;
 using Newtonsoft.Json;
 using UnityEngine;
 using static EHR.Translator;
+using Tree = EHR.Crewmate.Tree;
 
 namespace EHR;
 /*
@@ -2436,6 +2437,12 @@ public static class Utils
                 sender.RpcSetName(seer, Car.Name);
                 return true;
             }
+            
+            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var seerState) && seerState.Role is Tree { TreeSpriteActive: true }) 
+            {
+                sender.RpcSetName(seer, Tree.Sprite);
+                return true;
+            }
 
             if (forMeeting && Magistrate.CallCourtNextMeeting)
             {
@@ -3230,6 +3237,7 @@ public static class Utils
             CustomRoles.Gardener => Gardener.AbilityCooldown.GetInt(),
             CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Paranoia => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
+            CustomRoles.Tree => 5 + (includeDuration ? Tree.FallDelay.GetInt() + Tree.FallStunDuration.GetInt() : 0),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),

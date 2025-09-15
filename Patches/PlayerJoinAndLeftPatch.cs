@@ -41,6 +41,7 @@ internal static class OnGameJoinedPatch
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
         ChatCommands.VotedToStart = [];
+        Main.GameTimer = 0f;
 
         Utils.DirtyName = [];
 

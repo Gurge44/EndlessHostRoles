@@ -154,6 +154,8 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
     public static uint LobbyBehaviourNetId;
+    
+    public static float GameTimer;
 
     public static bool ShowResult = true;
 
@@ -415,6 +417,8 @@ public class Main : BasePlugin
                 { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Farmer, "#FFDE59" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Tree, "#00ff00" },
+                { CustomRoles.Inquisitor, "#7726B6" },
                 { CustomRoles.Imitator, "#c99e28" },
                 { CustomRoles.PortalMaker, "#700078" },
                 { CustomRoles.Ankylosaurus, "#7FE44C" },
@@ -642,6 +646,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Compelled, "#D2E44C" },
                 { CustomRoles.Commited, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },
                 { CustomRoles.Blind, "#666666" },
