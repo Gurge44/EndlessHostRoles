@@ -2263,6 +2263,7 @@
   "BittenByInfectious": "¡Fuiste infectado por el Infeccioso!",
   "InfectiousBittenPlayer": "Infectaste a un jugador exitosamente",
   "GuessNotAllowed": "Lo siento, tu rol no tiene acceso a adivinar.",
+  "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessOnbound": "El jugador tiene el complemento Destinado, así que tu adivinanza en él fue cancelada.",
   "GuessPhantom": "¡No puedes adivinar a un Espectro, eso le permite ganar!",
   "DovesOfNeaceOnGuard": "Habilidad usada, {0} usos restantes",
