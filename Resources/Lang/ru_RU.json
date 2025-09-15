@@ -2263,6 +2263,7 @@
   "BittenByInfectious": "Вас заразили!",
   "InfectiousBittenPlayer": "Ты заразил игрока",
   "GuessNotAllowed": "Ваша роль не может гадать",
+  "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessOnbound": "У этого игрока есть атрибут Непобедимый. Он не может быть угадан.",
   "GuessPhantom": "Вы не можете угадать Спектора, если это даст ему победу!",
   "DovesOfNeaceOnGuard": "Способность активирована, осталось ещё {0}",
