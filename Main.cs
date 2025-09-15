@@ -807,6 +807,20 @@ public class Main : BasePlugin
 
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
 
+        /*var types = Assembly.GetExecutingAssembly().GetTypes().Where(x=>x.GetCustomAttributes<HarmonyPatch>().Any()).ToArray();
+        for (int i = 0; i < types.Length; i++)
+        {
+            var type = types[i];
+
+            if (i <= types.Length / 16)
+            {
+                Log.LogInfo("Skipping: "+type.FullName);
+                continue;
+            }
+
+            Harmony.PatchAll(type);
+        }*/
+
         if (!DebugModeManager.AmDebugger)
             ConsoleManager.DetachConsole();
         else
