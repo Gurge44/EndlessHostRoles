@@ -2263,6 +2263,7 @@
   "BittenByInfectious": "あなたは 感染症により 感染した！",
   "InfectiousBittenPlayer": "あなたは プレイヤーを正常に感染させた",
   "GuessNotAllowed": "<size=80%>申し訳ありませんが、あなたの役割に推測する極限がありません。</size>",
+  "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessOnbound": "<size=80%>このプレイヤーは <#BAAAE9>オンバウンド</color>の属性を持っているため、あなたの彼に対する推測はキャンセルされました。</size>",
   "GuessPhantom": "<size=80%>あなたは <#662962>妖怪</color>を推測できません、それが 彼の勝利を可能にしてしまいます！</size>",
   "DovesOfNeaceOnGuard": "能力を使用した、{0} 回の使用が残っている",
