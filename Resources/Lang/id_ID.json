@@ -2263,6 +2263,7 @@
   "BittenByInfectious": "Kamu terinfeksi oleh Infectious!",
   "InfectiousBittenPlayer": "Kamu berhasil menginfeksi pemain",
   "GuessNotAllowed": "Sorry, your role does not have access to guessing.",
+  "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessOnbound": "This player has the Onbound add-on, so your guess on them was canceled.",
   "GuessPhantom": "Kamu tidak boleh menebak identitas Specter, yang demikian itu bisa membuatnya menang!",
   "DovesOfNeaceOnGuard": "Ability used, {0} uses remain",
