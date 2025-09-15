@@ -385,8 +385,6 @@ internal static class ModManagerLateUpdatePatch
     public static bool Prefix(ModManager __instance)
     {
         __instance.ShowModStamp();
-
-        LateTask.Update(Time.deltaTime);
         ChatBubbleShower.Update();
 
         if (LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > 60)

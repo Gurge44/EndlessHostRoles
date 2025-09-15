@@ -1,42 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace EHR;
 
-internal class LateTask
+internal static class LateTask
 {
-    private static readonly List<LateTask> Tasks = [];
-    private readonly Action Action;
-    private readonly string CallerData;
-    private readonly bool LOG;
-    private readonly string Name;
-    private float Timer;
-
-    private LateTask(Action action, float time, string name, bool log, string callerData)
-    {
-        Action = action;
-        Timer = time;
-        Name = name;
-        LOG = log;
-        CallerData = callerData;
-        Tasks.Add(this);
-        if (log && name is not "" and not "No Name Task") Logger.Info("\"" + name + "\" is created", "LateTask");
-    }
-
-    private bool Run(float deltaTime)
-    {
-        Timer -= deltaTime;
-
-        if (Timer <= 0)
-        {
-            Action();
-            return true;
-        }
-
-        return false;
-    }
-
     /// <summary>
     ///     Creates a task that will be automatically completed after the specified amount of time
     /// </summary>
@@ -46,28 +17,21 @@ internal class LateTask
     /// <param name="log">Whether to send log of the creation and completion of the Late Task</param>
     public static void New(Action action, float time, string name = "No Name Task", bool log = true, [CallerFilePath] string path = "", [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
     {
-        _ = new LateTask(action, time, name, log, $"created at {path.Split('\\')[^1]}, by member {member}, at line {line}");
+        Main.Instance.StartCoroutine(CoLateTask(action, time, name, log, $"created at {path.Split('\\')[^1]}, by member {member}, at line {line}"));
     }
 
-    public static void Update(float deltaTime)
+    private static IEnumerator CoLateTask(Action action, float time, string name, bool log, string callerData)
     {
-        foreach (LateTask task in Tasks.ToArray())
+        yield return new WaitForSeconds(time);
+        try
         {
-            try
-            {
-                if (task.Run(deltaTime))
-                {
-                    if (task.Name is not "" and not "No Name Task" && task.LOG)
-                        Logger.Info($"\"{task.Name}\" is finished", "LateTask");
-
-                    Tasks.Remove(task);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{task.Name}\" ({task.CallerData})\n{ex.StackTrace}", "LateTask.Error", false);
-                Tasks.Remove(task);
-            }
+            action();
+            if (name is not "" and not "No Name Task" && log)
+                Logger.Info($"\"{name}\" is finished", "LateTask");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{name}\" ({callerData})\n{ex.StackTrace}", "LateTask.Error", false);
         }
     }
 }
