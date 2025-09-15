@@ -739,7 +739,7 @@ internal static class StartGameHostPatch
                             }
                         }
 
-                        if (kp.Value.IsImpostor() && kp.Value.GetRoleTypes() == RoleTypes.Impostor && !venomBanned)
+                        if (kp.Value.IsImpostor() && kp.Value.GetRoleTypes() == RoleTypes.Impostor && !kp.Value.IncompatibleWithVenom() && !venomBanned)
                             venomList.Add(player.PlayerId);
                     }
                 }

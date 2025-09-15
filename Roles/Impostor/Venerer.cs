@@ -88,12 +88,13 @@ public class Venerer : RoleBase
         switch (Stage)
         {
             case 1:
+                var outfit = pc.Data.DefaultOutfit;
                 Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "", ""));
                 ChangedSkin = true;
                 LateTask.New(() =>
                 {
                     if (!ChangedSkin || pc == null || !pc.IsAlive()) return;
-                    Utils.RpcChangeSkin(pc, Camouflage.PlayerSkins[pc.PlayerId]);
+                    Utils.RpcChangeSkin(pc, outfit);
                     ChangedSkin = false;
                 }, AbilityDuration.GetInt(), log: false);
                 break;

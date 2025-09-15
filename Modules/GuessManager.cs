@@ -142,7 +142,7 @@ public static class GuessManager
                     if ((pc.IsCrewmate() && target.IsCrewmate() && !Options.CrewCanGuessCrew.GetBool()) ||
                         (pc.IsImpostor() && target.IsImpostor() && !Options.ImpCanGuessImp.GetBool()))
                     {
-                        ShowMessage("GuessNotAllowed");
+                        ShowMessage("GuessTeamMate");
                         return true;
                     }
                     

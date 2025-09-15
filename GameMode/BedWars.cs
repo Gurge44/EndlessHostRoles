@@ -1753,12 +1753,12 @@ public static class BedWars
                     }
                 }
 
+                Breaking.Remove(pc.PlayerId);
                 NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 Layers.RemoveAt(Layers.Count - 1);
                 data.Inventory.Adjust(topLayer, GetNextProtectReq());
                 UpdateStatus();
-                Breaking.Remove(pc.PlayerId);
                 if (Layers.Count == 0 && data.Team != Team) Broken();
             }
         }

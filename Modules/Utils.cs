@@ -298,8 +298,10 @@ public static class Utils
                 {
                     if (mapId is 1 or 5)
                     {
-                        var hqHudSystemType = systemType.CastFast<HqHudSystemType>();
-                        return hqHudSystemType is { IsActive: true };
+                        var hqHudSystemType = systemType.TryCast<HqHudSystemType>();
+                        // ReSharper disable once MergeIntoPattern
+                        // For some reason, the game sometimes crashes here when trying to get_IsActive
+                        return hqHudSystemType != null && hqHudSystemType.IsActive;
                     }
 
                     var hudOverrideSystemType = systemType.CastFast<HudOverrideSystemType>();

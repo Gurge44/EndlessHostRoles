@@ -23,7 +23,7 @@ internal class Eraser : RoleBase
     ];
 
     private static OptionItem EraseLimitOpt;
-    private static OptionItem EraseMethod;
+    public static OptionItem EraseMethod;
     private static OptionItem WhenTargetIsNeutral;
     public static OptionItem HideVote;
     public static OptionItem CancelVote;

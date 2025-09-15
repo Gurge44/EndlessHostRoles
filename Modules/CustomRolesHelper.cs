@@ -1230,6 +1230,20 @@ internal static class CustomRolesHelper
             CustomRoles.Wyrd;
     }
 
+    public static bool IncompatibleWithVenom(this CustomRoles role)
+    {
+        return role switch
+        {
+            CustomRoles.Bomber when !Bomber.BomberCanKill.GetBool() => true,
+            CustomRoles.Changeling when !Changeling.CanKillBeforeRoleChange.GetBool() => true,
+            CustomRoles.Eraser when Eraser.EraseMethod.GetValue() == 0 => true,
+            CustomRoles.Silencer when Silencer.SilenceMode.GetValue() == 0 => true,
+            CustomRoles.Sniper when !Sniper.CanKillWithBullets.GetBool() => true,
+            CustomRoles.Augmenter or CustomRoles.BallLightning or CustomRoles.Blackmailer or CustomRoles.Cantankerous or CustomRoles.Capitalism or CustomRoles.Consort or CustomRoles.Echo or CustomRoles.EvilDiviner or CustomRoles.FireWorks or CustomRoles.Framer or CustomRoles.Gangster or CustomRoles.Generator or CustomRoles.Hangman or CustomRoles.Inhibitor or CustomRoles.Kamikaze or CustomRoles.Mastermind or CustomRoles.Morphling or CustomRoles.Ninja or CustomRoles.Nullifier or CustomRoles.Penguin or CustomRoles.Puppeteer or CustomRoles.Saboteur or CustomRoles.Sapper or CustomRoles.Scavenger or CustomRoles.Swooper or CustomRoles.Undertaker or CustomRoles.Vampire or CustomRoles.Warlock or CustomRoles.Wasp or CustomRoles.Wiper or CustomRoles.Witch or CustomRoles.YinYanger => true,
+            _ => false
+        };
+    }
+
     public static RoleTypes GetRoleTypes(this CustomRoles role)
     {
         if (Enum.TryParse(role.GetVNRole(true).ToString().Replace("EHR", ""), true, out RoleTypes type)) return type;

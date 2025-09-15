@@ -289,6 +289,7 @@ public enum CustomRoles
     Bubble,
     Chemist,
     Cherokious,
+    Clerk,
     Collector,
     Curser,
     Deathknight,
