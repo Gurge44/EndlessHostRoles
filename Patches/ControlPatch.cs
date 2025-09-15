@@ -10,7 +10,9 @@ using static EHR.Translator;
 
 namespace EHR;
 
+#if !ANDROID
 [HarmonyPatch(typeof(ControllerManager), nameof(ControllerManager.Update))]
+#endif
 internal static class ControllerManagerUpdatePatch
 {
     private static readonly (int, int)[] Resolutions = [(480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080)];
