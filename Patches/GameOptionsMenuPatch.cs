@@ -6,7 +6,7 @@ using EHR.AddOns.GhostRoles;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
-using Il2CppSystem.Collections.Generic;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -899,7 +899,7 @@ public static class StringOptionPatch
 [HarmonyPatch(typeof(GameSettingMenu))]
 public static class GameSettingMenuPatch
 {
-    public static System.Collections.Generic.List<GameObject> GMButtons = [];
+    public static List<GameObject> GMButtons = [];
 
     private static readonly Vector3 ButtonPositionLeft = new(-3.9f, -0.4f, 0f);
     private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.4f, 0f);
@@ -910,15 +910,15 @@ public static class GameSettingMenuPatch
     private static GameOptionsMenu TemplateGameOptionsMenu;
     private static PassiveButton TemplateGameSettingsButton;
 
-    private static System.Collections.Generic.Dictionary<TabGroup, PassiveButton> ModSettingsButtons = [];
-    private static System.Collections.Generic.Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
+    private static Dictionary<TabGroup, PassiveButton> ModSettingsButtons = [];
+    private static Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
 
     public static NumberOption PresetBehaviour;
 
     public static long LastPresetChange;
 
     public static FreeChatInputField InputField;
-    private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
+    private static List<OptionItem> HiddenBySearch = [];
     public static Action SearchForOptionsAction;
 
     private static int NumImpsOnOpen = 1;
@@ -1221,9 +1221,9 @@ public static class GameSettingMenuPatch
             string text = textField.textArea.text.Trim().ToLower();
             var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
             OptionItem[] optionItems = Options.GroupedOptions[modTab];
-            System.Collections.Generic.List<OptionItem> result = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
+            List<OptionItem> result = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
             HiddenBySearch = result;
-            System.Collections.Generic.List<OptionItem> searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
+            List<OptionItem> searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
 
             if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue(modTab, out GameOptionsMenu gameSettings) || gameSettings == null)
             {
