@@ -208,6 +208,7 @@ internal static class OnPlayerJoinedPatch
 
     public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
     {
+        Debug.Log("OnPlayerJoinedPatch Postfix");;
         Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / Hashed PUID: {client.GetHashedPuid()}) joined the lobby", "Session");
 
         LateTask.New(() =>
