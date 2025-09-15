@@ -2263,6 +2263,7 @@
   "BittenByInfectious": "感染者感染了你！",
   "InfectiousBittenPlayer": "您成功感染了一位玩家",
   "GuessNotAllowed": "很抱歉，你的職業沒有權限進行猜測",
+  "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessOnbound": "該玩家具有 防賭 附加職業，你的猜測已被取消。",
   "GuessPhantom": "你不能猜測怨靈，這只會讓他們更快獲勝!",
   "DovesOfNeaceOnGuard": "和平技能已生效，剩餘{0}次",
