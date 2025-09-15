@@ -2263,6 +2263,7 @@
   "BittenByInfectious": "你被感染者感染了",
   "InfectiousBittenPlayer": "你成功感染了一名玩家",
   "GuessNotAllowed": "您的身份无权进行猜测",
+  "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessOnbound": "该玩家的附加为不可被赌.在她身上压下筹码并不合算",
   "GuessPhantom": "幻影本生于幽冥,虚无缥缈,无法压上筹码",
   "DovesOfNeaceOnGuard": "技能已释放,{0}次机会剩余",
