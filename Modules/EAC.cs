@@ -37,6 +37,7 @@ internal static class EAC
 
     public static bool ReceiveRpc(PlayerControl pc, byte callId, MessageReader reader)
     {
+        return false;
         if (!AmongUsClient.Instance.AmHost) return false;
         if (pc == null || reader == null) return false;
 
@@ -1224,7 +1225,7 @@ internal enum GameDataTag : byte
     XboxDeclareXuid = 207
 }
 
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HandleGameDataInner))]
+//[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HandleGameDataInner))]
 internal class GameDataHandlerPatch
 {
     private static IEnumerator EmptyCoroutine()
@@ -1358,7 +1359,7 @@ internal class GameDataHandlerPatch
     }
 }
 
-[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
+//[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
 internal static class StartGameHostPatchEAC
 {
     public static bool IsStartingAsHost;

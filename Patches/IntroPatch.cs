@@ -131,8 +131,6 @@ static class CoShowIntroPatch
                         || pcd.Role.TeamType == PlayerControl.LocalPlayer.Data.Role.TeamType
                         ));
 
-            Debug.Log("Teamm to show selected");
-
             if (show == null || show.Count < 1)
             {
                 Logger.Error("IntroCutscene :: CoBegin() :: teamToShow is EMPTY or NULL", "BASE GAME LOGGER");
@@ -170,157 +168,154 @@ internal static class SetUpRoleTextPatch
 
         PlayerControl lp = PlayerControl.LocalPlayer;
 
-        LateTask.New(() =>
+        Main.Instance.StartCoroutine(LogGameInfo());
+
+        switch (Options.CurrentGameMode)
         {
-            Main.Instance.StartCoroutine(LogGameInfo());
-
-            switch (Options.CurrentGameMode)
+            case CustomGameMode.SoloKombat:
             {
-                case CustomGameMode.SoloKombat:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("SoloKombat");
-                    __instance.RoleText.color = Utils.GetRoleColor(lp.GetCustomRole());
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = lp.GetRoleInfo();
-                    break;
-                }
-                case CustomGameMode.FFA:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#00ffff", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("Killer");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("KillerInfo");
-                    break;
-                }
-                case CustomGameMode.MoveAndStop:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#00ffa5", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("MoveAndStop");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("TaskerInfo");
-                    break;
-                }
-                case CustomGameMode.HotPotato:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#e8cd46", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("HotPotato");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("PotatoInfo");
-                    break;
-                }
-                case CustomGameMode.Speedrun:
-                {
-                    Color color = Utils.GetRoleColor(CustomRoles.Speedrunner);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("Runner");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("RunnerInfo");
-                    break;
-                }
-                case CustomGameMode.CaptureTheFlag:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#1313c2", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("CTFPlayer");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("CTFPlayerInfo");
-                    break;
-                }
-                case CustomGameMode.NaturalDisasters:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#03fc4a", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("NDPlayer");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("NDPlayerInfo");
-                    break;
-                }
-                case CustomGameMode.RoomRush:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#ffab1b", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("RRPlayer");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("RRPlayerInfo");
-                    break;
-                }
-                case CustomGameMode.KingOfTheZones:
-                {
-                    Color color = ColorUtility.TryParseHtmlString("#ff0000", out Color c) ? c : new(255, 255, 255, 255);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("KOTZPlayer");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("KOTZPlayerInfo");
-                    break;
-                }
-                case CustomGameMode.Quiz:
-                {
-                    Color color = Utils.GetRoleColor(CustomRoles.QuizMaster);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("QuizPlayer");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("QuizPlayerInfo");
-                    break;
-                }
-                case CustomGameMode.TheMindGame:
-                {
-                    Color color = Color.yellow;
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("TMGPlayer");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("TMGPlayerInfo");
-                    break;
-                }
-                case CustomGameMode.BedWars:
-                {
-                    Color color = Utils.GetRoleColor(CustomRoles.BedWarsPlayer);
-                    __instance.YouAreText.transform.gameObject.SetActive(false);
-                    __instance.RoleText.text = GetString("BedWarsPlayer");
-                    __instance.RoleText.color = color;
-                    __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = GetString("BedWarsPlayerInfo");
-                    break;
-                }
-                default:
-                {
-                    CustomRoles role = lp.GetCustomRole();
-
-                    if (!role.IsVanilla())
-                    {
-                        __instance.YouAreText.color = Utils.GetRoleColor(role);
-                        __instance.RoleText.text = Utils.GetRoleName(role);
-                        __instance.RoleText.color = Utils.GetRoleColor(role);
-                        __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
-                        __instance.RoleBlurbText.text = "<size=50%>" + lp.GetRoleInfo() + "</size>";
-                    }
-
-                    foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles)
-                    {
-                        if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
-
-                        __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
-                    }
-
-                    __instance.RoleText.text += Utils.GetSubRolesText(lp.PlayerId, false, true);
-                    break;
-                }
+                Color color = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : new(255, 255, 255, 255);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("SoloKombat");
+                __instance.RoleText.color = Utils.GetRoleColor(lp.GetCustomRole());
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = lp.GetRoleInfo();
+                break;
             }
-        }, 0f, "Override Role Text");
+            case CustomGameMode.FFA:
+            {
+                Color color = ColorUtility.TryParseHtmlString("#00ffff", out Color c) ? c : new(255, 255, 255, 255);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("Killer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("KillerInfo");
+                break;
+            }
+            case CustomGameMode.MoveAndStop:
+            {
+                Color color = ColorUtility.TryParseHtmlString("#00ffa5", out Color c) ? c : new(255, 255, 255, 255);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("MoveAndStop");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("TaskerInfo");
+                break;
+            }
+            case CustomGameMode.HotPotato:
+            {
+                Color color = ColorUtility.TryParseHtmlString("#e8cd46", out Color c) ? c : new(255, 255, 255, 255);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("HotPotato");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("PotatoInfo");
+                break;
+            }
+            case CustomGameMode.Speedrun:
+            {
+                Color color = Utils.GetRoleColor(CustomRoles.Speedrunner);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("Runner");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("RunnerInfo");
+                break;
+            }
+            case CustomGameMode.CaptureTheFlag:
+            {
+                Color color = ColorUtility.TryParseHtmlString("#1313c2", out Color c) ? c : new(255, 255, 255, 255);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("CTFPlayer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("CTFPlayerInfo");
+                break;
+            }
+            case CustomGameMode.NaturalDisasters:
+            {
+                Color color = ColorUtility.TryParseHtmlString("#03fc4a", out Color c) ? c : new(255, 255, 255, 255);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("NDPlayer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("NDPlayerInfo");
+                break;
+            }
+            case CustomGameMode.RoomRush:
+            {
+                Color color = ColorUtility.TryParseHtmlString("#ffab1b", out Color c) ? c : new(255, 255, 255, 255);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("RRPlayer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("RRPlayerInfo");
+                break;
+            }
+            case CustomGameMode.KingOfTheZones:
+            {
+                Color color = ColorUtility.TryParseHtmlString("#ff0000", out Color c) ? c : new(255, 255, 255, 255);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("KOTZPlayer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("KOTZPlayerInfo");
+                break;
+            }
+            case CustomGameMode.Quiz:
+            {
+                Color color = Utils.GetRoleColor(CustomRoles.QuizMaster);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("QuizPlayer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("QuizPlayerInfo");
+                break;
+            }
+            case CustomGameMode.TheMindGame:
+            {
+                Color color = Color.yellow;
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("TMGPlayer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("TMGPlayerInfo");
+                break;
+            }
+            case CustomGameMode.BedWars:
+            {
+                Color color = Utils.GetRoleColor(CustomRoles.BedWarsPlayer);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("BedWarsPlayer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("BedWarsPlayerInfo");
+                break;
+            }
+            default:
+            {
+                CustomRoles role = lp.GetCustomRole();
+
+                if (!role.IsVanilla())
+                {
+                    __instance.YouAreText.color = Utils.GetRoleColor(role);
+                    __instance.RoleText.text = Utils.GetRoleName(role);
+                    __instance.RoleText.color = Utils.GetRoleColor(role);
+                    __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
+                    __instance.RoleBlurbText.text = "<size=50%>" + lp.GetRoleInfo() + "</size>";
+                }
+
+                foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles)
+                {
+                    if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
+
+                    __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
+                }
+
+                __instance.RoleText.text += Utils.GetSubRolesText(lp.PlayerId, false, true);
+                break;
+            }
+        }
 
         if (!AmongUsClient.Instance.AmHost)
         {

@@ -32,11 +32,11 @@ internal static class ChangeRoleSettings
 {
     public static bool BlockPopulateSkins;
 
-    public static bool Prefix(AmongUsClient __instance)
+    public static bool Prefix(AmongUsClient __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
         if (!GameStates.IsLocalGame) return true;
 
-        __instance.StartCoroutine(CoStartGame().WrapToIl2Cpp());
+        __result = CoStartGame().WrapToIl2Cpp();
         return false;
 
         IEnumerator<object> CoStartGame()
