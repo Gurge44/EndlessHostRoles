@@ -53,7 +53,7 @@ public static class Speedrun
     {
         CanKill = [];
         Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 10);
-        Utils.SendRPC(CustomRPC.SpeedrunSync, 1);
+        Utils.SendRPC(CustomRPC.SpeedrunSync, 2, 1);
     }
 
     public static void ResetTimer(PlayerControl pc)
@@ -75,7 +75,7 @@ public static class Speedrun
         if (TaskFinishWins.GetBool()) return;
 
         CanKill.Add(pc.PlayerId);
-        Utils.SendRPC(CustomRPC.SpeedrunSync, 2, pc.PlayerId);
+        Utils.SendRPC(CustomRPC.SpeedrunSync, 2, 2, pc.PlayerId);
         int kcd = KillCooldown.GetInt();
         Main.AllPlayerKillCooldown[pc.PlayerId] = kcd;
         pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
@@ -91,7 +91,7 @@ public static class Speedrun
                 Name: kvp.Key.ColoredPlayerName(),
                 CompletedTasks: kvp.Value.TaskState.CompletedTasksCount,
                 AllTasks: kvp.Value.TaskState.AllTasksCount,
-                Time: AmongUsClient.Instance.AmHost ? $" ({Timers.GetValueOrDefault(kvp.Key)}s)" : string.Empty))
+                Time: $" ({Timers.GetValueOrDefault(kvp.Key)}s)"))
             .OrderByDescending(x => x.CompletedTasks)
             .Select(x => x.CompletedTasks < x.AllTasks ? $"{x.Name}: {x.CompletedTasks}/{x.AllTasks}{x.Time}" : $"{x.Name}: {Translator.GetString("Speedrun_KillingPlayer")}{x.Time}"));
     }
@@ -170,6 +170,8 @@ public static class Speedrun
         public static void Postfix(PlayerControl __instance)
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted || __instance.Is(CustomRoles.Killer) || __instance.PlayerId >= 254) return;
+
+            Utils.SendRPC(CustomRPC.SpeedrunSync, 1, __instance.PlayerId, Timers[__instance.PlayerId]);
 
             if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
             {
