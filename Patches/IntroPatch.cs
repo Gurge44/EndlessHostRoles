@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using AmongUs.GameOptions;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
@@ -47,7 +48,7 @@ static class CoShowIntroPatch
 {
     public static bool IntroStarted;
 
-    public static bool Prefix(HudManager __instance)
+    public static bool Prefix(HudManager __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return true;
 
@@ -73,7 +74,7 @@ static class CoShowIntroPatch
             catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
         }, 4f, "Assign Tasks");
 
-        Main.Instance.StartCoroutine(CoShowIntro());
+        __result = CoShowIntro().WrapToIl2Cpp();
         return false;
 
         IEnumerator CoShowIntro()

@@ -512,6 +512,14 @@ public static class GameStartRandomMap
 {
     public static bool Prefix(GameStartManager __instance)
     {
+        if (Options.RandomMapsMode.GetBool())
+        {
+            Main.NormalOptions.MapId = SelectRandomMap();
+            CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+        }
+        else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+        else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+
         PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
         if (invalidColor.Length > 0)
@@ -548,17 +556,6 @@ public static class GameStartRandomMap
 
         __instance.ReallyBegin(false);
         return false;
-    }
-
-    public static void Prefix( /*GameStartRandomMap __instance*/)
-    {
-        if (Options.RandomMapsMode.GetBool())
-        {
-            Main.NormalOptions.MapId = SelectRandomMap();
-            CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
-        }
-        else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
-        else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
     }
 
     public static byte SelectRandomMap()
