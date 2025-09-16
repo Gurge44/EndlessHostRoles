@@ -124,7 +124,14 @@ static class CoShowIntroPatch
             introCutscene.ImpostorName.gameObject.SetActive(false);
             introCutscene.ImpostorTitle.gameObject.SetActive(false);
 
-            List<PlayerControl> show = IntroCutscene.SelectTeamToShow((Func<NetworkedPlayerInfo, bool>)(pcd => !PlayerControl.LocalPlayer.Data.Role.IsImpostor || pcd.Role.TeamType == PlayerControl.LocalPlayer.Data.Role.TeamType));
+            List<PlayerControl> show = 
+                IntroCutscene.SelectTeamToShow(
+                    (Func<NetworkedPlayerInfo, bool>)(pcd => 
+                        !PlayerControl.LocalPlayer.Data.Role.IsImpostor
+                        || pcd.Role.TeamType == PlayerControl.LocalPlayer.Data.Role.TeamType
+                        ));
+
+            Debug.Log("Teamm to show selected");
 
             if (show == null || show.Count < 1)
             {
