@@ -9270,7 +9270,7 @@
   "Ambusher.InvisDurAfterSuccessfulAmbush": "Доп. время невидимости, если засада успешна",
   "Ambusher.FragileDuration": "Длительность эффектов атрибута Хрупкий",
   "Ambusher.Success": "<#00ff00>Засада успешна!</color>",
-  "Ambusher.InProgress": "Ambushing {0}.... {1}s left",
+  "Ambusher.InProgress": "Вы устраиваете засаду игроку {0}.... {1}с осталось",
   "Psychopath": "Психопат",
   "PsychopathInfo": "Вы убиваете сразу после отката",
   "PsychopathInfoLong": "(Предатель):\\nКак Психопат, как только ваша перезарядка убийства откатится, вы мгновенно убьёте любого подошедшего близко.",
