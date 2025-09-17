@@ -210,7 +210,7 @@ internal static class SoloPVP
 
         if (!target.SoloAlive())
         {
-            OnPlayerDead(target);
+            Main.Instance.StartCoroutine(OnPlayerDead(target));
             OnPlayerKill(killer);
         }
 
@@ -238,10 +238,12 @@ internal static class SoloPVP
         Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
     }
 
-    private static void OnPlayerDead(PlayerControl target)
+    private static System.Collections.IEnumerator OnPlayerDead(PlayerControl target)
     {
-        target.ExileTemporarily();
         BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
+        if (target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) LateTask.New(() => target.MyPhysics.RpcExitVent(target.GetClosestVent().Id), 0.6f, log: false);
+        while (target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) yield return null;
+        if (BackCountdown.ContainsKey(target.PlayerId)) target.ExileTemporarily();
     }
 
     private static void OnPlayerKill(PlayerControl killer)

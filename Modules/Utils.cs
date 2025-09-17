@@ -3258,6 +3258,7 @@ public static class Utils
             CustomRoles.Catcher => Catcher.AbilityCooldown.GetInt(),
             CustomRoles.Sentry => Crewmate.Sentry.ShowInfoCooldown.GetInt(),
             CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
+            CustomRoles.Ambusher => Ambusher.AbilityCooldown.GetInt(),
             CustomRoles.AntiAdminer => AntiAdminer.AbilityCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Ninja => Ninja.AssassinateCooldownOpt.GetInt(),

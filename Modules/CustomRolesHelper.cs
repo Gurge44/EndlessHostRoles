@@ -108,9 +108,9 @@ internal static class CustomRolesHelper
         if (role.IsVanilla()) return role;
         if (role is CustomRoles.GM) return CustomRoles.Crewmate;
         if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
+        if ((Options.UsePhantomBasis.GetBool() || role.AlwaysUsesPhantomBase()) && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
 
         bool UsePets = Options.UsePets.GetBool();
-        if ((Options.UsePhantomBasis.GetBool() || role.AlwaysUsesPhantomBase()) && role.SimpleAbilityTrigger() && (!UsePets || role is CustomRoles.Swooper or CustomRoles.Wraith)) return CustomRoles.Phantom;
 
         return role switch
         {
@@ -153,8 +153,9 @@ internal static class CustomRolesHelper
             CustomRoles.ClockBlocker => CustomRoles.Impostor,
             CustomRoles.Psychopath => CustomRoles.Impostor,
             CustomRoles.Postponer => CustomRoles.Impostor,
-            CustomRoles.Venerer => CustomRoles.Shapeshifter,
+            CustomRoles.Venerer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Ambusher => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Wasp => CustomRoles.Impostor,
             CustomRoles.Assumer => CustomRoles.Impostor,
@@ -433,8 +434,9 @@ internal static class CustomRolesHelper
 
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
+        if (!load && ((Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
+        
         bool UsePets = !load && Options.UsePets.GetBool();
-        if (!load && ((Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger() && (!UsePets || role is CustomRoles.Swooper or CustomRoles.Wraith)) return RoleTypes.Phantom;
         
         return role switch
         {
@@ -713,6 +715,7 @@ internal static class CustomRolesHelper
             CustomRoles.Inhibitor or
             CustomRoles.Wiper or
             CustomRoles.Psychopath or
+            CustomRoles.Ambusher or
             CustomRoles.Kidnapper or
             CustomRoles.Postponer or
             CustomRoles.Venerer or
@@ -847,6 +850,8 @@ internal static class CustomRolesHelper
         if (!Options.UsePets.GetBool()) return false;
 
         if (role.UsesPetInsteadOfKill()) return true;
+
+        if (Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return false;
 
         Type type = role.GetRoleClass().GetType();
         return type.GetMethod("OnPet")?.DeclaringType == type;
@@ -1024,6 +1029,7 @@ internal static class CustomRolesHelper
             CustomRoles.Swiftclaw or
             CustomRoles.Undertaker or
             CustomRoles.Abyssbringer or
+            CustomRoles.Ambusher or
             CustomRoles.Bomber or
             CustomRoles.Nuker or
             CustomRoles.Camouflager or
@@ -1039,9 +1045,9 @@ internal static class CustomRolesHelper
             CustomRoles.Sapper or
             CustomRoles.Sniper or
             CustomRoles.Twister or
-            CustomRoles.Swooper or //!
+            CustomRoles.Swooper or
             CustomRoles.Venerer or
-            CustomRoles.Wraith or //!
+            CustomRoles.Wraith or
             CustomRoles.RouleteGrandeur or
             CustomRoles.Enderman or
             CustomRoles.Explosivist or
@@ -1244,7 +1250,41 @@ internal static class CustomRolesHelper
             CustomRoles.Eraser when Eraser.EraseMethod.GetValue() == 0 => true,
             CustomRoles.Silencer when Silencer.SilenceMode.GetValue() == 0 => true,
             CustomRoles.Sniper when !Sniper.CanKillWithBullets.GetBool() => true,
-            CustomRoles.Augmenter or CustomRoles.BallLightning or CustomRoles.Blackmailer or CustomRoles.Cantankerous or CustomRoles.Capitalism or CustomRoles.Consort or CustomRoles.Echo or CustomRoles.EvilDiviner or CustomRoles.FireWorks or CustomRoles.Framer or CustomRoles.Gangster or CustomRoles.Generator or CustomRoles.Hangman or CustomRoles.Inhibitor or CustomRoles.Kamikaze or CustomRoles.Mastermind or CustomRoles.Morphling or CustomRoles.Ninja or CustomRoles.Nullifier or CustomRoles.Penguin or CustomRoles.Puppeteer or CustomRoles.Saboteur or CustomRoles.Sapper or CustomRoles.Scavenger or CustomRoles.Swooper or CustomRoles.Undertaker or CustomRoles.Vampire or CustomRoles.Warlock or CustomRoles.Wasp or CustomRoles.Wiper or CustomRoles.Witch or CustomRoles.YinYanger => true,
+            
+            CustomRoles.Augmenter or
+                CustomRoles.BallLightning or
+                CustomRoles.Blackmailer or
+                CustomRoles.Cantankerous or
+                CustomRoles.Capitalism or
+                CustomRoles.Consort or
+                CustomRoles.Echo or
+                CustomRoles.EvilDiviner or
+                CustomRoles.FireWorks or
+                CustomRoles.Framer or
+                CustomRoles.Gangster or
+                CustomRoles.Generator or
+                CustomRoles.Hangman or
+                CustomRoles.Inhibitor or
+                CustomRoles.Kamikaze or
+                CustomRoles.Mastermind or
+                CustomRoles.Morphling or
+                CustomRoles.Ninja or
+                CustomRoles.Nullifier or
+                CustomRoles.Penguin or
+                CustomRoles.Postponer or
+                CustomRoles.Puppeteer or
+                CustomRoles.Saboteur or
+                CustomRoles.Sapper or
+                CustomRoles.Scavenger or
+                CustomRoles.Swooper or
+                CustomRoles.Undertaker or
+                CustomRoles.Vampire or
+                CustomRoles.Warlock or
+                CustomRoles.Wasp or
+                CustomRoles.Wiper or
+                CustomRoles.Witch or
+                CustomRoles.YinYanger => true,
+            
             _ => false
         };
     }
@@ -1621,6 +1661,7 @@ internal static class CustomRolesHelper
             CustomRoles.Ventriloquist => RoleOptionType.Impostor_Support,
             CustomRoles.Vindicator => RoleOptionType.Impostor_Support,
             CustomRoles.YinYanger => RoleOptionType.Impostor_Support,
+            CustomRoles.Ambusher => RoleOptionType.Impostor_Concealing,
             CustomRoles.Anonymous => RoleOptionType.Impostor_Concealing,
             CustomRoles.Duellist => RoleOptionType.Impostor_Concealing,
             CustomRoles.Echo => RoleOptionType.Impostor_Concealing,

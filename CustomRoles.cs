@@ -20,6 +20,7 @@ public enum CustomRoles
     // Impostors
 
     Abyssbringer,
+    Ambusher,
     Anonymous,
     AntiAdminer,
     Sans, // Arrogance

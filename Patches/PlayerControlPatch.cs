@@ -351,7 +351,7 @@ internal static class CheckMurderPatch
                         return false;
                 }
 
-                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile);
+                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile) || Ambusher.FragilePlayers.ContainsKey(target.PlayerId);
             }
 
             if (!killer.RpcCheckAndMurder(target, true)) return false;
@@ -1300,6 +1300,20 @@ internal static class ReportDeadBodyPatch
             }
         }
 
+        foreach (PlayerControl pc in Main.AllPlayerControls)
+        {
+            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                Camouflage.RpcSetSkin(pc, revertToDefault: true);
+
+            if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
+                pc.FixMixedUpOutfit();
+            
+            if (Main.Invisible.Contains(pc.PlayerId))
+                pc.RpcMakeVisible();
+
+            PhantomRolePatch.OnReportDeadBody(pc);
+        }
+
         EAC.TimeSinceLastTaskCompletion.Clear();
 
         Enigma.OnReportDeadBody(player, target);
@@ -1341,20 +1355,6 @@ internal static class ReportDeadBodyPatch
         if (player.Is(CustomRoles.Stressed)) Stressed.OnReport(player);
 
         Stressed.OnMeetingStart();
-
-        foreach (PlayerControl pc in Main.AllPlayerControls)
-        {
-            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
-                Camouflage.RpcSetSkin(pc, revertToDefault: true);
-
-            if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
-                pc.FixMixedUpOutfit();
-            
-            if (Main.Invisible.Contains(pc.PlayerId))
-                pc.RpcMakeVisible();
-
-            PhantomRolePatch.OnReportDeadBody(pc);
-        }
 
         MeetingTimeManager.OnReportDeadBody();
 

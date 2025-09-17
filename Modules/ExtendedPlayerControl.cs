@@ -733,7 +733,7 @@ internal static class ExtendedPlayerControl
 
     public static void KillFlash(this PlayerControl player)
     {
-        if (GameStates.IsLobby) return;
+        if (GameStates.IsLobby || player == null) return;
 
         // Kill flash (blackout + reactor flash) processing
 

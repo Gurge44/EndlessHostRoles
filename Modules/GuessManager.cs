@@ -1267,7 +1267,7 @@ public static class GuessManager
             bool TryGetDisplay(out string display)
             {
                 if (!PlayerIdToRawDisplay.TryGetValue(target.PlayerId, out display)) //TODO: ANY WAY TO FIND CNOS FROM PLAYERCONTROL?
-                    display = ExistingCNOs.FindFirst(x => x.playerControl.name == target.name, out ShapeshiftMenuElement cno) ? cno.playerControl.tag : string.Empty;
+                    display = ExistingCNOs.FindFirst(x => x.playerControl.NetId == target.NetId, out ShapeshiftMenuElement cno) ? cno.playerControl.tag : string.Empty;
 
                 if (string.IsNullOrEmpty(display))
                 {
@@ -1315,6 +1315,8 @@ public static class GuessManager
             // First, use living players to show choices by changing their names
             // The local player can't be used to show a choice (-1)
 
+            StringBuilder sb = new();
+
             var skipped = false;
             PlayerControl guesser = GuesserId.GetPlayer();
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
@@ -1338,9 +1340,11 @@ public static class GuessManager
 
                 string originalNamePlateId = pc.Data.DefaultOutfit.NamePlateId;
                 string originalPlayerName = pc.Data.DefaultOutfit.PlayerName;
-                pc.Data.DefaultOutfit.NamePlateSequenceId += 10;
                 pc.Data.DefaultOutfit.NamePlateId = namePlateId;
+                pc.SetNamePlate(namePlateId);
+                pc.Data.DefaultOutfit.NamePlateSequenceId += 10;
                 pc.Data.DefaultOutfit.PlayerName = GetString(choice).ToUpper();
+                sb.Append(pc.Data.DefaultOutfit.PlayerName.PadRightV2(10));
 
                 if (writer.Length > 500)
                 {
@@ -1357,6 +1361,13 @@ public static class GuessManager
                 pc.Data.Serialize(writer, false);
                 writer.EndMessage();
 
+                writer.StartMessage(2);
+                writer.WritePacked(pc.NetId);
+                writer.Write((byte)RpcCalls.SetNamePlateStr);
+                writer.Write(namePlateId);
+                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr));
+                writer.EndMessage();
+
                 pc.Data.DefaultOutfit.NamePlateId = originalNamePlateId;
                 pc.Data.DefaultOutfit.PlayerName = originalPlayerName;
             }
@@ -1369,40 +1380,22 @@ public static class GuessManager
             ExistingCNOs.Clear();
 
             // If there aren't enough living players, spawn new CNOs to show the rest of choices
+            
+            // Since CNOs use the local player's NetworkedPlayerInfo, add AU reads the player's name directly from it,
+            // it's impossible to show vanilla players all choices accurately with CNOs.
+            // No workaround found yet....
+            // So we send the remaining choices in chat so the player can identify them
 
             if (data.Length >= alivePlayerControlsLength)
             {
-                string originalNamePlateId = guesser.Data.DefaultOutfit.NamePlateId;
-                string originalPlayerName = guesser.Data.DefaultOutfit.PlayerName;
-
                 for (int i = alivePlayerControlsLength; i < data.Length; i++)
                 {
                     string choice = data[i].choice;
                     string namePlateId = data[i].namePlateId;
 
-                    guesser.Data.DefaultOutfit.NamePlateSequenceId += 10;
-                    guesser.Data.DefaultOutfit.NamePlateId = namePlateId;
-                    guesser.Data.DefaultOutfit.PlayerName = $"{GetString(choice).ToUpper()}<size=0>{choice}";
-
-                    writer = MessageWriter.Get(SendOption.Reliable);
-                    writer.StartMessage(6);
-                    writer.Write(AmongUsClient.Instance.GameId);
-                    writer.WritePacked(guesser.OwnerId);
-                    writer.StartMessage(1);
-                    writer.WritePacked(guesser.Data.NetId);
-                    guesser.Data.Serialize(writer, false);
-                    writer.EndMessage();
-                    writer.EndMessage();
-                    AmongUsClient.Instance.SendOrDisconnect(writer);
-                    writer.Recycle();
-
-                    var cno = new ShapeshiftMenuElement(choice, namePlateId, GuesserId);
+                    var cno = new ShapeshiftMenuElement(GuesserId);
                     ExistingCNOs.Add(cno);
                 }
-
-                guesser.Data.DefaultOutfit.NamePlateSequenceId += 10;
-                guesser.Data.DefaultOutfit.NamePlateId = originalNamePlateId;
-                guesser.Data.DefaultOutfit.PlayerName = originalPlayerName;
             }
 
             Logger.Info($"Spawned {ExistingCNOs.Count} CNOs, Used {alivePlayerControlsLength} Living Players, Showing {data.Length} Choices", "Meeting Shapeshift For Guessing");
