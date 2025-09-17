@@ -113,6 +113,8 @@ public class Ambusher : RoleBase
     {
         if (!GameStates.IsInTask || !Main.IntroDestroyed || ExileController.Instance || AntiBlackout.SkipTasks || !Main.Invisible.Contains(pc.PlayerId)) return;
 
+        long now = Utils.TimeStamp;
+
         if (!DontCheck)
         {
             var pos = pc.Pos();
@@ -137,7 +139,7 @@ public class Ambusher : RoleBase
                 {
                     DontCheck = true;
                     AbilityEndTimer = InvisDurAfterSuccessfulAmbush.GetFloat();
-                    FragilePlayers[TargetId] = Utils.TimeStamp + FragileDuration.GetInt();
+                    FragilePlayers[TargetId] = now + FragileDuration.GetInt();
                     TargetId = byte.MaxValue;
                     TargetTimer = FollowDuration.GetFloat();
                 }
@@ -156,11 +158,11 @@ public class Ambusher : RoleBase
             DontCheck = false;
         }
 
-        if (LastRPCTS != Utils.TimeStamp)
+        if (LastRPCTS != now)
         {
             pc.RpcResetAbilityCooldown();
             Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, TargetId, TargetTimer, AbilityEndTimer, DontCheck, AmbusherId, Main.Invisible.Contains(AmbusherId));
-            LastRPCTS = Utils.TimeStamp;
+            LastRPCTS = now;
         }
 
         if (Count++ < (DontCheck ? 30 : 10)) return;
