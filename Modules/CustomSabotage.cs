@@ -162,7 +162,7 @@ public class GrabOxygenMaskSabotage : CustomSabotage
         if (LastReactorFlash + 2 <= now)
         {
             LastReactorFlash = now;
-            aapc.ExceptBy(HasMask, x => x.PlayerId).Do(x => x.ReactorFlash(flashDuration: 0.1f));
+            aapc.ExceptBy(HasMask, x => x.PlayerId).Do(x => x.ReactorFlash(flashDuration: 0.5f));
         }
 
         if (LastNotify != now)

@@ -417,6 +417,7 @@ public class Main : BasePlugin
                 { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Farmer, "#FFDE59" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Captain, "#53B3EF" },
                 { CustomRoles.Tree, "#00ff00" },
                 { CustomRoles.Inquisitor, "#7726B6" },
                 { CustomRoles.Imitator, "#c99e28" },

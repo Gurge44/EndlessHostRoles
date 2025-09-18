@@ -235,6 +235,7 @@ internal static class CustomRolesHelper
             CustomRoles.MeetingManager => CustomRoles.Crewmate,
             CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Farmer => CustomRoles.Crewmate,
+            CustomRoles.Captain => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
             CustomRoles.Tree => CustomRoles.Crewmate,
             CustomRoles.Inquisitor => CustomRoles.Crewmate,
@@ -839,6 +840,7 @@ internal static class CustomRolesHelper
 
     public static bool UsesMeetingShapeshift(this CustomRoles role)
     {
+        if (!Options.UseMeetingShapeshift.GetBool()) return false;
         Type type = role.GetRoleClass().GetType();
         return type.GetMethod("OnMeetingShapeshift")?.DeclaringType == type;
     }
@@ -1745,6 +1747,7 @@ internal static class CustomRolesHelper
             CustomRoles.Tracefinder => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Tunneler => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Analyst => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.Captain => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Catcher => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Chameleon => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Clairvoyant => RoleOptionType.Crewmate_Investigate,

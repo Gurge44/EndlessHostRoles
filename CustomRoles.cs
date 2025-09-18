@@ -157,6 +157,7 @@ public enum CustomRoles
     Benefactor,
     Bodyguard,
     CameraMan,
+    Captain,
     Car,
     Catcher,
     Chameleon,

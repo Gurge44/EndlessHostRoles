@@ -33,7 +33,7 @@ public class Psychopath : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || Main.KillTimers[pc.PlayerId] > 0f || Count++ < 10) return;
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !pc.IsAlive() || Main.KillTimers[pc.PlayerId] > 0f || Count++ < 10) return;
         var pos = pc.Pos();
         var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
         PlayerControl closestPlayer = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).MinBy(x => x.distance).pc;
