@@ -3836,7 +3836,3 @@ internal static class RpcSendChatPatch
         return false;
     }
 }
-
-
-
-
