@@ -453,5 +453,3 @@ public static class InGameRoleInfoMenu
     }
 
 }
-
-
