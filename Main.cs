@@ -677,7 +677,7 @@ public class Main : BasePlugin
                 { CustomRoles.Physicist, "#87e9ff" },
                 { CustomRoles.Finder, "#32a879" },
                 { CustomRoles.Noisy, "#e34fb2" },
-                { CustomRoles.Examiner, "#625EEE" },
+                { CustomRoles.Examiner, "#326ac9" },
                 { CustomRoles.Venom, "#ff1919" },
                 { CustomRoles.Torch, "#eee5be" },
                 { CustomRoles.Seer, "#61b26c" },
@@ -1166,5 +1166,6 @@ public enum TieMode
     All,
     Random
 }
+
 
 public class Coroutines : MonoBehaviour { }
