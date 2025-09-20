@@ -719,6 +719,7 @@ internal static class CustomRolesHelper
             CustomRoles.Psychopath or
             CustomRoles.Ambusher or
             CustomRoles.Kidnapper or
+            CustomRoles.Postponer or
             CustomRoles.Venerer or
             CustomRoles.ClockBlocker or
             CustomRoles.Forger or
