@@ -1194,9 +1194,8 @@ public static class Utils
             }
             else
             {
-                taskCompleteColor = Color.green;
-                Color nonCompleteColorStart = hasTasks ? Color.red : Color.white;
-                Color nonCompleteColorEnd = Color.green;
+                Color nonCompleteColorStart = new Color32(203, 61, 64, 255);
+                Color nonCompleteColorEnd = taskCompleteColor = new Color32(15, 249, 137, 255);
                 float progress = (float)taskState.CompletedTasksCount / taskState.AllTasksCount;
                 nonCompleteColor = Color.Lerp(nonCompleteColorStart, nonCompleteColorEnd, progress);
             }
@@ -2941,8 +2940,8 @@ public static class Utils
 
                                 if (!forMeeting)
                                     additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
-                                
-                                if (!forMeeting && seer.IsImpostor() && Main.Invisible.Contains(target.PlayerId))
+
+                                if (!forMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId))
                                     additionalSuffixes.Add(ColorString(Palette.White_75Alpha, GetString("Invisible")));
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));
