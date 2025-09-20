@@ -483,6 +483,31 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void SelectCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(SelectCommand), text);
+            return;
+        }
+
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Loner loner || loner.Done) return;
+        if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[7..], out byte targetId, out CustomRoles pickedRole, out _) || targetId == player.PlayerId) return;
+        if (!pickedRole.IsImpostor() || pickedRole.IsVanilla() || CustomRoleSelector.RoleResult.ContainsValue(pickedRole) || pickedRole.GetMode() == 0) return;
+        if (!Main.PlayerStates.TryGetValue(targetId, out PlayerState ts) || ts.IsDead) return;
+
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+
+        loner.PickedPlayer = targetId;
+        loner.PickedRole = pickedRole;
+
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Loner.Picked"), targetId.ColoredPlayerName(), pickedRole.ToColoredString()));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+    
     private static void ReviveCommand(PlayerControl player, string text, string[] args)
     {
         if ((!Options.NoGameEnd.GetBool() && !player.FriendCode.GetDevUser().up) || args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
