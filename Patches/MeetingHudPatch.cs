@@ -995,7 +995,7 @@ internal static class MeetingHudStartPatch
                         {
                             var sender = CustomRpcSender.Create($"RpcSetRoleDesync for meeting shapeshift ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Someone")})", SendOption.Reliable);
                             sender.RpcSetRole(pc, RoleTypes.Shapeshifter, pc.OwnerId);
-                            aapc.DoIf(x => x.IsImpostor(), x => sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
+                            if (!pc.IsImpostor()) aapc.DoIf(x => x.IsImpostor(), x => sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
                             sender.SendMessage();
                         }
                     }

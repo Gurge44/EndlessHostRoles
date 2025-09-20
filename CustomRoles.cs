@@ -73,6 +73,7 @@ public enum CustomRoles
     KillingMachine,
     BallLightning, // Lightning
     Librarian,
+    Loner,
     Lurker,
     Mafioso,
     Mastermind,

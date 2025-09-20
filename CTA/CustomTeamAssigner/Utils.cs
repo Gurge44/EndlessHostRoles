@@ -27,7 +27,6 @@ namespace CustomTeamAssigner
             { CustomRoles.Sans, "Arrogance" },
             { CustomRoles.OverKiller, "Butcher" },
             { CustomRoles.EvilDiviner, "Consigliere" },
-            { CustomRoles.Minimalism, "Killing Machine" },
             { CustomRoles.BallLightning, "Lightning" },
             { CustomRoles.LovingCrewmate, "Lover" },
             { CustomRoles.LovingImpostor, "Loving Impostor" },

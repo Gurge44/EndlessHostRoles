@@ -24,7 +24,7 @@ public static class AntiBlackout
 
         PlayerControl[] players = Main.AllAlivePlayerControls;
         if (CheckForEndVotingPatch.TempExiledPlayer != null) players = players.Where(x => x.PlayerId != CheckForEndVotingPatch.TempExiledPlayer.PlayerId).ToArray();
-        PlayerControl dummyImp = players.MinBy(x => x.PlayerId);
+        PlayerControl dummyImp = players.OrderByDescending(x => x.GetRoleMap().RoleType != RoleTypes.Detective).ThenByDescending(x => x.IsModdedClient()).MinBy(x => x.PlayerId);
 
         if (players.Length == 2)
         {
@@ -135,7 +135,7 @@ public static class AntiBlackout
             {
                 SkipTasks = false;
                 ExileControllerWrapUpPatch.AfterMeetingTasks();
-            }, Math.Min(3f, Math.Max(1f, Utils.CalculatePingDelay() * 2f)), "Reset SkipTasks after SetRealPlayerRoles");
+            }, 1f, "Reset SkipTasks after SetRealPlayerRoles");
         }, 0.2f, "SetRealPlayerRoles - Reset Cooldowns");
     }
 
