@@ -3301,6 +3301,7 @@
   "GG": "GG! No more killers remain. <#8cffff>Crewmates</color> win!",
   "SubText.Bloodlust": "With a secret....",
   "LargerRoleTextSize": "Larger Role Text Size",
+  "DynamicTaskCountColor": "Dynamic Task Count Color",
   "ShowTaskCountWhenAlive": "Show Task Count When Alive",
   "ShowTaskCountWhenDead": "Show Task Count When Dead",
   "IntegrateNaturalDisasters": "Integrate the Natural Disasters game mode into the current game mode",

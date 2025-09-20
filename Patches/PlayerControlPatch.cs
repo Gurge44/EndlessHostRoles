@@ -1314,7 +1314,7 @@ internal static class ReportDeadBodyPatch
                 pc.FixMixedUpOutfit();
             
             if (Main.Invisible.Contains(pc.PlayerId))
-                pc.RpcMakeVisible();
+                LateTask.New(() => pc.RpcMakeVisible(), 1f, log: false);
 
             PhantomRolePatch.OnReportDeadBody(pc);
         }
@@ -1840,6 +1840,9 @@ internal static class FixedUpdatePatch
             if (self) additionalSuffixes.Add(CustomTeamManager.GetSuffix(seer));
 
             additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
+            
+            if (!GameStates.IsMeeting && Main.Invisible.Contains(target.PlayerId) && (self || !seer.AmOwner || (seer.IsImpostor() && target.IsImpostor())))
+                additionalSuffixes.Add(ColorString(Palette.White_75Alpha, GetString("Invisible")));
 
             switch (target.GetCustomRole())
             {

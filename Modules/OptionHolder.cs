@@ -733,6 +733,7 @@ public static class Options
     public static OptionItem AutoMessageSendInterval;
     public static OptionItem DraftMaxRolesPerPlayer;
     public static OptionItem LargerRoleTextSize;
+    public static OptionItem DynamicTaskCountColor;
     public static OptionItem ShowTaskCountWhenAlive;
     public static OptionItem ShowTaskCountWhenDead;
     public static OptionItem IntegrateNaturalDisasters;
@@ -2936,6 +2937,10 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         LargerRoleTextSize = new BooleanOptionItem(24451, "LargerRoleTextSize", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+        
+        DynamicTaskCountColor = new BooleanOptionItem(24557, "DynamicTaskCountColor", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 

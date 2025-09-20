@@ -1489,7 +1489,13 @@ internal static class ExtendedPlayerControl
         {
             player.MakeInvisible();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
-            writer.Write(true);
+            writer.WritePacked(1);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        else
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
+            writer.WritePacked(11);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -1526,7 +1532,13 @@ internal static class ExtendedPlayerControl
         {
             player.MakeVisible();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
-            writer.Write(false);
+            writer.WritePacked(0);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        else
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
+            writer.WritePacked(10);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 

@@ -997,6 +997,7 @@ internal static class CustomRolesHelper
     public static bool ForceCancelShapeshift(this CustomRoles role)
     {
         return role is
+            CustomRoles.Glitch or
             CustomRoles.Illusionist or
             CustomRoles.Swapster or
             CustomRoles.Echo or
@@ -1007,6 +1008,7 @@ internal static class CustomRolesHelper
     public static bool IsNoAnimationShifter(this CustomRoles role)
     {
         return role is
+            CustomRoles.Glitch or
             CustomRoles.Generator or
             CustomRoles.Echo;
     }
@@ -1256,27 +1258,14 @@ internal static class CustomRolesHelper
             
             CustomRoles.Augmenter or
                 CustomRoles.BallLightning or
-                CustomRoles.Blackmailer or
-                CustomRoles.Cantankerous or
-                CustomRoles.Capitalism or
-                CustomRoles.Consort or
                 CustomRoles.Echo or
-                CustomRoles.EvilDiviner or
                 CustomRoles.FireWorks or
-                CustomRoles.Framer or
-                CustomRoles.Gangster or
-                CustomRoles.Generator or
                 CustomRoles.Hangman or
-                CustomRoles.Inhibitor or
-                CustomRoles.Kamikaze or
                 CustomRoles.Mastermind or
-                CustomRoles.Morphling or
                 CustomRoles.Ninja or
-                CustomRoles.Nullifier or
                 CustomRoles.Penguin or
                 CustomRoles.Postponer or
                 CustomRoles.Puppeteer or
-                CustomRoles.Saboteur or
                 CustomRoles.Sapper or
                 CustomRoles.Scavenger or
                 CustomRoles.Swooper or
@@ -1284,9 +1273,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Vampire or
                 CustomRoles.Warlock or
                 CustomRoles.Wasp or
-                CustomRoles.Wiper or
-                CustomRoles.Witch or
-                CustomRoles.YinYanger => true,
+                CustomRoles.Wiper => true,
             
             _ => false
         };
