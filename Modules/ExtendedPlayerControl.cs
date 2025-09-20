@@ -751,7 +751,7 @@ internal static class ExtendedPlayerControl
         LateTask.New(() =>
         {
             Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
-            player.MarkDirtySettings();
+            player.SyncSettings();
         }, duration, "RemoveKillFlash");
 
         if (player.AmOwner)
@@ -766,7 +766,7 @@ internal static class ExtendedPlayerControl
         }
         else if (!reactorCheck) player.ReactorFlash(); // Reactor flash
 
-        player.MarkDirtySettings();
+        player.SyncSettings();
     }
 
     public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
@@ -1236,12 +1236,12 @@ internal static class ExtendedPlayerControl
         if (IsActive(systemtypes))
         {
             Main.PlayerStates[pc.PlayerId].IsBlackOut = true;
-            pc.MarkDirtySettings();
+            pc.SyncSettings();
 
             LateTask.New(() =>
             {
                 Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                pc.MarkDirtySettings();
+                pc.SyncSettings();
             }, (float.IsNaN(flashDuration) ? Options.KillFlashDuration.GetFloat() : flashDuration) + delay, "Fix BlackOut Reactor Flash");
 
             return;

@@ -1163,6 +1163,8 @@ public static class Options
                 File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData(), new JsonSerializerOptions { WriteIndented = true }));
             }
 
+            List<string> errors = [];
+
             foreach (string file in Directory.GetFiles(path, "*.txt"))
             {
                 try
@@ -1175,9 +1177,14 @@ public static class Options
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Failed to load user data from {file}", "Options");
-                    Utils.ThrowException(e);
+                    errors.Add($"{file}: {e.Message}");
                 }
+            }
+            
+            if (errors.Count > 0)
+            {
+                errors.Insert(0, "The following errors occurred while loading user data files:");
+                Logger.Error(string.Join('\n', errors), "Options", multiLine: true);
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
