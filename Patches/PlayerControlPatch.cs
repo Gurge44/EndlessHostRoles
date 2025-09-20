@@ -22,6 +22,7 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
+using Tree = EHR.Crewmate.Tree;
 
 namespace EHR;
 
@@ -350,7 +351,7 @@ internal static class CheckMurderPatch
                         return false;
                 }
 
-                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile);
+                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile) || Ambusher.FragilePlayers.ContainsKey(target.PlayerId);
             }
 
             if (!killer.RpcCheckAndMurder(target, true)) return false;
@@ -1304,6 +1305,20 @@ internal static class ReportDeadBodyPatch
             }
         }
 
+        foreach (PlayerControl pc in Main.AllPlayerControls)
+        {
+            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                Camouflage.RpcSetSkin(pc, revertToDefault: true);
+
+            if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
+                pc.FixMixedUpOutfit();
+            
+            if (Main.Invisible.Contains(pc.PlayerId))
+                pc.RpcMakeVisible();
+
+            PhantomRolePatch.OnReportDeadBody(pc);
+        }
+
         EAC.TimeSinceLastTaskCompletion.Clear();
 
         Enigma.OnReportDeadBody(player, target);
@@ -1345,17 +1360,6 @@ internal static class ReportDeadBodyPatch
         if (player.Is(CustomRoles.Stressed)) Stressed.OnReport(player);
 
         Stressed.OnMeetingStart();
-
-        foreach (PlayerControl pc in Main.AllPlayerControls)
-        {
-            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
-                Camouflage.RpcSetSkin(pc, revertToDefault: true);
-
-            if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
-                pc.FixMixedUpOutfit();
-
-            PhantomRolePatch.OnReportDeadBody(pc);
-        }
 
         MeetingTimeManager.OnReportDeadBody();
 
@@ -1786,6 +1790,13 @@ internal static class FixedUpdatePatch
                 return;
             }
 
+            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true })
+            {
+                target.cosmetics.nameText.text = Tree.Sprite;
+                roleText.enabled = false;
+                return;
+            }
+
             Mark.Clear();
             Suffix.Clear();
 
@@ -2014,7 +2025,7 @@ internal static class FixedUpdatePatch
             {
                 target.cosmetics.nameText.text = changeTo;
 
-                var offset = 0.2f;
+                var offset = 0.1f;
 
                 if (self && NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
                 {
@@ -2041,7 +2052,7 @@ internal static class FixedUpdatePatch
                     offset += 0.8f;
 
                 if (Options.LargerRoleTextSize.GetBool())
-                    offset += 0.15f;
+                    offset += 0.05f;
 
                 roleText.transform.SetLocalY(offset);
                 target.cosmetics.colorBlindText.transform.SetLocalY(-(offset + 0.2f));
@@ -2050,7 +2061,7 @@ internal static class FixedUpdatePatch
         else
         {
             // Restoring the position text coordinates to their initial values
-            roleText.transform.SetLocalY(0.2f);
+            roleText.transform.SetLocalY(0.1f);
         }
     }
 
@@ -2112,9 +2123,7 @@ internal static class PlayerStartPatch
             if (__result || __instance == null || __instance.__4__this == null || __instance.__4__this.PlayerId >= 254 || __instance.__4__this.cosmetics == null) return;
             TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
             TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
-            bool largerFontSize = Options.LargerRoleTextSize.GetBool();
-            roleText.transform.localPosition = new(0f, largerFontSize ? 0.4f : 0.2f, 0f);
-            if (!largerFontSize) roleText.fontSize -= 0.9f;
+            if (!Options.LargerRoleTextSize.GetBool()) roleText.fontSize -= 0.9f;
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
             roleText.enabled = false;
@@ -2277,7 +2286,7 @@ internal static class GameDataCompleteTaskPatch
 {
     public static void Postfix(PlayerControl pc, uint taskId)
     {
-        if (GameStates.IsMeeting) return;
+        if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) return;
 
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
         {
@@ -2296,8 +2305,7 @@ internal static class PlayerControlCompleteTaskPatch
 {
     public static bool Prefix(PlayerControl __instance)
     {
-        if (GameStates.IsMeeting) return false;
-
+        if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) return false;
         return !Workhorse.OnCompleteTask(__instance) && Capitalism.AddTaskForPlayer(__instance); // Cancel task win
     }
 

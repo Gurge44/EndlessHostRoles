@@ -123,6 +123,8 @@ public class Siren : Coven
         {
             if (!Stages.TryGetValue(player.PlayerId, out var stage))
                 Stages[player.PlayerId] = stage = HasNecronomicon ? 2 : 1;
+            else
+                Stages[player.PlayerId]++;
 
             switch (stage)
             {

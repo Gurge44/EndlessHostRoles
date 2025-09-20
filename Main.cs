@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.3.0";
-    public const string PluginDisplayVersion = "6.3.0";
+    public const string PluginVersion = "6.4.0";
+    public const string PluginDisplayVersion = "6.4.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -154,6 +154,8 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
     public static uint LobbyBehaviourNetId;
+    
+    public static float GameTimer;
 
     public static bool ShowResult = true;
 
@@ -415,6 +417,9 @@ public class Main : BasePlugin
                 { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Farmer, "#FFDE59" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Captain, "#53B3EF" },
+                { CustomRoles.Tree, "#00ff00" },
+                { CustomRoles.Inquisitor, "#7726B6" },
                 { CustomRoles.Imitator, "#c99e28" },
                 { CustomRoles.PortalMaker, "#700078" },
                 { CustomRoles.Ankylosaurus, "#7FE44C" },
@@ -573,6 +578,7 @@ public class Main : BasePlugin
                 { CustomRoles.Seamstress, "#BFE44C" },
                 { CustomRoles.Spirit, "#26B652" },
                 { CustomRoles.Starspawn, "#4CE4B4" },
+                { CustomRoles.Clerk, "#26B6A9" },
                 { CustomRoles.RoomRusher, "#ffab1b" },
                 { CustomRoles.SchrodingersCat, "#616161" },
                 { CustomRoles.Shifter, "#777777" },
@@ -641,6 +647,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Compelled, "#D2E44C" },
                 { CustomRoles.Commited, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },
                 { CustomRoles.Blind, "#666666" },
@@ -671,7 +678,7 @@ public class Main : BasePlugin
                 { CustomRoles.Physicist, "#87e9ff" },
                 { CustomRoles.Finder, "#32a879" },
                 { CustomRoles.Noisy, "#e34fb2" },
-                { CustomRoles.Examiner, "#625EEE" },
+                { CustomRoles.Examiner, "#326ac9" },
                 { CustomRoles.Venom, "#ff1919" },
                 { CustomRoles.Torch, "#eee5be" },
                 { CustomRoles.Seer, "#61b26c" },
@@ -1117,6 +1124,7 @@ public enum AdditionalWinners
     Seamstress = CustomRoles.Seamstress,
     Spirit = CustomRoles.Spirit,
     Starspawn = CustomRoles.Starspawn,
+    Clerk = CustomRoles.Clerk,
     RoomRusher = CustomRoles.RoomRusher,
     Impartial = CustomRoles.Impartial,
     Gaslighter = CustomRoles.Gaslighter,
@@ -1159,5 +1167,6 @@ public enum TieMode
     All,
     Random
 }
+
 
 public class Coroutines : MonoBehaviour { }

@@ -369,7 +369,7 @@ internal static class ChangeRoleSettings
                 pc.cosmetics.nameText.text = pc.name;
                 RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
                 NetworkedPlayerInfo.PlayerOutfit outfit = pc.Data.DefaultOutfit;
-                Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
+                Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, outfit.PlayerName), outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.ClientIdList.Add(pc.OwnerId);
 
                 try { Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId]; }
@@ -739,7 +739,7 @@ internal static class StartGameHostPatch
                             }
                         }
 
-                        if (kp.Value.IsImpostor() && kp.Value.GetRoleTypes() == RoleTypes.Impostor && !venomBanned)
+                        if (kp.Value.IsImpostor() && kp.Value.GetRoleTypes() == RoleTypes.Impostor && !kp.Value.IncompatibleWithVenom() && !venomBanned)
                             venomList.Add(player.PlayerId);
                     }
                 }
@@ -1106,7 +1106,10 @@ internal static class StartGameHostPatch
             Utils.ThrowException(ex);
             yield break;
         }
-
+        
+        
+        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 95f, 1f, GetString("LoadingBarText.1"));
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
@@ -1120,8 +1123,7 @@ internal static class StartGameHostPatch
 
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
-        LoadingBarManager loadingBarManager = FastDestroyableSingleton<LoadingBarManager>.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 100f, 2f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(95f, 100f, 1f, GetString("LoadingBarText.1"));
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.AllPlayerControls.Do(SetRoleSelf);

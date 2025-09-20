@@ -76,7 +76,7 @@ internal class AntiAdminer : RoleBase
         IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
         ExtraAbilityStartTimeStamp = 0;
         AntiAdminerId = playerId;
-        if (IsMonitor && Main.CurrentMap != MapNames.MiraHQ) playerId.SetAbilityUseLimit(Monitor.UseLimitOpt.GetInt());
+        if (IsMonitor && Main.CurrentMap != MapNames.MiraHQ) playerId.SetAbilityUseLimit(Monitor.UseLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)

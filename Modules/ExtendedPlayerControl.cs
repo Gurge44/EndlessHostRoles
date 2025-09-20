@@ -85,18 +85,22 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
+        int? closestVentId = player.GetClosestVent()?.Id;
+        if (player.inVent && closestVentId == ventId) return true;
+        
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.RoomRush:
                 return true;
             case CustomGameMode.Standard when Main.AllAlivePlayerControls.Length == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
                 return false;
+            case CustomGameMode.MoveAndStop:
+                return MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.VentAccess;
         }
 
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
-        if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
+        if (player.Is(CustomRoles.Blocked) && closestVentId != ventId) return false;
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || Main.Invisible.Contains(player.PlayerId)) return false;
-        if (player.inVent && player.GetClosestVent()?.Id == ventId) return true;
         return (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
     }
 
@@ -195,7 +199,7 @@ internal static class ExtendedPlayerControl
     }
 
     /// <summary>
-    ///     *Sub-roles cannot be obtained.
+    ///     *Add-ons cannot be obtained.
     /// </summary>
     public static CustomRoles GetCustomRole(this PlayerControl player)
     {
@@ -729,7 +733,7 @@ internal static class ExtendedPlayerControl
 
     public static void KillFlash(this PlayerControl player)
     {
-        if (GameStates.IsLobby) return;
+        if (GameStates.IsLobby || player == null) return;
 
         // Kill flash (blackout + reactor flash) processing
 

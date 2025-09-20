@@ -106,14 +106,10 @@ public class Mastermind : RoleBase
                 ManipulateDelays.Remove(x.Key);
                 ManipulatedPlayers.TryAdd(x.Key, TimeStamp);
 
-                if (pc.HasKillButton())
-                {
-                    TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
-                    pc.SetKillCooldown(1f);
-                }
-                else
-                    pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
-
+                if (pc.HasKillButton()) TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
+                else pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
+                
+                pc.SetKillCooldown(1f);
                 NotifyRoles(SpecifySeer: MastermindPC, SpecifyTarget: pc);
             }
         }

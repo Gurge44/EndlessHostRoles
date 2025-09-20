@@ -207,9 +207,6 @@ public static class ChatManager
             case CustomGameMode.FFA when GameStates.InGame && !message.StartsWith('/'):
                 FreeForAll.UpdateLastChatMessage(player.GetRealName(), message);
                 break;
-            case CustomGameMode.Standard when GameStates.InGame && operate != 1 && Banshee.On:
-                Banshee.OnReceiveChat();
-                break;
         }
     }
 

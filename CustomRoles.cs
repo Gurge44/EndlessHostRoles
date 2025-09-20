@@ -20,6 +20,7 @@ public enum CustomRoles
     // Impostors
 
     Abyssbringer,
+    Ambusher,
     Anonymous,
     AntiAdminer,
     Sans, // Arrogance
@@ -87,6 +88,7 @@ public enum CustomRoles
     Overheat,
     Parasite,
     Penguin,
+    Postponer,
     Psychopath,
     Puppeteer,
     QuickShooter,
@@ -156,6 +158,7 @@ public enum CustomRoles
     Benefactor,
     Bodyguard,
     CameraMan,
+    Captain,
     Car,
     Catcher,
     Chameleon,
@@ -202,6 +205,7 @@ public enum CustomRoles
     Insight,
     ParityCop, // Inspector
     Inquirer,
+    Inquisitor,
     Jailor,
     Journalist,
     Judge,
@@ -267,6 +271,7 @@ public enum CustomRoles
     Transmitter,
     Transporter,
     Tracefinder,
+    Tree,
     Tunneler,
     Ventguard,
     Veteran,
@@ -290,6 +295,7 @@ public enum CustomRoles
     Bubble,
     Chemist,
     Cherokious,
+    Clerk,
     Collector,
     Curser,
     Deathknight,
@@ -489,6 +495,7 @@ public enum CustomRoles
     Cleansed,
     Clumsy,
     Commited,
+    Compelled,
     Contagious,
     Damocles,
     Deadlined,

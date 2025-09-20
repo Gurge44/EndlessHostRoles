@@ -68,14 +68,8 @@ public class Cantankerous : RoleBase
         }
     }
 
-    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!base.OnCheckMurder(killer, target)) return false;
-
-        if (killer.GetAbilityUseLimit() <= 0) return false;
-
         killer.RpcRemoveAbilityUse();
-
-        return true;
     }
 }

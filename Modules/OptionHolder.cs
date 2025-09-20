@@ -729,11 +729,15 @@ public static class Options
     public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem MessageRpcSizeLimit;
     public static OptionItem KickSlowJoiningPlayers;
+    public static OptionItem EnableAutoMessage;
+    public static OptionItem AutoMessageSendInterval;
     public static OptionItem DraftMaxRolesPerPlayer;
     public static OptionItem LargerRoleTextSize;
     public static OptionItem ShowTaskCountWhenAlive;
     public static OptionItem ShowTaskCountWhenDead;
     public static OptionItem IntegrateNaturalDisasters;
+    public static OptionItem EnableGameTimeLimit;
+    public static OptionItem GameTimeLimit;
     public static OptionItem ShowDifferentEjectionMessageForSomeRoles;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
@@ -1745,6 +1749,13 @@ public static class Options
 
         KickSlowJoiningPlayers = new BooleanOptionItem(19428, "KickSlowJoiningPlayers", false, TabGroup.SystemSettings)
             .SetHeader(true);
+        
+        EnableAutoMessage = new BooleanOptionItem(19429, "EnableAutoMessage", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+        
+        AutoMessageSendInterval = new IntegerOptionItem(19430, "AutoMessageSendInterval", new(10, 300, 5), 60, TabGroup.SystemSettings)
+            .SetParent(EnableAutoMessage)
+            .SetValueFormat(OptionFormat.Seconds);
 
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .SetHeader(true)
@@ -2939,6 +2950,15 @@ public static class Options
         IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReloadUI());
+
+        EnableGameTimeLimit = new BooleanOptionItem(24455, "EnableGameTimeLimit", false, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .SetHeader(true);
+        
+        GameTimeLimit = new FloatOptionItem(24456, "GameTimeLimit", new(20f, 3600f, 20f), 900f, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .SetParent(EnableGameTimeLimit)
+            .SetValueFormat(OptionFormat.Seconds);
 
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)

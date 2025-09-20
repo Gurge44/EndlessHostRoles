@@ -20,7 +20,7 @@ public class Sniper : RoleBase
     private static OptionItem SniperAimAssist;
     private static OptionItem SniperAimAssistOnshot;
     private static OptionItem ShapeshiftDuration;
-    private static OptionItem CanKillWithBullets;
+    public static OptionItem CanKillWithBullets;
 
     private static bool MeetingReset;
     private static int MaxBulletCount;

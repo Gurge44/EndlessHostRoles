@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Impostor;
@@ -15,6 +16,7 @@ public class Mercenary : RoleBase
 
     private float SuicideTimer;
     private int Timer;
+    private byte MercenaryId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -37,7 +39,7 @@ public class Mercenary : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        SuicideTimer = TimeLimit.GetFloat();
+        SuicideTimer = 0f;
         Timer = TimeLimit.GetInt();
     }
 
@@ -45,7 +47,8 @@ public class Mercenary : RoleBase
     {
         PlayerIdList.Add(serial);
         Timer = TimeLimit.GetInt();
-        SuicideTimer = TimeLimit.GetFloat();
+        SuicideTimer = 0f;
+        MercenaryId = serial;
     }
 
     public override void Remove(byte playerId)
@@ -67,7 +70,7 @@ public class Mercenary : RoleBase
     {
         if (!killer.Is(CustomRoles.Mercenary)) return true;
 
-        SuicideTimer = float.NaN;
+        SuicideTimer = 0f;
         Timer = TimeLimit.GetInt();
         killer.MarkDirtySettings();
         return true;
@@ -81,7 +84,7 @@ public class Mercenary : RoleBase
 
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!GameStates.IsInTask) return;
+        if (!GameStates.IsInTask || !Main.IntroDestroyed || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
         if (!HasKilled(player))
         {
@@ -106,7 +109,12 @@ public class Mercenary : RoleBase
             SuicideTimer += Time.fixedDeltaTime;
             int tempTimer = Timer;
             Timer = TimeLimit.GetInt() - (int)SuicideTimer;
-            if (Timer != tempTimer && Timer <= 20 && !player.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+            
+            if (Timer != tempTimer && Timer <= 20 && !player.IsModdedClient())
+            {
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                Utils.SendRPC(CustomRPC.SyncRoleData, MercenaryId, Timer);
+            }
         }
     }
 
@@ -114,5 +122,16 @@ public class Mercenary : RoleBase
     {
         SuicideTimer = 0f;
         Timer = TimeLimit.GetInt();
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        Timer = reader.ReadPackedInt32();
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+    {
+        if (seer.PlayerId != MercenaryId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || Timer - 1 > 20) return string.Empty;
+        return string.Format(Translator.GetString("SerialKillerTimeLeft"), Timer - 1);
     }
 }

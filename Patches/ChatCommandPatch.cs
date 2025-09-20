@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,7 +20,6 @@ using UnityEngine.Networking;
 using static EHR.Translator;
 
 // ReSharper disable InconsistentNaming
-
 
 namespace EHR;
 
@@ -106,6 +106,7 @@ internal static class ChatCommands
     private static readonly Dictionary<char, string> PollAnswers = [];
     private static readonly List<byte> PollVoted = [];
     private static float PollTimer = 45f;
+    private static List<CustomGameMode> GMPollGameModes = [];
 
     public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration)> MutedPlayers = [];
 
@@ -147,7 +148,7 @@ internal static class ChatCommands
             new(["deletemod", "убрмодера", "удмодера", "убратьмодера", "удалитьмодера", "移除协管", "moderador-remover"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, false, [GetString("CommandArgs.DeleteMod.Id")]),
             new(["combo", "комбо", "设置不会同时出现的职业", "combinação", "combinar"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, false, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
             new(["eff", "effect", "эффект", "效果", "efeito"], "{effect}", GetString("CommandDescription.Effect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EffectCommand, true, false, [GetString("CommandArgs.Effect.Effect")]),
-            new(["afkexempt", "освафк", "афкосв", "挂机检测器不会检测", "afk-isentar"], "{id}", GetString("CommandDescription.AFKExempt"), Command.UsageLevels.Host, Command.UsageTimes.Always, AFKExemptCommand, true, false, [GetString("CommandArgs.AFKExempt.Id")]),
+            new(["afkexempt", "освафк", "афкосв", "挂机检测器不会检测", "afk-isentar"], "{id}", GetString("CommandDescription.AFKExempt"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, AFKExemptCommand, true, false, [GetString("CommandArgs.AFKExempt.Id")]),
             new(["m", "myrole", "м", "мояроль", "我的职业", "minhafunção"], "", GetString("CommandDescription.MyRole"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, MyRoleCommand, true, false),
             new(["tpout", "тпаут", "传送出"], "", GetString("CommandDescription.TPOut"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPOutCommand, true, false),
             new(["tpin", "тпин", "传送进"], "", GetString("CommandDescription.TPIn"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPInCommand, true, false),
@@ -163,7 +164,7 @@ internal static class ChatCommands
             new(["target", "цель", "腹语者标记", "alvo"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, true, [GetString("CommandArgs.Target.Id")]),
             new(["chat", "сообщение", "腹语者发送消息"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, true, [GetString("CommandArgs.Chat.Message")]),
             new(["check", "проверить", "检查", "veificar"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
-            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id")]),
+            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id} [reason]", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id"), GetString("CommandArgs.Ban.Reason")]),
             new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
@@ -186,11 +187,11 @@ internal static class ChatCommands
             new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, false, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
             new(["negotiation", "neg", "наказание", "谈判方式", "negociar", "negociação"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, false, [GetString("CommandArgs.Negotiation.Number")]),
             new(["mute", "замутить", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, false, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
-            new(["unmute", "размутить", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, false, [GetString("CommandArgs.Unmute.Id")]),
+            new(["unmute", "размутить", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, UnmuteCommand, true, false, [GetString("CommandArgs.Unmute.Id")]),
             new(["draftstart", "ds", "драфтстарт", "启用草稿", "todosescolhem-iniciar"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, DraftStartCommand, true, false),
             new(["dd", "draftdesc", "draftdescription", "драфтописание", "драфтопис", "草稿描述", "todosescolhem-descricao"], "{index}", GetString("CommandDescription.DraftDescription"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftDescriptionCommand, false, false, [GetString("CommandArgs.DraftDescription.Index")]),
             new(["draft", "драфт", "选择草稿", "todosescolhem-escolher"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, false, false, [GetString("CommandArgs.Draft.Number")]),
-            new(["rc", "readycheck", "проверитьготовность", "准备检测", "verificação-de-prontidão"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true, false),
+            new(["rc", "readycheck", "проверитьготовность", "准备检测", "verificação-de-prontidão"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InLobby, ReadyCheckCommand, true, false),
             new(["ready", "готов", "准备", "pronto"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true, false),
             new(["enableallroles", "вклвсероли", "启用所有职业", "habilitar-todas-as-funções"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true, false),
             new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true, false),
@@ -218,7 +219,8 @@ internal static class ChatCommands
             new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
             new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
             new(["retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
-
+            new(["revive", "воскрешение", "воскрешать", "复活", "reviver"], "{id}", GetString("CommandDescription.Revive"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ReviveCommand, true, false, [GetString("CommandArgs.Revive.Id")]),
+            
             new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
             // Commands with action handled elsewhere
@@ -481,6 +483,16 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void ReviveCommand(PlayerControl player, string text, string[] args)
+    {
+        if ((!Options.NoGameEnd.GetBool() && !player.FriendCode.GetDevUser().up) || args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
+        
+        PlayerControl target = Utils.GetPlayerById(targetId);
+        if (target == null) return;
+        
+        target.RpcRevive();
+    }
+    
     private static void ConfirmAuthCommand(PlayerControl player, string text, string[] args)
     {
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
@@ -887,7 +899,8 @@ internal static class ChatCommands
             return;
         }
 
-        string gmNames = string.Join(' ', Enum.GetValues<CustomGameMode>()[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).Select(x => GetString(x.ToString()).Replace(' ', '_')));
+        GMPollGameModes = Enum.GetValues<CustomGameMode>()[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
+        string gmNames = string.Join(' ', GMPollGameModes.Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
@@ -1245,7 +1258,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ReadyCheckCommand), text);
+            RequestCommandProcessingFromHost(nameof(ReadyCheckCommand), text, adminCommand: true);
             return;
         }
 
@@ -1301,6 +1314,8 @@ internal static class ChatCommands
             RequestCommandProcessingFromHost(nameof(DraftStartCommand), text, true);
             return;
         }
+
+        DraftResult = [];
 
         byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
         List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM and not CustomRoles.Konan).ToList();
@@ -1440,7 +1455,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(UnmuteCommand), text);
+            RequestCommandProcessingFromHost(nameof(UnmuteCommand), text, adminCommand: true);
             return;
         }
 
@@ -1449,6 +1464,7 @@ internal static class ChatCommands
         MutedPlayers.Remove(id);
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerUnmuted"), id.ColoredPlayerName()));
         Utils.SendMessage("\n", id, string.Format(GetString("YouUnmuted"), player.PlayerId.ColoredPlayerName()));
+        if (!player.IsHost()) Utils.SendMessage("\n", 0, string.Format(GetString("AdminUnmuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName()));
     }
 
     private static void NegotiationCommand(PlayerControl player, string text, string[] args)
@@ -1637,7 +1653,7 @@ internal static class ChatCommands
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
 
         PollTimer = gmPoll ? 60f : 45f;
-        Color[] gmPollColors = gmPoll ? Main.GameModeColors.Values.ToArray() : [];
+        Color[] gmPollColors = gmPoll ? Main.GameModeColors.Where(x => GMPollGameModes.Contains(x.Key)).Select(x => x.Value).ToArray() : [];
 
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
@@ -1701,7 +1717,8 @@ internal static class ChatCommands
             if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
             {
                 int winnerIndex = winners[0].Key - 65;
-                Options.GameMode.SetValue(winnerIndex);
+                CustomGameMode mode = GMPollGameModes[winnerIndex];
+                Options.GameMode.SetValue((int)mode - 1);
             }
         }
 
@@ -2085,13 +2102,30 @@ internal static class ChatCommands
             return;
         }
 
-        // Kick the specified Player
-        AmongUsClient.Instance.KickPlayer(kickedPlayer.OwnerId, args[0] == "/ban");
-        string kickedPlayerName = kickedPlayer.GetRealName();
-        var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
-        if (GameStates.IsInGame) textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
+        try
+        {
+            string kickedPlayerName = kickedPlayer.GetRealName();
+            var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
+            if (GameStates.IsInGame) textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
+            if (args.Length >= 3) textToSend += $"\n{GetString("KickCommandKickedReason")} {string.Join(' ', args[2..])}";
 
-        Utils.SendMessage(textToSend, sendOption: GameStates.IsInGame ? SendOption.Reliable : SendOption.None);
+            Utils.SendMessage(textToSend, sendOption: GameStates.IsInGame ? SendOption.Reliable : SendOption.None);
+        
+            string modLogFilePath = $"{Main.DataPath}/EHR_DATA/ModLogs/{DateTime.Now:yyyy-MM-dd}.txt";
+        
+            if (!File.Exists(modLogFilePath))
+            {
+                string directoryName = Path.GetDirectoryName(modLogFilePath);
+                if (!string.IsNullOrEmpty(directoryName)) Directory.CreateDirectory(directoryName);
+                File.WriteAllText(modLogFilePath, "=== Moderation Log ===\n");
+            }
+        
+            string logEntry = $"[{DateTime.Now:HH:mm:ss}] {player.GetRealName()} {(args[0] == "/ban" ? "banned" : "kicked")} {kickedPlayerName} [{kickedPlayer.FriendCode}|{kickedPlayer.GetClient().GetHashedPuid()}] for {(args.Length >= 3 ? string.Join(' ', args[2..]) : "[no reason provided]")}\n";
+            File.AppendAllText(modLogFilePath, logEntry);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+        
+        AmongUsClient.Instance.KickPlayer(kickedPlayer.OwnerId, args[0] == "/ban");
     }
 
     private static void CheckCommand(PlayerControl player, string text, string[] args)
@@ -2414,7 +2448,7 @@ internal static class ChatCommands
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(AFKExemptCommand), text);
+            RequestCommandProcessingFromHost(nameof(AFKExemptCommand), text, adminCommand: true);
             return;
         }
 

@@ -111,11 +111,8 @@ public class Banshee : Coven
         }
     }
 
-    public static void OnReceiveChat()
+    public override void OnReportDeadBody()
     {
-        PlayerControl[] screechedPlayers = Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().ToArray();
-        if (screechedPlayers.Length == 0) return;
-
-        LateTask.New(() => ChatManager.ClearChat(screechedPlayers), Utils.CalculatePingDelay());
+        LateTask.New(() => Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().Do(x => x.SetChatVisible(false)), 4f, "Set Chat Hidden For Banshee Victims");
     }
 }

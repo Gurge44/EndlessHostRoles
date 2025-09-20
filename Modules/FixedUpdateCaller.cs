@@ -15,6 +15,7 @@ public static class FixedUpdateCaller
     private static int NonLowLoadPlayerIndex;
 
     private static long LastFileLoadTS;
+    private static long LastAutoMessageSendTS;
 
     // ReSharper disable once UnusedMember.Global
     public static void Postfix()
@@ -47,6 +48,12 @@ public static class FixedUpdateCaller
                 {
                     LastFileLoadTS = now;
                     Options.LoadUserData();
+                }
+
+                if (Options.EnableAutoMessage.GetBool() && now - LastAutoMessageSendTS > Options.AutoMessageSendInterval.GetInt())
+                {
+                    LastAutoMessageSendTS = now;
+                    TemplateManager.SendTemplate("Notification", sendOption: Hazel.SendOption.None);
                 }
             }
 
@@ -191,6 +198,18 @@ public static class FixedUpdateCaller
                         default:
                             if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                             break;
+                    }
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                try
+                {
+                    Main.GameTimer += Time.fixedDeltaTime;
+                
+                    if (Options.EnableGameTimeLimit.GetBool() && Main.GameTimer > Options.GameTimeLimit.GetInt())
+                    {
+                        Main.GameTimer = 0f;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

@@ -158,6 +158,9 @@ internal static class CheckForEndVotingPatch
                                 voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Skip for not voting");
                                 break;
                         }
+                        
+                        if (voter.Is(CustomRoles.Compelled))
+                            TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
                     }
                 }
 

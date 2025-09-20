@@ -735,7 +735,7 @@ public static class BedWars
 
             if (Health <= 0 && pc != null && pc.IsAlive())
             {
-                killer.KillFlash();
+                if (killer != null) killer.KillFlash();
                 if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
                 ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
                 
@@ -1753,12 +1753,12 @@ public static class BedWars
                     }
                 }
 
+                Breaking.Remove(pc.PlayerId);
                 NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 Layers.RemoveAt(Layers.Count - 1);
                 data.Inventory.Adjust(topLayer, GetNextProtectReq());
                 UpdateStatus();
-                Breaking.Remove(pc.PlayerId);
                 if (Layers.Count == 0 && data.Team != Team) Broken();
             }
         }
@@ -1833,7 +1833,20 @@ public static class BedWars
                         break;
                 }
 
-                if (didDamage) bed.UpdateStatus();
+                if (didDamage)
+                {
+                    foreach (byte id in bed.Breaking)
+                    {
+                        var pc = id.GetPlayer();
+                        if (pc == null) continue;
+                        
+                        NameNotifyManager.Notifies.Remove(pc.PlayerId);
+                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    }
+                    
+                    bed.Breaking.Clear();
+                    bed.UpdateStatus();
+                }
             }
         }
     }

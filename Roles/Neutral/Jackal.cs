@@ -193,10 +193,8 @@ public class Jackal : RoleBase
     private static bool CanBeSidekick(PlayerControl pc)
     {
         if (!CanRecruitImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) return false;
-
         if (!CanRecruitMadmates.GetBool() && pc.IsMadmate()) return false;
-
-        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Loyal) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
+        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Bloodlust) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

@@ -380,6 +380,11 @@ internal static class RPCHandlerPatch
 
                         break;
                     }
+                    case 62 when GameStates.IsInTask && Main.IntroDestroyed && !ExileController.Instance && !AntiBlackout.SkipTasks:
+                    {
+                        PhantomRolePatch.CheckTrigger(__instance);
+                        break;
+                    }
                 }
             }
 

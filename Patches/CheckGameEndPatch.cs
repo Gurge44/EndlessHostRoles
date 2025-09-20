@@ -236,6 +236,7 @@ internal static class GameEndChecker
                         case CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller && NoteKiller.Kills >= NoteKiller.NumKillsNeededToWin:
                         case CustomRoles.NecroGuesser when (roleBase as NecroGuesser).GuessedPlayers >= NecroGuesser.NumGuessesToWin.GetInt():
                         case CustomRoles.RoomRusher when (roleBase as RoomRusher).Won:
+                        case CustomRoles.Clerk when WinnerTeam != CustomWinner.Crewmate || reason == GameOverReason.CrewmatesByTask:
                         case CustomRoles.Auditor when WinnerTeam != CustomWinner.Crewmate:
                         case CustomRoles.Magistrate when WinnerTeam != CustomWinner.Crewmate:
                         case CustomRoles.Seamstress when WinnerTeam != CustomWinner.Crewmate:
@@ -461,6 +462,7 @@ internal static class GameEndChecker
                 case CustomRoles.NecroGuesser when ((NecroGuesser)state.Role).GuessedPlayers >= NecroGuesser.NumGuessesToWin.GetInt():
                 case CustomRoles.RoomRusher when ((RoomRusher)state.Role).Won:
                 case CustomRoles.Auditor:
+                case CustomRoles.Clerk:
                 case CustomRoles.Magistrate:
                 case CustomRoles.Seamstress:
                 case CustomRoles.Spirit:
@@ -591,7 +593,7 @@ internal static class GameEndChecker
 
             foreach (PlayerState playerState in statesCoutingAsCrew)
             {
-                if (playerState.Player == null || !playerState.Player.IsAlive()) continue;
+                if (playerState.Player == null || !playerState.Player.IsAlive() || !Options.CrewAdvancedGameEndCheckingSettings[playerState.MainRole].GetBool()) continue;
                 playerState.Role.ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs);
                 crewKeepsGameGoing |= keepGameGoing;
                 crew += countsAs - 1;

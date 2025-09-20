@@ -48,7 +48,7 @@ internal static class HotPotato
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new Color32(232, 205, 70, byte.MaxValue));
 
-        HolderCanPassViaKillButton = new BooleanOptionItem(69_213_003, "HotPotato_HolderCanPassViaKillButton", false, TabGroup.GameSettings)
+        HolderCanPassViaKillButton = new BooleanOptionItem(69_213_003, "HotPotato_HolderCanPassViaKillButton", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HotPotato)
             .SetColor(new Color32(232, 205, 70, byte.MaxValue))
             .SetHeader(true);

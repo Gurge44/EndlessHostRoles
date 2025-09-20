@@ -30,6 +30,7 @@ using InnerNet;
 using Newtonsoft.Json;
 using UnityEngine;
 using static EHR.Translator;
+using Tree = EHR.Crewmate.Tree;
 
 namespace EHR;
 /*
@@ -298,8 +299,10 @@ public static class Utils
                 {
                     if (mapId is 1 or 5)
                     {
-                        var hqHudSystemType = systemType.CastFast<HqHudSystemType>();
-                        return hqHudSystemType is { IsActive: true };
+                        var hqHudSystemType = systemType.TryCast<HqHudSystemType>();
+                        // ReSharper disable once MergeIntoPattern
+                        // For some reason, the game sometimes crashes here when trying to get_IsActive
+                        return hqHudSystemType != null && hqHudSystemType.IsActive;
                     }
 
                     var hudOverrideSystemType = systemType.CastFast<HudOverrideSystemType>();
@@ -871,6 +874,7 @@ public static class Utils
             case CustomRoles.Postman:
             case CustomRoles.Dealer:
             case CustomRoles.Auditor:
+            case CustomRoles.Clerk:
             case CustomRoles.Magistrate:
             case CustomRoles.Seamstress:
             case CustomRoles.Spirit:
@@ -2433,6 +2437,12 @@ public static class Utils
                 sender.RpcSetName(seer, Car.Name);
                 return true;
             }
+            
+            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var seerState) && seerState.Role is Tree { TreeSpriteActive: true }) 
+            {
+                sender.RpcSetName(seer, Tree.Sprite);
+                return true;
+            }
 
             if (forMeeting && Magistrate.CallCourtNextMeeting)
             {
@@ -3227,6 +3237,7 @@ public static class Utils
             CustomRoles.Gardener => Gardener.AbilityCooldown.GetInt(),
             CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Paranoia => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
+            CustomRoles.Tree => 5 + (includeDuration ? Tree.FallDelay.GetInt() + Tree.FallStunDuration.GetInt() : 0),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),
@@ -3247,6 +3258,7 @@ public static class Utils
             CustomRoles.Catcher => Catcher.AbilityCooldown.GetInt(),
             CustomRoles.Sentry => Crewmate.Sentry.ShowInfoCooldown.GetInt(),
             CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
+            CustomRoles.Ambusher => Ambusher.AbilityCooldown.GetInt(),
             CustomRoles.AntiAdminer => AntiAdminer.AbilityCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Ninja => Ninja.AssassinateCooldownOpt.GetInt(),
@@ -3340,6 +3352,7 @@ public static class Utils
                     {
                         string petId = PetsHelper.GetPetId();
                         PetsHelper.SetPet(pc, petId);
+                        pc.RpcSetPet(petId);
                     }, 3f, "No Pet Reassign");
                 }
 
