@@ -161,7 +161,7 @@ public class Ambusher : RoleBase
         if (LastRPCTS != now)
         {
             pc.RpcResetAbilityCooldown();
-            Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, TargetId, TargetTimer, AbilityEndTimer, DontCheck, AmbusherId, Main.Invisible.Contains(AmbusherId));
+            Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, TargetId, TargetTimer, AbilityEndTimer, DontCheck);
             LastRPCTS = now;
         }
 
@@ -184,7 +184,7 @@ public class Ambusher : RoleBase
         TargetTimer = FollowDuration.GetFloat();
         AbilityEndTimer = AbilityDuration.GetFloat();
         DontCheck = false;
-        Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, TargetId, TargetTimer, AbilityEndTimer, DontCheck, AmbusherId, Main.Invisible.Contains(AmbusherId));
+        Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, TargetId, TargetTimer, AbilityEndTimer, DontCheck);
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -193,9 +193,6 @@ public class Ambusher : RoleBase
         TargetTimer = reader.ReadSingle();
         AbilityEndTimer = reader.ReadSingle();
         DontCheck = reader.ReadBoolean();
-        byte ambusherId = reader.ReadByte();
-        if (reader.ReadBoolean()) Main.Invisible.Add(ambusherId);
-        else Main.Invisible.Remove(ambusherId);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

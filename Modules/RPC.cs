@@ -1325,15 +1325,24 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.Invisibility:
                 {
-                    if (reader.ReadBoolean())
+                    int num = reader.ReadPackedInt32();
+                    
+                    switch (num)
                     {
-                        __instance.MakeInvisible();
-                        Main.Invisible.Add(__instance.PlayerId);
-                    }
-                    else
-                    {
-                        __instance.MakeVisible();
-                        Main.Invisible.Remove(__instance.PlayerId);
+                        case 1:
+                            __instance.MakeInvisible();
+                            Main.Invisible.Add(__instance.PlayerId);
+                            break;
+                        case 0:
+                            __instance.MakeVisible();
+                            Main.Invisible.Remove(__instance.PlayerId);
+                            break;
+                        case 11:
+                            Main.Invisible.Add(__instance.PlayerId);
+                            break;
+                        case 10:
+                            Main.Invisible.Remove(__instance.PlayerId);
+                            break;
                     }
 
                     break;

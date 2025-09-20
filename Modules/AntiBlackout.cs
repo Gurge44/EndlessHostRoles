@@ -48,7 +48,7 @@ public static class AntiBlackout
         }
 
         dummyImp.RpcChangeRoleBasis(CustomRoles.ImpostorEHR, forced: true);
-        players.Without(dummyImp).Do(x => x.RpcChangeRoleBasis(CustomRoles.CrewmateEHR, forced: true));
+        players.Without(dummyImp).Where(x => x.GetRoleMap().RoleType != RoleTypes.Detective).Do(x => x.RpcChangeRoleBasis(CustomRoles.CrewmateEHR, forced: true));
     }
 
     // After the ejection screen, we revert the role types to their actual values.

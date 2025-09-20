@@ -184,7 +184,7 @@ internal static class ChatCommands
             new(["deletevip", "удвип", "убрвип", "удалитьвип", "убратьвип", "删除会员", "vip-remover"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, false, [GetString("CommandArgs.DeleteVIP.Id")]),
             new(["assume", "предположить", "传销头目预测投票", "assumir"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
             new(["note", "заметка", "记者管理笔记", "nota", "anotar"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
-            new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, false, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
+            new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InLobby, OSCommand, true, false, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
             new(["negotiation", "neg", "наказание", "谈判方式", "negociar", "negociação"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, false, [GetString("CommandArgs.Negotiation.Number")]),
             new(["mute", "замутить", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, false, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
             new(["unmute", "размутить", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, UnmuteCommand, true, false, [GetString("CommandArgs.Unmute.Id")]),
@@ -1484,6 +1484,12 @@ internal static class ChatCommands
 
     private static void OSCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(OSCommand), text, adminCommand: true);
+            return;
+        }
+        
         if (!GameStates.IsLobby || args.Length < 3 || !byte.TryParse(args[1], out byte chance) || chance > 100 || chance % 5 != 0 || !GetRoleByName(string.Join(' ', args[2..]), out CustomRoles role) || !Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem option)) return;
 
         if (role.IsAdditionRole())
@@ -2023,8 +2029,6 @@ internal static class ChatCommands
             RequestCommandProcessingFromHost(nameof(ExeCommand), text, adminCommand: true);
             return;
         }
-
-        if (!player.IsHost() && !IsPlayerAdmin(player.FriendCode)) return;
 
         if (GameStates.IsLobby)
         {

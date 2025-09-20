@@ -75,6 +75,12 @@ internal static class OnGameJoinedPatch
 
                 Main.Instance.StartCoroutine(OptionShower.GetText());
             }, 1f, "OnGameJoinedPatch");
+            
+            LateTask.New(() =>
+            {
+                if (Main.NormalOptions != null && Mathf.Approximately(Main.NormalOptions.KillCooldown, 25f))
+                    Main.NormalOptions.KillCooldown = Options.FallBackKillCooldownValue?.GetFloat() ?? 25f;
+            }, 5f, log: false);
 
             Main.SetRoles = [];
             Main.SetAddOns = [];

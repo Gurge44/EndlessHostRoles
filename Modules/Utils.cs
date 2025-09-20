@@ -1183,24 +1183,30 @@ public static class Utils
             if (!taskState.HasTasks) return string.Empty;
 
             NetworkedPlayerInfo info = GetPlayerInfoById(playerId);
-            Color taskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(state.MainRole).ShadeColor(0.5f);
-            Color nonCompleteColor = HasTasks(info) ? Color.yellow : Color.white;
+            bool hasTasks = HasTasks(info);
+            Color taskCompleteColor;
+            Color nonCompleteColor;
 
+            if (!Options.DynamicTaskCountColor.GetBool())
+            {
+                taskCompleteColor = hasTasks ? Color.green : GetRoleColor(state.MainRole).ShadeColor(0.5f);
+                nonCompleteColor = hasTasks ? Color.yellow : Color.white;
+            }
+            else
+            {
+                taskCompleteColor = Color.green;
+                Color nonCompleteColorStart = hasTasks ? Color.red : Color.white;
+                Color nonCompleteColorEnd = Color.green;
+                float progress = (float)taskState.CompletedTasksCount / taskState.AllTasksCount;
+                nonCompleteColor = Color.Lerp(nonCompleteColorStart, nonCompleteColorEnd, progress);
+            }
+            
             if (Workhorse.IsThisRole(playerId)) nonCompleteColor = Workhorse.RoleColor;
 
             Color normalColor = taskState.IsTaskFinished ? taskCompleteColor : nonCompleteColor;
 
-            if (Main.PlayerStates.TryGetValue(playerId, out PlayerState ps))
-            {
-                normalColor = ps.MainRole switch
-                {
-                    CustomRoles.Hypocrite => Color.red,
-                    CustomRoles.Crewpostor => Color.red,
-                    CustomRoles.Cherokious => GetRoleColor(CustomRoles.Cherokious),
-                    CustomRoles.Pawn => GetRoleColor(CustomRoles.Pawn),
-                    _ => normalColor
-                };
-            }
+            if (Main.PlayerStates.TryGetValue(playerId, out PlayerState ps) && ps.MainRole is CustomRoles.Hypocrite or CustomRoles.Crewpostor or CustomRoles.Cherokious or CustomRoles.Pawn)
+                normalColor = GetRoleColor(ps.MainRole);
 
             Color textColor = comms ? Color.gray : normalColor;
             string completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
@@ -2432,13 +2438,13 @@ public static class Utils
                 return true;
             }
 
-            if (seer.Is(CustomRoles.Car) && !forMeeting)
+            if (seer.Is(CustomRoles.Car) && !forMeeting && !GameStates.IsEnded)
             {
                 sender.RpcSetName(seer, Car.Name);
                 return true;
             }
             
-            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var seerState) && seerState.Role is Tree { TreeSpriteActive: true }) 
+            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var seerState) && seerState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded) 
             {
                 sender.RpcSetName(seer, Tree.Sprite);
                 return true;
@@ -2722,6 +2728,18 @@ public static class Utils
                             sender.RpcSetName(target, "<size=0%>", seer);
                         else
                         {
+                            if (target.Is(CustomRoles.Car) && !forMeeting && !GameStates.IsEnded)
+                            {
+                                sender.RpcSetName(target, Car.Name, seer);
+                                return true;
+                            }
+            
+                            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded) 
+                            {
+                                sender.RpcSetName(target, Tree.Sprite, seer);
+                                return true;
+                            }
+                            
                             TargetMark.Clear();
 
                             if (Options.CurrentGameMode != CustomGameMode.Standard || GameStates.IsLobby) goto BeforeEnd2;
@@ -2923,6 +2941,9 @@ public static class Utils
 
                                 if (!forMeeting)
                                     additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
+                                
+                                if (!forMeeting && seer.IsImpostor() && Main.Invisible.Contains(target.PlayerId))
+                                    additionalSuffixes.Add(ColorString(Palette.White_75Alpha, GetString("Invisible")));
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));
 
