@@ -590,7 +590,7 @@ internal static class SetHudActivePatch
             case CustomRoles.Deputy:
             case CustomRoles.Monarch:
             case CustomRoles.Pelican:
-            case CustomRoles.FFF:
+            case CustomRoles.Hater:
             case CustomRoles.Medic:
             case CustomRoles.Demon:
             case CustomRoles.DarkHide:

@@ -114,7 +114,7 @@ internal class NiceEraser : RoleBase
             PlayerControl player = Utils.GetPlayerById(pc);
             if (player == null) return;
 
-            CustomRoles erasedRole = player.IsImpostor() ? CustomRoles.ImpostorEHR : player.IsCrewmate() ? CustomRoles.CrewmateEHR : player.Is(Team.Coven) ? CustomRoles.RegularCoven : CustomRoles.Amnesiac;
+            CustomRoles erasedRole = player.IsImpostor() ? CustomRoles.ImpostorEHR : player.IsCrewmate() ? CustomRoles.CrewmateEHR : player.Is(Team.Coven) ? CustomRoles.CovenMember : CustomRoles.Amnesiac;
             player.RpcSetCustomRole(erasedRole);
             player.RpcChangeRoleBasis(erasedRole);
             player.Notify(GetString("LostRoleByNiceEraser"));

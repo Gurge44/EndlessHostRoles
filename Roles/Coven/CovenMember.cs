@@ -1,6 +1,6 @@
 ﻿namespace EHR.Coven;
 
-public class RegularCoven : Coven
+public class CovenMember : Coven
 {
     public static bool On;
 

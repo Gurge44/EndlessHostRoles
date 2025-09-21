@@ -1097,7 +1097,7 @@ internal static class MeetingHudStartPatch
             if (seer.Data.IsDead && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
 
-            sb.Append(Totocalcio.TargetMark(seer, target));
+            sb.Append(Follower.TargetMark(seer, target));
             sb.Append(Romantic.TargetMark(seer, target));
             sb.Append(Lawyer.LawyerMark(seer, target));
             sb.Append(PlagueDoctor.GetMarkOthers(seer, target));

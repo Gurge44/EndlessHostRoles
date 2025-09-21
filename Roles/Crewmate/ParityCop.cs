@@ -320,7 +320,7 @@ public class ParityCop : RoleBase
         switch (firstRoleClass)
         {
             case Lawyer when Lawyer.Target[first.PlayerId] == second.PlayerId:
-            case Totocalcio tc when tc.BetPlayer == second.PlayerId:
+            case Follower tc when tc.BetPlayer == second.PlayerId:
             case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == second.PlayerId:
             case Necromancer when secondRoleClass is Deathknight:
                 return true;
@@ -329,7 +329,7 @@ public class ParityCop : RoleBase
         switch (secondRoleClass)
         {
             case Lawyer when Lawyer.Target[second.PlayerId] == first.PlayerId:
-            case Totocalcio tc when tc.BetPlayer == first.PlayerId:
+            case Follower tc when tc.BetPlayer == first.PlayerId:
             case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == first.PlayerId:
             case Necromancer when firstRoleClass is Deathknight:
                 return true;
