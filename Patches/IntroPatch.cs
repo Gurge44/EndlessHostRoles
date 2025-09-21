@@ -676,7 +676,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Sheriff
                     => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
 
-                CustomRoles.FFF or
+                CustomRoles.Hater or
                     CustomRoles.Opportunist or
                     CustomRoles.Revolutionist
                     => GetIntroSound(RoleTypes.Crewmate),

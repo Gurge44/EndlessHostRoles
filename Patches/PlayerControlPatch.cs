@@ -1929,7 +1929,7 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            Mark.Append(Totocalcio.TargetMark(seer, target));
+            Mark.Append(Follower.TargetMark(seer, target));
             Mark.Append(Romantic.TargetMark(seer, target));
             Mark.Append(Lawyer.LawyerMark(seer, target));
             Mark.Append(Marshall.GetWarningMark(seer, target));

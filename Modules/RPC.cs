@@ -132,7 +132,7 @@ public enum CustomRPC
     SetSwooperTimer,
     SetBanditStealLimit,
     SetBkTimer,
-    SyncTotocalcioTargetAndTimes,
+    SyncFollowerTargetAndTimes,
     SyncRomanticTarget,
     SyncVengefulRomanticTarget,
     SetRevealedPlayer,
@@ -1149,9 +1149,9 @@ internal static class RPCHandlerPatch
                     Wildling.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SyncTotocalcioTargetAndTimes:
+                case CustomRPC.SyncFollowerTargetAndTimes:
                 {
-                    Totocalcio.ReceiveRPC(reader);
+                    Follower.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SyncRomanticTarget:
