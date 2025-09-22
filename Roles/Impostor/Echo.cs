@@ -15,6 +15,7 @@ public class Echo : RoleBase
     private static OptionItem DisableVentingWhileControlling;
 
     public PlayerControl EchoPC;
+    private bool SkipCheck;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -47,6 +48,7 @@ public class Echo : RoleBase
     {
         On = true;
         EchoPC = Utils.GetPlayerById(playerId);
+        SkipCheck = false;
         Instances.Add(this);
     }
 
@@ -118,7 +120,9 @@ public class Echo : RoleBase
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (!target.IsShifted()) return true;
+        if (SkipCheck || !target.IsShifted()) return true;
+        SkipCheck = true;
+        LateTask.New(() => SkipCheck = false, 3f, log: false);
 
         PlayerControl ssTarget = Utils.GetPlayerById(target.shapeshiftTargetPlayerId);
         if (ssTarget == null || !killer.RpcCheckAndMurder(ssTarget, true)) return true;
@@ -130,6 +134,10 @@ public class Echo : RoleBase
 
     public void OnTargetCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        if (SkipCheck) return;
+        SkipCheck = true;
+        LateTask.New(() => SkipCheck = false, 3f, log: false);
+        
         RevertSwap(EchoPC, target);
 
         LateTask.New(() =>

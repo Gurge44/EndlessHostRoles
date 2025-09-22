@@ -68,7 +68,7 @@ internal class Mario : RoleBase
     {
         byte playerId = pc.PlayerId;
 
-        if (MarioVentCount[playerId] > MarioVentNumWin && GameStates.IsInTask)
+        if (MarioVentCount[playerId] >= MarioVentNumWin)
         {
             MarioVentCount[playerId] = MarioVentNumWin;
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario);

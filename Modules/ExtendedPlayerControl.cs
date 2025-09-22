@@ -1491,12 +1491,14 @@ internal static class ExtendedPlayerControl
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
             writer.WritePacked(1);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+            NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: SendOption.None);
         }
         else
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
             writer.WritePacked(11);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+            NotifyRoles(SpecifyTarget: player);
         }
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
@@ -1534,12 +1536,14 @@ internal static class ExtendedPlayerControl
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
             writer.WritePacked(0);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+            NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
         else
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
             writer.WritePacked(10);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+            NotifyRoles(SpecifyTarget: player);
         }
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
@@ -1938,6 +1942,7 @@ internal static class ExtendedPlayerControl
 
             LateTask.New(() =>
             {
+                if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
                 Vector2 pos = Object.FindObjectsOfType<DeadBody>().First(x => x.ParentId == target.PlayerId).TruePosition;
 
                 if (Vector2.Distance(pos, Pelican.GetBlackRoomPS()) > 2f)

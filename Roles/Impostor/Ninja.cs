@@ -30,18 +30,18 @@ internal class Ninja : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Ninja);
 
-        MarkCooldownOpt = new FloatOptionItem(Id + 10, "AssassinMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles)
+        MarkCooldownOpt = new FloatOptionItem(Id + 10, "NinjaMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ninja])
             .SetValueFormat(OptionFormat.Seconds);
 
-        AssassinateCooldownOpt = new FloatOptionItem(Id + 11, "AssassinAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles)
+        AssassinateCooldownOpt = new FloatOptionItem(Id + 11, "NinjaAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ninja])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CanKillAfterAssassinateOpt = new BooleanOptionItem(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
+        CanKillAfterAssassinateOpt = new BooleanOptionItem(Id + 12, "NinjaCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ninja]);
 
-        InvisibilityTimeAfterAssassinateOpt = new FloatOptionItem(Id + 13, "AssassinInvisibilityTimeAfterAssassinate", new(0f, 30f, 0.5f), 5f, TabGroup.ImpostorRoles)
+        InvisibilityTimeAfterAssassinateOpt = new FloatOptionItem(Id + 13, "NinjaInvisibilityTimeAfterAssassinate", new(0f, 30f, 0.5f), 5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ninja])
             .SetValueFormat(OptionFormat.Seconds);
     }
