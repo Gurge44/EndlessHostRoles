@@ -4150,6 +4150,7 @@
   "StealthDarkened": "Darkened: {0}",
   "Stealth.OptionExcludeImpostors": "Ignore Impostors when Blinding",
   "Stealth.OptionDarkenDuration": "Blinding Duration",
+  "Stealth.OptionBlindingRadius": "Blinding Radius (If Not Legacy Version)",
   "Analyst": "Analyst",
   "AnalystInfo": "Analyze Players to Get Information",
   "AnalystInfoLong": "(Crewmates):\\nAs the Analyst, you may use your kill button on someone to analyze them. You will have to stand next to your target for a few seconds to complete the analysis. When the analysis is complete, you will see how many players they've killed so far, how many times they've vented so far, and their role basis.\\n\\nNote: If the host's settings don't allow you to see an information, the result will show 0 or nothing!\\nNote: None of these factors determine whether someone is evil or not! Think twice before judging too fast!",

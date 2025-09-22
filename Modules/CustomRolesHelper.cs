@@ -1051,6 +1051,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sapper or
             CustomRoles.Sniper or
             CustomRoles.Twister or
+            CustomRoles.Stealth or
             CustomRoles.Swooper or
             CustomRoles.Venerer or
             CustomRoles.Wraith or
