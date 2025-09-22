@@ -275,7 +275,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            state.Role.ApplyGameOptions(opt, player.PlayerId);
+            try
+            {
+                state.Role.ApplyGameOptions(opt, player.PlayerId);
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             if (player.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) opt.SetVision(true);
 

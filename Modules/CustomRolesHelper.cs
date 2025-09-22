@@ -183,7 +183,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mafioso => CustomRoles.Impostor,
             CustomRoles.Chronomancer => CustomRoles.Impostor,
             CustomRoles.Nullifier => CustomRoles.Impostor,
-            CustomRoles.Stealth => CustomRoles.Impostor,
+            CustomRoles.Stealth => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Penguin => CustomRoles.Impostor,
             CustomRoles.Sapper => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Mastermind => CustomRoles.Impostor,
@@ -1030,6 +1030,7 @@ internal static class CustomRolesHelper
             CustomRoles.AntiAdminer or
             CustomRoles.Stasis or
             CustomRoles.Occultist or
+            CustomRoles.Overheat or
             CustomRoles.Warlock or
             CustomRoles.Swiftclaw or
             CustomRoles.Undertaker or

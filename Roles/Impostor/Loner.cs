@@ -16,7 +16,7 @@ public class Loner : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(655300);
+        StartSetup(655500);
     }
 
     public override void Init()

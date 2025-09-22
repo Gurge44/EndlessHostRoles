@@ -16,7 +16,6 @@ internal static class Logger
 {
     private static bool IsEnable;
     private static readonly List<string> DisableList = [];
-    private static readonly List<string> SendToGameList = [];
     public static bool IsAlsoInGame;
 
     private static readonly HashSet<string> NowDetailedErrorLog = [];
@@ -73,7 +72,7 @@ internal static class Logger
     {
         if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger)) return;
 
-        if (SendToGameList.Contains(tag) || IsAlsoInGame) SendInGame($"[{tag}]{text}");
+        if (IsAlsoInGame) SendInGame($"[{tag}]{text}");
 
         string logText;
 

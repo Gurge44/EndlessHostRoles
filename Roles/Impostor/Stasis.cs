@@ -63,8 +63,6 @@ public class Stasis : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (Options.UsePets.GetBool()) return;
-
         if (Options.UsePhantomBasis.GetBool())
         {
             AURoleOptions.PhantomCooldown = AbilityCooldown.GetInt();
@@ -72,6 +70,8 @@ public class Stasis : RoleBase
         }
         else
         {
+            if (Options.UsePets.GetBool()) return;
+
             AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetInt();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
