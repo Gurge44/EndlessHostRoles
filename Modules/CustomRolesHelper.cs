@@ -734,6 +734,7 @@ internal static class CustomRolesHelper
             CustomRoles.Freezer or
             CustomRoles.Changeling or
             CustomRoles.Swapster or
+            CustomRoles.Loner or
             CustomRoles.Kamikaze or
             CustomRoles.Librarian or
             CustomRoles.Cantankerous or

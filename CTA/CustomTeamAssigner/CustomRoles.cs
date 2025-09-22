@@ -172,7 +172,6 @@ public enum CustomRoles
     LovingImpostor,
     Crusader,
     Dad,
-    Dealer,
     Demolitionist,
     Deputy,
     Detour,
@@ -298,6 +297,7 @@ public enum CustomRoles
     Clerk,
     Collector,
     Curser,
+    Dealer,
     Deathknight,
     Demon,
     Doppelganger,
@@ -308,11 +308,11 @@ public enum CustomRoles
     Evolver,
     Executioner,
     Explosivist,
-    Totocalcio, // Follower
+    Follower,
     Gaslighter,
     Glitch,
     God,
-    FFF, // Hater
+    Hater,
     HeadHunter,
     HexMaster,
     Hookshot,
@@ -374,7 +374,7 @@ public enum CustomRoles
     Sprayer,
     DarkHide, // Stalker
     Starspawn,
-    Succubus, // Cultist
+    Cultist,
     Sunnyboy,
     Technician,
     Tank,
@@ -399,7 +399,7 @@ public enum CustomRoles
     Augur,
     Banshee,
     CovenLeader,
-    RegularCoven, // Coven Member
+    CovenMember,
     Death, // Reaper changes to Death
     Dreamweaver,
     Enchanter,
