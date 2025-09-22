@@ -13,7 +13,7 @@ public sealed class Stealth : RoleBase
 
     private static OptionItem OptionExcludeImpostors;
     public static OptionItem OptionDarkenDuration;
-    private static OptionItem UseLegacyVersion;
+    public static OptionItem UseLegacyVersion;
     private static OptionItem OptionBlindingRadius;
     public static OptionItem AbilityCooldown;
 

@@ -183,7 +183,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mafioso => CustomRoles.Impostor,
             CustomRoles.Chronomancer => CustomRoles.Impostor,
             CustomRoles.Nullifier => CustomRoles.Impostor,
-            CustomRoles.Stealth => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
+            CustomRoles.Stealth => UsePets || Stealth.UseLegacyVersion.GetBool() ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Penguin => CustomRoles.Impostor,
             CustomRoles.Sapper => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Mastermind => CustomRoles.Impostor,
@@ -1021,6 +1021,7 @@ internal static class CustomRolesHelper
 
     public static bool SimpleAbilityTrigger(this CustomRoles role)
     {
+        if (role == CustomRoles.Stealth) return !Stealth.UseLegacyVersion.GetBool();
         return role is
             CustomRoles.Jet or
             CustomRoles.Dasher or
@@ -1051,7 +1052,6 @@ internal static class CustomRolesHelper
             CustomRoles.Sapper or
             CustomRoles.Sniper or
             CustomRoles.Twister or
-            CustomRoles.Stealth or
             CustomRoles.Swooper or
             CustomRoles.Venerer or
             CustomRoles.Wraith or
