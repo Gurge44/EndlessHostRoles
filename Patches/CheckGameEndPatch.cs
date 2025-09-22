@@ -192,8 +192,8 @@ internal static class GameEndChecker
 
                     switch (role)
                     {
-                        case CustomRoles.DarkHide when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorsBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.CrewmatesByTask) && roleBase is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
-                            ResetAndSetWinner(CustomWinner.DarkHide);
+                        case CustomRoles.Stalker when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorsBySabotage)) || WinnerTeam == CustomWinner.Stalker || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.CrewmatesByTask) && roleBase is Stalker { IsWinKill: true } && Stalker.SnatchesWin.GetBool())):
+                            ResetAndSetWinner(CustomWinner.Stalker);
                             WinnerIds.Add(pc.PlayerId);
                             break;
                         case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():

@@ -372,7 +372,7 @@ public enum CustomRoles
     Spirit,
     Spiritcaller,
     Sprayer,
-    DarkHide, // Stalker
+    Stalker, // Stalker
     Starspawn,
     Cultist,
     Sunnyboy,
