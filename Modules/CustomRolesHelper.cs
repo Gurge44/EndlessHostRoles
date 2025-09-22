@@ -361,7 +361,7 @@ internal static class CustomRolesHelper
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.NoteKiller => CustomRoles.Crewmate,
             CustomRoles.RoomRusher => RoomRusher.CanVent ? CustomRoles.Engineer : CustomRoles.Crewmate,
-            CustomRoles.RegularCoven => CustomRoles.Crewmate,
+            CustomRoles.CovenMember => CustomRoles.Crewmate,
             CustomRoles.Augur => Augur.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
 
             // Vanilla roles (just in case)
@@ -479,7 +479,7 @@ internal static class CustomRolesHelper
             CustomRoles.Goose => RoleTypes.Impostor,
             CustomRoles.Pursuer => RoleTypes.Impostor,
             CustomRoles.Revolutionist => RoleTypes.Impostor,
-            CustomRoles.FFF => RoleTypes.Impostor,
+            CustomRoles.Hater => RoleTypes.Impostor,
             CustomRoles.Medic => UsePets && Medic.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Demon => RoleTypes.Impostor,
             CustomRoles.HexMaster => RoleTypes.Impostor,
@@ -545,11 +545,11 @@ internal static class CustomRolesHelper
             CustomRoles.Bandit => RoleTypes.Impostor,
             CustomRoles.Maverick => RoleTypes.Impostor,
             CustomRoles.Parasite => RoleTypes.Shapeshifter,
-            CustomRoles.Totocalcio => RoleTypes.Impostor,
+            CustomRoles.Follower => RoleTypes.Impostor,
             CustomRoles.Romantic => RoleTypes.Impostor,
             CustomRoles.VengefulRomantic => RoleTypes.Impostor,
             CustomRoles.RuthlessRomantic => RoleTypes.Impostor,
-            CustomRoles.Succubus => RoleTypes.Impostor,
+            CustomRoles.Cultist => RoleTypes.Impostor,
             CustomRoles.Necromancer => RoleTypes.Impostor,
             CustomRoles.Deathknight => RoleTypes.Impostor,
             CustomRoles.Virus => RoleTypes.Impostor,
@@ -602,7 +602,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sidekick or
             CustomRoles.HexMaster or
             CustomRoles.Doppelganger or
-            CustomRoles.Succubus or
+            CustomRoles.Cultist or
             CustomRoles.Demon or
             CustomRoles.Crewpostor or
             CustomRoles.Hypocrite or
@@ -818,7 +818,7 @@ internal static class CustomRolesHelper
     {
         return role is
             CustomRoles.Jackal or
-            CustomRoles.Succubus or
+            CustomRoles.Cultist or
             CustomRoles.Necromancer or
             CustomRoles.Virus or
             CustomRoles.Spiritcaller;
@@ -1228,7 +1228,7 @@ internal static class CustomRolesHelper
     public static bool IsCoven(this CustomRoles role)
     {
         return role is
-            CustomRoles.RegularCoven or
+            CustomRoles.CovenMember or
             CustomRoles.CovenLeader or
             CustomRoles.SpellCaster or
             CustomRoles.PotionMaster or
@@ -1546,7 +1546,7 @@ internal static class CustomRolesHelper
             CustomRoles.SchrodingersCat => RoleOptionType.Neutral_Benign,
             CustomRoles.Predator => RoleOptionType.Neutral_Benign,
             CustomRoles.Pursuer => RoleOptionType.Neutral_Benign,
-            CustomRoles.FFF => RoleOptionType.Neutral_Benign,
+            CustomRoles.Hater => RoleOptionType.Neutral_Benign,
             CustomRoles.Revolutionist => RoleOptionType.Neutral_Benign,
             CustomRoles.Impartial => RoleOptionType.Neutral_Benign,
             CustomRoles.Investor => RoleOptionType.Neutral_Benign,
@@ -1561,7 +1561,7 @@ internal static class CustomRolesHelper
             CustomRoles.SoulHunter => RoleOptionType.Neutral_Benign,
             CustomRoles.Technician => RoleOptionType.Neutral_Benign,
             CustomRoles.Tank => RoleOptionType.Neutral_Benign,
-            CustomRoles.Totocalcio => RoleOptionType.Neutral_Benign,
+            CustomRoles.Follower => RoleOptionType.Neutral_Benign,
             CustomRoles.Arsonist => RoleOptionType.Neutral_Evil,
             CustomRoles.Jester => RoleOptionType.Neutral_Evil,
             CustomRoles.Gaslighter => RoleOptionType.Neutral_Evil,
@@ -1910,7 +1910,7 @@ public enum CountTypes
     Demon,
     BloodKnight,
     Poisoner,
-    Succubus,
+    Cultist,
     Necromancer,
     HexMaster,
     Wraith,

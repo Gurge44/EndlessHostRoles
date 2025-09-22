@@ -115,7 +115,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.Deathknight:
                 case CustomRoles.Convict:
                 case CustomRoles.Refugee:
-                case CustomRoles.RegularCoven:
+                case CustomRoles.CovenMember:
                 case CustomRoles.CovenLeader:
                 case CustomRoles.Death:
                 case CustomRoles.GM:
@@ -133,6 +133,13 @@ internal static class CustomRoleSelector
             else if (role.IsNK()) roles[RoleAssignType.NeutralKilling].Add(info);
             else if (role.IsNonNK()) roles[RoleAssignType.NonKillingNeutral].Add(info);
             else roles[RoleAssignType.Crewmate].Add(info);
+        }
+
+        if (optImpNum >= 2 && roles[RoleAssignType.Impostor].FindFirst(x => x.Role == CustomRoles.Loner, out var lonerInfo) && lonerInfo.SpawnChance > rd.Next(100))
+        {
+            finalRolesList.Add(CustomRoles.Loner);
+            readyImpNum += 2;
+            readyRoleNum++;
         }
 
         loversData.OneIsImp &= roles[RoleAssignType.Impostor].Count(x => x.SpawnChance == 100) < optImpNum;
@@ -986,7 +993,8 @@ internal static class CustomRoleSelector
     private class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount)
     {
         public CustomRoles Role => role;
-        public int SpawnChance => spawnChance;
+        public int SpawnChance { get; set; } = spawnChance;
+
         public int MaxCount => maxCount;
         public int AssignedCount { get; set; }
         public RoleOptionType OptionType { get; } = role.GetRoleOptionType();

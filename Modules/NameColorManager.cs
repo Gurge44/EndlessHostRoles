@@ -110,7 +110,7 @@ public static class NameColorManager
         if (target.Is(CustomRoles.Glow) && Utils.IsActive(SystemTypes.Electrical)) color = Main.RoleColors[CustomRoles.Glow];
         if (target.Is(CustomRoles.Mare) && Utils.IsActive(SystemTypes.Electrical) && !isMeeting) color = Main.RoleColors[CustomRoles.Mare];
         if (seer.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Contagious) && Virus.TargetKnowOtherTarget.GetBool()) color = Main.RoleColors[CustomRoles.Virus];
-        if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Succubus.TargetKnowOtherTarget.GetBool()) color = Main.RoleColors[CustomRoles.Charmed];
+        if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Cultist.TargetKnowOtherTarget.GetBool()) color = Main.RoleColors[CustomRoles.Charmed];
         if (seer.Is(CustomRoles.Entranced) && target.Is(CustomRoles.Entranced) && Siren.EntrancedKnowEntranced.GetBool()) color = Main.RoleColors[CustomRoles.Siren];
         if (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoles.Entranced) && Siren.CovenKnowEntranced.GetValue() == 1) color = Main.RoleColors[CustomRoles.Entranced];
         if (target.Is(CustomRoleTypes.Coven) && seer.Is(CustomRoles.Entranced) && Siren.EntrancedKnowCoven.GetValue() == 1) color = Main.RoleColors[CustomRoles.Entranced];
@@ -146,7 +146,7 @@ public static class NameColorManager
             CustomRoles.Gangster when target.Is(CustomRoles.Madmate) => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.Crewpostor when target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool() => Main.ImpostorColor,
             CustomRoles.Hypocrite when target.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool() => Main.ImpostorColor,
-            CustomRoles.Succubus when target.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Charmed],
+            CustomRoles.Cultist when target.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Charmed],
             CustomRoles.Siren when target.Is(CustomRoles.Entranced) => Main.RoleColors[CustomRoles.Siren],
             CustomRoles.Necromancer or CustomRoles.Deathknight when target.Is(CustomRoles.Undead) => Main.RoleColors[CustomRoles.Undead],
             CustomRoles.Necromancer or CustomRoles.Deathknight when Necromancer.PartiallyRecruitedIds.Contains(target.PlayerId) => Main.RoleColors[CustomRoles.Deathknight],
@@ -204,7 +204,7 @@ public static class NameColorManager
             CustomRoles.Speedrunner when !seer.Is(Team.Crewmate) && target.GetTaskState().CompletedTasksCount >= Speedrunner.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Speedrunner.SpeedrunnerNotifyKillers.GetBool() => Main.RoleColors[CustomRoles.Speedrunner],
             CustomRoles.SoulHunter when SoulHunter.IsSoulHunterTarget(seer.PlayerId) => Main.RoleColors[CustomRoles.SoulHunter],
             CustomRoles.Necromancer or CustomRoles.Deathknight when seer.Is(CustomRoles.Undead) => Main.RoleColors[targetRole],
-            CustomRoles.Succubus when seer.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Succubus],
+            CustomRoles.Cultist when seer.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Cultist],
             CustomRoles.Siren when seer.Is(CustomRoles.Entranced) => Main.RoleColors[CustomRoles.Siren],
             CustomRoles.Crewpostor when seer.Is(CustomRoleTypes.Impostor) && Options.AlliesKnowCrewpostor.GetBool() => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.Hypocrite when seer.Is(CustomRoleTypes.Impostor) && Hypocrite.AlliesKnowHypocrite.GetBool() => Main.RoleColors[CustomRoles.Madmate],

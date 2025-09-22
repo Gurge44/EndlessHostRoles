@@ -1841,7 +1841,7 @@ internal static class FixedUpdatePatch
 
             additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
             
-            if (!GameStates.IsMeeting && Main.Invisible.Contains(target.PlayerId) && (self || !seer.AmOwner || (seer.IsImpostor() && target.IsImpostor())))
+            if (!GameStates.IsMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId) && (self || (seer.IsImpostor() && target.IsImpostor())))
                 additionalSuffixes.Add(ColorString(Palette.White_75Alpha, GetString("Invisible")));
 
             switch (target.GetCustomRole())
@@ -1929,7 +1929,7 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            Mark.Append(Totocalcio.TargetMark(seer, target));
+            Mark.Append(Follower.TargetMark(seer, target));
             Mark.Append(Romantic.TargetMark(seer, target));
             Mark.Append(Lawyer.LawyerMark(seer, target));
             Mark.Append(Marshall.GetWarningMark(seer, target));

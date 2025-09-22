@@ -13,10 +13,11 @@ public class Loner : RoleBase
 
     public byte PickedPlayer;
     public CustomRoles PickedRole;
+    public bool Done;
 
     public override void SetupCustomOption()
     {
-        StartSetup(655500);
+        StartSetup(655400);
     }
 
     public override void Init()
@@ -28,17 +29,30 @@ public class Loner : RoleBase
     {
         On = true;
         PickedPlayer = byte.MaxValue;
-        PickedRole = default;
+        PickedRole = CustomRoles.Crewmate;
+        Done = false;
     }
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return;
-        if (shapeshifter == null || target == null || shapeshifter.PlayerId == target.PlayerId || PickedPlayer != byte.MaxValue) return;
+        if (shapeshifter == null || target == null || shapeshifter.PlayerId == target.PlayerId || Done) return;
 
         PickedPlayer = target.PlayerId;
         PickedRole = Enum.GetValues<CustomRoles>().Where(x => x.IsImpostor() && !x.IsVanilla() && !CustomRoleSelector.RoleResult.ContainsValue(x) && x.GetMode() != 0).RandomElement();
 
         Utils.SendMessage("\n", shapeshifter.PlayerId, string.Format(Translator.GetString("Loner.Picked"), PickedPlayer.ColoredPlayerName(), PickedRole.ToColoredString()));
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        var pc = PickedPlayer.GetPlayer();
+        
+        if (!Done && PickedPlayer != byte.MaxValue && PickedRole != CustomRoles.Crewmate && pc != null)
+        {
+            Done = true;
+            pc.RpcSetCustomRole(PickedRole);
+            pc.RpcChangeRoleBasis(PickedRole);
+        }
     }
 }

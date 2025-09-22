@@ -587,7 +587,7 @@ public static class Utils
             roleText = GetRoleString("Recruit-") + roleText;
         }
 
-        if (targetSubRoles.Contains(CustomRoles.Charmed) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Succubus || (Succubus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Charmed))))
+        if (targetSubRoles.Contains(CustomRoles.Charmed) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Cultist || (Cultist.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Charmed))))
         {
             roleColor = GetRoleColor(CustomRoles.Charmed);
             roleText = GetRoleString("Charmed-") + roleText;
@@ -915,7 +915,7 @@ public static class Utils
             case CustomRoles.Pelican:
             case CustomRoles.Medusa:
             case CustomRoles.Revolutionist:
-            case CustomRoles.FFF:
+            case CustomRoles.Hater:
             case CustomRoles.Demon:
             case CustomRoles.HexMaster:
             case CustomRoles.Wraith:
@@ -927,11 +927,11 @@ public static class Utils
             case CustomRoles.Provocateur:
             case CustomRoles.BloodKnight:
             case CustomRoles.Camouflager:
-            case CustomRoles.Totocalcio:
+            case CustomRoles.Follower:
             case CustomRoles.Romantic:
             case CustomRoles.VengefulRomantic:
             case CustomRoles.RuthlessRomantic:
-            case CustomRoles.Succubus:
+            case CustomRoles.Cultist:
             case CustomRoles.Necromancer:
             case CustomRoles.Deathknight:
             case CustomRoles.Amnesiac:
@@ -1194,9 +1194,8 @@ public static class Utils
             }
             else
             {
-                taskCompleteColor = Color.green;
-                Color nonCompleteColorStart = hasTasks ? Color.red : Color.white;
-                Color nonCompleteColorEnd = Color.green;
+                Color nonCompleteColorStart = new Color32(203, 61, 64, 255);
+                Color nonCompleteColorEnd = taskCompleteColor = new Color32(15, 249, 137, 255);
                 float progress = (float)taskState.CompletedTasksCount / taskState.AllTasksCount;
                 nonCompleteColor = Color.Lerp(nonCompleteColorStart, nonCompleteColorEnd, progress);
             }
@@ -2903,7 +2902,7 @@ public static class Utils
                             TargetMark.Append(Demon.TargetMark(seer, target));
                             TargetMark.Append(Medic.GetMark(seer, target));
                             TargetMark.Append(Gaslighter.GetMark(seer, target, forMeeting));
-                            TargetMark.Append(Totocalcio.TargetMark(seer, target));
+                            TargetMark.Append(Follower.TargetMark(seer, target));
                             TargetMark.Append(Romantic.TargetMark(seer, target));
                             TargetMark.Append(Lawyer.LawyerMark(seer, target));
                             TargetMark.Append(Deathpact.GetDeathpactMark(seer, target));
@@ -2941,8 +2940,8 @@ public static class Utils
 
                                 if (!forMeeting)
                                     additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
-                                
-                                if (!forMeeting && seer.IsImpostor() && Main.Invisible.Contains(target.PlayerId))
+
+                                if (!forMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId))
                                     additionalSuffixes.Add(ColorString(Palette.White_75Alpha, GetString("Invisible")));
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));

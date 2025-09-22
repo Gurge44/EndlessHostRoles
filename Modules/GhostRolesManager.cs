@@ -116,7 +116,7 @@ internal static class GhostRolesManager
                 Main.PlayerStates[pc.PlayerId].Role switch
                 {
                     Romantic when Romantic.HasPickedPartner => true,
-                    Totocalcio tc when tc.BetPlayer != byte.MaxValue => true,
+                    Follower tc when tc.BetPlayer != byte.MaxValue => true,
                     _ => false
                 };
         }
