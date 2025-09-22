@@ -110,7 +110,7 @@ public enum CustomRPC
     SetPelicanEtenNum,
     SwordsManKill,
     SetGhostPlayer,
-    SetDarkHiderKillCount,
+    SetStalkerKillCount,
     SetEvilDiviner,
     SetGreedierOe,
     SetCollectorVotes,
@@ -1027,9 +1027,9 @@ internal static class RPCHandlerPatch
                     BallLightning.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SetDarkHiderKillCount:
+                case CustomRPC.SetStalkerKillCount:
                 {
-                    DarkHide.ReceiveRPC(reader);
+                    Stalker.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetGreedierOe:
