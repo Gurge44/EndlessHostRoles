@@ -921,7 +921,7 @@ public static class Utils
             case CustomRoles.Wraith:
             case CustomRoles.Juggernaut:
             case CustomRoles.Ritualist:
-            case CustomRoles.DarkHide:
+            case CustomRoles.Stalker:
             case CustomRoles.Collector:
             case CustomRoles.ImperiusCurse:
             case CustomRoles.Provocateur:

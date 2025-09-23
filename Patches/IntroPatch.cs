@@ -741,13 +741,13 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
                     or CustomRoles.SuperStar
-                    or CustomRoles.DarkHide
+                    or CustomRoles.Stalker
                     or CustomRoles.Specter
                     => GetIntroSound(RoleTypes.Noisemaker),
 
                 CustomRoles.Phantom
                     or CustomRoles.PhantomEHR
-                    or CustomRoles.DarkHide
+                    or CustomRoles.Stalker
                     or CustomRoles.ImperiusCurse
                     or CustomRoles.SoulHunter
                     => GetIntroSound(RoleTypes.Phantom),

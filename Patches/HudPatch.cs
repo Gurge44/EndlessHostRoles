@@ -593,7 +593,7 @@ internal static class SetHudActivePatch
             case CustomRoles.Hater:
             case CustomRoles.Medic:
             case CustomRoles.Demon:
-            case CustomRoles.DarkHide:
+            case CustomRoles.Stalker:
             case CustomRoles.Farseer:
             case CustomRoles.Crusader:
                 __instance.SabotageButton?.ToggleVisible(false);

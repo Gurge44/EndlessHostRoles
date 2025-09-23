@@ -412,7 +412,7 @@ Source language: English
 
 >
 > - Many role ideas
-> - Provided roles: AntiAdminer, CursedWolf, Workaholic, Greedier, DarkHide, Ignitor, Rabbit
+> - Provided roles: AntiAdminer, CursedWolf, Workaholic, Greedier, Stalker, Ignitor, Rabbit
 > - Reference: Modify game announcement
 > - New settings UI for v2024.6.18
 > - Reference: Role Basis Changing Mid-Game

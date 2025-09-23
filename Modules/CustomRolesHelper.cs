@@ -488,7 +488,7 @@ internal static class CustomRolesHelper
             CustomRoles.Jailor => UsePets && Jailor.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Juggernaut => RoleTypes.Impostor,
             CustomRoles.Jinx => RoleTypes.Impostor,
-            CustomRoles.DarkHide => RoleTypes.Impostor,
+            CustomRoles.Stalker => RoleTypes.Impostor,
             CustomRoles.Provocateur => RoleTypes.Impostor,
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
@@ -614,7 +614,7 @@ internal static class CustomRolesHelper
             CustomRoles.Medusa or
             CustomRoles.Pelican or
             CustomRoles.Convict or
-            CustomRoles.DarkHide or
+            CustomRoles.Stalker or
             CustomRoles.Juggernaut or
             CustomRoles.Jinx or
             CustomRoles.Poisoner or
@@ -1414,9 +1414,9 @@ internal static class CustomRolesHelper
             CustomRoles.Crewpostor => CountTypes.Impostor,
             CustomRoles.Refugee => CountTypes.Impostor,
             CustomRoles.Gaslighter => Gaslighter.WinCondition.GetValue() == 2 ? CountTypes.Gaslighter : CountTypes.Crew,
-            CustomRoles.DarkHide when DarkHide.SnatchesWin.GetBool() => CountTypes.Crew,
+            CustomRoles.Stalker when Stalker.SnatchesWin.GetBool() => CountTypes.Crew,
             CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
-            CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
+            CustomRoles.Stalker => !Stalker.SnatchesWin.GetBool() ? CountTypes.Stalker : CountTypes.Crew,
             CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
             CustomRoles.Shifter => CountTypes.OutOfGame,
             CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller => CountTypes.Crew,
@@ -1957,7 +1957,7 @@ public enum CountTypes
     Juggernaut,
     Agitater,
     Virus,
-    DarkHide,
+    Stalker,
     Jinx,
     Ritualist,
     Pickpocket,
