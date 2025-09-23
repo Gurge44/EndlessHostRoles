@@ -4146,7 +4146,7 @@
   "PenguinTimerText": "Drag Timer",
   "Stealth": "Stealth",
   "StealthInfo": "Killing Blinds Everyone in the Room",
-  "StealthInfoLong": "(Impostors):\\nWhen the Stealth kills, players in the same room are blinded for a short time.",
+  "StealthInfoLong": "(Impostors):\\nLegacy version:\\nWhen the Stealth kills, players in the same room are blinded for a short time.\\n\\nModern version:\\nShapeshift/Pet/Vanish to blind everyone in a certain radius for a short time.",
   "StealthDarkened": "Darkened: {0}",
   "Stealth.OptionExcludeImpostors": "Ignore Impostors when Blinding",
   "Stealth.OptionDarkenDuration": "Blinding Duration",
