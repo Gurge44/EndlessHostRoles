@@ -371,7 +371,7 @@ public class Main : BasePlugin
                 { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },
                 { CustomRoles.Needy, "#a4dffe" },
-                { CustomRoles.SabotageMaster, "#3333ff" },
+                { CustomRoles.Mechanic, "#3333ff" },
                 { CustomRoles.Snitch, "#b8fb4f" },
                 { CustomRoles.Marshall, "#5573aa" },
                 { CustomRoles.Mayor, "#204d42" },

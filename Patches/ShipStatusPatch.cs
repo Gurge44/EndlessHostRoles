@@ -98,8 +98,8 @@ internal static class RepairSystemPatch
 
         switch (player.GetCustomRole())
         {
-            case CustomRoles.SabotageMaster:
-                SabotageMaster.RepairSystem(player.PlayerId, systemType, amount);
+            case CustomRoles.Mechanic:
+                Mechanic.RepairSystem(player.PlayerId, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
             case CustomRoles.Alchemist when systemType != SystemTypes.Electrical && Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
@@ -134,10 +134,10 @@ internal static class RepairSystemPatch
                 {
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
-                        case SabotageMaster:
+                        case Mechanic:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SabotageMaster");
-                            SabotageMaster.SwitchSystemRepair(player.PlayerId, switchSystem, amount);
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Mechanic");
+                            Mechanic.SwitchSystemRepair(player.PlayerId, switchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                         }

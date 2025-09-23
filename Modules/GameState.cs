@@ -474,10 +474,10 @@ public class TaskState
                 {
                     switch (player.GetCustomRole())
                     {
-                        case CustomRoles.SabotageMaster:
-                            if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
+                        case CustomRoles.Mechanic:
+                            if (Main.PlayerStates[player.PlayerId].Role is not Mechanic sm) break;
 
-                            sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
+                            sm.UsedSkillCount -= Mechanic.MechanicAbilityUseGainWithEachTaskCompleted.GetFloat();
                             sm.SendRPC();
                             break;
                         case CustomRoles.Hacker:
