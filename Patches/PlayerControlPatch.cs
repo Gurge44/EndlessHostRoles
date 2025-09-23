@@ -2072,9 +2072,9 @@ internal static class FixedUpdatePatch
     {
         if (Main.HasJustStarted || !player.IsAlive()) return;
 
-        if (Main.PlayerStates[player.PlayerId].Role is SabotageMaster sm)
+        if (Main.PlayerStates[player.PlayerId].Role is Mechanic sm)
         {
-            sm.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
+            sm.UsedSkillCount -= Mechanic.AbilityChargesWhenFinishedTasks.GetFloat();
             sm.SendRPC();
         }
         else

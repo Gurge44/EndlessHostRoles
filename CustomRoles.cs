@@ -218,7 +218,7 @@ public enum CustomRoles
     Marshall,
     Mathematician,
     Mayor,
-    SabotageMaster, // Mechanic
+    Mechanic,
     Medic,
     Mediumshiper,
     Merchant,

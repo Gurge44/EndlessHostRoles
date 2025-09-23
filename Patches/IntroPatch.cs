@@ -634,7 +634,7 @@ internal static class BeginCrewmatePatch
                     => FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
 
                 CustomRoles.Inhibitor or
-                    CustomRoles.SabotageMaster or
+                    CustomRoles.Mechanic or
                     CustomRoles.Saboteur or
                     CustomRoles.SecurityGuard or
                     CustomRoles.Provocateur
