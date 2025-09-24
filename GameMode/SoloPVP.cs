@@ -95,6 +95,7 @@ internal static class SoloPVP
         BackCountdown = [];
         KBScore = [];
         RoundTime = KB_GameTime.GetInt() + 8;
+        Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
@@ -105,7 +106,7 @@ internal static class SoloPVP
             PlayerDF.TryAdd(pc.PlayerId, 0f);
 
             KBScore.TryAdd(pc.PlayerId, 0);
-            Utils.SendRPC(CustomRPC.SoloPVPSync, pc.PlayerId, 0);
+            Utils.SendRPC(CustomRPC.SoloPVPSync, 2, pc.PlayerId, 0);
 
             LastHurt.TryAdd(pc.PlayerId, Utils.TimeStamp);
             LastCountdownTime.TryAdd(pc.PlayerId, Utils.TimeStamp);
@@ -135,7 +136,7 @@ internal static class SoloPVP
     private static string GetStatsForVanilla(PlayerControl pc)
     {
         var finalText = string.Empty;
-        if (pc.IsHost()) return finalText;
+        if (pc.IsModdedClient()) return finalText;
 
         finalText += "\n<size=90%>";
         finalText += GetHudText();
@@ -253,7 +254,7 @@ internal static class SoloPVP
         ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
         KBScore[killer.PlayerId]++;
-        Utils.SendRPC(CustomRPC.SoloPVPSync, killer.PlayerId, KBScore[killer.PlayerId]);
+        Utils.SendRPC(CustomRPC.SoloPVPSync, 2, killer.PlayerId, KBScore[killer.PlayerId]);
 
         float addRate = IRandom.Instance.Next(3, 5 + GetRankFromScore(killer.PlayerId)) / 100f;
         addRate *= KB_KillBonusMultiplier.GetFloat();
@@ -323,6 +324,7 @@ internal static class SoloPVP
             LastFixedUpdate = now;
 
             RoundTime--;
+            Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
 
             Utils.NotifyRoles(SendOption: SendOption.None);
         }
