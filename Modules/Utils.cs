@@ -2730,13 +2730,13 @@ public static class Utils
                             if (target.Is(CustomRoles.Car) && !forMeeting && !GameStates.IsEnded)
                             {
                                 sender.RpcSetName(target, Car.Name, seer);
-                                return true;
+                                continue;
                             }
             
                             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded) 
                             {
                                 sender.RpcSetName(target, Tree.Sprite, seer);
-                                return true;
+                                continue;
                             }
                             
                             TargetMark.Clear();

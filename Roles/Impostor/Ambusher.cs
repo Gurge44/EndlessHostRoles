@@ -169,7 +169,6 @@ public class Ambusher : RoleBase
         Count = 0;
         
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        if (pc.AmOwner) Utils.DirtyName.Add(pc.PlayerId);
     }
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
@@ -198,7 +197,7 @@ public class Ambusher : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != AmbusherId || seer.PlayerId != target.PlayerId || hud || meeting || !Main.Invisible.Contains(AmbusherId)) return string.Empty;
-        string str = DontCheck ? Translator.GetString("Ambusher.Success") : string.Format(Translator.GetString("Ambusher.InProgress"), TargetId.ColoredPlayerName(), Math.Round(TargetTimer, 1));
-        return $"{str}\n{string.Format(Translator.GetString("Ambusher.InvisTimeLeft"), (int)Math.Round(AbilityEndTimer))}";
+        string str = DontCheck ? Translator.GetString("Ambusher.Success") : TargetId != byte.MaxValue ? string.Format(Translator.GetString("Ambusher.InProgress"), TargetId.ColoredPlayerName(), Math.Round(TargetTimer, 1)) : string.Empty;
+        return $"{str}\n<size=80%>{string.Format(Translator.GetString("Ambusher.InvisTimeLeft"), (int)Math.Round(AbilityEndTimer))}</size>";
     }
 }
