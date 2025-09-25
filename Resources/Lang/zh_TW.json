@@ -9284,6 +9284,7 @@
   "Ambusher.FragileDuration": "Fragile Effect Duration",
   "Ambusher.Success": "<#00ff00>Ambush successful</color>",
   "Ambusher.InProgress": "Ambushing {0}.... {1}s left",
+  "Ambusher.InvisTimeLeft": "Invisibility expires in {0}s",
   "Psychopath": "Psychopath",
   "PsychopathInfo": "You're Forced to Kill Off Cooldown",
   "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range.",
