@@ -218,7 +218,7 @@ public enum CustomRoles
     Marshall,
     Mathematician,
     Mayor,
-    SabotageMaster, // Mechanic
+    Mechanic,
     Medic,
     Mediumshiper,
     Merchant,
@@ -372,7 +372,7 @@ public enum CustomRoles
     Spirit,
     Spiritcaller,
     Sprayer,
-    DarkHide, // Stalker
+    Stalker, // Stalker
     Starspawn,
     Cultist,
     Sunnyboy,

@@ -117,9 +117,10 @@ public class Ambusher : RoleBase
 
         if (!DontCheck)
         {
-            var pos = pc.Pos();
-            var radius = FollowRadius.GetFloat();
-            var closestPlayer = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= radius).MinBy(x => x.distance).pc;
+            Vector2 pos = pc.Pos();
+            float radius = FollowRadius.GetFloat();
+            (PlayerControl pc, float distance)[] nearPlayers = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= radius).ToArray();
+            PlayerControl closestPlayer = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
 
             if (closestPlayer == null)
             {
@@ -169,11 +170,12 @@ public class Ambusher : RoleBase
         Count = 0;
         
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (pc.AmOwner) Utils.DirtyName.Add(pc.PlayerId);
     }
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (!lowLoad && FragilePlayers.TryGetValue(pc.PlayerId, out var endTS) && Utils.TimeStamp >= endTS)
+        if (!lowLoad && FragilePlayers.TryGetValue(pc.PlayerId, out long endTS) && Utils.TimeStamp >= endTS)
             FragilePlayers.Remove(pc.PlayerId);
     }
 

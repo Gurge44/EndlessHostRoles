@@ -1846,7 +1846,7 @@ internal static class FixedUpdatePatch
             additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
             
             if (!GameStates.IsMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId) && (self || (seer.IsImpostor() && target.IsImpostor())))
-                additionalSuffixes.Add(ColorString(Palette.White_75Alpha, GetString("Invisible")));
+                additionalSuffixes.Add(ColorString(Palette.White_75Alpha, "\n" + GetString("Invisible")));
 
             switch (target.GetCustomRole())
             {
@@ -2042,7 +2042,7 @@ internal static class FixedUpdatePatch
 
                 if (Suffix.ToString() != string.Empty)
                 {
-                    offset += moveandstop ? 0.15f : 0.1f;
+                    offset += moveandstop ? 0.15f : 0.2f;
                     offset += moveandstop ? 0f : Suffix.ToString().Count(x => x == '\n') * 0.15f;
                 }
 

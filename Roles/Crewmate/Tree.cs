@@ -25,7 +25,7 @@ public class Tree : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(655100)
-            .AutoSetupOption(ref TreeSpriteVisible, true)
+            .AutoSetupOption(ref TreeSpriteVisible, false)
             .AutoSetupOption(ref FallDelay, 5, new IntegerValueRule(1, 60, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.5f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
@@ -56,8 +56,14 @@ public class Tree : RoleBase
         pc.MarkDirtySettings();
 
         bool treeSpriteVisible = TreeSpriteVisible.GetBool();
-        if (treeSpriteVisible) TreeSpriteActive = true;
-        else pc.RpcMakeInvisible();
+        
+        if (treeSpriteVisible)
+        {
+            TreeSpriteActive = true;
+            Utils.NotifyRoles(SpecifyTarget: pc);
+        }
+        else
+            pc.RpcMakeInvisible();
         
         LateTask.New(() =>
         {
@@ -66,7 +72,11 @@ public class Tree : RoleBase
             Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             pc.MarkDirtySettings();
             
-            if (treeSpriteVisible) TreeSpriteActive = false;
+            if (treeSpriteVisible)
+            {
+                TreeSpriteActive = false;
+                Utils.NotifyRoles(SpecifyTarget: pc);
+            }
             else pc.RpcMakeVisible();
             
             int chance = FallKillChance.GetInt();

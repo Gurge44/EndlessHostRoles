@@ -63,7 +63,7 @@ public class Captain : RoleBase
         
         var room = pc.GetPlainShipRoom();
         
-        if (room != null && (TargetRooms.Count == 0 || TargetRooms[^1] != room.RoomId))
+        if (room != null && room.RoomId != SystemTypes.Hallway && (TargetRooms.Count == 0 || TargetRooms[^1] != room.RoomId))
             TargetRooms.Add(room.RoomId);
     }
 
@@ -73,7 +73,7 @@ public class Captain : RoleBase
         
         LateTask.New(() =>
         {
-            string msg = string.Format(Translator.GetString("Captain.TargetInfo"), TargetId.ColoredPlayerName(), string.Join(" ➔ ", TargetRooms.ConvertAll(x => Translator.GetString(x.ToString()))));
+            string msg = string.Format(Translator.GetString("Captain.TargetInfo"), TargetId.ColoredPlayerName(), string.Join(" ➡ ", TargetRooms.ConvertAll(x => Translator.GetString(x.ToString()))));
             Utils.SendMessage(msg, CaptainId, CustomRoles.Captain.ToColoredString());
             TargetRooms = [];
         }, 10f, "Captain Message");
@@ -110,6 +110,6 @@ public class Captain : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != CaptainId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
-        return string.Format(Translator.GetString("Captain.Suffix"), LastNotify);
+        return string.Format(Translator.GetString("Captain.Suffix"), string.IsNullOrEmpty(LastNotify) ? Translator.GetString("None") : LastNotify);
     }
 }
