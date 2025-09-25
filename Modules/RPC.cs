@@ -102,7 +102,7 @@ public enum CustomRPC
     SetWeaponMasterMode,
     SyncGlitchTimers,
     SyncSpy,
-    SetSabotageMasterLimit,
+    SetMechanicLimit,
     SetHackerLimit,
     SetCurrentDrawTarget,
     SetCpTasksDone,
@@ -863,9 +863,9 @@ internal static class RPCHandlerPatch
                     Druid.ReceiveRPCAddTrigger(reader);
                     break;
                 }
-                case CustomRPC.SetSabotageMasterLimit:
+                case CustomRPC.SetMechanicLimit:
                 {
-                    SabotageMaster.ReceiveRPC(reader);
+                    Mechanic.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetHackerLimit:
