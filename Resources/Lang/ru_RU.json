@@ -9284,6 +9284,7 @@
   "Ambusher.FragileDuration": "Длительность эффектов атрибута Хрупкий",
   "Ambusher.Success": "<#00ff00>Засада успешна!</color>",
   "Ambusher.InProgress": "Вы устраиваете засаду игроку {0}.... {1}с осталось",
+  "Ambusher.InvisTimeLeft": "Invisibility expires in {0}s",
   "Psychopath": "Психопат",
   "PsychopathInfo": "Вы убиваете сразу после отката",
   "PsychopathInfoLong": "(Предатель):\\nКак Психопат, как только ваша перезарядка убийства откатится, вы мгновенно убьёте любого подошедшего близко.",
