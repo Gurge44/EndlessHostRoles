@@ -204,18 +204,21 @@ public sealed class Stealth : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
+        if (!shapeshifting || useLegacyVersion) return true;
         DarkenPlayers(FindPlayersInRange());
         return false;
     }
 
     public override bool OnVanish(PlayerControl pc)
     {
+        if (useLegacyVersion) return true;
         DarkenPlayers(FindPlayersInRange());
         return false;
     }
 
     public override void OnPet(PlayerControl pc)
     {
+        if (useLegacyVersion) return;
         DarkenPlayers(FindPlayersInRange());
     }
 
