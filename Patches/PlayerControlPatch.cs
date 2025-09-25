@@ -1603,6 +1603,10 @@ internal static class FixedUpdatePatch
                     player.Notify(GetString("PlagueBearerToPestilence"));
                     player.RpcGuardAndKill(player);
 
+                    var state = Main.PlayerStates[player.PlayerId];
+                    state.RemoveSubRole(CustomRoles.Fragile);
+                    state.RemoveSubRole(CustomRoles.Unbound);
+
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);
 
