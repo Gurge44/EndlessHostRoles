@@ -587,7 +587,7 @@ public static class Utils
             roleText = GetRoleString("Recruit-") + roleText;
         }
 
-        if (targetSubRoles.Contains(CustomRoles.Charmed) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Succubus || (Succubus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Charmed))))
+        if (targetSubRoles.Contains(CustomRoles.Charmed) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Cultist || (Cultist.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Charmed))))
         {
             roleColor = GetRoleColor(CustomRoles.Charmed);
             roleText = GetRoleString("Charmed-") + roleText;
@@ -915,23 +915,23 @@ public static class Utils
             case CustomRoles.Pelican:
             case CustomRoles.Medusa:
             case CustomRoles.Revolutionist:
-            case CustomRoles.FFF:
+            case CustomRoles.Hater:
             case CustomRoles.Demon:
             case CustomRoles.HexMaster:
             case CustomRoles.Wraith:
             case CustomRoles.Juggernaut:
             case CustomRoles.Ritualist:
-            case CustomRoles.DarkHide:
+            case CustomRoles.Stalker:
             case CustomRoles.Collector:
             case CustomRoles.ImperiusCurse:
             case CustomRoles.Provocateur:
             case CustomRoles.BloodKnight:
             case CustomRoles.Camouflager:
-            case CustomRoles.Totocalcio:
+            case CustomRoles.Follower:
             case CustomRoles.Romantic:
             case CustomRoles.VengefulRomantic:
             case CustomRoles.RuthlessRomantic:
-            case CustomRoles.Succubus:
+            case CustomRoles.Cultist:
             case CustomRoles.Necromancer:
             case CustomRoles.Deathknight:
             case CustomRoles.Amnesiac:
@@ -2902,7 +2902,7 @@ public static class Utils
                             TargetMark.Append(Demon.TargetMark(seer, target));
                             TargetMark.Append(Medic.GetMark(seer, target));
                             TargetMark.Append(Gaslighter.GetMark(seer, target, forMeeting));
-                            TargetMark.Append(Totocalcio.TargetMark(seer, target));
+                            TargetMark.Append(Follower.TargetMark(seer, target));
                             TargetMark.Append(Romantic.TargetMark(seer, target));
                             TargetMark.Append(Lawyer.LawyerMark(seer, target));
                             TargetMark.Append(Deathpact.GetDeathpactMark(seer, target));
@@ -3295,6 +3295,7 @@ public static class Utils
             CustomRoles.Venerer => Venerer.AbilityCooldown.GetInt(),
             CustomRoles.Wiper => Wiper.AbilityCooldown.GetInt(),
             CustomRoles.Warlock => Warlock.IsCursed ? -1 : Warlock.ShapeshiftCooldown.GetInt(),
+            CustomRoles.Stealth => Stealth.AbilityCooldown.GetInt() + (includeDuration ? Stealth.OptionDarkenDuration.GetInt() : 0),
             CustomRoles.Stasis => Stasis.AbilityCooldown.GetInt() + (includeDuration ? Stasis.AbilityDuration.GetInt() : 0),
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
             CustomRoles.Hypnotist => Hypnotist.AbilityCooldown.GetInt() + (includeDuration ? Hypnotist.AbilityDuration.GetInt() : 0),

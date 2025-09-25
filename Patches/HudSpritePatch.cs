@@ -341,7 +341,7 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Sidekick");
                     break;
                 }
-                case CustomRoles.Succubus:
+                case CustomRoles.Cultist:
                 {
                     newKillButton = CustomButton.Get("Subbus");
                     break;

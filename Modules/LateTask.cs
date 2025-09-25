@@ -21,7 +21,7 @@ internal class LateTask
         LOG = log;
         CallerData = callerData;
         Tasks.Add(this);
-        if (log && name is not "" and not "No Name Task") Logger.Info("\"" + name + "\" is created", "LateTask");
+        if (log && name is not "" and not "No Name Task") Logger.Info($"\"{name}\" is created (completes in {time:N2})", "LateTask");
     }
 
     private bool Run(float deltaTime)

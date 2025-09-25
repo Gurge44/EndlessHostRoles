@@ -1603,6 +1603,10 @@ internal static class FixedUpdatePatch
                     player.Notify(GetString("PlagueBearerToPestilence"));
                     player.RpcGuardAndKill(player);
 
+                    var state = Main.PlayerStates[player.PlayerId];
+                    state.RemoveSubRole(CustomRoles.Fragile);
+                    state.RemoveSubRole(CustomRoles.Unbound);
+
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);
 
@@ -1929,7 +1933,7 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            Mark.Append(Totocalcio.TargetMark(seer, target));
+            Mark.Append(Follower.TargetMark(seer, target));
             Mark.Append(Romantic.TargetMark(seer, target));
             Mark.Append(Lawyer.LawyerMark(seer, target));
             Mark.Append(Marshall.GetWarningMark(seer, target));
@@ -2072,9 +2076,9 @@ internal static class FixedUpdatePatch
     {
         if (Main.HasJustStarted || !player.IsAlive()) return;
 
-        if (Main.PlayerStates[player.PlayerId].Role is SabotageMaster sm)
+        if (Main.PlayerStates[player.PlayerId].Role is Mechanic sm)
         {
-            sm.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
+            sm.UsedSkillCount -= Mechanic.AbilityChargesWhenFinishedTasks.GetFloat();
             sm.SendRPC();
         }
         else

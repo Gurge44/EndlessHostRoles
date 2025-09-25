@@ -2932,7 +2932,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
-        DraftMaxRolesPerPlayer = new IntegerOptionItem(19430, "DraftMaxRolesPerPlayer", new(1, 30, 1), 5, TabGroup.GameSettings)
+        DraftMaxRolesPerPlayer = new IntegerOptionItem(19431, "DraftMaxRolesPerPlayer", new(1, 30, 1), 5, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 

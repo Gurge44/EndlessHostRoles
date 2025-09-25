@@ -147,9 +147,9 @@ internal static class GameEndChecker
                         .Select(pc => pc.PlayerId));
 
                     break;
-                case CustomWinner.Succubus:
+                case CustomWinner.Cultist:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Succubus) || pc.Is(CustomRoles.Charmed))
+                        .Where(pc => pc.Is(CustomRoles.Cultist) || pc.Is(CustomRoles.Charmed))
                         .Select(pc => pc.PlayerId));
 
                     break;
@@ -192,8 +192,8 @@ internal static class GameEndChecker
 
                     switch (role)
                     {
-                        case CustomRoles.DarkHide when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorsBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.CrewmatesByTask) && roleBase is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
-                            ResetAndSetWinner(CustomWinner.DarkHide);
+                        case CustomRoles.Stalker when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorsBySabotage)) || WinnerTeam == CustomWinner.Stalker || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.CrewmatesByTask) && roleBase is Stalker { IsWinKill: true } && Stalker.SnatchesWin.GetBool())):
+                            ResetAndSetWinner(CustomWinner.Stalker);
                             WinnerIds.Add(pc.PlayerId);
                             break;
                         case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():
@@ -218,8 +218,8 @@ internal static class GameEndChecker
                         case CustomRoles.Sunnyboy when !pc.IsAlive():
                         case CustomRoles.Maverick when pc.IsAlive() && roleBase is Maverick mr && mr.NumOfKills >= Maverick.MinKillsToWin.GetInt():
                         case CustomRoles.Provocateur when Provocateur.Provoked.TryGetValue(pc.PlayerId, out byte tar) && !WinnerIds.Contains(tar):
-                        case CustomRoles.FFF when (roleBase as FFF).IsWon:
-                        case CustomRoles.Totocalcio when roleBase is Totocalcio tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
+                        case CustomRoles.Hater when (roleBase as Hater).IsWon:
+                        case CustomRoles.Follower when roleBase is Follower tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
                         case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps1) && (WinnerRoles.Contains(ps1.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps1.SubRoles.Contains(CustomRoles.Bloodlust)))):
                         case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps2) && (WinnerRoles.Contains(ps2.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps2.SubRoles.Contains(CustomRoles.Bloodlust))))):
                         case CustomRoles.Postman when (roleBase as Postman).IsFinished:
@@ -447,7 +447,7 @@ internal static class GameEndChecker
                 case CustomRoles.Sunnyboy when state.IsDead:
                 case CustomRoles.Maverick when !state.IsDead && state.Role is Maverick mr && mr.NumOfKills >= Maverick.MinKillsToWin.GetInt():
                 case CustomRoles.Provocateur when Provocateur.Provoked.TryGetValue(state.Player.PlayerId, out byte tar) && !WinnerIds.Contains(tar):
-                case CustomRoles.FFF when ((FFF)state.Role).IsWon:
+                case CustomRoles.Hater when ((Hater)state.Role).IsWon:
                 case CustomRoles.Postman when ((Postman)state.Role).IsFinished:
                 case CustomRoles.Dealer when ((Dealer)state.Role).IsWon:
                 case CustomRoles.Impartial when ((Impartial)state.Role).IsWon:
@@ -625,7 +625,7 @@ internal static class GameEndChecker
                     else if (x.Is(Team.Crewmate)) crew++;
                     else if (x.Is(Team.Coven)) coven++;
 
-                    if (x.Is(CustomRoles.Charmed)) roleCounts[(null, CustomWinner.Succubus)]++;
+                    if (x.Is(CustomRoles.Charmed)) roleCounts[(null, CustomWinner.Cultist)]++;
                     if (x.Is(CustomRoles.Undead)) roleCounts[(null, CustomWinner.Necromancer)]++;
                     if (x.Is(CustomRoles.Sidekick)) roleCounts[(null, CustomWinner.Jackal)]++;
                     if (x.Is(CustomRoles.Recruit)) roleCounts[(null, CustomWinner.Jackal)]++;

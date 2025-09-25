@@ -336,6 +336,9 @@ public static class BedWars
 
         if (killerData.Sword.HasValue && Upgrades.TryGetValue(killerData.Team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.Sharpness))
             damage *= 1.25f;
+        
+        if (killerData.IsBuffedTeam(out var buffRatio))
+            damage *= buffRatio;
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
@@ -729,6 +732,9 @@ public static class BedWars
             if (Armor.HasValue && Upgrades.TryGetValue(Team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.ReinforcedArmor))
                 damage *= 0.75f;
 
+            if (IsBuffedTeam(out var buffRatio))
+                damage /= buffRatio;
+            
             Health -= damage;
             LastDamage = Utils.TimeStamp;
             Logger.Info($"{pc.GetRealName()}'s health (after damage): {Math.Round(Health, 2)}", "BedWars");
@@ -760,6 +766,7 @@ public static class BedWars
         private IEnumerator ReviveCountdown(PlayerControl pc)
         {
             int time = ReviveTime;
+            if (IsBuffedTeam(out var buffRatio)) time = (int)(time / buffRatio);
 
             while (time > 0)
             {
@@ -869,6 +876,14 @@ public static class BedWars
                 float lerpT = (t - 0.5f) / 0.5f;
                 return new Color(1f - lerpT, 1f, lerpT);
             }
+        }
+
+        public bool IsBuffedTeam(out float buffRatio)
+        {
+            int maxTeamSize = Data.Values.GroupBy(x => x.Team).Max(x => x.Count());
+            int myTeamSize = Data.Values.Count(x => x.Team == Team);
+            buffRatio = (float)maxTeamSize / myTeamSize; // e.g. 4/2 = 2, 4/3 = 1.33, 4/4 = 1
+            return maxTeamSize > myTeamSize;
         }
     }
 

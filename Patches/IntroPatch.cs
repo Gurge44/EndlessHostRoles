@@ -634,7 +634,7 @@ internal static class BeginCrewmatePatch
                     => FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
 
                 CustomRoles.Inhibitor or
-                    CustomRoles.SabotageMaster or
+                    CustomRoles.Mechanic or
                     CustomRoles.Saboteur or
                     CustomRoles.SecurityGuard or
                     CustomRoles.Provocateur
@@ -676,7 +676,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Sheriff
                     => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
 
-                CustomRoles.FFF or
+                CustomRoles.Hater or
                     CustomRoles.Opportunist or
                     CustomRoles.Revolutionist
                     => GetIntroSound(RoleTypes.Crewmate),
@@ -741,13 +741,13 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
                     or CustomRoles.SuperStar
-                    or CustomRoles.DarkHide
+                    or CustomRoles.Stalker
                     or CustomRoles.Specter
                     => GetIntroSound(RoleTypes.Noisemaker),
 
                 CustomRoles.Phantom
                     or CustomRoles.PhantomEHR
-                    or CustomRoles.DarkHide
+                    or CustomRoles.Stalker
                     or CustomRoles.ImperiusCurse
                     or CustomRoles.SoulHunter
                     => GetIntroSound(RoleTypes.Phantom),

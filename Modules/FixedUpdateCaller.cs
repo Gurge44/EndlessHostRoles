@@ -57,6 +57,13 @@ public static class FixedUpdateCaller
                 }
             }
 
+#if ANDROID
+            GameStartManager gameStartManager = GameStartManager.Instance;
+
+            if (gameStartManager)
+                GameStartManagerPatch.GameStartManagerUpdatePatch.Postfix_ManualCall(gameStartManager);
+#endif
+
             HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
 
             if (hudManager)

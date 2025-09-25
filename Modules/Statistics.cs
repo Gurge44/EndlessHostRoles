@@ -305,7 +305,7 @@ public static class Statistics
                 if ((targetState.MainRole == CustomRoles.Romantic && Romantic.PartnerId == killer.PlayerId) ||
                     (targetState.SubRoles.Contains(CustomRoles.Lovers) && killer.Is(CustomRoles.Lovers)) ||
                     (targetState.MainRole == CustomRoles.Lawyer && Lawyer.Target.TryGetValue(target.PlayerId, out byte ltg) && ltg == killer.PlayerId) ||
-                    (targetState.Role is Totocalcio tc && tc.BetPlayer == killer.PlayerId))
+                    (targetState.Role is Follower tc && tc.BetPlayer == killer.PlayerId))
                     Achievements.Type.WhatHaveIDone.CompleteAfterGameEnd();
 
                 if (targetState.MainRole == CustomRoles.Snitch && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)

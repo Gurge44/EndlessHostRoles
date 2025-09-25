@@ -76,10 +76,15 @@ public class Overheat : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (Options.UsePets.GetBool()) return;
+        if (Options.UsePhantomBasis.GetBool())
+            AURoleOptions.PhantomCooldown = 1f;
+        else
+        {
+            if (Options.UsePets.GetBool()) return;
 
-        AURoleOptions.ShapeshifterCooldown = 1f;
-        AURoleOptions.ShapeshifterDuration = 1f;
+            AURoleOptions.ShapeshifterCooldown = 1f;
+            AURoleOptions.ShapeshifterDuration = 1f;
+        }
     }
 
     private void SendRPC(byte id)
@@ -146,11 +151,15 @@ public class Overheat : RoleBase
         CoolDown(pc);
     }
 
+    public override bool OnVanish(PlayerControl pc)
+    {
+        CoolDown(pc);
+        return false;
+    }
+
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (Main.PlayerStates[seer.PlayerId].Role is not Overheat oh) return string.Empty;
-        if (seer.IsModdedClient() && !hud) return string.Empty;
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
+        if (Main.PlayerStates[seer.PlayerId].Role is not Overheat oh || seer.IsModdedClient() && !hud || seer.PlayerId != target.PlayerId) return string.Empty;
 
         Color color = GetTemperatureColor(oh.Temperature);
         string str = Translator.GetString("Overheat.Suffix");

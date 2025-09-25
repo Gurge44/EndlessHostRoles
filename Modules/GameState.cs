@@ -261,10 +261,10 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Charmed:
-                countTypes = Succubus.CharmedCountMode.GetInt() switch
+                countTypes = Cultist.CharmedCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
-                    1 => CountTypes.Succubus,
+                    1 => CountTypes.Cultist,
                     2 => countTypes,
                     _ => throw new NotImplementedException()
                 };
@@ -474,10 +474,10 @@ public class TaskState
                 {
                     switch (player.GetCustomRole())
                     {
-                        case CustomRoles.SabotageMaster:
-                            if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
+                        case CustomRoles.Mechanic:
+                            if (Main.PlayerStates[player.PlayerId].Role is not Mechanic sm) break;
 
-                            sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
+                            sm.UsedSkillCount -= Mechanic.MechanicAbilityUseGainWithEachTaskCompleted.GetFloat();
                             sm.SendRPC();
                             break;
                         case CustomRoles.Hacker:

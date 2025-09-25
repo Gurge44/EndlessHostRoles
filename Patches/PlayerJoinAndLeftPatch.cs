@@ -1,5 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
@@ -22,6 +25,7 @@ namespace EHR;
 internal static class OnGameJoinedPatch
 {
     public static bool JoiningGame;
+    public static bool ClearedLogs;
 
     public static void Postfix(AmongUsClient __instance)
     {
@@ -46,6 +50,30 @@ internal static class OnGameJoinedPatch
         Utils.DirtyName = [];
 
         LateTask.New(Achievements.ShowWaitingAchievements, 8f, log: false);
+        
+        if (!ClearedLogs)
+        {
+            LateTask.New(() =>
+            {
+                if (!HudManager.InstanceExists || AmongUsClient.Instance.IsGameStarted) return;
+            
+                var result = CleanOldItems();
+            
+                if (result.Files > 0 || result.Folders > 0)
+                {
+                    Prompt.Show(string.Format(GetString("Promt.DeleteOldLogs"), result.Files, result.Folders), () =>
+                    {
+                        LateTask.New(() =>
+                        {
+                            result = CleanOldItems(dryRun: false);
+                            HudManager.Instance.ShowPopUp(string.Format(GetString("LogDeletionResults"), result.Files, result.Folders));
+                        }, 0.5f, log: false);
+                    }, () => { });
+                }
+                
+                ClearedLogs = true;
+            }, 5f, log: false);
+        }
 
         if (AmongUsClient.Instance.AmHost)
         {
@@ -183,6 +211,168 @@ internal static class OnGameJoinedPatch
         }
         else
             LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client");
+    }
+
+    // Written with AI because I don't want it to delete the wrong files
+    /// <summary>
+    /// Cleans files and folders older than `days` in the EHR_Logs folder.
+    /// Default: dryRun = true (shows what would be deleted).
+    /// </summary>
+    private static (int Files, int Folders) CleanOldItems(bool dryRun = true, int days = 7)
+    {
+#if ANDROID
+        return (0, 0); // Not supported on Android
+#endif
+        string path;
+        try
+        {
+            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs";
+            // Normalize separators
+            path = Path.GetFullPath(f);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"Could not determine path: {ex.Message}", "CleanOldItems");
+            return (0, 0);
+        }
+
+        if (!Path.IsPathRooted(path))
+        {
+            Logger.Error("Target path is not rooted. Aborting for safety.", "CleanOldItems");
+            return (0, 0);
+        }
+
+        // Safety checks: ensure target folder name is exactly "EHR_Logs"
+        var folderName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        if (!string.Equals(folderName, "EHR_Logs", StringComparison.OrdinalIgnoreCase))
+        {
+            Logger.Error($"[ERROR] Target folder name is '{folderName}' (expected 'EHR_Logs'). Aborting for safety.", "CleanOldItems");
+            return (0, 0);
+        }
+
+        if (!Directory.Exists(path))
+        {
+            Logger.Msg("[INFO] Target directory does not exist. Nothing to clean.", "CleanOldItems");
+            return (0, 0);
+        }
+
+        var threshold = DateTime.Now - TimeSpan.FromDays(days);
+        Logger.Msg($"Threshold: delete items last written before {threshold:O}", "CleanOldItems");
+        Logger.Msg(dryRun
+            ? "Running in dry run mode — no files or folders will be deleted."
+            : "Running for real — files and folders will be deleted.", "CleanOldItems");
+
+        int filesDeleted = 0;
+        int foldersDeleted = 0;
+        var failedDeletes = new List<string>();
+
+        // 1) Delete files older than threshold (walk all files recursively)
+        try
+        {
+            foreach (var file in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
+            {
+                try
+                {
+                    DateTime lastWrite = File.GetLastWriteTime(file);
+                    if (lastWrite < threshold)
+                    {
+                        Logger.Warn(dryRun
+                            ? $"[DRY] Would delete file: {file} (LastWrite: {lastWrite:O})"
+                            : $"[DEL] Deleting file: {file} (LastWrite: {lastWrite:O})", "CleanOldItems");
+
+                        if (!dryRun)
+                        {
+                            File.SetAttributes(file, FileAttributes.Normal); // remove read-only to avoid exceptions
+                            File.Delete(file);
+                        }
+                        filesDeleted++;
+                    }
+                }
+                catch (Exception exFile)
+                {
+                    string msg = $"Failed to delete file '{file}': {exFile.Message}";
+                    Logger.Error(msg, "CleanOldItems");
+                    failedDeletes.Add(msg);
+                    // continue with other files
+                }
+            }
+        }
+        catch (Exception exEnum)
+        {
+            Logger.Error($"Failed enumerating files: {exEnum.Message}", "CleanOldItems");
+        }
+
+        // 2) Attempt to delete directories that are empty AND older than threshold.
+        //    We process directories from deepest to shallowest so we can remove empty parent dirs.
+        try
+        {
+            var allDirectories = Directory
+                .EnumerateDirectories(path, "*", SearchOption.AllDirectories)
+                // order by path depth descending
+                .OrderByDescending(d => d.Count(c => c == Path.DirectorySeparatorChar || c == Path.AltDirectorySeparatorChar))
+                .ToList();
+
+            foreach (var dir in allDirectories)
+            {
+                try
+                {
+                    // Skip if directory now contains any entries
+                    if (Directory.EnumerateFileSystemEntries(dir).Any())
+                        continue;
+
+                    DateTime lastWrite = Directory.GetLastWriteTime(dir);
+                    DateTime creation = Directory.GetCreationTime(dir);
+
+                    // Only delete if the directory is older than threshold by last write OR creation time (safer)
+                    if (lastWrite < threshold || creation < threshold)
+                    {
+                        Logger.Warn(dryRun
+                            ? $"[DRY] Would delete empty folder: {dir} (LastWrite: {lastWrite:O}, Creation: {creation:O})"
+                            : $"[DEL] Deleting empty folder: {dir} (LastWrite: {lastWrite:O}, Creation: {creation:O})", "CleanOldItems");
+
+                        if (!dryRun)
+                        {
+                            Directory.Delete(dir, false); // false -> directory must be empty
+                        }
+                        foldersDeleted++;
+                    }
+                }
+                catch (Exception exDir)
+                {
+                    string msg = $"Failed to delete directory '{dir}': {exDir.Message}";
+                    Logger.Error(msg, "CleanOldItems");
+                    failedDeletes.Add(msg);
+                }
+            }
+
+            // Optionally, check the root target folder itself: if empty and old, you might want to delete it.
+            // Here we will NOT delete the root EHR_Logs folder itself to be extra safe.
+        }
+        catch (Exception exEnumDirs)
+        {
+            Logger.Error($"Failed enumerating directories: {exEnumDirs.Message}", "CleanOldItems");
+        }
+
+        // Summary
+        Logger.Msg("=== Summary ===", "CleanOldItems");
+        Logger.Msg($"Files matched and processed: {filesDeleted}", "CleanOldItems");
+        Logger.Msg($"Folders matched and processed: {foldersDeleted}", "CleanOldItems");
+        if (failedDeletes.Count > 0)
+        {
+            Logger.Msg($"Failures ({failedDeletes.Count}):", "CleanOldItems");
+            foreach (var f in failedDeletes) Logger.Msg(f, "CleanOldItems");
+        }
+        else
+        {
+            Logger.Msg("No failures reported.", "CleanOldItems");
+        }
+
+        if (dryRun)
+        {
+            Logger.Msg("Dry run complete.", "CleanOldItems");
+        }
+        
+        return (filesDeleted, foldersDeleted);
     }
 }
 

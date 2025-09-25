@@ -113,7 +113,10 @@ public static class AntiBlackout
                         pc.RpcResetAbilityCooldown();
 
                         if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd))
-                            pc.SetKillCooldown(kcd - elapsedSeconds);
+                        {
+                            float time = kcd - elapsedSeconds;
+                            if (time > 0) pc.SetKillCooldown(time);
+                        }
                         else
                             pc.SetKillCooldown();
                     }
