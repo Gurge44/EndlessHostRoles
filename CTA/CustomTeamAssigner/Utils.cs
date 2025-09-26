@@ -38,11 +38,7 @@ namespace CustomTeamAssigner
             { CustomRoles.Divinator, "Fortune Teller" },
             { CustomRoles.ParityCop, "Inspector" },
             { CustomRoles.Needy, "Lazy Guy" },
-            { CustomRoles.SabotageMaster, "Mechanic" },
             { CustomRoles.SwordsMan, "Vigilante" },
-            { CustomRoles.Totocalcio, "Follower" },
-            { CustomRoles.FFF, "Hater" },
-            { CustomRoles.DarkHide, "Stalker" },
             { CustomRoles.ToiletMaster, "Toilet Master" },
             { CustomRoles.Mediumshiper, "Medium" },
             { CustomRoles.PlagueDoctor, "Infection"}
