@@ -361,6 +361,7 @@ internal static class CustomRolesHelper
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.NoteKiller => CustomRoles.Crewmate,
             CustomRoles.RoomRusher => RoomRusher.CanVent ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Clerk => CustomRoles.Crewmate,
             CustomRoles.CovenMember => CustomRoles.Crewmate,
             CustomRoles.Augur => Augur.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
 
@@ -524,7 +525,6 @@ internal static class CustomRolesHelper
             CustomRoles.Postman => RoleTypes.Impostor,
             CustomRoles.Dealer => RoleTypes.Impostor,
             CustomRoles.Auditor => RoleTypes.Impostor,
-            CustomRoles.Clerk => RoleTypes.Impostor,
             CustomRoles.Seamstress => RoleTypes.Shapeshifter,
             CustomRoles.Spirit => RoleTypes.Shapeshifter,
             CustomRoles.Starspawn => RoleTypes.Impostor,

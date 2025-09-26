@@ -141,6 +141,8 @@ public class Ambusher : RoleBase
                     DontCheck = true;
                     AbilityEndTimer = InvisDurAfterSuccessfulAmbush.GetFloat();
                     FragilePlayers[TargetId] = now + FragileDuration.GetInt();
+                    Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, 3, TargetId);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: TargetId.GetPlayer());
                     TargetId = byte.MaxValue;
                     TargetTimer = FollowDuration.GetFloat();
                 }
@@ -151,8 +153,8 @@ public class Ambusher : RoleBase
 
         if (AbilityEndTimer <= 0)
         {
-            pc.SetKillCooldown(KillCooldown.GetFloat());
             pc.RpcMakeVisible(true);
+            pc.SetKillCooldown(KillCooldown.GetFloat());
             AbilityEndTimer = AbilityDuration.GetFloat();
             LastRPCTS = 0;
             Count = 30;
@@ -162,7 +164,7 @@ public class Ambusher : RoleBase
         if (LastRPCTS != now)
         {
             pc.RpcResetAbilityCooldown();
-            Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, TargetId, TargetTimer, AbilityEndTimer, DontCheck);
+            Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, 1, TargetId, TargetTimer, AbilityEndTimer, DontCheck);
             LastRPCTS = now;
         }
 
@@ -176,7 +178,11 @@ public class Ambusher : RoleBase
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
         if (!lowLoad && FragilePlayers.TryGetValue(pc.PlayerId, out long endTS) && Utils.TimeStamp >= endTS)
+        {
             FragilePlayers.Remove(pc.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, 2, pc.PlayerId);
+            Utils.NotifyRoles(SpecifySeer: AmbusherId.GetPlayer(), SpecifyTarget: pc);
+        }
     }
 
     public override void OnReportDeadBody()
@@ -185,7 +191,7 @@ public class Ambusher : RoleBase
         TargetTimer = FollowDuration.GetFloat();
         AbilityEndTimer = AbilityDuration.GetFloat();
         DontCheck = false;
-        Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, TargetId, TargetTimer, AbilityEndTimer, DontCheck);
+        Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, 1, TargetId, TargetTimer, AbilityEndTimer, DontCheck);
     }
 
     public void ReceiveRPC(MessageReader reader)

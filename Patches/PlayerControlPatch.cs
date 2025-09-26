@@ -2008,10 +2008,14 @@ internal static class FixedUpdatePatch
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
-            Suffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
+            List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
+            if (addSuff.Count > 0) Suffix.Append("\n" + string.Join('\n', addSuff));
 
             if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                 Suffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
+            
+            if (Suffix.Length > 0 && !Suffix.ToString().StartsWith('\n'))
+                Suffix.Insert(0, "\n");
 
             // Devourer
             if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)))
@@ -2044,7 +2048,7 @@ internal static class FixedUpdatePatch
 
                 if (Suffix.ToString() != string.Empty)
                 {
-                    offset += moveandstop ? 0.15f : 0.2f;
+                    offset += moveandstop ? 0.15f : 0.1f;
                     offset += moveandstop ? 0f : Suffix.ToString().Count(x => x == '\n') * 0.15f;
                 }
 
