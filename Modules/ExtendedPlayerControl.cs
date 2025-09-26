@@ -1815,7 +1815,6 @@ internal static class ExtendedPlayerControl
         PlainShipRoom room = pc.GetPlainShipRoom();
         string roomName = GetString(room == null ? "Outside" : $"{room.RoomId}");
         Vector2 pos = pc.Pos();
-
         return (pos, roomName);
     }
 
