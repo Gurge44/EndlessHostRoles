@@ -815,53 +815,6 @@ internal static class MurderPlayerPatch
     }
 }
 
-[HarmonyPatch(typeof(ShapeshifterMinigame), nameof(ShapeshifterMinigame.Begin))]
-internal static class ShapeshifterMinigamePatch
-{
-    public static bool Prefix(ShapeshifterMinigame __instance, [HarmonyArgument(0)] PlayerTask task)
-    {
-        return true; // Not in use until I find a way to make it work properly for vanilla clients
-        if (!Options.UseMeetingShapeshift.GetBool() || !MeetingHud.Instance || MeetingHud.Instance.state is not MeetingHud.VoteStates.Discussion and not MeetingHud.VoteStates.Voted and not MeetingHud.VoteStates.NotVoted) return true;
-
-        CallBaseBegin();
-
-        // HERE DETERMINE WHAT CHOICES WILL BE SHOWN AND PUT IT INTO A LIST
-
-        __instance.potentialVictims = new Il2CppSystem.Collections.Generic.List<ShapeshifterPanel>();
-        var selectableElements = new Il2CppSystem.Collections.Generic.List<UiElement>();
-
-        for (var index = 0; index < 15; ++index)
-        {
-            int num1 = index % 3;
-            int num2 = index / 3;
-            ShapeshifterPanel shapeshifterPanel = Object.Instantiate(__instance.PanelPrefab, __instance.transform);
-            shapeshifterPanel.transform.localPosition = new Vector3(__instance.XStart + (num1 * __instance.XOffset), __instance.YStart + (num2 * __instance.YOffset), -1f);
-
-            shapeshifterPanel.shapeshift = (Action)(() => { }) /*ACTION WHEN CHOSEN*/;
-            shapeshifterPanel.PlayerIcon.gameObject.SetActive(false);
-            shapeshifterPanel.LevelNumberText.gameObject.SetActive(false);
-            shapeshifterPanel.Background.sprite = ShipStatus.Instance.CosmeticsCache.GetNameplate("" /*NamePlateID*/).Image;
-            shapeshifterPanel.NameText.text = "CHOICE NAME" /*PLATE TEXT*/;
-            DataManager.Settings.Accessibility.OnColorBlindModeChanged += new Action(shapeshifterPanel.SetColorblindText);
-            shapeshifterPanel.SetColorblindText();
-
-            shapeshifterPanel.NameText.color = Color.white;
-            __instance.potentialVictims.Add(shapeshifterPanel);
-            selectableElements.Add(shapeshifterPanel.Button);
-        }
-
-        ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, selectableElements);
-        return false;
-
-        void CallBaseBegin()
-        {
-            Type baseType = typeof(ShapeshifterMinigame).BaseType; // == typeof(Minigame)
-            MethodInfo method = baseType?.GetMethod("Begin", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            method?.Invoke(__instance, [task]);
-        }
-    }
-}
-
 // Triggered when the shapeshifter selects a target
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
 internal static class CheckShapeshiftPatch
