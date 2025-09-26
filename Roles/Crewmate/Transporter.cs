@@ -42,8 +42,9 @@ internal class Transporter : RoleBase
         try
         {
             opt.SetVision(false);
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision);
+            float crewVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, crewVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, crewVision);
             AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }

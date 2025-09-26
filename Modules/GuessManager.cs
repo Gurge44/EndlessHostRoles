@@ -134,17 +134,18 @@ public static class GuessManager
                     ShowMessage(error);
                     return true;
                 }
+                
+                if ((pc.IsCrewmate() && role.IsCrewmate() && !Options.CrewCanGuessCrew.GetBool()) ||
+                    (pc.IsImpostor() && role.IsImpostor() && !Options.ImpCanGuessImp.GetBool()))
+                {
+                    ShowMessage("GuessTeamMate");
+                    return true;
+                }
 
                 PlayerControl target = Utils.GetPlayerById(targetId);
 
                 if (target != null)
                 {
-                    if ((pc.IsCrewmate() && target.IsCrewmate() && !Options.CrewCanGuessCrew.GetBool()) ||
-                        (pc.IsImpostor() && target.IsImpostor() && !Options.ImpCanGuessImp.GetBool()))
-                    {
-                        ShowMessage("GuessTeamMate");
-                        return true;
-                    }
                     
                     Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
                     Main.GuesserGuessedMeeting.TryAdd(pc.PlayerId, 0);

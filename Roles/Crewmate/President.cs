@@ -187,9 +187,6 @@ public class President : RoleBase
 
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
-                        case Mechanic sm:
-                            sm.UsedSkillCount--;
-                            break;
                         case Hacker when Hacker.UseLimit.ContainsKey(player.PlayerId):
                             Hacker.UseLimit[player.PlayerId]++;
                             break;

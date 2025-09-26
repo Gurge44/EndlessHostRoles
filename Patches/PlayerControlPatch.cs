@@ -746,6 +746,8 @@ internal static class MurderPlayerPatch
         Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
 
         Chef.SpitOutFood(killer);
+        
+        EvilTracker.OnAnyoneMurder(killer, target);
 
         if (Options.CurrentGameMode == CustomGameMode.Speedrun)
             Speedrun.ResetTimer(killer);
@@ -2076,21 +2078,13 @@ internal static class FixedUpdatePatch
     {
         if (Main.HasJustStarted || !player.IsAlive()) return;
 
-        if (Main.PlayerStates[player.PlayerId].Role is Mechanic sm)
-        {
-            sm.UsedSkillCount -= Mechanic.AbilityChargesWhenFinishedTasks.GetFloat();
-            sm.SendRPC();
-        }
-        else
-        {
-            float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityChargesWhenFinishedTasks");
+        float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityChargesWhenFinishedTasks");
 
-            if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
-            {
-                if (player.Is(CustomRoles.Bloodlust)) add *= 5;
+        if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
+        {
+            if (player.Is(CustomRoles.Bloodlust)) add *= 5;
 
-                player.RpcIncreaseAbilityUseLimitBy(add);
-            }
+            player.RpcIncreaseAbilityUseLimitBy(add);
         }
     }
 

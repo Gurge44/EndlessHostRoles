@@ -388,7 +388,7 @@ public static class Utils
 
         if (!seer.IsAlive() || killer == seer || target == seer) return false;
 
-        return seer.Is(CustomRoles.EvilTracker) && EvilTracker.KillFlashCheck(killer, target);
+        return false;
     }
 
     public static void BlackOut(this IGameOptions opt, bool blackOut)
@@ -1150,7 +1150,7 @@ public static class Utils
         try
         {
             float limit = playerId.GetAbilityUseLimit();
-            if (float.IsNaN(limit) /* || limit is > 100 or < 0*/) return string.Empty;
+            if (float.IsNaN(limit) || limit >= 10) return string.Empty;
 
             Color textColor;
 

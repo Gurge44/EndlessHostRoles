@@ -19,7 +19,7 @@ public class Mechanic : RoleBase
     private static OptionItem FixesOxygens;
     private static OptionItem FixesComms;
     private static OptionItem FixesElectrical;
-    public static OptionItem MechanicAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
     private static OptionItem UsesUsedWhenFixingReactorOrO2;
     private static OptionItem UsesUsedWhenFixingLightsOrComms;
@@ -32,9 +32,6 @@ public class Mechanic : RoleBase
     private static bool DoorsProgressing;
     private bool fixedSabotage;
     private int PetLimit;
-    private byte MechanicId;
-
-    public float UsedSkillCount;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -61,7 +58,7 @@ public class Mechanic : RoleBase
         FixesElectrical = new BooleanOptionItem(Id + 15, "MechanicFixesElectrical", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mechanic]);
 
-        MechanicAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 3f, TabGroup.CrewmateRoles)
+        AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 3f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mechanic])
             .SetValueFormat(OptionFormat.Times);
 
@@ -98,16 +95,13 @@ public class Mechanic : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        UsedSkillCount = 0;
-        MechanicId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
         PetLimit = MaxFixedViaPet.GetInt();
-        UsedSkillCount = 0;
-        MechanicId = playerId;
+        playerId.SetAbilityUseLimit(SkillLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -120,13 +114,6 @@ public class Mechanic : RoleBase
         if (!CanVent.GetBool()) return;
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = MaxInVentTime.GetFloat();
-    }
-
-    public override string GetProgressText(byte playerId, bool comms)
-    {
-        double limit = Math.Round(SkillLimit.GetInt() - UsedSkillCount, 1);
-        string colored = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mechanic).ShadeColor(0.25f), limit.ToString(CultureInfo.CurrentCulture));
-        return $"({colored}){base.GetProgressText(playerId, comms)}";
     }
 
     public override void OnPet(PlayerControl pc)
@@ -156,51 +143,31 @@ public class Mechanic : RoleBase
         }
     }
 
-    public void SendRPC()
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMechanicLimit, SendOption.Reliable);
-        writer.Write(MechanicId);
-        writer.Write(UsedSkillCount);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte id = reader.ReadByte();
-        if (Main.PlayerStates[id].Role is not Mechanic m) return;
-
-        m.UsedSkillCount = reader.ReadSingle();
-    }
-
     public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
     {
         if (Main.PlayerStates[playerId].Role is not Mechanic m) return;
+
+        float limit = playerId.GetAbilityUseLimit();
+        float usesForReactorO2 = UsesUsedWhenFixingReactorOrO2.GetFloat();
 
         switch (systemType)
         {
             case SystemTypes.Reactor:
             case SystemTypes.Laboratory:
             {
-                if (!FixesReactors.GetBool()) break;
-
-                if (SkillLimit.GetFloat() > 0 && m.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+                if (!FixesReactors.GetBool() || limit - usesForReactorO2 < 0) break;
 
                 if (amount.HasAnyBit(ReactorSystemType.AddUserOp))
                 {
                     ShipStatus.Instance.UpdateSystem(Main.CurrentMap == MapNames.Polus ? SystemTypes.Laboratory : SystemTypes.Reactor, playerId.GetPlayer(), ReactorSystemType.ClearCountdown);
-                    m.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
-                    m.SendRPC();
+                    playerId.SetAbilityUseLimit(limit - usesForReactorO2);
                 }
 
                 break;
             }
             case SystemTypes.HeliSabotage:
             {
-                if (!FixesReactors.GetBool()) break;
-
-                if (SkillLimit.GetFloat() > 0 && m.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+                if (!FixesReactors.GetBool() || limit - usesForReactorO2 < 0) break;
 
                 var tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
                 if (tags == HeliSabotageSystem.Tags.ActiveBit) m.fixedSabotage = false;
@@ -211,32 +178,27 @@ public class Mechanic : RoleBase
                     int consoleId = amount & HeliSabotageSystem.IdMask;
                     int otherConsoleId = (consoleId + 1) % 2;
                     ShipStatus.Instance.UpdateSystem(SystemTypes.HeliSabotage, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HeliSabotageSystem.Tags.FixBit));
-                    m.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
-                    m.SendRPC();
+                    playerId.SetAbilityUseLimit(limit - usesForReactorO2);
                 }
 
                 break;
             }
             case SystemTypes.LifeSupp:
             {
-                if (!FixesOxygens.GetBool()) break;
-
-                if (SkillLimit.GetFloat() > 0 && m.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+                if (!FixesOxygens.GetBool() || limit - usesForReactorO2 < 0) break;
 
                 if (amount.HasAnyBit(LifeSuppSystemType.AddUserOp))
                 {
                     ShipStatus.Instance.UpdateSystem(SystemTypes.LifeSupp, playerId.GetPlayer(), LifeSuppSystemType.ClearCountdown);
-                    m.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
-                    m.SendRPC();
+                    playerId.SetAbilityUseLimit(limit - usesForReactorO2);
                 }
 
                 break;
             }
             case SystemTypes.Comms when Main.CurrentMap == MapNames.MiraHQ:
             {
-                if (!FixesComms.GetBool()) break;
-
-                if (SkillLimit.GetFloat() > 0 && m.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+                float usesForComms = UsesUsedWhenFixingLightsOrComms.GetFloat();
+                if (!FixesComms.GetBool() || limit - usesForComms < 0) break;
 
                 var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
                 if (tags == HqHudSystemType.Tags.ActiveBit) m.fixedSabotage = false;
@@ -247,20 +209,19 @@ public class Mechanic : RoleBase
                     int consoleId = amount & HqHudSystemType.IdMask;
                     int otherConsoleId = (consoleId + 1) % 2;
                     ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HqHudSystemType.Tags.FixBit));
-                    m.UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
-                    m.SendRPC();
+                    playerId.SetAbilityUseLimit(limit - usesForComms);
                 }
 
                 break;
             }
             case SystemTypes.Doors:
             {
-                if (!FixesDoors.GetBool()) break;
-
-                if (DoorsProgressing) break;
+                if (!FixesDoors.GetBool() || DoorsProgressing) break;
 
                 int mapId = Main.NormalOptions.MapId;
-                if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay) mapId = AmongUsClient.Instance.TutorialMapId;
+                
+                if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
+                    mapId = AmongUsClient.Instance.TutorialMapId;
 
                 var shipStatus = ShipStatus.Instance;
 
@@ -316,17 +277,18 @@ public class Mechanic : RoleBase
 
     public static void SwitchSystemRepair(byte playerId, SwitchSystem switchSystem, byte amount)
     {
-        if (!FixesElectrical.GetBool() || Main.PlayerStates[playerId].Role is not Mechanic m) return;
+        if (!FixesElectrical.GetBool() || Main.PlayerStates[playerId].Role is not Mechanic) return;
 
-        if (SkillLimit.GetFloat() > 0 && m.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) return;
+        float usesForLightsOrComms = UsesUsedWhenFixingLightsOrComms.GetFloat();
+        float limit = playerId.GetAbilityUseLimit();
+        if (limit - usesForLightsOrComms < 0) return;
 
         if (amount.HasBit(SwitchSystem.DamageSystem)) return;
 
         int fixbit = 1 << amount;
         switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ fixbit);
 
-        m.UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
-        m.SendRPC();
+        playerId.SetAbilityUseLimit(limit - usesForLightsOrComms);
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

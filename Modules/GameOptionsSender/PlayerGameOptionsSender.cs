@@ -400,12 +400,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                         }
 
                         break;
-                    case CustomRoles.Bewilder:
+                    case CustomRoles.Bewilder when !Utils.IsActive(SystemTypes.Electrical):
                         opt.SetVision(false);
                         opt.SetFloat(FloatOptionNames.CrewLightMod, Options.BewilderVision.GetFloat());
                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.BewilderVision.GetFloat());
                         break;
-                    case CustomRoles.Sunglasses:
+                    case CustomRoles.Sunglasses when !Utils.IsActive(SystemTypes.Electrical):
                         opt.SetVision(false);
                         opt.SetFloat(FloatOptionNames.CrewLightMod, Options.SunglassesVision.GetFloat());
                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, Options.SunglassesVision.GetFloat());

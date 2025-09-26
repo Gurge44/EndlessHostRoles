@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
@@ -74,6 +75,7 @@ public class Tracefinder : RoleBase
     {
         if (!On || !GameStates.IsInTask || target == null || target.Data.Disconnected) return;
 
+        Vector2 pos = target.Pos();
         float delay;
 
         if (ArrowDelayMax.GetFloat() < ArrowDelayMin.GetFloat())
@@ -92,7 +94,7 @@ public class Tracefinder : RoleBase
                     PlayerControl pc = Utils.GetPlayerById(id);
                     if (pc == null || !pc.IsAlive()) continue;
 
-                    LocateArrow.Add(id, target.Pos());
+                    LocateArrow.Add(id, pos);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
             }
@@ -101,7 +103,7 @@ public class Tracefinder : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != TracefinderId || (target != null && seer.PlayerId != target.PlayerId)) return string.Empty;
+        if (seer.PlayerId != TracefinderId || (target != null && seer.PlayerId != target.PlayerId) || hud || meeting) return string.Empty;
         return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }
 }

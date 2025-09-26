@@ -102,7 +102,6 @@ public enum CustomRPC
     SetWeaponMasterMode,
     SyncGlitchTimers,
     SyncSpy,
-    SetMechanicLimit,
     SetHackerLimit,
     SetCurrentDrawTarget,
     SetCpTasksDone,
@@ -136,7 +135,8 @@ public enum CustomRPC
     SyncRomanticTarget,
     SyncVengefulRomanticTarget,
     SetRevealedPlayer,
-    SetCurrentRevealTarget = 209,
+    SetCurrentRevealTarget,
+    SetDoomsayerProgress = 209,
 
     /*
      * SUBMERGED RPCs
@@ -147,8 +147,7 @@ public enum CustomRPC
      * 214 - OxygenDeath
      */
 
-    SetDoomsayerProgress = 215,
-    SetTrackerTarget,
+    SetTrackerTarget = 215,
     RpcPassBomb,
     SetAlchemistTimer,
     SyncPostman,
@@ -861,11 +860,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.DruidAddTrigger:
                 {
                     Druid.ReceiveRPCAddTrigger(reader);
-                    break;
-                }
-                case CustomRPC.SetMechanicLimit:
-                {
-                    Mechanic.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetHackerLimit:

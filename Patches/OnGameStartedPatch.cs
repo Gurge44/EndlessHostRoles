@@ -252,6 +252,7 @@ internal static class ChangeRoleSettings
             Express.SpeedUp = [];
             Messenger.Sent = [];
             Lazy.BeforeMeetingPositions = [];
+            Introvert.TeleportAwayDelays = [];
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];
@@ -735,7 +736,9 @@ internal static class StartGameHostPatch
                                 if (!physicistBanned) physicistList.Add(player.PlayerId);
                                 if (!finderBanned) finderList.Add(player.PlayerId);
                                 if (!noisyBanned) noisyList.Add(player.PlayerId);
-                                if (!examinerBanned) examinerList.Add(player.PlayerId);
+                                
+                                if (!examinerBanned && !kp.Value.UsesMeetingShapeshift())
+                                    examinerList.Add(player.PlayerId);
                             }
                         }
 
@@ -748,10 +751,10 @@ internal static class StartGameHostPatch
                 {
                     { CustomRoles.Bloodlust, (bloodlustSpawn, bloodlustList) },
                     { CustomRoles.Nimble, (nimbleSpawn, nimbleList) },
-                    { CustomRoles.Physicist, (physicistSpawn, physicistList) },
-                    { CustomRoles.Finder, (finderSpawn, finderList) },
-                    { CustomRoles.Noisy, (noisySpawn, noisyList) },
                     { CustomRoles.Examiner, (examinerSpawn, examinerList) },
+                    { CustomRoles.Finder, (finderSpawn, finderList) },
+                    { CustomRoles.Physicist, (physicistSpawn, physicistList) },
+                    { CustomRoles.Noisy, (noisySpawn, noisyList) },
                     { CustomRoles.Venom, (venomSpawn, venomList) }
                 };
 

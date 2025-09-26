@@ -160,6 +160,11 @@ public class Medic : RoleBase
         opt.SetVision(false);
     }
 
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        return playerId.GetAbilityUseLimit() > 0 ? base.GetProgressText(playerId, comms) : Utils.GetTaskCount(playerId, comms);
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null) return false;
@@ -309,8 +314,6 @@ public class Medic : RoleBase
         if (!target.Is(CustomRoles.Medic)) return;
 
         if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
-
-        Utils.NotifyRoles(SpecifySeer: target);
 
         ProtectList.Clear();
         SendRPCForProtectList();

@@ -113,13 +113,10 @@ public class EvilTracker : RoleBase
                && (target.Is(CustomRoleTypes.Impostor) || et.Target == target.PlayerId);
     }
 
-    public static bool KillFlashCheck(PlayerControl killer, PlayerControl target)
+    public static void OnAnyoneMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!CanSeeKillFlash) return false;
-
-        PlayerControl realKiller = target.GetRealKiller() ?? killer;
-        if (realKiller == null) return false;
-        return realKiller.Is(CustomRoleTypes.Impostor) && realKiller != target;
+        if (CanSeeKillFlash && killer != null && killer.Is(CustomRoleTypes.Impostor) && killer != target)
+            PlayerIdList.ToValidPlayers().ForEach(x => x.KillFlash());
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

@@ -1061,11 +1061,7 @@ internal static class IntroCutsceneDestroyPatch
 
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
-                    int kcd = Options.StartingKillCooldown.GetInt();
-
-                    if (kcd is not 10 and > 0)
-                        LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd - 2)), 2f, "FixKillCooldownTask");
-                    else if (Options.FixFirstKillCooldown.GetBool())
+                    if (Options.FixFirstKillCooldown.GetBool())
                     {
                         LateTask.New(() =>
                         {
@@ -1073,10 +1069,15 @@ internal static class IntroCutsceneDestroyPatch
                             {
                                 x.ResetKillCooldown(false);
 
-                                if (Main.AllPlayerKillCooldown.TryGetValue(x.PlayerId, out float kc) && kc - 2f > 0f)
-                                    x.SetKillCooldown(kc - 2f);
+                                if (Main.AllPlayerKillCooldown.TryGetValue(x.PlayerId, out float kcd) && kcd - 2f > 0f)
+                                    x.SetKillCooldown(kcd - 2f);
                             });
                         }, 2f, "FixKillCooldownTask");
+                    }
+                    else
+                    {
+                        int kcd = Options.StartingKillCooldown.GetInt();
+                        LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd - 2)), 2f, "FixKillCooldownTask");
                     }
                 }
             }

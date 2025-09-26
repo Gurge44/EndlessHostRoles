@@ -1971,7 +1971,6 @@ public enum CountTypes
     Glitch,
     Arsonist,
     Cherokious,
-    Sheriff,
 
     Coven
 }

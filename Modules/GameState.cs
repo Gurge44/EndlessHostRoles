@@ -474,18 +474,14 @@ public class TaskState
                 {
                     switch (player.GetCustomRole())
                     {
-                        case CustomRoles.Mechanic:
-                            if (Main.PlayerStates[player.PlayerId].Role is not Mechanic sm) break;
-
-                            sm.UsedSkillCount -= Mechanic.MechanicAbilityUseGainWithEachTaskCompleted.GetFloat();
-                            sm.SendRPC();
-                            break;
                         case CustomRoles.Hacker:
                             if (!player.IsModdedClient() && Hacker.UseLimit.ContainsKey(player.PlayerId))
                                 Hacker.UseLimit[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                            else if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId)) Hacker.UseLimitSeconds[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetInt() * Hacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
+                            else if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId))
+                                Hacker.UseLimitSeconds[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetInt() * Hacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
 
-                            if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId)) Hacker.SendRPC(player.PlayerId, Hacker.UseLimitSeconds[player.PlayerId]);
+                            if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId))
+                                Hacker.SendRPC(player.PlayerId, Hacker.UseLimitSeconds[player.PlayerId]);
 
                             break;
                     }
