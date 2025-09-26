@@ -81,6 +81,7 @@ public static class AFKDetector
             {
                 Logger.SendInGame(Translator.GetString("AFKTooMany"));
                 PlayerData.Clear();
+                Utils.NotifyRoles(ForceLoop: true);
             }
         }
 

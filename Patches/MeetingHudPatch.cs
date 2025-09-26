@@ -661,7 +661,7 @@ internal static class MeetingHudStartPatch
 {
     private static void NotifyRoleSkillOnMeetingStart()
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded) return;
 
         List<Message> msgToSend = [];
 

@@ -43,7 +43,7 @@ public class Inquisitor : RoleBase
         if (voter == null || target == null || voter.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
         PlayerControl[] players = ExcludeDeadPlayers.GetBool() ? Main.AllAlivePlayerControls : Main.AllPlayerControls;
-        List<(byte Id, CustomRoles Role)> knownRoles = Main.PlayerStates.Values.SelectMany(s => from pc in players where s.Role.KnowRole(target, pc) select (pc.PlayerId, pc.GetCustomRole())).DistinctBy(x => x.PlayerId).ToList();
+        List<(byte Id, CustomRoles Role)> knownRoles = [.. from pc in players where Utils.KnowsTargetRole(target, pc) select (pc.PlayerId, pc.GetCustomRole())];
         
         string result;
         

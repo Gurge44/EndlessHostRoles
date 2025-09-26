@@ -117,9 +117,10 @@ public class Ambusher : RoleBase
 
         if (!DontCheck)
         {
-            var pos = pc.Pos();
-            var radius = FollowRadius.GetFloat();
-            var closestPlayer = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= radius).MinBy(x => x.distance).pc;
+            Vector2 pos = pc.Pos();
+            float radius = FollowRadius.GetFloat();
+            (PlayerControl pc, float distance)[] nearPlayers = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= radius).ToArray();
+            PlayerControl closestPlayer = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
 
             if (closestPlayer == null)
             {
@@ -174,7 +175,7 @@ public class Ambusher : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (!lowLoad && FragilePlayers.TryGetValue(pc.PlayerId, out var endTS) && Utils.TimeStamp >= endTS)
+        if (!lowLoad && FragilePlayers.TryGetValue(pc.PlayerId, out long endTS) && Utils.TimeStamp >= endTS)
             FragilePlayers.Remove(pc.PlayerId);
     }
 
@@ -198,7 +199,7 @@ public class Ambusher : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != AmbusherId || seer.PlayerId != target.PlayerId || hud || meeting || !Main.Invisible.Contains(AmbusherId)) return string.Empty;
-        string str = DontCheck ? Translator.GetString("Ambusher.Success") : string.Format(Translator.GetString("Ambusher.InProgress"), TargetId.ColoredPlayerName(), Math.Round(TargetTimer, 1));
-        return $"{str}\n{string.Format(Translator.GetString("Ambusher.InvisTimeLeft"), (int)Math.Round(AbilityEndTimer))}";
+        string str = DontCheck ? Translator.GetString("Ambusher.Success") : TargetId != byte.MaxValue ? string.Format(Translator.GetString("Ambusher.InProgress"), TargetId.ColoredPlayerName(), Math.Round(TargetTimer, 1)) : string.Empty;
+        return $"{str}\n<size=80%>{string.Format(Translator.GetString("Ambusher.InvisTimeLeft"), (int)Math.Round(AbilityEndTimer))}</size>";
     }
 }
