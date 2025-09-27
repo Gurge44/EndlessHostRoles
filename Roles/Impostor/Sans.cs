@@ -124,6 +124,11 @@ public class Sans : RoleBase
         return CanVent;
     }
 
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return pc.IsAlive();
+    }
+
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         NowCooldown = Math.Clamp(NowCooldown - ReduceKCD, MinKCD, DefaultKCD);

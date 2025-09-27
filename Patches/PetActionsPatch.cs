@@ -149,9 +149,13 @@ internal static class ExternalRpcPetPatch
         if (target != null) hasKillTarget = true;
 
         CustomRoles role = pc.GetCustomRole();
+        
+        if (Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return;
+        
         bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
 
-        if (!pc.CanUseKillButton() && !alwaysPetRole) hasKillTarget = false;
+        if (!pc.CanUseKillButton() && !alwaysPetRole)
+            hasKillTarget = false;
 
         if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
         {

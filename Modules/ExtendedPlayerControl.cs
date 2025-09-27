@@ -2043,7 +2043,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsSnitchTarget(this PlayerControl player)
     {
-        return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || Enchanter.EnchantedPlayers.Contains(player.PlayerId) || player.GetCustomRole().IsSnitchTarget();
+        return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || Enchanter.EnchantedPlayers.Contains(player.PlayerId) || Snitch.IsSnitchTarget(player);
     }
 
     public static bool IsMadmate(this PlayerControl player)

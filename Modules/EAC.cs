@@ -61,7 +61,7 @@ internal static class EAC
 
                     break;
                 }
-                case RpcCalls.SendChat when !pc.IsHost():
+                case RpcCalls.SendChat when !pc.IsNonHostModdedClient():
                 {
                     string text = sr.ReadString();
 
@@ -183,7 +183,7 @@ internal static class EAC
 
                     break;
                 }
-                case RpcCalls.CheckColor when !pc.IsHost():
+                case RpcCalls.CheckColor when !pc.IsNonHostModdedClient():
                 {
                     if (!GameStates.IsLobby)
                     {
@@ -299,7 +299,7 @@ internal static class EAC
                     }
                     break;
                 }
-                case RpcCalls.Shapeshift when !pc.IsHost():
+                case RpcCalls.Shapeshift when !pc.IsNonHostModdedClient():
                 {
                     Report(pc, "Directly Shapeshift");
                     MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
@@ -759,8 +759,8 @@ internal static class EAC
 
                     break;
                 }
-                case 7 when !pc.IsHost():
-                case 8 when !pc.IsHost():
+                case 7 when !pc.IsNonHostModdedClient():
+                case 8 when !pc.IsNonHostModdedClient():
                 {
                     if (!GameStates.IsLobby)
                     {
@@ -773,7 +773,7 @@ internal static class EAC
 
                     break;
                 }
-                case 5 when !pc.IsHost():
+                case 5 when !pc.IsNonHostModdedClient():
                 {
                     sr.ReadString();
 
@@ -801,7 +801,7 @@ internal static class EAC
 
                     break;
                 }
-                case 38 when !pc.IsHost():
+                case 38 when !pc.IsNonHostModdedClient():
                 {
                     if (GameStates.IsInGame)
                     {
@@ -814,11 +814,11 @@ internal static class EAC
 
                     break;
                 }
-                case 39 when !pc.IsHost():
-                case 40 when !pc.IsHost():
-                case 41 when !pc.IsHost():
-                case 42 when !pc.IsHost():
-                case 43 when !pc.IsHost():
+                case 39 when !pc.IsNonHostModdedClient():
+                case 40 when !pc.IsNonHostModdedClient():
+                case 41 when !pc.IsNonHostModdedClient():
+                case 42 when !pc.IsNonHostModdedClient():
+                case 43 when !pc.IsNonHostModdedClient():
                 {
                     if (GameStates.IsInGame)
                     {

@@ -1421,7 +1421,6 @@ internal static class FixedUpdatePatch
     private static readonly Dictionary<byte, long> LastAddAbilityTime = [];
     private static long LastErrorTS;
     private static long LastSelfNameUpdateTS;
-    private static readonly Dictionary<byte, TextMeshPro> RoleTextTMPs = [];
 
     public static void Postfix(PlayerControl __instance, bool lowLoad)
     {
@@ -1699,23 +1698,13 @@ internal static class FixedUpdatePatch
                 player.RpcSetName(name);
         }
 
-        if (GameStates.IsEnded || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
-        {
-            RoleTextTMPs.Clear();
-            return;
-        }
-
-        if (!RoleTextTMPs.TryGetValue(__instance.PlayerId, out TextMeshPro roleText) || roleText == null)
-        {
-            Transform roleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");
-            RoleTextTMPs[__instance.PlayerId] = roleText = roleTextTransform.GetComponent<TextMeshPro>();
-        }
+        if (GameStates.IsEnded || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
         bool self = lpId == __instance.PlayerId;
 
         bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz) || DirtyName.Remove(lpId));
 
-        if (roleText == null || __instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
+        if (__instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 
         if (self) LastSelfNameUpdateTS = now;
 
@@ -1739,33 +1728,30 @@ internal static class FixedUpdatePatch
 
         if (GameStates.IsInGame)
         {
-            if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard)
-            {
-                roleText.text = string.Empty;
-                roleText.enabled = false;
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard) return;
 
             bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
-            (string, Color) roleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
 
-            roleText.text = roleTextData.Item1;
-            roleText.color = roleTextData.Item2;
+            string roleText;
 
-            if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek) roleText.text = string.Empty;
-
-            roleText.enabled = IsRoleTextEnabled(__instance);
+            if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek || !IsRoleTextEnabled(__instance))
+                roleText = string.Empty;
+            else
+            {
+                (string, Color) roleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
+                roleText = ColorString(roleTextData.Item2, roleTextData.Item1);
+            }
 
             if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
             {
-                roleText.text = Farseer.RandomRole[lpId];
-                roleText.text += Farseer.GetTaskState();
+                roleText = Farseer.RandomRole[lpId];
+                roleText += Farseer.GetTaskState();
             }
 
             if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
             {
-                roleText.enabled = false;
+                roleText = string.Empty;
                 if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
             }
 
@@ -1782,8 +1768,8 @@ internal static class FixedUpdatePatch
 
             if (Main.VisibleTasksCount)
             {
-                if (moveandstop) roleText.text = roleText.text.Insert(0, progressText);
-                else roleText.text += progressText;
+                if (moveandstop) roleText = roleText.Insert(0, progressText);
+                else roleText += progressText;
             }
 
             PlayerControl seer = PlayerControl.LocalPlayer;
@@ -1792,14 +1778,12 @@ internal static class FixedUpdatePatch
             if (target.Is(CustomRoles.Car))
             {
                 target.cosmetics.nameText.text = Car.Name;
-                roleText.enabled = false;
                 return;
             }
 
             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true })
             {
                 target.cosmetics.nameText.text = Tree.Sprite;
-                roleText.enabled = false;
                 return;
             }
 
@@ -2023,54 +2007,18 @@ internal static class FixedUpdatePatch
             if (!self && Options.CurrentGameMode == CustomGameMode.KingOfTheZones && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                 realName = EmptyMessage;
 
+            if (!Options.LargerRoleTextSize.GetBool())
+                roleText = $"<size=1.7>{roleText}</size>\n";
+            else
+                roleText += "\n";
+            
             string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\r\n" : " - ";
             string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
             
             string currentText = target.cosmetics.nameText.text;
-            var changeTo = $"{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
+            var changeTo = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
             bool needUpdate = currentText != changeTo;
-
-            if (needUpdate)
-            {
-                target.cosmetics.nameText.text = changeTo;
-
-                var offset = 0.1f;
-
-                if (self && NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
-                {
-                    int count = notify.Count(x => x == '\n');
-                    for (var i = 0; i < count; i++) offset += 0.15f;
-                }
-
-                if (Suffix.ToString() != string.Empty)
-                {
-                    offset += moveandstop ? 0.15f : 0.2f;
-                    offset += moveandstop ? 0f : Suffix.ToString().Count(x => x == '\n') * 0.15f;
-                }
-
-                if (!seer.IsAlive())
-                    offset += 0.1f;
-
-                if (isProgressTextLong)
-                    offset += 0.3f;
-
-                if (moveandstop)
-                    offset += 0.3f;
-
-                if (Suffix.ToString().Contains(GetString("MoveAndStop_Tutorial")))
-                    offset += 0.8f;
-
-                if (Options.LargerRoleTextSize.GetBool())
-                    offset += 0.05f;
-
-                roleText.transform.SetLocalY(offset);
-                target.cosmetics.colorBlindText.transform.SetLocalY(-(offset + 0.2f));
-            }
-        }
-        else
-        {
-            // Restoring the position text coordinates to their initial values
-            roleText.transform.SetLocalY(0.1f);
+            if (needUpdate) target.cosmetics.nameText.text = changeTo;
         }
     }
 
@@ -2111,25 +2059,6 @@ internal static class FixedUpdatePatch
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
         else
             partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);
-    }
-}
-
-[HarmonyPatch(typeof(PlayerControl._Start_d__82), nameof(PlayerControl._Start_d__82.MoveNext))]
-internal static class PlayerStartPatch
-{
-    public static void Postfix(PlayerControl._Start_d__82 __instance, ref bool __result)
-    {
-        try
-        {
-            if (__result || __instance == null || __instance.__4__this == null || __instance.__4__this.PlayerId >= 254 || __instance.__4__this.cosmetics == null) return;
-            TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
-            TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
-            if (!Options.LargerRoleTextSize.GetBool()) roleText.fontSize -= 0.9f;
-            roleText.text = "RoleText";
-            roleText.gameObject.name = "RoleText";
-            roleText.enabled = false;
-        }
-        catch { }
     }
 }
 

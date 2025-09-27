@@ -669,11 +669,6 @@ internal static class CustomRolesHelper
             CustomRoles.Pestilence;
     }
 
-    public static bool IsSnitchTarget(this CustomRoles role)
-    {
-        return role.IsNK() || role.Is(Team.Impostor) || (role.IsCoven() && Snitch.CanFindCoven);
-    }
-
     public static bool IsGhostRole(this CustomRoles role)
     {
         return role == CustomRoles.EvilSpirit || GhostRolesManager.CreateGhostRoleInstance(role, true) != null;
