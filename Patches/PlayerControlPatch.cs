@@ -1708,14 +1708,10 @@ internal static class FixedUpdatePatch
                 if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
             }
 
-            var isProgressTextLong = false;
             string progressText = GetProgressText(__instance);
 
             if (progressText.RemoveHtmlTags().Length > 25 && Main.VisibleTasksCount)
-            {
-                isProgressTextLong = true;
                 progressText = $"\n{progressText}";
-            }
 
             bool moveandstop = Options.CurrentGameMode == CustomGameMode.MoveAndStop;
 
