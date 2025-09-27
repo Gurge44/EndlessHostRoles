@@ -131,7 +131,7 @@ internal static class CheckForEndVotingPatch
                         switch (Options.GetWhenSkipVote())
                         {
                             case VoteMode.Suicide:
-                                TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
+                                TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.SkippedVote, ps.TargetPlayerId);
                                 voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Commit suicide for skipping voting");
                                 break;
                             case VoteMode.SelfVote:
@@ -146,7 +146,7 @@ internal static class CheckForEndVotingPatch
                         switch (Options.GetWhenNonVote())
                         {
                             case VoteMode.Suicide:
-                                TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
+                                TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
                                 voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Committed suicide for not voting");
                                 break;
                             case VoteMode.SelfVote:
@@ -158,11 +158,11 @@ internal static class CheckForEndVotingPatch
                                 voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Skip for not voting");
                                 break;
                         }
-                        
-                        if (voter.Is(CustomRoles.Compelled))
-                            TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
                     }
                 }
+                
+                if (ps.VotedFor == 254 && !voter.Data.IsDead && voter.Is(CustomRoles.Compelled))
+                    TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Divinator) && Divinator.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Eraser) && Eraser.HideVote.GetBool()) continue;

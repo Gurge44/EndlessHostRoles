@@ -2584,7 +2584,8 @@ public static class Utils
                         break;
                 }
 
-                SelfSuffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
+                List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
+                if (addSuff.Count > 0) SelfSuffix.Append("\n" + string.Join('\n', addSuff));
             }
 
             string seerRealName = seer.GetRealName(forMeeting);
@@ -2920,7 +2921,8 @@ public static class Utils
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));
 
-                                TargetSuffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
+                                List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
+                                if (addSuff.Count > 0) TargetSuffix.Append("\n" + string.Join('\n', addSuff));
                             }
 
                             var targetDeathReason = string.Empty;

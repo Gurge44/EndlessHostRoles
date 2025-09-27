@@ -69,6 +69,8 @@ public class PlayerState(byte playerId)
         OutOfOxygen,
         Retribution,
         Taxes,
+        DidntVote,
+        SkippedVote,
 
         // Natural Disasters
         Meteor,

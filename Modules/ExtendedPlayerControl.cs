@@ -1483,11 +1483,14 @@ internal static class ExtendedPlayerControl
     {
         if (!Main.Invisible.Add(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+        
         player.RpcSetPet("");
+        
+        if (!(phantom && PlayerControl.LocalPlayer.IsImpostor()))
+            player.MakeInvisible();
 
         if (!phantom)
         {
-            player.MakeInvisible();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
             writer.WritePacked(1);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1528,11 +1531,14 @@ internal static class ExtendedPlayerControl
     {
         if (!Main.Invisible.Remove(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+        
         if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
+        
+        if (!(phantom && PlayerControl.LocalPlayer.IsImpostor()))
+            player.MakeVisible();
 
         if (!phantom)
         {
-            player.MakeVisible();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
             writer.WritePacked(0);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1809,7 +1815,6 @@ internal static class ExtendedPlayerControl
         PlainShipRoom room = pc.GetPlainShipRoom();
         string roomName = GetString(room == null ? "Outside" : $"{room.RoomId}");
         Vector2 pos = pc.Pos();
-
         return (pos, roomName);
     }
 
