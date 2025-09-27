@@ -141,6 +141,8 @@ internal static class CustomRoleSelector
             readyImpNum += 2;
             readyRoleNum++;
         }
+        else
+            roles[RoleAssignType.Impostor].RemoveAll(x => x.Role == CustomRoles.Loner);
 
         loversData.OneIsImp &= roles[RoleAssignType.Impostor].Count(x => x.SpawnChance == 100) < optImpNum;
 

@@ -3117,6 +3117,16 @@ public static class Utils
             .EndRpc();
 
         if (writer == null) sender.SendMessage();
+        
+        pc.Data.DefaultOutfit.PlayerName = newOutfit.PlayerName;
+        pc.Data.DefaultOutfit.ColorId = newOutfit.ColorId;
+        pc.Data.DefaultOutfit.HatId = newOutfit.HatId;
+        pc.Data.DefaultOutfit.SkinId = newOutfit.SkinId;
+        pc.Data.DefaultOutfit.VisorId = newOutfit.VisorId;
+        pc.Data.DefaultOutfit.PetId = newOutfit.PetId;
+        pc.Data.DefaultOutfit.NamePlateId = newOutfit.NamePlateId;
+        
+        pc.Data.SendGameData();
 
         return true;
     }

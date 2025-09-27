@@ -1038,8 +1038,22 @@ public static class GuessManager
             )
             return false;
 
-        if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) return false;
+        if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted() && !CanMakeRoleSpawn(role)) return false;
         return Options.CurrentGameMode == CustomGameMode.Standard && !CustomHnS.AllHnSRoles.Contains(role) && !role.IsVanilla();
+
+        bool CanMakeRoleSpawn(CustomRoles r)
+        {
+            Dictionary<CustomRoles, CustomRoles> d = new()
+            {
+                [CustomRoles.Pestilence] = CustomRoles.PlagueBearer,
+                [CustomRoles.VengefulRomantic] = CustomRoles.Romantic,
+                [CustomRoles.RuthlessRomantic] = CustomRoles.Romantic,
+                [CustomRoles.Deathknight] = CustomRoles.Necromancer,
+                [CustomRoles.Sidekick] = CustomRoles.Jackal
+            };
+            
+            return d.TryGetValue(r, out var baseRole) && baseRole.RoleExist(true);
+        }
     }
 
     // Modded non-host client guess Role/Add-on
