@@ -19,6 +19,7 @@ public class Abyssbringer : RoleBase
     private static OptionItem BlackHoleMoveSpeed;
     private static OptionItem BlackHoleRadius;
     private static OptionItem KillCooldown;
+    private static OptionItem CanSabotage;
 
     private byte AbyssbringerId;
     private List<BlackHoleData> BlackHoles = [];
@@ -58,6 +59,9 @@ public class Abyssbringer : RoleBase
         KillCooldown = new IntegerOptionItem(++id, "KillCooldown", new(0, 120, 1), 30, tab)
             .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Seconds);
+        
+        CanSabotage = new BooleanOptionItem(++id, "CanSabotage", false, tab)
+            .SetParent(Options.CustomRoleSpawnChances[role]);
     }
 
     public override void Add(byte playerId)
@@ -81,6 +85,11 @@ public class Abyssbringer : RoleBase
             AURoleOptions.ShapeshifterCooldown = BlackHolePlaceCooldown.GetInt();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
+    }
+
+    public override bool CanUseSabotage(PlayerControl pc)
+    {
+        return CanSabotage.GetBool();
     }
 
     public override void SetKillCooldown(byte id)

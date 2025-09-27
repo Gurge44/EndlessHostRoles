@@ -24,7 +24,7 @@ public static class AntiBlackout
 
         PlayerControl[] players = Main.AllAlivePlayerControls;
         if (CheckForEndVotingPatch.TempExiledPlayer != null) players = players.Where(x => x.PlayerId != CheckForEndVotingPatch.TempExiledPlayer.PlayerId).ToArray();
-        PlayerControl dummyImp = players.MinBy(x => x.PlayerId);
+        PlayerControl dummyImp = players.OrderByDescending(x => x.GetRoleMap().RoleType != RoleTypes.Detective).ThenByDescending(x => x.IsModdedClient()).MinBy(x => x.PlayerId);
 
         if (players.Length == 2)
         {
@@ -48,7 +48,7 @@ public static class AntiBlackout
         }
 
         dummyImp.RpcChangeRoleBasis(CustomRoles.ImpostorEHR, forced: true);
-        players.Without(dummyImp).Do(x => x.RpcChangeRoleBasis(CustomRoles.CrewmateEHR, forced: true));
+        players.Without(dummyImp).Where(x => x.GetRoleMap().RoleType != RoleTypes.Detective).Do(x => x.RpcChangeRoleBasis(CustomRoles.CrewmateEHR, forced: true));
     }
 
     // After the ejection screen, we revert the role types to their actual values.
@@ -113,7 +113,10 @@ public static class AntiBlackout
                         pc.RpcResetAbilityCooldown();
 
                         if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd))
-                            pc.SetKillCooldown(kcd - elapsedSeconds);
+                        {
+                            float time = kcd - elapsedSeconds;
+                            if (time > 0) pc.SetKillCooldown(time);
+                        }
                         else
                             pc.SetKillCooldown();
                     }
@@ -135,7 +138,7 @@ public static class AntiBlackout
             {
                 SkipTasks = false;
                 ExileControllerWrapUpPatch.AfterMeetingTasks();
-            }, Math.Min(3f, Math.Max(1f, Utils.CalculatePingDelay() * 2f)), "Reset SkipTasks after SetRealPlayerRoles");
+            }, 1f, "Reset SkipTasks after SetRealPlayerRoles");
         }, 0.2f, "SetRealPlayerRoles - Reset Cooldowns");
     }
 

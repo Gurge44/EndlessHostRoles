@@ -69,6 +69,8 @@ public class PlayerState(byte playerId)
         OutOfOxygen,
         Retribution,
         Taxes,
+        DidntVote,
+        SkippedVote,
 
         // Natural Disasters
         Meteor,
@@ -261,10 +263,10 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Charmed:
-                countTypes = Succubus.CharmedCountMode.GetInt() switch
+                countTypes = Cultist.CharmedCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
-                    1 => CountTypes.Succubus,
+                    1 => CountTypes.Cultist,
                     2 => countTypes,
                     _ => throw new NotImplementedException()
                 };
@@ -474,18 +476,14 @@ public class TaskState
                 {
                     switch (player.GetCustomRole())
                     {
-                        case CustomRoles.SabotageMaster:
-                            if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
-
-                            sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
-                            sm.SendRPC();
-                            break;
                         case CustomRoles.Hacker:
                             if (!player.IsModdedClient() && Hacker.UseLimit.ContainsKey(player.PlayerId))
                                 Hacker.UseLimit[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                            else if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId)) Hacker.UseLimitSeconds[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetInt() * Hacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
+                            else if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId))
+                                Hacker.UseLimitSeconds[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetInt() * Hacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
 
-                            if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId)) Hacker.SendRPC(player.PlayerId, Hacker.UseLimitSeconds[player.PlayerId]);
+                            if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId))
+                                Hacker.SendRPC(player.PlayerId, Hacker.UseLimitSeconds[player.PlayerId]);
 
                             break;
                     }

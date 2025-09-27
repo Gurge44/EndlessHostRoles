@@ -124,8 +124,14 @@ public class President : RoleBase
     public static void OnAnyoneApplyGameOptions(IGameOptions opt)
     {
         bool value = Main.RealOptionsData.GetBool(BoolOptionNames.AnonymousVotes);
-        if (Instances.Any(x => x.IsDeclassification)) value = false;
+        
+        if (!GameStates.IsMeeting)
+        {
+            opt.SetBool(BoolOptionNames.AnonymousVotes, value);
+            return;
+        }
 
+        if (Instances.Any(x => x.IsDeclassification)) value = false;
         opt.SetBool(BoolOptionNames.AnonymousVotes, value);
     }
 
@@ -181,9 +187,6 @@ public class President : RoleBase
 
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
-                        case SabotageMaster sm:
-                            sm.UsedSkillCount--;
-                            break;
                         case Hacker when Hacker.UseLimit.ContainsKey(player.PlayerId):
                             Hacker.UseLimit[player.PlayerId]++;
                             break;

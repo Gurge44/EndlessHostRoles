@@ -125,7 +125,7 @@ public class BountyHunter : RoleBase
 
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!GameStates.IsInTask || float.IsNaN(ChangeTimer)) return;
+        if (!GameStates.IsInTask || float.IsNaN(ChangeTimer) || !Main.IntroDestroyed || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
         if (!player.IsAlive())
             ChangeTimer = float.NaN;

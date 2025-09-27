@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
@@ -91,6 +92,9 @@ internal class TimeMaster : RoleBase
         pc.RpcRemoveAbilityUse();
 
         Main.Instance.StartCoroutine(Rewind());
+        
+        if (pc.IsLocalPlayer())
+            Achievements.Type.APerfectTimeToRewindIt.Complete();
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -100,6 +104,9 @@ internal class TimeMaster : RoleBase
         pc.RpcRemoveAbilityUse();
 
         Main.Instance.StartCoroutine(Rewind());
+        
+        if (pc.IsLocalPlayer())
+            Achievements.Type.APerfectTimeToRewindIt.Complete();
     }
 
     private static IEnumerator Rewind()

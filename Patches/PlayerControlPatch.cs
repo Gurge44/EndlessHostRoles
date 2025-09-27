@@ -22,6 +22,7 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
+using Tree = EHR.Crewmate.Tree;
 
 namespace EHR;
 
@@ -350,7 +351,7 @@ internal static class CheckMurderPatch
                         return false;
                 }
 
-                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile);
+                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile) || Ambusher.FragilePlayers.ContainsKey(target.PlayerId);
             }
 
             if (!killer.RpcCheckAndMurder(target, true)) return false;
@@ -745,6 +746,8 @@ internal static class MurderPlayerPatch
         Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
 
         Chef.SpitOutFood(killer);
+        
+        EvilTracker.OnAnyoneMurder(killer, target);
 
         if (Options.CurrentGameMode == CustomGameMode.Speedrun)
             Speedrun.ResetTimer(killer);
@@ -809,53 +812,6 @@ internal static class MurderPlayerPatch
         Main.Instance.StartCoroutine(NotifyEveryoneAsync(4, false));
 
         Statistics.OnMurder(killer, target);
-    }
-}
-
-[HarmonyPatch(typeof(ShapeshifterMinigame), nameof(ShapeshifterMinigame.Begin))]
-internal static class ShapeshifterMinigamePatch
-{
-    public static bool Prefix(ShapeshifterMinigame __instance, [HarmonyArgument(0)] PlayerTask task)
-    {
-        return true; // Not in use until I find a way to make it work properly for vanilla clients
-        if (!Options.UseMeetingShapeshift.GetBool() || !MeetingHud.Instance || MeetingHud.Instance.state is not MeetingHud.VoteStates.Discussion and not MeetingHud.VoteStates.Voted and not MeetingHud.VoteStates.NotVoted) return true;
-
-        CallBaseBegin();
-
-        // HERE DETERMINE WHAT CHOICES WILL BE SHOWN AND PUT IT INTO A LIST
-
-        __instance.potentialVictims = new Il2CppSystem.Collections.Generic.List<ShapeshifterPanel>();
-        var selectableElements = new Il2CppSystem.Collections.Generic.List<UiElement>();
-
-        for (var index = 0; index < 15; ++index)
-        {
-            int num1 = index % 3;
-            int num2 = index / 3;
-            ShapeshifterPanel shapeshifterPanel = Object.Instantiate(__instance.PanelPrefab, __instance.transform);
-            shapeshifterPanel.transform.localPosition = new Vector3(__instance.XStart + (num1 * __instance.XOffset), __instance.YStart + (num2 * __instance.YOffset), -1f);
-
-            shapeshifterPanel.shapeshift = (Action)(() => { }) /*ACTION WHEN CHOSEN*/;
-            shapeshifterPanel.PlayerIcon.gameObject.SetActive(false);
-            shapeshifterPanel.LevelNumberText.gameObject.SetActive(false);
-            shapeshifterPanel.Background.sprite = ShipStatus.Instance.CosmeticsCache.GetNameplate("" /*NamePlateID*/).Image;
-            shapeshifterPanel.NameText.text = "CHOICE NAME" /*PLATE TEXT*/;
-            DataManager.Settings.Accessibility.OnColorBlindModeChanged += new Action(shapeshifterPanel.SetColorblindText);
-            shapeshifterPanel.SetColorblindText();
-
-            shapeshifterPanel.NameText.color = Color.white;
-            __instance.potentialVictims.Add(shapeshifterPanel);
-            selectableElements.Add(shapeshifterPanel.Button);
-        }
-
-        ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, selectableElements);
-        return false;
-
-        void CallBaseBegin()
-        {
-            Type baseType = typeof(ShapeshifterMinigame).BaseType; // == typeof(Minigame)
-            MethodInfo method = baseType?.GetMethod("Begin", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            method?.Invoke(__instance, [task]);
-        }
     }
 }
 
@@ -1202,6 +1158,11 @@ internal static class ReportDeadBodyPatch
         if (MeetingStarted) return;
         MeetingStarted = true;
         LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
+        
+        Main.PlayerStates.Values.DoIf(x => !x.IsDead, x => x.IsBlackOut = true);
+        Main.AllAlivePlayerControls.Do(x => x.SyncSettings());
+        
+        LateTask.New(() => Main.PlayerStates.Values.Do(x => x.IsBlackOut = false), 3f, "RemoveBlackout");
 
         CustomNetObject.OnMeeting();
 
@@ -1299,6 +1260,20 @@ internal static class ReportDeadBodyPatch
             }
         }
 
+        foreach (PlayerControl pc in Main.AllPlayerControls)
+        {
+            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                Camouflage.RpcSetSkin(pc, revertToDefault: true);
+
+            if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
+                pc.FixMixedUpOutfit();
+            
+            if (Main.Invisible.Contains(pc.PlayerId))
+                LateTask.New(() => pc.RpcMakeVisible(), 1f, log: false);
+
+            PhantomRolePatch.OnReportDeadBody(pc);
+        }
+
         EAC.TimeSinceLastTaskCompletion.Clear();
 
         Enigma.OnReportDeadBody(player, target);
@@ -1340,20 +1315,6 @@ internal static class ReportDeadBodyPatch
         if (player.Is(CustomRoles.Stressed)) Stressed.OnReport(player);
 
         Stressed.OnMeetingStart();
-
-        foreach (PlayerControl pc in Main.AllPlayerControls)
-        {
-            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
-                Camouflage.RpcSetSkin(pc, revertToDefault: true);
-
-            if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
-                pc.FixMixedUpOutfit();
-            
-            if (Main.Invisible.Contains(pc.PlayerId))
-                pc.RpcMakeVisible();
-
-            PhantomRolePatch.OnReportDeadBody(pc);
-        }
 
         MeetingTimeManager.OnReportDeadBody();
 
@@ -1597,6 +1558,10 @@ internal static class FixedUpdatePatch
                     player.Notify(GetString("PlagueBearerToPestilence"));
                     player.RpcGuardAndKill(player);
 
+                    var state = Main.PlayerStates[player.PlayerId];
+                    state.RemoveSubRole(CustomRoles.Fragile);
+                    state.RemoveSubRole(CustomRoles.Unbound);
+
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);
 
@@ -1784,6 +1749,13 @@ internal static class FixedUpdatePatch
                 return;
             }
 
+            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true })
+            {
+                target.cosmetics.nameText.text = Tree.Sprite;
+                roleText.enabled = false;
+                return;
+            }
+
             Mark.Clear();
             Suffix.Clear();
 
@@ -1827,6 +1799,9 @@ internal static class FixedUpdatePatch
             if (self) additionalSuffixes.Add(CustomTeamManager.GetSuffix(seer));
 
             additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
+            
+            if (!GameStates.IsMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId) && (self || (seer.IsImpostor() && target.IsImpostor())))
+                additionalSuffixes.Add(ColorString(Palette.White_75Alpha, "\n" + GetString("Invisible")));
 
             switch (target.GetCustomRole())
             {
@@ -1913,7 +1888,7 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            Mark.Append(Totocalcio.TargetMark(seer, target));
+            Mark.Append(Follower.TargetMark(seer, target));
             Mark.Append(Romantic.TargetMark(seer, target));
             Mark.Append(Lawyer.LawyerMark(seer, target));
             Mark.Append(Marshall.GetWarningMark(seer, target));
@@ -1986,10 +1961,14 @@ internal static class FixedUpdatePatch
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
-            Suffix.Append(string.Join('\n', additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x))));
+            List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
+            if (addSuff.Count > 0) Suffix.Append("\n" + string.Join('\n', addSuff));
 
             if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                 Suffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
+            
+            if (Suffix.Length > 0 && !Suffix.ToString().StartsWith('\n'))
+                Suffix.Insert(0, "\n");
 
             // Devourer
             if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)))
@@ -2012,7 +1991,7 @@ internal static class FixedUpdatePatch
             {
                 target.cosmetics.nameText.text = changeTo;
 
-                var offset = 0.2f;
+                var offset = 0.1f;
 
                 if (self && NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
                 {
@@ -2039,7 +2018,7 @@ internal static class FixedUpdatePatch
                     offset += 0.8f;
 
                 if (Options.LargerRoleTextSize.GetBool())
-                    offset += 0.15f;
+                    offset += 0.05f;
 
                 roleText.transform.SetLocalY(offset);
                 target.cosmetics.colorBlindText.transform.SetLocalY(-(offset + 0.2f));
@@ -2048,7 +2027,7 @@ internal static class FixedUpdatePatch
         else
         {
             // Restoring the position text coordinates to their initial values
-            roleText.transform.SetLocalY(0.2f);
+            roleText.transform.SetLocalY(0.1f);
         }
     }
 
@@ -2056,21 +2035,13 @@ internal static class FixedUpdatePatch
     {
         if (Main.HasJustStarted || !player.IsAlive()) return;
 
-        if (Main.PlayerStates[player.PlayerId].Role is SabotageMaster sm)
-        {
-            sm.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
-            sm.SendRPC();
-        }
-        else
-        {
-            float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityChargesWhenFinishedTasks");
+        float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityChargesWhenFinishedTasks");
 
-            if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
-            {
-                if (player.Is(CustomRoles.Bloodlust)) add *= 5;
+        if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
+        {
+            if (player.Is(CustomRoles.Bloodlust)) add *= 5;
 
-                player.RpcIncreaseAbilityUseLimitBy(add);
-            }
+            player.RpcIncreaseAbilityUseLimitBy(add);
         }
     }
 
@@ -2110,9 +2081,7 @@ internal static class PlayerStartPatch
             if (__result || __instance == null || __instance.__4__this == null || __instance.__4__this.PlayerId >= 254 || __instance.__4__this.cosmetics == null) return;
             TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
             TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
-            bool largerFontSize = Options.LargerRoleTextSize.GetBool();
-            roleText.transform.localPosition = new(0f, largerFontSize ? 0.35f : 0.2f, 0f);
-            if (!largerFontSize) roleText.fontSize -= 0.9f;
+            if (!Options.LargerRoleTextSize.GetBool()) roleText.fontSize -= 0.9f;
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
             roleText.enabled = false;
@@ -2275,7 +2244,7 @@ internal static class GameDataCompleteTaskPatch
 {
     public static void Postfix(PlayerControl pc, uint taskId)
     {
-        if (GameStates.IsMeeting) return;
+        if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) return;
 
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
         {
@@ -2294,8 +2263,7 @@ internal static class PlayerControlCompleteTaskPatch
 {
     public static bool Prefix(PlayerControl __instance)
     {
-        if (GameStates.IsMeeting) return false;
-
+        if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) return false;
         return !Workhorse.OnCompleteTask(__instance) && Capitalism.AddTaskForPlayer(__instance); // Cancel task win
     }
 

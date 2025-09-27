@@ -733,9 +733,12 @@ public static class Options
     public static OptionItem AutoMessageSendInterval;
     public static OptionItem DraftMaxRolesPerPlayer;
     public static OptionItem LargerRoleTextSize;
+    public static OptionItem DynamicTaskCountColor;
     public static OptionItem ShowTaskCountWhenAlive;
     public static OptionItem ShowTaskCountWhenDead;
     public static OptionItem IntegrateNaturalDisasters;
+    public static OptionItem EnableGameTimeLimit;
+    public static OptionItem GameTimeLimit;
     public static OptionItem ShowDifferentEjectionMessageForSomeRoles;
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
@@ -1165,6 +1168,8 @@ public static class Options
                 File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData(), new JsonSerializerOptions { WriteIndented = true }));
             }
 
+            List<string> errors = [];
+
             foreach (string file in Directory.GetFiles(path, "*.txt"))
             {
                 try
@@ -1177,9 +1182,14 @@ public static class Options
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Failed to load user data from {file}", "Options");
-                    Utils.ThrowException(e);
+                    errors.Add($"{file}: {e.Message}");
                 }
+            }
+            
+            if (errors.Count > 0)
+            {
+                errors.Insert(0, "The following errors occurred while loading user data files:");
+                Logger.Error(string.Join('\n', errors), "Options", multiLine: true);
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -2922,11 +2932,15 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
-        DraftMaxRolesPerPlayer = new IntegerOptionItem(19430, "DraftMaxRolesPerPlayer", new(1, 30, 1), 5, TabGroup.GameSettings)
+        DraftMaxRolesPerPlayer = new IntegerOptionItem(19431, "DraftMaxRolesPerPlayer", new(1, 30, 1), 5, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         LargerRoleTextSize = new BooleanOptionItem(24451, "LargerRoleTextSize", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+        
+        DynamicTaskCountColor = new BooleanOptionItem(24557, "DynamicTaskCountColor", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
@@ -2941,6 +2955,15 @@ public static class Options
         IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReloadUI());
+
+        EnableGameTimeLimit = new BooleanOptionItem(24455, "EnableGameTimeLimit", false, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .SetHeader(true);
+        
+        GameTimeLimit = new FloatOptionItem(24456, "GameTimeLimit", new(20f, 3600f, 20f), 900f, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
+            .SetParent(EnableGameTimeLimit)
+            .SetValueFormat(OptionFormat.Seconds);
 
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)

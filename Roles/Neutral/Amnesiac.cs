@@ -27,7 +27,7 @@ public class Amnesiac : RoleBase
     [
         CustomRoles.Amnesiac,
         CustomRoles.Pursuer,
-        CustomRoles.Totocalcio,
+        CustomRoles.Follower,
         CustomRoles.Maverick
     ];
 
@@ -232,7 +232,7 @@ public class Amnesiac : RoleBase
         switch (role)
         {
             case CustomRoles.Virus:
-            case CustomRoles.Succubus:
+            case CustomRoles.Cultist:
                 Achievements.Type.UnderNewManagement.Complete();
                 break;
             case CustomRoles.Deathknight:

@@ -85,6 +85,9 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
+        int? closestVentId = player.GetClosestVent()?.Id;
+        if (player.inVent && closestVentId == ventId) return true;
+        
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.RoomRush:
@@ -96,9 +99,8 @@ internal static class ExtendedPlayerControl
         }
 
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
-        if (player.Is(CustomRoles.Blocked) && player.GetClosestVent()?.Id != ventId) return false;
+        if (player.Is(CustomRoles.Blocked) && closestVentId != ventId) return false;
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || Main.Invisible.Contains(player.PlayerId)) return false;
-        if (player.inVent && player.GetClosestVent()?.Id == ventId) return true;
         return (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
     }
 
@@ -731,7 +733,7 @@ internal static class ExtendedPlayerControl
 
     public static void KillFlash(this PlayerControl player)
     {
-        if (GameStates.IsLobby) return;
+        if (GameStates.IsLobby || player == null) return;
 
         // Kill flash (blackout + reactor flash) processing
 
@@ -753,7 +755,7 @@ internal static class ExtendedPlayerControl
         LateTask.New(() =>
         {
             Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
-            player.MarkDirtySettings();
+            player.SyncSettings();
         }, duration, "RemoveKillFlash");
 
         if (player.AmOwner)
@@ -768,7 +770,7 @@ internal static class ExtendedPlayerControl
         }
         else if (!reactorCheck) player.ReactorFlash(); // Reactor flash
 
-        player.MarkDirtySettings();
+        player.SyncSettings();
     }
 
     public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
@@ -1238,12 +1240,12 @@ internal static class ExtendedPlayerControl
         if (IsActive(systemtypes))
         {
             Main.PlayerStates[pc.PlayerId].IsBlackOut = true;
-            pc.MarkDirtySettings();
+            pc.SyncSettings();
 
             LateTask.New(() =>
             {
                 Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                pc.MarkDirtySettings();
+                pc.SyncSettings();
             }, (float.IsNaN(flashDuration) ? Options.KillFlashDuration.GetFloat() : flashDuration) + delay, "Fix BlackOut Reactor Flash");
 
             return;
@@ -1481,14 +1483,25 @@ internal static class ExtendedPlayerControl
     {
         if (!Main.Invisible.Add(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+        
         player.RpcSetPet("");
+        
+        if (!(phantom && PlayerControl.LocalPlayer.IsImpostor()))
+            player.MakeInvisible();
 
         if (!phantom)
         {
-            player.MakeInvisible();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
-            writer.Write(true);
+            writer.WritePacked(1);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+            NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: SendOption.None);
+        }
+        else
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
+            writer.WritePacked(11);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+            NotifyRoles(SpecifyTarget: player);
         }
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
@@ -1518,14 +1531,25 @@ internal static class ExtendedPlayerControl
     {
         if (!Main.Invisible.Remove(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+        
         if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
+        
+        if (!(phantom && PlayerControl.LocalPlayer.IsImpostor()))
+            player.MakeVisible();
 
         if (!phantom)
         {
-            player.MakeVisible();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
-            writer.Write(false);
+            writer.WritePacked(0);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+            NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+        }
+        else
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.Invisibility, SendOption.Reliable);
+            writer.WritePacked(10);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+            NotifyRoles(SpecifyTarget: player);
         }
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
@@ -1791,7 +1815,6 @@ internal static class ExtendedPlayerControl
         PlainShipRoom room = pc.GetPlainShipRoom();
         string roomName = GetString(room == null ? "Outside" : $"{room.RoomId}");
         Vector2 pos = pc.Pos();
-
         return (pos, roomName);
     }
 
@@ -1924,6 +1947,7 @@ internal static class ExtendedPlayerControl
 
             LateTask.New(() =>
             {
+                if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
                 Vector2 pos = Object.FindObjectsOfType<DeadBody>().First(x => x.ParentId == target.PlayerId).TruePosition;
 
                 if (Vector2.Distance(pos, Pelican.GetBlackRoomPS()) > 2f)

@@ -31,7 +31,7 @@ public class Vulture : RoleBase
         CustomRoles.Amnesiac,
         CustomRoles.Pursuer,
         CustomRoles.Maverick,
-        CustomRoles.Totocalcio,
+        CustomRoles.Follower,
         CustomRoles.Opportunist,
         CustomRoles.Crewmate,
         CustomRoles.Jester

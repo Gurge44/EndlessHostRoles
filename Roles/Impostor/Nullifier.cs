@@ -81,12 +81,6 @@ internal class Nullifier : RoleBase
                             Hacker.UseLimit[target.PlayerId]--;
 
                         break;
-                    case CustomRoles.SabotageMaster:
-                        if (Main.PlayerStates[target.PlayerId].Role is not SabotageMaster { IsEnable: true } sm) return;
-
-                        sm.UsedSkillCount++;
-                        sm.SendRPC();
-                        break;
                     case CustomRoles.SwordsMan:
                         SwordsMan.Killed.Add(target.PlayerId);
                         SwordsMan.SendRPC(target.PlayerId);

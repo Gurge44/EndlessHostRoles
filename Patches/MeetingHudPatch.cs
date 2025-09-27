@@ -131,7 +131,7 @@ internal static class CheckForEndVotingPatch
                         switch (Options.GetWhenSkipVote())
                         {
                             case VoteMode.Suicide:
-                                TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
+                                TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.SkippedVote, ps.TargetPlayerId);
                                 voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Commit suicide for skipping voting");
                                 break;
                             case VoteMode.SelfVote:
@@ -146,7 +146,7 @@ internal static class CheckForEndVotingPatch
                         switch (Options.GetWhenNonVote())
                         {
                             case VoteMode.Suicide:
-                                TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, ps.TargetPlayerId);
+                                TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
                                 voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Committed suicide for not voting");
                                 break;
                             case VoteMode.SelfVote:
@@ -160,6 +160,9 @@ internal static class CheckForEndVotingPatch
                         }
                     }
                 }
+                
+                if (ps.VotedFor == 254 && !voter.Data.IsDead && voter.Is(CustomRoles.Compelled))
+                    TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Divinator) && Divinator.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Eraser) && Eraser.HideVote.GetBool()) continue;
@@ -658,7 +661,7 @@ internal static class MeetingHudStartPatch
 {
     private static void NotifyRoleSkillOnMeetingStart()
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded) return;
 
         List<Message> msgToSend = [];
 
@@ -992,7 +995,7 @@ internal static class MeetingHudStartPatch
                         {
                             var sender = CustomRpcSender.Create($"RpcSetRoleDesync for meeting shapeshift ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Someone")})", SendOption.Reliable);
                             sender.RpcSetRole(pc, RoleTypes.Shapeshifter, pc.OwnerId);
-                            aapc.DoIf(x => x.IsImpostor(), x => sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
+                            if (!pc.IsImpostor()) aapc.DoIf(x => x.IsImpostor(), x => sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
                             sender.SendMessage();
                         }
                     }
@@ -1094,7 +1097,7 @@ internal static class MeetingHudStartPatch
             if (seer.Data.IsDead && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
 
-            sb.Append(Totocalcio.TargetMark(seer, target));
+            sb.Append(Follower.TargetMark(seer, target));
             sb.Append(Romantic.TargetMark(seer, target));
             sb.Append(Lawyer.LawyerMark(seer, target));
             sb.Append(PlagueDoctor.GetMarkOthers(seer, target));

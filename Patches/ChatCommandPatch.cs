@@ -184,7 +184,7 @@ internal static class ChatCommands
             new(["deletevip", "удвип", "убрвип", "удалитьвип", "убратьвип", "删除会员", "vip-remover"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, false, [GetString("CommandArgs.DeleteVIP.Id")]),
             new(["assume", "предположить", "传销头目预测投票", "assumir"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
             new(["note", "заметка", "记者管理笔记", "nota", "anotar"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
-            new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, false, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
+            new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InLobby, OSCommand, true, false, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
             new(["negotiation", "neg", "наказание", "谈判方式", "negociar", "negociação"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, false, [GetString("CommandArgs.Negotiation.Number")]),
             new(["mute", "замутить", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, false, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
             new(["unmute", "размутить", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, UnmuteCommand, true, false, [GetString("CommandArgs.Unmute.Id")]),
@@ -219,7 +219,9 @@ internal static class ChatCommands
             new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
             new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
             new(["retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
-
+            new(["revive", "воскрешение", "воскрешать", "复活", "reviver"], "{id}", GetString("CommandDescription.Revive"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ReviveCommand, true, false, [GetString("CommandArgs.Revive.Id")]),
+            new(["select", "выбратьигрока", "选择玩家", "selecionar"], "{id} {role}", GetString("CommandDescription.Select"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SelectCommand, true, true, [GetString("CommandArgs.Select.Id"), GetString("CommandArgs.Select.Role")]),
+            
             new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
             // Commands with action handled elsewhere
@@ -482,6 +484,41 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void SelectCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(SelectCommand), text);
+            return;
+        }
+
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Loner loner || loner.Done) return;
+        if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[7..], out byte targetId, out CustomRoles pickedRole, out _) || targetId == player.PlayerId) return;
+        if (!pickedRole.IsImpostor() || pickedRole.IsVanilla() || CustomRoleSelector.RoleResult.ContainsValue(pickedRole) || pickedRole.GetMode() == 0) return;
+        if (!Main.PlayerStates.TryGetValue(targetId, out PlayerState ts) || ts.IsDead) return;
+
+        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+
+        loner.PickedPlayer = targetId;
+        loner.PickedRole = pickedRole;
+
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Loner.Picked"), targetId.ColoredPlayerName(), pickedRole.ToColoredString()));
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+    
+    private static void ReviveCommand(PlayerControl player, string text, string[] args)
+    {
+        if ((!Options.NoGameEnd.GetBool() && !player.FriendCode.GetDevUser().up) || args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
+        
+        PlayerControl target = Utils.GetPlayerById(targetId);
+        if (target == null) return;
+        
+        target.RpcRevive();
+    }
+    
     private static void ConfirmAuthCommand(PlayerControl player, string text, string[] args)
     {
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
@@ -1473,6 +1510,12 @@ internal static class ChatCommands
 
     private static void OSCommand(PlayerControl player, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(OSCommand), text, adminCommand: true);
+            return;
+        }
+        
         if (!GameStates.IsLobby || args.Length < 3 || !byte.TryParse(args[1], out byte chance) || chance > 100 || chance % 5 != 0 || !GetRoleByName(string.Join(' ', args[2..]), out CustomRoles role) || !Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem option)) return;
 
         if (role.IsAdditionRole())
@@ -2012,8 +2055,6 @@ internal static class ChatCommands
             RequestCommandProcessingFromHost(nameof(ExeCommand), text, adminCommand: true);
             return;
         }
-
-        if (!player.IsHost() && !IsPlayerAdmin(player.FriendCode)) return;
 
         if (GameStates.IsLobby)
         {
@@ -3359,130 +3400,7 @@ internal static class ChatCommands
     {
         text = text.Replace("着", "者").Trim().ToLower();
 
-        return text switch
-        {
-            // There is no need to use these now //I guess forever
-            
-            /*"管理員" or "管理" or "gm" => GetString("GM"),
-            "賞金獵人" or "赏金" or "bh" or "bounty" => GetString("BountyHunter"),
-            "自爆兵" or "自爆" => GetString("Bomber"),
-            "邪惡的追踪者" or "邪恶追踪者" or "追踪" or "et" => GetString("EvilTracker"),
-            "煙花商人" or "烟花" or "fw" => GetString("FireWorks"),
-            "夢魘" or "夜魇" => GetString("Mare"),
-            "詭雷" => GetString("BoobyTrap"),
-            "黑手黨" or "黑手" => GetString("Mafia"),
-            "嗜血殺手" or "嗜血" or "sk" => GetString("SerialKiller"),
-            "千面鬼" or "千面" => GetString("ShapeMaster"),
-            "狂妄殺手" or "狂妄" or "arr" => GetString("Sans"),
-            "殺戮機器" or "杀戮" or "机器" or "杀戮兵器" or "km" => GetString("KillingMachine"),
-            "蝕時者" or "蚀时" or "偷时" or "tt" => GetString("TimeThief"),
-            "狙擊手" or "狙击" => GetString("Sniper"),
-            "傀儡師" or "傀儡" => GetString("Puppeteer"),
-            "殭屍" or "丧尸" => GetString("Zombie"),
-            "吸血鬼" or "吸血" or "vamp" => GetString("Vampire"),
-            "術士" => GetString("Warlock"),
-            "駭客" or "黑客" => GetString("Hacker"),
-            "刺客" or "忍者" => GetString("Ninja"),
-            "礦工" => GetString("Miner"),
-            "逃逸者" or "逃逸" => GetString("Escapee"),
-            "女巫" => GetString("Witch"),
-            "監視者" or "监管" or "aa" => GetString("AntiAdminer"),
-            "清道夫" or "清道" or "scav" => GetString("Scavenger"),
-            "窺視者" or "窥视" => GetString("Watcher"),
-            "誘餌" or "大奖" or "头奖" => GetString("Bait"),
-            "擺爛人" or "摆烂" => GetString("Needy"),
-            "獨裁者" or "独裁" or "dict" => GetString("Dictator"),
-            "法醫" or "doc" => GetString("Doctor"),
-            "偵探" or "det" => GetString("Forensic"),
-            "幸運兒" or "幸运" => GetString("Luckey"),
-            "大明星" or "明星" or "ss" => GetString("SuperStar"),
-            "demo" => GetString("Demolitionist"),
-            "俠客" => GetString("SwordsMan"),
-            "正義賭怪" or "正义的赌怪" or "好赌" or "正义赌" or "ng" => GetString("NiceGuesser"),
-            "邪惡賭怪" or "邪恶的赌怪" or "坏赌" or "恶赌" or "邪恶赌" or "赌怪" or "eg" => GetString("EvilGuesser"),
-            "市長" or "逝长" => GetString("Mayor"),
-            "被害妄想症" or "被害妄想" or "被迫害妄想症" or "被害" or "妄想" or "妄想症" => GetString("Paranoia"),
-            "愚者" or "愚" => GetString("Psychic"),
-            "修理大师" or "修理" or "维修" or "sm" => GetString("SabotageMaster"),
-            "警長" => GetString("Sheriff"),
-            "告密者" or "告密" => GetString("Snitch"),
-            "增速者" or "增速" => GetString("SpeedBooster"),
-            "時間操控者" or "时间操控人" or "时间操控" or "tm" => GetString("TimeManager"),
-            "陷阱師" or "陷阱" or "小奖" => GetString("Trapper"),
-            "傳送師" or "传送" or "trans" => GetString("Transporter"),
-            "縱火犯" or "纵火" or "arso" => GetString("Arsonist"),
-            "處刑人" or "处刑" or "exe" => GetString("Executioner"),
-            "小丑" or "丑皇" or "jest" => GetString("Jester"),
-            "投機者" or "投机" or "oppo" => GetString("Opportunist"),
-            "馬里奧" or "马力欧" => GetString("Mario"),
-            "恐怖分子" or "恐怖" or "terro" => GetString("Terrorist"),
-            "豺狼" or "蓝狼" or "狼" => GetString("Jackal"),
-            "神" or "上帝" => GetString("God"),
-            "情人" or "愛人" or "链子" or "老婆" or "老公" or "lover" => GetString("Lovers"),
-            "絕境者" or "绝境" or "last" or "lastimp" or "last imp" or "Last" => GetString("LastImpostor"),
-            "閃電俠" or "闪电" => GetString("Flashman"),
-            "靈媒" => GetString("Seer"),
-            "破平者" or "破平" => GetString("Brakar"),
-            "執燈人" or "执灯" or "灯人" => GetString("Torch"),
-            "膽小" or "胆小" or "obli" => GetString("Oblivious"),
-            "迷惑者" or "迷幻" or "bew" => GetString("Bewilder"),
-            "sun" => GetString("Sunglasses"),
-            "蠢蛋" or "笨蛋" or "蠢狗" or "傻逼" => GetString("Fool"),
-            "冤罪師" or "冤罪" or "inno" => GetString("Innocent"),
-            "資本家" or "资本主义" or "资本" or "cap" or "capi" => GetString("Capitalism"),
-            "老兵" or "vet" => GetString("Veteran"),
-            "加班狂" or "加班" => GetString("Workhorse"),
-            "復仇者" or "复仇" => GetString("Avanger"),
-            "鵜鶘" or "pel" or "peli" => GetString("Pelican"),
-            "保鏢" or "bg" => GetString("Bodyguard"),
-            "up" or "up主" or "yt" => GetString("Youtuber"),
-            "利己主義者" or "利己主义" or "利己" or "ego" => GetString("Egoist"),
-            "贗品商" or "赝品" => GetString("Counterfeiter"),
-            "擲雷兵" or "掷雷" or "闪光弹" or "gren" or "grena" => GetString("Grenadier"),
-            "竊票者" or "偷票" or "偷票者" or "窃票师" or "窃票" => GetString("TicketsStealer"),
-            "教父" => GetString("Gangster"),
-            "革命家" or "革命" or "revo" => GetString("Revolutionist"),
-            "fff團" or "fff" or "fff团" => GetString("FFF"),
-            "清理工" or "清潔工" or "清洁工" or "清理" or "清洁" or "janitor" => GetString("Cleaner"),
-            "醫生" => GetString("Medicaler"),
-            "占卜師" or "占卜" or "ft" => GetString("Divinator"),
-            "雙重人格" or "双重" or "双人格" or "人格" or "schizo" or "scizo" or "shizo" => GetString("DualPersonality"),
-            "玩家" => GetString("Gamer"),
-            "情報販子" or "情报" or "贩子" => GetString("Messenger"),
-            "球狀閃電" or "球闪" or "球状" => GetString("BallLightning"),
-            "潛藏者" or "潜藏" => GetString("DarkHide"),
-            "貪婪者" or "贪婪" => GetString("Greedier"),
-            "工作狂" or "工作" or "worka" => GetString("Workaholic"),
-            "呪狼" or "咒狼" or "cw" => GetString("CursedWolf"),
-            "寶箱怪" or "宝箱" => GetString("Mimic"),
-            "集票者" or "集票" or "寄票" or "机票" => GetString("Collector"),
-            "活死人" or "活死" => GetString("Glitch"),
-            "奪魂者" or "多混" or "夺魂" or "sc" => GetString("ImperiusCurse"),
-            "自爆卡車" or "自爆" or "卡车" or "provo" => GetString("Provocateur"),
-            "快槍手" or "快枪" or "qs" => GetString("QuickShooter"),
-            "隱蔽者" or "隐蔽" or "小黑人" => GetString("Concealer"),
-            "抹除者" or "抹除" => GetString("Eraser"),
-            "肢解者" or "肢解" => GetString("OverKiller"),
-            "劊子手" or "侩子手" or "柜子手" => GetString("Hangman"),
-            "陽光開朗大男孩" or "阳光" or "开朗" or "大男孩" or "阳光开朗" or "开朗大男孩" or "阳光大男孩" or "sunny" => GetString("Sunnyboy"),
-            "法官" or "审判" => GetString("Judge"),
-            "入殮師" or "入检师" or "入殓" or "mor" => GetString("Mortician"),
-            "通靈師" or "通灵" => GetString("Mediumshiper"),
-            "吟游詩人" or "诗人" => GetString("Bard"),
-            "隱匿者" or "隐匿" or "隐身" or "隐身人" or "印尼" => GetString("Swooper"),
-            "船鬼" or "cp" => GetString("Crewpostor"),
-            "嗜血騎士" or "血骑" or "骑士" or "bk" => GetString("BloodKnight"),
-            "賭徒" => GetString("Totocalcio"),
-            "分散机" => GetString("Disperser"),
-            "和平之鸽" or "和平之鴿" or "和平的鸽子" or "和平" or "dop" or "dove of peace" => GetString("DovesOfNeace"),
-            "持槍" or "持械" or "手长" => GetString("Reach"),
-            "monarch" => GetString("Monarch"),
-            "sch" => GetString("SchrodingersCat"),
-            "glitch" => GetString("Glitch"),
-            "безумный" or "mad" => GetString("Madmate"),
-            "анти админер" or "anti adminer" => GetString("AntiAdminer"),*/
-            _ => text,
-        };
+        return text switch { _ => text };
     }
 
     public static bool GetRoleByName(string name, out CustomRoles role)
@@ -3843,7 +3761,3 @@ internal static class RpcSendChatPatch
         return false;
     }
 }
-
-
-
-

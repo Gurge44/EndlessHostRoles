@@ -74,17 +74,25 @@ public class Astral : RoleBase
 
         pc.Exiled();
         CustomRpcSender.Create("Astral", (SendOption)1).AutoStartRpc(pc.NetId, 4).EndRpc().SendMessage();
-        LateTask.New(() => pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.OwnerId), 0.2f, log: false);
-        LateTask.New(pc.RpcResetAbilityCooldown, 0.4f, log: false);
-        LateTask.New(() =>
-        {
-            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
-            pc.SetChatVisible(false);
-        }, 0.6f, log: false);
+        Main.Instance.StartCoroutine(CoRoutine());
         pc.MarkDirtySettings();
 
         BackTS = Utils.TimeStamp + AbilityDuration.GetInt() + 1;
         Utils.SendRPC(CustomRPC.SyncRoleData, AstralId, BackTS);
+        return;
+
+        System.Collections.IEnumerator CoRoutine()
+        {
+            yield return new WaitForSeconds(0.2f);
+            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) yield break;
+            pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.OwnerId);
+            yield return new WaitForSeconds(0.2f);
+            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) yield break;
+            pc.RpcResetAbilityCooldown();
+            yield return new WaitForSeconds(0.2f);
+            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) yield break;
+            pc.SetChatVisible(false);
+        }
     }
 
     void BecomeAliveAgain(PlayerControl pc, bool onMeeting = false)

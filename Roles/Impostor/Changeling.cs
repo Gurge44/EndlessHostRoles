@@ -12,7 +12,7 @@ internal class Changeling : RoleBase
     public static readonly Dictionary<byte, bool> ChangedRole = [];
 
     private static OptionItem CanPickPartnerRole;
-    private static OptionItem CanKillBeforeRoleChange;
+    public static OptionItem CanKillBeforeRoleChange;
     private static OptionItem AvailableRoles;
 
     private static readonly string[] AvailableRolesMode =

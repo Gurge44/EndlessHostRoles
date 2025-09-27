@@ -17,16 +17,6 @@ using static EHR.Translator;
 
 namespace EHR;
 
-[HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Update))]
-public static class GameStartManagerUpdatePatch
-{
-    public static void Prefix(GameStartManager __instance)
-    {
-        try { __instance.MinPlayers = 1; }
-        catch (Exception ex) { Logger.Error(ex.ToString(), "Surely this can't be causing an issue, right?"); }
-    }
-}
-
 [HarmonyPatch]
 public static class GameStartManagerPatch
 {
@@ -140,21 +130,19 @@ public static class GameStartManagerPatch
         private static SpriteRenderer LobbyTimerBg;
         public static bool Warned;
 
+#if !ANDROID
         public static bool Prefix(GameStartManager __instance)
         {
             try
             {
+                try { __instance.MinPlayers = 1; }
+                catch (Exception ex) { Logger.Error(ex.ToString(), "Surely this can't be causing an issue, right?"); }
+                
                 if (AmongUsClient.Instance == null) return false;
 
                 if (AmongUsClient.Instance.AmHost) VanillaUpdate(__instance);
 
                 if (AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return false;
-
-                MinWait = Options.MinWaitAutoStart.GetFloat();
-                MaxWait = Options.MaxWaitAutoStart.GetFloat();
-                MinPlayer = Options.PlayerAutoStart.GetInt();
-                MinWait = 600f - (MinWait * 60f);
-                MaxWait *= 60f;
 
                 // Lobby code
                 if (DataManager.Settings != null && DataManager.Settings.Gameplay != null)
@@ -173,71 +161,83 @@ public static class GameStartManagerPatch
 
                 if (AmongUsClient.Instance == null || GameData.Instance == null || !AmongUsClient.Instance.AmHost || !GameData.Instance) return true;
 
-                bool votedToStart = (int)Math.Round(ChatCommands.VotedToStart.Count / (float)PlayerControl.AllPlayerControls.Count * 100f) > 50;
-
-                if ((Main.AutoStart != null && Main.AutoStart.Value) || votedToStart)
-                {
-                    Main.UpdateTime++;
-
-                    if (Main.UpdateTime >= 50)
-                    {
-                        Main.UpdateTime = 0;
-
-                        float timer = Timer;
-
-                        if (((GameData.Instance?.PlayerCount >= MinPlayer && timer <= MinWait) || timer <= MaxWait || votedToStart) && !GameStates.IsCountDown)
-                        {
-                            PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
-
-                            if (invalidColor.Length > 0)
-                            {
-                                Main.AllPlayerControls
-                                    .Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId)
-                                    .Do(p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
-
-                                Logger.SendInGame(GetString("Error.InvalidColorPreventStart"), Color.yellow);
-                                string msg = GetString("Error.InvalidColor");
-                                msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
-                                Utils.SendMessage(msg, sendOption: SendOption.None);
-                            }
-
-                            if (Options.RandomMapsMode.GetBool())
-                            {
-                                Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
-                                CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
-                            }
-                            else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
-                            else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
-
-                            if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
-                            {
-                                var opt = Main.NormalOptions.CastFast<IGameOptions>();
-
-                                Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
-                                Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
-                                Main.NormalOptions.KillCooldown = 0f;
-                                AURoleOptions.SetOpt(opt);
-                                Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
-                                AURoleOptions.ShapeshifterCooldown = 0f;
-                                AURoleOptions.ImpostorsCanSeeProtect = false;
-
-                                GameManager.Instance.LogicOptions.SetDirty();
-                                OptionItem.SyncAllOptions();
-                            }
-
-                            RPC.RpcVersionCheck();
-
-                            GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
-                            GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
-                            __instance?.StartButton.gameObject.SetActive(false);
-                        }
-                    }
-                }
+                CheckAutoStart(__instance);
             }
             catch (NullReferenceException) { }
             catch (Exception ex) { Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (2)"); }
 
             return false;
+        }
+#endif
+
+        private static void CheckAutoStart(GameStartManager __instance)
+        {
+            MinWait = Options.MinWaitAutoStart.GetFloat();
+            MaxWait = Options.MaxWaitAutoStart.GetFloat();
+            MinPlayer = Options.PlayerAutoStart.GetInt();
+            MinWait = 600f - (MinWait * 60f);
+            MaxWait *= 60f;
+
+            bool votedToStart = (int)Math.Round(ChatCommands.VotedToStart.Count / (float)PlayerControl.AllPlayerControls.Count * 100f) > 50;
+
+            if ((Main.AutoStart != null && Main.AutoStart.Value) || votedToStart)
+            {
+                Main.UpdateTime++;
+
+                if (Main.UpdateTime >= 50)
+                {
+                    Main.UpdateTime = 0;
+
+                    float timer = Timer;
+
+                    if (((GameData.Instance?.PlayerCount >= MinPlayer && timer <= MinWait) || timer <= MaxWait || votedToStart) && !GameStates.IsCountDown)
+                    {
+                        PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
+
+                        if (invalidColor.Length > 0)
+                        {
+                            Main.AllPlayerControls
+                                .Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId)
+                                .Do(p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
+
+                            Logger.SendInGame(GetString("Error.InvalidColorPreventStart"), Color.yellow);
+                            string msg = GetString("Error.InvalidColor");
+                            msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
+                            Utils.SendMessage(msg, sendOption: SendOption.None);
+                        }
+
+                        if (Options.RandomMapsMode.GetBool())
+                        {
+                            Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
+                            CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+                        }
+                        else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+                        else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+
+                        if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
+                        {
+                            var opt = Main.NormalOptions.CastFast<IGameOptions>();
+
+                            Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
+                            Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
+                            Main.NormalOptions.KillCooldown = 0f;
+                            AURoleOptions.SetOpt(opt);
+                            Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
+                            AURoleOptions.ShapeshifterCooldown = 0f;
+                            AURoleOptions.ImpostorsCanSeeProtect = false;
+
+                            GameManager.Instance.LogicOptions.SetDirty();
+                            OptionItem.SyncAllOptions();
+                        }
+
+                        RPC.RpcVersionCheck();
+
+                        GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
+                        GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
+                        __instance?.StartButton.gameObject.SetActive(false);
+                    }
+                }
+            }
         }
 
         private static void VanillaUpdate(GameStartManager instance)
@@ -329,7 +329,14 @@ public static class GameStartManagerPatch
             instance.LobbyInfoPane.gameObject.SetActive(!HudManager.Instance.Chat.IsOpenOrOpening);
         }
 
+#if !ANDROID
         public static void Postfix(GameStartManager __instance)
+        {
+            Postfix_ManualCall(__instance);
+        }
+#endif
+
+        public static void Postfix_ManualCall(GameStartManager __instance)
         {
             try
             {
@@ -384,6 +391,14 @@ public static class GameStartManagerPatch
                             warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", ((int)Math.Round(5 - ExitTimer)).ToString()));
                     }
                 }
+
+#if ANDROID
+                try
+                {
+                    if (canStartGame) CheckAutoStart(__instance);
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+#endif
 
                 if (warningMessage == "")
                     WarningText.gameObject.SetActive(false);

@@ -137,6 +137,11 @@ public class PlagueBearer : RoleBase
     {
         hud.KillButton?.OverrideText(GetString("InfectiousKillButtonText"));
     }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(false);
+    }
 }
 
 public class Pestilence : RoleBase

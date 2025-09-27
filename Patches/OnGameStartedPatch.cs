@@ -252,6 +252,7 @@ internal static class ChangeRoleSettings
             Express.SpeedUp = [];
             Messenger.Sent = [];
             Lazy.BeforeMeetingPositions = [];
+            Introvert.TeleportAwayDelays = [];
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];
@@ -735,11 +736,13 @@ internal static class StartGameHostPatch
                                 if (!physicistBanned) physicistList.Add(player.PlayerId);
                                 if (!finderBanned) finderList.Add(player.PlayerId);
                                 if (!noisyBanned) noisyList.Add(player.PlayerId);
-                                if (!examinerBanned) examinerList.Add(player.PlayerId);
+                                
+                                if (!examinerBanned && !kp.Value.UsesMeetingShapeshift())
+                                    examinerList.Add(player.PlayerId);
                             }
                         }
 
-                        if (kp.Value.IsImpostor() && kp.Value.GetRoleTypes() == RoleTypes.Impostor && !venomBanned)
+                        if (kp.Value.IsImpostor() && kp.Value.GetRoleTypes() == RoleTypes.Impostor && !kp.Value.IncompatibleWithVenom() && !venomBanned)
                             venomList.Add(player.PlayerId);
                     }
                 }
@@ -748,10 +751,10 @@ internal static class StartGameHostPatch
                 {
                     { CustomRoles.Bloodlust, (bloodlustSpawn, bloodlustList) },
                     { CustomRoles.Nimble, (nimbleSpawn, nimbleList) },
-                    { CustomRoles.Physicist, (physicistSpawn, physicistList) },
-                    { CustomRoles.Finder, (finderSpawn, finderList) },
-                    { CustomRoles.Noisy, (noisySpawn, noisyList) },
                     { CustomRoles.Examiner, (examinerSpawn, examinerList) },
+                    { CustomRoles.Finder, (finderSpawn, finderList) },
+                    { CustomRoles.Physicist, (physicistSpawn, physicistList) },
+                    { CustomRoles.Noisy, (noisySpawn, noisyList) },
                     { CustomRoles.Venom, (venomSpawn, venomList) }
                 };
 
@@ -900,7 +903,7 @@ internal static class StartGameHostPatch
                 }
             }
 
-            if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : IRandom.Instance.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
+            if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.Hater.IsEnable() ? -1 : IRandom.Instance.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
 
             // Add-on assignment
             PlayerControl[] aapc = Main.AllAlivePlayerControls.Shuffle();
@@ -1292,7 +1295,7 @@ internal static class StartGameHostPatch
                 return;
             }
 
-            List<PlayerControl> allPlayers = Main.AllPlayerControls.Where(pc => (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> bannedCombos) || bannedCombos.All(x => !pc.Is(x.Key) || !x.Value.Contains(CustomRoles.Lovers))) && !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Provocateur) && !pc.Is(CustomRoles.Altruist) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.Is(CustomRoleTypes.Coven) || Lovers.CovenCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
+            List<PlayerControl> allPlayers = Main.AllPlayerControls.Where(pc => (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> bannedCombos) || bannedCombos.All(x => !pc.Is(x.Key) || !x.Value.Contains(CustomRoles.Lovers))) && !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.Hater) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Provocateur) && !pc.Is(CustomRoles.Altruist) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.Is(CustomRoleTypes.Coven) || Lovers.CovenCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
             const CustomRoles role = CustomRoles.Lovers;
             int count = Math.Clamp(rawCount, 0, allPlayers.Count);
             if (rawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);

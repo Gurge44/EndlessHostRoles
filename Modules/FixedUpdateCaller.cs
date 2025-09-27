@@ -56,7 +56,13 @@ public static class FixedUpdateCaller
                     TemplateManager.SendTemplate("Notification", sendOption: Hazel.SendOption.None);
                 }
             }
+#if ANDROID
+            GameStartManager gameStartManager = GameStartManager.Instance;
 
+            if (gameStartManager)
+                GameStartManagerPatch.GameStartManagerUpdatePatch.Postfix_ManualCall(gameStartManager);
+#endif
+            
             if (HudManager.InstanceExists)
             {
                 HudManager hudManager = HudManager.Instance;
@@ -201,6 +207,18 @@ public static class FixedUpdateCaller
                         default:
                             if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                             break;
+                    }
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                try
+                {
+                    Main.GameTimer += Time.fixedDeltaTime;
+                
+                    if (Options.EnableGameTimeLimit.GetBool() && Main.GameTimer > Options.GameTimeLimit.GetInt())
+                    {
+                        Main.GameTimer = 0f;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

@@ -637,7 +637,7 @@ internal static class BeginCrewmatePatch
                     => HudManager.Instance.TaskUpdateSound,
 
                 CustomRoles.Inhibitor or
-                    CustomRoles.SabotageMaster or
+                    CustomRoles.Mechanic or
                     CustomRoles.Saboteur or
                     CustomRoles.SecurityGuard or
                     CustomRoles.Provocateur
@@ -672,15 +672,16 @@ internal static class BeginCrewmatePatch
                     => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
 
                 /* TODO: Find out how to access HnSImpostorScreamSfx properly
+           
                 CustomRoles.Chronomancer or
                     CustomRoles.Tremor
                     => HnSImpostorScreamSfx.Instance.HnSOtherImpostorTransformSfx,
 
                 CustomRoles.Deputy or
                     CustomRoles.Sheriff
-                    => HnSImpostorScreamSfx.Instance.HnSOtherYeehawSfx,
-                    */
-                CustomRoles.FFF or
+                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
+*/
+                CustomRoles.Hater or
                     CustomRoles.Opportunist or
                     CustomRoles.Revolutionist
                     => GetIntroSound(RoleTypes.Crewmate),
@@ -745,13 +746,13 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
                     or CustomRoles.SuperStar
-                    or CustomRoles.DarkHide
+                    or CustomRoles.Stalker
                     or CustomRoles.Specter
                     => GetIntroSound(RoleTypes.Noisemaker),
 
                 CustomRoles.Phantom
                     or CustomRoles.PhantomEHR
-                    or CustomRoles.DarkHide
+                    or CustomRoles.Stalker
                     or CustomRoles.ImperiusCurse
                     or CustomRoles.SoulHunter
                     => GetIntroSound(RoleTypes.Phantom),
@@ -1066,11 +1067,7 @@ internal static class IntroCutsceneDestroyPatch
 
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
-                    int kcd = Options.StartingKillCooldown.GetInt();
-
-                    if (kcd is not 10 and > 0)
-                        LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd - 2)), 2f, "FixKillCooldownTask");
-                    else if (Options.FixFirstKillCooldown.GetBool())
+                    if (Options.FixFirstKillCooldown.GetBool())
                     {
                         LateTask.New(() =>
                         {
@@ -1078,10 +1075,15 @@ internal static class IntroCutsceneDestroyPatch
                             {
                                 x.ResetKillCooldown(false);
 
-                                if (Main.AllPlayerKillCooldown.TryGetValue(x.PlayerId, out float kc) && kc - 2f > 0f)
-                                    x.SetKillCooldown(kc - 2f);
+                                if (Main.AllPlayerKillCooldown.TryGetValue(x.PlayerId, out float kcd) && kcd - 2f > 0f)
+                                    x.SetKillCooldown(kcd - 2f);
                             });
                         }, 2f, "FixKillCooldownTask");
+                    }
+                    else
+                    {
+                        int kcd = Options.StartingKillCooldown.GetInt();
+                        LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd - 2)), 2f, "FixKillCooldownTask");
                     }
                 }
             }
@@ -1247,6 +1249,8 @@ internal static class IntroCutsceneDestroyPatch
 
         LateTask.New(() =>
         {
+            Main.GameTimer = 0f;
+            
             if (SubmergedCompatibility.IsSubmerged())
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)

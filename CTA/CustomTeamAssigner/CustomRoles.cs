@@ -20,6 +20,7 @@ public enum CustomRoles
     // Impostors
 
     Abyssbringer,
+    Ambusher,
     Anonymous,
     AntiAdminer,
     Sans, // Arrogance
@@ -72,6 +73,7 @@ public enum CustomRoles
     KillingMachine,
     BallLightning, // Lightning
     Librarian,
+    Loner,
     Lurker,
     Mafioso,
     Mastermind,
@@ -86,6 +88,7 @@ public enum CustomRoles
     Overheat,
     Parasite,
     Penguin,
+    Postponer,
     Psychopath,
     Puppeteer,
     QuickShooter,
@@ -155,6 +158,7 @@ public enum CustomRoles
     Benefactor,
     Bodyguard,
     CameraMan,
+    Captain,
     Car,
     Catcher,
     Chameleon,
@@ -168,7 +172,6 @@ public enum CustomRoles
     LovingImpostor,
     Crusader,
     Dad,
-    Dealer,
     Demolitionist,
     Deputy,
     Detour,
@@ -201,6 +204,7 @@ public enum CustomRoles
     Insight,
     ParityCop, // Inspector
     Inquirer,
+    Inquisitor,
     Jailor,
     Journalist,
     Judge,
@@ -214,7 +218,7 @@ public enum CustomRoles
     Marshall,
     Mathematician,
     Mayor,
-    SabotageMaster, // Mechanic
+    Mechanic,
     Medic,
     Mediumshiper,
     Merchant,
@@ -266,6 +270,7 @@ public enum CustomRoles
     Transmitter,
     Transporter,
     Tracefinder,
+    Tree,
     Tunneler,
     Ventguard,
     Veteran,
@@ -292,6 +297,7 @@ public enum CustomRoles
     Clerk,
     Collector,
     Curser,
+    Dealer,
     Deathknight,
     Demon,
     Doppelganger,
@@ -302,11 +308,11 @@ public enum CustomRoles
     Evolver,
     Executioner,
     Explosivist,
-    Totocalcio, // Follower
+    Follower,
     Gaslighter,
     Glitch,
     God,
-    FFF, // Hater
+    Hater,
     HeadHunter,
     HexMaster,
     Hookshot,
@@ -366,9 +372,9 @@ public enum CustomRoles
     Spirit,
     Spiritcaller,
     Sprayer,
-    DarkHide, // Stalker
+    Stalker, // Stalker
     Starspawn,
-    Succubus, // Cultist
+    Cultist,
     Sunnyboy,
     Technician,
     Tank,
@@ -393,7 +399,7 @@ public enum CustomRoles
     Augur,
     Banshee,
     CovenLeader,
-    RegularCoven, // Coven Member
+    CovenMember,
     Death, // Reaper changes to Death
     Dreamweaver,
     Enchanter,
@@ -489,6 +495,7 @@ public enum CustomRoles
     Cleansed,
     Clumsy,
     Commited,
+    Compelled,
     Contagious,
     Damocles,
     Deadlined,

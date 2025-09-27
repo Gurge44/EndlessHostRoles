@@ -8,7 +8,7 @@
         <Description>EHR</Description>
         <Authors>Gurge44</Authors>
         <langVersion>preview</langVersion>
-        <AmongUs>C:\Program Files\Epic Games\AmongUs</AmongUs>
+        <AmongUs>D:\SteamLibrary\steamapps\common\Among Us</AmongUs>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Optimize>True</Optimize>
         <AssemblyName>$(MSBuildProjectName)</AssemblyName>

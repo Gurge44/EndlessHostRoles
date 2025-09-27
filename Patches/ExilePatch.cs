@@ -126,7 +126,7 @@ internal static class ExileControllerWrapUpPatch
             {
                 if (GameStates.IsEnded) return;
                 AntiBlackout.RevertToActualRoleTypes();
-            }, Math.Max(1f, Utils.CalculatePingDelay()), "Revert AntiBlackout Measures");
+            }, 2f, "Revert AntiBlackout Measures");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
@@ -144,6 +144,7 @@ internal static class ExileControllerWrapUpPatch
         {
             string text = showRemainingKillers ? Utils.GetRemainingKillers(true) : string.Empty;
             string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
+            if (Options.EnableGameTimeLimit.GetBool()) finalText += $"\n<#888888>{Options.GameTimeLimit.GetInt() - Main.GameTimer:N0}s {Translator.GetString("RemainingText.Suffix")}";
 
             if (!string.IsNullOrEmpty(finalText))
                 Main.AllAlivePlayerControls.NotifyPlayers(finalText, 13f);

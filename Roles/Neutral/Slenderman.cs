@@ -74,7 +74,13 @@ public class Slenderman : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (MeetingCooldownEndTS > Utils.TimeStamp || pc.Is(CustomRoles.Slenderman) || SlendermanPC == null || !SlendermanPC.IsAlive()) return;
+        if (pc.Is(CustomRoles.Slenderman)) return;
+        
+        if (MeetingCooldownEndTS > Utils.TimeStamp || SlendermanPC == null || !SlendermanPC.IsAlive())
+        {
+            Blinded.Clear();
+            return;
+        }
 
         bool inRange = Vector2.Distance(pc.Pos(), SlendermanPC.Pos()) <= BlindRange.GetFloat();
 
@@ -103,6 +109,11 @@ public class Slenderman : RoleBase
     public override void AfterMeetingTasks()
     {
         MeetingCooldownEndTS = Utils.TimeStamp + AfterMeetingBlindCooldown.GetInt();
+    }
+
+    public override void OnReportDeadBody()
+    {
+        Blinded.Clear();
     }
 
     public override string GetProgressText(byte playerId, bool comms)

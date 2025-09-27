@@ -49,7 +49,7 @@ public class Retributionist : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = 5f;
+        Main.AllPlayerKillCooldown[id] = 1f;
     }
 
     public override void AfterMeetingTasks()

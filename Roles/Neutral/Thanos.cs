@@ -76,8 +76,6 @@ public class Thanos : RoleBase
     {
         opt.SetVision(ImpostorVision.GetBool());
         
-        if (Options.UsePets.GetBool()) return;
-        
         if (Options.UsePhantomBasis.GetBool())
         {
             AURoleOptions.PhantomCooldown = 5f;
@@ -85,6 +83,8 @@ public class Thanos : RoleBase
         }
         else
         {
+            if (Options.UsePets.GetBool()) return;
+
             AURoleOptions.ShapeshifterCooldown = 5f;
             AURoleOptions.ShapeshifterDuration = 1f;
         }

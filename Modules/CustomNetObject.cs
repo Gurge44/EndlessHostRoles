@@ -12,6 +12,7 @@ using InnerNet;
 using TMPro;
 using UnityEngine;
 using GameStates = EHR.GameStates;
+using Tree = EHR.Crewmate.Tree;
 
 // Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/AllObjects
 // Huge thanks to Rabek009 for this code!
@@ -681,35 +682,20 @@ namespace EHR
         }
     }
 
+    internal sealed class FallenTree : CustomNetObject
+    {
+        public FallenTree(Vector2 position)
+        {
+            CreateNetObject(Tree.FallenSprite, position);
+        }
+    }
+
     internal sealed class ShapeshiftMenuElement : CustomNetObject
     {
-        private readonly byte VisibleTo;
-
-        public ShapeshiftMenuElement(string display, string namePlate, byte visibleTo)
+        public ShapeshiftMenuElement(byte visibleTo)
         {
-            VisibleTo = visibleTo;
             CreateNetObject(string.Empty, new Vector2(0f, 0f));
-            LateTask.New(() => SetData(display, namePlate), 1f, log: false);
             Main.AllPlayerControls.DoIf(x => x.PlayerId != visibleTo, Hide);
-        }
-
-        public void SetData(string display, string namePlate)
-        {
-            Logger.Warn(playerControl.Data == null ? "playerControl.Data is null" : "playerControl.Data is not null", "ShapeshiftMenuElement");
-            playerControl.Data.DefaultOutfit.NamePlateId = namePlate;
-            playerControl.Data.PlayerName = $"{Translator.GetString(display).ToUpper()}<size=0>{display}";
-
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(6);
-            writer.Write(AmongUsClient.Instance.GameId);
-            writer.WritePacked(VisibleTo.GetPlayer().OwnerId);
-            writer.StartMessage(1);
-            writer.WritePacked(playerControl.Data.NetId);
-            playerControl.Data.Serialize(writer, false);
-            writer.EndMessage();
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
         }
     }
 }

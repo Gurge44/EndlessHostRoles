@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
@@ -11,28 +12,39 @@ public sealed class Stealth : RoleBase
     private static readonly LogHandler Logger = EHR.Logger.Handler(nameof(Stealth));
 
     private static OptionItem OptionExcludeImpostors;
-    private static OptionItem OptionDarkenDuration;
+    public static OptionItem OptionDarkenDuration;
+    public static OptionItem UseLegacyVersion;
+    private static OptionItem OptionBlindingRadius;
+    public static OptionItem AbilityCooldown;
 
     public static bool On;
-    private float darkenDuration;
-    private PlayerControl[] darkenedPlayers;
+    public PlayerControl[] darkenedPlayers;
     private SystemTypes? darkenedRoom;
     private float darkenTimer;
 
+    private float darkenDuration;
     private bool excludeImpostors;
+    private bool useLegacyVersion;
+    private float blindingRadius;
+    private int abilityCooldown;
+    
     private PlayerControl StealthPC;
+    
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
         StartSetup(641900)
             .AutoSetupOption(ref OptionExcludeImpostors, true)
-            .AutoSetupOption(ref OptionDarkenDuration, 5f, new FloatValueRule(0.5f, 30f, 0.5f), OptionFormat.Seconds);
+            .AutoSetupOption(ref OptionDarkenDuration, 5f, new FloatValueRule(0.5f, 30f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref UseLegacyVersion, false)
+            .AutoSetupOption(ref OptionBlindingRadius, 5f, new FloatValueRule(0.25f, 10f, 0.25f), OptionFormat.Multiplier)
+            .AutoSetupOption(ref AbilityCooldown, 30, new IntegerValueRule(1, 120, 1), OptionFormat.Seconds);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!base.OnCheckMurder(killer, target)) return true;
+        if (!base.OnCheckMurder(killer, target) || !useLegacyVersion) return true;
 
         IEnumerable<PlayerControl> playersToDarken = FindPlayersInSameRoom(target);
 
@@ -59,6 +71,14 @@ public sealed class Stealth : RoleBase
         return Main.AllAlivePlayerControls.Where(player => player != StealthPC && player.Collider.IsTouching(roomArea));
     }
 
+    private IEnumerable<PlayerControl> FindPlayersInRange()
+    {
+        var pos = StealthPC.Pos();
+        var inRange = Utils.GetPlayersInRadius(blindingRadius, pos).Without(StealthPC);
+        if (excludeImpostors) inRange = inRange.Where(p => !p.Is(CustomRoleTypes.Impostor));
+        return inRange;
+    }
+
     private void DarkenPlayers(IEnumerable<PlayerControl> playersToDarken)
     {
         darkenedPlayers = playersToDarken.ToArray();
@@ -68,6 +88,29 @@ public sealed class Stealth : RoleBase
             Main.PlayerStates[player.PlayerId].IsBlackOut = true;
             player.MarkDirtySettings();
         }
+
+        if (!useLegacyVersion && Utils.DoRPC)
+        {
+            var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
+            w.Write(StealthPC.PlayerId);
+            w.WritePacked(darkenedPlayers.Length);
+            darkenedPlayers.Do(x => w.Write(x.PlayerId));
+            Utils.EndRPC(w);
+        }
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (Options.UsePhantomBasis.GetBool())
+        {
+            AURoleOptions.PhantomCooldown = abilityCooldown;
+            AURoleOptions.PhantomDuration = 1f;
+        }
+        else if (!Options.UsePets.GetBool())
+        {
+            AURoleOptions.ShapeshifterCooldown = abilityCooldown;
+            AURoleOptions.ShapeshifterDuration = 1f;
+        }
     }
 
     public override void Init()
@@ -75,6 +118,10 @@ public sealed class Stealth : RoleBase
         On = false;
         excludeImpostors = OptionExcludeImpostors.GetBool();
         darkenDuration = OptionDarkenDuration.GetFloat();
+        useLegacyVersion = UseLegacyVersion.GetBool();
+        blindingRadius = OptionBlindingRadius.GetFloat();
+        abilityCooldown = AbilityCooldown.GetInt();
+        darkenTimer = darkenDuration;
     }
 
     public override void Add(byte playerId)
@@ -108,6 +155,21 @@ public sealed class Stealth : RoleBase
 
     public void ReceiveRPC(MessageReader reader)
     {
+        if (!useLegacyVersion)
+        {
+            darkenedPlayers = null;
+            int count = reader.ReadPackedInt32();
+            
+            if (count > 0)
+            {
+                List<byte> ids = [];
+                Loop.Times(count, _ => ids.Add(reader.ReadByte()));
+                darkenedPlayers = ids.ToValidPlayers().ToArray();
+            }
+
+            return;
+        }
+        
         byte roomId = reader.ReadByte();
         darkenedRoom = roomId == byte.MaxValue ? null : (SystemTypes)roomId;
     }
@@ -126,8 +188,38 @@ public sealed class Stealth : RoleBase
         }
 
         darkenTimer = darkenDuration;
-        RpcDarken(null);
+
+        if (!useLegacyVersion)
+        {
+            Utils.SendRPC(CustomRPC.SyncRoleData, StealthPC.PlayerId, 0);
+            
+            if (!Options.UsePets.GetBool() || Options.UsePhantomBasis.GetBool())
+                StealthPC.RpcResetAbilityCooldown();
+        }
+        else
+            RpcDarken(null);
+        
         Utils.NotifyRoles(SpecifySeer: StealthPC);
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (!shapeshifting || useLegacyVersion) return true;
+        DarkenPlayers(FindPlayersInRange());
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (useLegacyVersion) return true;
+        DarkenPlayers(FindPlayersInRange());
+        return false;
+    }
+
+    public override void OnPet(PlayerControl pc)
+    {
+        if (useLegacyVersion) return;
+        DarkenPlayers(FindPlayersInRange());
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl seen, bool isForMeeting = false, bool isForHud = false)

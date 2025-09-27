@@ -52,8 +52,6 @@ public class Venerer : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (Options.UsePets.GetBool()) return;
-        
         if (Options.UsePhantomBasis.GetBool())
         {
             AURoleOptions.PhantomCooldown = AbilityCooldown.GetInt();
@@ -61,6 +59,8 @@ public class Venerer : RoleBase
         }
         else
         {
+            if (Options.UsePets.GetBool()) return;
+
             AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetInt();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
@@ -88,12 +88,13 @@ public class Venerer : RoleBase
         switch (Stage)
         {
             case 1:
+                var outfit = pc.Data.DefaultOutfit;
                 Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "", ""));
                 ChangedSkin = true;
                 LateTask.New(() =>
                 {
                     if (!ChangedSkin || pc == null || !pc.IsAlive()) return;
-                    Utils.RpcChangeSkin(pc, Camouflage.PlayerSkins[pc.PlayerId]);
+                    Utils.RpcChangeSkin(pc, outfit);
                     ChangedSkin = false;
                 }, AbilityDuration.GetInt(), log: false);
                 break;

@@ -23,7 +23,7 @@ internal class Eraser : RoleBase
     ];
 
     private static OptionItem EraseLimitOpt;
-    private static OptionItem EraseMethod;
+    public static OptionItem EraseMethod;
     private static OptionItem WhenTargetIsNeutral;
     public static OptionItem HideVote;
     public static OptionItem CancelVote;
@@ -152,7 +152,7 @@ internal class Eraser : RoleBase
             PlayerControl pc = Utils.GetPlayerById(id);
             if (pc == null || !pc.IsAlive() || pc.Is(CustomRoles.Bloodlust)) return;
 
-            CustomRoles erasedRole = pc.IsImpostor() ? CustomRoles.ImpostorEHR : pc.IsCrewmate() ? CustomRoles.CrewmateEHR : pc.Is(Team.Coven) ? CustomRoles.RegularCoven : CustomRoles.Amnesiac;
+            CustomRoles erasedRole = pc.IsImpostor() ? CustomRoles.ImpostorEHR : pc.IsCrewmate() ? CustomRoles.CrewmateEHR : pc.Is(Team.Coven) ? CustomRoles.CovenMember : CustomRoles.Amnesiac;
             pc.RpcSetCustomRole(erasedRole);
             pc.RpcChangeRoleBasis(erasedRole);
             pc.Notify(GetString("LostRoleByEraser"));

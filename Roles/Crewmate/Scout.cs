@@ -29,8 +29,6 @@ public class Scout : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
-    public override bool SeesArrowsToDeadBodies => true;
-
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Scout);
@@ -127,14 +125,7 @@ public class Scout : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != TrackerId) return string.Empty;
-
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (!TrackerTarget.ContainsKey(seer.PlayerId)) return string.Empty;
-
-        if (GameStates.IsMeeting) return string.Empty;
-
+        if (seer == null || seer.PlayerId != TrackerId || target != null && seer.PlayerId != target.PlayerId || !TrackerTarget.ContainsKey(seer.PlayerId) || GameStates.IsMeeting) return string.Empty;
         return TrackerTarget[seer.PlayerId].Aggregate(string.Empty, (current, trackTarget) => current + Utils.ColorString(CanGetColoredArrow.GetBool() ? Main.PlayerColors[trackTarget] : Color.white, TargetArrow.GetArrows(seer, trackTarget))) + LocateArrow.GetArrows(seer);
     }
 
@@ -173,6 +164,7 @@ public class Scout : RoleBase
             {
                 kvp.Value.Remove(player.PlayerId);
                 TargetArrow.Remove(kvp.Key, player.PlayerId);
+                LocateArrow.Add(kvp.Key, player.Pos());
             }
         }
     }

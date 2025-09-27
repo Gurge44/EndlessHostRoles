@@ -56,11 +56,6 @@ internal static class ControllerManagerUpdatePatch
             }
             else
                 InGameRoleInfoMenu.Hide();
-
-            bool admin = ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode);
-
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift) && admin)
-                HudManager.Instance.Chat.SetVisible(true);
             
             if (KeysDown(KeyCode.F11, KeyCode.LeftAlt))
             {
@@ -93,8 +88,13 @@ internal static class ControllerManagerUpdatePatch
 
             if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
                 Utils.CopyCurrentSettings();
+            
+            bool admin = ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode);
 
             if (!AmongUsClient.Instance.AmHost && !admin) return;
+
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
+                HudManager.Instance.Chat.SetVisible(true);
 
             if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
             {
@@ -469,4 +469,3 @@ public static class InGameRoleInfoMenu
     }
 
 }
-
