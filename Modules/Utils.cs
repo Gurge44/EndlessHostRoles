@@ -2585,7 +2585,7 @@ public static class Utils
                 }
 
                 List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
-                if (addSuff.Count > 0) SelfSuffix.Append("\n" + string.Join('\n', addSuff));
+                if (addSuff.Count > 0) SelfSuffix.Append(string.Join('\n', addSuff));
             }
 
             string seerRealName = seer.GetRealName(forMeeting);
