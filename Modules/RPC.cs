@@ -169,7 +169,9 @@ public enum CustomRPC
     FFAKill,
     FFASync,
     QuizSync,
+    MASSync,
     HotPotatoSync,
+    HNSSync,
     SoloPVPSync,
     CTFSync,
     KOTZSync,
@@ -1147,9 +1149,6 @@ internal static class RPCHandlerPatch
                     VengefulRomantic.ReceiveRPC(reader);
                     break;
                 }
-                //case CustomRPC.SetCursedSoulCurseLimit:
-                //    CursedSoul.ReceiveRPC(reader);
-                //    break;
                 case CustomRPC.SetEvilDiviner:
                 {
                     byte id = reader.ReadByte();
@@ -1246,7 +1245,17 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.FFASync:
                 {
-                    FreeForAll.KillCount[reader.ReadByte()] = reader.ReadPackedInt32();
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            int roundTime = reader.ReadPackedInt32();
+                            FreeForAll.RoundTime = roundtime;
+                            break;
+                        case 2:
+                            FreeForAll.KillCount[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                    }
+                    
                     break;
                 }
                 case CustomRPC.QuizSync:
@@ -1254,14 +1263,44 @@ internal static class RPCHandlerPatch
                     Quiz.AllowKills = reader.ReadBoolean();
                     break;
                 }
+                case CustomRPC.MASSync:
+                {
+                    int roundTime = reader.ReadPackedInt32();
+                    MoveAndStop.RoundTime = roundtime;
+                    break;
+                }
                 case CustomRPC.HotPotatoSync:
                 {
                     HotPotato.ReceiveRPC(reader);
                     break;
                 }
+                case CustomRPC.HNSSync:
+                {
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            int timeLeft = reader.ReadPackedInt32();
+                            CustomHnS.TimeLeft = timeLeft;
+                            break;
+                        case 2:
+                            CustomHnS.Danger[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                    }
+                    break;
+                }
                 case CustomRPC.SoloPVPSync:
                 {
-                    SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            int roundTime = reader.ReadPackedInt32();
+                            SoloPVP.RoundTime = roundtime;
+                            break;
+                        case 2:
+                            SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                    }
+                    
                     break;
                 }
                 case CustomRPC.CTFSync:
@@ -1276,8 +1315,16 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SpeedrunSync:
                 {
-                    if (reader.ReadPackedInt32() == 1) Speedrun.CanKill = [];
-                    else Speedrun.CanKill.Add(reader.ReadByte());
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            Speedrun.Timers[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                        case 2:
+                            if (reader.ReadPackedInt32() == 1) Speedrun.CanKill = [];
+                            else Speedrun.CanKill.Add(reader.ReadByte());
+                            break;
+                    }
 
                     break;
                 }
@@ -1668,4 +1715,8 @@ internal static class PlayerPhysicsRPCHandlerPatch
     }
 
 }
+
+
+
+
 
