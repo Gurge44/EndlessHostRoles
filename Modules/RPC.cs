@@ -455,17 +455,18 @@ internal static class RPCHandlerPatch
                     if (AmongUsClient.Instance.AmHost) break;
 
                     int startIndex = reader.ReadPackedInt32();
+                    
+                    if (startIndex == 2)
+                    {
+                        Options.Preset.SetValue(9);
+                        Options.GameMode.SetValue(reader.ReadPackedInt32());
+                    }
 
                     for (int i = startIndex; i < OptionItem.AllOptions.Count; ++i)
                     {
                         if (reader.BytesRemaining == 0) break;
                         var option = OptionItem.AllOptions[i];
-                        
-                        if (option.Id == 0)
-                        {
-                            option.SetValue(9);
-                            continue;
-                        }
+                        if (option is TextOptionItem) continue;
                         
                         option.SetValue(reader.ReadPackedInt32());
                     }
@@ -1352,13 +1353,15 @@ internal static class RPC
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1) return;
 
-        Logger.Msg(" Starting from 0", "SyncCustomSettings");
+        Logger.Msg(" Starting from 2", "SyncCustomSettings");
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
-        writer.WritePacked(0);
+        writer.WritePacked(2);
+        writer.WritePacked(Options.GameMode.GetValue());
         
-        for (int i = 0; i < OptionItem.AllOptions.Count; ++i)
+        for (int i = 2; i < OptionItem.AllOptions.Count; ++i)
         {
             var option = OptionItem.AllOptions[i];
+            if (option is TextOptionItem) continue;
             
             if (writer.Length > 500)
             {

@@ -1687,16 +1687,20 @@ internal static class FixedUpdatePatch
 
 
             string roleText;
+            bool hideRoleText = false;
 
             if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek || !IsRoleTextEnabled(__instance))
+            {
                 roleText = string.Empty;
+                hideRoleText = true;
+            }
             else
             {
                 (string, Color) roleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
                 roleText = ColorString(roleTextData.Item2, roleTextData.Item1);
             }
 
-            if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
+            if (!hideRoleText && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
             {
                 roleText = Farseer.RandomRole[lpId];
                 roleText += Farseer.GetTaskState();
@@ -1705,6 +1709,7 @@ internal static class FixedUpdatePatch
             if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
             {
                 roleText = string.Empty;
+                hideRoleText = true;
                 if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
             }
 
@@ -1715,7 +1720,7 @@ internal static class FixedUpdatePatch
 
             bool moveandstop = Options.CurrentGameMode == CustomGameMode.MoveAndStop;
 
-            if (Main.VisibleTasksCount)
+            if (!hideRoleText && Main.VisibleTasksCount)
             {
                 if (moveandstop) roleText = roleText.Insert(0, progressText);
                 else roleText += progressText;
@@ -1960,18 +1965,20 @@ internal static class FixedUpdatePatch
             if (!self && Options.CurrentGameMode == CustomGameMode.KingOfTheZones && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                 realName = EmptyMessage;
 
-            if (!Options.LargerRoleTextSize.GetBool())
-                roleText = $"<size=1.7>{roleText}</size>\n";
+            if (!hideRoleText)
+            {
+                if (!Options.LargerRoleTextSize.GetBool())
+                    roleText = $"<size=1.7>{roleText}</size>\n";
+                else
+                    roleText += "\n";
+            }
             else
-                roleText += "\n";
+                roleText = string.Empty;
             
             string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\r\n" : " - ";
             string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
             
-            string currentText = target.cosmetics.nameText.text;
-            var changeTo = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
-            bool needUpdate = currentText != changeTo;
-            if (needUpdate) target.cosmetics.nameText.text = changeTo;
+            target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
         }
     }
 

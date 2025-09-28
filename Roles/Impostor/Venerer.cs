@@ -88,8 +88,7 @@ public class Venerer : RoleBase
         switch (Stage)
         {
             case 1:
-                var o = pc.CurrentOutfit;
-                var outfit = new NetworkedPlayerInfo.PlayerOutfit().Set(o.PlayerName, o.ColorId, o.HatId, o.SkinId, o.VisorId, o.PetId, o.NamePlateId);
+                var outfit = Camouflage.PlayerSkins[pc.PlayerId];
                 Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "", ""));
                 ChangedSkin = true;
                 LateTask.New(() =>

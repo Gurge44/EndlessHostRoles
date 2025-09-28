@@ -66,6 +66,7 @@ public static class Options
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
     public static Dictionary<AddonTypes, List<CustomRoles>> GroupedAddons = [];
 
+    public static OptionItem Preset;
     public static OptionItem GameMode;
 
     private static readonly string[] GameModes =
@@ -1266,7 +1267,7 @@ public static class Options
 
         int defaultPresetNumber = OptionSaver.GetDefaultPresetNumber();
 
-        _ = new PresetOptionItem(defaultPresetNumber, TabGroup.SystemSettings)
+        Preset = new PresetOptionItem(defaultPresetNumber, TabGroup.SystemSettings)
             .SetColor(new Color32(255, 235, 4, byte.MaxValue))
             .SetHidden(true);
 
