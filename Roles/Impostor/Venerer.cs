@@ -131,7 +131,7 @@ public class Venerer : RoleBase
             ChangedSkin = false;
             PlayerControl pc = VenererId.GetPlayer();
             if (pc == null || !pc.IsAlive()) return;
-            Utils.RpcChangeSkin(pc, Camouflage.PlayerSkins[PlayerControl.LocalPlayer.PlayerId]);
+            Utils.RpcChangeSkin(pc, Camouflage.PlayerSkins[VenererId]);
         }
     }
 
