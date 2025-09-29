@@ -171,7 +171,7 @@ internal class Bomber : RoleBase
 
             if (pc.IsLocalPlayer() && totalAlive <= murderCount)
                 Achievements.Type.ItsJustAPrankBro.Complete();
-        }, 1.5f, "Bomber Suiscide");
+        }, 0.2f, "Bomber Suiscide");
 
         if (CooldownsResetEachOther.GetBool() && BomberCanKill.GetBool())
             pc.SetKillCooldown();
